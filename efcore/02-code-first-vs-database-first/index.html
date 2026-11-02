@@ -348,8 +348,8 @@ padding:6px 10px;border-radius:8px;opacity:0;transition:opacity .25s}
 background:var(--net);border:0;border-radius:10px;padding:7px 13px;cursor:pointer;opacity:.9;box-shadow:0 4px 14px rgba(109,40,217,.25)}
 #studybtn:hover{opacity:1}#studybtn kbd{font:600 11px var(--mono);background:rgba(255,255,255,.22);border-radius:5px;padding:1px 6px}
 body[data-study] #help{right:190px}</style></head>
-<body>
-<a id="home" href="../../" title="ყველა ლექცია">← ლექციები</a>
+<body data-study="1">
+<a id="home" href="../../" title="ყველა ლექცია">← ლექციები</a><button id="studybtn" type="button" title="კონსპექტი ცალკე ფანჯარაში — სლაიდებს მიჰყვება">📖 კონსპექტი <kbd>P</kbd></button>
 <div id="stage"><div id="deck">
 <!-- =========================================================
      EF Core · Code First vs Database First · ლექცია 1/2 — ორი მიდგომა → შედარება → Code First პრაქტიკაში
@@ -457,10 +457,16 @@ i.codestep{display:none}
       </g>
     </svg>
   </div>
+</section>
+<section class="slide" data-section="დღის თემა">
+  <div class="kicker">დღის თემა</div>
+  <h2><span class="grad">Code First vs Database First</span></h2>
+  <div class="grid2" style="grid-template-columns:1fr 1fr;align-items:start;gap:40px">
+    <div class="card accent step" style="--a:var(--asp)"><h3><span class="ico">🤔</span>რატომ გჭირდებათ</h3><p class="small">EF Core-ით უკვე მუშაობთ: კლასს წერთ და ბაზას EF Core ქმნის. ამ გზას სახელი აქვს — Code First. მაგრამ რა ხდება, როცა ბაზა უკვე არსებობს — 15 წლის, სხვისი? დღეს ორ მიდგომას ვადარებთ, ვსწავლობთ, როდის რომელი ავირჩიოთ, და ვხედავთ Code First-ის ნამდვილ ძალას: ბაზა იზრდება კოდთან ერთად, ისტორიით.</p></div>
+    <div class="card accent" style="--a:var(--mvc)"><h3><span class="ico">🎯</span>ლექციის ბოლოს შეძლებთ</h3><ul class="clean small"><li class="step">ახსნა: ვინ არის ჭეშმარიტების წყარო Code First-ში და Database First-ში</li><li class="step">სწორი მიდგომის არჩევა რეალურ სიტუაციაში</li><li class="step">ახალი სვეტი და 1-N კავშირი მიგრაციით, FK-ის შეცდომის გამოსწორება</li><li class="step">მიგრაციების ისტორია: <code class="i">Remove-Migration</code>, <code class="i">Update-Database &lt;სახელი&gt;</code>, <code class="i">Script-Migration</code></li></ul></div>
+  </div>
   
 </section>
-
-<!-- 2. ROADMAP -->
 <section class="slide">
   <div class="kicker">დღის გზა</div>
   <h2>რა ვიცით და სად მივდივართ</h2>
@@ -476,9 +482,7 @@ i.codestep{display:none}
   </svg>
   
 </section>
-
-<!-- 3. WHAT YOU ALREADY DO -->
-<section class="slide" data-section="შესავალი">
+<section class="slide" data-section="დღის თემა">
   <div class="kicker">რასაც უკვე აკეთებთ</div>
   <h2>EF Core-ით ასე მუშაობდით</h2>
   <div class="grid4" style="margin-top:14px">
@@ -491,8 +495,6 @@ i.codestep{display:none}
   <div class="problem step mt" style="display:block;text-align:center;font-size:24px">მაგრამ რა ვქნათ, თუ ბაზა <b>უკვე არსებობს</b> — 300 ცხრილით და მონაცემებით? 🤔</div>
   
 </section>
-
-<!-- ============ PART 1: TWO APPROACHES ============ -->
 <section class="slide divider" data-section="1 · ორი მიდგომა">
   <div class="vcenter">
     <div class="kicker in">ნაწილი 1</div>
@@ -502,8 +504,6 @@ i.codestep{display:none}
   <div class="big-num">01</div>
   
 </section>
-
-<!-- 4. WHO IS THE BOSS -->
 <section class="slide" data-section="1 · ორი მიდგომა">
   <div class="kicker">მთავარი კითხვა</div>
   <h2>ვინ არის <span class="c-asp">ჭეშმარიტების წყარო</span>?</h2>
@@ -530,8 +530,6 @@ i.codestep{display:none}
   <div class="solve step mt2">ბოლოს ორივე გზაზე გვაქვს <b>ერთი და იგივე</b>: Entity კლასები + DbContext. განსხვავება მხოლოდ ისაა — <b>ვინ ვისი ასლია</b></div>
   
 </section>
-
-<!-- 5. CODE FIRST FLOW -->
 <section class="slide" data-section="1 · ორი მიდგომა">
   <div class="kicker c-core">Code First · როგორ მუშაობს</div>
   <h2>კოდი წერს ბაზას</h2>
@@ -554,8 +552,6 @@ i.codestep{display:none}
   </div>
   
 </section>
-
-<!-- 6. DATABASE FIRST FLOW -->
 <section class="slide" data-section="1 · ორი მიდგომა">
   <div class="kicker c-asp">Database First · როგორ მუშაობს</div>
   <h2>ბაზიდან იბადება კოდი</h2>
@@ -575,8 +571,6 @@ i.codestep{display:none}
       <div class="out late" style="--ld:2.6s">Build succeeded. → Models/Product.cs · Models/ShopDbContext.cs</div></div></div>
   
 </section>
-
-<!-- 7. SAME RESULT, TWO AUTHORS -->
 <section class="slide" data-section="1 · ორი მიდგომა">
   <div class="kicker">ერთი ცხრილი — ორი ავტორი</div>
   <h2>ხელით დაწერილი vs <span class="c-asp">EF-ის გენერირებული</span></h2>
@@ -597,8 +591,6 @@ i.codestep{display:none}
   </div>
   
 </section>
-
-<!-- 8. A CHANGE ARRIVES -->
 <section class="slide" data-section="1 · ორი მიდგომა">
   <div class="kicker">ახალი მოთხოვნა</div>
   <h2>„პროდუქტს <span class="c-api">მარაგი (Stock)</span> უნდა ჰქონდეს“</h2>
@@ -621,8 +613,6 @@ i.codestep{display:none}
   <div class="solve step mt" style="margin-top:18px">ცვლილება ყოველთვის იწყება იქ, სადაც <b>ჭეშმარიტებაა</b>: Code First-ში — კლასში, Database First-ში — ბაზაში</div>
   
 </section>
-
-<!-- ============ PART 2: COMPARISON ============ -->
 <section class="slide divider" data-section="2 · შედარება">
   <div class="vcenter">
     <div class="kicker in">ნაწილი 2</div>
@@ -632,8 +622,6 @@ i.codestep{display:none}
   <div class="big-num">02</div>
   
 </section>
-
-<!-- 9. COMPARISON TABLE -->
 <section class="slide" data-section="2 · შედარება">
   <div class="kicker">გვერდიგვერდ</div>
   <h2>Code First <span class="c-muted" style="color:var(--muted)">vs</span> Database First</h2>
@@ -649,8 +637,6 @@ i.codestep{display:none}
   </table>
   
 </section>
-
-<!-- 10. PROS / CONS -->
 <section class="slide" data-section="2 · შედარება">
   <div class="kicker">ძლიერი და სუსტი მხარეები</div>
   <h2>ყველას თავისი ფასი აქვს</h2>
@@ -682,8 +668,6 @@ i.codestep{display:none}
   </div>
   
 </section>
-
-<!-- 11. WHICH ONE? -->
 <section class="slide" data-section="2 · შედარება">
   <div class="kicker">შენ რომელს აირჩევდი?</div>
   <h2>4 რეალური სიტუაცია</h2>
@@ -695,8 +679,6 @@ i.codestep{display:none}
   </div>
   
 </section>
-
-<!-- 12. MYTHS -->
 <section class="slide" data-section="2 · შედარება">
   <div class="kicker">მითები და ფაქტები</div>
   <h2>რაც ხშირად <span class="c-red">არასწორად</span> ესმით</h2>
@@ -708,8 +690,6 @@ i.codestep{display:none}
   </div>
   
 </section>
-
-<!-- 13. RULE OF THUMB -->
 <section class="slide" data-section="2 · შედარება">
   <div class="kicker">ერთი წინადადებით</div>
   <h2>როგორ ავირჩიოთ</h2>
@@ -719,8 +699,6 @@ i.codestep{display:none}
   </div>
   
 </section>
-
-<!-- ============ PART 3: CODE FIRST IN PRACTICE ============ -->
 <section class="slide divider" data-section="3 · Code First პრაქტიკაში">
   <div class="vcenter">
     <div class="kicker in">ნაწილი 3 · მე ვაჩვენებ</div>
@@ -734,8 +712,6 @@ i.codestep{display:none}
   <div class="big-num">03</div>
   
 </section>
-
-<!-- 14. START POINT -->
 <section class="slide" data-section="3 · Code First პრაქტიკაში">
   <div class="kicker">საწყისი წერტილი · ეს უკვე იცით ⚡</div>
   <h2>ShopDemo — ნულიდან, 5 წუთში</h2>
@@ -764,8 +740,6 @@ i.codestep{display:none}
   </div>
   
 </section>
-
-<!-- 15. CHANGE 1: Stock -->
 <section class="slide" data-section="3 · Code First პრაქტიკაში">
   <div class="stepper"><span class="on">① სვეტი</span><span>② კავშირი</span><span>③ ისტორია</span></div>
   <div class="kicker">ცვლილება 1 · კოდში</div>
@@ -783,8 +757,6 @@ i.codestep{display:none}
   </div>
   
 </section>
-
-<!-- 16. CHANGE 1: migration file -->
 <section class="slide" data-section="3 · Code First პრაქტიკაში">
   <div class="stepper"><span class="on">① სვეტი</span><span>② კავშირი</span><span>③ ისტორია</span></div>
   <div class="kicker">ცვლილება 1 · მიგრაციის ფაილი</div>
@@ -804,8 +776,6 @@ i.codestep{display:none}
   </div>
   
 </section>
-
-<!-- 17. CHANGE 1: update + result -->
 <section class="slide" data-section="3 · Code First პრაქტიკაში">
   <div class="stepper"><span class="done">① ✓</span><span>② კავშირი</span><span>③ ისტორია</span></div>
   <div class="kicker">ცვლილება 1 · ბაზაში</div>
@@ -829,8 +799,6 @@ i.codestep{display:none}
   </div>
   
 </section>
-
-<!-- 18. RELATIONSHIP RECAP -->
 <section class="slide" data-section="3 · Code First პრაქტიკაში">
   <div class="stepper"><span class="done">① ✓</span><span class="on">② კავშირი</span><span>③ ისტორია</span></div>
   <div class="kicker">ცვლილება 2 · გავიხსენოთ SQL</div>
@@ -856,8 +824,6 @@ i.codestep{display:none}
   <div class="callout step mt2" style="--a:var(--api)">„ბევრის“ მხარეს — <b>Products</b>-ში — ჩნდება სვეტი <b>CategoryId</b>: <b>Foreign Key</b>, რომელიც Categories.Id-ზე მიუთითებს</div>
   
 </section>
-
-<!-- 19. CHANGE 2: CODE -->
 <section class="slide" data-section="3 · Code First პრაქტიკაში">
   <div class="stepper"><span class="done">① ✓</span><span class="on">② კავშირი</span><span>③ ისტორია</span></div>
   <div class="kicker">ცვლილება 2 · კოდში</div>
@@ -881,8 +847,6 @@ i.codestep{display:none}
   </div>
   
 </section>
-
-<!-- 20. BOOM -->
 <section class="slide" data-section="3 · Code First პრაქტიკაში">
   <div class="stepper"><span class="done">① ✓</span><span class="on">② კავშირი</span><span>③ ისტორია</span></div>
   <div class="kicker">ცვლილება 2 · მიგრაცია</div>
@@ -898,8 +862,6 @@ i.codestep{display:none}
   <div class="problem step mt" style="display:block;font-size:22px">კოდი სწორია, მიგრაცია შეიქმნა — ბაზამ კი უარი თქვა. <b>რატომ?</b></div>
   
 </section>
-
-<!-- 21. WHY -->
 <section class="slide" data-section="3 · Code First პრაქტიკაში">
   <div class="stepper"><span class="done">① ✓</span><span class="on">② კავშირი</span><span>③ ისტორია</span></div>
   <div class="kicker">რა მოხდა</div>
@@ -922,8 +884,6 @@ i.codestep{display:none}
   </div>
   
 </section>
-
-<!-- 22. FIX -->
 <section class="slide" data-section="3 · Code First პრაქტიკაში">
   <div class="stepper"><span class="done">① ✓</span><span class="on">② კავშირი</span><span>③ ისტორია</span></div>
   <div class="kicker">ვასწორებთ</div>
@@ -945,8 +905,6 @@ i.codestep{display:none}
   </div>
   
 </section>
-
-<!-- 23. CHANGE 2: migration file vs SQL -->
 <section class="slide" data-section="3 · Code First პრაქტიკაში">
   <div class="stepper"><span class="done">① ✓</span><span class="on">② კავშირი</span><span>③ ისტორია</span></div>
   <div class="kicker">ნახაზის შიგნით</div>
@@ -961,8 +919,6 @@ i.codestep{display:none}
   <i class="codestep" data-for="mig2" data-lines="17-19"></i><i class="codestep" data-for="sql2" data-lines="11-13" data-with></i>
   
 </section>
-
-<!-- 24. USE IT -->
 <section class="slide" data-section="3 · Code First პრაქტიკაში">
   <div class="stepper"><span class="done">① ✓</span><span class="done">② ✓</span><span>③ ისტორია</span></div>
   <div class="kicker">ჯილდო</div>
@@ -980,8 +936,6 @@ i.codestep{display:none}
   </div>
   
 </section>
-
-<!-- 25. HISTORY -->
 <section class="slide" data-section="3 · Code First პრაქტიკაში">
   <div class="stepper"><span class="done">① ✓</span><span class="done">② ✓</span><span class="on">③ ისტორია</span></div>
   <div class="kicker">მიგრაციები = ბაზის Git</div>
@@ -999,8 +953,6 @@ i.codestep{display:none}
   </div>
   
 </section>
-
-<!-- 26. TIME TRAVEL -->
 <section class="slide" data-section="3 · Code First პრაქტიკაში">
   <div class="stepper"><span class="done">① ✓</span><span class="done">② ✓</span><span class="on">③ ისტორია</span></div>
   <div class="kicker">დროში მოგზაურობა</div>
@@ -1018,8 +970,6 @@ i.codestep{display:none}
   <div class="problem step mt" style="display:block;font-size:20px">უკან დაბრუნებისას <b>მონაცემებიც იშლება</b>: კატეგორია „ტექნიკა“ აღარ დაბრუნდება — Down() სქემას აბრუნებს და არა მონაცემებს</div>
   
 </section>
-
-<!-- 27. CHEAT SHEET -->
 <section class="slide" data-section="3 · Code First პრაქტიკაში">
   <div class="kicker">ბრძანებების ფურცელი</div>
   <h2>მიგრაციების 6 ბრძანება</h2>
@@ -1034,8 +984,6 @@ i.codestep{display:none}
   </table>
   
 </section>
-
-<!-- 28. GOLDEN RULES -->
 <section class="slide" data-section="3 · Code First პრაქტიკაში">
   <div class="kicker">ოქროს წესები</div>
   <h2>მიგრაციებთან მუშაობის 4 წესი</h2>
@@ -1047,8 +995,6 @@ i.codestep{display:none}
   </div>
   
 </section>
-
-<!-- ============ PART 4: PRACTICE ============ -->
 <section class="slide divider" data-section="4 · პრაქტიკა">
   <div class="vcenter">
     <div class="kicker in">ნაწილი 4</div>
@@ -1058,8 +1004,6 @@ i.codestep{display:none}
   <div class="big-num">04</div>
   
 </section>
-
-<!-- 29. I DO / WE DO / YOU DO -->
 <section class="slide" data-section="4 · პრაქტიკა">
   <div class="kicker">სამი რაუნდი</div>
   <h2>მე → ერთად → თქვენ</h2>
@@ -1071,8 +1015,6 @@ i.codestep{display:none}
   <div class="callout step mt2" style="--a:var(--asp)">ორივე პროექტი — <b>ნულიდან</b>: ჯერ <b>InitialCreate</b> მონაცემებით, მერე <b>ცვლილებები</b>. setup უკვე იცით ⚡</div>
   
 </section>
-
-<!-- 30. WE DO -->
 <section class="slide" data-section="4 · პრაქტიკა">
   <div class="kicker">👥 ერთად ვაკეთებთ</div>
   <h2>LibraryDemo — წიგნს გვერდები და ჟანრი</h2>
@@ -1094,37 +1036,25 @@ i.codestep{display:none}
   </div>
   
 </section>
-
-<!-- 31. YOU DO -->
-<section class="slide" data-section="4 · პრაქტიკა">
-  <div class="kicker">🧑‍💻 თქვენ აკეთებთ · ~13 წთ</div>
+<section class="slide" data-section="პრაქტიკა">
+  <div class="kicker">🧑‍💻 თქვენ აკეთებთ · კლასში</div>
   <h2>SchoolDemo — დამოუკიდებლად</h2>
-  <div class="grid2" style="align-items:start">
-    <div class="card accent step left" style="--a:var(--mvc)">
-      <h3><span class="ico">📝</span>დავალება</h3>
+  <div class="grid2" style="grid-template-columns:1fr;align-items:start">
+    <div class="card accent step" style="--a:var(--mvc)">
+      <h3><span class="ico">📝</span>დავალება · ~13 წთ</h3>
       <ul class="clean small">
-        <li>ახალი <b>SchoolDemo</b>, ბაზა <b>SchoolDb</b></li>
-        <li><code class="i">Student</code>: Id, FirstName, LastName → <b>InitialCreate</b> + <b>3 სტუდენტი</b></li>
-        <li>ახალი Entity <code class="i">Group</code>: Id, Name — ერთ ჯგუფში <b>ბევრი სტუდენტი</b> → მიგრაცია</li>
-        <li>Program.cs: <b>2 ჯგუფი</b>, სტუდენტები გაანაწილე და დაბეჭდე: „ჯგუფი → სტუდენტები“</li>
-      </ul>
-      <p class="tiny mt" style="margin-top:14px">✓ მზადაა, როცა SSMS-ში ჩანს Groups + FK და კონსოლი ჯგუფებს სტუდენტებით ბეჭდავს</p>
+<li>ახალი <strong>SchoolDemo</strong>, ბაზა <strong>SchoolDb</strong></li>
+<li><code class="i">Student</code>: <code class="i">Id</code>, <code class="i">FirstName</code>, <code class="i">LastName</code> → <code class="i">InitialCreate</code> + 3 სტუდენტი</li>
+<li>ახალი Entity <code class="i">Group</code>: <code class="i">Id</code>, <code class="i">Name</code> — ერთ ჯგუფში ბევრი სტუდენტი → მიგრაცია</li>
+<li><code class="i">Program.cs</code>: 2 ჯგუფი, სტუდენტები გაანაწილე და დაბეჭდე „ჯგუფი → სტუდენტები“</li>
+</ul>
+      <p class="tiny" style="margin-top:14px">✓ მზადაა, როცა: SSMS-ში ჩანს Groups + FK, და კონსოლი ჯგუფებს სტუდენტებით ბეჭდავს</p>
     </div>
-    <div class="card accent step right" style="--a:var(--asp)">
-      <h3><span class="ico">⭐</span>ბონუსი — ვინც ადრე მორჩება</h3>
-      <ul class="clean small">
-        <li>Student-ს <code class="i">Email</code> → კიდევ ერთი მიგრაცია</li>
-        <li><code class="i">Update-Database</code>-ით დაბრუნდი <b>წინა</b> მიგრაციაზე → SSMS: Groups გაქრა?</li>
-        <li>ისევ <b>წინ</b> → Groups დაბრუნდა — მონაცემები?</li>
-        <li><code class="i">Script-Migration</code> → ნახე SQL, რომელიც EF-მა დაწერა</li>
-      </ul>
-    </div>
+    
   </div>
-  <div class="callout step mt" style="--a:var(--api)">მინიშნება: ჯგუფიდან სტუდენტები → <code class="i">db.Groups.Include(g =&gt; g.Students)</code> · გაჭედე? → შემდეგი სლაიდი</div>
+  <div class="callout step mt" style="--a:var(--api)">წესი: <b>ჯერ ცდი თვითონ</b> → გვერდით მჯდომს ჰკითხე → მერე მე</div>
   
 </section>
-
-<!-- 32. COMMON ERRORS -->
 <section class="slide" data-section="4 · პრაქტიკა">
   <div class="kicker">გაჭედე?</div>
   <h2>მიგრაციების ხშირი შეცდომები</h2>
@@ -1139,26 +1069,18 @@ i.codestep{display:none}
   </table>
   
 </section>
-
-<!-- 33. QUIZ -->
 <section class="slide" data-section="შეჯამება">
   <div class="kicker">შევამოწმოთ</div>
   <h2>5 კითხვა</h2>
-  <div class="qa"><span class="n">1</span><span class="q">რა არის ჭეშმარიტების წყარო Code First-ში და Database First-ში?</span><span class="a step">C# კლასები · ბაზა</span></div>
-  <div class="qa"><span class="n">2</span><span class="q">Database First-ის მთავარი ბრძანება?</span><span class="a step">Scaffold-DbContext — ბაზიდან კლასებს და DbContext-ს აგენერირებს</span></div>
-  <div class="qa"><span class="n">3</span><span class="q">ბანკის 15 წლის ბაზა, რომელსაც 5 პროგრამა იყენებს — რომელს ავირჩევთ?</span><span class="a step">Database First — ბაზა უკვე არსებობს და ჩვენი არ არის</span></div>
-  <div class="qa"><span class="n">4</span><span class="q">AddCategories რატომ ჩავარდა პირველად?</span><span class="a step">ძველ პროდუქტებს CategoryId = 0 ჩაეწერა, კატეგორია Id = 0 კი არ არსებობდა → <b>int?</b></span></div>
-  <div class="qa"><span class="n">5</span><span class="q">Remove-Migration vs Update-Database &lt;სახელი&gt;?</span><span class="a step">Remove — შლის გაუშვებელ ფაილს · Update-Database &lt;სახელი&gt; — ბაზას აბრუნებს</span></div>
+  <div class="qa"><span class="n">1</span><span class="q">რა არის ჭეშმარიტების წყარო Code First-ში და Database First-ში?</span><span class="a step">C# კლასები · ბაზა</span></div><div class="qa"><span class="n">2</span><span class="q">Database First-ის მთავარი ბრძანება?</span><span class="a step"><code class="i">Scaffold-DbContext</code> — ბაზიდან კლასებს და DbContext-ს აგენერირებს</span></div><div class="qa"><span class="n">3</span><span class="q">ბანკის 15 წლის ბაზა, რომელსაც 5 პროგრამა იყენებს — რომელს ავირჩევთ?</span><span class="a step">Database First — ბაზა უკვე არსებობს და ჩვენი არ არის</span></div><div class="qa"><span class="n">4</span><span class="q">AddCategories რატომ ჩავარდა პირველად?</span><span class="a step">ძველ პროდუქტებს <code class="i">CategoryId = 0</code> ჩაეწერა, კატეგორია Id = 0 კი არ არსებობდა → <code class="i">int?</code></span></div><div class="qa"><span class="n">5</span><span class="q"><code class="i">Remove-Migration</code> vs <code class="i">Update-Database &lt;სახელი&gt;</code>?</span><span class="a step">Remove — შლის გაუშვებელ ფაილს · Update-Database &lt;სახელი&gt; — ბაზას აბრუნებს</span></div>
   
 </section>
-
-<!-- 34. FINAL -->
 <section class="slide" data-section="შეჯამება">
   <div class="vcenter" style="max-width:1000px">
     <div class="kicker in" style="color:var(--core)">დღეს</div>
     <h1 class="in" style="--d:.1s;font-size:64px">კოდი ქმნის ბაზას —<br><span class="grad">ან ბაზა ქმნის კოდს</span></h1>
     <div class="grid2 mt2">
-      <div class="card accent step" style="--a:var(--mvc)"><h3><span class="ico">🏠</span>საშინაო</h3><p class="small">SchoolDemo ბოლომდე + ბონუსი: <b>Email</b>, <b>უკან და წინ</b> მიგრაციებში, <b>Script-Migration</b></p></div>
+      <div class="card accent step" style="--a:var(--mvc)"><h3><span class="ico">🧠</span>დაიმახსოვრე</h3><ul class="clean small"><li>ბაზა შენია → <b>Code First</b> · არსებობს/სხვისია → <b>Database First</b></li><li>კლასი → Add-Migration → <b>წაიკითხე</b> → Update</li><li>ახალი FK ძველ ჩანაწერებზე → <code class="i">int?</code></li></ul></div>
       <div class="card accent step" style="--a:var(--asp)"><h3><span class="ico">⏭️</span>ლექცია 2</h3><p class="small"><b>Database First</b> პრაქტიკაში: SQL სკრიპტით შექმნილი ბაზა → <code class="i">Scaffold-DbContext</code> → კლასები თავისით</p></div>
     </div>
   </div>
@@ -1172,6 +1094,27 @@ i.codestep{display:none}
       <path d="M210 55 v60 a45 12 0 0 0 90 0 v-60" fill="#fef5e4" stroke="#d97706" stroke-width="3"/><ellipse cx="255" cy="55" rx="45" ry="12" fill="#fef5e4" stroke="#d97706" stroke-width="3"/><text x="255" y="103" text-anchor="middle" font-size="26">🗄️</text>
     </svg>
   </div>
+  
+</section>
+<section class="slide" data-section="საშინაო">
+  <div class="kicker">🏠 საშინაო დავალება</div>
+  <h2>SchoolDemo — ისტორიაში მოგზაურობა</h2>
+  <div class="grid2" style="grid-template-columns:1.5fr 1fr;align-items:start">
+    <div class="card accent step" style="--a:var(--net)">
+      <h3><span class="ico">🏠</span>მიგრაციები წინ, უკან და SQL-ად</h3>
+      <ul class="clean small">
+<li>SchoolDemo ბოლომდე: Group + 1-N კავშირი + დაბეჭდვა (თუ კლასში ვერ მორჩით)</li>
+<li><code class="i">Student</code>-ს <code class="i">Email</code> → <code class="i">Add-Migration AddStudentEmail</code> → წაიკითხე → <code class="i">Update-Database</code></li>
+<li><code class="i">Update-Database &lt;Groups-ის მიგრაცია&gt;</code> — უკან; SSMS: Email გაქრა? მერე ისევ წინ</li>
+<li><code class="i">Script-Migration</code> — შეინახე SQL, რომელიც EF-მა დაწერა</li>
+</ul>
+      <p class="tiny" style="margin-top:14px">✓ მზადაა, როცა: <code>__EFMigrationsHistory</code>-ში 3 მიგრაციაა, და შეგიძლია ახსნა, რა მოხდა Email-ის მონაცემებს უკან დაბრუნებისას</p>
+    </div>
+    <div class="card accent step" style="--a:var(--asp)"><h3><span class="ico">⭐</span>ბონუსი</h3><ul class="clean small">
+<li>Email-ს <code class="i">int?</code>-ის მსგავსად ისე დაამატე, რომ ძველ სტუდენტებს ცარიელი კი არა, <code class="i">NULL</code> ჰქონდეთ (<code class="i">string?</code>)</li>
+</ul></div>
+  </div>
+  <div class="callout step mt" style="--a:var(--api)">შემდეგი ლექციის დასაწყისში ამ დავალებას <b>ერთად განვიხილავთ</b></div>
   
 </section>
 

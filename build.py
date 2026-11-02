@@ -4,7 +4,7 @@
 #
 # ლექციის საქაღალდე courses/<კურსი>/<NN-slug>/:
 #   deck.html       სლაიდები. ყოველ სლაიდში შეიძლება <aside class="study">…markdown…</aside> — სტუდენტის ახსნა
-#   lecture.json    {"title", "why", "outcomes": [...], "review": [{"q", "a"}, ...]}
+#   lecture.json    {"title", "why", "outcomes": [...], "review": [{"q", "a"}, ...], "starts_series": true?}
 #   classwork.md    კლასში დავალება            homework.md    საშინაო (+ "## ამოხსნა" — ჩანს მხოლოდ შემდეგ ლექციაზე)
 #   materials/      ფაილები ჩამოსატვირთად
 #
@@ -406,6 +406,8 @@ def main(filters):
         lectures, prev = [], None
         for ldir in sorted(p for p in cdir.iterdir() if (p / 'deck.html').exists()):
             meta = json.loads((ldir / 'lecture.json').read_text())
+            if meta.get('starts_series'):   # e.g. a guest lecture for another group: no review of the previous lecture
+                prev = None
             rel = f'{cdir.name}/{ldir.name}'
             if not filters or any(f in rel for f in filters):
                 info, errs = build_lecture(course, cdir, ldir, meta, prev)

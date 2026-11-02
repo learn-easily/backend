@@ -1,0 +1,641 @@
+<!doctype html>
+<html lang="ka"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>📖 Code First vs Database First — კონსპექტი</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Georgian:wght@400;600;700;800&family=JetBrains+Mono:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#fbf8f3;--card:#fff;--ink:#1e2132;--ink2:#3b3f54;--muted:#7b8096;--line:#e6dfd2;--accent:#6d28d9;--accent-soft:#f3effe;--teal:#0d9488;
+  --green:#15803d;--amber:#b45309;--mono:"JetBrains Mono",ui-monospace,monospace;--sans:"Noto Sans Georgian",system-ui,sans-serif}
+*{box-sizing:border-box}
+html{scroll-padding-top:76px}
+body{margin:0;background:var(--bg);color:var(--ink);font:17.5px/1.75 var(--sans);-webkit-font-smoothing:antialiased}
+a{color:var(--accent)}
+/* top bar */
+.top{position:sticky;top:0;z-index:10;display:flex;align-items:center;gap:14px;padding:10px 20px;background:rgba(251,248,243,.92);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.top .back{font:600 14px var(--mono);color:var(--muted);text-decoration:none;white-space:nowrap}
+.top .back:hover{color:var(--ink)}
+.top .ttl{flex:1;min-width:0;font-weight:700;font-size:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.top .ttl small{font:500 13px var(--mono);color:var(--muted);margin-right:8px}
+.btn{font:700 14px var(--sans);text-decoration:none;border-radius:10px;padding:7px 14px;white-space:nowrap;border:1px solid var(--line);color:var(--ink);background:var(--card);cursor:pointer}
+.btn.play{background:var(--accent);border-color:var(--accent);color:#fff}
+.live{display:none;align-items:center;gap:8px;font:600 13px var(--mono);color:var(--teal);background:#e6f6f4;border:1px solid #bfe7e2;border-radius:999px;padding:5px 12px;cursor:pointer}
+.live.on{display:flex}
+.live .dot{width:8px;height:8px;border-radius:50%;background:var(--teal);animation:pulse 1.6s infinite}
+.live.off{color:var(--muted);background:var(--card);border-color:var(--line)}.live.off .dot{background:var(--muted);animation:none}
+@keyframes pulse{50%{opacity:.3}}
+/* layout */
+.wrap{display:grid;grid-template-columns:230px minmax(0,1000px);gap:44px;justify-content:center;padding:32px 28px 120px}
+nav.toc{position:sticky;top:84px;align-self:start;font-size:14px;line-height:1.45}
+nav.toc .h{font:700 12px var(--mono);color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px}
+nav.toc a{display:block;color:var(--ink2);text-decoration:none;padding:6px 10px;border-left:2px solid var(--line)}
+nav.toc a:hover{color:var(--accent)}
+nav.toc a.cur{color:var(--accent);border-left-color:var(--accent);font-weight:700}
+nav.toc .mats{margin-top:22px;display:flex;flex-direction:column;gap:6px}
+nav.toc .mats a{border:0;padding:2px 0;font:500 13px var(--mono);color:var(--teal);word-break:break-all}
+header.hero{margin-bottom:8px}
+header.hero .k{font:600 14px var(--mono);color:var(--accent)}
+header.hero h1{font-size:38px;line-height:1.2;margin:6px 0 10px;letter-spacing:-.01em}
+header.hero p{color:var(--muted);margin:0;font-size:15.5px}
+header.hero kbd{font:500 12px var(--mono);border:1px solid var(--line);border-radius:5px;padding:0 5px;background:var(--card)}
+h2.sec{font-size:15px;font:700 13px var(--mono);color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin:48px 0 6px;padding-top:18px;border-top:1px solid var(--line)}
+/* blocks */
+.blk{position:relative;padding:14px 0 6px 22px;margin-left:-22px;border-left:3px solid transparent;transition:border-color .3s,background .3s;border-radius:0 12px 12px 0}
+.blk.cur{border-left-color:var(--accent);background:linear-gradient(90deg,var(--accent-soft),transparent 70%)}
+.anchor{position:absolute;top:0}
+.bh{display:flex;align-items:baseline;justify-content:space-between;gap:12px}
+.bh h3{font-size:22px;line-height:1.35;margin:4px 0 6px}
+.chip{flex:none;font:600 12px var(--mono);color:var(--muted);text-decoration:none;border:1px solid var(--line);border-radius:999px;padding:2px 10px;background:var(--card)}
+.chip:hover{color:var(--accent);border-color:var(--accent)}
+.blk h2{font-size:26px;line-height:1.3;margin:6px 0 10px}
+.blk h3:not(.bh h3){font-size:19px;margin:22px 0 6px}
+.blk h4{font-size:17px;margin:18px 0 4px}
+.blk p{margin:10px 0}
+.blk ul,.blk ol{padding-left:24px;margin:8px 0}
+.blk li{margin:4px 0}
+.blk strong{color:var(--ink)}
+.blk :not(pre)>code{font:600 .86em var(--mono);background:#f1ece3;border-radius:6px;padding:1px 6px;color:#5b21b6}
+.blk table{border-collapse:collapse;margin:14px 0;font-size:15.5px;width:100%;display:block;overflow-x:auto}
+.blk th,.blk td{border:1px solid var(--line);padding:8px 12px;text-align:left;vertical-align:top}
+.blk th{background:#f6f1e8}
+/* code */
+.codebox{margin:14px 0;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:#fffdf9}
+.codebox .ch,.prompt .ph{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:6px 8px 6px 14px;font:600 12.5px var(--mono);color:var(--muted);background:#f6f1e8;border-bottom:1px solid var(--line)}
+.copy{font:600 12px var(--mono);border:1px solid var(--line);background:var(--card);color:var(--ink2);border-radius:7px;padding:3px 10px;cursor:pointer}
+.copy:hover{border-color:var(--ink)}
+.copy.ok{color:var(--green);border-color:var(--green)}
+pre.code{margin:0;padding:12px 0;overflow-x:auto;font:14px/1.65 var(--mono)}
+pre.code .ln{display:block;padding:0 16px;white-space:pre}
+.code .ttl{background:var(--bg2);color:var(--muted)}
+.code .ln.hl{background:rgba(109,40,217,.07);box-shadow:inset 3px 0 0 var(--net)}
+.code .ln.dim{opacity:.42}
+.code .k,.code .kd,.code .kn,.code .kr,.code .kc{color:#7c3aed}
+.code .kt{color:#2563eb}
+.code .s,.code .s1,.code .s2,.code .sa,.code .se,.code .si,.code .sd{color:#15803d}
+.code .c,.code .c1,.code .cm,.code .cp,.code .ch{color:#8b8fa3}
+.code .m,.code .mi,.code .mf,.code .mh{color:#c2410c}
+.code .nf,.code .fm{color:#1d4ed8}
+.code .nc,.code .nn,.code .nt,.code .nd{color:#b45309}
+.code .na{color:#7c3aed} .code .nb{color:#0e7490}
+.code .o,.code .p{color:#64748b}
+.code .nv,.code .nx{color:var(--ink)}
+.code .go{color:#64748b}
+/* prompt */
+.prompt{margin:16px 0;border:1px solid #ddd2fb;border-radius:12px;overflow:hidden;background:var(--accent-soft)}
+.prompt .ph{background:#ebe3fd;border-color:#ddd2fb;color:var(--accent)}
+.prompt .pb{padding:12px 16px;white-space:pre-wrap;font-size:15.5px;line-height:1.6;color:var(--ink2)}
+/* self check */
+.selfcheck{margin:16px 0;border:1px solid #cfe9d6;border-radius:12px;background:#f3fbf5;padding:12px 16px}
+.selfcheck .sh{font-weight:700;color:var(--green);margin-bottom:6px}
+.selfcheck .sh small{font-weight:400;color:var(--muted);font-size:13.5px;margin-left:6px}
+.selfcheck details{border-top:1px solid #dcefe1;padding:8px 0}
+.selfcheck summary{cursor:pointer;font-weight:600;list-style:none;padding-left:26px;position:relative}
+.selfcheck summary::-webkit-details-marker{display:none}
+.selfcheck summary::before{content:"?";position:absolute;left:0;top:2px;width:18px;height:18px;border-radius:50%;background:var(--green);color:#fff;font:700 12px/18px var(--mono);text-align:center}
+.selfcheck details[open] summary::before{content:"✓"}
+.selfcheck .ans{padding:6px 0 2px 26px;color:var(--ink2)}
+/* terms */
+.terms{margin:16px 0;border:1px solid var(--line);border-radius:12px;background:var(--card);padding:12px 16px}
+.terms .th{font-weight:700;margin-bottom:6px}
+.terms dl{display:grid;grid-template-columns:max-content 1fr;gap:6px 18px;margin:0}
+.terms dt{font:600 14.5px var(--mono);color:var(--accent)}
+.terms dd{margin:0;color:var(--ink2)}
+/* callouts */
+.callout{display:flex;gap:12px;margin:14px 0;padding:12px 16px;border-radius:12px;border:1px solid var(--line);background:var(--card)}
+.callout .ci{font-size:20px;line-height:1.6}
+.callout>div>p:first-child{margin-top:0}.callout>div>p:last-child{margin-bottom:0}
+.callout.warn{background:#fff8eb;border-color:#f6dfb5}
+.callout.note{background:#eef5ff;border-color:#cfe0fb}
+@media (max-width:980px){
+  .wrap{grid-template-columns:minmax(0,1fr);gap:0;padding:20px 16px 100px}
+  nav.toc{position:static;margin-bottom:12px}
+  nav.toc details{border:1px solid var(--line);border-radius:12px;background:var(--card);padding:8px 12px}
+  nav.toc details>summary{cursor:pointer;font-weight:700}
+  nav.toc .h{display:none}
+  header.hero h1{font-size:30px}
+  .blk{padding-left:14px;margin-left:-14px}
+  .top .ttl small{display:none}
+  .terms dl{grid-template-columns:1fr}.terms dd{margin-bottom:8px}
+}
+@media (min-width:981px){nav.toc details>summary{display:none}}
+@media print{.top,nav.toc,.copy,.chip,.live{display:none}.wrap{display:block;padding:0}.selfcheck details{display:block}.blk.cur{background:none}}
+</style></head>
+<body>
+<div class="top">
+  <a class="back" href="../../">← ლექციები</a>
+  <div class="ttl"><small>Entity Framework Core · 2</small>Code First vs Database First</div>
+  <button class="live" id="live" type="button" title="ჩართული: ტექსტი პრეზენტაციას მიჰყვება"><span class="dot"></span><span class="lt">მიჰყვება სლაიდებს</span></button>
+  <a class="btn play" href="index.html">▶ პრეზენტაცია</a>
+</div>
+<div class="wrap">
+  <nav class="toc"><details id="tocd"><summary>სარჩევი</summary><div class="h">სარჩევი</div><a href="#sec-1">დღის თემა</a><a href="#sec-2"></a><a href="#sec-3">დღის თემა</a><a href="#sec-4">1 · ორი მიდგომა</a><a href="#sec-5">2 · შედარება</a><a href="#sec-6">3 · Code First პრაქტიკაში</a><a href="#sec-7">4 · პრაქტიკა</a><a href="#sec-8">პრაქტიკა</a><a href="#sec-9">4 · პრაქტიკა</a><a href="#sec-10">შეჯამება</a><a href="#sec-11">საშინაო</a><div class="mats"></div></details></nav>
+  <main>
+    <header class="hero">
+      <div class="k">📖 კონსპექტი · Entity Framework Core · ლექცია 2</div>
+      <h1>Code First vs Database First</h1>
+      <p>წაიკითხე ლექციის შემდეგ, ან პრეზენტაციასთან ერთად: პრეზენტაციაში დააჭირე <kbd>P</kbd> და ეს გვერდი სლაიდებს გაჰყვება. კოდი და AI-ს პრომპტები კოპირდება ერთი დაჭერით.</p>
+    </header>
+    <h2 class="sec" id="sec-1">დღის თემა</h2>
+<article class="blk" data-slides="1,2"><span class="anchor" id="s-1"></span><span class="anchor" id="s-2"></span><div class="bh"><h3>დღის თემა: Code First vs Database First</h3><a class="chip" href="index.html#/1" data-go="1" title="პრეზენტაციაში გახსნა">სლაიდი 1</a></div>
+<p>EF Core-ით უკვე მუშაობთ: კლასს წერთ და ბაზას EF Core ქმნის. ამ გზას სახელი აქვს — Code First. მაგრამ რა ხდება, როცა ბაზა უკვე არსებობს — 15 წლის, სხვისი? დღეს ორ მიდგომას ვადარებთ, ვსწავლობთ, როდის რომელი ავირჩიოთ, და ვხედავთ Code First-ის ნამდვილ ძალას: ბაზა იზრდება კოდთან ერთად, ისტორიით.</p>
+<p><strong>ლექციის ბოლოს შეძლებ:</strong></p>
+<ul>
+<li>ახსნა: ვინ არის ჭეშმარიტების წყარო Code First-ში და Database First-ში</li>
+<li>სწორი მიდგომის არჩევა რეალურ სიტუაციაში</li>
+<li>ახალი სვეტი და 1-N კავშირი მიგრაციით, FK-ის შეცდომის გამოსწორება</li>
+<li>მიგრაციების ისტორია: <code>Remove-Migration</code>, <code>Update-Database &lt;სახელი&gt;</code>, <code>Script-Migration</code></li>
+</ul></article>
+<h2 class="sec" id="sec-2"></h2>
+<article class="blk" data-slides="3"><span class="anchor" id="s-3"></span><div class="bh"><h3>ლექციის გეგმა</h3><a class="chip" href="index.html#/3" data-go="3" title="პრეზენტაციაში გახსნა">სლაიდი 3</a></div>
+<p>✓ <strong>EF Core</strong> და ✓ <strong>Entity-ები კავშირებით</strong> უკვე იცით. დღეს:</p>
+<ol>
+<li>⚖️ <strong>ორი მიდგომა</strong> — ვინ არის მთავარი: კოდი თუ ბაზა?</li>
+<li><strong>შედარება</strong> — როდის რომელი.</li>
+<li><strong>Code First პრაქტიკაში</strong> — ბაზა იზრდება კოდთან ერთად.</li>
+<li>⌨️ <strong>პრაქტიკა</strong> — მე → ერთად → თქვენ.</li>
+</ol></article>
+<h2 class="sec" id="sec-3">დღის თემა</h2>
+<article class="blk" data-slides="4"><span class="anchor" id="s-4"></span><div class="bh"><h3>რასაც უკვე აკეთებთ</h3><a class="chip" href="index.html#/4" data-go="4" title="პრეზენტაციაში გახსნა">სლაიდი 4</a></div>
+<p>EF Core-ით ასე მუშაობდით:</p>
+<ol>
+<li><strong>Entity</strong> — კლასები და კავშირები</li>
+<li><strong>DbContext</strong> — DbSet-ები + connection string</li>
+<li><strong><code>Add-Migration</code></strong> — მიგრაციის ფაილი</li>
+<li><strong><code>Update-Database</code></strong> — ბაზა იქმნება</li>
+</ol>
+<p>ჯერ კლასი → მერე EF Core ქმნის ბაზას. SSMS-ში <code>CREATE TABLE</code> არ გიწერიათ. ამ გზას სახელი აქვს: <strong>Code First</strong> — „ჯერ კოდი“.</p>
+<p>მაგრამ რა ხდება, როცა ბაზა <strong>უკვე არსებობს</strong>?</p></article>
+<h2 class="sec" id="sec-4">1 · ორი მიდგომა</h2>
+<article class="blk" data-slides="5"><span class="anchor" id="s-5"></span><div class="bh"><h3>ნაწილი 1 · ორი მიდგომა, ორი მიმართულება</h3><a class="chip" href="index.html#/5" data-go="5" title="პრეზენტაციაში გახსნა">სლაიდი 5</a></div>
+<p>ორივე ერთსა და იმავე პრობლემას ხსნის — C# და ბაზა ერთმანეთს უნდა შეესაბამებოდეს. განსხვავება მიმართულებაშია: კოდი → ბაზა თუ ბაზა → კოდი.</p></article>
+<article class="blk" data-slides="6"><span class="anchor" id="s-6"></span><div class="bh"><h3>ვინ არის ჭეშმარიტების წყარო?</h3><a class="chip" href="index.html#/6" data-go="6" title="პრეზენტაციაში გახსნა">სლაიდი 6</a></div>
+<p><strong>ჭეშმარიტების წყარო</strong> — ადგილი, სადაც „ნამდვილი“ ვერსია ცხოვრობს; დანარჩენი მისი ასლია.</p>
+<ul>
+<li>🟢 <strong>Code First</strong> — 👑 <strong>C# კლასები</strong> → ბაზა. მთავარი კოდია; ბაზა კოდის ასლია, რომელსაც EF Core აშენებს.</li>
+<li>🟠 <strong>Database First</strong> — 👑 <strong>ბაზა</strong> → C# კლასები. მთავარი ბაზაა; კლასები ბაზის ასლია, რომელსაც EF Core აგენერირებს.</li>
+</ul>
+<div class="terms"><div class="th">📘 ტერმინები</div><dl><dt>ჭეშმარიტების წყარო (source of truth)</dt><dd>ადგილი, საიდანაც ყველაფერი დანარჩენი იქმნება; ცვლილება აქ იწყება</dd></dl></div></article>
+<article class="blk" data-slides="7"><span class="anchor" id="s-7"></span><div class="bh"><h3>Code First: კოდი წერს ბაზას</h3><a class="chip" href="index.html#/7" data-go="7" title="პრეზენტაციაში გახსნა">სლაიდი 7</a></div>
+<p>✍️ <strong>C# კლასი</strong> (ჩვენ ვწერთ) → <code>Add-Migration</code> → 📐 <strong>მიგრაცია</strong> (ნახაზი, ფაილი) → <code>Update-Database</code> → 🗄️ <strong>ბაზა</strong> (EF Core აშენებს)</p>
+<p>კოდი შეიცვალა? → ისევ თავიდან 🔁. <strong>ბაზას ხელით არ ვეხებით</strong> — SSMS-ში მხოლოდ ვამოწმებთ. ყოველი ცვლილება ახალი მიგრაციაა.</p></article>
+<article class="blk" data-slides="8"><span class="anchor" id="s-8"></span><div class="bh"><h3>Database First: ბაზიდან იბადება კოდი</h3><a class="chip" href="index.html#/8" data-go="8" title="პრეზენტაციაში გახსნა">სლაიდი 8</a></div>
+<p>🗄️ <strong>ბაზა უკვე არსებობს</strong> (SSMS-ში შექმნა ვიღაცამ — შეიძლება ჩვენ, DBA-მ, ან 10 წლის წინ) → <code>Scaffold-DbContext</code> → 📄 <strong>C# კლასები + DbContext</strong> (EF Core აგენერირებს)</p>
+<div class="codebox"><div class="ch"><span>Package Manager Console</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln">Scaffold-DbContext "Server=...;Database=ShopDb;..." Microsoft.EntityFrameworkCore.SqlServer -OutputDir Models</span></code></pre></div>
+<p>EF Core უერთდება ბაზას, კითხულობს ყველა ცხრილს და თითოეულზე კლასს წერს. ბაზა შეიცვალა? → ისევ Scaffold (<code>-Force</code>) 🔁.</p>
+<div class="terms"><div class="th">📘 ტერმინები</div><dl><dt>Scaffold-DbContext</dt><dd>ბრძანება, რომელიც არსებული ბაზიდან Entity კლასებს და DbContext-ს აგენერირებს</dd></dl></div></article>
+<article class="blk" data-slides="9"><span class="anchor" id="s-9"></span><div class="bh"><h3>ერთი ცხრილი — ორი ავტორი</h3><a class="chip" href="index.html#/9" data-go="9" title="პრეზენტაციაში გახსნა">სლაიდი 9</a></div>
+<div class="codebox"><div class="ch"><span>Code First · ხელით დაწერილი</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="k">public</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">Product</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">Id</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">get</span><span class="p">;</span><span class="w"> </span><span class="k">set</span><span class="p">;</span><span class="w"> </span><span class="p">}</span></span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="n">Name</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">get</span><span class="p">;</span><span class="w"> </span><span class="k">set</span><span class="p">;</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kt">string</span><span class="p">.</span><span class="n">Empty</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="kt">decimal</span><span class="w"> </span><span class="n">Price</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">get</span><span class="p">;</span><span class="w"> </span><span class="k">set</span><span class="p">;</span><span class="w"> </span><span class="p">}</span></span><span class="ln"><span class="p">}</span></span><span class="ln"> </span><span class="ln"><span class="k">public</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">DataContext</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">DbContext</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="n">DbSet</span><span class="o">&lt;</span><span class="n">Product</span><span class="o">&gt;</span><span class="w"> </span><span class="n">Products</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">get</span><span class="p">;</span><span class="w"> </span><span class="k">set</span><span class="p">;</span><span class="w"> </span><span class="p">}</span></span><span class="ln"><span class="p">}</span></span></code></pre></div>
+<div class="codebox"><div class="ch"><span>Database First · Scaffold-მა დაწერა</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="k">public</span><span class="w"> </span><span class="k">partial</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">Product</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">Id</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">get</span><span class="p">;</span><span class="w"> </span><span class="k">set</span><span class="p">;</span><span class="w"> </span><span class="p">}</span></span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="n">Name</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">get</span><span class="p">;</span><span class="w"> </span><span class="k">set</span><span class="p">;</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">null</span><span class="o">!</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="kt">decimal</span><span class="w"> </span><span class="n">Price</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">get</span><span class="p">;</span><span class="w"> </span><span class="k">set</span><span class="p">;</span><span class="w"> </span><span class="p">}</span></span><span class="ln"><span class="p">}</span></span><span class="ln"> </span><span class="ln"><span class="k">public</span><span class="w"> </span><span class="k">partial</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">ShopDbContext</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">DbContext</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="k">virtual</span><span class="w"> </span><span class="n">DbSet</span><span class="o">&lt;</span><span class="n">Product</span><span class="o">&gt;</span><span class="w"> </span><span class="n">Products</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">get</span><span class="p">;</span><span class="w"> </span><span class="k">set</span><span class="p">;</span><span class="w"> </span><span class="p">}</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="k">protected</span><span class="w"> </span><span class="k">override</span><span class="w"> </span><span class="k">void</span><span class="w"> </span><span class="nf">OnModelCreating</span><span class="p">(</span><span class="n">ModelBuilder</span><span class="w"> </span><span class="n">modelBuilder</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="p">{</span></span><span class="ln"><span class="w">        </span><span class="n">modelBuilder</span><span class="p">.</span><span class="n">Entity</span><span class="o">&lt;</span><span class="n">Product</span><span class="o">&gt;</span><span class="p">(</span><span class="n">entity</span><span class="w"> </span><span class="o">=&gt;</span></span><span class="ln"><span class="w">        </span><span class="p">{</span></span><span class="ln"><span class="w">            </span><span class="n">entity</span><span class="p">.</span><span class="n">Property</span><span class="p">(</span><span class="n">e</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">e</span><span class="p">.</span><span class="n">Name</span><span class="p">)</span><span class="p">.</span><span class="n">HasMaxLength</span><span class="p">(</span><span class="mi">100</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">            </span><span class="n">entity</span><span class="p">.</span><span class="n">Property</span><span class="p">(</span><span class="n">e</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">e</span><span class="p">.</span><span class="n">Price</span><span class="p">)</span><span class="p">.</span><span class="n">HasColumnType</span><span class="p">(</span><span class="s">"decimal(18, 2)"</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">        </span><span class="p">}</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="p">}</span></span><span class="ln"><span class="p">}</span></span></code></pre></div>
+<p>თითქმის იგივეა! განსხვავებები:</p>
+<ul>
+<li><strong><code>partial</code></strong> — კლასი ნაწილებად იწერება: შენს დამატებებს ცალკე ფაილში წერ, რომ ხელახალმა Scaffold-მა არ წაშალოს.</li>
+<li><strong><code>OnModelCreating</code></strong> — ბაზის დეტალები (<code>HasMaxLength(100)</code>, ტიპები) ცხადად წერია, რადგან ბაზაში ზუსტად ასეა.</li>
+</ul>
+<p>შედეგი ერთი და იგივეა — Entity + DbContext. EF Core-ს არ აინტერესებს, ვინ დაწერა.</p></article>
+<article class="blk" data-slides="10"><span class="anchor" id="s-10"></span><div class="bh"><h3>ახალი მოთხოვნა: „პროდუქტს მარაგი (Stock) უნდა ჰქონდეს“</h3><a class="chip" href="index.html#/10" data-go="10" title="პრეზენტაციაში გახსნა">სლაიდი 10</a></div>
+<ul>
+<li><strong>Code First</strong> ✍️ — <code>Product.cs</code>: + <code>Stock</code> → <code>Add-Migration AddStock</code> → <code>Update-Database</code> → ✓ ბაზაში ახალი სვეტი. (ამას დღეს პრაქტიკაში გავაკეთებთ.)</li>
+<li><strong>Database First</strong> 🗄️ — SSMS: <code>ALTER TABLE Products ADD Stock …</code> → <code>Scaffold-DbContext … -Force</code> → ✓ <code>Product.cs</code> თავიდან დაიწერა.</li>
+</ul>
+<div class="callout warn"><span class="ci">⚠️</span><div><p><code>-Force</code> გენერირებულ ფაილებს <strong>თავიდან წერს</strong> — შიგ ხელით დამატებული კოდი იკარგება. ამიტომაა <code>partial</code>: შენი კოდი ცალკე ფაილში.</p></div></div></article>
+<h2 class="sec" id="sec-5">2 · შედარება</h2>
+<article class="blk" data-slides="11"><span class="anchor" id="s-11"></span><div class="bh"><h3>ნაწილი 2 · შევადაროთ და ავირჩიოთ</h3><a class="chip" href="index.html#/11" data-go="11" title="პრეზენტაციაში გახსნა">სლაიდი 11</a></div>
+<p>ორივე გზა ვიცით. გვერდიგვერდ დავდოთ — რით განსხვავდებიან და როდის რომელი ჯობია.</p></article>
+<article class="blk" data-slides="12"><span class="anchor" id="s-12"></span><div class="bh"><h3>Code First vs Database First</h3><a class="chip" href="index.html#/12" data-go="12" title="პრეზენტაციაში გახსნა">სლაიდი 12</a></div>
+<table>
+<thead>
+<tr>
+<th>კრიტერიუმი</th>
+<th>🟢 Code First</th>
+<th>🟠 Database First</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>ჭეშმარიტების წყარო</td>
+<td>C# კლასები</td>
+<td>ბაზის სქემა</td>
+</tr>
+<tr>
+<td>პირველი ნაბიჯი</td>
+<td>ვწერთ კლასს</td>
+<td>ბაზა უკვე არსებობს</td>
+</tr>
+<tr>
+<td>ცვლილების გზა</td>
+<td>კლასი → <code>Add-Migration</code> → <code>Update-Database</code></td>
+<td>SSMS-ში <code>ALTER</code> → <code>Scaffold … -Force</code></td>
+</tr>
+<tr>
+<td>ცვლილებების ისტორია</td>
+<td>მიგრაციები, Git-ში</td>
+<td>ბაზაში / DBA-სთან</td>
+</tr>
+<tr>
+<td>ვინ წერს SQL-ს</td>
+<td>EF Core (მიგრაცია)</td>
+<td>ადამიანი (SSMS)</td>
+</tr>
+</tbody>
+</table></article>
+<article class="blk" data-slides="13"><span class="anchor" id="s-13"></span><div class="bh"><h3>ძლიერი და სუსტი მხარეები</h3><a class="chip" href="index.html#/13" data-go="13" title="პრეზენტაციაში გახსნა">სლაიდი 13</a></div>
+<p>🟢 <strong>Code First</strong></p>
+<ul>
+<li>✓ ყველაფერი C#-შია, ერთ ადგილას</li>
+<li>✓ ბაზის ისტორია — მიგრაციები Git-ში</li>
+<li>✓ ბაზა ერთი ბრძანებით იქმნება ნებისმიერ კომპიუტერზე</li>
+<li>✗ მიგრაციებს დისციპლინა სჭირდება</li>
+<li>✗ ცუდი კლასი = ცუდი ცხრილი — SQL-ის ცოდნა მაინც საჭიროა</li>
+</ul>
+<p>🟠 <strong>Database First</strong></p>
+<ul>
+<li>✓ არსებულ, დიდ ბაზასთან წამებში იწყებ მუშაობას</li>
+<li>✓ ბაზას შეუძლია მართოს DBA-მ, SQL-ის სრული ძალით</li>
+<li>✗ ორ ადგილას მუშაობ: SSMS და კოდი</li>
+<li>✗ ცვლილებების ისტორია კოდში არ ჩანს</li>
+</ul>
+<p>„საუკეთესო“ არ არსებობს — ორივეს თავისი ფასი აქვს.</p></article>
+<article class="blk" data-slides="14"><span class="anchor" id="s-14"></span><div class="bh"><h3>რომელს აირჩევდი? 4 სიტუაცია</h3><a class="chip" href="index.html#/14" data-go="14" title="პრეზენტაციაში გახსნა">სლაიდი 14</a></div>
+<div class="selfcheck"><div class="sh">✅ შეამოწმე თავი <small>დაფიქრდი, მერე გახსენი პასუხი</small></div><details><summary>🚀 სტარტაპი იწყებს ახალ აპლიკაციას, ბაზა ჯერ არ არსებობს</summary><div class="ans">Code First — ბაზის მფლობელი ჩვენ ვართ და ახლა იქმნება</div></details><details><summary>🏦 ბანკის ბაზა 15 წლისაა, 300 ცხრილით, და მას 5 სხვა პროგრამაც იყენებს</summary><div class="ans">Database First — ბაზა უკვე არსებობს და მარტო ჩვენი არ არის</div></details><details><summary>🧑‍💼 ბაზას DBA-ების გუნდი მართავს; დეველოპერს CREATE TABLE-ის უფლება არ აქვს</summary><div class="ans">Database First — ცვლილებებს DBA აკეთებს, ჩვენ Scaffold-ით ვიღებთ</div></details><details><summary>🎓 სასწავლო პროექტი, რომელსაც მარტო წერ და ხშირად ცვლი</summary><div class="ans">Code First — კლასს ცვლი, მიგრაცია, და ისტორიაც გაქვს</div></details></div></article>
+<article class="blk" data-slides="15"><span class="anchor" id="s-15"></span><div class="bh"><h3>მითები და ფაქტები</h3><a class="chip" href="index.html#/15" data-go="15" title="პრეზენტაციაში გახსნა">სლაიდი 15</a></div>
+<table>
+<thead>
+<tr>
+<th>მითი</th>
+<th>ფაქტი</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Database First-ში ბაზას დიზაინერში „ვხატავთ“</td>
+<td>ეს იყო ძველი EF6 (EDMX). EF Core-ში — ერთი ბრძანება: <code>Scaffold-DbContext</code>. („Model First“-იც EF6-ისაა.)</td>
+</tr>
+<tr>
+<td>Code First-ში SQL აღარ მჭირდება</td>
+<td>SQL-ს EF წერს, მაგრამ <strong>ჩვენ ვკითხულობთ</strong> — მიგრაციის ფაილს და SSMS-ს ყოველთვის</td>
+</tr>
+<tr>
+<td>ერთ პროექტში მხოლოდ ერთი მიდგომა</td>
+<td>შეიძლება Database First-ით დაიწყო და მერე მიგრაციებზე გადახვიდე</td>
+</tr>
+<tr>
+<td>Database First — ძველია, Code First — თანამედროვე</td>
+<td>ორივე აქტუალურია; ირჩევ სიტუაციის მიხედვით, არა მოდით</td>
+</tr>
+</tbody>
+</table></article>
+<article class="blk" data-slides="16"><span class="anchor" id="s-16"></span><div class="bh"><h3>ერთი წინადადებით</h3><a class="chip" href="index.html#/16" data-go="16" title="პრეზენტაციაში გახსნა">სლაიდი 16</a></div>
+<ul>
+<li>🏠 <strong>ბაზა შენია და ახლა იქმნება</strong> → <strong>Code First</strong></li>
+<li>🏛️ <strong>ბაზა უკვე არსებობს ან სხვისია</strong> → <strong>Database First</strong></li>
+</ul>
+<p>თეორიიდან ერთი რამ თუ უნდა დაგამახსოვრდეს — ეს.</p></article>
+<h2 class="sec" id="sec-6">3 · Code First პრაქტიკაში</h2>
+<article class="blk" data-slides="17"><span class="anchor" id="s-17"></span><div class="bh"><h3>ნაწილი 3 · Code First პრაქტიკაში</h3><a class="chip" href="index.html#/17" data-go="17" title="პრეზენტაციაში გახსნა">სლაიდი 17</a></div>
+<p>ბაზა იზრდება კოდთან ერთად: ① ახალი სვეტი ② ახალი ცხრილი + კავშირი ③ მიგრაციების ისტორია.</p></article>
+<article class="blk" data-slides="18"><span class="anchor" id="s-18"></span><div class="bh"><h3>საწყისი წერტილი — ShopDemo ნულიდან, 5 წუთში</h3><a class="chip" href="index.html#/18" data-go="18" title="პრეზენტაციაში გახსნა">სლაიდი 18</a></div>
+<ol>
+<li>Console App <strong>ShopDemo</strong> · .NET 10</li>
+<li>4 პაკეტი: EF Core · .SqlServer · .Tools · .Design</li>
+<li><code>Product</code>: Id, Name, Price</li>
+<li><code>DataContext</code> + <code>DbSet&lt;Product&gt;</code> + connection (<strong>ShopDb</strong>)</li>
+<li><code>Add-Migration InitialCreate</code> → <code>Update-Database</code></li>
+<li>ორი პროდუქტი ბაზაში</li>
+</ol>
+<p>ეს უკვე იცი — სწრაფად გავდივართ. მთავარი ახლა იწყება: ცვლილებები.</p></article>
+<article class="blk" data-slides="19"><span class="anchor" id="s-19"></span><div class="bh"><h3>ცვლილება 1 · Product-ს ვამატებთ Stock-ს</h3><a class="chip" href="index.html#/19" data-go="19" title="პრეზენტაციაში გახსნა">სლაიდი 19</a></div>
+<div class="codebox"><div class="ch"><span>Product.cs</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="k">public</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">Product</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">Id</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">get</span><span class="p">;</span><span class="w"> </span><span class="k">set</span><span class="p">;</span><span class="w"> </span><span class="p">}</span></span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="n">Name</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">get</span><span class="p">;</span><span class="w"> </span><span class="k">set</span><span class="p">;</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kt">string</span><span class="p">.</span><span class="n">Empty</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="kt">decimal</span><span class="w"> </span><span class="n">Price</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">get</span><span class="p">;</span><span class="w"> </span><span class="k">set</span><span class="p">;</span><span class="w"> </span><span class="p">}</span></span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">Stock</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">get</span><span class="p">;</span><span class="w"> </span><span class="k">set</span><span class="p">;</span><span class="w"> </span><span class="p">}</span></span><span class="ln"><span class="p">}</span></span></code></pre></div>
+<p>ერთი ხაზი კოდში — SSMS-ს არ ვეხებით.</p>
+<div class="codebox"><div class="ch"><span>Package Manager Console</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln">Add-Migration AddProductStock</span></code></pre></div>
+<p><strong>სახელი აღწერს ცვლილებას</strong>: <code>AddProductStock</code>. „Migration2“ ან „test“ — ცუდი სახელია: ერთ თვეში ვერ გაიხსენებ, რას აკეთებს.</p>
+<p>ბაზაში უკვე 2 პროდუქტია. რა ჩაეწერებათ ახალ <code>Stock</code> სვეტში?</p></article>
+<article class="blk" data-slides="20"><span class="anchor" id="s-20"></span><div class="bh"><h3>მიგრაციის ფაილი = ALTER TABLE, ოღონდ C#-ში</h3><a class="chip" href="index.html#/20" data-go="20" title="პრეზენტაციაში გახსნა">სლაიდი 20</a></div>
+<div class="codebox"><div class="ch"><span>Migrations/…_AddProductStock.cs · Up()</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="n">migrationBuilder</span><span class="p">.</span><span class="n">AddColumn</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">(</span></span><span class="ln"><span class="w">    </span><span class="n">name</span><span class="p">:</span><span class="w"> </span><span class="s">"Stock"</span><span class="p">,</span></span><span class="ln"><span class="w">    </span><span class="n">table</span><span class="p">:</span><span class="w"> </span><span class="s">"Products"</span><span class="p">,</span></span><span class="ln"><span class="w">    </span><span class="n">type</span><span class="p">:</span><span class="w"> </span><span class="s">"int"</span><span class="p">,</span></span><span class="ln"><span class="w">    </span><span class="n">nullable</span><span class="p">:</span><span class="w"> </span><span class="k">false</span><span class="p">,</span></span><span class="ln"><span class="w">    </span><span class="n">defaultValue</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="p">;</span></span></code></pre></div>
+<div class="codebox"><div class="ch"><span>Down()</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="n">migrationBuilder</span><span class="p">.</span><span class="n">DropColumn</span><span class="p">(</span></span><span class="ln"><span class="w">    </span><span class="n">name</span><span class="p">:</span><span class="w"> </span><span class="s">"Stock"</span><span class="p">,</span></span><span class="ln"><span class="w">    </span><span class="n">table</span><span class="p">:</span><span class="w"> </span><span class="s">"Products"</span><span class="p">)</span><span class="p">;</span></span></code></pre></div>
+<div class="codebox"><div class="ch"><span>რასაც ჩვენ SSMS-ში დავწერდით</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="k">ALTER</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="n">Products</span></span><span class="ln"><span class="w">    </span><span class="k">ADD</span><span class="w"> </span><span class="n">Stock</span><span class="w"> </span><span class="nb">INT</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="w"> </span><span class="k">DEFAULT</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span></span></code></pre></div>
+<ul>
+<li><strong><code>defaultValue: 0</code></strong> — ძველ ჩანაწერებს EF <code>0</code>-ს უწერს, ბაზა არ ტყდება.</li>
+<li><strong><code>Down()</code></strong> — უკან დაბრუნება: სვეტის წაშლა. ერთ ცვლილებას — ორი მიმართულება.</li>
+</ul>
+<div class="callout note"><span class="ci">💡</span><div><p>ჩვევა: <code>Update-Database</code>-მდე მიგრაციის ფაილს <strong>ყოველთვის</strong> წაიკითხე.</p></div></div></article>
+<article class="blk" data-slides="21"><span class="anchor" id="s-21"></span><div class="bh"><h3>Update-Database და SSMS</h3><a class="chip" href="index.html#/21" data-go="21" title="პრეზენტაციაში გახსნა">სლაიდი 21</a></div>
+<div class="codebox"><div class="ch"><span>Package Manager Console</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln">Update-Database</span><span class="ln">Applying migration '…_AddProductStock'.</span><span class="ln">Done.</span></code></pre></div>
+<ul>
+<li>გაეშვა <strong>მხოლოდ</strong> <code>AddProductStock</code> — <code>InitialCreate</code> კი არა. EF-მა იცის, რა უკვე გაშვებულია (<code>__EFMigrationsHistory</code>).</li>
+<li>SSMS-ში: ახალი სვეტი <code>Stock</code>, ძველ პროდუქტებზე — <code>0</code>. მონაცემები ადგილზეა.</li>
+</ul></article>
+<article class="blk" data-slides="22"><span class="anchor" id="s-22"></span><div class="bh"><h3>ცვლილება 2 · გავიხსენოთ SQL კავშირი 1 → N</h3><a class="chip" href="index.html#/22" data-go="22" title="პრეზენტაციაში გახსნა">სლაიდი 22</a></div>
+<p>ერთ კატეგორიას — ბევრი პროდუქტი; ერთი პროდუქტი — ერთ კატეგორიაში.</p>
+<ul>
+<li><strong>Categories</strong>: 🔑 <code>Id</code>, <code>Name</code> (1 ტექნიკა, 2 აქსესუარები)</li>
+<li><strong>Products</strong>: 🔑 <code>Id</code>, <code>Name</code>, <code>Price</code>, <code>Stock</code>, <strong><code>CategoryId</code></strong> → FK <code>Categories.Id</code></li>
+</ul>
+<p>FK ყოველთვის <strong>„ბევრის“ მხარეს</strong> ზის — Products-ში.</p></article>
+<article class="blk" data-slides="23"><span class="anchor" id="s-23"></span><div class="bh"><h3>კავშირი კლასებში — ორივე მხრიდან</h3><a class="chip" href="index.html#/23" data-go="23" title="პრეზენტაციაში გახსნა">სლაიდი 23</a></div>
+<div class="codebox"><div class="ch"><span>Category.cs · ახალი</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="k">public</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">Category</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">Id</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">get</span><span class="p">;</span><span class="w"> </span><span class="k">set</span><span class="p">;</span><span class="w"> </span><span class="p">}</span></span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="n">Name</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">get</span><span class="p">;</span><span class="w"> </span><span class="k">set</span><span class="p">;</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kt">string</span><span class="p">.</span><span class="n">Empty</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="n">List</span><span class="o">&lt;</span><span class="n">Product</span><span class="o">&gt;</span><span class="w"> </span><span class="n">Products</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">get</span><span class="p">;</span><span class="w"> </span><span class="k">set</span><span class="p">;</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">List</span><span class="o">&lt;</span><span class="n">Product</span><span class="o">&gt;</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="p">}</span></span></code></pre></div>
+<div class="codebox"><div class="ch"><span>Product.cs</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="k">public</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">Product</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">Id</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">get</span><span class="p">;</span><span class="w"> </span><span class="k">set</span><span class="p">;</span><span class="w"> </span><span class="p">}</span></span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="n">Name</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">get</span><span class="p">;</span><span class="w"> </span><span class="k">set</span><span class="p">;</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kt">string</span><span class="p">.</span><span class="n">Empty</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="kt">decimal</span><span class="w"> </span><span class="n">Price</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">get</span><span class="p">;</span><span class="w"> </span><span class="k">set</span><span class="p">;</span><span class="w"> </span><span class="p">}</span></span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">Stock</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">get</span><span class="p">;</span><span class="w"> </span><span class="k">set</span><span class="p">;</span><span class="w"> </span><span class="p">}</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">CategoryId</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">get</span><span class="p">;</span><span class="w"> </span><span class="k">set</span><span class="p">;</span><span class="w"> </span><span class="p">}</span></span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="n">Category</span><span class="w"> </span><span class="n">Category</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">get</span><span class="p">;</span><span class="w"> </span><span class="k">set</span><span class="p">;</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">null</span><span class="o">!</span><span class="p">;</span></span><span class="ln"><span class="p">}</span></span></code></pre></div>
+<div class="codebox"><div class="ch"><span>DataContext.cs</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="k">public</span><span class="w"> </span><span class="n">DbSet</span><span class="o">&lt;</span><span class="n">Product</span><span class="o">&gt;</span><span class="w"> </span><span class="n">Products</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">get</span><span class="p">;</span><span class="w"> </span><span class="k">set</span><span class="p">;</span><span class="w"> </span><span class="p">}</span></span><span class="ln"><span class="k">public</span><span class="w"> </span><span class="n">DbSet</span><span class="o">&lt;</span><span class="n">Category</span><span class="o">&gt;</span><span class="w"> </span><span class="n">Categories</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">get</span><span class="p">;</span><span class="w"> </span><span class="k">set</span><span class="p">;</span><span class="w"> </span><span class="p">}</span></span></code></pre></div>
+<ul>
+<li><code>Category</code> — ჩვეულებრივი Entity → ცხრილი <code>Categories</code>.</li>
+<li><strong><code>List&lt;Product&gt;</code></strong> — „კატეგორიას ბევრი პროდუქტი აქვს“. ბაზაში სვეტი არ არის — C#-ის მხარეა.</li>
+<li><strong><code>CategoryId</code></strong> → FK სვეტი · <strong><code>Category</code></strong> → ნავიგაცია: <code>p.Category.Name</code>.</li>
+<li>ახალი ცხრილი → ახალი <code>DbSet</code>.</li>
+</ul>
+<div class="terms"><div class="th">📘 ტერმინები</div><dl><dt>Navigation property</dt><dd>property, რომლითაც ერთი Entity-დან დაკავშირებულზე „გადადიხარ“ (p.Category, category.Products)</dd></dl></div></article>
+<article class="blk" data-slides="24"><span class="anchor" id="s-24"></span><div class="bh"><h3>Update-Database და… 💥</h3><a class="chip" href="index.html#/24" data-go="24" title="პრეზენტაციაში გახსნა">სლაიდი 24</a></div>
+<div class="codebox"><div class="ch"><span>Package Manager Console</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln">Add-Migration AddCategories</span><span class="ln">Update-Database</span><span class="ln">Applying migration '…_AddCategories'.</span><span class="ln">Failed executing DbCommand …</span><span class="ln">The ALTER TABLE statement conflicted with the FOREIGN KEY constraint</span></code></pre></div>
+<p>მიგრაცია შეიქმნა, მაგრამ ბაზაში ვერ გაეშვა. პანიკა არ არის — ეს რეალური პროექტის ერთ-ერთი ყველაზე ხშირი შეცდომაა. ვნახოთ, რა მოხდა.</p></article>
+<article class="blk" data-slides="25"><span class="anchor" id="s-25"></span><div class="bh"><h3>რა მოხდა: ძველ პროდუქტებს კატეგორია არ აქვთ</h3><a class="chip" href="index.html#/25" data-go="25" title="პრეზენტაციაში გახსნა">სლაიდი 25</a></div>
+<p><code>CategoryId</code> — <code>int</code>, <code>NOT NULL</code>. ძველ პროდუქტებს რაღაც უნდა ჩაეწეროს — EF-მა, როგორც Stock-ზე, <strong><code>0</code></strong> ჩაწერა.</p>
+<table>
+<thead>
+<tr>
+<th>Products.Id</th>
+<th>Name</th>
+<th>CategoryId</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>ლეპტოპი</td>
+<td>0 ✗</td>
+</tr>
+<tr>
+<td>2</td>
+<td>მაუსი</td>
+<td>0 ✗</td>
+</tr>
+</tbody>
+</table>
+<p>მაგრამ FK ამბობს: <code>CategoryId</code> არსებულ კატეგორიაზე უნდა მიუთითებდეს. Categories ცარიელია — Id = 0 არ არსებობს. <strong>ბაზამ მონაცემები დაიცვა</strong> — ზუსტად ის გააკეთა, რისთვისაც FK არსებობს.</p>
+<p>✅ <strong>გზა A — ჩვენი არჩევანი:</strong> <code>int? CategoryId</code> — კატეგორია არასავალდებულოა; ძველებს <code>NULL</code> ჩაეწერებათ. (სხვა გზა: მიგრაციაში ჯერ ნაგულისხმევი კატეგორია შექმნა და ძველები მას მიაბა.)</p></article>
+<article class="blk" data-slides="26"><span class="anchor" id="s-26"></span><div class="bh"><h3>ვასწორებთ: Remove-Migration → შესწორება → თავიდან</h3><a class="chip" href="index.html#/26" data-go="26" title="პრეზენტაციაში გახსნა">სლაიდი 26</a></div>
+<p>① ცუდი მიგრაციის წაშლა (ბაზაზე არ გაშვებულა — შეცდომამ შეაჩერა):</p>
+<div class="codebox"><div class="ch"><span>Package Manager Console</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln">Remove-Migration</span><span class="ln">Removing migration '…_AddCategories'.</span><span class="ln">Reverting the model snapshot.</span><span class="ln">Done.</span></code></pre></div>
+<p>② კოდის შესწორება:</p>
+<div class="codebox"><div class="ch"><span>Product.cs</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="c1">// იყო:</span></span><span class="ln"><span class="k">public</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">CategoryId</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">get</span><span class="p">;</span><span class="w"> </span><span class="k">set</span><span class="p">;</span><span class="w"> </span><span class="p">}</span></span><span class="ln"><span class="k">public</span><span class="w"> </span><span class="n">Category</span><span class="w"> </span><span class="n">Category</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">get</span><span class="p">;</span><span class="w"> </span><span class="k">set</span><span class="p">;</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">null</span><span class="o">!</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="c1">// გახდა:</span></span><span class="ln"><span class="k">public</span><span class="w"> </span><span class="kt">int?</span><span class="w"> </span><span class="n">CategoryId</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">get</span><span class="p">;</span><span class="w"> </span><span class="k">set</span><span class="p">;</span><span class="w"> </span><span class="p">}</span></span><span class="ln"><span class="k">public</span><span class="w"> </span><span class="n">Category</span><span class="o">?</span><span class="w"> </span><span class="n">Category</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">get</span><span class="p">;</span><span class="w"> </span><span class="k">set</span><span class="p">;</span><span class="w"> </span><span class="p">}</span></span></code></pre></div>
+<p><code>?</code> — „შეიძლება არ იყოს“ → სვეტი <code>NULL</code>-ს იღებს.</p>
+<p>③ თავიდან: <code>Add-Migration AddCategories</code> → <strong>წაიკითხე</strong> → <code>Update-Database</code> ✓</p></article>
+<article class="blk" data-slides="27"><span class="anchor" id="s-27"></span><div class="bh"><h3>ნახაზის შიგნით: EF-მა 4 SQL ბრძანება დაწერა</h3><a class="chip" href="index.html#/27" data-go="27" title="პრეზენტაციაში გახსნა">სლაიდი 27</a></div>
+<div class="codebox"><div class="ch"><span>Migrations/…_AddCategories.cs · Up()</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="n">migrationBuilder</span><span class="p">.</span><span class="n">CreateTable</span><span class="p">(</span></span><span class="ln"><span class="w">    </span><span class="n">name</span><span class="p">:</span><span class="w"> </span><span class="s">"Categories"</span><span class="p">,</span></span><span class="ln"><span class="w">    </span><span class="n">columns</span><span class="p">:</span><span class="w"> </span><span class="n">table</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="k">new</span></span><span class="ln"><span class="w">    </span><span class="p">{</span></span><span class="ln"><span class="w">        </span><span class="n">Id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">table</span><span class="p">.</span><span class="n">Column</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">(</span><span class="n">type</span><span class="p">:</span><span class="w"> </span><span class="s">"int"</span><span class="p">,</span><span class="w"> </span><span class="n">nullable</span><span class="p">:</span><span class="w"> </span><span class="k">false</span><span class="p">)</span></span><span class="ln"><span class="w">            </span><span class="p">.</span><span class="n">Annotation</span><span class="p">(</span><span class="s">"SqlServer:Identity"</span><span class="p">,</span><span class="w"> </span><span class="s">"1, 1"</span><span class="p">)</span><span class="p">,</span></span><span class="ln"><span class="w">        </span><span class="n">Name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">table</span><span class="p">.</span><span class="n">Column</span><span class="o">&lt;</span><span class="kt">string</span><span class="o">&gt;</span><span class="p">(</span><span class="n">type</span><span class="p">:</span><span class="w"> </span><span class="s">"nvarchar(max)"</span><span class="p">,</span><span class="w"> </span><span class="n">nullable</span><span class="p">:</span><span class="w"> </span><span class="k">false</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="p">}</span><span class="p">,</span></span><span class="ln"><span class="w">    </span><span class="n">constraints</span><span class="p">:</span><span class="w"> </span><span class="n">table</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">table</span><span class="p">.</span><span class="n">PrimaryKey</span><span class="p">(</span><span class="s">"PK_Categories"</span><span class="p">,</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">x</span><span class="p">.</span><span class="n">Id</span><span class="p">)</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="n">migrationBuilder</span><span class="p">.</span><span class="n">AddColumn</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">(</span></span><span class="ln"><span class="w">    </span><span class="n">name</span><span class="p">:</span><span class="w"> </span><span class="s">"CategoryId"</span><span class="p">,</span><span class="w"> </span><span class="n">table</span><span class="p">:</span><span class="w"> </span><span class="s">"Products"</span><span class="p">,</span><span class="w"> </span><span class="n">type</span><span class="p">:</span><span class="w"> </span><span class="s">"int"</span><span class="p">,</span><span class="w"> </span><span class="n">nullable</span><span class="p">:</span><span class="w"> </span><span class="k">true</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="n">migrationBuilder</span><span class="p">.</span><span class="n">CreateIndex</span><span class="p">(</span></span><span class="ln"><span class="w">    </span><span class="n">name</span><span class="p">:</span><span class="w"> </span><span class="s">"IX_Products_CategoryId"</span><span class="p">,</span><span class="w"> </span><span class="n">table</span><span class="p">:</span><span class="w"> </span><span class="s">"Products"</span><span class="p">,</span><span class="w"> </span><span class="n">column</span><span class="p">:</span><span class="w"> </span><span class="s">"CategoryId"</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="n">migrationBuilder</span><span class="p">.</span><span class="n">AddForeignKey</span><span class="p">(</span></span><span class="ln"><span class="w">    </span><span class="n">name</span><span class="p">:</span><span class="w"> </span><span class="s">"FK_Products_Categories_CategoryId"</span><span class="p">,</span><span class="w"> </span><span class="n">table</span><span class="p">:</span><span class="w"> </span><span class="s">"Products"</span><span class="p">,</span></span><span class="ln"><span class="w">    </span><span class="n">column</span><span class="p">:</span><span class="w"> </span><span class="s">"CategoryId"</span><span class="p">,</span><span class="w"> </span><span class="n">principalTable</span><span class="p">:</span><span class="w"> </span><span class="s">"Categories"</span><span class="p">,</span><span class="w"> </span><span class="n">principalColumn</span><span class="p">:</span><span class="w"> </span><span class="s">"Id"</span><span class="p">)</span><span class="p">;</span></span></code></pre></div>
+<div class="codebox"><div class="ch"><span>იგივე SQL-ში</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="k">CREATE</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="n">Categories</span><span class="w"> </span><span class="p">(</span></span><span class="ln"><span class="w">    </span><span class="n">Id</span><span class="w"> </span><span class="nb">INT</span><span class="w"> </span><span class="k">IDENTITY</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="k">PRIMARY</span><span class="w"> </span><span class="k">KEY</span><span class="p">,</span></span><span class="ln"><span class="w">    </span><span class="n">Name</span><span class="w"> </span><span class="n">NVARCHAR</span><span class="p">(</span><span class="k">MAX</span><span class="p">)</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span></span><span class="ln"><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="k">ALTER</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="n">Products</span><span class="w"> </span><span class="k">ADD</span><span class="w"> </span><span class="n">CategoryId</span><span class="w"> </span><span class="nb">INT</span><span class="w"> </span><span class="k">NULL</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="k">CREATE</span><span class="w"> </span><span class="k">INDEX</span><span class="w"> </span><span class="n">IX_Products_CategoryId</span></span><span class="ln"><span class="w">    </span><span class="k">ON</span><span class="w"> </span><span class="n">Products</span><span class="w"> </span><span class="p">(</span><span class="n">CategoryId</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="k">ALTER</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="n">Products</span></span><span class="ln"><span class="w">    </span><span class="k">ADD</span><span class="w"> </span><span class="k">FOREIGN</span><span class="w"> </span><span class="k">KEY</span><span class="w"> </span><span class="p">(</span><span class="n">CategoryId</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="k">REFERENCES</span><span class="w"> </span><span class="n">Categories</span><span class="w"> </span><span class="p">(</span><span class="n">Id</span><span class="p">)</span><span class="p">;</span></span></code></pre></div>
+<ol>
+<li><strong>CREATE TABLE</strong> — Categories.</li>
+<li><strong>ADD COLUMN</strong> — <code>CategoryId</code>, <code>nullable: true</code> (ჩვენი <code>?</code>).</li>
+<li><strong>CREATE INDEX</strong> — FK სვეტზე ძებნა რომ სწრაფი იყოს. ამას EF თვითონ ამატებს.</li>
+<li><strong>FOREIGN KEY</strong> — კავშირი.</li>
+</ol></article>
+<article class="blk" data-slides="28"><span class="anchor" id="s-28"></span><div class="bh"><h3>ჯილდო: კავშირი კოდში</h3><a class="chip" href="index.html#/28" data-go="28" title="პრეზენტაციაში გახსნა">სლაიდი 28</a></div>
+<div class="codebox"><div class="ch"><span>Program.cs</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="k">using</span><span class="w"> </span><span class="nn">Microsoft.EntityFrameworkCore</span><span class="p">;</span></span><span class="ln"><span class="k">using</span><span class="w"> </span><span class="nn">ShopDemo</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="n">Console</span><span class="p">.</span><span class="n">OutputEncoding</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">System</span><span class="p">.</span><span class="n">Text</span><span class="p">.</span><span class="n">Encoding</span><span class="p">.</span><span class="n">UTF8</span><span class="p">;</span></span><span class="ln"><span class="k">using</span><span class="w"> </span><span class="nn">var</span><span class="w"> </span><span class="n">db</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">DataContext</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="kt">var</span><span class="w"> </span><span class="n">tech</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">Category</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">Name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"ტექნიკა"</span><span class="w"> </span><span class="p">}</span><span class="p">;</span></span><span class="ln"><span class="n">tech</span><span class="p">.</span><span class="n">Products</span><span class="p">.</span><span class="n">Add</span><span class="p">(</span><span class="k">new</span><span class="w"> </span><span class="n">Product</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">Name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"კლავიატურა"</span><span class="p">,</span><span class="w"> </span><span class="n">Price</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">120</span><span class="p">,</span><span class="w"> </span><span class="n">Stock</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">15</span><span class="w"> </span><span class="p">}</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="n">db</span><span class="p">.</span><span class="n">Categories</span><span class="p">.</span><span class="n">Add</span><span class="p">(</span><span class="n">tech</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="n">db</span><span class="p">.</span><span class="n">SaveChanges</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="kt">var</span><span class="w"> </span><span class="n">products</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">db</span><span class="p">.</span><span class="n">Products</span><span class="p">.</span><span class="n">Include</span><span class="p">(</span><span class="n">p</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">Category</span><span class="p">)</span><span class="p">.</span><span class="n">ToList</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="k">foreach</span><span class="w"> </span><span class="p">(</span><span class="kt">var</span><span class="w"> </span><span class="n">p</span><span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="n">products</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="s">$"{p.Name} — {p.Category?.Name ?? "</span><span class="n">კატეგორიის</span><span class="w"> </span><span class="n">გარეშე</span><span class="s">"}"</span><span class="p">)</span><span class="p">;</span></span></code></pre></div>
+<ul>
+<li>კატეგორიას პროდუქტთან ერთად ვამატებთ — <strong><code>CategoryId</code>-ს EF თვითონ წერს</strong>.</li>
+<li><strong><code>Include</code></strong> — „კატეგორიაც მოიტანე“ → SQL-ში <code>JOIN</code>. მის გარეშე <code>p.Category</code> <code>null</code> იქნებოდა.</li>
+<li><code>?.</code> და <code>??</code> — კატეგორია შეიძლება არ ჰქონდეს (<code>int?</code>).</li>
+</ul>
+<div class="codebox"><div class="ch"><span>ShopDemo</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln">ლეპტოპი — კატეგორიის გარეშე</span><span class="ln">მაუსი — კატეგორიის გარეშე</span><span class="ln">კლავიატურა — ტექნიკა</span></code></pre></div></article>
+<article class="blk" data-slides="29"><span class="anchor" id="s-29"></span><div class="bh"><h3>მიგრაციები = ბაზის Git</h3><a class="chip" href="index.html#/29" data-go="29" title="პრეზენტაციაში გახსნა">სლაიდი 29</a></div>
+<p>ბაზის ისტორია — 3 ნაბიჯი:</p>
+<ol>
+<li><code>InitialCreate</code> — ცხრილი Products</li>
+<li><code>AddProductStock</code> — + სვეტი Stock</li>
+<li><code>AddCategories</code> — + Categories, FK · 📍 ბაზა ახლა აქაა</li>
+</ol>
+<p><code>__EFMigrationsHistory</code>-ში სამივე წერია. ახალი გუნდის წევრი <code>Update-Database</code>-ს გაუშვებს და ზუსტად ამ ბაზას მიიღებს — ნულიდან, სამივე ნაბიჯით.</p></article>
+<article class="blk" data-slides="30"><span class="anchor" id="s-30"></span><div class="bh"><h3>დროში მოგზაურობა</h3><a class="chip" href="index.html#/30" data-go="30" title="პრეზენტაციაში გახსნა">სლაიდი 30</a></div>
+<div class="codebox"><div class="ch"><span>Package Manager Console</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln">Update-Database AddProductStock</span><span class="ln">Reverting migration '…_AddCategories'.</span><span class="ln">Done.</span></code></pre></div>
+<p>⏪ <strong>უკან</strong> — <code>Update-Database &lt;მიგრაციის სახელი&gt;</code>: „ბაზა ამ წერტილამდე დააბრუნე“. სრულდება AddCategories-ის <code>Down()</code> — Categories და <code>CategoryId</code> იშლება.</p>
+<div class="codebox"><div class="ch"><span>Package Manager Console</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln">Update-Database</span><span class="ln">Applying migration '…_AddCategories'.</span><span class="ln">Done.</span></code></pre></div>
+<p>⏩ <strong>წინ</strong> — ისევ <code>Update-Database</code>: ცხრილი და სვეტი ბრუნდება.</p>
+<div class="callout warn"><span class="ci">⚠️</span><div><p>უკან დაბრუნებისას წაშლილ სვეტებში არსებული მონაცემი <strong>იკარგება</strong> — წინ რომ წახვალ, სტრუქტურა დაბრუნდება, მონაცემი კი არა. ეს სასწავლო ბაზისთვისაა; რეალურ ბაზაზე ახალ მიგრაციას წერენ.</p></div></div></article>
+<article class="blk" data-slides="31"><span class="anchor" id="s-31"></span><div class="bh"><h3>მიგრაციების 6 ბრძანება</h3><a class="chip" href="index.html#/31" data-go="31" title="პრეზენტაციაში გახსნა">სლაიდი 31</a></div>
+<table>
+<thead>
+<tr>
+<th>Package Manager Console</th>
+<th>ტერმინალი (<code>dotnet ef …</code>)</th>
+<th>რას აკეთებს</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Add-Migration X</code></td>
+<td><code>migrations add X</code></td>
+<td>ახალი მიგრაციის ფაილი</td>
+</tr>
+<tr>
+<td><code>Update-Database</code></td>
+<td><code>database update</code></td>
+<td>ბაზა ბოლო მიგრაციამდე</td>
+</tr>
+<tr>
+<td><code>Update-Database X</code></td>
+<td><code>database update X</code></td>
+<td>ბაზა X-მდე (უკანაც)</td>
+</tr>
+<tr>
+<td><code>Remove-Migration</code></td>
+<td><code>migrations remove</code></td>
+<td>ბოლო <strong>გაუშვებელი</strong> მიგრაციის წაშლა</td>
+</tr>
+<tr>
+<td><code>Get-Migration</code></td>
+<td><code>migrations list</code></td>
+<td>მიგრაციების სია და სტატუსი</td>
+</tr>
+<tr>
+<td><code>Script-Migration</code></td>
+<td><code>migrations script</code></td>
+<td>მიგრაციები SQL სკრიპტად</td>
+</tr>
+</tbody>
+</table></article>
+<article class="blk" data-slides="32"><span class="anchor" id="s-32"></span><div class="bh"><h3>მიგრაციების 4 ოქროს წესი</h3><a class="chip" href="index.html#/32" data-go="32" title="პრეზენტაციაში გახსნა">სლაიდი 32</a></div>
+<ol>
+<li><strong>ერთი ცვლილება = ერთი მიგრაცია</strong>, გასაგები სახელით: <code>AddProductStock</code>, არა <code>Migration2</code>.</li>
+<li><strong><code>Update-Database</code>-მდე — წაიკითხე მიგრაციის ფაილი.</strong> ყოველთვის. დღეს რომ წაგვეკითხა, FK-ის პრობლემას წინასწარ დავინახავდით.</li>
+<li><strong>გაშვებულს არ ვეხებით</strong> — გაშვებულ მიგრაციას არ ვასწორებთ და არ ვშლით; ახალს ვწერთ.</li>
+<li><strong>ბაზას ხელით არ ვცვლით</strong> — SSMS-ში მხოლოდ ვამოწმებთ. ხელით ცვლილება მიგრაციებს „აბნევს“.</li>
+</ol></article>
+<h2 class="sec" id="sec-7">4 · პრაქტიკა</h2>
+<article class="blk" data-slides="33"><span class="anchor" id="s-33"></span><div class="bh"><h3>ნაწილი 4 · თქვენი ჯერია</h3><a class="chip" href="index.html#/33" data-go="33" title="პრეზენტაციაში გახსნა">სლაიდი 33</a></div>
+<p>ბაზას ვზრდით კოდით: სვეტი, ცხრილი, კავშირი.</p></article>
+<article class="blk" data-slides="34"><span class="anchor" id="s-34"></span><div class="bh"><h3>სამი რაუნდი: მე → ერთად → თქვენ</h3><a class="chip" href="index.html#/34" data-go="34" title="პრეზენტაციაში გახსნა">სლაიდი 34</a></div>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>რას ვაკეთებთ</th>
+<th>პროექტი</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>👨‍🏫 მე ვაკეთებ</td>
+<td>Stock · Categories · ისტორია</td>
+<td>ShopDemo · ✓ დასრულდა</td>
+</tr>
+<tr>
+<td>👥 ერთად ვაკეთებთ</td>
+<td>Books → Pages → Genres</td>
+<td>LibraryDemo · ~19 წთ</td>
+</tr>
+<tr>
+<td>🧑‍💻 თქვენ აკეთებთ</td>
+<td>Students → Groups</td>
+<td>SchoolDemo · ~13 წთ</td>
+</tr>
+</tbody>
+</table>
+<p>ორივე პროექტი — ნულიდან: ჯერ InitialCreate მონაცემებით, მერე ცვლილებები. setup სწრაფად გავა; მთავარი — ცვლილებები და ისტორია.</p></article>
+<article class="blk" data-slides="35"><span class="anchor" id="s-35"></span><div class="bh"><h3>👥 ერთად: LibraryDemo — წიგნს გვერდები და ჟანრი</h3><a class="chip" href="index.html#/35" data-go="35" title="პრეზენტაციაში გახსნა">სლაიდი 35</a></div>
+<div class="codebox"><div class="ch"><span>Book.cs · საბოლოო ვერსია</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="k">public</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">Book</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">Id</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">get</span><span class="p">;</span><span class="w"> </span><span class="k">set</span><span class="p">;</span><span class="w"> </span><span class="p">}</span></span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="n">Title</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">get</span><span class="p">;</span><span class="w"> </span><span class="k">set</span><span class="p">;</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kt">string</span><span class="p">.</span><span class="n">Empty</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="n">Author</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">get</span><span class="p">;</span><span class="w"> </span><span class="k">set</span><span class="p">;</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kt">string</span><span class="p">.</span><span class="n">Empty</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">Year</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">get</span><span class="p">;</span><span class="w"> </span><span class="k">set</span><span class="p">;</span><span class="w"> </span><span class="p">}</span></span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">Pages</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">get</span><span class="p">;</span><span class="w"> </span><span class="k">set</span><span class="p">;</span><span class="w"> </span><span class="p">}</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="kt">int?</span><span class="w"> </span><span class="n">GenreId</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">get</span><span class="p">;</span><span class="w"> </span><span class="k">set</span><span class="p">;</span><span class="w"> </span><span class="p">}</span></span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="n">Genre</span><span class="o">?</span><span class="w"> </span><span class="n">Genre</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">get</span><span class="p">;</span><span class="w"> </span><span class="k">set</span><span class="p">;</span><span class="w"> </span><span class="p">}</span></span><span class="ln"><span class="p">}</span></span></code></pre></div>
+<div class="codebox"><div class="ch"><span>Genre.cs · ახალი</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="k">public</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">Genre</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">Id</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">get</span><span class="p">;</span><span class="w"> </span><span class="k">set</span><span class="p">;</span><span class="w"> </span><span class="p">}</span></span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="n">Name</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">get</span><span class="p">;</span><span class="w"> </span><span class="k">set</span><span class="p">;</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kt">string</span><span class="p">.</span><span class="n">Empty</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="n">List</span><span class="o">&lt;</span><span class="n">Book</span><span class="o">&gt;</span><span class="w"> </span><span class="n">Books</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">get</span><span class="p">;</span><span class="w"> </span><span class="k">set</span><span class="p">;</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">List</span><span class="o">&lt;</span><span class="n">Book</span><span class="o">&gt;</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="p">}</span></span></code></pre></div>
+<ol>
+<li>ახალი LibraryDemo · 4 პაკეტი · DataContext · ბაზა <strong>LibraryDb</strong></li>
+<li><code>Book</code> (Id, Title, Author, Year) → <code>InitialCreate</code> → Update · 2 წიგნი</li>
+<li><code>Book</code>-ს <code>Pages</code> → <code>AddBookPages</code> → <strong>წაიკითხე</strong> → Update · SSMS: ძველ წიგნებს 0</li>
+<li><code>Genre</code> + <code>GenreId?</code> + <code>DbSet&lt;Genre&gt;</code> → <code>AddGenres</code> → წაიკითხე → Update</li>
+<li>Program.cs: ჟანრი წიგნით, <code>Include(b =&gt; b.Genre)</code>, დაბეჭდე</li>
+</ol>
+<p>(InitialCreate-ისთვის <code>Book</code>-ს ჯერ <code>Pages</code>, <code>GenreId</code> და <code>Genre</code> არ აქვს — ისინი ცვლილებებით ემატება.)</p></article>
+<h2 class="sec" id="sec-8">პრაქტიკა</h2>
+<article class="blk" data-slides="36"><span class="anchor" id="s-36"></span><div class="bh"><h3>კლასში დავალება: SchoolDemo — დამოუკიდებლად</h3><a class="chip" href="index.html#/36" data-go="36" title="პრეზენტაციაში გახსნა">სლაიდი 36</a></div>
+<p>დავალება · ~13 წთ</p>
+<h3>ნაბიჯები</h3>
+<ul>
+<li>ახალი <strong>SchoolDemo</strong>, ბაზა <strong>SchoolDb</strong></li>
+<li><code>Student</code>: <code>Id</code>, <code>FirstName</code>, <code>LastName</code> → <code>InitialCreate</code> + 3 სტუდენტი</li>
+<li>ახალი Entity <code>Group</code>: <code>Id</code>, <code>Name</code> — ერთ ჯგუფში ბევრი სტუდენტი → მიგრაცია</li>
+<li><code>Program.cs</code>: 2 ჯგუფი, სტუდენტები გაანაწილე და დაბეჭდე „ჯგუფი → სტუდენტები“</li>
+</ul>
+<h3>✓ მზადაა, როცა</h3>
+<p>SSMS-ში ჩანს Groups + FK, და კონსოლი ჯგუფებს სტუდენტებით ბეჭდავს</p>
+<h3>💡 მინიშნება</h3>
+<p>სად იქნება FK — Students-ში თუ Groups-ში? („ბევრის“ მხარეს.) ძველ სტუდენტებს ჯგუფი არ აქვთ — გაიხსენე AddCategories. ჯგუფიდან სტუდენტები: <code>db.Groups.Include(g =&gt; g.Students)</code>.</p></article>
+<h2 class="sec" id="sec-9">4 · პრაქტიკა</h2>
+<article class="blk" data-slides="37"><span class="anchor" id="s-37"></span><div class="bh"><h3>მიგრაციების ხშირი შეცდომები</h3><a class="chip" href="index.html#/37" data-go="37" title="პრეზენტაციაში გახსნა">სლაიდი 37</a></div>
+<table>
+<thead>
+<tr>
+<th>შეცდომა</th>
+<th>მიზეზი</th>
+<th>გამოსწორება</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>The ALTER TABLE statement conflicted with the FOREIGN KEY constraint</code></td>
+<td>ძველ ჩანაწერებს FK = 0</td>
+<td><code>int?</code> → <code>Remove-Migration</code> → თავიდან</td>
+</tr>
+<tr>
+<td><code>The model for context 'DataContext' has pending changes</code></td>
+<td>კლასი შეცვალე, მიგრაცია არ დაამატე</td>
+<td>ჯერ <code>Add-Migration</code>, მერე Update</td>
+</tr>
+<tr>
+<td><code>Invalid column name 'Pages'</code></td>
+<td>პროგრამა <code>Update-Database</code>-მდე გაუშვი</td>
+<td><code>Update-Database</code></td>
+</tr>
+<tr>
+<td><code>The migration '…' has already been applied to the database</code></td>
+<td><code>Remove-Migration</code> გაშვებულ მიგრაციაზე</td>
+<td>ჯერ <code>Update-Database &lt;წინა&gt;</code>, მერე Remove</td>
+</tr>
+<tr>
+<td><code>There is already an object named 'Books' in the database</code></td>
+<td>ბაზა ხელით შეიცვალა ან Migrations წაიშალა</td>
+<td>SSMS-ში ხელით — არა · სასწავლო ბაზა: <code>Drop-Database</code></td>
+</tr>
+<tr>
+<td>მიგრაცია შეიქმნა, <code>Up()</code> ცარიელია</td>
+<td>ფაილი არ შეინახე (Ctrl+S)</td>
+<td><code>Remove-Migration</code> → Ctrl+S → თავიდან</td>
+</tr>
+</tbody>
+</table>
+<div class="prompt"><div class="ph"><span>🤖 მიგრაციის შეცდომა</span><button class="copy" type="button">კოპირება</button></div><div class="pb">ვმუშაობ EF Core Code First-ით (SQL Server, Package Manager Console). Update-Database / Add-Migration-ზე მაქვს შეცდომა: [ჩასვი ტექსტი]
+აი ჩემი Entity კლასები და მიგრაციის Up() მეთოდი: [ჩასვი]
+ამიხსენი, რატომ მოხდა და რა ნაბიჯებით გავასწორო ისე, რომ მონაცემები არ დავკარგო. ქართულად.</div></div></article>
+<h2 class="sec" id="sec-10">შეჯამება</h2>
+<article class="blk" data-slides="38"><span class="anchor" id="s-38"></span><div class="bh"><h3>შეამოწმე, რა დაგამახსოვრდა</h3><a class="chip" href="index.html#/38" data-go="38" title="პრეზენტაციაში გახსნა">სლაიდი 38</a></div>
+<p>ეს კითხვები შემდეგი ლექციის დასაწყისშიც დაისმება.</p>
+<div class="selfcheck"><div class="sh">✅ შეამოწმე თავი <small>დაფიქრდი, მერე გახსენი პასუხი</small></div><details><summary>რა არის ჭეშმარიტების წყარო Code First-ში და Database First-ში?</summary><div class="ans">C# კლასები · ბაზა</div></details><details><summary>Database First-ის მთავარი ბრძანება?</summary><div class="ans"><code>Scaffold-DbContext</code> — ბაზიდან კლასებს და DbContext-ს აგენერირებს</div></details><details><summary>ბანკის 15 წლის ბაზა, რომელსაც 5 პროგრამა იყენებს — რომელს ავირჩევთ?</summary><div class="ans">Database First — ბაზა უკვე არსებობს და ჩვენი არ არის</div></details><details><summary>AddCategories რატომ ჩავარდა პირველად?</summary><div class="ans">ძველ პროდუქტებს <code>CategoryId = 0</code> ჩაეწერა, კატეგორია Id = 0 კი არ არსებობდა → <code>int?</code></div></details><details><summary><code>Remove-Migration</code> vs <code>Update-Database &lt;სახელი&gt;</code>?</summary><div class="ans">Remove — შლის გაუშვებელ ფაილს · Update-Database &lt;სახელი&gt; — ბაზას აბრუნებს</div></details></div></article>
+<article class="blk" data-slides="39"><span class="anchor" id="s-39"></span><div class="bh"><h3>შეჯამება · კოდი ქმნის ბაზას — ან ბაზა ქმნის კოდს</h3><a class="chip" href="index.html#/39" data-go="39" title="პრეზენტაციაში გახსნა">სლაიდი 39</a></div>
+<p><strong>დაიმახსოვრე:</strong></p>
+<ol>
+<li><strong>ბაზა შენია და ახლა იქმნება → Code First; არსებობს ან სხვისია → Database First.</strong></li>
+<li>Code First-ში ბაზა კოდთან ერთად იზრდება: კლასი → <code>Add-Migration</code> → <strong>წაიკითხე</strong> → <code>Update-Database</code>.</li>
+<li>ახალ FK-ზე ძველი ჩანაწერები: <code>int?</code>, ან ჯერ მონაცემი. მიგრაციები — ბაზის Git: წინ, უკან, <code>Script-Migration</code>.</li>
+</ol>
+<h3>⏭️ ლექცია 2</h3>
+<p>Database First პრაქტიკაში: SQL სკრიპტით შექმნილი ბაზა → <code>Scaffold-DbContext</code> → კლასები თავისით.</p>
+<div class="prompt"><div class="ph"><span>🤖 გამოცდა ლექციაზე</span><button class="copy" type="button">კოპირება</button></div><div class="pb">ვსწავლობ EF Core-ს. გავიარეთ: Code First vs Database First, ჭეშმარიტების წყარო, Scaffold-DbContext, partial, მიგრაციები (Add-Migration, Update-Database, Remove-Migration, Update-Database &lt;name&gt;, Script-Migration), 1-N კავშირი, int? FK და Include.
+დამისვი 8 კითხვა სათითაოდ — ზოგი სიტუაციაზე („რომელ მიდგომას აირჩევ?“) და ზოგი მიგრაციის შეცდომაზე. შემიფასე და ამიხსენი. ბოლოს მითხარი, რა გავიმეორო. ქართულად.</div></div></article>
+<h2 class="sec" id="sec-11">საშინაო</h2>
+<article class="blk" data-slides="40"><span class="anchor" id="s-40"></span><div class="bh"><h3>საშინაო დავალება: SchoolDemo — ისტორიაში მოგზაურობა</h3><a class="chip" href="index.html#/40" data-go="40" title="პრეზენტაციაში გახსნა">სლაიდი 40</a></div>
+<p>მიგრაციები წინ, უკან და SQL-ად</p>
+<h3>მოთხოვნები</h3>
+<ul>
+<li>SchoolDemo ბოლომდე: Group + 1-N კავშირი + დაბეჭდვა (თუ კლასში ვერ მორჩით)</li>
+<li><code>Student</code>-ს <code>Email</code> → <code>Add-Migration AddStudentEmail</code> → წაიკითხე → <code>Update-Database</code></li>
+<li><code>Update-Database &lt;Groups-ის მიგრაცია&gt;</code> — უკან; SSMS: Email გაქრა? მერე ისევ წინ</li>
+<li><code>Script-Migration</code> — შეინახე SQL, რომელიც EF-მა დაწერა</li>
+</ul>
+<h3>✓ მზადაა, როცა</h3>
+<p><code>__EFMigrationsHistory</code>-ში 3 მიგრაციაა, და შეგიძლია ახსნა, რა მოხდა Email-ის მონაცემებს უკან დაბრუნებისას</p>
+<h3>⭐ ბონუსი</h3>
+<ul>
+<li>Email-ს <code>int?</code>-ის მსგავსად ისე დაამატე, რომ ძველ სტუდენტებს ცარიელი კი არა, <code>NULL</code> ჰქონდეთ (<code>string?</code>)</li>
+</ul></article>
+  </main>
+</div>
+<script>
+const DECK = "Entity Framework Core · 2 — Code First vs Database First";
+if (matchMedia('(min-width:981px)').matches) document.getElementById('tocd').open = true;
+const blocks = [...document.querySelectorAll('.blk')];
+const tocLinks = [...document.querySelectorAll('nav.toc a[href^="#sec-"]')];
+const secOf = b => { let e = b; while (e && !(e.matches && e.matches('h2.sec'))) e = e.previousElementSibling; return e; };
+function mark(b, toc_only) {
+  if (!toc_only) blocks.forEach(x => x.classList.toggle('cur', x === b));
+  const s = b && secOf(b); tocLinks.forEach(a => a.classList.toggle('cur', s && a.getAttribute('href') === '#' + s.id));
+}
+const blockFor = n => blocks.find(b => b.dataset.slides.split(',').includes(String(n)));
+
+// copy buttons (code: one line per .ln)
+document.addEventListener('click', e => {
+  const btn = e.target.closest('.copy'); if (!btn) return;
+  const box = btn.closest('.codebox, .prompt');
+  const text = box.matches('.prompt') ? box.querySelector('.pb').textContent : [...box.querySelectorAll('.ln')].map(l => l.textContent).join('\n');
+  navigator.clipboard.writeText(text).then(() => { btn.textContent = '✓ დაკოპირდა'; btn.classList.add('ok'); setTimeout(() => { btn.textContent = 'კოპირება'; btn.classList.remove('ok'); }, 1600); });
+});
+
+// live mode: opened from the deck with P — follow the projector
+const live = new URLSearchParams(location.search).has('live');
+let follow = true, bc = null;
+const liveBtn = document.getElementById('live');
+if (live) {
+  try { bc = new BroadcastChannel('deck-' + DECK); } catch (e) {}
+  liveBtn.classList.add('on');
+  liveBtn.onclick = () => { follow = !follow; liveBtn.classList.toggle('off', !follow); liveBtn.querySelector('.lt').textContent = follow ? 'მიჰყვება სლაიდებს' : 'თავისუფლად ვკითხულობ'; };
+  if (bc) {
+    bc.onmessage = ({ data }) => {
+      if (data.t !== 'state' || !follow) return;
+      const b = blockFor(data.i + 1); if (!b || b.classList.contains('cur')) return;
+      mark(b); b.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    };
+    bc.postMessage({ t: 'hello' });
+  }
+  document.addEventListener('click', e => {   // slide chip → move the projector deck
+    const c = e.target.closest('.chip[data-go]'); if (!c || !bc) return;
+    e.preventDefault(); bc.postMessage({ t: 'go', n: +c.dataset.go - 1 });
+  });
+}
+// deep link #s-12
+const h = location.hash.match(/^#s-(\d+)$/);
+if (h) { const b = blockFor(+h[1]); if (b) { mark(b); setTimeout(() => b.scrollIntoView({ block: 'start' }), 50); } }
+// highlight section in the TOC while reading
+const io = new IntersectionObserver(es => es.forEach(x => { if (x.isIntersecting && !(live && follow)) mark(x.target, true); }), { rootMargin: '-30% 0px -60% 0px' });
+blocks.forEach(b => io.observe(b));
+</script>
+</body></html>
