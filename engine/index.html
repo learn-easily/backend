@@ -61,7 +61,7 @@ footer kbd{font:500 12px var(--mono);border:1px solid var(--line);border-radius:
 <a class="last" id="last"><span class="lbl">ბოლოს გახსნილი</span><span class="t"></span><span class="go">გაგრძელება →</span></a>
 <div id="courses"></div>
 <div class="empty" id="empty">ვერაფერი მოიძებნა</div>
-<footer>პრეზენტაციაში: <kbd>F</kbd> სრული ეკრანი · <kbd>←</kbd> <kbd>→</kbd> ნავიგაცია · <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>P</kbd> ლექტორის ფანჯარა (Chrome/Edge) · <kbd>O</kbd> ყველა სლაიდი</footer>
+<footer>პრეზენტაციაში: <kbd>F</kbd> სრული ეკრანი · <kbd>←</kbd> <kbd>→</kbd> ნავიგაცია · <kbd>P</kbd> კონსპექტი სლაიდებთან ერთად · <kbd>O</kbd> ყველა სლაიდი</footer>
 </main>
 <script>
 const CATALOG = /*CATALOG*/[];
@@ -72,7 +72,7 @@ document.getElementById('sub').textContent = `${CATALOG.length} კურსი 
 const COLORS = ['#6d28d9', '#0d9488', '#d97706', '#2563eb', '#db2777'];
 document.getElementById('courses').innerHTML = CATALOG.map((c, ci) => `
   <section class="course" data-course="${esc(c.slug)}" style="--c:${COLORS[ci % COLORS.length]}">
-    <h2>${esc(c.title)}<small>${esc(c.audience)} · ${c.lectures.length} ლექცია</small></h2>
+    <h2>${esc(c.title)}<small>${c.lectures.length} ლექცია</small></h2>
     <div class="grid">${c.lectures.map(l => {
       const href = `${c.slug}/${l.slug}/`;
       const name = `${esc(c.title)} · ${l.num} — ${esc(l.title)}`;
@@ -81,7 +81,7 @@ document.getElementById('courses').innerHTML = CATALOG.map((c, ci) => `
         <div class="top"><span class="num">ლექცია ${l.num}</span><span class="slides">${l.slides} სლაიდი</span></div>
         <a class="title" href="${href}" data-open="${name}">${esc(l.title)}</a>
         ${mats}
-        <div class="acts"><a class="btn play" href="${href}" data-open="${name}">▶ პრეზენტაცია</a><a class="btn" href="${href}script.html">📜 სცენარი</a></div>
+        <div class="acts"><a class="btn play" href="${href}" data-open="${name}">▶ პრეზენტაცია</a>${l.study ? `<a class="btn" href="${href}study.html">📖 კონსპექტი</a>` : ``}</div>
       </article>`;
     }).join('')}</div>
   </section>`).join('');

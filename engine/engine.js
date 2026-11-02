@@ -1,16 +1,15 @@
 (() => {
-  const PRESENTER = new URLSearchParams(location.search).has('presenter');
+  // the study window (P) follows the deck over this channel; title is unique per lecture
   let bc = null; try { bc = new BroadcastChannel('deck-' + document.title); } catch (e) {}
   const deck = document.getElementById('deck');
   const slides = [...deck.querySelectorAll('.slide')];
   const hud = { sec: document.querySelector('#hud .sec'), num: document.querySelector('#hud .num'), dots: document.querySelector('#hud .dots') };
   const bar = document.getElementById('bar');
-  const notes = document.getElementById('notes');
   const ov = document.getElementById('overview');
 
   // ----- build step groups per slide -----
   const groups = slides.map(s => {
-    const els = [...s.querySelectorAll('.step, .trigger, .codestep')].filter(e => !e.closest('.notes'));
+    const els = [...s.querySelectorAll('.step, .trigger, .codestep')].filter(e => !e.closest('.study'));
     const g = [];
     els.forEach(e => { if (e.hasAttribute('data-with') && g.length) g[g.length - 1].push(e); else g.push([e]); });
     return g;
@@ -76,13 +75,8 @@
     const n = groups[i].length;
     hud.dots.innerHTML = n ? Array.from({ length: n }, (_, x) => x < k ? '<b>●</b>' : '○').join('') : '';
     bar.style.width = ((i + (n ? k / n : 1)) / slides.length * 100) + '%';
-    const nt = s.querySelector('.notes');
-    notes.innerHTML = `<h6>შენიშვნები ლექტორისთვის · სლაიდი ${i + 1}</h6>` + (nt ? nt.innerHTML : '<span class="muted">—</span>');
-    notes.querySelectorAll('.cue').forEach(c => { const n = +c.dataset.c; c.classList.toggle('done', n <= k); c.classList.toggle('next', n === k + 1); });
-    const nx = notes.querySelector('.cue.next'); if (nx && notes.classList.contains('open')) nx.scrollIntoView({ block: 'nearest' });
     history.replaceState(null, '', `#/${i + 1}${k ? '.' + k : ''}`);
-    try { bc && !PRESENTER && bc.postMessage({ t: 'state', i, k }); } catch (e) {}
-    if (PRESENTER) renderPresenter();
+    try { bc && bc.postMessage({ t: 'state', i, k }); } catch (e) {}
     [...ov.children].forEach((b, x) => b.classList.toggle('cur', x === i));
   }
 
@@ -99,50 +93,24 @@
     ov.appendChild(b);
   });
 
-  const t0 = Date.now();
-  function renderPresenter() {
-    const P = document.getElementById('presenter'); if (!P) return;
-    const sl = slides[i], nt = sl.querySelector('.notes');
-    const title = t => (t.querySelector('h1,h2')?.innerText || t.dataset.section || '').replace(/\n/g, ' ');
-    P.querySelector('.p-title').textContent = `${i + 1} / ${slides.length} · ${title(sl)}`;
-    P.querySelector('.p-next').textContent = i < slides.length - 1 ? 'შემდეგი სლაიდი: ' + title(slides[i + 1]) : 'ბოლო სლაიდი';
-    P.querySelector('.p-steps').textContent = groups[i].length ? `ნაბიჯი ${k} / ${groups[i].length}` : '';
-    const body = P.querySelector('.p-notes'); body.innerHTML = nt ? nt.innerHTML : '';
-    body.querySelectorAll('.cue').forEach(c => { const n = +c.dataset.c; c.classList.toggle('done', n <= k); c.classList.toggle('next', n === k + 1); });
-    (body.querySelector('.cue.next') || body.firstElementChild)?.scrollIntoView({ block: 'center', behavior: 'smooth' });
-  }
   if (bc) bc.onmessage = ({ data }) => {
-    if (PRESENTER && data.t === 'state') { i = data.i; k = data.k; render(true); }
-    if (!PRESENTER && data.t === 'cmd') { ({ next, prev, go: () => go(data.n) })[data.c](); }
-    if (!PRESENTER && data.t === 'hello') bc.postMessage({ t: 'state', i, k });
+    if (data.t === 'hello') bc.postMessage({ t: 'state', i, k });
+    if (data.t === 'go') go(data.n);
   };
-  if (PRESENTER) {
-    document.body.classList.add('presenter');
-    const P = document.createElement('div'); P.id = 'presenter';
-    P.innerHTML = '<div class="p-head"><span class="p-title"></span><span class="p-steps"></span><span class="p-clock"></span></div><div class="p-notes"></div><div class="p-foot"><span class="p-next"></span><span class="p-help">→ შემდეგი · ← წინა · ეს ფანჯარა მართავს პროექტორზე გახსნილ სლაიდებს</span></div>';
-    document.body.appendChild(P);
-    setInterval(() => { const m = Math.floor((Date.now() - t0) / 60000); P.querySelector('.p-clock').textContent = `⏱ ${String(Math.floor(m / 60)).padStart(1, '0')}:${String(m % 60).padStart(2, '0')}`; }, 1000);
-    try { bc.postMessage({ t: 'hello' }); } catch (e) {}
-    document.addEventListener('keydown', e => {
-      const fwd = ['ArrowRight'], back = ['ArrowLeft'];
-      if (fwd.includes(e.key)) { e.preventDefault(); bc.postMessage({ t: 'cmd', c: 'next' }); }
-      else if (back.includes(e.key)) { e.preventDefault(); bc.postMessage({ t: 'cmd', c: 'prev' }); }
-    });
-  }
+  const openStudy = () => window.open('study.html?live#s-' + (i + 1), 'study-' + document.title, 'width=900,height=900');
+
   document.addEventListener('keydown', e => {
-    if (PRESENTER) return;
-    if ((e.ctrlKey || e.metaKey) && e.shiftKey && (e.key === 'p' || e.key === 'P')) { e.preventDefault(); window.open(location.pathname + '?presenter' + location.hash, 'presenter', 'width=1100,height=800'); return; }
     if (e.ctrlKey || e.metaKey || e.altKey) return;
-    const key = e.key;
+    const key = e.key, code = e.code;
     if (key === 'ArrowRight') { e.preventDefault(); e.shiftKey ? go(i + 1) : next(); }
     else if (key === 'ArrowLeft') { e.preventDefault(); e.shiftKey ? go(i - 1) : prev(); }
     else if ([' ', 'Enter', 'PageDown', 'PageUp', 'ArrowDown', 'ArrowUp', 'Backspace'].includes(key)) { e.preventDefault(); }
     else if (key === 'Home') go(0);
     else if (key === 'End') go(slides.length - 1, true);
-    else if (key === 'n' || key === 'N') notes.classList.toggle('open');
-    else if (key === 'o' || key === 'O' || key === 'Escape') ov.classList.toggle('open', key === 'Escape' ? false : !ov.classList.contains('open'));
-    else if (key === 'f' || key === 'F') { document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen?.(); }
-    else if (key === 'a' || key === 'A') { k = groups[i].length; render(true); }
+    else if (code === 'KeyO' || key === 'Escape') ov.classList.toggle('open', key === 'Escape' ? false : !ov.classList.contains('open'));
+    else if (code === 'KeyF') { document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen?.(); }
+    else if (code === 'KeyA') { k = groups[i].length; render(true); }
+    else if (code === 'KeyP' && document.body.dataset.study) { e.preventDefault(); openStudy(); }
   });
   addEventListener('hashchange', () => { const oi = i, ok = k; parseHash(); if (oi !== i || ok !== k) render(true); });
 

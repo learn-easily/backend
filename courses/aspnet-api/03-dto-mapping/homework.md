@@ -1,0 +1,90 @@
+# MembersController — პაროლი გარეთ არ გადის
+
+LibraryApi-ს ბიბლიოთეკის წევრები ემატება
+
+## მოთხოვნები
+
+- `Models/Member`: `Id`, `FullName`, `Email`, `PasswordHash`, `JoinedAt`
+- `Dtos/`: **CreateMemberRequest** (FullName, Email, Password), **UpdateMemberRequest** (FullName, Email), **MemberResponse** (Id, FullName, Email, JoinedAt)
+- `Mappers/MemberMapper` — პირდაპირ **Mapperly**-ით
+- **MembersController** — სრული CRUD, სწორი სტატუს კოდები
+- Create-ში: `Id`, `JoinedAt` და `PasswordHash` სერვერი ავსებს
+
+## ✓ მზადაა, როცა
+
+`passwordHash` არცერთ პასუხში არ ჩანს, POST არ ითხოვს `id`-ს და `joinedAt`-ს, Build-ზე Mapperly-ს გაფრთხილება არ რჩება
+
+## ⭐ ბონუსი
+
+- Create: ეს Email უკვე არსებობს → `Conflict()` (409)
+- `GET /api/members/search?email=...` → `MemberResponse` ან 404
+
+## 💡 მინიშნება
+
+პაროლის hash-ისთვის ახალი package არ გჭირდებათ — ASP.NET Core-ში უკვე არის:
+
+```csharp
+using Microsoft.AspNetCore.Identity;
+
+var hasher = new PasswordHasher<Member>();
+member.PasswordHash = hasher.HashPassword(member, request.Password);
+```
+
+`Password` და `PasswordHash` სხვადასხვა სახელია — ნახეთ, რას გეტყვით Mapperly და როგორ უპასუხებთ.
+
+## ამოხსნა
+
+DTO-ები: `Password` მხოლოდ შემოდის, `PasswordHash` საერთოდ არსად გადის.
+
+```csharp Dtos/MemberDtos.cs
+public record CreateMemberRequest(string FullName, string Email, string Password);
+
+public record UpdateMemberRequest(string FullName, string Email);
+
+public record MemberResponse(int Id, string FullName, string Email, DateTime JoinedAt);
+```
+
+Mapper: ყველა „განზრახ გამოტოვებული“ ველი ცხადად წერია.
+
+```csharp Mappers/MemberMapper.cs
+[Mapper]
+public static partial class MemberMapper
+{
+    [MapperIgnoreSource(nameof(Member.PasswordHash))]
+    public static partial MemberResponse ToResponse(this Member member);
+
+    [MapperIgnoreSource(nameof(CreateMemberRequest.Password))]
+    [MapperIgnoreTarget(nameof(Member.Id))]
+    [MapperIgnoreTarget(nameof(Member.PasswordHash))]
+    [MapperIgnoreTarget(nameof(Member.JoinedAt))]
+    public static partial Member ToEntity(this CreateMemberRequest request);
+
+    [MapperIgnoreTarget(nameof(Member.Id))]
+    [MapperIgnoreTarget(nameof(Member.PasswordHash))]
+    [MapperIgnoreTarget(nameof(Member.JoinedAt))]
+    public static partial void UpdateFrom([MappingTarget] this Member member, UpdateMemberRequest request);
+}
+```
+
+Controller — Create, ბონუსით:
+
+```csharp Controllers/MembersController.cs
+[HttpPost]
+public IActionResult Create(CreateMemberRequest request)
+{
+    if (_members.Any(m => m.Email == request.Email))
+        return Conflict();
+
+    var member = request.ToEntity();
+    member.Id = _nextId++;
+    member.JoinedAt = DateTime.UtcNow;
+    member.PasswordHash = _hasher.HashPassword(member, request.Password);
+    _members.Add(member);
+
+    return CreatedAtAction(nameof(GetById), new { id = member.Id }, member.ToResponse());
+}
+```
+
+```note
+`_hasher` — `private static readonly PasswordHasher<Member> _hasher = new();` Controller-ის თავში. ერთი და იგივე hash-ი ერთ პაროლზე ორჯერ არ გამოვა: `PasswordHasher` ყოველ ჯერზე ახალ „მარილს“ (salt) ამატებს. შემოწმება `VerifyHashedPassword`-ით ხდება — ამას ავტორიზაციის თემაში ვნახავთ.
+```

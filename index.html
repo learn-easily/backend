@@ -61,10 +61,10 @@ footer kbd{font:500 12px var(--mono);border:1px solid var(--line);border-radius:
 <a class="last" id="last"><span class="lbl">ბოლოს გახსნილი</span><span class="t"></span><span class="go">გაგრძელება →</span></a>
 <div id="courses"></div>
 <div class="empty" id="empty">ვერაფერი მოიძებნა</div>
-<footer>პრეზენტაციაში: <kbd>F</kbd> სრული ეკრანი · <kbd>←</kbd> <kbd>→</kbd> ნავიგაცია · <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>P</kbd> ლექტორის ფანჯარა (Chrome/Edge) · <kbd>O</kbd> ყველა სლაიდი</footer>
+<footer>პრეზენტაციაში: <kbd>F</kbd> სრული ეკრანი · <kbd>←</kbd> <kbd>→</kbd> ნავიგაცია · <kbd>P</kbd> კონსპექტი სლაიდებთან ერთად · <kbd>O</kbd> ყველა სლაიდი</footer>
 </main>
 <script>
-const CATALOG = [{"slug": "aspnet-api", "title": "ASP.NET Core Web API", "audience": "IT Academy STEP", "order": 1, "lectures": [{"num": 1, "slug": "01-backend-rest-intro", "title": "Backend, API, REST და პირველი Web API", "slides": 43, "materials": [], "problems": []}, {"num": 2, "slug": "02-controllers-rest-crud", "title": "Minimal API vs Controller, REST, CRUD და Swagger", "slides": 42, "materials": [], "problems": []}, {"num": 3, "slug": "03-dto-mapping", "title": "DTO და Mapping", "slides": 33, "materials": [], "problems": []}, {"num": 4, "slug": "04-ioc-di", "title": "Inversion of Control და Dependency Injection", "slides": 35, "materials": [], "problems": []}, {"num": 5, "slug": "05-di-full-picture", "title": "Dependency Injection: სრული სურათი", "slides": 32, "materials": [], "problems": []}]}, {"slug": "efcore", "title": "Entity Framework Core", "audience": "IT Academy STEP", "order": 2, "lectures": [{"num": 1, "slug": "01-orm-console-setup", "title": "EF Core კონსოლში — ORM, DataContext, მიგრაცია", "slides": 37, "materials": [], "problems": []}, {"num": 2, "slug": "02-code-first-vs-database-first", "title": "Code First vs Database First", "slides": 38, "materials": [], "problems": []}, {"num": 3, "slug": "03-database-first", "title": "Database First პრაქტიკაში", "slides": 32, "materials": ["CinemaDb-change.sql", "CinemaDb.sql", "LibraryDb-change.sql", "LibraryDb.sql", "StoreDb-change.sql", "StoreDb.sql"], "problems": []}]}, {"slug": "school-backend", "title": "Backend — სკოლის ჯგუფი", "audience": "C#, MS SQL, EF Core, ASP.NET", "order": 3, "lectures": [{"num": 1, "slug": "01-csharp-basics", "title": "C#-ის სამყარო — ცვლადები, if, ციკლები", "slides": 46, "materials": [], "problems": []}]}];
+const CATALOG = [{"slug": "aspnet-api", "title": "ASP.NET Core Web API", "order": 1, "lectures": [{"num": 1, "slug": "01-backend-rest-intro", "title": "Backend, API, REST და პირველი Web API", "slides": 43, "materials": [], "study": false}, {"num": 2, "slug": "02-controllers-rest-crud", "title": "Minimal API vs Controller, REST, CRUD და Swagger", "slides": 42, "materials": [], "study": false}, {"num": 3, "slug": "03-dto-mapping", "title": "DTO და Mapping", "slides": 37, "materials": [], "study": true}, {"num": 4, "slug": "04-ioc-di", "title": "Inversion of Control და Dependency Injection", "slides": 35, "materials": [], "study": false}, {"num": 5, "slug": "05-di-full-picture", "title": "Dependency Injection: სრული სურათი", "slides": 32, "materials": [], "study": false}]}, {"slug": "efcore", "title": "Entity Framework Core", "order": 2, "lectures": [{"num": 1, "slug": "01-orm-console-setup", "title": "EF Core კონსოლში — ORM, DataContext, მიგრაცია", "slides": 37, "materials": [], "study": false}, {"num": 2, "slug": "02-code-first-vs-database-first", "title": "Code First vs Database First", "slides": 38, "materials": [], "study": false}, {"num": 3, "slug": "03-database-first", "title": "Database First პრაქტიკაში", "slides": 32, "materials": ["CinemaDb-change.sql", "CinemaDb.sql", "LibraryDb-change.sql", "LibraryDb.sql", "StoreDb-change.sql", "StoreDb.sql"], "study": false}]}, {"slug": "school-backend", "title": "C# საფუძვლები", "order": 3, "lectures": [{"num": 1, "slug": "01-csharp-basics", "title": "C#-ის სამყარო — ცვლადები, if, ციკლები", "slides": 46, "materials": [], "study": false}]}];
 const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
 const total = CATALOG.reduce((n, c) => n + c.lectures.length, 0);
 document.getElementById('sub').textContent = `${CATALOG.length} კურსი · ${total} ლექცია`;
@@ -72,7 +72,7 @@ document.getElementById('sub').textContent = `${CATALOG.length} კურსი 
 const COLORS = ['#6d28d9', '#0d9488', '#d97706', '#2563eb', '#db2777'];
 document.getElementById('courses').innerHTML = CATALOG.map((c, ci) => `
   <section class="course" data-course="${esc(c.slug)}" style="--c:${COLORS[ci % COLORS.length]}">
-    <h2>${esc(c.title)}<small>${esc(c.audience)} · ${c.lectures.length} ლექცია</small></h2>
+    <h2>${esc(c.title)}<small>${c.lectures.length} ლექცია</small></h2>
     <div class="grid">${c.lectures.map(l => {
       const href = `${c.slug}/${l.slug}/`;
       const name = `${esc(c.title)} · ${l.num} — ${esc(l.title)}`;
@@ -81,7 +81,7 @@ document.getElementById('courses').innerHTML = CATALOG.map((c, ci) => `
         <div class="top"><span class="num">ლექცია ${l.num}</span><span class="slides">${l.slides} სლაიდი</span></div>
         <a class="title" href="${href}" data-open="${name}">${esc(l.title)}</a>
         ${mats}
-        <div class="acts"><a class="btn play" href="${href}" data-open="${name}">▶ პრეზენტაცია</a><a class="btn" href="${href}script.html">📜 სცენარი</a></div>
+        <div class="acts"><a class="btn play" href="${href}" data-open="${name}">▶ პრეზენტაცია</a>${l.study ? `<a class="btn" href="${href}study.html">📖 კონსპექტი</a>` : ``}</div>
       </article>`;
     }).join('')}</div>
   </section>`).join('');

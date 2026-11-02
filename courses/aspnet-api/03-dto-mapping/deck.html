@@ -143,16 +143,11 @@ table.t td .new{color:var(--mvc);font:700 17px var(--mono)}
     <div class="in" style="--d:.9s;text-align:center;font:800 34px var(--mono);color:var(--muted);margin:6px 0">↓</div>
     <div class="dto in" style="--a:var(--mvc);--d:1s"><div class="h">ProductResponse</div><div class="f">Id · Name · Price</div></div>
   </div>
-  <aside class="notes">
-⏱ 0:00 · 2 წთ
-~ სლაიდი ღიაა, სანამ სტუდენტები სხდებიან.
-გამარჯობა! წინა ლექციაზე CRUD დავწერეთ, ხუთივე endpoint მუშაობს. დღეს ვნახავთ, რატომ არ წერენ რეალურ პროექტებში ასე და როგორ წერენ.
-დღის თემა: DTO და Mapping. მარჯვნივ ერთი და იგივე პროდუქტია სამ სხვადასხვა ფორმაში. ლექციის ბოლოს გეცოდინებათ, რატომ სჭირდება სამი ფორმა და როგორ გადადის მონაცემი ერთიდან მეორეში.
-  </aside>
 </section>
-
-<!-- 2. RECALL -->
-<section class="slide" data-section="შესავალი">
+<lecture-review/>
+<lecture-homework-review/>
+<lecture-intro/>
+<section class="slide" data-section="დღის თემა">
   <div class="kicker">გავიხსენოთ · ლექცია 2</div>
   <h2>წინა ლექციაზე <span class="grad">ასე დავწერეთ</span></h2>
   <div class="grid2" style="grid-template-columns:1.3fr 1fr;align-items:start;gap:30px">
@@ -185,23 +180,21 @@ public IActionResult Update(int id, Product updated) { ... }
       <div class="callout step" style="--a:var(--asp)">ერთი კლასი <b>ყველაფრისთვის</b>: შენახვა, მიღება, გაგზავნა. მუშაობს. <b>მაგრამ ასე არ კეთდება</b> 🤔</div>
     </div>
   </div>
-  <aside class="notes">
-⏱ 0:02 · 3 წთ
-~ თუ კლასში ოდნავ სხვანაირად დაწერეთ, შენი ვარიანტი აჩვენე — იდეა იგივეა: Product პირდაპირ შემოდის და გადის.
-ასე დავასრულეთ წინა ლექცია.
-→ GetAll
-GetAll: სტატუს კოდები უკვე სწორად გვაქვს — IActionResult, Ok. მაგრამ შეხედეთ, რა დევს Ok-ში: Product-ების სია, პირდაპირ.
-→ Create
-Create კლიენტისგან პირდაპირ Product-ს იღებს და პასუხადაც Product-ს აბრუნებს.
-→ Update
-Update-იც Product-ს იღებს.
-→ ერთი კლასი
-! ყველგან ერთი კლასია: Product. მასში ვინახავთ, მას ვიღებთ, მას ვაბრუნებთ. სტატუსი სწორია — ფორმა არა. რეალურ პროექტში ასე არ წერენ. დღეს ვნახავთ, რატომ.
+  <aside class="study">
+## საიდან ვიწყებთ
+
+წინა ლექციაზე ProductsController დავწერეთ და ხუთივე endpoint მუშაობს. სტატუს კოდებიც სწორია: `Ok`, `NotFound`, `CreatedAtAction`, `NoContent`.
+
+მაგრამ ერთ რამეს დააკვირდი: **ყველგან ერთი და იგივე კლასი, `Product`, გამოიყენება**.
+
+- `GetAll` — `Ok(_products)`: კლიენტს პირდაპირ `Product`-ების სია მიდის.
+- `Create` — კლიენტისგან პირდაპირ `Product` შემოდის და პასუხადაც `Product` გადის.
+- `Update` — განახლებაც `Product`-ით ხდება.
+
+ანუ ერთი კლასი სამ საქმეს აკეთებს: მასში **ვინახავთ** მონაცემს, მას **ვიღებთ** კლიენტისგან და მას **ვაგზავნით** კლიენტთან. პატარა სასწავლო პროექტში ეს მუშაობს. რეალურ პროექტში კი ასე არ წერენ — ამ ლექციაში ვნახავთ, რატომ.
   </aside>
 </section>
-
-<!-- 3. ENTITY = TABLE -->
-<section class="slide" data-section="შესავალი">
+<section class="slide" data-section="დღის თემა">
   <div class="kicker">მთავარი იდეა</div>
   <h2>Product — უბრალო კლასი კი არა, <span class="c-asp">ბაზის ნაწილია</span></h2>
   <div class="grid2" style="grid-template-columns:1fr 1.15fr;gap:30px;align-items:center">
@@ -229,22 +222,32 @@ public class Product
     </svg>
   </div>
   <div class="callout step mt" style="--a:var(--asp)">ბაზა ჯერ <b>არ გვაქვს</b> — static სია მის ადგილს იკავებს. მაგრამ Product უკვე ისე უნდა მოვეპყრათ, როგორც <b>ბაზის ცხრილს</b></div>
-  <aside class="notes">
-⏱ 0:05 · 4 წთ
-მთავარი იდეა, რომელზეც მთელი ლექცია დგას.
-ეს Product კლასია. ჩვენთვის ის უბრალოდ კლასია, რომელშიც პროდუქტს ვინახავთ.
-→ ცხრილი
-მაგრამ როცა ბაზა შემოვა, ზუსტად ამ კლასიდან ცხრილი შეიქმნება: Products. ყოველი property — სვეტი. ყოველი ობიექტი — ერთი რიგი. Id — Primary Key.
-→ Entity
-კლასს, რომელიც ბაზის ცხრილს აღწერს, Entity ჰქვია. ! Product ჩვენი Entity-ა.
-→ ბაზა ჯერ არ გვაქვს
-? ბაზა ჯერ არ გვაქვს — რა იკავებს მის ადგილს? (static სია.) ! მაგრამ კოდი ახლავე ისე უნდა დავწეროთ, თითქოს ბაზა გვაქვს. რომ ბაზა შემოვა, Controller-ის თავიდან წერა არ მოგვიწიოს.
-? და აი კითხვა: ბაზის ცხრილი პირდაპირ კლიენტს უნდა ვაჩვენოთ? კლიენტმა ცხრილში პირდაპირ უნდა ჩაწეროს?
+  <aside class="study">
+### Product — ბაზის ცხრილის აღწერაა
+
+ჩვენთვის `Product` ჯერჯერობით უბრალო კლასია. მაგრამ როცა ბაზა (Entity Framework Core) შემოვა, ზუსტად ამ კლასიდან შეიქმნება ცხრილი `Products`:
+
+| კლასში | ბაზაში |
+|---|---|
+| კლასი `Product` | ცხრილი `Products` |
+| property (`Name`, `Price`) | სვეტი |
+| ერთი ობიექტი | ერთი რიგი |
+| `Id` | Primary Key |
+
+კლასს, რომელიც ბაზის ცხრილს აღწერს, **Entity** ჰქვია. `Product` ჩვენი Entity-ა.
+
+ბაზა ჯერ არ გვაქვს — მის ადგილს `static List<Product>` იკავებს. მაგრამ კოდი ახლავე ისე უნდა დავწეროთ, თითქოს ბაზა უკვე გვაქვს. მაშინ, როცა ნამდვილი ბაზა შემოვა, Controller-ის თავიდან წერა არ მოგვიწევს.
+
+```note
+ამიტომ ჩნდება კითხვა, რომელზეც მთელი ლექცია დგას: **ბაზის ცხრილი პირდაპირ უნდა ვაჩვენოთ კლიენტს? და კლიენტმა პირდაპირ უნდა ჩაწეროს მასში?**
+```
+
+```terms
+Entity — კლასი, რომელიც ბაზის ცხრილს აღწერს. ყოველი property — სვეტი, ყოველი ობიექტი — რიგი
+```
   </aside>
 </section>
-
-<!-- 4. ROADMAP -->
-<section class="slide" data-section="შესავალი">
+<section class="slide" data-section="დღის თემა">
   <div class="kicker">დღის გზა</div>
   <h2>სადამდე მოვედით და სად მივდივართ</h2>
   <svg viewBox="0 0 1420 470" width="1420" height="470">
@@ -256,23 +259,16 @@ public class Product
     <g class="step zoom" style="transform-origin:1080px 260px"><circle cx="1080" cy="260" r="44" fill="#e6f6f4" stroke="#0d9488" stroke-width="3"/><text x="1080" y="275" text-anchor="middle" font-size="34">⚙️</text><text x="1080" y="336" text-anchor="middle" class="tw b" font-size="19">Mapperly</text><text x="1080" y="362" text-anchor="middle" class="tm" font-size="15">NuGet package</text></g>
     <g class="step zoom" style="transform-origin:1350px 230px"><circle cx="1350" cy="230" r="48" fill="#eaf8ef" stroke="#16a34a" stroke-width="4" class="pulse"/><text x="1350" y="246" text-anchor="middle" font-size="38">⌨️</text><text x="1350" y="314" text-anchor="middle" class="tg b" font-size="19">პრაქტიკა</text><text x="1350" y="340" text-anchor="middle" class="tm" font-size="15">LibraryApi</text></g>
   </svg>
-  <aside class="notes">
-⏱ 0:09 · 1 წთ
-გეგმა ასეთია.
-→ პრობლემები
-ჯერ ვნახავთ სამ პრობლემას, რომელიც Entity-ის გარეთ გატანას მოაქვს.
-→ DTO
-შემდეგ — გამოსავალი: DTO.
-→ Mapper
-DTO-ს ახალი სამუშაო მოაქვს — ერთი ფორმიდან მეორეში გადატანა. ჯერ ხელით დავწერთ Mapper-ს.
-→ Mapperly
-მერე ვნახავთ package-ს, რომელიც ამ კოდს ჩვენს მაგივრად წერს.
-→ პრაქტიკა
-ბოლოს — თქვენი LibraryApi.
+  <aside class="study">
+### ლექციის გეგმა
+
+1. **სამი პრობლემა** — რა ხდება, როცა Entity API-დან პირდაპირ გადის.
+2. **DTO** — გამოსავალი: ცალკე კლასები შემოსავალი და გასავალი მონაცემისთვის.
+3. **Mapper** — DTO-ს ახალი სამუშაო მოაქვს: მონაცემის გადატანა ერთი კლასიდან მეორეში. ჯერ ხელით დავწერთ.
+4. **Mapperly** — package, რომელიც ამ გადატანის კოდს ჩვენს მაგივრად წერს.
+5. **პრაქტიკა** — იგივეს LibraryApi-ში აკეთებთ.
   </aside>
 </section>
-
-<!-- ============ PART 1 ============ -->
 <section class="slide divider" data-section="1 · პრობლემა">
   <div class="vcenter">
     <div class="kicker in">ნაწილი 1</div>
@@ -280,13 +276,12 @@ DTO-ს ახალი სამუშაო მოაქვს — ერთ�
     <p class="lead mt in" style="--d:.3s">რა ხდება, როცა ბაზის ცხრილს პირდაპირ ვაჩვენებთ და ვავსებინებთ</p>
   </div>
   <div class="big-num">01</div>
-  <aside class="notes">
-⏱ 0:10
-ვნახოთ, რა პრობლემები მოაქვს Product-ის პირდაპირ გამოყენებას. სამი პრობლემაა.
+  <aside class="study">
+## ნაწილი 1 · Entity გარეთ
+
+ვნახოთ, რა პრობლემებს იწვევს, როცა `Product`-ს პირდაპირ ვაბრუნებთ და პირდაპირ ვიღებთ. სამი პრობლემაა — და სამივე რეალურ პროექტებში ხშირად ხდება.
   </aside>
 </section>
-
-<!-- 6. PRODUCT GROWS -->
 <section class="slide" data-section="1 · პრობლემა">
   <div class="kicker">ბიზნესის მოთხოვნა</div>
   <h2>ცხრილს <span class="c-asp">ახალი სვეტები</span> სჭირდება</h2>
@@ -309,20 +304,28 @@ public class Product
       <div class="callout step" style="--a:var(--net)">ეს <b>შიდა</b> ინფორმაციაა — ბაზისთვის და ჩვენთვის. მყიდველისთვის <b>არა</b></div>
     </div>
   </div>
-  <aside class="notes">
-⏱ 0:10 · 3 წთ
-~ Visual Studio-ში Product-ს ორი ველი დაუმატე და საწყის სიაში CostPrice-ები ჩაწერე: ლეპტოპი 1650, მაუსი 25, კლავიატურა 70.
-რეალურ პროექტში ცხრილი იზრდება. მოვიდა მოთხოვნა.
-→ CostPrice
-მაღაზიას უნდა იცოდეს შესყიდვის ფასი — რომ მოგება დაითვალოს.
-→ CreatedAt
-და როდის დაემატა პროდუქტი. ამას კლიენტი არ წერს — სერვერი წერს.
-→ შიდა
-! ორივე შიდა ინფორმაციაა. ბაზას სჭირდება, ჩვენ გვჭირდება — მყიდველს არა. ახლა გავუშვათ და ვნახოთ, რა ხდება.
+  <aside class="study">
+### ცხრილს ახალი სვეტები სჭირდება
+
+რეალურ პროექტში ცხრილი იზრდება. ვთქვათ, მაღაზიამ მოითხოვა ორი ახალი ველი:
+
+```csharp Models/Product.cs
+public class Product
+{
+    public int Id { get; set; }
+    public string Name { get; set; } = "";
+    public decimal Price { get; set; }
+    public decimal CostPrice { get; set; }  // შესყიდვის ფასი
+    public DateTime CreatedAt { get; set; } // როდის დაემატა
+}
+```
+
+- `CostPrice` — რამდენად იყიდა მაღაზიამ პროდუქტი. საჭიროა მოგების დასათვლელად.
+- `CreatedAt` — როდის დაემატა პროდუქტი. ამას კლიენტი კი არ წერს, **სერვერი** წერს.
+
+ორივე **შიდა ინფორმაციაა**: ბაზას და ჩვენ გვჭირდება, მყიდველს — არა. ახლა ვნახოთ, რა მოხდება, თუ Controller-ს არ შევეხებით.
   </aside>
 </section>
-
-<!-- 7. PROBLEM: LEAK -->
 <section class="slide" data-section="1 · პრობლემა">
   <div class="kicker">პრობლემა 1</div>
   <h2>შიდა მონაცემი <span class="c-red">გაიპარა</span></h2>
@@ -344,21 +347,22 @@ public class Product
       <div class="callout step" style="--a:var(--red)">ახლა წარმოიდგინეთ <code class="i">User</code> ცხრილი სვეტით <code class="i">PasswordHash</code> — და <code class="i">GET /api/users</code></div>
     </div>
   </div>
-  <aside class="notes">
-⏱ 0:13 · 3 წთ
-~ Swagger-ში GET /api/products/1 აჩვენე.
-→ პასუხი
-GET-ის პასუხი. ? რას ხედავთ ზედმეტს? (costPrice-ს.)
-→ კონკურენტი
-2400-ად ვყიდით, 1650-ად ვყიდულობთ. ამას ყველა ხედავს — მყიდველიც და კონკურენტიც.
-→ ავტომატურად
-! ჩვენ GET-ში არაფერი შეგვიცვლია. უბრალოდ ცხრილს სვეტი დავუმატეთ. რადგან GET Entity-ს პირდაპირ აბრუნებს, ახალი სვეტი თვითონ გავიდა გარეთ.
-→ User
-ახლა წარმოიდგინეთ მომხმარებლების ცხრილი, სადაც პაროლის hash ინახება. ერთი GET და ყველა hash გარეთაა. ეს ნამდვილი და ძალიან ხშირი უსაფრთხოების შეცდომაა.
+  <aside class="study">
+### პრობლემა 1 · შიდა მონაცემი გაიპარა
+
+`GET /api/products/1`-ის პასუხი ახლა ასეთია:
+
+```json
+{ "id": 1, "name": "ლეპტოპი", "price": 2400, "costPrice": 1650, "createdAt": "2026-10-26T…" }
+```
+
+ჩვენ GET-ში არაფერი შეგვიცვლია — უბრალოდ ცხრილს სვეტი დავუმატეთ. მაგრამ რადგან GET `Product`-ს პირდაპირ აბრუნებს, ახალი სვეტი **თვითონ გავიდა გარეთ**. ახლა ყველა მყიდველი და კონკურენტიც ხედავს, რომ 1650-ად ვყიდულობთ და 2400-ად ვყიდით.
+
+```warn
+წარმოიდგინე მომხმარებლების ცხრილი სვეტით `PasswordHash` და endpoint `GET /api/users`. ერთი მოთხოვნა — და ყველა პაროლის hash გარეთაა. ეს ნამდვილი და ძალიან გავრცელებული უსაფრთხოების შეცდომაა.
+```
   </aside>
 </section>
-
-<!-- 8. PROBLEM: CLIENT WRITES SERVER FIELDS -->
 <section class="slide" data-section="1 · პრობლემა">
   <div class="kicker">პრობლემა 2</div>
   <h2>კლიენტი ავსებს იმას, რასაც <span class="c-red">არ უნდა ეხებოდეს</span></h2>
@@ -380,20 +384,29 @@ GET-ის პასუხი. ? რას ხედავთ ზედმეტ
       <div class="problem step">კონტრაქტი <b>იტყუება</b>: „გამომიგზავნე Id“ — თუმცა არ გვჭირდება</div>
     </div>
   </div>
-  <aside class="notes">
-⏱ 0:16 · 3 წთ
-→ POST
-POST-ის მაგალითი Swagger-ში. ! შეხედეთ id-ს და createdAt-ს.
-→ ვინ ავსებს
-Id-ს ჩვენ ვანიჭებთ — _nextId-ით, ბაზაში კი ბაზა თვითონ. CreatedAt-ს სერვერი წერს. კლიენტმა რაც არ უნდა გამოგზავნოს, მაინც გადავაწერთ. ? და თუ დაგვავიწყდა გადაწერა? (კლიენტი თვითონ ჩაწერს Id-ს ან თარიღს — ცხრილში.)
-→ PUT
-PUT-ში Id ორ ადგილასაა. ? თუ განსხვავდება — რომელს დავუჯეროთ? (მისამართს. body-ში Id ზედმეტია.)
-→ კონტრაქტი
-! Swagger-ი აღწერს, რა უნდა გამოგზავნოს კლიენტმა. ჩვენი აღწერა იტყუება.
+  <aside class="study">
+### პრობლემა 2 · კლიენტი ავსებს იმას, რასაც არ უნდა ეხებოდეს
+
+Swagger-ში POST-ის მაგალითი ახლა ასეთია:
+
+```json
+{ "id": 0, "name": "string", "price": 0, "costPrice": 0, "createdAt": "2026-10-26…" }
+```
+
+Swagger კლიენტს სთხოვს `id`-ს და `createdAt`-ს. მაგრამ:
+
+- `Id`-ს **ჩვენ** ვანიჭებთ (`_nextId`), ნამდვილ ბაზაში კი ბაზა თვითონ.
+- `CreatedAt`-ს **სერვერი** წერს.
+
+თუ რომელიმეს გადაწერა დაგვავიწყდა, კლიენტის გამოგზავნილი მნიშვნელობა პირდაპირ ცხრილში ჩაიწერება.
+
+PUT-ში კიდევ უარესია: `Id` ორ ადგილას მოდის — მისამართში (`/api/products/2`) და body-ში (`"id": 5`). რომელს დავუჯეროთ? სწორი პასუხი — მისამართს. body-ში `Id` საერთოდ ზედმეტია.
+
+```note
+Swagger აღწერს **კონტრაქტს** — რა უნდა გამოგზავნოს კლიენტმა და რას მიიღებს. ახლა ჩვენი კონტრაქტი იტყუება: „გამომიგზავნე Id“ — თუმცა ის არ გვჭირდება.
+```
   </aside>
 </section>
-
-<!-- 9. PROBLEM: CONTRACT -->
 <section class="slide" data-section="1 · პრობლემა">
   <div class="kicker">პრობლემა 3</div>
   <h2>ცხრილის ცვლილება <span class="c-red">ამტვრევს კლიენტებს</span></h2>
@@ -411,18 +424,26 @@ PUT-ში Id ორ ადგილასაა. ? თუ განსხვა
     <div class="card accent step" style="--a:var(--asp)"><h3><span class="ico">🗄️</span>Entity</h3><p class="small">ბაზის ფორმა — <b>ჩვენი შიდა</b> საქმე. იცვლება, როცა ბაზას ან ბიზნესს სჭირდება</p></div>
     <div class="card accent step" data-with style="--a:var(--api)"><h3><span class="ico">🤝</span>JSON</h3><p class="small"><b>შეთანხმება</b> კლიენტთან (კონტრაქტი). არ უნდა შეიცვალოს <b>შემთხვევით</b></p></div>
   </div>
-  <aside class="notes">
-⏱ 0:19 · 3 წთ
-→ გადარქმევა
-მესამე პრობლემა. ბაზაში სვეტს გადავარქმევთ: Name → Title. კოდში ერთი ცვლილებაა, Visual Studio ყველგან ჩაანაცვლებს.
-→ კლიენტები
-მაგრამ JSON-ში ველის სახელიც შეიცვალა. საიტი ეძებს name-ს — undefined. მობილური აპლიკაცია, რომელიც უკვე ხალხის ტელეფონებზეა, ფუჭდება. მისი განახლება კვირები სჭირდება.
-→ ორი როლი
-! მიზეზი: ერთი კლასი ორ როლს ასრულებს. Entity — ბაზის ფორმაა, ჩვენი შიდა საქმე. JSON — შეთანხმებაა კლიენტთან. ისინი სხვადასხვა მიზეზით იცვლება. ამიტომ ერთი კლასი უნდა გავყოთ.
+  <aside class="study">
+### პრობლემა 3 · ცხრილის ცვლილება ამტვრევს კლიენტებს
+
+ბაზაში სვეტს გადავარქმევთ: `Name` → `Title`. კოდში ეს ერთი ცვლილებაა — Visual Studio ყველგან ჩაანაცვლებს.
+
+მაგრამ JSON-შიც შეიცვალა ველის სახელი: `"name"` → `"title"`.
+
+- საიტი ეძებს `product.name`-ს და იღებს `undefined`-ს.
+- მობილური აპლიკაცია, რომელიც უკვე ხალხის ტელეფონებზეა, ფუჭდება. მის განახლებას კვირები სჭირდება.
+
+მიზეზი ის არის, რომ **ერთი კლასი ორ სხვადასხვა როლს ასრულებს**:
+
+| | რა არის | როდის იცვლება |
+|---|---|---|
+| **Entity** | ბაზის ფორმა — ჩვენი შიდა საქმე | როცა ბაზას ან ბიზნესს სჭირდება |
+| **JSON** | შეთანხმება კლიენტთან (კონტრაქტი) | არ უნდა შეიცვალოს შემთხვევით |
+
+ისინი სხვადასხვა მიზეზით იცვლება — ამიტომ ერთი კლასი ორად უნდა გავყოთ.
   </aside>
 </section>
-
-<!-- ============ PART 2: DTO ============ -->
 <section class="slide divider" data-section="2 · DTO">
   <div class="vcenter">
     <div class="kicker in">ნაწილი 2</div>
@@ -430,13 +451,12 @@ PUT-ში Id ორ ადგილასაა. ? თუ განსხვა
     <p class="lead mt in" style="--d:.3s">თითოეული მიმართულებისთვის — საკუთარი ფორმა</p>
   </div>
   <div class="big-num">02</div>
-  <aside class="notes">
-⏱ 0:22
-სამივე პრობლემას ერთი გამოსავალი აქვს.
+  <aside class="study">
+## ნაწილი 2 · DTO
+
+სამივე პრობლემას ერთი გამოსავალი აქვს: თითოეული მიმართულებისთვის — საკუთარი ფორმა.
   </aside>
 </section>
-
-<!-- 11. DTO DEFINITION -->
 <section class="slide" data-section="2 · DTO">
   <div class="kicker">გამოსავალი</div>
   <h2><span class="grad">DTO</span> — Data Transfer Object</h2>
@@ -446,20 +466,32 @@ PUT-ში Id ორ ადგილასაა. ? თუ განსხვა
     <div class="card accent step" style="--a:var(--asp)"><h3><span class="ico">🗄️</span>Entity</h3><p class="small">ბანკის <b>შიდა ბაზა</b>: ყველაფერი, რაც ბანკმა იცის. გარედან არავინ ხედავს</p><p class="tiny" style="margin-top:12px">სერვერის შიგნით · <b>Product</b></p></div>
     <div class="card accent step" style="--a:var(--mvc)"><h3><span class="ico">🧾</span>Response DTO</h3><p class="small">ბანკის <b>ამონაწერი</b>: მხოლოდ ის, რაც შენ უნდა ნახო</p><p class="tiny" style="margin-top:12px">სერვერი → კლიენტი · <b>ProductResponse</b></p></div>
   </div>
-  <aside class="notes">
-⏱ 0:22 · 4 წთ
-DTO — Data Transfer Object. ობიექტი მონაცემის გადასატანად. მასში ლოგიკა არ არის — მხოლოდ ველები.
-→ Request
-ბანკი წარმოიდგინეთ. ანგარიშის გასახსნელად ფორმას ავსებთ: სახელი, პირადი ნომერი, ტელეფონი. ანგარიშის ნომერს ფორმაში არ წერთ — ბანკი გაძლევთ. ეს Request DTO-ა.
-→ Entity
-ბანკის ბაზაში ბევრად მეტია: რისკის შეფასება, ვინ გახსნა, როდის. ეს Entity-ა. გარედან არავინ ხედავს.
-→ Response
-ამონაწერი, რომელსაც ბანკი გაძლევთ — მხოლოდ თქვენთვის საჭირო: ნომერი, ნაშთი, ტრანზაქციები. ეს Response DTO-ა.
-! ერთი ანგარიში — სამი ფორმა. ზუსტად იგივეს ვაკეთებთ პროდუქტისთვის.
+  <aside class="study">
+### DTO — Data Transfer Object
+
+**DTO** არის კლასი, რომელიც მხოლოდ მონაცემის გადასატანად არსებობს. მასში ლოგიკა არ არის — მხოლოდ ველები. წესი მარტივია: **Entity შიგნით რჩება, გარეთ DTO გადის**.
+
+ბანკის მაგალითი:
+
+- 📝 **Request DTO** — ანგარიშის გასახსნელი განაცხადი. მხოლოდ ის ველები, რაც შენ უნდა შეავსო: სახელი, პირადი ნომერი, ტელეფონი. ანგარიშის ნომერს არ წერ — ბანკი გაძლევს.
+- 🗄️ **Entity** — ბანკის შიდა ბაზა: ყველაფერი, რაც ბანკმა იცის. რისკის შეფასება, ვინ გახსნა, როდის. გარედან ამას არავინ ხედავს.
+- 🧾 **Response DTO** — ამონაწერი, რომელსაც ბანკი გაძლევს: მხოლოდ ის, რაც შენ გჭირდება.
+
+ერთი ანგარიში — სამი ფორმა. ზუსტად იგივეს ვაკეთებთ პროდუქტისთვის: `CreateProductRequest` → `Product` → `ProductResponse`.
+
+```terms
+DTO — Data Transfer Object: კლასი მხოლოდ მონაცემის გადასატანად, ლოგიკის გარეშე
+Request DTO — რასაც კლიენტი გვიგზავნის (კლიენტი → სერვერი)
+Response DTO — რასაც კლიენტს ვაჩვენებთ (სერვერი → კლიენტი)
+```
+
+```prompt DTO-ს სხვა მაგალითით ახსნა
+მე ვსწავლობ ASP.NET Core Web API-ს. ვიცი Controller, IActionResult და CRUD, მაგრამ DTO ახალია ჩემთვის.
+ამიხსენი, რა არის DTO და რატომ არ უნდა დავაბრუნო Entity პირდაპირ. გამოიყენე ცხოვრებისეული მაგალითი (არა ბანკის) და მერე C#-ის პატარა მაგალითი Product-ზე: CreateProductRequest, Product, ProductResponse.
+ახსნა ქართულად, მარტივად.
+```
   </aside>
 </section>
-
-<!-- 12. DATA PATH -->
 <section class="slide" data-section="2 · DTO">
   <div class="kicker">მონაცემის გზა · POST</div>
   <h2>JSON → <span class="c-wf">Request</span> → <span class="c-asp">Entity</span> → <span class="c-mvc">Response</span> → JSON</h2>
@@ -479,23 +511,29 @@ DTO — Data Transfer Object. ობიექტი მონაცემის 
     <div class="solve step" data-with><b>Id</b> და <b>CreatedAt</b> კლიენტს აღარ ეთხოვება</div>
     <div class="solve step" data-with>ცხრილის ცვლილება <b>JSON-ს არ ცვლის</b></div>
   </div>
-  <aside class="notes">
-⏱ 0:26 · 4 წთ
-ასე გაივლის მონაცემი POST-ის დროს.
-→ Request
-კლიენტის JSON ჯდება CreateProductRequest-ში. მასში მხოლოდ სამი ველია — რასაც კლიენტი უნდა ავსებდეს. Id და CreatedAt იქ საერთოდ არ არის.
-→ Entity
-Request-იდან ვაწყობთ Product-ს. ! ამას ჰქვია mapping — ველების გადატანა ერთი ობიექტიდან მეორეში. სერვერი ამატებს Id-ს და CreatedAt-ს. Product ინახება.
-→ Response
-პასუხისთვის Product-იდან ვაწყობთ ProductResponse-ს. CostPrice და CreatedAt აქ არ არის. ესეც mapping-ია.
-→ JSON
-კლიენტთან მიდის მხოლოდ სამი ველი.
-→ შედეგი
-! სამივე პრობლემა მოგვარდა. დაიმახსოვრეთ სიტყვა mapping — ლექციის მეორე ნახევარი მასზეა.
+  <aside class="study">
+### მონაცემის გზა POST-ის დროს
+
+ასე გაივლის მონაცემი, როცა ახალ პროდუქტს ვამატებთ:
+
+1. **JSON → `CreateProductRequest`** — კლიენტის JSON ჯდება Request-ში. მასში მხოლოდ სამი ველია: `Name`, `Price`, `CostPrice`. `Id` და `CreatedAt` იქ საერთოდ არ არის.
+2. **Request → `Product`** — Request-იდან ვაწყობთ Entity-ს. სერვერი ამატებს `Id`-ს და `CreatedAt`-ს. `Product` ინახება.
+3. **`Product` → `ProductResponse`** — პასუხისთვის Entity-დან ვაწყობთ Response-ს. `CostPrice` და `CreatedAt` აქ აღარ არის.
+4. **Response → JSON** — კლიენტთან მიდის მხოლოდ `id`, `name`, `price`.
+
+ველების გადატანას ერთი ობიექტიდან მეორეში **mapping** ჰქვია. ამ სქემაში ის ორჯერ ხდება: Request → Entity და Entity → Response.
+
+შედეგად სამივე პრობლემა მოგვარდა:
+
+- `CostPrice` გარეთ აღარ გადის.
+- `Id` და `CreatedAt` კლიენტს აღარ ეთხოვება.
+- ცხრილის ცვლილება JSON-ს აღარ ცვლის.
+
+```terms
+Mapping — ველების გადატანა ერთი ობიექტიდან მეორეში (მაგ. Request → Entity)
+```
   </aside>
 </section>
-
-<!-- 13. RECORDS -->
 <section class="slide" data-section="2 · DTO">
   <div class="kicker">🧑‍💻 ვწერთ · Dtos ფოლდერი</div>
   <h2>DTO-ები კოდში — <span class="grad">record</span></h2>
@@ -530,23 +568,47 @@ public record ProductResponse(
       </div>
     </div>
   </div>
-  <aside class="notes">
-⏱ 0:30 · 5 წთ
-~ შექმენი ფოლდერი Dtos, თითო ფაილი თითო DTO-სთვის. სლაიდზე ერთადაა, რომ ეტეოდეს.
-DTO-სთვის class-იც გამოდგება, მაგრამ record უფრო მოკლეა.
-→ Create
-CreateProductRequest — სამი ველი. Id და CreatedAt არ არის.
-→ Update
-UpdateProductRequest — იგივე ველები. ? ერთნაირია — რატომ ცალკე? (ხვალ შეიძლება განსხვავდებოდეს: მაგალითად, განახლებისას შესყიდვის ფასის შეცვლა აიკრძალოს. ცალკე კლასით ერთი მეორეს არ დააზიანებს.)
-→ Response
-ProductResponse — Id, Name, Price. შიდა ველები არ არის.
-→ record
-record: ფრჩხილებში ჩამოწერილი პარამეტრები ავტომატურად ხდება property-ები და constructor. ! JSON-ში Name ისევ "name"-ად გადაიქცევა, როგორც ადრე.
-~ record-ის property-ები init-only-ია — შექმნის შემდეგ ვერ შეიცვლება. DTO-სთვის ეს კარგია: გადასატანი მონაცემი გზაში არ უნდა შეიცვალოს.
+  <aside class="study">
+### DTO-ები კოდში — `record`
+
+პროექტში ვქმნით ფოლდერს `Dtos` და მასში სამ DTO-ს (რეალურად — თითო ფაილი თითოზე):
+
+```csharp Dtos/
+public record CreateProductRequest(
+    string Name,
+    decimal Price,
+    decimal CostPrice);
+
+public record UpdateProductRequest(
+    string Name,
+    decimal Price,
+    decimal CostPrice);
+
+public record ProductResponse(
+    int Id,
+    string Name,
+    decimal Price);
+```
+
+- **CreateProductRequest** — შექმნისას: `Id`-ს და `CreatedAt`-ის გარეშე.
+- **UpdateProductRequest** — განახლებისას: `Id`-ს გარეშე, რადგან `Id` მისამართიდან მოდის.
+- **ProductResponse** — პასუხში: `CostPrice`-ის და `CreatedAt`-ის გარეშე.
+
+**რატომ `record`?** DTO-სთვის `class`-იც გამოდგება, მაგრამ `record` ერთ ხაზში აკეთებს ყველაფერს: ფრჩხილებში ჩამოწერილი პარამეტრები ავტომატურად ხდება property-ები და constructor. JSON-ში `Name` ისევ `"name"`-ად გადაიქცევა, როგორც ადრე.
+
+**სახელები:** `…Request` — რაც შემოდის, `…Response` — რაც გადის. ასე ფაილის სახელიდანვე ჩანს, რისთვის არის კლასი.
+
+```note
+`CreateProductRequest` და `UpdateProductRequest` ახლა ერთნაირია — მაშ, რატომ ცალკე? იმიტომ, რომ ხვალ შეიძლება განსხვავდებოდეს: მაგალითად, განახლებისას შესყიდვის ფასის შეცვლა აიკრძალოს. ცალკე კლასით ერთის შეცვლა მეორეს არ დააზიანებს.
+```
+
+```prompt record vs class
+ამიხსენი C#-ში record-ის და class-ის განსხვავება მარტივად. მაგალითად აიღე:
+public record ProductResponse(int Id, string Name, decimal Price);
+რა იქმნება ავტომატურად ამ ერთი ხაზით? რატომ ჯობია record DTO-სთვის? ახსნა ქართულად, დამწყებისთვის.
+```
   </aside>
 </section>
-
-<!-- 14. CONTROLLER GET -->
 <section class="slide" data-section="2 · DTO">
   <div class="kicker">🧑‍💻 ვწერთ · GET</div>
   <h2>გარეთ — მხოლოდ <span class="c-mvc">ProductResponse</span></h2>
@@ -581,21 +643,36 @@ public IActionResult GetById(int id)
       <div class="solve step">Swagger-ში <b>costPrice</b> და <b>createdAt</b> აღარ ჩანს</div>
     </div>
   </div>
-  <aside class="notes">
-⏱ 0:35 · 5 წთ
-~ ფაილის თავში: using ShopApi.Dtos;
-→ Select
-GetAll: Select-ით სიის თითოეულ ელემენტს ვაქცევთ ახალ ობიექტად. აქ — Product-იდან ვქმნით ProductResponse-ს, მხოლოდ სამი ველით. ToList — ახალი სია. ~ Select LINQ-იდან იციან; თუ არა — „foreach, რომელიც ახალ სიას აწყობს“.
-→ Ok
-IActionResult და Ok — როგორც ადრე. ! სტატუს კოდები არ იცვლება, იცვლება მხოლოდ ის, რა დევს body-ში.
-→ GetById
-GetById: NotFound ისევ 404-ია. წარმატებისას Ok-ში Product-ის ნაცვლად ProductResponse.
-→ Swagger
-გაუშვი: GET-ში costPrice და createdAt აღარ ჩანს. პრობლემა 1 მოგვარდა.
+  <aside class="study">
+### GET — გარეთ მხოლოდ `ProductResponse`
+
+```csharp Controllers/ProductsController.cs
+[HttpGet]
+public IActionResult GetAll()
+{
+    var response = _products
+        .Select(p => new ProductResponse(p.Id, p.Name, p.Price))
+        .ToList();
+    return Ok(response);
+}
+
+[HttpGet("{id}")]
+public IActionResult GetById(int id)
+{
+    var product = _products.FirstOrDefault(p => p.Id == id);
+    if (product is null)
+        return NotFound();
+
+    return Ok(new ProductResponse(product.Id, product.Name, product.Price));
+}
+```
+
+- **`Select`** სიის თითოეულ ელემენტს ახალ ობიექტად აქცევს. აქ — თითოეული `Product`-იდან ვქმნით `ProductResponse`-ს მხოლოდ სამი ველით. `ToList()` ამ ახალ ობიექტებს სიად აგროვებს. შეგიძლია წარმოიდგინო როგორც `foreach`, რომელიც ახალ სიას აწყობს.
+- **სტატუს კოდები არ იცვლება**: 200 ისევ `Ok`-ია, 404 ისევ `NotFound`. იცვლება მხოლოდ ის, რა დევს body-ში.
+
+ფაილის თავში დაგჭირდება `using ShopApi.Dtos;`. გაუშვი — Swagger-ში GET-ის პასუხში `costPrice` და `createdAt` აღარ ჩანს. **პრობლემა 1 მოგვარდა.**
   </aside>
 </section>
-
-<!-- 15. CONTROLLER POST/PUT -->
 <section class="slide" data-section="2 · DTO">
   <div class="kicker">🧑‍💻 ვწერთ · POST და PUT</div>
   <h2>შიგნით — <span class="c-wf">Request</span>, ინახება — <span class="c-asp">Product</span></h2>
@@ -642,22 +719,55 @@ public IActionResult Update(int id, UpdateProductRequest request)
       <div class="callout step" data-with style="--a:var(--wf)">PUT: Id — <b>მხოლოდ მისამართიდან</b>. Request-ში ის უბრალოდ არ არის</div>
     </div>
   </div>
-  <aside class="notes">
-⏱ 0:40 · 6 წთ
-→ Create · Request
-Create იღებს CreateProductRequest-ს. ახალ Product-ს ვქმნით და Request-იდან ველებს ვაკოპირებთ: Name, Price, CostPrice.
-→ სერვერის ველები
-Id-ს და CreatedAt-ს ჩვენ ვავსებთ. ! კლიენტს ფიზიკურად აღარ შეუძლია მათი გამოგზავნა — Request-ში არ არის.
-→ Response
-CreatedAtAction — როგორც ადრე, 201. ოღონდ მესამე პარამეტრში, body-ში, ახლა ProductResponse-ს ვდებთ.
-→ Update
-Update: Id მისამართიდან, ველები Request-იდან, პასუხი — NoContent, 204. „რომელ Id-ს დავუჯეროთ?“ — კითხვა აღარ დგას. პრობლემა 2 მოგვარდა.
-~ Delete-ს body არ აქვს და Product-ს არ აბრუნებს — DTO არ სჭირდება, არ იცვლება.
-? შეამჩნიეთ რამე, რაც ამ კოდში მეორდება? — ცოტა ხანში დავუბრუნდებით.
+  <aside class="study">
+### POST და PUT — შიგნით Request, ინახება Product
+
+```csharp Controllers/ProductsController.cs
+[HttpPost]
+public IActionResult Create(CreateProductRequest request)
+{
+    var product = new Product
+    {
+        Name = request.Name,
+        Price = request.Price,
+        CostPrice = request.CostPrice
+    };
+    product.Id = _nextId++;
+    product.CreatedAt = DateTime.UtcNow;
+    _products.Add(product);
+
+    var response = new ProductResponse(product.Id, product.Name, product.Price);
+    return CreatedAtAction(nameof(GetById), new { id = product.Id }, response);
+}
+
+[HttpPut("{id}")]
+public IActionResult Update(int id, UpdateProductRequest request)
+{
+    var product = _products.FirstOrDefault(p => p.Id == id);
+    if (product is null)
+        return NotFound();
+
+    product.Name = request.Name;
+    product.Price = request.Price;
+    product.CostPrice = request.CostPrice;
+    return NoContent();
+}
+```
+
+**Create:**
+
+1. ვიღებთ `CreateProductRequest`-ს.
+2. ვქმნით ახალ `Product`-ს და Request-იდან ველ-ველ ვაკოპირებთ.
+3. `Id`-ს და `CreatedAt`-ს **სერვერი** ავსებს. კლიენტს ფიზიკურად აღარ შეუძლია მათი გამოგზავნა — Request-ში ისინი არ არის.
+4. პასუხი ისევ 201-ია (`CreatedAtAction`), ოღონდ body-ში ახლა `ProductResponse` დევს და არა `Product`.
+
+**Update:** `Id` მხოლოდ მისამართიდან მოდის, ველები — Request-იდან, პასუხი — 204 (`NoContent`). კითხვა „რომელ Id-ს დავუჯეროთ?“ აღარ დგას. **პრობლემა 2 მოგვარდა.**
+
+```note
+`Delete` არ იცვლება: მას body არ აქვს და არაფერს აბრუნებს, ამიტომ DTO არ სჭირდება.
+```
   </aside>
 </section>
-
-<!-- 16. SWAGGER RESULT -->
 <section class="slide" data-section="2 · DTO">
   <div class="kicker">Swagger · შედეგი</div>
   <h2>კონტრაქტი ახლა <span class="grad">სიმართლეს ამბობს</span></h2>
@@ -688,20 +798,21 @@ Update: Id მისამართიდან, ველები Request-ი�
     </div>
   </div>
   <div class="callout step mt" style="--a:var(--net)">Product-ს <b>Name → Title</b> რომ გადავარქვათ, JSON <b>არ შეიცვლება</b> — შეიცვლება მხოლოდ ერთი ხაზი, სადაც Response-ს ვაწყობთ</div>
-  <aside class="notes">
-⏱ 0:46 · 3 წთ
-~ Swagger-ში ცოცხლად აჩვენე.
-→ Request
-POST-ის მაგალითში id და createdAt აღარ არის. მხოლოდ ის, რაც კლიენტმა უნდა შეავსოს.
-→ Response
-GET-ის პასუხში მხოლოდ სამი ველი.
-→ კონტრაქტი
-და მესამე პრობლემა: Product-ში სვეტს გადავარქმევთ — ProductResponse-ში Name რჩება. ვცვლით მხოლოდ იქ, სადაც Response-ს ვაწყობთ: Name = product.Title. JSON იგივეა, კლიენტი ვერაფერს ამჩნევს.
-? ერთი ხაზი? დარწმუნებული ხართ? რამდენ ადგილას ვაწყობთ ProductResponse-ს? — შესვენების შემდეგ.
+  <aside class="study">
+### კონტრაქტი ახლა სიმართლეს ამბობს
+
+Swagger-ში:
+
+- **POST**-ის მაგალითში მხოლოდ `name`, `price`, `costPrice` — ის, რაც კლიენტმა უნდა შეავსოს.
+- **GET**-ის პასუხში მხოლოდ `id`, `name`, `price`.
+
+და **პრობლემა 3**: თუ `Product`-ში `Name`-ს `Title`-ად გადავარქმევთ, `ProductResponse`-ში `Name` რჩება. ვცვლით მხოლოდ იქ, სადაც Response-ს ვაწყობთ (`product.Title`). JSON იგივე რჩება და კლიენტი ვერაფერს ამჩნევს.
+
+```warn
+მაგრამ რამდენ ადგილას ვაწყობთ `ProductResponse`-ს? GetAll-ში, GetById-ში, Create-ში… ამაზე — შემდეგ ნაწილში.
+```
   </aside>
 </section>
-
-<!-- BREAK -->
 <section class="slide divider" data-section="შესვენება">
   <div class="vcenter">
     <div class="kicker in">შესვენება</div>
@@ -709,13 +820,7 @@ GET-ის პასუხში მხოლოდ სამი ველი.
     <p class="lead mt in" style="--d:.3s">შემდეგ: რა ღირს ამდენი <b>new ProductResponse(...)</b>-ის წერა</p>
   </div>
   <div class="big-num">☕</div>
-  <aside class="notes">
-⏱ 0:49 · 10 წთ
-~ შესვენების წინ: ვისაც ShopApi არ ეშვება, ახლა მოგიახლოვდეს.
-  </aside>
 </section>
-
-<!-- ============ PART 3: HAND MAPPER ============ -->
 <section class="slide divider" data-section="3 · Mapper">
   <div class="vcenter">
     <div class="kicker in">ნაწილი 3</div>
@@ -723,13 +828,12 @@ GET-ის პასუხში მხოლოდ სამი ველი.
     <p class="lead mt in" style="--d:.3s">mapping-ის კოდი — ერთ ადგილას</p>
   </div>
   <div class="big-num">03</div>
-  <aside class="notes">
-⏱ 1:00
-DTO-მ სამი პრობლემა მოაგვარა. მაგრამ ახალი მოიტანა.
+  <aside class="study">
+## ნაწილი 3 · Mapper — ხელით
+
+DTO-მ სამი პრობლემა მოაგვარა, მაგრამ ახალი მოიტანა: mapping-ის კოდი Controller-ში ყველგანაა გაბნეული. მას ერთ ადგილას გავიტანთ.
   </aside>
 </section>
-
-<!-- 19. REPETITION PROBLEM -->
 <section class="slide" data-section="3 · Mapper">
   <div class="kicker">ახალი პრობლემა</div>
   <h2>ერთი და იგივე კოდი — <span class="c-red">ყველგან</span></h2>
@@ -759,22 +863,33 @@ Name = request.Name, Price = request.Price, CostPrice = request.CostPrice
       <div class="problem step">ყველა ადგილი უნდა ვიპოვოთ. ერთი დაგვავიწყდა → ერთ endpoint-ს Category <b>აკლია</b></div>
     </div>
   </div>
-  <aside class="notes">
-⏱ 1:00 · 5 წთ
-შევხედოთ Controller-ს.
-→ Response
-Product-იდან ProductResponse-ის აწყობა — სამ ადგილას: GetAll, GetById, Create. ერთი და იგივე კოდი.
-→ Request
-და Request-იდან ველების კოპირება — ორ ადგილას: Create და Update.
-→ მოთხოვნა
-მოდის მოთხოვნა: პასუხში კატეგორიაც უნდა ჩანდეს.
-→ დაგვავიწყდა
-ProductResponse-ს ველს ვამატებთ — და ყველა ადგილი უნდა ვიპოვოთ. ? ახლა წარმოიდგინეთ 10 Controller და 50 endpoint. ერთგან დაგვავიწყდა — და ერთ გვერდზე კატეგორია ცარიელია. ასეთ შეცდომას კვირები ეძებენ.
-! წესი პროგრამირებაში: ერთი და იგივე ცოდნა ერთ ადგილას უნდა ცხოვრობდეს. „როგორ ვაქციოთ Product Response-ად“ — ერთი ცოდნაა. ერთ ადგილას გავიტანოთ.
+  <aside class="study">
+### ახალი პრობლემა: ერთი და იგივე კოდი ყველგან
+
+```csharp
+// GetAll
+.Select(p => new ProductResponse(p.Id, p.Name, p.Price))
+
+// GetById
+Ok(new ProductResponse(product.Id, product.Name, product.Price));
+
+// Create
+var response = new ProductResponse(product.Id, product.Name, product.Price);
+
+// Create + Update
+Name = request.Name, Price = request.Price, CostPrice = request.CostPrice
+```
+
+- `Product` → `ProductResponse` — **სამ** ადგილას.
+- Request → `Product` — **ორ** ადგილას.
+
+ახლა მოდის მოთხოვნა: პასუხში კატეგორიაც უნდა ჩანდეს. `ProductResponse`-ს ველს ვამატებთ — და ყველა ადგილი უნდა ვიპოვოთ. ერთგან თუ დაგვავიწყდა, ერთ endpoint-ს კატეგორია აკლია. წარმოიდგინე 10 Controller და 50 endpoint — ასეთ შეცდომას კვირები ეძებენ.
+
+```note
+წესი პროგრამირებაში: **ერთი და იგივე ცოდნა ერთ ადგილას უნდა ცხოვრობდეს.** „როგორ ვაქციოთ Product Response-ად“ — ერთი ცოდნაა. მას ერთ ადგილას გავიტანთ. ამ წესს ხშირად **DRY**-ს უწოდებენ: Don't Repeat Yourself.
+```
   </aside>
 </section>
-
-<!-- 20. HAND MAPPER -->
 <section class="slide" data-section="3 · Mapper">
   <div class="kicker">🧑‍💻 ვწერთ · Mappers ფოლდერი</div>
   <h2><span class="grad">ProductMapper</span> — mapping ერთ ადგილას</h2>
@@ -818,24 +933,66 @@ public static class ProductMapper
       <div class="callout step" data-with style="--a:var(--core)"><code class="i">this</code> პარამეტრის წინ = <b>extension method</b>: <code class="i">product.ToResponse()</code></div>
     </div>
   </div>
-  <aside class="notes">
-⏱ 1:05 · 7 წთ
-~ შექმენი ფოლდერი Mappers და კლასი ProductMapper.
-→ static
-static კლასი: მისი ობიექტის შექმნა არ გვჭირდება, მხოლოდ მეთოდები.
-→ ToResponse
-პირველი მეთოდი — Product-იდან ProductResponse. ზუსტად ის ხაზი, რომელიც სამ ადგილას გვქონდა.
-→ ToEntity
-მეორე — Request-იდან ახალი Product. ! Id-ს და CreatedAt-ს აქ არ ვავსებთ — ეს სერვერის საქმეა, Controller-ში დარჩება.
-→ UpdateFrom
-მესამე — განახლება. ახალს არ ქმნის, არსებულ Product-ს ცვლის. ამიტომ void-ია.
-→ this
-და ახალი რამ — this პარამეტრის წინ. ამას extension method ჰქვია. ! ის საშუალებას გვაძლევს მეთოდი ისე გამოვიძახოთ, თითქოს Product-ს ეკუთვნის: product.ToResponse() — ნაცვლად ProductMapper.ToResponse(product)-ისა. ორივე ერთი და იგივეა, პირველი უბრალოდ უფრო იკითხება.
-~ extension method-ისთვის კლასი და მეთოდი static უნდა იყოს. LINQ-ის Select, Where — ზუსტად ასეთი extension method-ებია List-ზე.
+  <aside class="study">
+### ProductMapper — mapping ერთ ადგილას
+
+ვქმნით ფოლდერს `Mappers` და მასში კლასს `ProductMapper`:
+
+```csharp Mappers/ProductMapper.cs
+public static class ProductMapper
+{
+    public static ProductResponse ToResponse(this Product product)
+    {
+        return new ProductResponse(product.Id, product.Name, product.Price);
+    }
+
+    public static Product ToEntity(this CreateProductRequest request)
+    {
+        return new Product
+        {
+            Name = request.Name,
+            Price = request.Price,
+            CostPrice = request.CostPrice
+        };
+    }
+
+    public static void UpdateFrom(this Product product, UpdateProductRequest request)
+    {
+        product.Name = request.Name;
+        product.Price = request.Price;
+        product.CostPrice = request.CostPrice;
+    }
+}
+```
+
+- **`static class`** — მისი ობიექტის შექმნა არ გვჭირდება, მხოლოდ მეთოდები.
+- **`ToResponse`** — `Product` → `ProductResponse`. ზუსტად ის ხაზი, რომელიც სამ ადგილას გვქონდა.
+- **`ToEntity`** — Request → ახალი `Product`. `Id`-ს და `CreatedAt`-ს აქ **არ** ვავსებთ — ეს სერვერის გადაწყვეტილებაა და Controller-ში რჩება.
+- **`UpdateFrom`** — ახალს არ ქმნის, **არსებულ** `Product`-ს ცვლის. ამიტომ `void`-ია.
+
+#### `this` პარამეტრის წინ — extension method
+
+`this` საშუალებას გვაძლევს მეთოდი ისე გამოვიძახოთ, თითქოს ის `Product`-ს ეკუთვნის:
+
+```csharp
+product.ToResponse();               // extension method — ასე ვწერთ
+ProductMapper.ToResponse(product);  // იგივეა, უბრალოდ ნაკლებად იკითხება
+```
+
+ორივე ხაზი ზუსტად ერთსა და იმავეს აკეთებს. extension method-ისთვის კლასიც და მეთოდიც `static` უნდა იყოს. LINQ-ის `Select` და `Where` ზუსტად ასეთი extension method-ებია.
+
+```terms
+Extension method — static მეთოდი, რომლის პირველ პარამეტრს this უწერია; იძახება ისე, თითქოს იმ ტიპს ეკუთვნის: product.ToResponse()
+```
+
+```prompt extension method-ის გაგება
+ამიხსენი C#-ის extension method მარტივად. მაგალითი:
+public static ProductResponse ToResponse(this Product product) { ... }
+რატომ შეიძლება product.ToResponse() დავწერო, თუ ეს მეთოდი Product კლასში არ არის? რატომ უნდა იყოს კლასი static?
+მომიყევი, რომელი ცნობილი extension method-ები მაქვს უკვე გამოყენებული (LINQ). ახსნა ქართულად.
+```
   </aside>
 </section>
-
-<!-- 21. CONTROLLER AFTER -->
 <section class="slide" data-section="3 · Mapper">
   <div class="kicker">🧑‍💻 ვწერთ · Controller</div>
   <h2>Controller — <span class="grad">ბევრად სუფთა</span></h2>
@@ -880,22 +1037,47 @@ public IActionResult Update(int id, UpdateProductRequest request)
       <div class="solve step">Category დაემატება → ვცვლით <b>მხოლოდ ProductMapper-ს</b></div>
     </div>
   </div>
-  <aside class="notes">
-⏱ 1:12 · 4 წთ
-~ ფაილის თავში: using ShopApi.Mappers;
-→ GetAll
-GetAll: Select-ში ახლა უბრალოდ p.ToResponse().
-→ Create
-Create: request.ToEntity() — ერთი ხაზი. Id და CreatedAt Controller-ში რჩება — ეს „სერვერის გადაწყვეტილებაა“, არა გადატანა. პასუხში — product.ToResponse().
-→ Update
-Update: UpdateFrom — ერთი ხაზი. სტატუს კოდები — NotFound, NoContent — ხელუხლებელია.
-~ GetById-ში იგივე: return Ok(product.ToResponse()). სლაიდზე არ ეტევა.
-→ შედეგი
-! Category დაემატება — ვცვლით ერთ ადგილას, ProductMapper-ში. Controller-მა არც კი იცის, რომ შეიცვალა. ? გავუშვათ — Swagger-ში რამე შეიცვალა? (არა. კოდი შიგნით გადავალაგეთ, გარეთ იგივეა.)
+  <aside class="study">
+### Controller — ბევრად სუფთა
+
+```csharp Controllers/ProductsController.cs
+[HttpGet]
+public IActionResult GetAll()
+{
+    return Ok(_products.Select(p => p.ToResponse()).ToList());
+}
+
+[HttpPost]
+public IActionResult Create(CreateProductRequest request)
+{
+    var product = request.ToEntity();
+    product.Id = _nextId++;
+    product.CreatedAt = DateTime.UtcNow;
+    _products.Add(product);
+
+    return CreatedAtAction(nameof(GetById),
+        new { id = product.Id }, product.ToResponse());
+}
+
+[HttpPut("{id}")]
+public IActionResult Update(int id, UpdateProductRequest request)
+{
+    var product = _products.FirstOrDefault(p => p.Id == id);
+    if (product is null)
+        return NotFound();
+
+    product.UpdateFrom(request);
+    return NoContent();
+}
+```
+
+- შემოსვლა — `ToEntity()`, გასვლა — `ToResponse()`.
+- `Id` და `CreatedAt` Controller-ში რჩება — ეს „სერვერის გადაწყვეტილებაა“, არა გადატანა.
+- `GetById`-შიც იგივე: `return Ok(product.ToResponse());`. ფაილის თავში — `using ShopApi.Mappers;`.
+
+ახლა კატეგორია რომ დაემატოს, ვცვლით **მხოლოდ `ProductMapper`-ს**. Controller-მა არც კი იცის, რომ რამე შეიცვალა. Swagger-შიც არაფერი შეცვლილა: კოდი შიგნით გადავალაგეთ, გარედან ყველაფერი იგივეა.
   </aside>
 </section>
-
-<!-- 22. SCALE PROBLEM -->
 <section class="slide" data-section="3 · Mapper">
   <div class="kicker">მაგრამ…</div>
   <h2>რეალურ პროექტში — <span class="c-red">ასობით</span> ასეთი ხაზი</h2>
@@ -905,21 +1087,16 @@ Update: UpdateFrom — ერთი ხაზი. სტატუს კოდ�
     <div class="card accent step" style="--a:var(--red);text-align:center"><div class="big-n c-red">× 10</div><p class="small">ველი თითოეულში<br><span class="tiny">= 600 ხაზი <b>„A = B“</b></span></p></div>
   </div>
   <div class="callout mt2 step" style="--a:var(--net)">ეს კოდი <b>მოსაწყენია</b> და <b>ერთნაირი</b>: სახელი ემთხვევა სახელს. ასეთ კოდს <b>პროგრამა</b> უნდა წერდეს და არა ადამიანი 🤖</div>
-  <aside class="notes">
-⏱ 1:16 · 3 წთ
-Mapper-მა განმეორება მოაშორა. მაგრამ ერთი პროდუქტისთვის უკვე 20-ზე მეტი ხაზი დავწერეთ.
-→ 20
-რეალურ პროექტში — 20 Entity, ზოგჯერ ასი.
-→ × 3
-თითოეულს 3 DTO.
-→ × 10
-თითოეულში 10 ველი. ! 600 ხაზი, სადაც წერია Name = request.Name, Price = request.Price…
-→ პროგრამა
-? შეამჩნიეთ კანონზომიერება? Name — Name-ს, Price — Price-ს. სახელი სახელს ემთხვევა. ეს ისეთი კოდია, რომელიც წესით იწერება. ! ასეთ კოდს პროგრამამ უნდა დაწეროს. და ასეთი პროგრამები არსებობს.
+  <aside class="study">
+### მაგრამ რეალურ პროექტში — ასობით ასეთი ხაზი
+
+Mapper-მა განმეორება მოაშორა, მაგრამ ერთი პროდუქტისთვის უკვე 20-ზე მეტი ხაზი დავწერეთ. რეალურ პროექტში:
+
+**20 Entity × 3 DTO × 10 ველი = 600 ხაზი** ტიპის `Name = request.Name`, `Price = request.Price`…
+
+ეს კოდი მოსაწყენი და ერთნაირია: სახელი ემთხვევა სახელს. ასეთ კოდს წესით დაწერა შეუძლია პროგრამასაც — და ასეთი პროგრამები არსებობს.
   </aside>
 </section>
-
-<!-- ============ PART 4: PACKAGE ============ -->
 <section class="slide divider" data-section="4 · Mapperly">
   <div class="vcenter">
     <div class="kicker in">ნაწილი 4</div>
@@ -927,13 +1104,12 @@ Mapper-მა განმეორება მოაშორა. მაგრ
     <p class="lead mt in" style="--d:.3s">ჩვენ ვწერთ <b>რა</b> გადავიტანოთ — package წერს <b>როგორ</b></p>
   </div>
   <div class="big-num">04</div>
-  <aside class="notes">
-⏱ 1:19
-ახლა, როცა ვიცით, რას აკეთებს mapping-ი, შეგვიძლია package-ს ვანდოთ. ! ჯერ ხელით რომ არ დაგვეწერა, package „მაგიად“ მოგეჩვენებოდათ.
+  <aside class="study">
+## ნაწილი 4 · Mapping package
+
+ჩვენ ვწერთ, **რა** გადავიტანოთ; package წერს, **როგორ**. ჯერ ხელით იმიტომ დავწერეთ, რომ package „მაგიად“ არ მოგეჩვენოს — ახლა ზუსტად იცი, რას აკეთებს.
   </aside>
 </section>
-
-<!-- 24. PACKAGES -->
 <section class="slide" data-section="4 · Mapperly">
   <div class="kicker">NuGet</div>
   <h2>სამი ცნობილი <span class="grad">package</span></h2>
@@ -944,22 +1120,25 @@ Mapper-მა განმეორება მოაშორა. მაგრ
     <tr class="step fade"><td class="mono" style="color:var(--mvc)">Mapperly ✓</td><td><b>კომპილაციისას</b> კოდს წერს (source generator)</td><td>უფასო · Apache-2.0</td><td>ყველაზე სწრაფად მზარდი — ABP framework-იც მასზე გადავიდა</td></tr>
   </table>
   <div class="callout mt step" style="--a:var(--mvc)">ჩვენ ვიყენებთ <b>Mapperly</b>-ს: ის წერს <b>ზუსტად ისეთ კოდს</b>, როგორიც ჩვენ ხელით დავწერეთ — და მას <b>ვხედავთ</b></div>
-  <aside class="notes">
-⏱ 1:19 · 4 წთ
-mapping-ის რამდენიმე package არსებობს. სამს ვნახავთ.
-→ AutoMapper
-AutoMapper — წლების განმავლობაში ყველაზე გამოყენებადი. ბევრ არსებულ პროექტში შეხვდებით, ამიტომ სახელი უნდა იცოდეთ. ! 2025-დან ფასიანი გახდა კომერციული გამოყენებისთვის, ამიტომ ახალი პროექტები ალტერნატივებზე გადადიან.
-→ Mapster
-Mapster — უფასო, მარტივი, პოპულარული.
-→ Mapperly
-Mapperly — ყველაზე ახალი მიდგომა. უფასოა და ყველაზე სწრაფად იზრდება: ABP — დიდი .NET framework — AutoMapper-იდან სწორედ Mapperly-ზე გადავიდა.
-→ რატომ Mapperly
-! მთავარი მიზეზი ჩვენთვის: Mapperly კოდს კომპილაციისას წერს. ის წერს ზუსტად იმას, რაც ჩვენ ხელით დავწერეთ, და ამ კოდს Visual Studio-ში დავინახავთ. მაგია არ არის.
-~ AutoMapper და Mapster პროგრამის მუშაობისას „ეძებენ“ ველებს (reflection) — შეცდომა მხოლოდ გაშვებისას ჩანს. Mapperly-ში — კომპილაციისას.
+  <aside class="study">
+### სამი ცნობილი package
+
+| Package | როგორ მუშაობს | ლიცენზია | სტატუსი |
+|---|---|---|---|
+| **AutoMapper** | პროგრამის მუშაობისას (reflection) | 2025-დან ფასიანი კომერციულისთვის | წლების განმავლობაში #1; ახალი პროექტები მისგან მიდიან |
+| **Mapster** | პროგრამის მუშაობისას | უფასო · MIT | პოპულარული ალტერნატივა |
+| **Mapperly** ✓ | კომპილაციისას წერს კოდს (source generator) | უფასო · Apache-2.0 | ყველაზე სწრაფად მზარდი |
+
+AutoMapper-ის სახელი უნდა იცოდე — ბევრ არსებულ პროექტში შეხვდები.
+
+ჩვენ **Mapperly**-ს ვიყენებთ, რადგან ის კოდს **კომპილაციისას** წერს — ზუსტად ისეთს, როგორიც ჩვენ ხელით დავწერეთ, და ამ კოდს Visual Studio-ში ვხედავთ. AutoMapper და Mapster კი ველებს პროგრამის მუშაობისას „ეძებენ“ — შეცდომა მხოლოდ გაშვებისას ჩანს. Mapperly-ში — Build-ისას.
+
+```terms
+NuGet — .NET-ის package-ების საცავი; აქედან ვაყენებთ სხვების დაწერილ ბიბლიოთეკებს
+Source generator — კოდი, რომელიც კომპილაციისას ჩვენთვის ახალ C# კოდს წერს
+```
   </aside>
 </section>
-
-<!-- 25. INSTALL -->
 <section class="slide" data-section="4 · Mapperly">
   <div class="kicker">🧑‍💻 ვაყენებთ</div>
   <h2>NuGet → <span class="grad">Riok.Mapperly</span></h2>
@@ -981,22 +1160,22 @@ Mapperly — ყველაზე ახალი მიდგომა. უფ
       <div class="btn">Install</div>
     </div>
   </div>
-  <aside class="notes">
-⏱ 1:23 · 3 წთ
-→ NuGet
-პროექტზე მარჯვენა კლიკი, Manage NuGet Packages.
-→ ძებნა
-Browse, ვწერთ Riok.Mapperly. ! სახელი ასე იწყება — Riok მისი ავტორების კომპანიაა. ვაჭერთ Install.
-→ შემოწმება
-Dependencies-ში, Packages-ში ჩანს.
-→ CLI
-იგივე ტერმინალიდან ერთი ბრძანებით.
-→ კარტა
-~ ამ სლაიდს ეკრანზე დატოვე, სანამ ყველა დააყენებს.
+  <aside class="study">
+### Mapperly-ის დაყენება
+
+**Visual Studio-დან:**
+
+1. Solution Explorer → პროექტზე მარჯვენა კლიკი → **Manage NuGet Packages**.
+2. **Browse** → ძებნა: `Riok.Mapperly` → **Install**. (Riok მისი ავტორების კომპანიაა.)
+3. შეამოწმე: **Dependencies → Packages**-ში ჩანს `Riok.Mapperly`.
+
+**ან ტერმინალიდან**, პროექტის ფოლდერში:
+
+```bash
+dotnet add package Riok.Mapperly
+```
   </aside>
 </section>
-
-<!-- 26. MAPPERLY MAPPER -->
 <section class="slide" data-section="4 · Mapperly">
   <div class="kicker">🧑‍💻 ვწერთ · ProductMapper-ის ახალი ვერსია</div>
   <h2>ვწერთ მხოლოდ <span class="grad">„რა“</span> — სხეულის გარეშე</h2>
@@ -1026,22 +1205,43 @@ public static partial class ProductMapper
       <div class="solve step">მეთოდების სახელები <b>იგივეა</b> → Controller-ში <b>ერთი ხაზიც არ</b> იცვლება</div>
     </div>
   </div>
-  <aside class="notes">
-⏱ 1:26 · 6 წთ
-ProductMapper-ს თავიდან ვწერთ. ~ ძველი სხეულები წაშალე — ან ძველი ფაილი გადაარქვი, რომ შეადარონ.
-→ [Mapper]
-[Mapper] ატრიბუტი Mapperly-ს ეუბნება: ეს კლასი შენი საქმეა.
-→ partial
-partial — ნიშნავს „ნაწილობრივი“. კლასი და მეთოდი ორ ნაწილად იწერება: ერთს ჩვენ ვწერთ — სათაურს, მეორეს Mapperly — სხეულს. ! ჩვენ ვწერთ მხოლოდ „რა“: Product-იდან ProductResponse. „როგორ“ — Mapperly-ს საქმეა: სახელებს ადარებს და ველებს აკოპირებს.
-→ MappingTarget
-განახლებისთვის ვეუბნებით: ეს არის სამიზნე, მას შეცვალე.
-→ Controller
-! მეთოდების სახელები იგივე დავტოვეთ — ToResponse, ToEntity, UpdateFrom. Controller-ში ერთი ხაზიც არ იცვლება. ჩვენი ხელით დაწერილი Mapper package-ით შევცვალეთ და Controller-მა ვერც გაიგო.
-~ ააწყვე (Build) — შემდეგ სლაიდზე ვნახავთ გაფრთხილებებს.
+  <aside class="study">
+### ProductMapper თავიდან — მხოლოდ „რა“
+
+```csharp Mappers/ProductMapper.cs
+using Riok.Mapperly.Abstractions;
+
+[Mapper]
+public static partial class ProductMapper
+{
+    public static partial ProductResponse ToResponse(this Product product);
+
+    public static partial Product ToEntity(this CreateProductRequest request);
+
+    public static partial void UpdateFrom(
+        [MappingTarget] this Product product,
+        UpdateProductRequest request);
+}
+```
+
+- **`[Mapper]`** — ატრიბუტი, რომელიც Mapperly-ს ეუბნება: „ეს კლასი შენ შეავსე“.
+- **`partial`** — „ნაწილობრივი“. კლასი და მეთოდი ორ ნაწილად იწერება: ერთს ჩვენ ვწერთ (მეთოდის სათაურს), მეორეს Mapperly (სხეულს). ჩვენ ვწერთ მხოლოდ **რა** გვინდა: `Product`-იდან `ProductResponse`. **როგორ** — Mapperly-ს საქმეა: სახელებს ადარებს და ველებს აკოპირებს.
+- **`[MappingTarget]`** — განახლებისთვის: „ეს არის სამიზნე — ახალს ნუ შექმნი, ეს შეცვალე“.
+
+მეთოდების სახელები იგივე დავტოვეთ — `ToResponse`, `ToEntity`, `UpdateFrom`. ამიტომ **Controller-ში ერთი ხაზიც არ იცვლება**: ხელით დაწერილი Mapper package-ით შევცვალეთ და Controller-მა ვერც გაიგო.
+
+```terms
+partial — კლასი ან მეთოდი, რომლის ნაწილს ჩვენ ვწერთ, დანარჩენს — სხვა (აქ Mapperly)
+[MappingTarget] — Mapperly-ს ეუბნება, რომ არსებული ობიექტი შეცვალოს და ახალი არ შექმნას
+```
+
+```prompt partial და Mapperly
+ვსწავლობ Mapperly-ს (Riok.Mapperly) ASP.NET Core-ში. მაქვს:
+[Mapper] public static partial class ProductMapper { public static partial ProductResponse ToResponse(this Product product); }
+ამიხსენი ნაბიჯ-ნაბიჯ: რას ნიშნავს partial, ვინ წერს მეთოდის სხეულს, როდის (კომპილაციისას თუ გაშვებისას) და როგორ ვნახო დაწერილი კოდი Visual Studio-ში. ახსნა ქართულად.
+```
   </aside>
 </section>
-
-<!-- 27. WARNINGS -->
 <section class="slide" data-section="4 · Mapperly">
   <div class="kicker">Build · გაფრთხილებები</div>
   <h2>Mapperly <span class="c-asp">გეკითხება</span>: „განზრახ გამოტოვე?“</h2>
@@ -1067,21 +1267,35 @@ public static partial Product ToEntity(this CreateProductRequest request);
       <div class="solve step">ველი <b>შემთხვევით</b> ვეღარ გამოგვრჩება — Mapperly <b>შეგვახსენებს</b></div>
     </div>
   </div>
-  <aside class="notes">
-⏱ 1:32 · 4 წთ
-Build-ის შემდეგ Error List-ში გაფრთხილებები ჩნდება.
-→ RMG020
-Mapperly ამბობს: Product-ს CostPrice აქვს, ProductResponse-ში კი ის არსად წავიდა. ! ეს ზრუნვაა: „შემთხვევით ხომ არ დაგავიწყდა?“
-→ IgnoreSource
-ვპასუხობთ ატრიბუტით: MapperIgnoreSource — წყაროს ეს ველი განზრახ არ გადავიტანე. nameof — რომ სახელი ტექსტად არ ვწეროთ და შეცდომა არ დავუშვათ.
-→ IgnoreTarget
-ToEntity-ზე პირიქით: Product-ს აქვს Id და CreatedAt, Request-ში კი არ არის. MapperIgnoreTarget — ამათ სხვა ავსებს. იგივე დაამატე UpdateFrom-ზე.
-→ სარგებელი
-! ხელით დაწერილ Mapper-ში Category-ს დამატება შეიძლებოდა დაგვვიწყებოდა. Mapperly-ში — ახალ ველზე ის თვითონ გვეტყვის. ეს ზუსტად ის პრობლემაა, რომლითაც ეს ნაწილი დავიწყეთ.
+  <aside class="study">
+### Mapperly გეკითხება: „განზრახ გამოტოვე?“
+
+Build-ის შემდეგ Error List-ში გაფრთხილება ჩნდება:
+
+```plain Warning RMG020
+The member CostPrice on the mapping source type Product is not mapped
+to any member on the mapping target type ProductResponse
+```
+
+Mapperly ამბობს: `Product`-ს `CostPrice` აქვს, `ProductResponse`-ში კი ის არსად წავიდა. **„შემთხვევით ხომ არ დაგავიწყდა?“** ვპასუხობთ ატრიბუტებით:
+
+```csharp Mappers/ProductMapper.cs
+[MapperIgnoreSource(nameof(Product.CostPrice))]
+[MapperIgnoreSource(nameof(Product.CreatedAt))]
+public static partial ProductResponse ToResponse(this Product product);
+
+[MapperIgnoreTarget(nameof(Product.Id))]
+[MapperIgnoreTarget(nameof(Product.CreatedAt))]
+public static partial Product ToEntity(this CreateProductRequest request);
+```
+
+- **`MapperIgnoreSource`** — „წყაროს ეს ველი **განზრახ** არ გადავიტანე“.
+- **`MapperIgnoreTarget`** — „სამიზნის ეს ველი **სხვა** ავსებს“ (აქ — სერვერი). იგივე დაამატე `UpdateFrom`-ზეც.
+- **`nameof(...)`** — სახელს ტექსტად არ ვწერთ, რომ შეცდომა არ დავუშვათ. თუ ველს გადავარქმევთ, `nameof` კომპილაციისას შეგვახსენებს.
+
+ხელით დაწერილ Mapper-ში ახალი ველის დამატება შეიძლებოდა დაგვვიწყებოდა. Mapperly-ში ახალ ველზე **ის თვითონ გვეტყვის** — ზუსტად ის პრობლემა მოგვარდა, რომლითაც ეს ნაწილი დავიწყეთ.
   </aside>
 </section>
-
-<!-- 28. GENERATED CODE -->
 <section class="slide" data-section="4 · Mapperly">
   <div class="kicker">კაპოტის ქვეშ</div>
   <h2>Mapperly-მ <span class="grad">ზუსტად ჩვენი კოდი</span> დაწერა</h2>
@@ -1117,21 +1331,31 @@ public static partial ProductResponse ToResponse(this Product product)
     </div>
   </div>
   <div class="solve mt step">მაგია არ არის: Mapperly <b>კოდს წერს</b>, ჩვენ კი მას <b>ვხედავთ და ვამოწმებთ</b></div>
-  <aside class="notes">
-⏱ 1:36 · 4 წთ
-სად არის მეთოდის სხეული? Mapperly-მ დაწერა. ვნახოთ.
-→ ჩვენი
-მარცხნივ — ჩვენი ხელით დაწერილი ToResponse.
-→ გენერირებული
-მარჯვნივ — Mapperly-ს დაწერილი. ? რა განსხვავებაა? (თითქმის არანაირი.) ~ ნამდვილ ფაილში სახელები სრულად წერია (global::ShopApi…) — აქ გამარტივებულია.
-→ სად
-Visual Studio-ში: Dependencies → Analyzers → Riok.Mapperly → ProductMapper.g.cs. ~ ცოცხლად გახსენი — ToEntity და UpdateFrom-იც აჩვენე.
-→ მაგია არ არის
-! ამიტომ დავწერეთ ჯერ ხელით: ახლა იცით, რას აკეთებს package. თუ რამე არასწორად გადაიტანა — გახსნით ამ ფაილს და დაინახავთ.
+  <aside class="study">
+### Mapperly-მ ზუსტად ჩვენი კოდი დაწერა
+
+ჩვენი ხელით დაწერილი და Mapperly-ს გენერირებული `ToResponse` თითქმის ერთნაირია:
+
+```csharp ჩვენ · ხელით
+public static ProductResponse ToResponse(this Product product)
+{
+    return new ProductResponse(product.Id, product.Name, product.Price);
+}
+```
+
+```csharp Mapperly · გენერირებული (გამარტივებული)
+public static partial ProductResponse ToResponse(this Product product)
+{
+    var target = new ProductResponse(product.Id, product.Name, product.Price);
+    return target;
+}
+```
+
+**სად ვნახოთ:** Solution Explorer → **Dependencies → Analyzers → Riok.Mapperly → ProductMapper.g.cs**. ნამდვილ ფაილში სახელები სრულად წერია (`global::ShopApi…`).
+
+მაგია არ არის: Mapperly კოდს წერს, ჩვენ კი მას ვხედავთ და ვამოწმებთ. თუ რამე არასწორად გადაიტანა, ამ ფაილს გახსნი და დაინახავ.
   </aside>
 </section>
-
-<!-- 29. SUMMARY OF EVOLUTION -->
 <section class="slide" data-section="4 · Mapperly">
   <div class="kicker">ჩვენი გზა</div>
   <h2>სამი ნაბიჯი — <span class="grad">ერთი შედეგი</span></h2>
@@ -1148,59 +1372,22 @@ Visual Studio-ში: Dependencies → Analyzers → Riok.Mapperly → ProductMa
     <tr><td>ახალი ველი</td><td>შეიძლება <b>დაგვავიწყდეს</b></td><td>გაფრთხილება Build-ზე</td></tr>
     <tr><td>Controller</td><td colspan="2" style="text-align:center"><b>ერთნაირი</b> — <code class="i">product.ToResponse()</code></td></tr>
   </table>
-  <aside class="notes">
-⏱ 1:40 · 2 წთ
-შევაჯამოთ გზა.
-→ ყველგან
-დავიწყეთ mapping-ით, რომელიც Controller-ში ყველგან იყო გაბნეული.
-→ ხელით
-გავიტანეთ ერთ ადგილას — ჩვენი ხელით დაწერილ Mapper-ში.
-→ Mapperly
-და ბოლოს — ეს კოდი package-ს ვანდეთ.
-→ შედარება
-! Controller ორივე შემთხვევაში ერთნაირია. ? როდის დავწერდით ხელით? (პატარა პროექტში, 2-3 DTO-ზე — package ზედმეტია. ან როცა გადატანა რთულია — მაგალითად, ფასს გამოთვლა სჭირდება.)
+  <aside class="study">
+### სამი ნაბიჯი — ერთი შედეგი
+
+😵 mapping ყველგან → ✍️ ხელით Mapper → ⚙️ Mapperly
+
+| | ხელით Mapper | Mapperly |
+|---|---|---|
+| კოდის რაოდენობა | ყველა ველი ხელით | მხოლოდ მეთოდის სათაური |
+| ახალი ველი | შეიძლება დაგავიწყდეს | გაფრთხილება Build-ზე |
+| Controller | `product.ToResponse()` | `product.ToResponse()` — იგივე |
+
+**როდის დავწერდით ხელით?** პატარა პროექტში, 2-3 DTO-ზე — package ზედმეტია. ან როცა გადატანა რთულია: მაგალითად, ველი უნდა გამოითვალოს და არა უბრალოდ დაკოპირდეს.
   </aside>
 </section>
-
-<!-- ============ PRACTICE ============ -->
-<section class="slide" data-section="5 · პრაქტიკა">
-  <div class="kicker">🧑‍💻 თქვენ აკეთებთ</div>
-  <h2>LibraryApi — <span class="grad">DTO და Mapping</span></h2>
-  <div class="grid2" style="align-items:start">
-    <div class="card accent step left" style="--a:var(--mvc)">
-      <h3><span class="ico">📝</span>დავალება · LibraryApi</h3>
-      <ul class="clean small">
-        <li><code class="i">Book</code>-ს დაამატეთ <code class="i">PurchasePrice</code> და <code class="i">CreatedAt</code></li>
-        <li><code class="i">Dtos/</code>: <b>CreateBookRequest</b>, <b>UpdateBookRequest</b>, <b>BookResponse</b> (PurchasePrice-ის გარეშე)</li>
-        <li>ჯერ <b>ხელით</b>: <code class="i">Mappers/BookMapper</code> — ToResponse, ToEntity, UpdateFrom</li>
-        <li>BooksController — მხოლოდ DTO-ები შემოდის და გადის</li>
-        <li>მერე <b>Riok.Mapperly</b>: BookMapper გადაწერეთ partial-ად. Controller <b>არ</b> უნდა შეიცვალოს</li>
-      </ul>
-      <p class="tiny mt" style="margin-top:14px">✓ მზადაა, როცა Swagger-ში POST-ს id არ აქვს, GET-ში purchasePrice არ ჩანს და Build-ზე Mapperly-ს გაფრთხილება არ არის</p>
-    </div>
-    <div class="card accent step right" style="--a:var(--asp)">
-      <h3><span class="ico">⭐</span>ბონუსი</h3>
-      <ul class="clean small">
-        <li><code class="i">BookResponse</code>-ს დაამატეთ <code class="i">Author</code> — ნახეთ, სად შეიცვალა კოდი</li>
-        <li>გახსენით <code class="i">BookMapper.g.cs</code> და შეადარეთ თქვენს ხელით დაწერილს</li>
-        <li><code class="i">GET /api/books/cheap</code> — <b>BookResponse</b>-ების სიით</li>
-      </ul>
-    </div>
-  </div>
-  <div class="callout step mt" style="--a:var(--api)">წესი: <b>ჯერ ცდი თვითონ</b> → გვერდით მჯდომს ჰკითხე → მერე მე. ShopApi — თქვენი ნიმუშია 🙂</div>
-  <aside class="notes">
-⏱ 1:42 · 10 წთ · ~ სლაიდი ეკრანზე დატოვე და ოთახში იარე. ვინც ვერ მორჩება — საშინაოდ დაასრულებს.
-→ დავალება
-წინა ლექციის LibraryApi. Book-ს ორი შიდა ველი ემატება. მერე DTO-ები. ! რიგი მნიშვნელოვანია: ჯერ ხელით Mapper, გატესტეთ, მერე Mapperly. ორივე ვერსია უნდა გესმოდეთ.
-→ ბონუსი
-ვინც ადრე მორჩება: ახალი ველი, გენერირებული კოდის შედარება, იაფი წიგნები.
-→ წესი
-! ShopApi ნიმუშია. გადაწერა კი არა, ყოველი ხაზის გაგებაა მიზანი.
-  </aside>
-</section>
-
-<!-- MISTAKES -->
-<section class="slide" data-section="5 · პრაქტიკა">
+<lecture-classwork/>
+<section class="slide" data-section="პრაქტიკა">
   <div class="kicker">ყურადღება</div>
   <h2>ხშირი <span class="c-red">შეცდომები</span></h2>
   <div class="col" style="gap:14px">
@@ -1210,52 +1397,36 @@ Visual Studio-ში: Dependencies → Analyzers → Riok.Mapperly → ProductMa
     <div class="grid2 step" style="grid-template-columns:1fr 1fr;gap:18px"><div class="problem">Mapperly: <code class="i">partial</code> აკლია კლასს ან მეთოდს</div><div class="solve"><code class="i">static partial class</code> + <code class="i">static partial</code> მეთოდი</div></div>
     <div class="grid2 step" style="grid-template-columns:1fr 1fr;gap:18px"><div class="problem">გაფრთხილებები <b>იგნორირებულია</b></div><div class="solve">წაიკითხე: <b>განზრახ</b> გამოტოვე? → <code class="i">MapperIgnore…</code></div></div>
   </div>
-  <aside class="notes">
-⏱ 1:52 · 2 წთ · ~ როცა ბევრს ერთი და იგივე შეცდომა აქვს, ეს სლაიდი აჩვენე.
-→ Entity დარჩა
-ყველაზე ხშირი: ერთ endpoint-ში DTO დაგავიწყდათ — და შიდა ველი გარეთაა. ყოველი endpoint Swagger-ში შეამოწმეთ.
-→ Id Request-ში
-Request-ში Id ზედმეტია — ზუსტად ის პრობლემა, რომელსაც DTO ხსნის.
-→ this
-this-ის გარეშე მეთოდი ჩვეულებრივი static მეთოდია: BookMapper.ToResponse(book) იმუშავებს, book.ToResponse() — არა.
-→ partial
-Mapperly-ს partial სჭირდება კლასზეც და მეთოდზეც — თორემ „მეთოდს სხეული აკლია“.
-→ გაფრთხილებები
-! გაფრთხილება შეცდომა არ არის — პროგრამა გაეშვება. მაგრამ ის რაღაცას გეუბნებათ. წაიკითხეთ.
+  <aside class="study">
+### ხშირი შეცდომები
+
+| რას ხედავ | მიზეზი და გამოსწორება |
+|---|---|
+| ერთ endpoint-ში შიდა ველი ისევ ჩანს | იქ DTO დაგავიწყდა და `Book` დარჩა. ყველგან `.ToResponse()` — და ყოველი endpoint Swagger-ში შეამოწმე |
+| Swagger POST-ში `id`-ს ითხოვს | Request DTO-ში `Id` ჩაწერე. Id-ს სერვერი ანიჭებს ან მისამართიდან მოდის |
+| `book.ToResponse()` არ ჩანს | `this` დაგავიწყდა. extension method = `static` კლასი + `this` პირველ პარამეტრზე. ასევე შეამოწმე `using …Mappers;` |
+| „მეთოდს სხეული აკლია“ | Mapperly-ს `partial` სჭირდება **კლასზეც და მეთოდზეც**: `static partial class` + `static partial` მეთოდი |
+| გაფრთხილებები Build-ზე | ნუ აიგნორებ. წაიკითხე: „განზრახ გამოტოვე?“ → `MapperIgnoreSource` / `MapperIgnoreTarget` |
+
+```note
+გაფრთხილება (warning) შეცდომა არ არის — პროგრამა გაეშვება. მაგრამ ის რაღაცას გეუბნება. ყოველთვის წაიკითხე.
+```
+
+```prompt როცა რამე არ მუშაობს
+ვწერ ASP.NET Core Web API-ს, ვიყენებ DTO-ებს და Riok.Mapperly-ს. მაქვს ეს პრობლემა: [აღწერე, რას ხედავ]
+აი ჩემი კოდი: [ჩასვი Mapper, DTO და Controller-ის შესაბამისი ნაწილი]
+აი შეცდომა / გაფრთხილება: [ჩასვი ტექსტი]
+ნუ დამიწერ მთლიან გამოსწორებულ კოდს — ჯერ მიმითითე, სად არის პრობლემა და რატომ, რომ თვითონ გავასწორო.
+```
   </aside>
 </section>
-
-<!-- QUIZ -->
-<section class="slide" data-section="შეჯამება">
-  <div class="kicker">შევამოწმოთ</div>
-  <h2>5 კითხვა</h2>
-  <div class="qa"><span class="n">1</span><span class="q">რა არის Entity და რატომ არ ვაბრუნებთ მას პირდაპირ?</span><span class="a step">ბაზის ცხრილის აღწერა · შიდა ველები გაიპარება, კლიენტი სერვერის ველებს შეავსებს, ცხრილის ცვლილება კლიენტს გატეხავს</span></div>
-  <div class="qa"><span class="n">2</span><span class="q">რა განსხვავებაა Request DTO-სა და Response DTO-ს შორის?</span><span class="a step">Request — რას ვიღებთ (Id-ს გარეშე) · Response — რას ვაჩვენებთ (შიდა ველების გარეშე)</span></div>
-  <div class="qa"><span class="n">3</span><span class="q">რა არის mapping და რატომ გავიტანეთ ცალკე Mapper-ში?</span><span class="a step">ველების გადატანა ერთი ობიექტიდან მეორეში · რომ ერთი ცოდნა ერთ ადგილას იყოს და ახალი ველი ერთგან შეიცვალოს</span></div>
-  <div class="qa"><span class="n">4</span><span class="q">რას აკეთებს <code class="i">this</code> mapper-ის მეთოდის პარამეტრში?</span><span class="a step">extension method: <code class="i">product.ToResponse()</code> — თითქოს მეთოდი Product-ს ეკუთვნის</span></div>
-  <div class="qa"><span class="n">5</span><span class="q">სად არის Mapperly-ს მეთოდის სხეული?</span><span class="a step">კომპილაციისას თვითონ წერს · <code class="i">ProductMapper.g.cs</code> — Dependencies → Analyzers</span></div>
-  <aside class="notes">
-⏱ 1:54 · 3 წთ · ~ კითხვა ხმამაღლა, დაელოდე პასუხს, მერე → პასუხის გამოსაჩენად
-? 1. Entity?
-→ პასუხი 1
-? 2. Request vs Response?
-→ პასუხი 2
-? 3. Mapping და Mapper?
-→ პასუხი 3
-? 4. this?
-→ პასუხი 4
-? 5. Mapperly-ს სხეული?
-→ პასუხი 5
-  </aside>
-</section>
-
-<!-- FINAL -->
+<lecture-check/>
 <section class="slide" data-section="შეჯამება">
   <div class="kicker in" style="color:var(--asp)">დღეს</div>
   <h2 class="in" style="--d:.1s">Entity <span class="grad">შიგნით</span> — DTO <span class="grad">გარეთ</span></h2>
   <div class="grid2" style="grid-template-columns:1fr 1.1fr;gap:40px;align-items:start">
     <div class="col" style="gap:18px">
-      <div class="card accent step" style="--a:var(--mvc)"><h3><span class="ico">🏠</span>საშინაო</h3><p class="small">LibraryApi: ხელით Mapper → Mapperly + ბონუსები. ყველა endpoint Swagger-ში გატესტეთ</p></div>
+      <div class="card accent step" style="--a:var(--mvc)"><h3><span class="ico">🧠</span>დაიმახსოვრე</h3><ul class="clean small"><li><b>Entity</b> — ბაზის ფორმა, შიგნით რჩება</li><li><b>DTO</b> — Request შემოდის, Response გადის</li><li><b>Mapping</b> — ერთ ადგილას: ჯერ ხელით, მერე Mapperly</li></ul></div>
       <div class="card accent step" style="--a:var(--asp)"><h3><span class="ico">⏭️</span>შემდეგი ლექცია</h3><p class="small">Controller-ი ახლა ბევრს აკეთებს. მონაცემებს <b>თავისი სახლი</b> სჭირდება — და ჩნდება კითხვა: <b>ვინ ქმნის ობიექტებს?</b></p></div>
     </div>
     <div class="step" data-with>
@@ -1272,14 +1443,31 @@ Mapperly-ს partial სჭირდება კლასზეც და მ�
       <div class="callout mt" style="--a:var(--asp)">ხუთი საქმე ერთ კლასში. მეორე Controller-საც რომ დასჭირდეს პროდუქტები? 🤔</div>
     </div>
   </div>
-  <aside class="notes">
-⏱ 1:57 · 3 წთ
-დღეს: Entity — ბაზის ფორმა, შიგნით რჩება. DTO — Request და Response, გარეთ გადის. Mapping — ხელით, მერე Mapperly-ით.
-→ საშინაო
-საშინაო: LibraryApi — ჯერ ხელით, მერე Mapperly. ორივე ნაბიჯი.
-→ შემდეგი
-? შეხედეთ ჩვენს ProductsController-ს: რამდენ საქმეს აკეთებს? (ხუთს.) სია, Id-ები, ძებნა, mapping, HTTP. mapping უკვე გავიტანეთ — ახლა წარმოიდგინეთ, რომ მეორე Controller-საც სჭირდება პროდუქტები.
-! შემდეგ ლექციაზე მონაცემებს საკუთარ კლასში გავიტანთ და ვნახავთ, რა ახალი კითხვა ჩნდება: ვინ ქმნის ობიექტებს?
-მადლობა! კითხვები?
+  <aside class="study">
+## შეჯამება · Entity შიგნით — DTO გარეთ
+
+**დაიმახსოვრე სამი რამ:**
+
+1. **Entity** — ბაზის ფორმა. შიგნით რჩება და გარეთ პირდაპირ არასდროს გადის.
+2. **DTO** — Request (რას ვიღებთ) და Response (რას ვაჩვენებთ). ესაა კონტრაქტი კლიენტთან.
+3. **Mapping** — ერთ ადგილას. ჯერ ხელით (`ProductMapper`), მერე Mapperly-ით, რომელიც იმავე კოდს წერს და ახალ ველზე გაგაფრთხილებს.
+
+### ⏭️ შემდეგ ლექციაზე
+
+შეხედე `ProductsController`-ს — რამდენ საქმეს აკეთებს?
+
+- 📋 პროდუქტების სიას ინახავს (`static List`)
+- 🔢 Id-ებს ითვლის (`_nextId`)
+- 🔍 ეძებს Id-ით
+- 🔁 DTO ↔ Product mapping-ს იძახებს
+- 📨 HTTP-ს წყვეტს: 200 · 201 · 404…
+
+ხუთი საქმე ერთ კლასში. მეორე Controller-საც რომ დასჭირდეს პროდუქტები? შემდეგ ლექციაზე მონაცემებს საკუთარ კლასში გავიტანთ და ვნახავთ, რა ახალი კითხვა ჩნდება: **ვინ ქმნის ობიექტებს?**
+
+```prompt გამოცდა მთელ ლექციაზე
+ვსწავლობ ASP.NET Core Web API-ს. ლექციაზე გავიარეთ: Entity vs DTO, Request/Response record-ები, ხელით დაწერილი ProductMapper extension method-ებით (ToResponse, ToEntity, UpdateFrom) და Riok.Mapperly (partial, [Mapper], [MappingTarget], MapperIgnoreSource/Target).
+დამისვი 8 კითხვა სათითაოდ, მარტივიდან რთულისკენ. ყოველ ჩემს პასუხზე მითხარი, სწორია თუ არა და რატომ, მერე დასვი შემდეგი. ბოლოს მითხარი, რა უნდა გავიმეორო. კომუნიკაცია ქართულად.
+```
   </aside>
 </section>
+<lecture-homework/>
