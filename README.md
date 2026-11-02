@@ -16,7 +16,7 @@ courses/
     deck.html                სლაიდები + სცენარი (<aside class="notes">)
     lecture.json             {"title"}
     materials/               არასავალდებულო — ფაილები ჩამოსატვირთად (მაგ. SQL)
-build.py                     აწყობს ყველაფერს → site/
+build.py                     აწყობს ყველაფერს → index.html + <კურსი>/<ლექცია>/ (root-ში, GitHub Pages ამას აჩვენებს)
 ```
 
 | კურსი | საქაღალდე |
@@ -39,7 +39,9 @@ build.py                     აწყობს ყველაფერს → 
 
 1. `courses/<კურსი>/<NN-slug>/` — `deck.html` და `lecture.json`.
 2. ახალი კურსისთვის — `courses/<კურსი>/course.json`.
-3. push `main`-ზე → GitHub Action ააწყობს და გამოაქვეყნებს. მთავარ გვერდზე ავტომატურად გამოჩნდება.
+3. `python3 build.py`, შემდეგ commit + push `main`-ზე. ერთ წუთში საიტზე ახალი ქარდი გამოჩნდება.
+
+> `aspnet-api/`, `efcore/`, `school-backend/` და root-ის `index.html` ბილდის შედეგია — ხელით არ შეცვალო, შეცვალე `courses/` და გაუშვი ბილდი.
 
 ## სცენარის ფორმატი
 
@@ -60,7 +62,7 @@ build.py                     აწყობს ყველაფერს → 
 
 ```bash
 python3 -m venv .venv && .venv/bin/pip install pygments   # ერთხელ
-.venv/bin/python build.py                                  # ყველაფერი → site/
+.venv/bin/python build.py                                  # ყველაფერი → root
 .venv/bin/python build.py efcore/03                        # მხოლოდ ერთი ლექცია
-python3 -m http.server -d site 8000                        # http://localhost:8000
+python3 -m http.server 8000                                # http://localhost:8000
 ```

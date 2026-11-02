@@ -1,5 +1,5 @@
 # ლექციების ბიბლიოთეკის ბილდი.
-#   python3 build.py              → ყველა ლექცია + მთავარი გვერდი → site/
+#   python3 build.py              → ყველა ლექცია + მთავარი გვერდი → რეპოს root (index.html, <კურსი>/<ლექცია>/)
 #   python3 build.py efcore/03    → მხოლოდ ის ლექციები, რომელთა გზაც ამას შეიცავს (+ მთავარი გვერდი)
 #
 # სტრუქტურა:
@@ -15,7 +15,8 @@ from pygments.token import STANDARD_TYPES
 
 ROOT = pathlib.Path(__file__).parent
 ENGINE = ROOT / 'engine'
-OUT = ROOT / 'site'
+OUT = ROOT   # GitHub Pages serves main/root: built pages live next to the sources
+GENERATED = '.generated'   # list of folders build.py created — only these are ever deleted
 CSS = (ENGINE / 'engine.css').read_text() + '\n' + (ENGINE / 'theme-light.css').read_text()
 JS = (ENGINE / 'engine.js').read_text()
 FONTS = ('<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>'
@@ -163,9 +164,11 @@ def build_lecture(course, lec_dir, meta):
 
 # ---------- everything ----------
 def main(filters):
-    if not filters and OUT.exists():
-        shutil.rmtree(OUT)
-    OUT.mkdir(exist_ok=True)
+    marker = OUT / GENERATED
+    if not filters and marker.exists():
+        for d in marker.read_text().split():
+            if (OUT / d).is_dir() and d not in ('courses', 'engine', '.git', '.github'):
+                shutil.rmtree(OUT / d)
     catalog = []
     for cdir in sorted((ROOT / 'courses').iterdir()):
         if not (cdir / 'course.json').exists():
@@ -185,6 +188,7 @@ def main(filters):
         page = (ENGINE / 'index.html').read_text().replace('/*CATALOG*/[]', json.dumps(catalog, ensure_ascii=False))
         (OUT / 'index.html').write_text(page)
         (OUT / '.nojekyll').write_text('')
+        marker.write_text('\n'.join(c['slug'] for c in catalog) + '\n')
         print(f'index: {sum(len(c["lectures"]) for c in catalog)} lectures in {len(catalog)} courses')
     if any(l['problems'] for c in catalog for l in c['lectures']):
         sys.exit('⚠ step/cue mismatch — see above')
