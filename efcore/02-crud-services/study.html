@@ -1,0 +1,796 @@
+<!doctype html>
+<html lang="ka"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>📖 CRUD, სერვისი და კონსოლის მენიუ — კონსპექტი</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Georgian:wght@400;600;700;800&family=JetBrains+Mono:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#fbf8f3;--card:#fff;--ink:#1e2132;--ink2:#3b3f54;--muted:#7b8096;--line:#e6dfd2;--accent:#6d28d9;--accent-soft:#f3effe;--teal:#0d9488;
+  --green:#15803d;--amber:#b45309;--mono:"JetBrains Mono",ui-monospace,monospace;--sans:"Noto Sans Georgian",system-ui,sans-serif}
+*{box-sizing:border-box}
+html{scroll-padding-top:76px}
+body{margin:0;background:var(--bg);color:var(--ink);font:17.5px/1.75 var(--sans);-webkit-font-smoothing:antialiased}
+a{color:var(--accent)}
+/* top bar */
+.top{position:sticky;top:0;z-index:10;display:flex;align-items:center;gap:14px;padding:10px 20px;background:rgba(251,248,243,.92);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.top .back{font:600 14px var(--mono);color:var(--muted);text-decoration:none;white-space:nowrap}
+.top .back:hover{color:var(--ink)}
+.top .ttl{flex:1;min-width:0;font-weight:700;font-size:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.top .ttl small{font:500 13px var(--mono);color:var(--muted);margin-right:8px}
+.btn{font:700 14px var(--sans);text-decoration:none;border-radius:10px;padding:7px 14px;white-space:nowrap;border:1px solid var(--line);color:var(--ink);background:var(--card);cursor:pointer}
+.btn.play{background:var(--accent);border-color:var(--accent);color:#fff}
+.live{display:none;align-items:center;gap:8px;font:600 13px var(--mono);color:var(--teal);background:#e6f6f4;border:1px solid #bfe7e2;border-radius:999px;padding:5px 12px;cursor:pointer}
+.live.on{display:flex}
+.live .dot{width:8px;height:8px;border-radius:50%;background:var(--teal);animation:pulse 1.6s infinite}
+.live.off{color:var(--muted);background:var(--card);border-color:var(--line)}.live.off .dot{background:var(--muted);animation:none}
+@keyframes pulse{50%{opacity:.3}}
+/* layout */
+.wrap{display:grid;grid-template-columns:230px minmax(0,1000px);gap:44px;justify-content:center;padding:32px 28px 120px}
+nav.toc{position:sticky;top:84px;align-self:start;font-size:14px;line-height:1.45}
+nav.toc .h{font:700 12px var(--mono);color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px}
+nav.toc a{display:block;color:var(--ink2);text-decoration:none;padding:6px 10px;border-left:2px solid var(--line)}
+nav.toc a:hover{color:var(--accent)}
+nav.toc a.cur{color:var(--accent);border-left-color:var(--accent);font-weight:700}
+nav.toc .mats{margin-top:22px;display:flex;flex-direction:column;gap:6px}
+nav.toc .mats a{border:0;padding:2px 0;font:500 13px var(--mono);color:var(--teal);word-break:break-all}
+header.hero{margin-bottom:8px}
+header.hero .k{font:600 14px var(--mono);color:var(--accent)}
+header.hero h1{font-size:38px;line-height:1.2;margin:6px 0 10px;letter-spacing:-.01em}
+header.hero p{color:var(--muted);margin:0;font-size:15.5px}
+header.hero kbd{font:500 12px var(--mono);border:1px solid var(--line);border-radius:5px;padding:0 5px;background:var(--card)}
+h2.sec{font-size:15px;font:700 13px var(--mono);color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin:48px 0 6px;padding-top:18px;border-top:1px solid var(--line)}
+/* blocks */
+.blk{position:relative;padding:14px 0 6px 22px;margin-left:-22px;border-left:3px solid transparent;transition:border-color .3s,background .3s;border-radius:0 12px 12px 0}
+.blk.cur{border-left-color:var(--accent);background:linear-gradient(90deg,var(--accent-soft),transparent 70%)}
+.anchor{position:absolute;top:0}
+.bh{display:flex;align-items:baseline;justify-content:space-between;gap:12px}
+.bh h3{font-size:22px;line-height:1.35;margin:4px 0 6px}
+.chip{flex:none;font:600 12px var(--mono);color:var(--muted);text-decoration:none;border:1px solid var(--line);border-radius:999px;padding:2px 10px;background:var(--card)}
+.chip:hover{color:var(--accent);border-color:var(--accent)}
+.blk h2{font-size:26px;line-height:1.3;margin:6px 0 10px}
+.blk h3:not(.bh h3){font-size:19px;margin:22px 0 6px}
+.blk h4{font-size:17px;margin:18px 0 4px}
+.blk p{margin:10px 0}
+.blk ul,.blk ol{padding-left:24px;margin:8px 0}
+.blk li{margin:4px 0}
+.blk strong{color:var(--ink)}
+.blk :not(pre)>code{font:600 .86em var(--mono);background:#f1ece3;border-radius:6px;padding:1px 6px;color:#5b21b6}
+.blk table{border-collapse:collapse;margin:14px 0;font-size:15.5px;width:100%;display:block;overflow-x:auto}
+.blk th,.blk td{border:1px solid var(--line);padding:8px 12px;text-align:left;vertical-align:top}
+.blk th{background:#f6f1e8}
+/* code */
+.codebox{margin:14px 0;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:#fffdf9}
+.codebox .ch,.prompt .ph{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:6px 8px 6px 14px;font:600 12.5px var(--mono);color:var(--muted);background:#f6f1e8;border-bottom:1px solid var(--line)}
+.copy{font:600 12px var(--mono);border:1px solid var(--line);background:var(--card);color:var(--ink2);border-radius:7px;padding:3px 10px;cursor:pointer}
+.copy:hover{border-color:var(--ink)}
+.copy.ok{color:var(--green);border-color:var(--green)}
+pre.code{margin:0;padding:12px 0;overflow-x:auto;font:14px/1.65 var(--mono)}
+pre.code .ln{display:block;padding:0 16px;white-space:pre}
+.code .ttl{background:var(--bg2);color:var(--muted)}
+.code .ln.hl{background:rgba(109,40,217,.07);box-shadow:inset 3px 0 0 var(--net)}
+.code .ln.dim{opacity:.42}
+.code .k,.code .kd,.code .kn,.code .kr,.code .kc{color:#7c3aed}
+.code .kt{color:#2563eb}
+.code .s,.code .s1,.code .s2,.code .sa,.code .se,.code .si,.code .sd{color:#15803d}
+.code .c,.code .c1,.code .cm,.code .cp,.code .ch{color:#8b8fa3}
+.code .m,.code .mi,.code .mf,.code .mh{color:#c2410c}
+.code .nf,.code .fm{color:#1d4ed8}
+.code .nc,.code .nn,.code .nt,.code .nd{color:#b45309}
+.code .na{color:#7c3aed} .code .nb{color:#0e7490}
+.code .o,.code .p{color:#64748b}
+.code .nv,.code .nx{color:var(--ink)}
+.code .go{color:#64748b}
+/* prompt */
+.prompt{margin:16px 0;border:1px solid #ddd2fb;border-radius:12px;overflow:hidden;background:var(--accent-soft)}
+.prompt .ph{background:#ebe3fd;border-color:#ddd2fb;color:var(--accent)}
+.prompt .pb{padding:12px 16px;white-space:pre-wrap;font-size:15.5px;line-height:1.6;color:var(--ink2)}
+/* self check */
+.selfcheck{margin:16px 0;border:1px solid #cfe9d6;border-radius:12px;background:#f3fbf5;padding:12px 16px}
+.selfcheck .sh{font-weight:700;color:var(--green);margin-bottom:6px}
+.selfcheck .sh small{font-weight:400;color:var(--muted);font-size:13.5px;margin-left:6px}
+.selfcheck details{border-top:1px solid #dcefe1;padding:8px 0}
+.selfcheck summary{cursor:pointer;font-weight:600;list-style:none;padding-left:26px;position:relative}
+.selfcheck summary::-webkit-details-marker{display:none}
+.selfcheck summary::before{content:"?";position:absolute;left:0;top:2px;width:18px;height:18px;border-radius:50%;background:var(--green);color:#fff;font:700 12px/18px var(--mono);text-align:center}
+.selfcheck details[open] summary::before{content:"✓"}
+.selfcheck .ans{padding:6px 0 2px 26px;color:var(--ink2)}
+/* terms */
+.terms{margin:16px 0;border:1px solid var(--line);border-radius:12px;background:var(--card);padding:12px 16px}
+.terms .th{font-weight:700;margin-bottom:6px}
+.terms dl{display:grid;grid-template-columns:max-content 1fr;gap:6px 18px;margin:0}
+.terms dt{font:600 14.5px var(--mono);color:var(--accent)}
+.terms dd{margin:0;color:var(--ink2)}
+/* callouts */
+.callout{display:flex;gap:12px;margin:14px 0;padding:12px 16px;border-radius:12px;border:1px solid var(--line);background:var(--card)}
+.callout .ci{font-size:20px;line-height:1.6}
+.callout>div>p:first-child{margin-top:0}.callout>div>p:last-child{margin-bottom:0}
+.callout.warn{background:#fff8eb;border-color:#f6dfb5}
+.callout.note{background:#eef5ff;border-color:#cfe0fb}
+@media (max-width:980px){
+  .wrap{grid-template-columns:minmax(0,1fr);gap:0;padding:20px 16px 100px}
+  nav.toc{position:static;margin-bottom:12px}
+  nav.toc details{border:1px solid var(--line);border-radius:12px;background:var(--card);padding:8px 12px}
+  nav.toc details>summary{cursor:pointer;font-weight:700}
+  nav.toc .h{display:none}
+  header.hero h1{font-size:30px}
+  .blk{padding-left:14px;margin-left:-14px}
+  .top .ttl small{display:none}
+  .terms dl{grid-template-columns:1fr}.terms dd{margin-bottom:8px}
+}
+@media (min-width:981px){nav.toc details>summary{display:none}}
+@media print{.top,nav.toc,.copy,.chip,.live{display:none}.wrap{display:block;padding:0}.selfcheck details{display:block}.blk.cur{background:none}}
+</style></head>
+<body>
+<div class="top">
+  <a class="back" href="../../">← ლექციები</a>
+  <div class="ttl"><small>Entity Framework Core · 2</small>CRUD, სერვისი და კონსოლის მენიუ</div>
+  <button class="live" id="live" type="button" title="ჩართული: ტექსტი პრეზენტაციას მიჰყვება"><span class="dot"></span><span class="lt">მიჰყვება სლაიდებს</span></button>
+  <a class="btn play" href="index.html">▶ პრეზენტაცია</a>
+</div>
+<div class="wrap">
+  <nav class="toc"><details id="tocd"><summary>სარჩევი</summary><div class="h">სარჩევი</div><a href="#sec-1">გამეორება</a><a href="#sec-2">საშინაოს განხილვა</a><a href="#sec-3">დღის თემა</a><a href="#sec-4">1 · პრობლემა</a><a href="#sec-5">2 · წაკითხვა</a><a href="#sec-6">3 · განახლება და წაშლა</a><a href="#sec-7">4 · სერვისი</a><a href="#sec-8">5 · მენიუ</a><a href="#sec-9">6 · პრაქტიკა</a><a href="#sec-10">პრაქტიკა</a><a href="#sec-11">6 · პრაქტიკა</a><a href="#sec-12">შეჯამება</a><a href="#sec-13">საშინაო</a><div class="mats"></div></details></nav>
+  <main>
+    <header class="hero">
+      <div class="k">📖 კონსპექტი · Entity Framework Core · ლექცია 2</div>
+      <h1>CRUD, სერვისი და კონსოლის მენიუ</h1>
+      <p>წაიკითხე ლექციის შემდეგ, ან პრეზენტაციასთან ერთად: პრეზენტაციაში დააჭირე <kbd>P</kbd> და ეს გვერდი სლაიდებს გაჰყვება. კოდი და AI-ს პრომპტები კოპირდება ერთი დაჭერით.</p>
+    </header>
+    <h2 class="sec" id="sec-1">გამეორება</h2>
+<article class="blk" data-slides="1,2"><span class="anchor" id="s-1"></span><span class="anchor" id="s-2"></span><div class="bh"><h3>გავიხსენოთ წინა ლექცია</h3><a class="chip" href="index.html#/1" data-go="1" title="პრეზენტაციაში გახსნა">სლაიდი 1</a></div>
+<p>ლექცია 1 — <strong>EF Core კონსოლში — ORM, DataContext, მიგრაცია</strong>. ახალ თემამდე ვამოწმებთ, რა დაგვამახსოვრდა. ჯერ თვითონ უპასუხე, მერე გახსენი პასუხი. თუ რომელიმე გაგიჭირდა, <a href="../01-orm-console-setup/study.html">წინა ლექციის კონსპექტს</a> გადახედე.</p>
+<div class="selfcheck"><div class="sh">✅ შეამოწმე თავი <small>დაფიქრდი, მერე გახსენი პასუხი</small></div><details><summary>რა არის ORM და რას ნიშნავს მისი სამი ასო?</summary><div class="ans">თარჯიმანი ობიექტებსა და ცხრილებს შორის · Object · Relational · Mapping</div></details><details><summary>რა შეესაბამება ბაზაში კლასს, property-ს და ობიექტს?</summary><div class="ans">ცხრილი · სვეტი · ჩანაწერი</div></details><details><summary>რომელი 4 პაკეტი დავაყენეთ?</summary><div class="ans">EF Core — ძრავი · .SqlServer — SQL Server · .Tools — VS-ის ბრძანებები · .Design — მიგრაციის გენერაცია</div></details><details><summary>რით განსხვავდება <code>Add-Migration</code> და <code>Update-Database</code>?</summary><div class="ans">Add-Migration წერს ნახაზს (ფაილს) · Update-Database ცვლის ბაზას</div></details><details><summary><code>Add()</code> გამოვიძახეთ, ბაზა კი ცარიელია. რატომ?</summary><div class="ans"><code>SaveChanges()</code> არ გამოგვიძახებია</div></details></div></article>
+<h2 class="sec" id="sec-2">საშინაოს განხილვა</h2>
+<article class="blk" data-slides="3"><span class="anchor" id="s-3"></span><div class="bh"><h3>საშინაოს განხილვა</h3><a class="chip" href="index.html#/3" data-go="3" title="პრეზენტაციაში გახსნა">სლაიდი 3</a></div>
+<p>წინა ლექციის საშინაო: <strong>SchoolDemo — კურსები და ახალი სვეტი</strong>. ქვემოთ არის ერთ-ერთი სწორი ამოხსნა. შენი კოდი შეიძლება სხვანაირად იყოს დაწერილი — მთავარია, მოთხოვნები სრულდებოდეს.</p>
+<h3>მოთხოვნები</h3>
+<ul>
+<li><code>Course</code>: <code>Id</code>, <code>Title</code>, <code>Credits</code> · <code>Add-Migration AddCourses</code> (თუ კლასში ვერ მოასწარით)</li>
+<li><code>Student</code>-ს დაამატეთ <code>Email</code> → <code>Add-Migration AddStudentEmail</code> → <code>Update-Database</code></li>
+<li><code>Program.cs</code>: 2 კურსი და Email-ები სტუდენტებისთვის · <code>SaveChanges</code></li>
+<li>დაბეჭდეთ მხოლოდ 18+ სტუდენტები, ასაკით დალაგებული (<code>Where</code> + <code>OrderBy</code>)</li>
+</ul>
+<h3>ამოხსნა</h3>
+<div class="codebox"><div class="ch"><span>Student.cs</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="k">public</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">Student</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">Id</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">get</span><span class="p">;</span><span class="w"> </span><span class="k">set</span><span class="p">;</span><span class="w"> </span><span class="p">}</span></span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="n">FirstName</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">get</span><span class="p">;</span><span class="w"> </span><span class="k">set</span><span class="p">;</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kt">string</span><span class="p">.</span><span class="n">Empty</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="n">LastName</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">get</span><span class="p">;</span><span class="w"> </span><span class="k">set</span><span class="p">;</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kt">string</span><span class="p">.</span><span class="n">Empty</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">Age</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">get</span><span class="p">;</span><span class="w"> </span><span class="k">set</span><span class="p">;</span><span class="w"> </span><span class="p">}</span></span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="n">Email</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">get</span><span class="p">;</span><span class="w"> </span><span class="k">set</span><span class="p">;</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kt">string</span><span class="p">.</span><span class="n">Empty</span><span class="p">;</span><span class="w">   </span><span class="c1">// ახალი</span></span><span class="ln"><span class="p">}</span></span></code></pre></div>
+<div class="codebox"><div class="ch"><span>Package Manager Console</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln">Add-Migration AddStudentEmail</span><span class="ln">Update-Database</span></code></pre></div>
+<div class="codebox"><div class="ch"><span>Program.cs</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="k">using</span><span class="w"> </span><span class="nn">var</span><span class="w"> </span><span class="n">db</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">DataContext</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="n">db</span><span class="p">.</span><span class="n">Courses</span><span class="p">.</span><span class="n">Add</span><span class="p">(</span><span class="k">new</span><span class="w"> </span><span class="n">Course</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">Title</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"C#"</span><span class="p">,</span><span class="w"> </span><span class="n">Credits</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">6</span><span class="w"> </span><span class="p">}</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="n">db</span><span class="p">.</span><span class="n">Courses</span><span class="p">.</span><span class="n">Add</span><span class="p">(</span><span class="k">new</span><span class="w"> </span><span class="n">Course</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">Title</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"SQL"</span><span class="p">,</span><span class="w"> </span><span class="n">Credits</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">4</span><span class="w"> </span><span class="p">}</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="n">db</span><span class="p">.</span><span class="n">SaveChanges</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="kt">var</span><span class="w"> </span><span class="n">adults</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">db</span><span class="p">.</span><span class="n">Students</span></span><span class="ln"><span class="w">    </span><span class="p">.</span><span class="n">Where</span><span class="p">(</span><span class="n">s</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">s</span><span class="p">.</span><span class="n">Age</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="mi">18</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="p">.</span><span class="n">OrderBy</span><span class="p">(</span><span class="n">s</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">s</span><span class="p">.</span><span class="n">Age</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="p">.</span><span class="n">ToList</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="k">foreach</span><span class="w"> </span><span class="p">(</span><span class="kt">var</span><span class="w"> </span><span class="n">s</span><span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="n">adults</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="s">$"{s.FirstName} {s.LastName}, {s.Age} — {s.Email}"</span><span class="p">)</span><span class="p">;</span></span></code></pre></div>
+<div class="callout note"><span class="ci">💡</span><div><p><code>Email</code>-ის დამატებისას არსებულ სტუდენტებს Email არ აქვთ. <code>string</code>-ს <code>= string.Empty</code> აქვს, ამიტომ მიგრაცია სვეტს <code>NOT NULL</code>-ად და ნაგულისხმევი <code>''</code>-ით ქმნის — ძველი ჩანაწერები ცარიელ Email-ს მიიღებენ. <code>Where</code> და <code>OrderBy</code> C#-ში წერია, მაგრამ ბაზაში SQL-ად მიდის: <code>WHERE Age &gt;= 18 ORDER BY Age</code>.</p></div></div></article>
+<h2 class="sec" id="sec-3">დღის თემა</h2>
+<article class="blk" data-slides="4"><span class="anchor" id="s-4"></span><div class="bh"><h3>დღის თემა: CRUD, სერვისი და კონსოლის მენიუ</h3><a class="chip" href="index.html#/4" data-go="4" title="პრეზენტაციაში გახსნა">სლაიდი 4</a></div>
+<p>წინა ლექციაზე ბაზაში ჩავწერეთ და ყველაფერი წავიკითხეთ. მაგრამ ნამდვილ პროგრამას მეტი სჭირდება: ერთი კონკრეტული ჩანაწერის პოვნა, მისი შეცვლა და წაშლა. დღეს CRUD-ს ვასრულებთ, ვიგებთ, საიდან იცის EF Core-მა, რა შევცვალეთ, ბაზის კოდს Program.cs-იდან ცალკე სერვისში ვალაგებთ და ბოლოს ვაწყობთ მენიუს — პირველ ნამდვილ კონსოლის პროგრამას ბაზით.</p>
+<p><strong>ლექციის ბოლოს შეძლებ:</strong></p>
+<ul>
+<li>ჩანაწერის პოვნა: <code>Find</code>, <code>FirstOrDefault</code>, <code>Where</code> — და <code>null</code>-ის შემოწმება</li>
+<li>განახლება და წაშლა <code>SaveChanges</code>-ით და <code>Remove</code>-ით · Change Tracker-ის იდეა</li>
+<li>ბაზის კოდის გატანა <code>Services</code> ფოლდერში — სერვისის კლასი</li>
+<li>კონსოლის მენიუ, რომელიც სერვისს იძახებს</li>
+</ul></article>
+<article class="blk" data-slides="5"><span class="anchor" id="s-5"></span><div class="bh"><h3>ლექციის გეგმა</h3><a class="chip" href="index.html#/5" data-go="5" title="პრეზენტაციაში გახსნა">სლაიდი 5</a></div>
+<p>✓ <strong>ჩაწერა</strong> (<code>Add</code> + <code>SaveChanges</code>) და ყველაფრის წაკითხვა (<code>ToList</code>) უკვე ვიცით. დღეს:</p>
+<ol>
+<li><strong>წაკითხვა</strong> — ერთი ჩანაწერის პოვნა და ფილტრი: <code>Find</code>, <code>FirstOrDefault</code>, <code>Where</code>.</li>
+<li><strong>განახლება და წაშლა</strong> — და როგორ იგებს EF Core, რა შევცვალეთ (Change Tracker).</li>
+<li><strong>სერვისი</strong> — ბაზის კოდი Program.cs-იდან ცალკე კლასში გადადის.</li>
+<li><strong>მენიუ</strong> — კონსოლის პროგრამა, რომელიც სერვისს იძახებს.</li>
+<li>⌨️ <strong>პრაქტიკა</strong> — მე → ერთად → თქვენ.</li>
+</ol></article>
+<h2 class="sec" id="sec-4">1 · პრობლემა</h2>
+<article class="blk" data-slides="6"><span class="anchor" id="s-6"></span><div class="bh"><h3>ნაწილი 1 · ჩაწერა ვიცით. მერე?</h3><a class="chip" href="index.html#/6" data-go="6" title="პრეზენტაციაში გახსნა">სლაიდი 6</a></div>
+<p>წინა ლექციაზე ბაზაში ჩავწერეთ და ყველაფერი წავიკითხეთ. ვნახოთ, რა აკლია ამას, რომ ნამდვილი პროგრამა გამოვიდეს.</p></article>
+<article class="blk" data-slides="7"><span class="anchor" id="s-7"></span><div class="bh"><h3>დავალებების სია — რა უნდა შეეძლოს?</h3><a class="chip" href="index.html#/7" data-go="7" title="პრეზენტაციაში გახსნა">სლაიდი 7</a></div>
+<p>დღეს ვაწყობთ <strong>TodoDemo</strong>-ს — დავალებების სიას, როგორიც ყველა ტელეფონშია:</p>
+<div class="codebox"><div class="ch"><span>TodoDemo</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln">📝 ჩემი დავალებები</span><span class="ln">1. [✓] ლექციის გამეორება</span><span class="ln">2. [ ] საშინაოს დაწერა</span><span class="ln">3. [ ] რძის ყიდვა</span><span class="ln">4. [ ] Git-ის ვიდეო</span></code></pre></div>
+<p>რა უნდა შეეძლოს ასეთ პროგრამას და რა ვიცით უკვე?</p>
+<table>
+<thead>
+<tr>
+<th>მოქმედება</th>
+<th>ვიცით?</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>ახლის დამატება</td>
+<td>✅ <code>Add</code> + <code>SaveChanges</code></td>
+</tr>
+<tr>
+<td>ყველას ნახვა</td>
+<td>✅ <code>ToList()</code></td>
+</tr>
+<tr>
+<td>ერთის პოვნა Id-ით</td>
+<td>❓</td>
+</tr>
+<tr>
+<td>შესრულებულად მონიშვნა</td>
+<td>❓</td>
+</tr>
+<tr>
+<td>სახელის შეცვლა</td>
+<td>❓</td>
+</tr>
+<tr>
+<td>წაშლა</td>
+<td>❓</td>
+</tr>
+</tbody>
+</table>
+<p>ექვსი მოქმედებიდან მხოლოდ ორი ვიცით. პროგრამა, რომელშიც დავალებას ვერც მონიშნავ და ვერც წაშლი, არავის გამოადგება.</p></article>
+<article class="blk" data-slides="8"><span class="anchor" id="s-8"></span><div class="bh"><h3>CRUD — ოთხი ოპერაცია</h3><a class="chip" href="index.html#/8" data-go="8" title="პრეზენტაციაში გახსნა">სლაიდი 8</a></div>
+<p><strong>CRUD</strong> ოთხი ინგლისური სიტყვის პირველი ასოებია. თითოეულს SQL-ში თავისი ბრძანება აქვს:</p>
+<table>
+<thead>
+<tr>
+<th>ასო</th>
+<th>ოპერაცია</th>
+<th>SQL</th>
+<th>EF Core</th>
+<th>ვიცით?</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>C</strong></td>
+<td>Create — შექმნა</td>
+<td><code>INSERT</code></td>
+<td><code>Add</code> + <code>SaveChanges</code></td>
+<td>✅</td>
+</tr>
+<tr>
+<td><strong>R</strong></td>
+<td>Read — წაკითხვა</td>
+<td><code>SELECT</code></td>
+<td><code>ToList</code>, …</td>
+<td>ნახევრად</td>
+</tr>
+<tr>
+<td><strong>U</strong></td>
+<td>Update — განახლება</td>
+<td><code>UPDATE</code></td>
+<td>?</td>
+<td>❓</td>
+</tr>
+<tr>
+<td><strong>D</strong></td>
+<td>Delete — წაშლა</td>
+<td><code>DELETE</code></td>
+<td>?</td>
+<td>❓</td>
+</tr>
+</tbody>
+</table>
+<p>თითქმის ყველა პროგრამა ამ ოთხ ოპერაციაზე დგას. Instagram: პოსტის დადება (C), ფიდის ნახვა (R), აღწერის შეცვლა (U), პოსტის წაშლა (D). ბანკი, ონლაინ მაღაზია, სასწავლო პლატფორმა — ყველგან იგივე ოთხია, უბრალოდ სხვა მონაცემებზე.</p>
+<div class="terms"><div class="th">📘 ტერმინები</div><dl><dt>CRUD</dt><dd>Create, Read, Update, Delete: მონაცემებზე ოთხი ძირითადი ოპერაცია</dd></dl></div></article>
+<h2 class="sec" id="sec-5">2 · წაკითხვა</h2>
+<article class="blk" data-slides="9"><span class="anchor" id="s-9"></span><div class="bh"><h3>ნაწილი 2 · წაკითხვა: ყველა თუ ერთი?</h3><a class="chip" href="index.html#/9" data-go="9" title="პრეზენტაციაში გახსნა">სლაიდი 9</a></div>
+<p><code>ToList()</code> ყველაფერს მოაქვს. მაგრამ ხშირად ერთი კონკრეტული ჩანაწერი გვჭირდება, ან მხოლოდ ისინი, რომლებიც პირობას აკმაყოფილებენ.</p></article>
+<article class="blk" data-slides="10"><span class="anchor" id="s-10"></span><div class="bh"><h3>TodoDemo — Entity და ბაზა</h3><a class="chip" href="index.html#/10" data-go="10" title="პრეზენტაციაში გახსნა">სლაიდი 10</a></div>
+<p>ახალი Console App <strong>TodoDemo</strong>, ბაზა <strong>TodoDb</strong>. მომზადება — იგივე 4 ნაბიჯი, რაც წინა ლექციაზე: პაკეტები → DataContext → Connection String → მიგრაცია.</p>
+<div class="codebox"><div class="ch"><span>TodoItem.cs</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="k">namespace</span><span class="w"> </span><span class="nn">TodoDemo</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="k">public</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">TodoItem</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">Id</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">get</span><span class="p">;</span><span class="w"> </span><span class="k">set</span><span class="p">;</span><span class="w"> </span><span class="p">}</span></span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="n">Title</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">get</span><span class="p">;</span><span class="w"> </span><span class="k">set</span><span class="p">;</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kt">string</span><span class="p">.</span><span class="n">Empty</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">IsDone</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">get</span><span class="p">;</span><span class="w"> </span><span class="k">set</span><span class="p">;</span><span class="w"> </span><span class="p">}</span></span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="n">DateTime</span><span class="w"> </span><span class="n">CreatedAt</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">get</span><span class="p">;</span><span class="w"> </span><span class="k">set</span><span class="p">;</span><span class="w"> </span><span class="p">}</span></span><span class="ln"><span class="p">}</span></span></code></pre></div>
+<div class="codebox"><div class="ch"><span>DataContext.cs</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="k">public</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">DataContext</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">DbContext</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="n">DbSet</span><span class="o">&lt;</span><span class="n">TodoItem</span><span class="o">&gt;</span><span class="w"> </span><span class="n">TodoItems</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">get</span><span class="p">;</span><span class="w"> </span><span class="k">set</span><span class="p">;</span><span class="w"> </span><span class="p">}</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="k">protected</span><span class="w"> </span><span class="k">override</span><span class="w"> </span><span class="k">void</span><span class="w"> </span><span class="nf">OnConfiguring</span><span class="p">(</span><span class="n">DbContextOptionsBuilder</span><span class="w"> </span><span class="n">options</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="p">{</span></span><span class="ln"><span class="w">        </span><span class="n">options</span><span class="p">.</span><span class="n">UseSqlServer</span><span class="p">(</span><span class="s">@"…Initial Catalog=TodoDb…"</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="p">}</span></span><span class="ln"><span class="p">}</span></span></code></pre></div>
+<p>ორი ახალი ტიპი გვხვდება:</p>
+<ul>
+<li><code>bool</code> → SQL-ში <code>bit</code> (0 ან 1).</li>
+<li><code>DateTime</code> → <code>datetime2</code>.</li>
+</ul>
+<p><code>Add-Migration InitialCreate</code> → <code>Update-Database</code>, და Program.cs-იდან 4 დავალებას ვამატებთ — წაკითხვისთვის მონაცემი გვჭირდება.</p>
+<div class="callout note"><span class="ci">💡</span><div><p>კლასს <code>Task</code> არ ვარქმევთ: C#-ში უკვე არსებობს <code>System.Threading.Tasks.Task</code> და სახელები აირევა. ამიტომ — <code>TodoItem</code>.</p></div></div></article>
+<article class="blk" data-slides="11"><span class="anchor" id="s-11"></span><div class="bh"><h3>წაკითხვა: ყველა, ერთი, ფილტრი</h3><a class="chip" href="index.html#/11" data-go="11" title="პრეზენტაციაში გახსნა">სლაიდი 11</a></div>
+<div class="codebox"><div class="ch"><span>Program.cs</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="k">using</span><span class="w"> </span><span class="nn">var</span><span class="w"> </span><span class="n">db</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">DataContext</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="kt">var</span><span class="w"> </span><span class="n">all</span><span class="w">   </span><span class="o">=</span><span class="w"> </span><span class="n">db</span><span class="p">.</span><span class="n">TodoItems</span><span class="p">.</span><span class="n">ToList</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="kt">var</span><span class="w"> </span><span class="n">item</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="n">db</span><span class="p">.</span><span class="n">TodoItems</span><span class="p">.</span><span class="n">Find</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="kt">var</span><span class="w"> </span><span class="n">milk</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="n">db</span><span class="p">.</span><span class="n">TodoItems</span><span class="p">.</span><span class="n">FirstOrDefault</span><span class="p">(</span><span class="n">t</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">t</span><span class="p">.</span><span class="n">Title</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s">"რძის ყიდვა"</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="kt">var</span><span class="w"> </span><span class="n">open</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="n">db</span><span class="p">.</span><span class="n">TodoItems</span><span class="p">.</span><span class="n">Where</span><span class="p">(</span><span class="n">t</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="o">!</span><span class="n">t</span><span class="p">.</span><span class="n">IsDone</span><span class="p">)</span><span class="p">.</span><span class="n">ToList</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="kt">var</span><span class="w"> </span><span class="n">count</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">db</span><span class="p">.</span><span class="n">TodoItems</span><span class="p">.</span><span class="n">Count</span><span class="p">(</span><span class="n">t</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="o">!</span><span class="n">t</span><span class="p">.</span><span class="n">IsDone</span><span class="p">)</span><span class="p">;</span></span></code></pre></div>
+<table>
+<thead>
+<tr>
+<th>მეთოდი</th>
+<th>აბრუნებს</th>
+<th>რას აკეთებს</th>
+<th>SQL (გამარტივებით)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ToList()</code></td>
+<td><code>List&lt;TodoItem&gt;</code></td>
+<td>ყველა ჩანაწერი</td>
+<td><code>SELECT * FROM TodoItems</code></td>
+</tr>
+<tr>
+<td><code>Find(2)</code></td>
+<td><code>TodoItem?</code></td>
+<td>ერთი — <strong>Primary Key</strong>-ით</td>
+<td><code>SELECT TOP(1) * … WHERE Id = 2</code></td>
+</tr>
+<tr>
+<td><code>FirstOrDefault(…)</code></td>
+<td><code>TodoItem?</code></td>
+<td>პირველი, რომელიც პირობას აკმაყოფილებს</td>
+<td><code>SELECT TOP(1) * … WHERE Title = N'…'</code></td>
+</tr>
+<tr>
+<td><code>Where(…).ToList()</code></td>
+<td><code>List&lt;TodoItem&gt;</code></td>
+<td>ყველა, რომელიც პირობას აკმაყოფილებს</td>
+<td><code>SELECT * … WHERE IsDone = 0</code></td>
+</tr>
+<tr>
+<td><code>Count(…)</code></td>
+<td><code>int</code></td>
+<td>რამდენია</td>
+<td><code>SELECT COUNT(*) … WHERE IsDone = 0</code></td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li><strong><code>Find</code></strong> მხოლოდ Primary Key-ით ეძებს. თუ ეს ჩანაწერი EF Core-ს უკვე წაკითხული აქვს, ბაზაში საერთოდ არ წავა — მეხსიერებიდან მოგცემს.</li>
+<li><strong><code>FirstOrDefault</code></strong> ნებისმიერი პირობით ეძებს: სახელით, Email-ით, და ა.შ.</li>
+<li><strong><code>Where</code></strong> აბრუნებს <strong>სიას</strong> (შეიძლება ცარიელსაც), ამიტომ ბოლოს <code>ToList()</code>. <code>Where</code>-ის გარეშე <code>ToList()</code> არ ვწერთ — <code>Count</code>, <code>FirstOrDefault</code>, <code>Find</code> პასუხს მაშინვე აბრუნებენ.</li>
+<li>პირობა C#-შია (<code>t =&gt; !t.IsDone</code>), მაგრამ ბაზაში SQL-ად მიდის — ბაზა თვითონ ფილტრავს და მხოლოდ საჭირო რიგები მოდის.</li>
+</ul>
+<p><code>TodoItem?</code>-ის კითხვის ნიშანი მნიშვნელოვანია — შემდეგ სლაიდზე ვნახავთ, რატომ.</p>
+<div class="prompt"><div class="ph"><span>🤖 LINQ-ის ვარჯიში</span><button class="copy" type="button">კოპირება</button></div><div class="pb">ვსწავლობ EF Core-ს. მაქვს Entity TodoItem (Id, Title, IsDone, CreatedAt) და DbSet TodoItems.
+მომეცი 6 პატარა ამოცანა LINQ-ზე (Find, FirstOrDefault, Where, OrderBy, Count, Any) — სათითაოდ. ჯერ მე დავწერ კოდს, მერე შეამოწმე და მითხარი, რა SQL გაიგზავნება ბაზაში. ქართულად.</div></div></article>
+<article class="blk" data-slides="12"><span class="anchor" id="s-12"></span><div class="bh"><h3>null — ჩანაწერი არ არსებობს</h3><a class="chip" href="index.html#/12" data-go="12" title="პრეზენტაციაში გახსნა">სლაიდი 12</a></div>
+<p><code>Find</code> და <code>FirstOrDefault</code> აბრუნებს <code>TodoItem?</code>-ს — კითხვის ნიშანი ნიშნავს: <strong>შეიძლება <code>null</code> იყოს</strong>. თუ ასეთი Id არ არსებობს, ობიექტი არ გვაქვს.</p>
+<div class="codebox"><div class="ch"><span>💥 ასე — არა</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="kt">var</span><span class="w"> </span><span class="n">item</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">db</span><span class="p">.</span><span class="n">TodoItems</span><span class="p">.</span><span class="n">Find</span><span class="p">(</span><span class="mi">99</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="n">item</span><span class="p">.</span><span class="n">Title</span><span class="p">)</span><span class="p">;</span><span class="w">   </span><span class="o">/</span><span class="o">/</span><span class="w"> </span><span class="n">NullReferenceException</span></span></code></pre></div>
+<p>Id = 99 ბაზაში არ არის → <code>item</code> არის <code>null</code> → <code>null</code>-ის <code>.Title</code>-ს ვერ წაიკითხავ და პროგრამა ვარდება. Visual Studio ამას წინასწარ გეუბნება: <code>item</code>-ს ყვითელი ტალღა უჩნდება (<em>Dereference of a possibly null reference</em>).</p>
+<div class="codebox"><div class="ch"><span>✅ ასე — კი</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="kt">var</span><span class="w"> </span><span class="n">item</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">db</span><span class="p">.</span><span class="n">TodoItems</span><span class="p">.</span><span class="n">Find</span><span class="p">(</span><span class="mi">99</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">item</span><span class="w"> </span><span class="k">is</span><span class="w"> </span><span class="k">null</span><span class="p">)</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="s">"ვერ მოიძებნა"</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="k">return</span><span class="p">;</span></span><span class="ln"><span class="p">}</span></span><span class="ln"> </span><span class="ln"><span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="n">item</span><span class="p">.</span><span class="n">Title</span><span class="p">)</span><span class="p">;</span><span class="w">   </span><span class="o">/</span><span class="o">/</span><span class="w"> </span><span class="n">აქ</span><span class="w"> </span><span class="n">item</span><span class="w"> </span><span class="n">უკვე</span><span class="w"> </span><span class="k">null</span><span class="w"> </span><span class="n">ვერ</span><span class="w"> </span><span class="n">იქნება</span></span></code></pre></div>
+<p><strong>წესი:</strong> <code>Find</code> / <code>FirstOrDefault</code>-ის შემდეგ ჯერ <code>null</code>-ს ამოწმებ, მერე იყენებ.</p>
+<table>
+<thead>
+<tr>
+<th>მეთოდი</th>
+<th>ვერ იპოვა →</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>First(…)</code></td>
+<td><strong>შეცდომა</strong>: <code>InvalidOperationException: Sequence contains no elements</code></td>
+</tr>
+<tr>
+<td><code>FirstOrDefault(…)</code></td>
+<td><code>null</code></td>
+</tr>
+</tbody>
+</table>
+<p><code>First</code>-ს მხოლოდ მაშინ იყენებენ, როცა ჩანაწერი <strong>აუცილებლად</strong> უნდა არსებობდეს. მომხმარებელი Id-ს ხელით წერს — შეიძლება შეეშალოს, ამიტომ ჩვენ <code>FirstOrDefault</code> / <code>Find</code> + <code>null</code>-ის შემოწმება გვჭირდება.</p></article>
+<h2 class="sec" id="sec-6">3 · განახლება და წაშლა</h2>
+<article class="blk" data-slides="13"><span class="anchor" id="s-13"></span><div class="bh"><h3>ნაწილი 3 · იპოვე, შეცვალე, შეინახე</h3><a class="chip" href="index.html#/13" data-go="13" title="პრეზენტაციაში გახსნა">სლაიდი 13</a></div>
+<p>წაკითხვა ვიცით. ახლა — განახლება და წაშლა. ორივე ერთნაირად იწყება: <strong>ჯერ ჩანაწერს ვპოულობთ</strong>.</p></article>
+<article class="blk" data-slides="14"><span class="anchor" id="s-14"></span><div class="bh"><h3>განახლება: იპოვე → შეცვალე → SaveChanges</h3><a class="chip" href="index.html#/14" data-go="14" title="პრეზენტაციაში გახსნა">სლაიდი 14</a></div>
+<div class="codebox"><div class="ch"><span>Program.cs</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="k">using</span><span class="w"> </span><span class="nn">var</span><span class="w"> </span><span class="n">db</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">DataContext</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="kt">var</span><span class="w"> </span><span class="n">item</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">db</span><span class="p">.</span><span class="n">TodoItems</span><span class="p">.</span><span class="n">Find</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">item</span><span class="w"> </span><span class="k">is</span><span class="w"> </span><span class="k">null</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="n">item</span><span class="p">.</span><span class="n">IsDone</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">true</span><span class="p">;</span></span><span class="ln"><span class="n">db</span><span class="p">.</span><span class="n">SaveChanges</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span></code></pre></div>
+<ol>
+<li><strong>იპოვე</strong> — <code>Find(2)</code> → <code>SELECT … WHERE Id = 2</code>. (<code>null</code>-ის შემოწმება აქაც აუცილებელია.)</li>
+<li><strong>შეცვალე</strong> — <code>item.IsDone = true</code> ჩვეულებრივი C#-ია. ბაზას ჯერ არ ეხება.</li>
+<li><strong><code>SaveChanges()</code></strong> — ახლა მიდის:</li>
+</ol>
+<div class="codebox"><div class="ch"><span>sql</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="k">UPDATE</span><span class="w"> </span><span class="n">TodoItems</span></span><span class="ln"><span class="k">SET</span><span class="w"> </span><span class="n">IsDone</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span></span><span class="ln"><span class="k">WHERE</span><span class="w"> </span><span class="n">Id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">2</span></span></code></pre></div>
+<p>ორ რამეს დააკვირდი:</p>
+<ul>
+<li><code>Update()</code> მეთოდი <strong>არსად</strong> დაგვიწერია.</li>
+<li>SQL-ში მხოლოდ <strong><code>IsDone</code></strong> წერია — <code>Title</code>-ს და <code>CreatedAt</code>-ს არ ეხება, რადგან ისინი არ შეცვლილა.</li>
+</ul>
+<p>საიდან გაიგო EF Core-მა, რომ სწორედ <code>IsDone</code> შევცვალეთ? ამაზეა შემდეგი სლაიდი.</p>
+<div class="callout note"><span class="ci">💡</span><div><p><code>db.TodoItems.Update(item)</code> მეთოდი არსებობს, მაგრამ აქ საჭირო არ არის: ის ყველა სვეტს „შეცვლილად“ მონიშნავს და <code>UPDATE</code> ყველა სვეტზე წავა. გვჭირდება მაშინ, როცა ობიექტი EF Core-ს <strong>არ წაუკითხავს</strong> (მაგალითად, სხვაგან შეიქმნა). ჩვენ ჯერ ვპოულობთ — ამიტომ საკმარისია შეცვლა და <code>SaveChanges</code>.</p></div></div></article>
+<article class="blk" data-slides="15"><span class="anchor" id="s-15"></span><div class="bh"><h3>Change Tracker — EF Core-ის მეხსიერება</h3><a class="chip" href="index.html#/15" data-go="15" title="პრეზენტაციაში გახსნა">სლაიდი 15</a></div>
+<p>DataContext-ს შიგნით აქვს <strong>Change Tracker</strong> („ცვლილებების მეთვალყურე“). ის ასე მუშაობს:</p>
+<ol>
+<li><strong><code>Find(2)</code></strong> — ჩანაწერი მოვიდა ბაზიდან. ობიექტს რომ გვაძლევს, EF Core თავისთვის იმახსოვრებს მის <strong>„ფოტოს“</strong>: <code>Title = "საშინაოს დაწერა"</code>, <code>IsDone = false</code>.</li>
+<li><strong><code>item.IsDone = true</code></strong> — ჩვენ ობიექტს ვცვლით. ფოტო იგივე რჩება.</li>
+<li><strong><code>SaveChanges()</code></strong> — EF Core ყველა ობიექტს თავის ფოტოს ადარებს: <code>Title</code> იგივეა, <code>IsDone</code> შეიცვალა → წერს <code>UPDATE … SET IsDone = 1 WHERE Id = 2</code>.</li>
+</ol>
+<p>ამიტომ არ გვჭირდება <code>Update()</code>: EF Core-მა თვითონ იცის, რა შეიცვალა. და ამიტომაა SQL-ში მხოლოდ ერთი სვეტი.</p>
+<div class="terms"><div class="th">📘 ტერმინები</div><dl><dt>Change Tracker</dt><dd>DataContext-ის ნაწილი, რომელიც წაკითხულ და დამატებულ ობიექტებს თვალს ადევნებს და SaveChanges-ის დროს ითვლის, რა უნდა გაიგზავნოს ბაზაში</dd><dt>Snapshot („ფოტო“)</dt><dd>ობიექტის მნიშვნელობების ასლი წაკითხვის მომენტში</dd></dl></div>
+<div class="prompt"><div class="ph"><span>🤖 Change Tracker-ის ახსნა</span><button class="copy" type="button">კოპირება</button></div><div class="pb">ვსწავლობ EF Core-ს. ამიხსენი Change Tracker მარტივად, მაგალითით: რა ხდება Find-ის, property-ს შეცვლის და SaveChanges-ის დროს? რას ნიშნავს Entity State (Added, Unchanged, Modified, Deleted)? და რა არის AsNoTracking — როდის იყენებენ? ქართულად.</div></div></article>
+<article class="blk" data-slides="16"><span class="anchor" id="s-16"></span><div class="bh"><h3>ყოველ ობიექტს მდგომარეობა (State) აქვს</h3><a class="chip" href="index.html#/16" data-go="16" title="პრეზენტაციაში გახსნა">სლაიდი 16</a></div>
+<p><code>db.Entry(item).State</code> გვაჩვენებს, რას ფიქრობს Change Tracker ამ ობიექტზე:</p>
+<div class="codebox"><div class="ch"><span>Program.cs</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="kt">var</span><span class="w"> </span><span class="n">item</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">db</span><span class="p">.</span><span class="n">TodoItems</span><span class="p">.</span><span class="n">Find</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">item</span><span class="w"> </span><span class="k">is</span><span class="w"> </span><span class="k">null</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="n">db</span><span class="p">.</span><span class="n">Entry</span><span class="p">(</span><span class="n">item</span><span class="p">)</span><span class="p">.</span><span class="n">State</span><span class="p">)</span><span class="p">;</span><span class="w">   </span><span class="c1">// Unchanged</span></span><span class="ln"> </span><span class="ln"><span class="n">item</span><span class="p">.</span><span class="n">Title</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"პურის ყიდვა"</span><span class="p">;</span></span><span class="ln"><span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="n">db</span><span class="p">.</span><span class="n">Entry</span><span class="p">(</span><span class="n">item</span><span class="p">)</span><span class="p">.</span><span class="n">State</span><span class="p">)</span><span class="p">;</span><span class="w">   </span><span class="c1">// Modified</span></span><span class="ln"> </span><span class="ln"><span class="n">db</span><span class="p">.</span><span class="n">SaveChanges</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="n">db</span><span class="p">.</span><span class="n">Entry</span><span class="p">(</span><span class="n">item</span><span class="p">)</span><span class="p">.</span><span class="n">State</span><span class="p">)</span><span class="p">;</span><span class="w">   </span><span class="o">/</span><span class="o">/</span><span class="w"> </span><span class="n">Unchanged</span></span></code></pre></div>
+<p><code>SaveChanges</code>-ის შემდეგ ობიექტი ისევ <code>Unchanged</code>-ია: ბაზა და ობიექტი ისევ ერთნაირია, ახალი „ფოტო“ გადაიღო.</p>
+<table>
+<thead>
+<tr>
+<th>რა გავაკეთეთ</th>
+<th>State</th>
+<th><code>SaveChanges</code> აგზავნის</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Add(item)</code></td>
+<td><code>Added</code></td>
+<td><code>INSERT</code></td>
+</tr>
+<tr>
+<td><code>Find</code> / <code>ToList</code></td>
+<td><code>Unchanged</code></td>
+<td>არაფერს</td>
+</tr>
+<tr>
+<td>property-ს შეცვლა</td>
+<td><code>Modified</code></td>
+<td><code>UPDATE</code></td>
+</tr>
+<tr>
+<td><code>Remove(item)</code></td>
+<td><code>Deleted</code></td>
+<td><code>DELETE</code></td>
+</tr>
+</tbody>
+</table>
+<p>ეს ცხრილი მთელი CRUD-ის საიდუმლოა: <code>Add</code> და <code>Remove</code> ბაზას <strong>არ ეხება</strong> — მხოლოდ მდგომარეობას ცვლის. ბაზაში ყველაფერს ერთად <code>SaveChanges</code> აგზავნის.</p></article>
+<article class="blk" data-slides="17"><span class="anchor" id="s-17"></span><div class="bh"><h3>წაშლა: იპოვე → Remove → SaveChanges</h3><a class="chip" href="index.html#/17" data-go="17" title="პრეზენტაციაში გახსნა">სლაიდი 17</a></div>
+<div class="codebox"><div class="ch"><span>Program.cs</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="k">using</span><span class="w"> </span><span class="nn">var</span><span class="w"> </span><span class="n">db</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">DataContext</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="kt">var</span><span class="w"> </span><span class="n">item</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">db</span><span class="p">.</span><span class="n">TodoItems</span><span class="p">.</span><span class="n">Find</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">item</span><span class="w"> </span><span class="k">is</span><span class="w"> </span><span class="k">null</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="n">db</span><span class="p">.</span><span class="n">TodoItems</span><span class="p">.</span><span class="n">Remove</span><span class="p">(</span><span class="n">item</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="n">db</span><span class="p">.</span><span class="n">SaveChanges</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span></code></pre></div>
+<ol>
+<li><strong>იპოვე</strong> — <code>Remove</code>-ს ობიექტი სჭირდება.</li>
+<li><strong><code>Remove(item)</code></strong> — ობიექტს მონიშნავს როგორც <code>Deleted</code>. ბაზას ჯერ არ ეხება — ზუსტად ისე, როგორც <code>Add</code>.</li>
+<li><strong><code>SaveChanges()</code></strong> — ახლა მიდის:</li>
+</ol>
+<div class="codebox"><div class="ch"><span>sql</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="k">DELETE</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">TodoItems</span></span><span class="ln"><span class="k">WHERE</span><span class="w"> </span><span class="n">Id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">4</span></span></code></pre></div>
+<div class="callout warn"><span class="ci">⚠️</span><div><p>ბაზაში წაშლილს Ctrl+Z არ აქვს. ნამდვილ პროგრამებში წაშლამდე მომხმარებელს ეკითხებიან: „დარწმუნებული ხარ? (y/n)“. ზოგი პროგრამა საერთოდ არ შლის — მხოლოდ მონიშნავს (<code>IsDeleted = true</code>) და სიაში აღარ აჩვენებს. ამას „soft delete“ ჰქვია.</p></div></div></article>
+<article class="blk" data-slides="18"><span class="anchor" id="s-18"></span><div class="bh"><h3>ExecuteUpdate და ExecuteDelete — ბევრი ჩანაწერი ერთად</h3><a class="chip" href="index.html#/18" data-go="18" title="პრეზენტაციაში გახსნა">სლაიდი 18</a></div>
+<p>ამოცანა: „წაშალე ყველა შესრულებული დავალება“. რაც ვიცით, იმით ასე გამოვა:</p>
+<div class="codebox"><div class="ch"><span>🐢 Remove-ით</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="kt">var</span><span class="w"> </span><span class="n">done</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">db</span><span class="p">.</span><span class="n">TodoItems</span></span><span class="ln"><span class="w">    </span><span class="p">.</span><span class="n">Where</span><span class="p">(</span><span class="n">t</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">t</span><span class="p">.</span><span class="n">IsDone</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="p">.</span><span class="n">ToList</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="k">foreach</span><span class="w"> </span><span class="p">(</span><span class="kt">var</span><span class="w"> </span><span class="n">t</span><span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="n">done</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="n">db</span><span class="p">.</span><span class="n">TodoItems</span><span class="p">.</span><span class="n">Remove</span><span class="p">(</span><span class="n">t</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="n">db</span><span class="p">.</span><span class="n">SaveChanges</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span></code></pre></div>
+<p>მუშაობს, მაგრამ EF Core ჯერ <strong>ყველა</strong> შესრულებულ დავალებას წაიკითხავს და მეხსიერებაში ჩატვირთავს, მერე კი თითოეულზე ცალკე <code>DELETE</code>-ს გაგზავნის. 10 000 ჩანაწერზე ეს ნელია.</p>
+<p>EF Core 7-დან არსებობს ერთი ბრძანება:</p>
+<div class="codebox"><div class="ch"><span>⚡ ExecuteDelete</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="n">db</span><span class="p">.</span><span class="n">TodoItems</span></span><span class="ln"><span class="w">    </span><span class="p">.</span><span class="n">Where</span><span class="p">(</span><span class="n">t</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">t</span><span class="p">.</span><span class="n">IsDone</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="p">.</span><span class="n">ExecuteDelete</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span></code></pre></div>
+<div class="codebox"><div class="ch"><span>sql</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="k">DELETE</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">TodoItems</span><span class="w"> </span><span class="k">WHERE</span><span class="w"> </span><span class="n">IsDone</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span></span></code></pre></div>
+<p>და განახლებისთვის — „ყველა მონიშნე შესრულებულად“:</p>
+<div class="codebox"><div class="ch"><span>⚡ ExecuteUpdate</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="n">db</span><span class="p">.</span><span class="n">TodoItems</span></span><span class="ln"><span class="w">    </span><span class="p">.</span><span class="n">Where</span><span class="p">(</span><span class="n">t</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="o">!</span><span class="n">t</span><span class="p">.</span><span class="n">IsDone</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="p">.</span><span class="n">ExecuteUpdate</span><span class="p">(</span><span class="n">s</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">s</span><span class="p">.</span><span class="n">SetProperty</span><span class="p">(</span><span class="n">t</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">t</span><span class="p">.</span><span class="n">IsDone</span><span class="p">,</span><span class="w"> </span><span class="k">true</span><span class="p">)</span><span class="p">)</span><span class="p">;</span></span></code></pre></div>
+<div class="codebox"><div class="ch"><span>sql</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="k">UPDATE</span><span class="w"> </span><span class="n">TodoItems</span><span class="w"> </span><span class="k">SET</span><span class="w"> </span><span class="n">IsDone</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="k">WHERE</span><span class="w"> </span><span class="n">IsDone</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span></span></code></pre></div>
+<p>ორივე აბრუნებს <code>int</code>-ს — რამდენი რიგი შეიცვალა.</p>
+<div class="callout warn"><span class="ci">⚠️</span><div><p><code>ExecuteDelete</code> და <code>ExecuteUpdate</code> <strong>მაშინვე</strong> სრულდება — <code>SaveChanges</code> არ სჭირდებათ და Change Tracker-ს გვერდს უვლიან. თუ იმავე ჩანაწერები DataContext-ს უკვე წაკითხული ჰქონდა, მეხსიერებაში ძველი მნიშვნელობები დარჩება. ერთი ჩანაწერისთვის ჩვეულებრივი გზა გამოიყენე (იპოვე → შეცვალე → SaveChanges), ბევრისთვის — Execute*.</p></div></div></article>
+<article class="blk" data-slides="19,20"><span class="anchor" id="s-19"></span><span class="anchor" id="s-20"></span><div class="bh"><h3>CRUD EF Core-ში — სრულად</h3><a class="chip" href="index.html#/19" data-go="19" title="პრეზენტაციაში გახსნა">სლაიდი 19</a></div>
+<table>
+<thead>
+<tr>
+<th>ოპერაცია</th>
+<th>EF Core</th>
+<th>SQL</th>
+<th>SaveChanges?</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Create</strong></td>
+<td><code>Add(item)</code></td>
+<td><code>INSERT</code></td>
+<td>✅ საჭიროა</td>
+</tr>
+<tr>
+<td><strong>Read</strong></td>
+<td><code>ToList</code> · <code>Find</code> · <code>FirstOrDefault</code> · <code>Where</code> · <code>Count</code></td>
+<td><code>SELECT</code></td>
+<td>— არ სჭირდება</td>
+</tr>
+<tr>
+<td><strong>Update</strong></td>
+<td>იპოვე → property შეცვალე</td>
+<td><code>UPDATE</code></td>
+<td>✅ საჭიროა</td>
+</tr>
+<tr>
+<td><strong>Delete</strong></td>
+<td>იპოვე → <code>Remove(item)</code></td>
+<td><code>DELETE</code></td>
+<td>✅ საჭიროა</td>
+</tr>
+<tr>
+<td>ბევრი ერთად</td>
+<td><code>ExecuteUpdate</code> · <code>ExecuteDelete</code></td>
+<td><code>UPDATE</code> · <code>DELETE</code></td>
+<td>⚡ მაშინვე, მის გარეშე</td>
+</tr>
+</tbody>
+</table>
+<p>რამდენიმე ცვლილება შეგიძლია ერთად დააგროვო და ბოლოს <strong>ერთი</strong> <code>SaveChanges</code> გამოიძახო — EF Core ყველაფერს ერთად გაგზავნის, ერთ ტრანზაქციაში: ან ყველა ცვლილება შესრულდება, ან არცერთი.</p>
+<p>Update და Delete ერთნაირად იწყება: <strong>იპოვე → შეამოწმე <code>null</code></strong>. ეს ხაზები პროგრამაში ყველგან განმეორდება — და აქ ჩნდება შემდეგი პრობლემა.</p></article>
+<h2 class="sec" id="sec-7">4 · სერვისი</h2>
+<article class="blk" data-slides="21"><span class="anchor" id="s-21"></span><div class="bh"><h3>ნაწილი 4 · კოდი თავის ადგილზე</h3><a class="chip" href="index.html#/21" data-go="21" title="პრეზენტაციაში გახსნა">სლაიდი 21</a></div>
+<p>CRUD ვიცით. მაგრამ თუ ყველაფერს Program.cs-ში დავწერთ, რა მოხდება?</p></article>
+<article class="blk" data-slides="22"><span class="anchor" id="s-22"></span><div class="bh"><h3>პრობლემა: Program.cs იზრდება</h3><a class="chip" href="index.html#/22" data-go="22" title="პრეზენტაციაში გახსნა">სლაიდი 22</a></div>
+<p>მენიუს ყოველი პუნქტი Program.cs-ში რომ დავწეროთ, ასეთი რამ გამოვა:</p>
+<div class="codebox"><div class="ch"><span>Program.cs</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="k">using</span><span class="w"> </span><span class="nn">var</span><span class="w"> </span><span class="n">db</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">DataContext</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="n">Console</span><span class="p">.</span><span class="n">Write</span><span class="p">(</span><span class="s">"Id: "</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="kt">var</span><span class="w"> </span><span class="n">id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kt">int</span><span class="p">.</span><span class="n">Parse</span><span class="p">(</span><span class="n">Console</span><span class="p">.</span><span class="n">ReadLine</span><span class="p">(</span><span class="p">)</span><span class="o">!</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="kt">var</span><span class="w"> </span><span class="n">item</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">db</span><span class="p">.</span><span class="n">TodoItems</span><span class="p">.</span><span class="n">Find</span><span class="p">(</span><span class="n">id</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">item</span><span class="w"> </span><span class="k">is</span><span class="w"> </span><span class="k">null</span><span class="p">)</span><span class="w"> </span><span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="s">"ვერ მოიძებნა"</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="k">else</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="n">item</span><span class="p">.</span><span class="n">IsDone</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">true</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="n">db</span><span class="p">.</span><span class="n">SaveChanges</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="s">"✓ შესრულდა"</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="p">}</span></span><span class="ln"> </span><span class="ln"><span class="n">Console</span><span class="p">.</span><span class="n">Write</span><span class="p">(</span><span class="s">"წასაშლელი Id: "</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="kt">var</span><span class="w"> </span><span class="n">delId</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kt">int</span><span class="p">.</span><span class="n">Parse</span><span class="p">(</span><span class="n">Console</span><span class="p">.</span><span class="n">ReadLine</span><span class="p">(</span><span class="p">)</span><span class="o">!</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="kt">var</span><span class="w"> </span><span class="n">toDelete</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">db</span><span class="p">.</span><span class="n">TodoItems</span><span class="p">.</span><span class="n">Find</span><span class="p">(</span><span class="n">delId</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">toDelete</span><span class="w"> </span><span class="k">is</span><span class="w"> </span><span class="k">null</span><span class="p">)</span><span class="w"> </span><span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="s">"ვერ მოიძებნა"</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="k">else</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="n">db</span><span class="p">.</span><span class="n">TodoItems</span><span class="p">.</span><span class="n">Remove</span><span class="p">(</span><span class="n">toDelete</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="n">db</span><span class="p">.</span><span class="n">SaveChanges</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="s">"✓ წაიშალა"</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="p">}</span></span><span class="ln"><span class="o">/</span><span class="o">/</span><span class="w"> </span><span class="err">…</span><span class="w"> </span><span class="n">სახელის</span><span class="w"> </span><span class="n">შეცვლა</span><span class="p">,</span><span class="w"> </span><span class="n">ძებნა</span><span class="p">,</span><span class="w"> </span><span class="n">სია</span><span class="p">,</span><span class="w"> </span><span class="n">დამატება</span><span class="w"> </span><span class="err">…</span></span></code></pre></div>
+<p>მუშაობს. მაგრამ სამი პრობლემა აქვს:</p>
+<ul>
+<li>🍲 <strong>ყველაფერი ერთმანეთშია.</strong> ეკრანთან მუშაობა (<code>ReadLine</code>, <code>WriteLine</code>) და ბაზასთან მუშაობა (<code>Find</code>, <code>SaveChanges</code>) ერთ ადგილას წერია.</li>
+<li>🔁 <strong>გამეორება.</strong> „იპოვე + შეამოწმე null“ ყოველ პუნქტში თავიდან იწერება.</li>
+<li>🔎 <strong>ძებნა და ცვლილება.</strong> 300 ხაზში „სად წერია წაშლა?“ — უნდა ეძებო. თუ წაშლის წესი შეიცვალა (მაგალითად, soft delete), ყველა ადგილას ხელით უნდა შეცვალო.</li>
+</ul></article>
+<article class="blk" data-slides="23"><span class="anchor" id="s-23"></span><div class="bh"><h3>გამოსავალი: Services ფოლდერი</h3><a class="chip" href="index.html#/23" data-go="23" title="პრეზენტაციაში გახსნა">სლაიდი 23</a></div>
+<p>პროექტში ვქმნით ფოლდერს <strong>Services</strong> და მასში კლასს <strong>TodoService</strong>. ახლა ყველას თავისი საქმე აქვს:</p>
+<table>
+<thead>
+<tr>
+<th>ფაილი</th>
+<th>რას აკეთებს</th>
+<th>რა არ იცის</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>🖥️ <strong>Program.cs</strong></td>
+<td>ეკრანი: კითხულობს (<code>ReadLine</code>), ბეჭდავს (<code>WriteLine</code>), აჩვენებს მენიუს</td>
+<td>ბაზა — <code>db.</code> არსად წერია</td>
+</tr>
+<tr>
+<td>⚙️ <strong>TodoService</strong></td>
+<td>მონაცემები: <code>Find</code>, <code>Add</code>, <code>Remove</code>, <code>SaveChanges</code></td>
+<td>Console — არაფერს ბეჭდავს და არაფერს კითხულობს</td>
+</tr>
+</tbody>
+</table>
+<p>რას ვიგებთ:</p>
+<ul>
+<li><strong>ერთი ოპერაცია — ერთი მეთოდი.</strong> „სად წერია წაშლა?“ → <code>TodoService.Delete</code>. მეტს არსად.</li>
+<li><strong>გამეორება ქრება.</strong> „იპოვე + შეამოწმე null“ ერთხელ იწერება სერვისში.</li>
+<li><strong>სერვისი სხვაგანაც გამოდგება.</strong> დღეს მას კონსოლის მენიუ იძახებს. ხვალ შეიძლება ვებ-გვერდმა ან API-მ გამოიძახოს — სერვისი არ შეიცვლება, რადგან Console-ზე არ არის მიბმული.</li>
+</ul>
+<div class="terms"><div class="th">📘 ტერმინები</div><dl><dt>სერვისი (Service)</dt><dd>კლასი, რომელიც ერთ თემაზე (აქ — დავალებებზე) ყველა ოპერაციას ერთ ადგილას აგროვებს. ეკრანთან არ მუშაობს</dd></dl></div></article>
+<article class="blk" data-slides="24"><span class="anchor" id="s-24"></span><div class="bh"><h3>TodoService — წაკითხვა და დამატება</h3><a class="chip" href="index.html#/24" data-go="24" title="პრეზენტაციაში გახსნა">სლაიდი 24</a></div>
+<div class="codebox"><div class="ch"><span>Services/TodoService.cs</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="k">namespace</span><span class="w"> </span><span class="nn">TodoDemo.Services</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="k">public</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">TodoService</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="k">private</span><span class="w"> </span><span class="k">readonly</span><span class="w"> </span><span class="n">DataContext</span><span class="w"> </span><span class="n">_db</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">DataContext</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="n">List</span><span class="o">&lt;</span><span class="n">TodoItem</span><span class="o">&gt;</span><span class="w"> </span><span class="n">GetAll</span><span class="p">(</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="p">{</span></span><span class="ln"><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">_db</span><span class="p">.</span><span class="n">TodoItems</span></span><span class="ln"><span class="w">            </span><span class="p">.</span><span class="n">OrderBy</span><span class="p">(</span><span class="n">t</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">t</span><span class="p">.</span><span class="n">IsDone</span><span class="p">)</span></span><span class="ln"><span class="w">            </span><span class="p">.</span><span class="n">ThenBy</span><span class="p">(</span><span class="n">t</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">t</span><span class="p">.</span><span class="n">Id</span><span class="p">)</span></span><span class="ln"><span class="w">            </span><span class="p">.</span><span class="n">ToList</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="p">}</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="n">TodoItem</span><span class="o">?</span><span class="w"> </span><span class="n">GetById</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">id</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="p">{</span></span><span class="ln"><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">_db</span><span class="p">.</span><span class="n">TodoItems</span><span class="p">.</span><span class="n">Find</span><span class="p">(</span><span class="n">id</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="p">}</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="n">TodoItem</span><span class="w"> </span><span class="nf">Add</span><span class="p">(</span><span class="kt">string</span><span class="w"> </span><span class="n">title</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="p">{</span></span><span class="ln"><span class="w">        </span><span class="kt">var</span><span class="w"> </span><span class="n">item</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">TodoItem</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">Title</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">title</span><span class="p">,</span><span class="w"> </span><span class="n">CreatedAt</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">DateTime</span><span class="p">.</span><span class="n">Now</span><span class="w"> </span><span class="p">}</span><span class="p">;</span></span><span class="ln"><span class="w">        </span><span class="n">_db</span><span class="p">.</span><span class="n">TodoItems</span><span class="p">.</span><span class="n">Add</span><span class="p">(</span><span class="n">item</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">        </span><span class="n">_db</span><span class="p">.</span><span class="n">SaveChanges</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">item</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="p">}</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="c1">// MarkDone, Rename, Delete — შემდეგ სლაიდზე</span></span><span class="ln"><span class="p">}</span></span></code></pre></div>
+<ul>
+<li><strong><code>namespace TodoDemo.Services</code></strong> — Visual Studio ფოლდერის სახელს namespace-ში თვითონ ამატებს. <code>TodoItem</code> და <code>DataContext</code> <code>TodoDemo</code>-შია — „მშობელ“ namespace-ს <code>using</code> არ სჭირდება.</li>
+<li><strong><code>private readonly DataContext _db</code></strong> — ერთი DataContext მთელი სერვისისთვის. ყოველ მეთოდში <code>using var db = new …</code> აღარ ვწერთ. <code>readonly</code> — ველს მხოლოდ ერთხელ ვანიჭებთ.</li>
+<li><strong><code>GetAll</code></strong> — <code>OrderBy(t =&gt; t.IsDone)</code>: <code>false</code> (0) პირველია, ამიტომ შეუსრულებლები ზემოთ ჩანს. <code>ThenBy</code> — მეორე დალაგება, თუ პირველში ტოლია.</li>
+<li><strong><code>GetById</code></strong> — <code>TodoItem?</code>: სერვისი <code>null</code>-ს აბრუნებს, თუ ვერ იპოვა. რა დაიწეროს ეკრანზე, ამას სერვისი არ წყვეტს.</li>
+<li><strong><code>Add</code></strong> — <code>CreatedAt</code>-ს სერვისი ავსებს, არა მომხმარებელი. და მნიშვნელოვანი: <strong><code>SaveChanges</code>-ის შემდეგ <code>item.Id</code> უკვე შევსებულია</strong> — ბაზამ IDENTITY-ით მისცა, EF Core-მა კი ობიექტში ჩაწერა. ამიტომ ვაბრუნებთ <code>item</code>-ს — მენიუ დაწერს „დაემატა, Id = 5“.</li>
+</ul></article>
+<article class="blk" data-slides="25"><span class="anchor" id="s-25"></span><div class="bh"><h3>TodoService — განახლება და წაშლა</h3><a class="chip" href="index.html#/25" data-go="25" title="პრეზენტაციაში გახსნა">სლაიდი 25</a></div>
+<div class="codebox"><div class="ch"><span>Services/TodoService.cs · გაგრძელება</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="nf">MarkDone</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">id</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="p">{</span></span><span class="ln"><span class="w">        </span><span class="kt">var</span><span class="w"> </span><span class="n">item</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">GetById</span><span class="p">(</span><span class="n">id</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">item</span><span class="w"> </span><span class="k">is</span><span class="w"> </span><span class="k">null</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="k">false</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="w">        </span><span class="n">item</span><span class="p">.</span><span class="n">IsDone</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">true</span><span class="p">;</span></span><span class="ln"><span class="w">        </span><span class="n">_db</span><span class="p">.</span><span class="n">SaveChanges</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="k">true</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="p">}</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="nf">Rename</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">id</span><span class="p">,</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="n">newTitle</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="p">{</span></span><span class="ln"><span class="w">        </span><span class="kt">var</span><span class="w"> </span><span class="n">item</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">GetById</span><span class="p">(</span><span class="n">id</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">item</span><span class="w"> </span><span class="k">is</span><span class="w"> </span><span class="k">null</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="k">false</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="w">        </span><span class="n">item</span><span class="p">.</span><span class="n">Title</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">newTitle</span><span class="p">;</span></span><span class="ln"><span class="w">        </span><span class="n">_db</span><span class="p">.</span><span class="n">SaveChanges</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="k">true</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="p">}</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="nf">Delete</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">id</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="p">{</span></span><span class="ln"><span class="w">        </span><span class="kt">var</span><span class="w"> </span><span class="n">item</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">GetById</span><span class="p">(</span><span class="n">id</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">item</span><span class="w"> </span><span class="k">is</span><span class="w"> </span><span class="k">null</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="k">false</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="w">        </span><span class="n">_db</span><span class="p">.</span><span class="n">TodoItems</span><span class="p">.</span><span class="n">Remove</span><span class="p">(</span><span class="n">item</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">        </span><span class="n">_db</span><span class="p">.</span><span class="n">SaveChanges</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="k">true</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="p">}</span></span><span class="ln"><span class="p">}</span></span></code></pre></div>
+<ul>
+<li><strong><code>bool</code></strong> — მეთოდი გვეუბნება, გამოვიდა თუ არა: <code>false</code> ნიშნავს, რომ ასეთი Id არ არსებობს.</li>
+<li><strong><code>GetById</code></strong>-ს სერვისის შიგნითაც ვიყენებთ — ძებნა ერთ ადგილას წერია.</li>
+<li>ყველა მეთოდი ნაცნობ ნიმუშს მისდევს: <strong>იპოვე → შეამოწმე null → შეცვალე / Remove → SaveChanges</strong>.</li>
+<li>სერვისი <strong>არაფერს ბეჭდავს</strong>. „✓ შესრულდა“ თუ „✗ ვერ მოიძებნა“ — ამას მენიუ წყვეტს, <code>bool</code>-ის მიხედვით.</li>
+</ul>
+<div class="prompt"><div class="ph"><span>🤖 სერვისის შემოწმება</span><button class="copy" type="button">კოპირება</button></div><div class="pb">ვსწავლობ EF Core-ს Console App-ში. დავწერე სერვისის კლასი: [ჩასვი კოდი]
+შეამოწმე: სწორად ვამოწმებ null-ს? სადმე SaveChanges ხომ არ მაკლია? Console ხომ არ შემეპარა სერვისში? რას გააუმჯობესებდი? ქართულად, მარტივად.</div></div></article>
+<h2 class="sec" id="sec-8">5 · მენიუ</h2>
+<article class="blk" data-slides="26"><span class="anchor" id="s-26"></span><div class="bh"><h3>ნაწილი 5 · პროგრამა, რომელიც გელაპარაკება</h3><a class="chip" href="index.html#/26" data-go="26" title="პრეზენტაციაში გახსნა">სლაიდი 26</a></div>
+<p>სერვისი მზადაა. ახლა Program.cs-ში ვაწყობთ მენიუს: მომხმარებელი ირჩევს პუნქტს, მენიუ სერვისის შესაბამის მეთოდს იძახებს.</p></article>
+<article class="blk" data-slides="27"><span class="anchor" id="s-27"></span><div class="bh"><h3>მენიუ — როგორ გამოიყურება</h3><a class="chip" href="index.html#/27" data-go="27" title="პრეზენტაციაში გახსნა">სლაიდი 27</a></div>
+<div class="codebox"><div class="ch"><span>TodoDemo</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln">1.სია 2.დამატება 3.შესრულება 4.გადარქმევა 5.წაშლა 0.გასვლა</span><span class="ln">არჩევანი: 2</span><span class="ln">სათაური: ფიზიკის ამოცანები</span><span class="ln">✓ დაემატა, Id = 5</span><span class="ln">არჩევანი: 3</span><span class="ln">Id: 5</span><span class="ln">✓ შესრულდა</span><span class="ln">არჩევანი: 5</span><span class="ln">Id: 42</span><span class="ln">✗ ვერ მოიძებნა</span><span class="ln">არჩევანი: 1</span><span class="ln">2. [ ] საშინაოს დაწერა</span><span class="ln">3. [ ] პურის ყიდვა</span><span class="ln">1. [✓] ლექციის გამეორება</span><span class="ln">5. [✓] ფიზიკის ამოცანები</span></code></pre></div>
+<ul>
+<li><strong><code>while (true)</code></strong> — მენიუ ისევ და ისევ ჩნდება, სანამ <code>0</code>-ს არ აირჩევ.</li>
+<li><strong><code>switch</code></strong> — არჩევანის მიხედვით ერთ მოქმედებას ასრულებს.</li>
+<li>თითო პუნქტი სერვისის <strong>ერთ მეთოდს</strong> იძახებს.</li>
+<li>Id 42 არ არსებობს — პროგრამა არ ვარდება, უბრალოდ გეუბნება. ამაზე სერვისის <code>bool</code> ზრუნავს.</li>
+<li>სიაში შეუსრულებლები ზემოთაა — <code>GetAll</code>-ის <code>OrderBy</code> მუშაობს.</li>
+</ul></article>
+<article class="blk" data-slides="28"><span class="anchor" id="s-28"></span><div class="bh"><h3>Program.cs — ციკლი</h3><a class="chip" href="index.html#/28" data-go="28" title="პრეზენტაციაში გახსნა">სლაიდი 28</a></div>
+<div class="codebox"><div class="ch"><span>Program.cs</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="k">using</span><span class="w"> </span><span class="nn">TodoDemo.Services</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="n">Console</span><span class="p">.</span><span class="n">OutputEncoding</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">System</span><span class="p">.</span><span class="n">Text</span><span class="p">.</span><span class="n">Encoding</span><span class="p">.</span><span class="n">UTF8</span><span class="p">;</span></span><span class="ln"><span class="n">Console</span><span class="p">.</span><span class="n">InputEncoding</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">System</span><span class="p">.</span><span class="n">Text</span><span class="p">.</span><span class="n">Encoding</span><span class="p">.</span><span class="n">Unicode</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="kt">var</span><span class="w"> </span><span class="n">service</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">TodoService</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="k">true</span><span class="p">)</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="s">"\n1.სია 2.დამატება 3.შესრულება 4.გადარქმევა 5.წაშლა 0.გასვლა"</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="n">Console</span><span class="p">.</span><span class="n">Write</span><span class="p">(</span><span class="s">"არჩევანი: "</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="k">switch</span><span class="w"> </span><span class="p">(</span><span class="n">Console</span><span class="p">.</span><span class="n">ReadLine</span><span class="p">(</span><span class="p">)</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="p">{</span></span><span class="ln"><span class="w">        </span><span class="k">case</span><span class="w"> </span><span class="s">"1"</span><span class="p">:</span><span class="w"> </span><span class="n">ShowAll</span><span class="p">(</span><span class="p">)</span><span class="p">;</span><span class="w"> </span><span class="k">break</span><span class="p">;</span></span><span class="ln"><span class="w">        </span><span class="k">case</span><span class="w"> </span><span class="s">"2"</span><span class="p">:</span><span class="w"> </span><span class="n">AddItem</span><span class="p">(</span><span class="p">)</span><span class="p">;</span><span class="w"> </span><span class="k">break</span><span class="p">;</span></span><span class="ln"><span class="w">        </span><span class="k">case</span><span class="w"> </span><span class="s">"3"</span><span class="p">:</span><span class="w"> </span><span class="n">MarkDone</span><span class="p">(</span><span class="p">)</span><span class="p">;</span><span class="w"> </span><span class="k">break</span><span class="p">;</span></span><span class="ln"><span class="w">        </span><span class="k">case</span><span class="w"> </span><span class="s">"4"</span><span class="p">:</span><span class="w"> </span><span class="n">Rename</span><span class="p">(</span><span class="p">)</span><span class="p">;</span><span class="w"> </span><span class="k">break</span><span class="p">;</span></span><span class="ln"><span class="w">        </span><span class="k">case</span><span class="w"> </span><span class="s">"5"</span><span class="p">:</span><span class="w"> </span><span class="n">DeleteItem</span><span class="p">(</span><span class="p">)</span><span class="p">;</span><span class="w"> </span><span class="k">break</span><span class="p">;</span></span><span class="ln"><span class="w">        </span><span class="k">case</span><span class="w"> </span><span class="s">"0"</span><span class="p">:</span><span class="w"> </span><span class="k">return</span><span class="p">;</span></span><span class="ln"><span class="w">        </span><span class="k">default</span><span class="p">:</span><span class="w"> </span><span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="s">"არასწორი არჩევანი"</span><span class="p">)</span><span class="p">;</span><span class="w"> </span><span class="k">break</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="p">}</span></span><span class="ln"><span class="p">}</span></span></code></pre></div>
+<ul>
+<li><strong><code>using TodoDemo.Services;</code></strong> — <code>TodoService</code> სხვა namespace-შია.</li>
+<li><strong><code>OutputEncoding</code> / <code>InputEncoding</code></strong> — პირველი ქართულს სწორად აჩვენებს, მეორე ქართულად აკრეფილს სწორად კითხულობს. მის გარეშე Windows-ის კონსოლში ქართული სათაური ბაზაში <code>???</code>-ად ჩაიწერება.</li>
+<li><strong><code>var service = new TodoService();</code></strong> — ერთი სერვისი მთელი პროგრამისთვის. Program.cs-ში <code>DataContext</code> არ ჩანს.</li>
+<li><strong><code>while (true)</code></strong> — უსასრულო ციკლი: მენიუ ისევ და ისევ ჩნდება.</li>
+<li><strong><code>switch (Console.ReadLine())</code></strong> — რაც აკრიფეს, ის შედარდება <code>case</code>-ებს. <code>default</code> — ყველაფერი დანარჩენი.</li>
+<li><strong><code>case "0": return;</code></strong> — Program.cs-ში <code>return</code> პროგრამას ასრულებს.</li>
+</ul>
+<p><code>ShowAll</code>, <code>AddItem</code> და დანარჩენი — ჩვენი ფუნქციებია, შემდეგ სლაიდზე.</p></article>
+<article class="blk" data-slides="29"><span class="anchor" id="s-29"></span><div class="bh"><h3>Program.cs — ფუნქციები</h3><a class="chip" href="index.html#/29" data-go="29" title="პრეზენტაციაში გახსნა">სლაიდი 29</a></div>
+<p>Program.cs-ში (top-level statements) ფუნქციები შეგვიძლია ციკლის <strong>ქვემოთ</strong> დავწეროთ — C# მათ მაინც იპოვის. ისინი <code>service</code> ცვლადს ხედავენ.</p>
+<div class="codebox"><div class="ch"><span>Program.cs · გაგრძელება</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="k">void</span><span class="w"> </span><span class="nf">ShowAll</span><span class="p">(</span><span class="p">)</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="k">foreach</span><span class="w"> </span><span class="p">(</span><span class="kt">var</span><span class="w"> </span><span class="n">t</span><span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="n">service</span><span class="p">.</span><span class="n">GetAll</span><span class="p">(</span><span class="p">)</span><span class="p">)</span></span><span class="ln"><span class="w">        </span><span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="s">$"{t.Id}. [{(t.IsDone ? "</span><span class="err">✓</span><span class="s">" : "</span><span class="w"> </span><span class="s">")}] {t.Title}"</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="p">}</span></span><span class="ln"> </span><span class="ln"><span class="k">void</span><span class="w"> </span><span class="nf">AddItem</span><span class="p">(</span><span class="p">)</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="n">Console</span><span class="p">.</span><span class="n">Write</span><span class="p">(</span><span class="s">"სათაური: "</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="kt">var</span><span class="w"> </span><span class="n">item</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">service</span><span class="p">.</span><span class="n">Add</span><span class="p">(</span><span class="n">Console</span><span class="p">.</span><span class="n">ReadLine</span><span class="p">(</span><span class="p">)</span><span class="w"> </span><span class="o">??</span><span class="w"> </span><span class="s">""</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="s">$"✓ დაემატა, Id = {item.Id}"</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="p">}</span></span><span class="ln"> </span><span class="ln"><span class="k">void</span><span class="w"> </span><span class="nf">MarkDone</span><span class="p">(</span><span class="p">)</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="kt">var</span><span class="w"> </span><span class="n">id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ReadId</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="n">service</span><span class="p">.</span><span class="n">MarkDone</span><span class="p">(</span><span class="n">id</span><span class="p">)</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="s">"✓ შესრულდა"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s">"✗ ვერ მოიძებნა"</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="p">}</span></span><span class="ln"> </span><span class="ln"><span class="k">void</span><span class="w"> </span><span class="nf">Rename</span><span class="p">(</span><span class="p">)</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="kt">var</span><span class="w"> </span><span class="n">id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ReadId</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="n">Console</span><span class="p">.</span><span class="n">Write</span><span class="p">(</span><span class="s">"ახალი სათაური: "</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="kt">var</span><span class="w"> </span><span class="n">title</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Console</span><span class="p">.</span><span class="n">ReadLine</span><span class="p">(</span><span class="p">)</span><span class="w"> </span><span class="o">??</span><span class="w"> </span><span class="s">""</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="n">service</span><span class="p">.</span><span class="n">Rename</span><span class="p">(</span><span class="n">id</span><span class="p">,</span><span class="w"> </span><span class="n">title</span><span class="p">)</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="s">"✓ შეიცვალა"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s">"✗ ვერ მოიძებნა"</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="p">}</span></span><span class="ln"> </span><span class="ln"><span class="k">void</span><span class="w"> </span><span class="nf">DeleteItem</span><span class="p">(</span><span class="p">)</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="kt">var</span><span class="w"> </span><span class="n">id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ReadId</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="n">service</span><span class="p">.</span><span class="n">Delete</span><span class="p">(</span><span class="n">id</span><span class="p">)</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="s">"✓ წაიშალა"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s">"✗ ვერ მოიძებნა"</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="p">}</span></span><span class="ln"> </span><span class="ln"><span class="kt">int</span><span class="w"> </span><span class="nf">ReadId</span><span class="p">(</span><span class="p">)</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="n">Console</span><span class="p">.</span><span class="n">Write</span><span class="p">(</span><span class="s">"Id: "</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="kt">int</span><span class="p">.</span><span class="n">TryParse</span><span class="p">(</span><span class="n">Console</span><span class="p">.</span><span class="n">ReadLine</span><span class="p">(</span><span class="p">)</span><span class="p">,</span><span class="w"> </span><span class="k">out</span><span class="w"> </span><span class="kt">var</span><span class="w"> </span><span class="n">id</span><span class="p">)</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="n">id</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span></span><span class="ln"><span class="p">}</span></span></code></pre></div>
+<ul>
+<li><strong><code>პირობა ? a : b</code></strong> (ternary) — ერთხაზიანი if/else: <code>t.IsDone ? "✓" : " "</code> → თუ შესრულებულია <code>✓</code>, თუ არა — ცარიელი.</li>
+<li><strong><code>Console.ReadLine() ?? ""</code></strong> — <code>ReadLine</code> შეიძლება <code>null</code> დააბრუნოს; <code>??</code> მაშინ ცარიელ სტრიქონს აიღებს.</li>
+<li><strong><code>int.TryParse</code></strong> — <code>int.Parse</code>-ისგან განსხვავებით, „აბც“-ზე <strong>არ ვარდება</strong>: აბრუნებს <code>false</code>-ს. ჩვენ მაშინ <code>0</code>-ს ვაბრუნებთ — ასეთი Id არ არსებობს, და სერვისი უბრალოდ <code>false</code>-ს დააბრუნებს → „ვერ მოიძებნა“.</li>
+<li>ყველა ფუნქცია მოკლეა: <strong>წაიკითხე → სერვისს გადაეცი → შედეგი დაბეჭდე</strong>. Program.cs-ში არცერთი <code>db.</code> არ წერია.</li>
+</ul>
+<div class="prompt"><div class="ph"><span>🤖 მენიუს გაუმჯობესება</span><button class="copy" type="button">კოპირება</button></div><div class="pb">ვწერ კონსოლის მენიუს C#-ში (while + switch, top-level statements). აი ჩემი Program.cs: [ჩასვი კოდი]
+მირჩიე 3 გაუმჯობესება: მაგალითად, წაშლამდე დადასტურება (y/n), ცარიელი სათაურის აკრძალვა, Console.Clear-ის გამოყენება. თითოეული ჯერ ამიხსენი, მერე მაჩვენე კოდი. ქართულად.</div></div></article>
+<article class="blk" data-slides="30"><span class="anchor" id="s-30"></span><div class="bh"><h3>მთელი სურათი: ვინ რას აკეთებს</h3><a class="chip" href="index.html#/30" data-go="30" title="პრეზენტაციაში გახსნა">სლაიდი 30</a></div>
+<div class="codebox"><div class="ch"><span>plain</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln">Program.cs  →  TodoService  →  DataContext  →  TodoDb</span><span class="ln">  მენიუ         მონაცემები      EF Core        SQL Server</span></code></pre></div>
+<table>
+<thead>
+<tr>
+<th>ნაწილი</th>
+<th>საქმე</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>🖥️ <strong>Program.cs</strong></td>
+<td>მენიუ: კითხულობს და ბეჭდავს</td>
+</tr>
+<tr>
+<td>⚙️ <strong>TodoService</strong></td>
+<td>ოპერაციები დავალებებზე: GetAll, Add, MarkDone, Rename, Delete</td>
+</tr>
+<tr>
+<td>🧩 <strong>DataContext</strong></td>
+<td>EF Core: Change Tracker, LINQ-ის SQL-ად თარგმნა</td>
+</tr>
+<tr>
+<td>🗄️ <strong>TodoDb</strong></td>
+<td>SQL Server-ის ბაზა, ცხრილი TodoItems</td>
+</tr>
+</tbody>
+</table>
+<p>თითოეული მხოლოდ თავის <strong>მეზობელს</strong> იცნობს: მენიუმ არ იცის, რომ ბაზა არსებობს; სერვისმა არ იცის, რომ კონსოლი არსებობს.</p>
+<p>ეს იმიტომაა მნიშვნელოვანი, რომ ნაწილები შეიძლება შეიცვალოს. ხვალ მენიუს ადგილს ვებ-გვერდი ან API დაიკავებს — <code>TodoService</code> იგივე დარჩება, უბრალოდ სხვა გამოიძახებს.</p></article>
+<h2 class="sec" id="sec-9">6 · პრაქტიკა</h2>
+<article class="blk" data-slides="31"><span class="anchor" id="s-31"></span><div class="bh"><h3>ნაწილი 6 · თქვენი ჯერია</h3><a class="chip" href="index.html#/31" data-go="31" title="პრეზენტაციაში გახსნა">სლაიდი 31</a></div>
+<p>ჯერ ერთად ვამატებთ ახალ ფუნქციას TodoDemo-ში, მერე დამოუკიდებლად აწყობთ ახალ პროექტს.</p></article>
+<article class="blk" data-slides="32"><span class="anchor" id="s-32"></span><div class="bh"><h3>სამი რაუნდი: მე → ერთად → თქვენ</h3><a class="chip" href="index.html#/32" data-go="32" title="პრეზენტაციაში გახსნა">სლაიდი 32</a></div>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>ვინ</th>
+<th>რა</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>👨‍🏫 მე ვაკეთებ</td>
+<td>თქვენ უყურებთ და იგებთ</td>
+<td>TodoDemo · ✓ დასრულდა</td>
+</tr>
+<tr>
+<td>👥 ერთად ვაკეთებთ</td>
+<td>ნაბიჯ-ნაბიჯ, ერთ ტემპში</td>
+<td>TodoDemo + ძებნა · ~10 წთ</td>
+</tr>
+<tr>
+<td>🧑‍💻 თქვენ აკეთებთ</td>
+<td>დამოუკიდებლად, ლექტორი ეხმარება</td>
+<td>ContactsDemo · ~25 წთ</td>
+</tr>
+</tbody>
+</table>
+<p>წესი: ჯერ ცდი თვითონ → გაჭედე — გვერდით მჯდომს ჰკითხე → მერე ლექტორს.</p></article>
+<article class="blk" data-slides="33"><span class="anchor" id="s-33"></span><div class="bh"><h3>👥 ერთად: ძებნა TodoDemo-ში</h3><a class="chip" href="index.html#/33" data-go="33" title="პრეზენტაციაში გახსნა">სლაიდი 33</a></div>
+<p><strong>1. სერვისში — ახალი მეთოდი:</strong></p>
+<div class="codebox"><div class="ch"><span>Services/TodoService.cs</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="k">public</span><span class="w"> </span><span class="n">List</span><span class="o">&lt;</span><span class="n">TodoItem</span><span class="o">&gt;</span><span class="w"> </span><span class="n">Search</span><span class="p">(</span><span class="kt">string</span><span class="w"> </span><span class="n">text</span><span class="p">)</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">_db</span><span class="p">.</span><span class="n">TodoItems</span></span><span class="ln"><span class="w">        </span><span class="p">.</span><span class="n">Where</span><span class="p">(</span><span class="n">t</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">t</span><span class="p">.</span><span class="n">Title</span><span class="p">.</span><span class="n">Contains</span><span class="p">(</span><span class="n">text</span><span class="p">)</span><span class="p">)</span></span><span class="ln"><span class="w">        </span><span class="p">.</span><span class="n">ToList</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="p">}</span></span></code></pre></div>
+<p><code>Contains</code> ბაზაში SQL-ის <code>LIKE</code>-ად მიდის: <code>WHERE Title LIKE N'%ყიდვა%'</code> — სათაური, რომელშიც სადმე წერია „ყიდვა“.</p>
+<p><strong>2. მენიუში — ახალი პუნქტი:</strong></p>
+<div class="codebox"><div class="ch"><span>Program.cs</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="c1">// მენიუს ტექსტში: ... 5.წაშლა 6.ძებნა 0.გასვლა</span></span><span class="ln"><span class="k">case</span><span class="w"> </span><span class="s">"6"</span><span class="p">:</span><span class="w"> </span><span class="n">Search</span><span class="p">(</span><span class="p">)</span><span class="p">;</span><span class="w"> </span><span class="k">break</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="k">void</span><span class="w"> </span><span class="nf">Search</span><span class="p">(</span><span class="p">)</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="n">Console</span><span class="p">.</span><span class="n">Write</span><span class="p">(</span><span class="s">"რას ეძებ: "</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="kt">var</span><span class="w"> </span><span class="n">text</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Console</span><span class="p">.</span><span class="n">ReadLine</span><span class="p">(</span><span class="p">)</span><span class="w"> </span><span class="o">??</span><span class="w"> </span><span class="s">""</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="k">foreach</span><span class="w"> </span><span class="p">(</span><span class="kt">var</span><span class="w"> </span><span class="n">t</span><span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="n">service</span><span class="p">.</span><span class="n">Search</span><span class="p">(</span><span class="n">text</span><span class="p">)</span><span class="p">)</span></span><span class="ln"><span class="w">        </span><span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="s">$"{t.Id}. {t.Title}"</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="p">}</span></span></code></pre></div>
+<p>დააკვირდი: ახალი ფუნქციისთვის შევცვალეთ <strong>ორი ადგილი</strong> — სერვისი (როგორ ვეძებთ) და მენიუ (როგორ ვეკითხებით და ვაჩვენებთ). დანარჩენს არ შევხებივართ.</p></article>
+<h2 class="sec" id="sec-10">პრაქტიკა</h2>
+<article class="blk" data-slides="34"><span class="anchor" id="s-34"></span><div class="bh"><h3>კლასში დავალება: ContactsDemo — ტელეფონის წიგნი</h3><a class="chip" href="index.html#/34" data-go="34" title="პრეზენტაციაში გახსნა">სლაიდი 34</a></div>
+<p>დამოუკიდებლად · ~25 წთ</p>
+<h3>ნაბიჯები</h3>
+<ul>
+<li>პროექტი <strong>ContactsDemo</strong>, ბაზა <strong>ContactsDb</strong> — 4 ნაბიჯი, როგორც წინა ლექციაზე</li>
+<li>Entity <code>Contact</code>: <code>Id</code>, <code>Name</code>, <code>Phone</code>, <code>Email</code></li>
+<li><code>Services/ContactService</code>: <code>GetAll</code>, <code>GetById</code>, <code>Add</code>, <code>UpdatePhone</code>, <code>Delete</code></li>
+<li><code>UpdatePhone</code> და <code>Delete</code> აბრუნებს <code>bool</code>-ს — იპოვა თუ არა</li>
+<li><code>Program.cs</code>: მენიუ 1–5, <code>0</code> — გასვლა</li>
+</ul>
+<h3>✓ მზადაა, როცა</h3>
+<p>მენიუს ყველა პუნქტი მუშაობს, და პროგრამის ხელახლა გაშვების შემდეგ ცვლილებები ისევ ჩანს</p>
+<h3>⭐ ბონუსი</h3>
+<ul>
+<li>მენიუს პუნქტი „ძებნა“: <code>Where(c =&gt; c.Name.Contains(text))</code></li>
+<li>ცარიელი სახელით კონტაქტი არ დაემატოს</li>
+</ul>
+<h3>💡 რჩევა</h3>
+<p>TodoDemo თქვენი ნიმუშია: ჯერ სერვისი და მისი მეთოდები, მერე მენიუ. Program.cs-ში <code>db.</code> არ უნდა ეწეროს — ბაზასთან მხოლოდ სერვისი ლაპარაკობს.</p></article>
+<h2 class="sec" id="sec-11">6 · პრაქტიკა</h2>
+<article class="blk" data-slides="35"><span class="anchor" id="s-35"></span><div class="bh"><h3>ხშირი შეცდომები</h3><a class="chip" href="index.html#/35" data-go="35" title="პრეზენტაციაში გახსნა">სლაიდი 35</a></div>
+<table>
+<thead>
+<tr>
+<th>რას ხედავ</th>
+<th>მიზეზი</th>
+<th>გამოსწორება</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>NullReferenceException</code></td>
+<td><code>Find</code>-მა <code>null</code> დააბრუნა და არ შეამოწმე</td>
+<td><code>if (item is null) …</code></td>
+</tr>
+<tr>
+<td><code>Sequence contains no elements</code></td>
+<td><code>First</code> — ჩანაწერი არ არსებობს</td>
+<td><code>FirstOrDefault</code> + <code>null</code>-ის შემოწმება</td>
+</tr>
+<tr>
+<td>შევცვალე, მაგრამ ბაზაში ძველი წერია</td>
+<td><code>SaveChanges</code> დაგავიწყდა</td>
+<td><code>_db.SaveChanges();</code></td>
+</tr>
+<tr>
+<td><code>FormatException</code></td>
+<td><code>int.Parse</code>-ს ასო მისცეს</td>
+<td><code>int.TryParse</code></td>
+</tr>
+<tr>
+<td>ბაზაში ქართულის ნაცვლად <code>???</code></td>
+<td>კონსოლი ქართულ input-ს ვერ კითხულობს</td>
+<td><code>Console.InputEncoding = System.Text.Encoding.Unicode;</code></td>
+</tr>
+<tr>
+<td><code>The type or namespace name 'TodoService' could not be found</code></td>
+<td>სერვისი <code>TodoDemo.Services</code>-შია</td>
+<td><code>using TodoDemo.Services;</code></td>
+</tr>
+</tbody>
+</table>
+<div class="prompt"><div class="ph"><span>🤖 როცა რამე არ მუშაობს</span><button class="copy" type="button">კოპირება</button></div><div class="pb">ვსწავლობ EF Core-ს Console App-ში (.NET 10, SQL Server). ვწერ CRUD-ს სერვისით და კონსოლის მენიუთი. მაქვს ეს შეცდომა / ეს ქცევა: [აღწერე ან ჩასვი შეცდომის ტექსტი]
+ჩემი კოდი: [ჩასვი სერვისი და Program.cs]
+ამიხსენი, რატომ ხდება და რა შევამოწმო — ნაბიჯ-ნაბიჯ. პირდაპირ გასწორებული კოდი არ მომცე, ჯერ მიმანიშნე. ქართულად.</div></div></article>
+<h2 class="sec" id="sec-12">შეჯამება</h2>
+<article class="blk" data-slides="36"><span class="anchor" id="s-36"></span><div class="bh"><h3>შეამოწმე, რა დაგამახსოვრდა</h3><a class="chip" href="index.html#/36" data-go="36" title="პრეზენტაციაში გახსნა">სლაიდი 36</a></div>
+<p>ეს კითხვები შემდეგი ლექციის დასაწყისშიც დაისმება.</p>
+<div class="selfcheck"><div class="sh">✅ შეამოწმე თავი <small>დაფიქრდი, მერე გახსენი პასუხი</small></div><details><summary>როგორ ვიპოვოთ ჩანაწერი Id-ით და რას აბრუნებს, თუ ვერ იპოვა?</summary><div class="ans"><code>Find(id)</code> · <code>null</code> → სანამ გამოიყენებ, შეამოწმე</div></details><details><summary>რით განსხვავდება <code>First</code> და <code>FirstOrDefault</code>?</summary><div class="ans">ვერ პოვნისას <code>First</code> შეცდომას აგდებს · <code>FirstOrDefault</code> — <code>null</code>-ს აბრუნებს</div></details><details><summary>როგორ ვცვლით ჩანაწერს და რატომ არ გვჭირდება <code>Update()</code>?</summary><div class="ans">ვპოულობთ → property-ს ვცვლით → <code>SaveChanges</code> · Change Tracker-მა იცის, რა შეიცვალა</div></details><details><summary>რას აკეთებს <code>ExecuteDelete</code> და რით განსხვავდება <code>Remove</code>-ისგან?</summary><div class="ans">ერთი <code>DELETE</code> პირდაპირ ბაზაში, ჩანაწერების წაკითხვისა და <code>SaveChanges</code>-ის გარეშე</div></details><details><summary>რატომ გავიტანეთ ბაზის კოდი <code>Services</code> ფოლდერში?</summary><div class="ans">Program.cs — მხოლოდ მენიუ (Console) · სერვისი — მხოლოდ მონაცემები · ერთი ოპერაცია ერთ ადგილას</div></details></div></article>
+<article class="blk" data-slides="37"><span class="anchor" id="s-37"></span><div class="bh"><h3>შეჯამება · CRUD სრულია, კოდი — თავის ადგილზე</h3><a class="chip" href="index.html#/37" data-go="37" title="პრეზენტაციაში გახსნა">სლაიდი 37</a></div>
+<p><strong>დაიმახსოვრე:</strong></p>
+<ol>
+<li><strong>წაკითხვა:</strong> <code>ToList</code> — ყველა, <code>Find</code> — Id-ით, <code>FirstOrDefault</code> — პირობით, <code>Where</code> — ფილტრი. <code>Find</code> / <code>FirstOrDefault</code>-ის შემდეგ <strong>ყოველთვის შეამოწმე <code>null</code></strong>.</li>
+<li><strong>განახლება და წაშლა:</strong> იპოვე → შეცვალე ან <code>Remove</code> → <strong><code>SaveChanges</code></strong>. <code>Update()</code> არ გვჭირდება — Change Tracker-მა იცის, რა შეიცვალა. ბევრი ჩანაწერისთვის — <code>ExecuteUpdate</code> / <code>ExecuteDelete</code>.</li>
+<li><strong>სერვისი:</strong> ბაზასთან მხოლოდ სერვისი ლაპარაკობს. <strong>Program.cs</strong> — მხოლოდ მენიუ (Console), <strong>სერვისი</strong> — მხოლოდ მონაცემები. ერთი ოპერაცია — ერთი მეთოდი.</li>
+</ol>
+<h3>⏭️ შემდეგ ლექციაზე</h3>
+<p>SchoolDemo-ში სტუდენტები და კურსები ჯერ ცალ-ცალკე ცხრილებია. როგორ ვთქვათ, რომელ კურსზეა სტუდენტი? როგორ წავიკითხოთ კურსი მისი სტუდენტებით ერთად? — <strong>ცხრილებს შორის კავშირები</strong>.</p>
+<div class="prompt"><div class="ph"><span>🤖 გამოცდა ლექციაზე</span><button class="copy" type="button">კოპირება</button></div><div class="pb">ვსწავლობ EF Core-ს. გავიარეთ: CRUD, ToList / Find / FirstOrDefault / Where / Count, null-ის შემოწმება, First vs FirstOrDefault, განახლება SaveChanges-ით, Remove, Change Tracker და Entity State, ExecuteUpdate / ExecuteDelete, სერვისის კლასი Services ფოლდერში, კონსოლის მენიუ (while + switch, int.TryParse).
+დამისვი 8 კითხვა სათითაოდ (ზოგი — პატარა კოდის ნაწყვეტზე: „რა მოხდება?“). ყოველ პასუხზე შემიფასე და ამიხსენი. ბოლოს მითხარი, რა გავიმეორო. ქართულად.</div></div></article>
+<h2 class="sec" id="sec-13">საშინაო</h2>
+<article class="blk" data-slides="38"><span class="anchor" id="s-38"></span><div class="bh"><h3>საშინაო დავალება: SchoolDemo — StudentService და მენიუ</h3><a class="chip" href="index.html#/38" data-go="38" title="პრეზენტაციაში გახსნა">სლაიდი 38</a></div>
+<p>საშინაოს SchoolDemo მენიუთი იმართება</p>
+<h3>მოთხოვნები</h3>
+<ul>
+<li><code>Services/StudentService</code>: <code>GetAll</code>, <code>GetById</code>, <code>Add</code>, <code>UpdateEmail</code>, <code>Delete</code></li>
+<li><code>GetAdults()</code> — 18+ სტუდენტები ასაკით: წინა საშინაოს query სერვისში გადადის</li>
+<li><code>Program.cs</code>: მენიუ — სია, 18+, დამატება, Email-ის შეცვლა, წაშლა, <code>0</code> — გასვლა</li>
+<li>Id და ასაკი — <code>int.TryParse</code>-ით: ასოებზე პროგრამა არ უნდა გაჩერდეს</li>
+</ul>
+<h3>✓ მზადაა, როცა</h3>
+<p>Program.cs-ში არცერთი <code>db.</code> არ წერია, და მენიუდან შეცვლილი Email SSMS-შიც ჩანს</p>
+<h3>⭐ ბონუსი</h3>
+<ul>
+<li>ძებნა გვარით: <code>Where(s =&gt; s.LastName.Contains(text))</code></li>
+<li><code>CourseService</code> იმავე ნიმუშით და მენიუში პუნქტი „კურსები“</li>
+</ul>
+<h3>💡 მინიშნება</h3>
+<p><code>int.TryParse(Console.ReadLine(), out var id)</code> აბრუნებს <code>true</code>-ს, თუ რიცხვი შეიყვანეს, და <code>id</code>-ში წერს მას. <code>false</code>-ზე — დაწერე „არასწორი Id“ და მენიუს დაუბრუნდი.</p></article>
+  </main>
+</div>
+<script>
+const DECK = "Entity Framework Core · 2 — CRUD, სერვისი და კონსოლის მენიუ";
+if (matchMedia('(min-width:981px)').matches) document.getElementById('tocd').open = true;
+const blocks = [...document.querySelectorAll('.blk')];
+const tocLinks = [...document.querySelectorAll('nav.toc a[href^="#sec-"]')];
+const secOf = b => { let e = b; while (e && !(e.matches && e.matches('h2.sec'))) e = e.previousElementSibling; return e; };
+function mark(b, toc_only) {
+  if (!toc_only) blocks.forEach(x => x.classList.toggle('cur', x === b));
+  const s = b && secOf(b); tocLinks.forEach(a => a.classList.toggle('cur', s && a.getAttribute('href') === '#' + s.id));
+}
+const blockFor = n => blocks.find(b => b.dataset.slides.split(',').includes(String(n)));
+
+// copy buttons (code: one line per .ln)
+document.addEventListener('click', e => {
+  const btn = e.target.closest('.copy'); if (!btn) return;
+  const box = btn.closest('.codebox, .prompt');
+  const text = box.matches('.prompt') ? box.querySelector('.pb').textContent : [...box.querySelectorAll('.ln')].map(l => l.textContent).join('\n');
+  navigator.clipboard.writeText(text).then(() => { btn.textContent = '✓ დაკოპირდა'; btn.classList.add('ok'); setTimeout(() => { btn.textContent = 'კოპირება'; btn.classList.remove('ok'); }, 1600); });
+});
+
+// live mode: opened from the deck with P — follow the projector
+const live = new URLSearchParams(location.search).has('live');
+let follow = true, bc = null;
+const liveBtn = document.getElementById('live');
+if (live) {
+  try { bc = new BroadcastChannel('deck-' + DECK); } catch (e) {}
+  liveBtn.classList.add('on');
+  liveBtn.onclick = () => { follow = !follow; liveBtn.classList.toggle('off', !follow); liveBtn.querySelector('.lt').textContent = follow ? 'მიჰყვება სლაიდებს' : 'თავისუფლად ვკითხულობ'; };
+  if (bc) {
+    bc.onmessage = ({ data }) => {
+      if (data.t !== 'state' || !follow) return;
+      const b = blockFor(data.i + 1); if (!b || b.classList.contains('cur')) return;
+      mark(b); b.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    };
+    bc.postMessage({ t: 'hello' });
+  }
+  document.addEventListener('click', e => {   // slide chip → move the projector deck
+    const c = e.target.closest('.chip[data-go]'); if (!c || !bc) return;
+    e.preventDefault(); bc.postMessage({ t: 'go', n: +c.dataset.go - 1 });
+  });
+}
+// deep link #s-12
+const h = location.hash.match(/^#s-(\d+)$/);
+if (h) { const b = blockFor(+h[1]); if (b) { mark(b); setTimeout(() => b.scrollIntoView({ block: 'start' }), 50); } }
+// highlight section in the TOC while reading
+const io = new IntersectionObserver(es => es.forEach(x => { if (x.isIntersecting && !(live && follow)) mark(x.target, true); }), { rootMargin: '-30% 0px -60% 0px' });
+blocks.forEach(b => io.observe(b));
+</script>
+</body></html>

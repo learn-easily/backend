@@ -1,0 +1,1487 @@
+<!-- =========================================================
+     EF Core · ლექცია 2 — CRUD → Change Tracker → Services → კონსოლის მენიუ → პრაქტიკა
+     ფერები: C#/კოდი = იისფერი · ბაზა = ქარვისფერი · EF Core = ზღვისფერი (teal)
+             წაკითხვა = ლურჯი · წარმატება = მწვანე · წაშლა/შეცდომა = წითელი
+     ========================================================= -->
+<style>
+i.codestep{display:none}
+.mono{font-family:var(--mono)}
+.late{opacity:0}
+.shown .late,.shown.late{animation:inFade .6s var(--ease) var(--ld,.9s) forwards}
+.term .ok{color:#4ade80}
+.term .bad{color:#f87171}
+.term .warn{color:#fbbf24}
+.term .dim{color:#7c829e}
+.term .body{font-size:18px;line-height:1.65}
+.term .inp{color:#93c5fd}
+.tree{font:19px/1.9 var(--mono);color:var(--ink2)}
+.tree .n{display:block;white-space:nowrap}
+.tree .n i{font-style:normal;margin-right:8px}
+.tree .lvl1{padding-left:30px}.tree .lvl2{padding-left:60px}
+.tree .hi{color:var(--ink);font-weight:700}
+.mock{background:#fff;border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);overflow:hidden}
+.mock .mh{background:var(--bg2);padding:10px 16px;font:600 14px var(--mono);color:var(--muted);border-bottom:1px solid var(--line)}
+.mock .mb{padding:18px 20px}
+.check li{list-style:none;position:relative;padding-left:44px;margin:12px 0;font-size:22px}
+.check li::before{content:"";position:absolute;left:0;top:.2em;width:26px;height:26px;border-radius:8px;border:2px solid var(--line2);background:#fff}
+.check li.shown::before{content:"✓";color:#fff;background:var(--mvc);border-color:var(--mvc);font:800 18px/26px var(--font);text-align:center}
+.crud{text-align:center;padding:26px 20px}
+.crud .L{font:800 84px/1 var(--mono);color:var(--a)}
+.crud .w{font:700 22px var(--font);color:var(--ink);margin-top:8px}
+.crud .sql{font:700 16px var(--mono);color:var(--muted);margin-top:6px}
+.crud .ef{font:600 16px var(--mono);margin-top:14px;padding:8px 10px;border-radius:10px;background:color-mix(in srgb,var(--a) 9%,#fff);color:var(--ink2)}
+.crud .st{position:absolute;right:14px;top:12px;font-size:24px}
+.can{display:flex;align-items:center;gap:16px;padding:12px 18px;border-radius:12px;background:#fff;border:1px solid var(--line);font-size:21px}
+.can .m{margin-left:auto;font:600 16px var(--mono);color:var(--muted)}
+.can .s{font-size:24px;width:30px;text-align:center}
+.sqlbox{font:600 17px/1.55 var(--mono);background:#fff8ec;border:1px solid #f3d9a6;border-radius:12px;padding:12px 16px;color:#92400e;white-space:pre}
+.sqlbox .k{color:#b45309;font-weight:800}
+.layer{flex:1;border-radius:16px;padding:16px 14px;border:2px solid var(--a);background:color-mix(in srgb,var(--a) 8%,#fff);text-align:center}
+.layer .e{font-size:36px;line-height:1.2}
+.layer .l{font-size:20px;font-weight:700;color:var(--ink)}
+.layer .s{font:14px/1.5 var(--mono);color:var(--muted);margin-top:4px}
+.arr{font:700 30px var(--mono);color:var(--muted);align-self:center}
+.flowrow{display:flex;align-items:stretch;gap:14px}
+.phase{text-align:center}
+.phase .em{font-size:72px;line-height:1.1}
+.phase .tt{font:700 15px var(--mono);color:var(--a)}
+</style>
+
+<!-- 1. TITLE -->
+<section class="slide" data-section="შესავალი">
+  <div class="vcenter" style="max-width:820px">
+    <div class="kicker in" style="color:var(--core)">Entity Framework Core · ლექცია 2</div>
+    <h1 class="in" style="--d:.15s">CRUD, სერვისი<br><span class="grad">და მენიუ</span></h1>
+    <p class="lead in mt" style="--d:.35s">ვპოულობთ, ვცვლით, ვშლით — კოდს <b>სერვისში</b> ვალაგებთ და ვაწყობთ პირველ ნამდვილ <b>კონსოლის პროგრამას</b> ბაზით</p>
+  </div>
+  <div class="abs" style="right:100px;top:200px">
+    <svg viewBox="0 0 520 520" width="520" height="520">
+      <g class="in zoom" style="--d:.4s;transform-origin:130px 130px"><rect x="40" y="40" width="180" height="180" rx="28" fill="#eaf8ef" stroke="#16a34a" stroke-width="3"/><text x="130" y="152" text-anchor="middle" class="tg b mono" font-size="96">C</text><text x="130" y="200" text-anchor="middle" class="tm" font-size="17">შექმნა</text></g>
+      <g class="in zoom" style="--d:.55s;transform-origin:390px 130px"><rect x="300" y="40" width="180" height="180" rx="28" fill="#eaf2fe" stroke="#2563eb" stroke-width="3"/><text x="390" y="152" text-anchor="middle" class="tb b mono" font-size="96">R</text><text x="390" y="200" text-anchor="middle" class="tm" font-size="17">წაკითხვა</text></g>
+      <g class="in zoom" style="--d:.7s;transform-origin:130px 390px"><rect x="40" y="300" width="180" height="180" rx="28" fill="#fef5e4" stroke="#d97706" stroke-width="3"/><text x="130" y="412" text-anchor="middle" class="to b mono" font-size="96">U</text><text x="130" y="460" text-anchor="middle" class="tm" font-size="17">განახლება</text></g>
+      <g class="in zoom" style="--d:.85s;transform-origin:390px 390px"><rect x="300" y="300" width="180" height="180" rx="28" fill="#fef2f2" stroke="#dc2626" stroke-width="3"/><text x="390" y="412" text-anchor="middle" class="tr b mono" font-size="96">D</text><text x="390" y="460" text-anchor="middle" class="tm" font-size="17">წაშლა</text></g>
+      <g class="in fade" style="--d:1.2s"><circle cx="260" cy="260" r="54" fill="#e6f6f4" stroke="#0d9488" stroke-width="3" class="pulse"/><text x="260" y="276" text-anchor="middle" font-size="44">🗄️</text></g>
+    </svg>
+  </div>
+</section>
+<lecture-review/>
+<lecture-homework-review/>
+<lecture-intro/>
+
+<!-- AGENDA -->
+<section class="slide" data-section="დღის თემა">
+  <div class="kicker">დღის გზა</div>
+  <h2>ჩაწერიდან — <span class="c-core">ნამდვილ პროგრამამდე</span></h2>
+  <svg viewBox="0 0 1420 470" width="1420" height="470">
+    <path class="autodraw" style="--d:.2s" d="M80 230 C180 90 220 380 320 230 S500 90 560 230 S740 380 800 230 S980 90 1040 230 S1250 380 1350 230" stroke="#cfc6b6" stroke-width="4" fill="none" stroke-dasharray="10 10"/>
+    <g class="in zoom" style="--d:.3s;transform-origin:80px 230px"><circle cx="80" cy="230" r="44" fill="#eaf8ef" stroke="#16a34a" stroke-width="3"/><text x="80" y="247" text-anchor="middle" class="tg b mono" font-size="38">C</text><text x="80" y="310" text-anchor="middle" class="tw b" font-size="19">Add + Save</text><text x="80" y="336" text-anchor="middle" class="tg b" font-size="15">✓ წინა ლექცია</text><circle cx="111" cy="199" r="14" fill="#16a34a"/><text x="111" y="205" text-anchor="middle" font-size="16" style="fill:#fff" class="b">✓</text></g>
+    <g class="step zoom" style="transform-origin:300px 160px"><circle cx="300" cy="160" r="44" fill="#eaf2fe" stroke="#2563eb" stroke-width="3"/><text x="300" y="177" text-anchor="middle" class="tb b mono" font-size="38">R</text><text x="300" y="86" text-anchor="middle" class="tw b" font-size="19">წაკითხვა</text><text x="300" y="62" text-anchor="middle" class="tm" font-size="15">Find · FirstOrDefault · Where</text></g>
+    <g class="step zoom" style="transform-origin:560px 230px"><circle cx="560" cy="230" r="44" fill="#fef5e4" stroke="#d97706" stroke-width="3"/><text x="560" y="247" text-anchor="middle" class="to b mono" font-size="34">U·D</text><text x="560" y="310" text-anchor="middle" class="tw b" font-size="19">განახლება · წაშლა</text><text x="560" y="336" text-anchor="middle" class="tm" font-size="15">Change Tracker</text></g>
+    <g class="step zoom" style="transform-origin:800px 160px"><circle cx="800" cy="160" r="44" fill="#f3effe" stroke="#6d28d9" stroke-width="3"/><text x="800" y="176" text-anchor="middle" font-size="34">⚙️</text><text x="800" y="86" text-anchor="middle" class="tw b" font-size="19">სერვისი</text><text x="800" y="62" text-anchor="middle" class="tm" font-size="15">Services ფოლდერი</text></g>
+    <g class="step zoom" style="transform-origin:1040px 230px"><circle cx="1040" cy="230" r="44" fill="#e6f6f4" stroke="#0d9488" stroke-width="3"/><text x="1040" y="246" text-anchor="middle" font-size="34">📋</text><text x="1040" y="310" text-anchor="middle" class="tw b" font-size="19">მენიუ</text><text x="1040" y="336" text-anchor="middle" class="tm" font-size="15">while + switch</text></g>
+    <g class="step zoom" style="transform-origin:1350px 230px"><circle cx="1350" cy="230" r="48" fill="#eaf8ef" stroke="#16a34a" stroke-width="4" class="pulse"/><text x="1350" y="246" text-anchor="middle" font-size="38">⌨️</text><text x="1350" y="314" text-anchor="middle" class="tg b" font-size="19">პრაქტიკა</text><text x="1350" y="340" text-anchor="middle" class="tm" font-size="15">ContactsDemo</text></g>
+  </svg>
+  <aside class="study">
+### ლექციის გეგმა
+
+✓ **ჩაწერა** (`Add` + `SaveChanges`) და ყველაფრის წაკითხვა (`ToList`) უკვე ვიცით. დღეს:
+
+1. **წაკითხვა** — ერთი ჩანაწერის პოვნა და ფილტრი: `Find`, `FirstOrDefault`, `Where`.
+2. **განახლება და წაშლა** — და როგორ იგებს EF Core, რა შევცვალეთ (Change Tracker).
+3. **სერვისი** — ბაზის კოდი Program.cs-იდან ცალკე კლასში გადადის.
+4. **მენიუ** — კონსოლის პროგრამა, რომელიც სერვისს იძახებს.
+5. ⌨️ **პრაქტიკა** — მე → ერთად → თქვენ.
+  </aside>
+</section>
+
+<!-- ============ PART 1 · PROBLEM ============ -->
+<section class="slide divider" data-section="1 · პრობლემა">
+  <div class="vcenter">
+    <div class="kicker in">ნაწილი 1</div>
+    <h1 class="in" style="--d:.1s">ჩაწერა ვიცით.<br><span class="grad">მერე?</span></h1>
+    <p class="lead mt in" style="--d:.3s">რას ითხოვს ნამდვილი პროგრამა</p>
+  </div>
+  <div class="big-num">01</div>
+  <aside class="study">
+## ნაწილი 1 · ჩაწერა ვიცით. მერე?
+
+წინა ლექციაზე ბაზაში ჩავწერეთ და ყველაფერი წავიკითხეთ. ვნახოთ, რა აკლია ამას, რომ ნამდვილი პროგრამა გამოვიდეს.
+  </aside>
+</section>
+<section class="slide" data-section="1 · პრობლემა">
+  <div class="kicker">დღის პროექტი</div>
+  <h2>დავალებების სია — <span class="c-core">რა უნდა შეეძლოს?</span></h2>
+  <div class="grid2" style="grid-template-columns:1fr 1.1fr;align-items:start;gap:40px">
+    <div class="term in" style="--d:.2s"><div class="bar"><i></i><i></i><i></i><span>TodoDemo</span></div>
+      <div class="body">📝 ჩემი დავალებები<br>
+        <span class="dim">─────────────────────</span><br>
+        1. [<span class="ok">✓</span>] ლექციის გამეორება<br>
+        2. [ ] საშინაოს დაწერა<br>
+        3. [ ] რძის ყიდვა<br>
+        4. [ ] Git-ის ვიდეო</div></div>
+    <div class="col" style="gap:12px">
+      <div class="can step right"><span class="s">✅</span>ახლის <b>დამატება</b><span class="m">Add + SaveChanges</span></div>
+      <div class="can step right"><span class="s">✅</span>ყველას <b>ნახვა</b><span class="m">ToList()</span></div>
+      <div class="can step right" style="border-color:#fca5a5"><span class="s">❓</span>ერთის <b>პოვნა</b> Id-ით</div>
+      <div class="can step right" style="border-color:#fca5a5"><span class="s">❓</span><b>შესრულებულად</b> მონიშვნა</div>
+      <div class="can step right" style="border-color:#fca5a5"><span class="s">❓</span>სახელის <b>შეცვლა</b></div>
+      <div class="can step right" style="border-color:#fca5a5"><span class="s">❓</span><b>წაშლა</b></div>
+    </div>
+  </div>
+  <div class="callout step mt" style="--a:var(--red)">ექვსი მოქმედებიდან მხოლოდ <b>ორი</b> ვიცით. ასეთ სიას არავინ გამოიყენებს</div>
+  <aside class="study">
+### დავალებების სია — რა უნდა შეეძლოს?
+
+დღეს ვაწყობთ **TodoDemo**-ს — დავალებების სიას, როგორიც ყველა ტელეფონშია:
+
+```plain TodoDemo
+📝 ჩემი დავალებები
+1. [✓] ლექციის გამეორება
+2. [ ] საშინაოს დაწერა
+3. [ ] რძის ყიდვა
+4. [ ] Git-ის ვიდეო
+```
+
+რა უნდა შეეძლოს ასეთ პროგრამას და რა ვიცით უკვე?
+
+| მოქმედება | ვიცით? |
+|---|---|
+| ახლის დამატება | ✅ `Add` + `SaveChanges` |
+| ყველას ნახვა | ✅ `ToList()` |
+| ერთის პოვნა Id-ით | ❓ |
+| შესრულებულად მონიშვნა | ❓ |
+| სახელის შეცვლა | ❓ |
+| წაშლა | ❓ |
+
+ექვსი მოქმედებიდან მხოლოდ ორი ვიცით. პროგრამა, რომელშიც დავალებას ვერც მონიშნავ და ვერც წაშლი, არავის გამოადგება.
+  </aside>
+</section>
+<section class="slide" data-section="1 · პრობლემა">
+  <div class="kicker">ოთხი ასო</div>
+  <h2>CRUD — ოთხი ოპერაცია, რომელზეც <span class="c-core">ყველა პროგრამა დგას</span></h2>
+  <div class="grid4" style="margin-top:10px">
+    <div class="card accent crud step zoom" style="--a:var(--mvc);position:relative"><span class="st">✅</span><div class="L">C</div><div class="w">Create · შექმნა</div><div class="sql">INSERT</div><div class="ef">Add + SaveChanges</div></div>
+    <div class="card accent crud step zoom" style="--a:var(--api);position:relative"><span class="st">½</span><div class="L">R</div><div class="w">Read · წაკითხვა</div><div class="sql">SELECT</div><div class="ef">ToList · <b>?</b></div></div>
+    <div class="card accent crud step zoom" style="--a:var(--asp);position:relative"><span class="st">❓</span><div class="L">U</div><div class="w">Update · განახლება</div><div class="sql">UPDATE</div><div class="ef"><b>?</b></div></div>
+    <div class="card accent crud step zoom" style="--a:var(--red);position:relative"><span class="st">❓</span><div class="L">D</div><div class="w">Delete · წაშლა</div><div class="sql">DELETE</div><div class="ef"><b>?</b></div></div>
+  </div>
+  <div class="callout step mt2" style="--a:var(--net)">Instagram: პოსტის <b>დადება</b> · ფიდის <b>ნახვა</b> · აღწერის <b>შეცვლა</b> · პოსტის <b>წაშლა</b>. ბანკი, მაღაზია, LMS — ყველგან იგივე ოთხი</div>
+  <aside class="study">
+### CRUD — ოთხი ოპერაცია
+
+**CRUD** ოთხი ინგლისური სიტყვის პირველი ასოებია. თითოეულს SQL-ში თავისი ბრძანება აქვს:
+
+| ასო | ოპერაცია | SQL | EF Core | ვიცით? |
+|---|---|---|---|---|
+| **C** | Create — შექმნა | `INSERT` | `Add` + `SaveChanges` | ✅ |
+| **R** | Read — წაკითხვა | `SELECT` | `ToList`, … | ნახევრად |
+| **U** | Update — განახლება | `UPDATE` | ? | ❓ |
+| **D** | Delete — წაშლა | `DELETE` | ? | ❓ |
+
+თითქმის ყველა პროგრამა ამ ოთხ ოპერაციაზე დგას. Instagram: პოსტის დადება (C), ფიდის ნახვა (R), აღწერის შეცვლა (U), პოსტის წაშლა (D). ბანკი, ონლაინ მაღაზია, სასწავლო პლატფორმა — ყველგან იგივე ოთხია, უბრალოდ სხვა მონაცემებზე.
+
+```terms
+CRUD — Create, Read, Update, Delete: მონაცემებზე ოთხი ძირითადი ოპერაცია
+```
+  </aside>
+</section>
+
+<!-- ============ PART 2 · READ ============ -->
+<section class="slide divider" data-section="2 · წაკითხვა">
+  <div class="vcenter">
+    <div class="kicker in">ნაწილი 2</div>
+    <h1 class="in" style="--d:.1s">ყველა თუ <span class="grad">ერთი?</span></h1>
+    <p class="lead mt in" style="--d:.3s">ჩანაწერის პოვნა და ფილტრი</p>
+  </div>
+  <div class="big-num">02</div>
+  <aside class="study">
+## ნაწილი 2 · წაკითხვა: ყველა თუ ერთი?
+
+`ToList()` ყველაფერს მოაქვს. მაგრამ ხშირად ერთი კონკრეტული ჩანაწერი გვჭირდება, ან მხოლოდ ისინი, რომლებიც პირობას აკმაყოფილებენ.
+  </aside>
+</section>
+<section class="slide" data-section="2 · წაკითხვა">
+  <div class="kicker">მომზადება · 4 ნაბიჯი, როგორც წინა ლექციაზე</div>
+  <h2>TodoDemo — <span class="c-core">Entity და ბაზა</span></h2>
+  <div class="grid2" style="grid-template-columns:1fr 1fr;align-items:start;gap:30px">
+    <div class="col" style="gap:16px">
+      <code-block id="ti" lang="csharp" cls="sm" title="TodoItem.cs">
+namespace TodoDemo;
+
+public class TodoItem
+{
+    public int Id { get; set; }
+    public string Title { get; set; } = string.Empty;
+    public bool IsDone { get; set; }
+    public DateTime CreatedAt { get; set; }
+}
+      </code-block>
+      <code-block lang="csharp" cls="sm" title="DataContext.cs">
+public class DataContext : DbContext
+{
+    public DbSet<TodoItem> TodoItems { get; set; }
+    // OnConfiguring — ბაზა TodoDb
+}
+      </code-block>
+    </div>
+    <div class="col" style="gap:16px">
+      <i class="codestep" data-for="ti" data-lines="7"></i>
+      <div class="callout step" data-with style="--a:var(--asp);font-size:19px"><b>bool</b> → SQL-ში <b>bit</b> (0 / 1)</div>
+      <i class="codestep" data-for="ti" data-lines="8"></i>
+      <div class="callout step" data-with style="--a:var(--asp);font-size:19px"><b>DateTime</b> → <b>datetime2</b></div>
+      <div class="mock step"><div class="mh">SSMS · SELECT * FROM TodoItems</div>
+        <table class="t" style="font-size:16px;box-shadow:none;border:0;border-radius:0"><tr><th>Id</th><th>Title</th><th>IsDone</th></tr>
+          <tr><td>1</td><td>ლექციის გამეორება</td><td class="mono">1</td></tr>
+          <tr><td>2</td><td>საშინაოს დაწერა</td><td class="mono">0</td></tr>
+          <tr><td>3</td><td>რძის ყიდვა</td><td class="mono">0</td></tr>
+          <tr><td>4</td><td>Git-ის ვიდეო</td><td class="mono">0</td></tr></table></div>
+    </div>
+  </div>
+  <aside class="study">
+### TodoDemo — Entity და ბაზა
+
+ახალი Console App **TodoDemo**, ბაზა **TodoDb**. მომზადება — იგივე 4 ნაბიჯი, რაც წინა ლექციაზე: პაკეტები → DataContext → Connection String → მიგრაცია.
+
+```csharp TodoItem.cs
+namespace TodoDemo;
+
+public class TodoItem
+{
+    public int Id { get; set; }
+    public string Title { get; set; } = string.Empty;
+    public bool IsDone { get; set; }
+    public DateTime CreatedAt { get; set; }
+}
+```
+
+```csharp DataContext.cs
+public class DataContext : DbContext
+{
+    public DbSet<TodoItem> TodoItems { get; set; }
+
+    protected override void OnConfiguring(DbContextOptionsBuilder options)
+    {
+        options.UseSqlServer(@"…Initial Catalog=TodoDb…");
+    }
+}
+```
+
+ორი ახალი ტიპი გვხვდება:
+
+- `bool` → SQL-ში `bit` (0 ან 1).
+- `DateTime` → `datetime2`.
+
+`Add-Migration InitialCreate` → `Update-Database`, და Program.cs-იდან 4 დავალებას ვამატებთ — წაკითხვისთვის მონაცემი გვჭირდება.
+
+```note
+კლასს `Task` არ ვარქმევთ: C#-ში უკვე არსებობს `System.Threading.Tasks.Task` და სახელები აირევა. ამიტომ — `TodoItem`.
+```
+  </aside>
+</section>
+<section class="slide" data-section="2 · წაკითხვა">
+  <div class="kicker">წაკითხვის გზები</div>
+  <h2>ყველა, <span class="c-api">ერთი</span>, <span class="c-core">ფილტრი</span></h2>
+  <code-block id="rd" lang="csharp" cls="" title="Program.cs">
+using var db = new DataContext();
+
+var all   = db.TodoItems.ToList();
+var item  = db.TodoItems.Find(2);
+var milk  = db.TodoItems.FirstOrDefault(t => t.Title == "რძის ყიდვა");
+var open  = db.TodoItems.Where(t => !t.IsDone).ToList();
+var count = db.TodoItems.Count(t => !t.IsDone);
+  </code-block>
+  <table class="t mt" style="font-size:17px">
+    <tr><th style="width:24%">მეთოდი</th><th style="width:18%">აბრუნებს</th><th>SQL (გამარტივებით)</th></tr>
+    <tr class="step fade"><td class="mono"><i class="codestep" data-with data-for="rd" data-lines="3"></i>ToList()</td><td class="mono">List&lt;TodoItem&gt;</td><td class="mono">SELECT * FROM TodoItems</td></tr>
+    <tr class="step fade"><td class="mono"><i class="codestep" data-with data-for="rd" data-lines="4"></i>Find(2)</td><td class="mono">TodoItem?</td><td class="mono">SELECT TOP(1) * … WHERE Id = 2</td></tr>
+    <tr class="step fade"><td class="mono"><i class="codestep" data-with data-for="rd" data-lines="5"></i>FirstOrDefault(…)</td><td class="mono">TodoItem?</td><td class="mono">SELECT TOP(1) * … WHERE Title = N'რძის ყიდვა'</td></tr>
+    <tr class="step fade"><td class="mono"><i class="codestep" data-with data-for="rd" data-lines="6"></i>Where(…).ToList()</td><td class="mono">List&lt;TodoItem&gt;</td><td class="mono">SELECT * … WHERE IsDone = 0</td></tr>
+    <tr class="step fade"><td class="mono"><i class="codestep" data-with data-for="rd" data-lines="7"></i>Count(…)</td><td class="mono">int</td><td class="mono">SELECT COUNT(*) … WHERE IsDone = 0</td></tr>
+  </table>
+  <aside class="study">
+### წაკითხვა: ყველა, ერთი, ფილტრი
+
+```csharp Program.cs
+using var db = new DataContext();
+
+var all   = db.TodoItems.ToList();
+var item  = db.TodoItems.Find(2);
+var milk  = db.TodoItems.FirstOrDefault(t => t.Title == "რძის ყიდვა");
+var open  = db.TodoItems.Where(t => !t.IsDone).ToList();
+var count = db.TodoItems.Count(t => !t.IsDone);
+```
+
+| მეთოდი | აბრუნებს | რას აკეთებს | SQL (გამარტივებით) |
+|---|---|---|---|
+| `ToList()` | `List<TodoItem>` | ყველა ჩანაწერი | `SELECT * FROM TodoItems` |
+| `Find(2)` | `TodoItem?` | ერთი — **Primary Key**-ით | `SELECT TOP(1) * … WHERE Id = 2` |
+| `FirstOrDefault(…)` | `TodoItem?` | პირველი, რომელიც პირობას აკმაყოფილებს | `SELECT TOP(1) * … WHERE Title = N'…'` |
+| `Where(…).ToList()` | `List<TodoItem>` | ყველა, რომელიც პირობას აკმაყოფილებს | `SELECT * … WHERE IsDone = 0` |
+| `Count(…)` | `int` | რამდენია | `SELECT COUNT(*) … WHERE IsDone = 0` |
+
+- **`Find`** მხოლოდ Primary Key-ით ეძებს. თუ ეს ჩანაწერი EF Core-ს უკვე წაკითხული აქვს, ბაზაში საერთოდ არ წავა — მეხსიერებიდან მოგცემს.
+- **`FirstOrDefault`** ნებისმიერი პირობით ეძებს: სახელით, Email-ით, და ა.შ.
+- **`Where`** აბრუნებს **სიას** (შეიძლება ცარიელსაც), ამიტომ ბოლოს `ToList()`. `Where`-ის გარეშე `ToList()` არ ვწერთ — `Count`, `FirstOrDefault`, `Find` პასუხს მაშინვე აბრუნებენ.
+- პირობა C#-შია (`t => !t.IsDone`), მაგრამ ბაზაში SQL-ად მიდის — ბაზა თვითონ ფილტრავს და მხოლოდ საჭირო რიგები მოდის.
+
+`TodoItem?`-ის კითხვის ნიშანი მნიშვნელოვანია — შემდეგ სლაიდზე ვნახავთ, რატომ.
+
+```prompt LINQ-ის ვარჯიში
+ვსწავლობ EF Core-ს. მაქვს Entity TodoItem (Id, Title, IsDone, CreatedAt) და DbSet TodoItems.
+მომეცი 6 პატარა ამოცანა LINQ-ზე (Find, FirstOrDefault, Where, OrderBy, Count, Any) — სათითაოდ. ჯერ მე დავწერ კოდს, მერე შეამოწმე და მითხარი, რა SQL გაიგზავნება ბაზაში. ქართულად.
+```
+  </aside>
+</section>
+<section class="slide" data-section="2 · წაკითხვა">
+  <div class="kicker">ვერ იპოვა?</div>
+  <h2><span class="c-red">null</span> — ჩანაწერი არ არსებობს</h2>
+  <div class="grid2" style="gap:30px;align-items:start">
+    <div class="card accent step left" style="--a:var(--red)"><h3><span class="ico">💥</span>ასე — არა</h3>
+      <code-block lang="csharp" cls="sm">
+var item = db.TodoItems.Find(99);
+
+Console.WriteLine(item.Title);
+// NullReferenceException
+      </code-block>
+      <p class="small" style="margin-top:12px">Id = 99 არ არსებობს → <code class="i">item</code> არის <b>null</b> → პროგრამა ვარდება. VS ამას <b>ყვითლად</b> გაფრთხილებს</p>
+    </div>
+    <div class="card accent step right" style="--a:var(--mvc)"><h3><span class="ico">✅</span>ასე — კი</h3>
+      <code-block lang="csharp" cls="sm">
+var item = db.TodoItems.Find(99);
+
+if (item is null)
+{
+    Console.WriteLine("ვერ მოიძებნა");
+    return;
+}
+
+Console.WriteLine(item.Title);
+      </code-block>
+    </div>
+  </div>
+  <div class="callout step mt" style="--a:var(--asp);font-size:20px"><code class="i">First(…)</code> ვერ პოვნისას <b>შეცდომას</b> აგდებს („Sequence contains no elements“) · <code class="i">FirstOrDefault(…)</code> — <b>null</b>-ს. ვიყენებთ OrDefault-ს და ვამოწმებთ</div>
+  <aside class="study">
+### null — ჩანაწერი არ არსებობს
+
+`Find` და `FirstOrDefault` აბრუნებს `TodoItem?`-ს — კითხვის ნიშანი ნიშნავს: **შეიძლება `null` იყოს**. თუ ასეთი Id არ არსებობს, ობიექტი არ გვაქვს.
+
+```csharp 💥 ასე — არა
+var item = db.TodoItems.Find(99);
+
+Console.WriteLine(item.Title);   // NullReferenceException
+```
+
+Id = 99 ბაზაში არ არის → `item` არის `null` → `null`-ის `.Title`-ს ვერ წაიკითხავ და პროგრამა ვარდება. Visual Studio ამას წინასწარ გეუბნება: `item`-ს ყვითელი ტალღა უჩნდება (*Dereference of a possibly null reference*).
+
+```csharp ✅ ასე — კი
+var item = db.TodoItems.Find(99);
+
+if (item is null)
+{
+    Console.WriteLine("ვერ მოიძებნა");
+    return;
+}
+
+Console.WriteLine(item.Title);   // აქ item უკვე null ვერ იქნება
+```
+
+**წესი:** `Find` / `FirstOrDefault`-ის შემდეგ ჯერ `null`-ს ამოწმებ, მერე იყენებ.
+
+| მეთოდი | ვერ იპოვა → |
+|---|---|
+| `First(…)` | **შეცდომა**: `InvalidOperationException: Sequence contains no elements` |
+| `FirstOrDefault(…)` | `null` |
+
+`First`-ს მხოლოდ მაშინ იყენებენ, როცა ჩანაწერი **აუცილებლად** უნდა არსებობდეს. მომხმარებელი Id-ს ხელით წერს — შეიძლება შეეშალოს, ამიტომ ჩვენ `FirstOrDefault` / `Find` + `null`-ის შემოწმება გვჭირდება.
+  </aside>
+</section>
+
+<!-- ============ PART 3 · UPDATE & DELETE ============ -->
+<section class="slide divider" data-section="3 · განახლება და წაშლა">
+  <div class="vcenter">
+    <div class="kicker in">ნაწილი 3</div>
+    <h1 class="in" style="--d:.1s">იპოვე, შეცვალე,<br><span class="grad">შეინახე</span></h1>
+    <p class="lead mt in" style="--d:.3s">განახლება, წაშლა და EF Core-ის „მეხსიერება“</p>
+  </div>
+  <div class="big-num">03</div>
+  <aside class="study">
+## ნაწილი 3 · იპოვე, შეცვალე, შეინახე
+
+წაკითხვა ვიცით. ახლა — განახლება და წაშლა. ორივე ერთნაირად იწყება: **ჯერ ჩანაწერს ვპოულობთ**.
+  </aside>
+</section>
+<section class="slide" data-section="3 · განახლება და წაშლა">
+  <div class="kicker">U · Update</div>
+  <h2>განახლება — <span class="c-asp">Update() არ გვჭირდება</span></h2>
+  <div class="grid2" style="grid-template-columns:1.05fr 1fr;align-items:start;gap:30px">
+    <code-block id="up" lang="csharp" cls="big" title="Program.cs">
+using var db = new DataContext();
+
+var item = db.TodoItems.Find(2);
+if (item is null) return;
+
+item.IsDone = true;
+db.SaveChanges();
+    </code-block>
+    <div class="col" style="gap:14px">
+      <i class="codestep" data-for="up" data-lines="3-4"></i>
+      <div class="callout step" data-with style="--a:var(--api);font-size:19px"><b>1. იპოვე</b> — <code class="i">SELECT … WHERE Id = 2</code></div>
+      <i class="codestep" data-for="up" data-lines="6"></i>
+      <div class="callout step" data-with style="--a:var(--net);font-size:19px"><b>2. შეცვალე</b> — ჩვეულებრივი C#, ბაზას ჯერ არ ეხება</div>
+      <i class="codestep" data-for="up" data-lines="7"></i>
+      <div class="col step" data-with style="gap:10px">
+        <div class="callout" style="--a:var(--asp);font-size:19px"><b>3. SaveChanges</b> — ახლა მიდის:</div>
+        <div class="sqlbox"><span class="k">UPDATE</span> TodoItems
+<span class="k">SET</span> IsDone = 1
+<span class="k">WHERE</span> Id = 2</div>
+      </div>
+      <div class="problem step" style="font-size:19px">მხოლოდ <b>IsDone</b>! Title-ს არ ეხება. <code class="i">Update()</code> არსად დაგვიწერია — <b>საიდან გაიგო?</b> 🤔</div>
+    </div>
+  </div>
+  <aside class="study">
+### განახლება: იპოვე → შეცვალე → SaveChanges
+
+```csharp Program.cs
+using var db = new DataContext();
+
+var item = db.TodoItems.Find(2);
+if (item is null) return;
+
+item.IsDone = true;
+db.SaveChanges();
+```
+
+1. **იპოვე** — `Find(2)` → `SELECT … WHERE Id = 2`. (`null`-ის შემოწმება აქაც აუცილებელია.)
+2. **შეცვალე** — `item.IsDone = true` ჩვეულებრივი C#-ია. ბაზას ჯერ არ ეხება.
+3. **`SaveChanges()`** — ახლა მიდის:
+
+```sql
+UPDATE TodoItems
+SET IsDone = 1
+WHERE Id = 2
+```
+
+ორ რამეს დააკვირდი:
+
+- `Update()` მეთოდი **არსად** დაგვიწერია.
+- SQL-ში მხოლოდ **`IsDone`** წერია — `Title`-ს და `CreatedAt`-ს არ ეხება, რადგან ისინი არ შეცვლილა.
+
+საიდან გაიგო EF Core-მა, რომ სწორედ `IsDone` შევცვალეთ? ამაზეა შემდეგი სლაიდი.
+
+```note
+`db.TodoItems.Update(item)` მეთოდი არსებობს, მაგრამ აქ საჭირო არ არის: ის ყველა სვეტს „შეცვლილად“ მონიშნავს და `UPDATE` ყველა სვეტზე წავა. გვჭირდება მაშინ, როცა ობიექტი EF Core-ს **არ წაუკითხავს** (მაგალითად, სხვაგან შეიქმნა). ჩვენ ჯერ ვპოულობთ — ამიტომ საკმარისია შეცვლა და `SaveChanges`.
+```
+  </aside>
+</section>
+<section class="slide" data-section="3 · განახლება და წაშლა">
+  <div class="kicker">როგორ იგებს?</div>
+  <h2>Change Tracker — <span class="c-core">EF Core-ის მეხსიერება</span></h2>
+  <div class="flowrow" style="margin-top:10px">
+    <div class="layer step" style="--a:var(--api)"><div class="e">🔍</div><div class="l">Find(2)</div><div class="s">ობიექტი მოვიდა<br>+ EF იმახსოვრებს <b>ფოტოს</b></div>
+      <div class="sqlbox" style="margin-top:12px;font-size:15px;text-align:left">📸 Title = "საშინაოს დაწერა"
+📸 IsDone = false</div></div>
+    <div class="arr step">→</div>
+    <div class="layer step" style="--a:var(--net)"><div class="e">✏️</div><div class="l">item.IsDone = true</div><div class="s">ჩვენ ვცვლით ობიექტს</div>
+      <div class="sqlbox" style="margin-top:12px;font-size:15px;text-align:left;background:#f3effe;border-color:#d8ccf8;color:#5b21b6">Title = "საშინაოს დაწერა"
+IsDone = <b>true</b></div></div>
+    <div class="arr step">→</div>
+    <div class="layer step" style="--a:var(--asp)"><div class="e">⚖️</div><div class="l">SaveChanges()</div><div class="s">ფოტოს ადარებს ობიექტს</div>
+      <div class="sqlbox" style="margin-top:12px;font-size:15px;text-align:left">Title — იგივე ✓
+IsDone — <b>შეიცვალა!</b>
+→ UPDATE … SET IsDone = 1</div></div>
+  </div>
+  <div class="callout step mt" style="--a:var(--core)">ყველაფერს, რაც DataContext-მა წაიკითხა, <b>Change Tracker</b> თვალს ადევნებს. <code class="i">SaveChanges</code> მას ეკითხება: „რა შეიცვალა?“ — და SQL-ს თვითონ წერს</div>
+  <aside class="study">
+### Change Tracker — EF Core-ის მეხსიერება
+
+DataContext-ს შიგნით აქვს **Change Tracker** („ცვლილებების მეთვალყურე“). ის ასე მუშაობს:
+
+1. **`Find(2)`** — ჩანაწერი მოვიდა ბაზიდან. ობიექტს რომ გვაძლევს, EF Core თავისთვის იმახსოვრებს მის **„ფოტოს“**: `Title = "საშინაოს დაწერა"`, `IsDone = false`.
+2. **`item.IsDone = true`** — ჩვენ ობიექტს ვცვლით. ფოტო იგივე რჩება.
+3. **`SaveChanges()`** — EF Core ყველა ობიექტს თავის ფოტოს ადარებს: `Title` იგივეა, `IsDone` შეიცვალა → წერს `UPDATE … SET IsDone = 1 WHERE Id = 2`.
+
+ამიტომ არ გვჭირდება `Update()`: EF Core-მა თვითონ იცის, რა შეიცვალა. და ამიტომაა SQL-ში მხოლოდ ერთი სვეტი.
+
+```terms
+Change Tracker — DataContext-ის ნაწილი, რომელიც წაკითხულ და დამატებულ ობიექტებს თვალს ადევნებს და SaveChanges-ის დროს ითვლის, რა უნდა გაიგზავნოს ბაზაში
+Snapshot („ფოტო“) — ობიექტის მნიშვნელობების ასლი წაკითხვის მომენტში
+```
+
+```prompt Change Tracker-ის ახსნა
+ვსწავლობ EF Core-ს. ამიხსენი Change Tracker მარტივად, მაგალითით: რა ხდება Find-ის, property-ს შეცვლის და SaveChanges-ის დროს? რას ნიშნავს Entity State (Added, Unchanged, Modified, Deleted)? და რა არის AsNoTracking — როდის იყენებენ? ქართულად.
+```
+  </aside>
+</section>
+<section class="slide" data-section="3 · განახლება და წაშლა">
+  <div class="kicker">ვნახოთ საკუთარი თვალით</div>
+  <h2>ყოველ ობიექტს <span class="c-core">მდგომარეობა</span> აქვს</h2>
+  <div class="grid2" style="grid-template-columns:1.1fr 1fr;align-items:start;gap:30px">
+    <div class="col" style="gap:14px">
+      <code-block id="stt" lang="csharp" cls="sm" title="Program.cs">
+var item = db.TodoItems.Find(3);
+if (item is null) return;
+
+Console.WriteLine(db.Entry(item).State);
+
+item.Title = "პურის ყიდვა";
+Console.WriteLine(db.Entry(item).State);
+
+db.SaveChanges();
+Console.WriteLine(db.Entry(item).State);
+      </code-block>
+      <div class="term step"><div class="bar"><i></i><i></i><i></i><span>TodoDemo</span></div><div class="body">Unchanged<br><span class="warn">Modified</span><br>Unchanged</div></div>
+    </div>
+    <table class="t step fade" style="font-size:17px">
+      <tr><th>რა გავაკეთეთ</th><th>State</th><th>SaveChanges →</th></tr>
+      <tr><td class="mono">Add(item)</td><td class="mono c-mvc">Added</td><td class="mono">INSERT</td></tr>
+      <tr><td class="mono">Find / ToList</td><td class="mono">Unchanged</td><td>არაფერი</td></tr>
+      <tr><td>property შეცვლა</td><td class="mono c-asp">Modified</td><td class="mono">UPDATE</td></tr>
+      <tr><td class="mono">Remove(item)</td><td class="mono c-red">Deleted</td><td class="mono">DELETE</td></tr>
+    </table>
+  </div>
+  <aside class="study">
+### ყოველ ობიექტს მდგომარეობა (State) აქვს
+
+`db.Entry(item).State` გვაჩვენებს, რას ფიქრობს Change Tracker ამ ობიექტზე:
+
+```csharp Program.cs
+var item = db.TodoItems.Find(3);
+if (item is null) return;
+
+Console.WriteLine(db.Entry(item).State);   // Unchanged
+
+item.Title = "პურის ყიდვა";
+Console.WriteLine(db.Entry(item).State);   // Modified
+
+db.SaveChanges();
+Console.WriteLine(db.Entry(item).State);   // Unchanged
+```
+
+`SaveChanges`-ის შემდეგ ობიექტი ისევ `Unchanged`-ია: ბაზა და ობიექტი ისევ ერთნაირია, ახალი „ფოტო“ გადაიღო.
+
+| რა გავაკეთეთ | State | `SaveChanges` აგზავნის |
+|---|---|---|
+| `Add(item)` | `Added` | `INSERT` |
+| `Find` / `ToList` | `Unchanged` | არაფერს |
+| property-ს შეცვლა | `Modified` | `UPDATE` |
+| `Remove(item)` | `Deleted` | `DELETE` |
+
+ეს ცხრილი მთელი CRUD-ის საიდუმლოა: `Add` და `Remove` ბაზას **არ ეხება** — მხოლოდ მდგომარეობას ცვლის. ბაზაში ყველაფერს ერთად `SaveChanges` აგზავნის.
+  </aside>
+</section>
+<section class="slide" data-section="3 · განახლება და წაშლა">
+  <div class="kicker">D · Delete</div>
+  <h2>წაშლა — იპოვე → <span class="c-red">Remove</span> → SaveChanges</h2>
+  <div class="grid2" style="grid-template-columns:1.05fr 1fr;align-items:start;gap:30px">
+    <code-block id="dl" lang="csharp" cls="big" title="Program.cs">
+using var db = new DataContext();
+
+var item = db.TodoItems.Find(4);
+if (item is null) return;
+
+db.TodoItems.Remove(item);
+db.SaveChanges();
+    </code-block>
+    <div class="col" style="gap:14px">
+      <i class="codestep" data-for="dl" data-lines="3-4"></i>
+      <div class="callout step" data-with style="--a:var(--api);font-size:19px"><b>1. იპოვე</b> — წასაშლელი ობიექტი გვჭირდება</div>
+      <i class="codestep" data-for="dl" data-lines="6"></i>
+      <div class="callout step" data-with style="--a:var(--red);font-size:19px"><b>2. Remove</b> — მხოლოდ <b>მონიშნავს</b> (Deleted), ბაზას ჯერ არ ეხება</div>
+      <i class="codestep" data-for="dl" data-lines="7"></i>
+      <div class="col step" data-with style="gap:10px">
+        <div class="callout" style="--a:var(--asp);font-size:19px"><b>3. SaveChanges</b> — ახლა მიდის:</div>
+        <div class="sqlbox"><span class="k">DELETE FROM</span> TodoItems
+<span class="k">WHERE</span> Id = 4</div>
+      </div>
+      <div class="callout step" style="--a:var(--red);font-size:18px">⚠ ბაზაში <b>Ctrl+Z არ არის</b>. მენიუში ჯობს ჰკითხო: „დარწმუნებული ხარ? (y/n)“</div>
+    </div>
+  </div>
+  <aside class="study">
+### წაშლა: იპოვე → Remove → SaveChanges
+
+```csharp Program.cs
+using var db = new DataContext();
+
+var item = db.TodoItems.Find(4);
+if (item is null) return;
+
+db.TodoItems.Remove(item);
+db.SaveChanges();
+```
+
+1. **იპოვე** — `Remove`-ს ობიექტი სჭირდება.
+2. **`Remove(item)`** — ობიექტს მონიშნავს როგორც `Deleted`. ბაზას ჯერ არ ეხება — ზუსტად ისე, როგორც `Add`.
+3. **`SaveChanges()`** — ახლა მიდის:
+
+```sql
+DELETE FROM TodoItems
+WHERE Id = 4
+```
+
+```warn
+ბაზაში წაშლილს Ctrl+Z არ აქვს. ნამდვილ პროგრამებში წაშლამდე მომხმარებელს ეკითხებიან: „დარწმუნებული ხარ? (y/n)“. ზოგი პროგრამა საერთოდ არ შლის — მხოლოდ მონიშნავს (`IsDeleted = true`) და სიაში აღარ აჩვენებს. ამას „soft delete“ ჰქვია.
+```
+  </aside>
+</section>
+<section class="slide" data-section="3 · განახლება და წაშლა">
+  <div class="kicker">EF Core 7+ · ბევრი ჩანაწერი ერთად</div>
+  <h2><span class="c-core">ExecuteUpdate</span> და <span class="c-red">ExecuteDelete</span></h2>
+  <div class="grid2" style="gap:30px;align-items:start">
+    <div class="card accent step left" style="--a:var(--asp)"><h3><span class="ico">🐢</span>„წაშალე ყველა შესრულებული“ — Remove-ით</h3>
+      <code-block lang="csharp" cls="sm">
+var done = db.TodoItems
+    .Where(t => t.IsDone)
+    .ToList();
+
+foreach (var t in done)
+    db.TodoItems.Remove(t);
+
+db.SaveChanges();
+      </code-block>
+      <p class="small" style="margin-top:12px">ჯერ <b>ყველას წაიკითხავს</b>, მერე თითოეულზე DELETE</p>
+    </div>
+    <div class="card accent step right" style="--a:var(--mvc)"><h3><span class="ico">⚡</span>ერთი ბრძანება</h3>
+      <code-block lang="csharp" cls="sm">
+db.TodoItems
+    .Where(t => t.IsDone)
+    .ExecuteDelete();
+      </code-block>
+      <div class="sqlbox" style="margin:10px 0 16px"><span class="k">DELETE FROM</span> TodoItems <span class="k">WHERE</span> IsDone = 1</div>
+      <code-block lang="csharp" cls="sm">
+db.TodoItems
+    .Where(t => !t.IsDone)
+    .ExecuteUpdate(s => s.SetProperty(t => t.IsDone, true));
+      </code-block>
+    </div>
+  </div>
+  <div class="callout step mt" style="--a:var(--red);font-size:20px">⚠ <b>SaveChanges არ სჭირდება</b> — მაშინვე ბაზაში სრულდება. Change Tracker-ს გვერდს უვლის</div>
+  <aside class="study">
+### ExecuteUpdate და ExecuteDelete — ბევრი ჩანაწერი ერთად
+
+ამოცანა: „წაშალე ყველა შესრულებული დავალება“. რაც ვიცით, იმით ასე გამოვა:
+
+```csharp 🐢 Remove-ით
+var done = db.TodoItems
+    .Where(t => t.IsDone)
+    .ToList();
+
+foreach (var t in done)
+    db.TodoItems.Remove(t);
+
+db.SaveChanges();
+```
+
+მუშაობს, მაგრამ EF Core ჯერ **ყველა** შესრულებულ დავალებას წაიკითხავს და მეხსიერებაში ჩატვირთავს, მერე კი თითოეულზე ცალკე `DELETE`-ს გაგზავნის. 10 000 ჩანაწერზე ეს ნელია.
+
+EF Core 7-დან არსებობს ერთი ბრძანება:
+
+```csharp ⚡ ExecuteDelete
+db.TodoItems
+    .Where(t => t.IsDone)
+    .ExecuteDelete();
+```
+
+```sql
+DELETE FROM TodoItems WHERE IsDone = 1
+```
+
+და განახლებისთვის — „ყველა მონიშნე შესრულებულად“:
+
+```csharp ⚡ ExecuteUpdate
+db.TodoItems
+    .Where(t => !t.IsDone)
+    .ExecuteUpdate(s => s.SetProperty(t => t.IsDone, true));
+```
+
+```sql
+UPDATE TodoItems SET IsDone = 1 WHERE IsDone = 0
+```
+
+ორივე აბრუნებს `int`-ს — რამდენი რიგი შეიცვალა.
+
+```warn
+`ExecuteDelete` და `ExecuteUpdate` **მაშინვე** სრულდება — `SaveChanges` არ სჭირდებათ და Change Tracker-ს გვერდს უვლიან. თუ იმავე ჩანაწერები DataContext-ს უკვე წაკითხული ჰქონდა, მეხსიერებაში ძველი მნიშვნელობები დარჩება. ერთი ჩანაწერისთვის ჩვეულებრივი გზა გამოიყენე (იპოვე → შეცვალე → SaveChanges), ბევრისთვის — Execute*.
+```
+  </aside>
+</section>
+<section class="slide" data-section="3 · განახლება და წაშლა">
+  <div class="kicker">შევაჯამოთ</div>
+  <h2>CRUD EF Core-ში — <span class="c-core">სრულად</span></h2>
+  <table class="t" style="font-size:19px;margin-top:10px">
+    <tr><th style="width:15%">ოპერაცია</th><th style="width:38%">EF Core</th><th style="width:20%">SQL</th><th>SaveChanges?</th></tr>
+    <tr class="step fade"><td class="c-mvc">Create</td><td class="mono">Add(item)</td><td class="mono">INSERT</td><td>✅ საჭიროა</td></tr>
+    <tr class="step fade"><td class="c-api">Read</td><td class="mono">ToList · Find · FirstOrDefault · Where · Count</td><td class="mono">SELECT</td><td>— არ სჭირდება</td></tr>
+    <tr class="step fade"><td class="c-asp">Update</td><td>იპოვე → <b>property შეცვალე</b></td><td class="mono">UPDATE</td><td>✅ საჭიროა</td></tr>
+    <tr class="step fade"><td class="c-red">Delete</td><td>იპოვე → <span class="mono">Remove(item)</span></td><td class="mono">DELETE</td><td>✅ საჭიროა</td></tr>
+    <tr class="step fade"><td style="color:var(--muted)">ბევრი ერთად</td><td class="mono">ExecuteUpdate · ExecuteDelete</td><td class="mono">UPDATE · DELETE</td><td>⚡ მაშინვე</td></tr>
+  </table>
+  <div class="callout step mt" style="--a:var(--core)">Update და Delete ერთნაირად იწყება: <b>იპოვე → შეამოწმე null</b>. ეს ორი ხაზი ყველგან მეორდება… 👀</div>
+  <aside class="study">
+### CRUD EF Core-ში — სრულად
+
+| ოპერაცია | EF Core | SQL | SaveChanges? |
+|---|---|---|---|
+| **Create** | `Add(item)` | `INSERT` | ✅ საჭიროა |
+| **Read** | `ToList` · `Find` · `FirstOrDefault` · `Where` · `Count` | `SELECT` | — არ სჭირდება |
+| **Update** | იპოვე → property შეცვალე | `UPDATE` | ✅ საჭიროა |
+| **Delete** | იპოვე → `Remove(item)` | `DELETE` | ✅ საჭიროა |
+| ბევრი ერთად | `ExecuteUpdate` · `ExecuteDelete` | `UPDATE` · `DELETE` | ⚡ მაშინვე, მის გარეშე |
+
+რამდენიმე ცვლილება შეგიძლია ერთად დააგროვო და ბოლოს **ერთი** `SaveChanges` გამოიძახო — EF Core ყველაფერს ერთად გაგზავნის, ერთ ტრანზაქციაში: ან ყველა ცვლილება შესრულდება, ან არცერთი.
+
+Update და Delete ერთნაირად იწყება: **იპოვე → შეამოწმე `null`**. ეს ხაზები პროგრამაში ყველგან განმეორდება — და აქ ჩნდება შემდეგი პრობლემა.
+  </aside>
+</section>
+<section class="slide" data-section="შესვენება">
+  <div class="center">
+    <div class="big-emoji in" style="font-size:120px">☕</div>
+    <h1 class="in" style="--d:.15s">10 წუთი</h1>
+    <p class="lead in" style="--d:.3s">შემდეგ: კოდს ვალაგებთ — <b class="c-net">სერვისი</b> და <b class="c-core">მენიუ</b></p>
+  </div>
+</section>
+
+<!-- ============ PART 4 · SERVICE ============ -->
+<section class="slide divider" data-section="4 · სერვისი">
+  <div class="vcenter">
+    <div class="kicker in">ნაწილი 4</div>
+    <h1 class="in" style="--d:.1s">კოდი <span class="grad">თავის ადგილზე</span></h1>
+    <p class="lead mt in" style="--d:.3s">Services ფოლდერი და სერვისის კლასი</p>
+  </div>
+  <div class="big-num">04</div>
+  <aside class="study">
+## ნაწილი 4 · კოდი თავის ადგილზე
+
+CRUD ვიცით. მაგრამ თუ ყველაფერს Program.cs-ში დავწერთ, რა მოხდება?
+  </aside>
+</section>
+<section class="slide" data-section="4 · სერვისი">
+  <div class="kicker">პრობლემა</div>
+  <h2>Program.cs <span class="c-red">იზრდება…</span></h2>
+  <div class="grid2" style="grid-template-columns:1.25fr 1fr;align-items:start;gap:30px">
+    <code-block id="mess" lang="csharp" cls="xs" title="Program.cs · 40 ხაზიდან 300-მდე">
+using var db = new DataContext();
+
+Console.Write("Id: ");
+var id = int.Parse(Console.ReadLine()!);
+var item = db.TodoItems.Find(id);
+if (item is null) Console.WriteLine("ვერ მოიძებნა");
+else
+{
+    item.IsDone = true;
+    db.SaveChanges();
+    Console.WriteLine("✓ შესრულდა");
+}
+
+Console.Write("წასაშლელი Id: ");
+var delId = int.Parse(Console.ReadLine()!);
+var toDelete = db.TodoItems.Find(delId);
+if (toDelete is null) Console.WriteLine("ვერ მოიძებნა");
+else
+{
+    db.TodoItems.Remove(toDelete);
+    db.SaveChanges();
+    Console.WriteLine("✓ წაიშალა");
+}
+// … სახელის შეცვლა, ძებნა, სია, დამატება …
+    </code-block>
+    <div class="col" style="gap:14px">
+      <i class="codestep" data-for="mess" data-lines="3-4,11"></i>
+      <div class="problem step" data-with style="font-size:19px">🍲 <b>Console</b> და <b>ბაზა</b> ერთ ქვაბშია: ReadLine, Find, SaveChanges, WriteLine — ერთმანეთში</div>
+      <i class="codestep" data-for="mess" data-lines="5-6,16-17"></i>
+      <div class="problem step" data-with style="font-size:19px">🔁 „იპოვე + შეამოწმე null“ — <b>ორჯერ</b>, მერე სამჯერ, ოთხჯერ…</div>
+      <i class="codestep" data-for="mess" data-lines="all"></i>
+      <div class="problem step" data-with style="font-size:19px">🔎 „სად წერია წაშლა?“ — მთელ ფაილს <b>ეძებ</b>. შეცვლა გინდა? — <b>ყველგან</b> ხელით</div>
+    </div>
+  </div>
+  <aside class="study">
+### პრობლემა: Program.cs იზრდება
+
+მენიუს ყოველი პუნქტი Program.cs-ში რომ დავწეროთ, ასეთი რამ გამოვა:
+
+```csharp Program.cs
+using var db = new DataContext();
+
+Console.Write("Id: ");
+var id = int.Parse(Console.ReadLine()!);
+var item = db.TodoItems.Find(id);
+if (item is null) Console.WriteLine("ვერ მოიძებნა");
+else
+{
+    item.IsDone = true;
+    db.SaveChanges();
+    Console.WriteLine("✓ შესრულდა");
+}
+
+Console.Write("წასაშლელი Id: ");
+var delId = int.Parse(Console.ReadLine()!);
+var toDelete = db.TodoItems.Find(delId);
+if (toDelete is null) Console.WriteLine("ვერ მოიძებნა");
+else
+{
+    db.TodoItems.Remove(toDelete);
+    db.SaveChanges();
+    Console.WriteLine("✓ წაიშალა");
+}
+// … სახელის შეცვლა, ძებნა, სია, დამატება …
+```
+
+მუშაობს. მაგრამ სამი პრობლემა აქვს:
+
+- 🍲 **ყველაფერი ერთმანეთშია.** ეკრანთან მუშაობა (`ReadLine`, `WriteLine`) და ბაზასთან მუშაობა (`Find`, `SaveChanges`) ერთ ადგილას წერია.
+- 🔁 **გამეორება.** „იპოვე + შეამოწმე null“ ყოველ პუნქტში თავიდან იწერება.
+- 🔎 **ძებნა და ცვლილება.** 300 ხაზში „სად წერია წაშლა?“ — უნდა ეძებო. თუ წაშლის წესი შეიცვალა (მაგალითად, soft delete), ყველა ადგილას ხელით უნდა შეცვალო.
+  </aside>
+</section>
+<section class="slide" data-section="4 · სერვისი">
+  <div class="kicker">გამოსავალი</div>
+  <h2>ბაზასთან ლაპარაკობს <span class="c-net">მხოლოდ სერვისი</span></h2>
+  <div class="grid2" style="grid-template-columns:.8fr 1.2fr;align-items:start;gap:36px">
+    <div class="mock step left"><div class="mh">Solution Explorer</div>
+      <div class="mb tree">
+        <span class="n"><i>📦</i>TodoDemo</span>
+        <span class="n lvl1"><i>📁</i>Migrations</span>
+        <span class="n lvl1 hi"><i>📁</i>Services <span class="tag" style="--a:var(--mvc);font-size:11px">NEW</span></span>
+        <span class="n lvl2 hi"><i>📄</i>TodoService.cs</span>
+        <span class="n lvl1"><i>📄</i>DataContext.cs</span>
+        <span class="n lvl1"><i>📄</i>TodoItem.cs</span>
+        <span class="n lvl1"><i>📄</i>Program.cs</span>
+      </div></div>
+    <div class="col" style="gap:16px">
+      <div class="card accent step right" style="--a:var(--core)"><h3><span class="ico">🖥️</span>Program.cs — ეკრანი</h3><p class="small">კითხულობს და ბეჭდავს: <code class="i">ReadLine</code>, <code class="i">WriteLine</code>, მენიუ. <b>ბაზა არ იცის</b> — <code class="i">db.</code> არსად წერია</p></div>
+      <div class="card accent step right" style="--a:var(--net)"><h3><span class="ico">⚙️</span>TodoService — მონაცემები</h3><p class="small"><code class="i">Find</code>, <code class="i">Add</code>, <code class="i">Remove</code>, <code class="i">SaveChanges</code>. <b>Console არ იცის</b> — არაფერს ბეჭდავს</p></div>
+    </div>
+  </div>
+  <div class="solve step mt">ერთი ოპერაცია — <b>ერთი მეთოდი</b>, ერთ ადგილას. „სად წერია წაშლა?“ → <code class="i">TodoService.Delete</code></div>
+  <aside class="study">
+### გამოსავალი: Services ფოლდერი
+
+პროექტში ვქმნით ფოლდერს **Services** და მასში კლასს **TodoService**. ახლა ყველას თავისი საქმე აქვს:
+
+| ფაილი | რას აკეთებს | რა არ იცის |
+|---|---|---|
+| 🖥️ **Program.cs** | ეკრანი: კითხულობს (`ReadLine`), ბეჭდავს (`WriteLine`), აჩვენებს მენიუს | ბაზა — `db.` არსად წერია |
+| ⚙️ **TodoService** | მონაცემები: `Find`, `Add`, `Remove`, `SaveChanges` | Console — არაფერს ბეჭდავს და არაფერს კითხულობს |
+
+რას ვიგებთ:
+
+- **ერთი ოპერაცია — ერთი მეთოდი.** „სად წერია წაშლა?“ → `TodoService.Delete`. მეტს არსად.
+- **გამეორება ქრება.** „იპოვე + შეამოწმე null“ ერთხელ იწერება სერვისში.
+- **სერვისი სხვაგანაც გამოდგება.** დღეს მას კონსოლის მენიუ იძახებს. ხვალ შეიძლება ვებ-გვერდმა ან API-მ გამოიძახოს — სერვისი არ შეიცვლება, რადგან Console-ზე არ არის მიბმული.
+
+```terms
+სერვისი (Service) — კლასი, რომელიც ერთ თემაზე (აქ — დავალებებზე) ყველა ოპერაციას ერთ ადგილას აგროვებს. ეკრანთან არ მუშაობს
+```
+  </aside>
+</section>
+<section class="slide" data-section="4 · სერვისი">
+  <div class="kicker">Services/TodoService.cs · 1/2</div>
+  <h2>სერვისი — <span class="c-api">წაკითხვა</span> და <span class="c-mvc">დამატება</span></h2>
+  <div class="grid2" style="grid-template-columns:1.2fr 1fr;align-items:start;gap:30px">
+    <code-block id="sv1" lang="csharp" cls="xs" title="Services/TodoService.cs">
+namespace TodoDemo.Services;
+
+public class TodoService
+{
+    private readonly DataContext _db = new DataContext();
+
+    public List<TodoItem> GetAll()
+    {
+        return _db.TodoItems
+            .OrderBy(t => t.IsDone)
+            .ThenBy(t => t.Id)
+            .ToList();
+    }
+
+    public TodoItem? GetById(int id)
+    {
+        return _db.TodoItems.Find(id);
+    }
+
+    public TodoItem Add(string title)
+    {
+        var item = new TodoItem { Title = title, CreatedAt = DateTime.Now };
+        _db.TodoItems.Add(item);
+        _db.SaveChanges();
+        return item;
+    }
+    </code-block>
+    <div class="col" style="gap:14px">
+      <i class="codestep" data-for="sv1" data-lines="1"></i>
+      <div class="callout step" data-with style="--a:var(--muted);font-size:18px"><b>namespace TodoDemo.Services</b> — ფოლდერის სახელი namespace-შიც</div>
+      <i class="codestep" data-for="sv1" data-lines="5"></i>
+      <div class="callout step" data-with style="--a:var(--core);font-size:18px"><b>_db</b> — ერთი DataContext მთელი სერვისისთვის. ყოველ მეთოდში <code class="i">new</code> აღარ გვჭირდება</div>
+      <i class="codestep" data-for="sv1" data-lines="7-13"></i>
+      <div class="callout step" data-with style="--a:var(--api);font-size:18px"><b>GetAll</b> — შეუსრულებლები ზემოთ, მერე Id-ით</div>
+      <i class="codestep" data-for="sv1" data-lines="15-18"></i>
+      <div class="callout step" data-with style="--a:var(--api);font-size:18px"><b>TodoItem?</b> — შეიძლება null. შემოწმება — ვინც იძახებს</div>
+      <i class="codestep" data-for="sv1" data-lines="20-26"></i>
+      <div class="callout step" data-with style="--a:var(--mvc);font-size:18px"><b>return item</b> — <code class="i">SaveChanges</code>-ის შემდეგ <b>Id უკვე შევსებულია</b>: ბაზამ მისცა</div>
+    </div>
+  </div>
+  <aside class="study">
+### TodoService — წაკითხვა და დამატება
+
+```csharp Services/TodoService.cs
+namespace TodoDemo.Services;
+
+public class TodoService
+{
+    private readonly DataContext _db = new DataContext();
+
+    public List<TodoItem> GetAll()
+    {
+        return _db.TodoItems
+            .OrderBy(t => t.IsDone)
+            .ThenBy(t => t.Id)
+            .ToList();
+    }
+
+    public TodoItem? GetById(int id)
+    {
+        return _db.TodoItems.Find(id);
+    }
+
+    public TodoItem Add(string title)
+    {
+        var item = new TodoItem { Title = title, CreatedAt = DateTime.Now };
+        _db.TodoItems.Add(item);
+        _db.SaveChanges();
+        return item;
+    }
+
+    // MarkDone, Rename, Delete — შემდეგ სლაიდზე
+}
+```
+
+- **`namespace TodoDemo.Services`** — Visual Studio ფოლდერის სახელს namespace-ში თვითონ ამატებს. `TodoItem` და `DataContext` `TodoDemo`-შია — „მშობელ“ namespace-ს `using` არ სჭირდება.
+- **`private readonly DataContext _db`** — ერთი DataContext მთელი სერვისისთვის. ყოველ მეთოდში `using var db = new …` აღარ ვწერთ. `readonly` — ველს მხოლოდ ერთხელ ვანიჭებთ.
+- **`GetAll`** — `OrderBy(t => t.IsDone)`: `false` (0) პირველია, ამიტომ შეუსრულებლები ზემოთ ჩანს. `ThenBy` — მეორე დალაგება, თუ პირველში ტოლია.
+- **`GetById`** — `TodoItem?`: სერვისი `null`-ს აბრუნებს, თუ ვერ იპოვა. რა დაიწეროს ეკრანზე, ამას სერვისი არ წყვეტს.
+- **`Add`** — `CreatedAt`-ს სერვისი ავსებს, არა მომხმარებელი. და მნიშვნელოვანი: **`SaveChanges`-ის შემდეგ `item.Id` უკვე შევსებულია** — ბაზამ IDENTITY-ით მისცა, EF Core-მა კი ობიექტში ჩაწერა. ამიტომ ვაბრუნებთ `item`-ს — მენიუ დაწერს „დაემატა, Id = 5“.
+  </aside>
+</section>
+<section class="slide" data-section="4 · სერვისი">
+  <div class="kicker">Services/TodoService.cs · 2/2</div>
+  <h2>სერვისი — <span class="c-asp">განახლება</span> და <span class="c-red">წაშლა</span></h2>
+  <div class="grid2" style="grid-template-columns:1.2fr 1fr;align-items:start;gap:30px">
+    <code-block id="sv2" lang="csharp" cls="xs" title="Services/TodoService.cs · გაგრძელება">
+    public bool MarkDone(int id)
+    {
+        var item = GetById(id);
+        if (item is null) return false;
+
+        item.IsDone = true;
+        _db.SaveChanges();
+        return true;
+    }
+
+    // Rename — იგივე ნიმუში: item.Title = newTitle;
+
+    public bool Delete(int id)
+    {
+        var item = GetById(id);
+        if (item is null) return false;
+
+        _db.TodoItems.Remove(item);
+        _db.SaveChanges();
+        return true;
+    }
+}
+    </code-block>
+    <div class="col" style="gap:14px">
+      <i class="codestep" data-for="sv2" data-lines="1"></i>
+      <div class="callout step" data-with style="--a:var(--asp);font-size:18px"><b>bool</b> — „იპოვა თუ არა“. <code class="i">false</code> → არ არსებობს</div>
+      <i class="codestep" data-for="sv2" data-lines="3-4"></i>
+      <div class="callout step" data-with style="--a:var(--api);font-size:18px"><b>GetById</b> — ძებნა ერთ ადგილას, აქაც ვიყენებთ</div>
+      <i class="codestep" data-for="sv2" data-lines="6-8"></i>
+      <div class="callout step" data-with style="--a:var(--net);font-size:18px">იპოვე → შეცვალე → <b>SaveChanges</b> — ნაცნობი სამი ნაბიჯი</div>
+      <i class="codestep" data-for="sv2" data-lines="13-21"></i>
+      <div class="callout step" data-with style="--a:var(--red);font-size:18px"><b>Delete</b> — იპოვე → Remove → SaveChanges</div>
+      <div class="solve step" style="font-size:19px">სერვისი <b>არაფერს ბეჭდავს</b>. რა დაიწეროს — „შესრულდა“ თუ „ვერ მოიძებნა“ — <b>მენიუ წყვეტს</b></div>
+    </div>
+  </div>
+  <aside class="study">
+### TodoService — განახლება და წაშლა
+
+```csharp Services/TodoService.cs · გაგრძელება
+    public bool MarkDone(int id)
+    {
+        var item = GetById(id);
+        if (item is null) return false;
+
+        item.IsDone = true;
+        _db.SaveChanges();
+        return true;
+    }
+
+    public bool Rename(int id, string newTitle)
+    {
+        var item = GetById(id);
+        if (item is null) return false;
+
+        item.Title = newTitle;
+        _db.SaveChanges();
+        return true;
+    }
+
+    public bool Delete(int id)
+    {
+        var item = GetById(id);
+        if (item is null) return false;
+
+        _db.TodoItems.Remove(item);
+        _db.SaveChanges();
+        return true;
+    }
+}
+```
+
+- **`bool`** — მეთოდი გვეუბნება, გამოვიდა თუ არა: `false` ნიშნავს, რომ ასეთი Id არ არსებობს.
+- **`GetById`**-ს სერვისის შიგნითაც ვიყენებთ — ძებნა ერთ ადგილას წერია.
+- ყველა მეთოდი ნაცნობ ნიმუშს მისდევს: **იპოვე → შეამოწმე null → შეცვალე / Remove → SaveChanges**.
+- სერვისი **არაფერს ბეჭდავს**. „✓ შესრულდა“ თუ „✗ ვერ მოიძებნა“ — ამას მენიუ წყვეტს, `bool`-ის მიხედვით.
+
+```prompt სერვისის შემოწმება
+ვსწავლობ EF Core-ს Console App-ში. დავწერე სერვისის კლასი: [ჩასვი კოდი]
+შეამოწმე: სწორად ვამოწმებ null-ს? სადმე SaveChanges ხომ არ მაკლია? Console ხომ არ შემეპარა სერვისში? რას გააუმჯობესებდი? ქართულად, მარტივად.
+```
+  </aside>
+</section>
+
+<!-- ============ PART 5 · MENU ============ -->
+<section class="slide divider" data-section="5 · მენიუ">
+  <div class="vcenter">
+    <div class="kicker in">ნაწილი 5</div>
+    <h1 class="in" style="--d:.1s">პროგრამა, რომელიც<br><span class="grad">გელაპარაკება</span></h1>
+    <p class="lead mt in" style="--d:.3s">კონსოლის მენიუ, რომელიც სერვისს იძახებს</p>
+  </div>
+  <div class="big-num">05</div>
+  <aside class="study">
+## ნაწილი 5 · პროგრამა, რომელიც გელაპარაკება
+
+სერვისი მზადაა. ახლა Program.cs-ში ვაწყობთ მენიუს: მომხმარებელი ირჩევს პუნქტს, მენიუ სერვისის შესაბამის მეთოდს იძახებს.
+  </aside>
+</section>
+<section class="slide" data-section="5 · მენიუ">
+  <div class="kicker">რას ვაწყობთ</div>
+  <h2>ასე გამოიყურება — <span class="c-core">ციკლი</span>, სანამ 0-ს არ აირჩევ</h2>
+  <div class="grid2" style="grid-template-columns:1.25fr 1fr;align-items:start;gap:36px">
+    <div class="term in" style="--d:.2s"><div class="bar"><i></i><i></i><i></i><span>TodoDemo</span></div>
+      <div class="body" style="font-size:17px">
+        <div class="dim">1.სია 2.დამატება 3.შესრულება 4.გადარქმევა 5.წაშლა 0.გასვლა</div>
+        <div class="step fade">არჩევანი: <span class="inp">2</span><br>სათაური: <span class="inp">ფიზიკის ამოცანები</span><br><span class="ok">✓ დაემატა, Id = 5</span></div>
+        <div class="step fade" style="margin-top:8px">არჩევანი: <span class="inp">3</span><br>Id: <span class="inp">5</span><br><span class="ok">✓ შესრულდა</span></div>
+        <div class="step fade" style="margin-top:8px">არჩევანი: <span class="inp">5</span><br>Id: <span class="inp">42</span><br><span class="bad">✗ ვერ მოიძებნა</span></div>
+        <div class="step fade" style="margin-top:8px">არჩევანი: <span class="inp">1</span><br>2. [ ] საშინაოს დაწერა<br>3. [ ] პურის ყიდვა<br>1. [<span class="ok">✓</span>] ლექციის გამეორება<br>5. [<span class="ok">✓</span>] ფიზიკის ამოცანები</div>
+      </div></div>
+    <div class="col" style="gap:14px">
+      <div class="callout step" style="--a:var(--core);font-size:19px"><b>while (true)</b> — მენიუ ისევ და ისევ ჩნდება</div>
+      <div class="callout step" style="--a:var(--net);font-size:19px"><b>switch</b> — არჩევანი → ერთი მოქმედება</div>
+      <div class="callout step" style="--a:var(--mvc);font-size:19px">თითო პუნქტი — სერვისის <b>ერთი მეთოდი</b></div>
+      <div class="callout step" style="--a:var(--red);font-size:19px">Id 42 არ არსებობს — პროგრამა <b>არ ვარდება</b>, უბრალოდ გეუბნება</div>
+    </div>
+  </div>
+  <aside class="study">
+### მენიუ — როგორ გამოიყურება
+
+```plain TodoDemo
+1.სია 2.დამატება 3.შესრულება 4.გადარქმევა 5.წაშლა 0.გასვლა
+არჩევანი: 2
+სათაური: ფიზიკის ამოცანები
+✓ დაემატა, Id = 5
+არჩევანი: 3
+Id: 5
+✓ შესრულდა
+არჩევანი: 5
+Id: 42
+✗ ვერ მოიძებნა
+არჩევანი: 1
+2. [ ] საშინაოს დაწერა
+3. [ ] პურის ყიდვა
+1. [✓] ლექციის გამეორება
+5. [✓] ფიზიკის ამოცანები
+```
+
+- **`while (true)`** — მენიუ ისევ და ისევ ჩნდება, სანამ `0`-ს არ აირჩევ.
+- **`switch`** — არჩევანის მიხედვით ერთ მოქმედებას ასრულებს.
+- თითო პუნქტი სერვისის **ერთ მეთოდს** იძახებს.
+- Id 42 არ არსებობს — პროგრამა არ ვარდება, უბრალოდ გეუბნება. ამაზე სერვისის `bool` ზრუნავს.
+- სიაში შეუსრულებლები ზემოთაა — `GetAll`-ის `OrderBy` მუშაობს.
+  </aside>
+</section>
+<section class="slide" data-section="5 · მენიუ">
+  <div class="kicker">Program.cs · 1/2 · ციკლი</div>
+  <h2>while + switch</h2>
+  <div class="grid2" style="grid-template-columns:1.35fr 1fr;align-items:start;gap:30px">
+    <code-block id="mn1" lang="csharp" cls="xs" title="Program.cs">
+using TodoDemo.Services;
+
+Console.OutputEncoding = System.Text.Encoding.UTF8;
+Console.InputEncoding = System.Text.Encoding.Unicode;
+
+var service = new TodoService();
+
+while (true)
+{
+    Console.WriteLine("\n1.სია 2.დამატება 3.შესრულება 4.გადარქმევა 5.წაშლა 0.გასვლა");
+    Console.Write("არჩევანი: ");
+
+    switch (Console.ReadLine())
+    {
+        case "1": ShowAll(); break;
+        case "2": AddItem(); break;
+        case "3": MarkDone(); break;
+        case "4": Rename(); break;
+        case "5": DeleteItem(); break;
+        case "0": return;
+        default: Console.WriteLine("არასწორი არჩევანი"); break;
+    }
+}
+    </code-block>
+    <div class="col" style="gap:14px">
+      <i class="codestep" data-for="mn1" data-lines="1"></i>
+      <div class="callout step" data-with style="--a:var(--muted);font-size:18px"><b>using TodoDemo.Services</b> — სერვისი სხვა namespace-შია</div>
+      <i class="codestep" data-for="mn1" data-lines="4"></i>
+      <div class="callout step" data-with style="--a:var(--muted);font-size:18px"><b>InputEncoding</b> — რომ ქართულად აკრეფილი ბაზაში <b>???</b>-ად არ ჩაიწეროს</div>
+      <i class="codestep" data-for="mn1" data-lines="6"></i>
+      <div class="callout step" data-with style="--a:var(--net);font-size:18px"><b>ერთი სერვისი</b> მთელი პროგრამისთვის</div>
+      <i class="codestep" data-for="mn1" data-lines="8-23"></i>
+      <div class="callout step" data-with style="--a:var(--core);font-size:18px"><b>while (true)</b> + <b>switch</b> — თითო პუნქტი, თითო ფუნქცია</div>
+      <i class="codestep" data-for="mn1" data-lines="20"></i>
+      <div class="callout step" data-with style="--a:var(--red);font-size:18px"><b>return</b> — Program.cs-იდან გასვლა = პროგრამის დასრულება</div>
+    </div>
+  </div>
+  <aside class="study">
+### Program.cs — ციკლი
+
+```csharp Program.cs
+using TodoDemo.Services;
+
+Console.OutputEncoding = System.Text.Encoding.UTF8;
+Console.InputEncoding = System.Text.Encoding.Unicode;
+
+var service = new TodoService();
+
+while (true)
+{
+    Console.WriteLine("\n1.სია 2.დამატება 3.შესრულება 4.გადარქმევა 5.წაშლა 0.გასვლა");
+    Console.Write("არჩევანი: ");
+
+    switch (Console.ReadLine())
+    {
+        case "1": ShowAll(); break;
+        case "2": AddItem(); break;
+        case "3": MarkDone(); break;
+        case "4": Rename(); break;
+        case "5": DeleteItem(); break;
+        case "0": return;
+        default: Console.WriteLine("არასწორი არჩევანი"); break;
+    }
+}
+```
+
+- **`using TodoDemo.Services;`** — `TodoService` სხვა namespace-შია.
+- **`OutputEncoding` / `InputEncoding`** — პირველი ქართულს სწორად აჩვენებს, მეორე ქართულად აკრეფილს სწორად კითხულობს. მის გარეშე Windows-ის კონსოლში ქართული სათაური ბაზაში `???`-ად ჩაიწერება.
+- **`var service = new TodoService();`** — ერთი სერვისი მთელი პროგრამისთვის. Program.cs-ში `DataContext` არ ჩანს.
+- **`while (true)`** — უსასრულო ციკლი: მენიუ ისევ და ისევ ჩნდება.
+- **`switch (Console.ReadLine())`** — რაც აკრიფეს, ის შედარდება `case`-ებს. `default` — ყველაფერი დანარჩენი.
+- **`case "0": return;`** — Program.cs-ში `return` პროგრამას ასრულებს.
+
+`ShowAll`, `AddItem` და დანარჩენი — ჩვენი ფუნქციებია, შემდეგ სლაიდზე.
+  </aside>
+</section>
+<section class="slide" data-section="5 · მენიუ">
+  <div class="kicker">Program.cs · 2/2 · ფუნქციები ციკლის ქვემოთ</div>
+  <h2>თითო პუნქტი — <span class="c-net">სერვისის ერთი მეთოდი</span></h2>
+  <div class="grid2" style="grid-template-columns:1.35fr 1fr;align-items:start;gap:30px">
+    <code-block id="mn2" lang="csharp" cls="xs" title="Program.cs · გაგრძელება">
+void ShowAll()
+{
+    foreach (var t in service.GetAll())
+        Console.WriteLine($"{t.Id}. [{(t.IsDone ? "✓" : " ")}] {t.Title}");
+}
+
+void AddItem()
+{
+    Console.Write("სათაური: ");
+    var item = service.Add(Console.ReadLine() ?? "");
+    Console.WriteLine($"✓ დაემატა, Id = {item.Id}");
+}
+
+void MarkDone()
+{
+    var id = ReadId();
+    Console.WriteLine(service.MarkDone(id) ? "✓ შესრულდა" : "✗ ვერ მოიძებნა");
+}
+
+int ReadId()
+{
+    Console.Write("Id: ");
+    return int.TryParse(Console.ReadLine(), out var id) ? id : 0;
+}
+
+// Rename, DeleteItem — იმავე ნიმუშით
+    </code-block>
+    <div class="col" style="gap:14px">
+      <i class="codestep" data-for="mn2" data-lines="1-5"></i>
+      <div class="callout step" data-with style="--a:var(--api);font-size:18px"><b>ShowAll</b> — <code class="i">IsDone ? "✓" : " "</code> — ერთი ხაზით if/else</div>
+      <i class="codestep" data-for="mn2" data-lines="7-12"></i>
+      <div class="callout step" data-with style="--a:var(--mvc);font-size:18px"><b>AddItem</b> — სერვისმა დააბრუნა ობიექტი — <b>Id</b> უკვე აქვს</div>
+      <i class="codestep" data-for="mn2" data-lines="14-18"></i>
+      <div class="callout step" data-with style="--a:var(--asp);font-size:18px"><b>MarkDone</b> — <code class="i">bool</code> → რა დავწეროთ</div>
+      <i class="codestep" data-for="mn2" data-lines="20-24"></i>
+      <div class="callout step" data-with style="--a:var(--red);font-size:18px"><b>TryParse</b> — „აბც“-ზე არ ვარდება: 0 → „ვერ მოიძებნა“</div>
+    </div>
+  </div>
+  <aside class="study">
+### Program.cs — ფუნქციები
+
+Program.cs-ში (top-level statements) ფუნქციები შეგვიძლია ციკლის **ქვემოთ** დავწეროთ — C# მათ მაინც იპოვის. ისინი `service` ცვლადს ხედავენ.
+
+```csharp Program.cs · გაგრძელება
+void ShowAll()
+{
+    foreach (var t in service.GetAll())
+        Console.WriteLine($"{t.Id}. [{(t.IsDone ? "✓" : " ")}] {t.Title}");
+}
+
+void AddItem()
+{
+    Console.Write("სათაური: ");
+    var item = service.Add(Console.ReadLine() ?? "");
+    Console.WriteLine($"✓ დაემატა, Id = {item.Id}");
+}
+
+void MarkDone()
+{
+    var id = ReadId();
+    Console.WriteLine(service.MarkDone(id) ? "✓ შესრულდა" : "✗ ვერ მოიძებნა");
+}
+
+void Rename()
+{
+    var id = ReadId();
+    Console.Write("ახალი სათაური: ");
+    var title = Console.ReadLine() ?? "";
+    Console.WriteLine(service.Rename(id, title) ? "✓ შეიცვალა" : "✗ ვერ მოიძებნა");
+}
+
+void DeleteItem()
+{
+    var id = ReadId();
+    Console.WriteLine(service.Delete(id) ? "✓ წაიშალა" : "✗ ვერ მოიძებნა");
+}
+
+int ReadId()
+{
+    Console.Write("Id: ");
+    return int.TryParse(Console.ReadLine(), out var id) ? id : 0;
+}
+```
+
+- **`პირობა ? a : b`** (ternary) — ერთხაზიანი if/else: `t.IsDone ? "✓" : " "` → თუ შესრულებულია `✓`, თუ არა — ცარიელი.
+- **`Console.ReadLine() ?? ""`** — `ReadLine` შეიძლება `null` დააბრუნოს; `??` მაშინ ცარიელ სტრიქონს აიღებს.
+- **`int.TryParse`** — `int.Parse`-ისგან განსხვავებით, „აბც“-ზე **არ ვარდება**: აბრუნებს `false`-ს. ჩვენ მაშინ `0`-ს ვაბრუნებთ — ასეთი Id არ არსებობს, და სერვისი უბრალოდ `false`-ს დააბრუნებს → „ვერ მოიძებნა“.
+- ყველა ფუნქცია მოკლეა: **წაიკითხე → სერვისს გადაეცი → შედეგი დაბეჭდე**. Program.cs-ში არცერთი `db.` არ წერია.
+
+```prompt მენიუს გაუმჯობესება
+ვწერ კონსოლის მენიუს C#-ში (while + switch, top-level statements). აი ჩემი Program.cs: [ჩასვი კოდი]
+მირჩიე 3 გაუმჯობესება: მაგალითად, წაშლამდე დადასტურება (y/n), ცარიელი სათაურის აკრძალვა, Console.Clear-ის გამოყენება. თითოეული ჯერ ამიხსენი, მერე მაჩვენე კოდი. ქართულად.
+```
+  </aside>
+</section>
+<section class="slide" data-section="5 · მენიუ">
+  <div class="kicker">მთელი სურათი</div>
+  <h2>ვინ <span class="c-core">რას აკეთებს</span></h2>
+  <div class="flowrow" style="margin-top:20px">
+    <div class="layer step" style="--a:var(--core)"><div class="e">🖥️</div><div class="l">Program.cs</div><div class="s">მენიუ<br>ReadLine · WriteLine</div></div>
+    <div class="arr step" data-with>→</div>
+    <div class="layer step" style="--a:var(--net)"><div class="e">⚙️</div><div class="l">TodoService</div><div class="s">GetAll · Add · MarkDone<br>Rename · Delete</div></div>
+    <div class="arr step" data-with>→</div>
+    <div class="layer step" style="--a:var(--api)"><div class="e">🧩</div><div class="l">DataContext</div><div class="s">Change Tracker<br>LINQ → SQL</div></div>
+    <div class="arr step" data-with>→</div>
+    <div class="layer step" style="--a:var(--asp)"><div class="e">🗄️</div><div class="l">TodoDb</div><div class="s">SQL Server<br>ცხრილი TodoItems</div></div>
+  </div>
+  <div class="grid2 mt2" style="gap:24px">
+    <div class="callout step" style="--a:var(--core);font-size:20px">თითოეული მხოლოდ <b>მეზობელს</b> იცნობს: მენიუ — სერვისს, სერვისი — DataContext-ს</div>
+    <div class="callout step" style="--a:var(--mvc);font-size:20px">ხვალ მენიუს ადგილს <b>ვებ-გვერდი</b> ან <b>API</b> დაიკავებს — სერვისი <b>არ შეიცვლება</b></div>
+  </div>
+  <aside class="study">
+### მთელი სურათი: ვინ რას აკეთებს
+
+```plain
+Program.cs  →  TodoService  →  DataContext  →  TodoDb
+  მენიუ         მონაცემები      EF Core        SQL Server
+```
+
+| ნაწილი | საქმე |
+|---|---|
+| 🖥️ **Program.cs** | მენიუ: კითხულობს და ბეჭდავს |
+| ⚙️ **TodoService** | ოპერაციები დავალებებზე: GetAll, Add, MarkDone, Rename, Delete |
+| 🧩 **DataContext** | EF Core: Change Tracker, LINQ-ის SQL-ად თარგმნა |
+| 🗄️ **TodoDb** | SQL Server-ის ბაზა, ცხრილი TodoItems |
+
+თითოეული მხოლოდ თავის **მეზობელს** იცნობს: მენიუმ არ იცის, რომ ბაზა არსებობს; სერვისმა არ იცის, რომ კონსოლი არსებობს.
+
+ეს იმიტომაა მნიშვნელოვანი, რომ ნაწილები შეიძლება შეიცვალოს. ხვალ მენიუს ადგილს ვებ-გვერდი ან API დაიკავებს — `TodoService` იგივე დარჩება, უბრალოდ სხვა გამოიძახებს.
+  </aside>
+</section>
+
+<!-- ============ PART 6 · PRACTICE ============ -->
+<section class="slide divider" data-section="6 · პრაქტიკა">
+  <div class="vcenter">
+    <div class="kicker in">ნაწილი 6</div>
+    <h1 class="in" style="--d:.1s">ახლა <span class="grad">თქვენი ჯერია</span></h1>
+    <p class="lead mt in" style="--d:.3s">ჯერ ერთად, მერე დამოუკიდებლად</p>
+  </div>
+  <div class="big-num">06</div>
+  <aside class="study">
+## ნაწილი 6 · თქვენი ჯერია
+
+ჯერ ერთად ვამატებთ ახალ ფუნქციას TodoDemo-ში, მერე დამოუკიდებლად აწყობთ ახალ პროექტს.
+  </aside>
+</section>
+<section class="slide" data-section="6 · პრაქტიკა">
+  <div class="kicker">სამი რაუნდი</div>
+  <h2>მე → ერთად → თქვენ</h2>
+  <div class="grid3" style="margin-top:20px">
+    <div class="card accent phase in" style="--a:var(--muted);--d:.2s;opacity:.65"><div class="em">👨‍🏫</div><h3 style="justify-content:center">მე ვაკეთებ</h3><p class="small">თქვენ უყურებთ და იგებთ</p><p class="tt mt" style="margin-top:12px">TodoDemo · ✓ დასრულდა</p></div>
+    <div class="card accent phase step zoom" style="--a:var(--api)"><div class="em">👥</div><h3 style="justify-content:center">ერთად ვაკეთებთ</h3><p class="small">TodoDemo-ს ვამატებთ ძებნას</p><p class="tt mt" style="margin-top:12px">~10 წთ</p></div>
+    <div class="card accent phase step zoom" style="--a:var(--mvc)"><div class="em">🧑‍💻</div><h3 style="justify-content:center">თქვენ აკეთებთ</h3><p class="small">ახალი პროექტი, დამოუკიდებლად</p><p class="tt mt" style="margin-top:12px">ContactsDemo · ~25 წთ</p></div>
+  </div>
+  <div class="callout step mt2" style="--a:var(--asp)">წესი: <b>ჯერ ცდი თვითონ</b>, გაჭედე — გვერდით მჯდომს ჰკითხე, მერე — მე. შეცდომა ნორმალურია 🙂</div>
+  <aside class="study">
+### სამი რაუნდი: მე → ერთად → თქვენ
+
+| | ვინ | რა |
+|---|---|---|
+| 👨‍🏫 მე ვაკეთებ | თქვენ უყურებთ და იგებთ | TodoDemo · ✓ დასრულდა |
+| 👥 ერთად ვაკეთებთ | ნაბიჯ-ნაბიჯ, ერთ ტემპში | TodoDemo + ძებნა · ~10 წთ |
+| 🧑‍💻 თქვენ აკეთებთ | დამოუკიდებლად, ლექტორი ეხმარება | ContactsDemo · ~25 წთ |
+
+წესი: ჯერ ცდი თვითონ → გაჭედე — გვერდით მჯდომს ჰკითხე → მერე ლექტორს.
+  </aside>
+</section>
+<section class="slide" data-section="6 · პრაქტიკა">
+  <div class="kicker">👥 ერთად ვაკეთებთ</div>
+  <h2>TodoDemo-ს ახალი პუნქტი — <span class="c-api">ძებნა</span></h2>
+  <div class="grid2" style="grid-template-columns:1.1fr 1fr;align-items:start;gap:30px">
+    <div class="col" style="gap:14px">
+      <code-block lang="csharp" cls="sm" title="Services/TodoService.cs">
+public List<TodoItem> Search(string text)
+{
+    return _db.TodoItems
+        .Where(t => t.Title.Contains(text))
+        .ToList();
+}
+      </code-block>
+      <div class="sqlbox">… <span class="k">WHERE</span> Title <span class="k">LIKE</span> N'%ყიდვა%'</div>
+      <code-block lang="csharp" cls="sm" title="Program.cs">
+case "6": Search(); break;
+      </code-block>
+    </div>
+    <ul class="check" style="margin-top:0">
+      <li class="step">სერვისში — მეთოდი <code class="i">Search(string text)</code></li>
+      <li class="step"><code class="i">Contains</code> → SQL-ში <b>LIKE</b></li>
+      <li class="step">მენიუს ტექსტში — <b>6.ძებნა</b></li>
+      <li class="step"><code class="i">switch</code>-ში — <code class="i">case "6"</code></li>
+      <li class="step">ფუნქცია <code class="i">Search()</code>: წაიკითხე ტექსტი → <code class="i">service.Search</code> → დაბეჭდე</li>
+      <li class="step">ვცდით: „ყიდვა“ → <b>პურის ყიდვა</b> 🎉</li>
+    </ul>
+  </div>
+  <aside class="study">
+### 👥 ერთად: ძებნა TodoDemo-ში
+
+**1. სერვისში — ახალი მეთოდი:**
+
+```csharp Services/TodoService.cs
+public List<TodoItem> Search(string text)
+{
+    return _db.TodoItems
+        .Where(t => t.Title.Contains(text))
+        .ToList();
+}
+```
+
+`Contains` ბაზაში SQL-ის `LIKE`-ად მიდის: `WHERE Title LIKE N'%ყიდვა%'` — სათაური, რომელშიც სადმე წერია „ყიდვა“.
+
+**2. მენიუში — ახალი პუნქტი:**
+
+```csharp Program.cs
+// მენიუს ტექსტში: ... 5.წაშლა 6.ძებნა 0.გასვლა
+case "6": Search(); break;
+
+void Search()
+{
+    Console.Write("რას ეძებ: ");
+    var text = Console.ReadLine() ?? "";
+    foreach (var t in service.Search(text))
+        Console.WriteLine($"{t.Id}. {t.Title}");
+}
+```
+
+დააკვირდი: ახალი ფუნქციისთვის შევცვალეთ **ორი ადგილი** — სერვისი (როგორ ვეძებთ) და მენიუ (როგორ ვეკითხებით და ვაჩვენებთ). დანარჩენს არ შევხებივართ.
+  </aside>
+</section>
+<lecture-classwork/>
+<section class="slide" data-section="6 · პრაქტიკა">
+  <div class="kicker">გაჭედე?</div>
+  <h2>ხშირი შეცდომები</h2>
+  <table class="t" style="font-size:17px">
+    <tr><th style="width:36%">რას ხედავ</th><th style="width:32%">მიზეზი</th><th>გამოსწორება</th></tr>
+    <tr class="step fade"><td class="mono" style="font-size:15px">NullReferenceException</td><td><code class="i">Find</code>-მა null დააბრუნა, არ შეამოწმე</td><td><code class="i">if (item is null) …</code></td></tr>
+    <tr class="step fade"><td class="mono" style="font-size:15px">Sequence contains no elements</td><td><code class="i">First</code> — ჩანაწერი არ არის</td><td><code class="i">FirstOrDefault</code> + null-ის შემოწმება</td></tr>
+    <tr class="step fade"><td>შევცვალე, ბაზაში ძველი წერია</td><td><code class="i">SaveChanges</code> დაგავიწყდა</td><td><code class="i">_db.SaveChanges();</code></td></tr>
+    <tr class="step fade"><td class="mono" style="font-size:15px">FormatException</td><td><code class="i">int.Parse</code>-ს ასო მისცეს</td><td><code class="i">int.TryParse</code></td></tr>
+    <tr class="step fade"><td>ბაზაში ქართულის ნაცვლად <b>???</b></td><td>კონსოლის input encoding</td><td><code class="i">Console.InputEncoding = Encoding.Unicode;</code></td></tr>
+    <tr class="step fade"><td class="mono" style="font-size:15px">The type or namespace name 'TodoService' could not be found</td><td>სერვისი სხვა namespace-შია</td><td><code class="i">using TodoDemo.Services;</code></td></tr>
+  </table>
+  <aside class="study">
+### ხშირი შეცდომები
+
+| რას ხედავ | მიზეზი | გამოსწორება |
+|---|---|---|
+| `NullReferenceException` | `Find`-მა `null` დააბრუნა და არ შეამოწმე | `if (item is null) …` |
+| `Sequence contains no elements` | `First` — ჩანაწერი არ არსებობს | `FirstOrDefault` + `null`-ის შემოწმება |
+| შევცვალე, მაგრამ ბაზაში ძველი წერია | `SaveChanges` დაგავიწყდა | `_db.SaveChanges();` |
+| `FormatException` | `int.Parse`-ს ასო მისცეს | `int.TryParse` |
+| ბაზაში ქართულის ნაცვლად `???` | კონსოლი ქართულ input-ს ვერ კითხულობს | `Console.InputEncoding = System.Text.Encoding.Unicode;` |
+| `The type or namespace name 'TodoService' could not be found` | სერვისი `TodoDemo.Services`-შია | `using TodoDemo.Services;` |
+
+```prompt როცა რამე არ მუშაობს
+ვსწავლობ EF Core-ს Console App-ში (.NET 10, SQL Server). ვწერ CRUD-ს სერვისით და კონსოლის მენიუთი. მაქვს ეს შეცდომა / ეს ქცევა: [აღწერე ან ჩასვი შეცდომის ტექსტი]
+ჩემი კოდი: [ჩასვი სერვისი და Program.cs]
+ამიხსენი, რატომ ხდება და რა შევამოწმო — ნაბიჯ-ნაბიჯ. პირდაპირ გასწორებული კოდი არ მომცე, ჯერ მიმანიშნე. ქართულად.
+```
+  </aside>
+</section>
+<lecture-check/>
+<section class="slide" data-section="შეჯამება">
+  <div class="vcenter" style="max-width:1000px">
+    <div class="kicker in" style="color:var(--core)">დღეს</div>
+    <h1 class="in" style="--d:.1s;font-size:64px">CRUD სრულია,<br><span class="grad">კოდი — თავის ადგილზე</span></h1>
+    <div class="grid2 mt2">
+      <div class="card accent step" style="--a:var(--mvc)"><h3><span class="ico">🧠</span>დაიმახსოვრე</h3><ul class="clean small"><li><code class="i">Find</code> / <code class="i">FirstOrDefault</code> → <b>შეამოწმე null</b></li><li>იპოვე → შეცვალე / <code class="i">Remove</code> → <b>SaveChanges</b></li><li><b>Program.cs</b> — მენიუ · <b>Service</b> — ბაზა</li></ul></div>
+      <div class="card accent step" style="--a:var(--api)"><h3><span class="ico">⏭️</span>შემდეგ ლექციაზე</h3><p class="small">სტუდენტი და კურსი ჯერ <b>ცალ-ცალკე</b> ცხრილებია. როგორ ვთქვათ, რომელ კურსზეა სტუდენტი? — <b>კავშირები</b></p></div>
+    </div>
+  </div>
+  <aside class="study">
+## შეჯამება · CRUD სრულია, კოდი — თავის ადგილზე
+
+**დაიმახსოვრე:**
+
+1. **წაკითხვა:** `ToList` — ყველა, `Find` — Id-ით, `FirstOrDefault` — პირობით, `Where` — ფილტრი. `Find` / `FirstOrDefault`-ის შემდეგ **ყოველთვის შეამოწმე `null`**.
+2. **განახლება და წაშლა:** იპოვე → შეცვალე ან `Remove` → **`SaveChanges`**. `Update()` არ გვჭირდება — Change Tracker-მა იცის, რა შეიცვალა. ბევრი ჩანაწერისთვის — `ExecuteUpdate` / `ExecuteDelete`.
+3. **სერვისი:** ბაზასთან მხოლოდ სერვისი ლაპარაკობს. **Program.cs** — მხოლოდ მენიუ (Console), **სერვისი** — მხოლოდ მონაცემები. ერთი ოპერაცია — ერთი მეთოდი.
+
+### ⏭️ შემდეგ ლექციაზე
+
+SchoolDemo-ში სტუდენტები და კურსები ჯერ ცალ-ცალკე ცხრილებია. როგორ ვთქვათ, რომელ კურსზეა სტუდენტი? როგორ წავიკითხოთ კურსი მისი სტუდენტებით ერთად? — **ცხრილებს შორის კავშირები**.
+
+```prompt გამოცდა ლექციაზე
+ვსწავლობ EF Core-ს. გავიარეთ: CRUD, ToList / Find / FirstOrDefault / Where / Count, null-ის შემოწმება, First vs FirstOrDefault, განახლება SaveChanges-ით, Remove, Change Tracker და Entity State, ExecuteUpdate / ExecuteDelete, სერვისის კლასი Services ფოლდერში, კონსოლის მენიუ (while + switch, int.TryParse).
+დამისვი 8 კითხვა სათითაოდ (ზოგი — პატარა კოდის ნაწყვეტზე: „რა მოხდება?“). ყოველ პასუხზე შემიფასე და ამიხსენი. ბოლოს მითხარი, რა გავიმეორო. ქართულად.
+```
+  </aside>
+</section>
+<lecture-homework/>
