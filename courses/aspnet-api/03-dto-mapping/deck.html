@@ -201,7 +201,7 @@ public IActionResult Update(int id, Product updated) { ... }
     <code-block lang="csharp" cls="big" title="Models/Product.cs">
 public class Product
 {
-    public int Id { get; set; }
+    public Guid Id { get; set; }
     public string Name { get; set; } = "";
     public decimal Price { get; set; }
 }
@@ -213,7 +213,7 @@ public class Product
         <rect x="150" y="60" width="400" height="260" rx="14" fill="#fff" stroke="#d97706" stroke-width="3"/>
         <rect x="150" y="60" width="400" height="54" rx="14" fill="#fef5e4" stroke="#d97706" stroke-width="3"/>
         <text x="350" y="95" text-anchor="middle" class="to b" font-size="22">🗄️ Products ცხრილი</text>
-        <text x="180" y="150" class="tw b mono" font-size="18">Id</text><text x="330" y="150" class="tm mono" font-size="16">int · PK</text>
+        <text x="180" y="150" class="tw b mono" font-size="18">Id</text><text x="330" y="150" class="tm mono" font-size="16">Guid · PK</text>
         <text x="180" y="200" class="tw b mono" font-size="18">Name</text><text x="330" y="200" class="tm mono" font-size="16">nvarchar</text>
         <text x="180" y="250" class="tw b mono" font-size="18">Price</text><text x="330" y="250" class="tm mono" font-size="16">decimal</text>
         <text x="180" y="300" class="tm" font-size="15">… ყოველი ობიექტი = ერთი რიგი</text>
@@ -233,6 +233,14 @@ public class Product
 | property (`Name`, `Price`) | სვეტი |
 | ერთი ობიექტი | ერთი რიგი |
 | `Id` | Primary Key |
+
+```tip Id ახლა Guid-ია და არა int
+წინა ლექციაზე Id-ს `_nextId++`-ით ვითვლიდით. აქედან Id-ის ტიპი **`Guid`**-ია — 128-ბიტიანი უნიკალური მნიშვნელობა, მაგალითად `7c9e6679-7425-40de-944b-e07fc1f90ae7`:
+
+- **მთვლელი არ გვჭირდება** — `Guid.NewGuid()` ყოველ ჯერზე ახალ მნიშვნელობას იძლევა, ბაზის გარეშეც.
+- **ვერ გამოიცნობ** — `/api/products/1`-ის შემდეგ ყველამ იცის, რომ `/2` და `/3` არსებობს; Guid-ზე ასე ვერ იტყვი.
+- route-ში ვწერთ `{id:guid}` — თუ მისამართში Guid არ არის, endpoint უბრალოდ არ დაემთხვევა (404).
+```
 
 კლასს, რომელიც ბაზის ცხრილს აღწერს, **Entity** ჰქვია. `Product` ჩვენი Entity-ა.
 
@@ -289,7 +297,7 @@ Entity — კლასი, რომელიც ბაზის ცხრი�
     <code-block id="pm" lang="csharp" cls="sm" title="Models/Product.cs">
 public class Product
 {
-    public int Id { get; set; }
+    public Guid Id { get; set; }
     public string Name { get; set; } = "";
     public decimal Price { get; set; }
     public decimal CostPrice { get; set; }  // შესყიდვის ფასი
@@ -312,7 +320,7 @@ public class Product
 ```csharp Models/Product.cs
 public class Product
 {
-    public int Id { get; set; }
+    public Guid Id { get; set; }
     public string Name { get; set; } = "";
     public decimal Price { get; set; }
     public decimal CostPrice { get; set; }  // შესყიდვის ფასი
@@ -331,10 +339,10 @@ public class Product
   <h2>შიდა მონაცემი <span class="c-red">გაიპარა</span></h2>
   <div class="grid2" style="grid-template-columns:1fr 1fr;gap:40px;align-items:start">
     <div class="swr step left" style="--c:#61affe">
-      <div class="rh"><span class="m">GET</span><span class="p">/api/products/1</span></div>
+      <div class="rh"><span class="m">GET</span><span class="p">/api/products/7c9e…</span></div>
       <div class="lab"><span>Code</span><span>Response body</span></div>
       <div class="rr"><span class="sc">200</span><pre class="rb">{
-  <span class="k">"id"</span>: <span class="n">1</span>,
+  <span class="k">"id"</span>: <span class="s">"7c9e6679-…"</span>,
   <span class="k">"name"</span>: <span class="s">"ლეპტოპი"</span>,
   <span class="k">"price"</span>: <span class="n">2400</span>,
   <span class="leak"><span class="k">"costPrice"</span>: <span class="n">1650</span></span>,
@@ -350,10 +358,10 @@ public class Product
   <aside class="study">
 ### პრობლემა 1 · შიდა მონაცემი გაიპარა
 
-`GET /api/products/1`-ის პასუხი ახლა ასეთია:
+`GET /api/products/7c9e…`-ის პასუხი ახლა ასეთია:
 
 ```json
-{ "id": 1, "name": "ლეპტოპი", "price": 2400, "costPrice": 1650, "createdAt": "2026-10-26T…" }
+{ "id": "7c9e6679-7425-40de-944b-e07fc1f90ae7", "name": "ლეპტოპი", "price": 2400, "costPrice": 1650, "createdAt": "2026-10-26T…" }
 ```
 
 ჩვენ GET-ში არაფერი შეგვიცვლია — უბრალოდ ცხრილს სვეტი დავუმატეთ. მაგრამ რადგან GET `Product`-ს პირდაპირ აბრუნებს, ახალი სვეტი **თვითონ გავიდა გარეთ**. ახლა ყველა მყიდველი და კონკურენტიც ხედავს, რომ 1650-ად ვყიდულობთ და 2400-ად ვყიდით.
@@ -371,7 +379,7 @@ public class Product
       <div class="rh"><span class="m">POST</span><span class="p">/api/products</span></div>
       <div class="lab"><span>Request body · Example Value</span></div>
       <div style="padding:6px 16px 16px"><pre class="rb">{
-  <span class="leak"><span class="k">"id"</span>: <span class="n">0</span></span>,
+  <span class="leak"><span class="k">"id"</span>: <span class="s">"3fa85f64-5717-4562-b3fc-2c963f66afa6"</span></span>,
   <span class="k">"name"</span>: <span class="s">"string"</span>,
   <span class="k">"price"</span>: <span class="n">0</span>,
   <span class="k">"costPrice"</span>: <span class="n">0</span>,
@@ -380,7 +388,7 @@ public class Product
     </div>
     <div class="col" style="gap:18px">
       <div class="callout step" style="--a:var(--red)"><b>Id</b>-ს ბაზა (ჩვენ) ანიჭებს. <b>CreatedAt</b>-ს — სერვერი. Swagger კი კლიენტს <b>ორივეს სთხოვს</b></div>
-      <div class="callout step" style="--a:var(--asp)"><b>PUT</b>-ში უარესია: Id მისამართშიც არის <code class="i">/products/2</code> და body-შიც <code class="i">"id": 5</code>. რომელს დავუჯეროთ?</div>
+      <div class="callout step" style="--a:var(--asp)"><b>PUT</b>-ში უარესია: Id მისამართშიც არის <code class="i">/products/7c9e…</code> და body-შიც <code class="i">"id": "1f4b…"</code>. რომელს დავუჯეროთ?</div>
       <div class="problem step">კონტრაქტი <b>იტყუება</b>: „გამომიგზავნე Id“ — თუმცა არ გვჭირდება</div>
     </div>
   </div>
@@ -390,17 +398,17 @@ public class Product
 Swagger-ში POST-ის მაგალითი ახლა ასეთია:
 
 ```json
-{ "id": 0, "name": "string", "price": 0, "costPrice": 0, "createdAt": "2026-10-26…" }
+{ "id": "3fa85f64-5717-4562-b3fc-2c963f66afa6", "name": "string", "price": 0, "costPrice": 0, "createdAt": "2026-10-26…" }
 ```
 
 Swagger კლიენტს სთხოვს `id`-ს და `createdAt`-ს. მაგრამ:
 
-- `Id`-ს **ჩვენ** ვანიჭებთ (`_nextId`), ნამდვილ ბაზაში კი ბაზა თვითონ.
+- `Id`-ს **ჩვენ** ვანიჭებთ (`Guid.NewGuid()`) — კლიენტს არაფერი უნდა ჰქონდეს სათქმელი.
 - `CreatedAt`-ს **სერვერი** წერს.
 
 თუ რომელიმეს გადაწერა დაგვავიწყდა, კლიენტის გამოგზავნილი მნიშვნელობა პირდაპირ ცხრილში ჩაიწერება.
 
-PUT-ში კიდევ უარესია: `Id` ორ ადგილას მოდის — მისამართში (`/api/products/2`) და body-ში (`"id": 5`). რომელს დავუჯეროთ? სწორი პასუხი — მისამართს. body-ში `Id` საერთოდ ზედმეტია.
+PUT-ში კიდევ უარესია: `Id` ორ ადგილას მოდის — მისამართში (`/api/products/7c9e…`) და body-ში (`"id": "1f4b…"`). რომელს დავუჯეროთ? სწორი პასუხი — მისამართს. body-ში `Id` საერთოდ ზედმეტია.
 
 ```note
 Swagger აღწერს **კონტრაქტს** — რა უნდა გამოგზავნოს კლიენტმა და რას მიიღებს. ახლა ჩვენი კონტრაქტი იტყუება: „გამომიგზავნე Id“ — თუმცა ის არ გვჭირდება.
@@ -500,11 +508,11 @@ Response DTO — რასაც კლიენტს ვაჩვენებ�
     <div class="farrow step" style="--a:var(--api);align-self:center;min-width:70px"><span class="ar">→</span></div>
     <div class="dto step" data-with style="--a:var(--api);flex:1.1"><div class="h">CreateProductRequest</div><div class="f">Name<br>Price<br>CostPrice<br><span class="no">Id</span><br><span class="no">CreatedAt</span></div></div>
     <div class="farrow step" style="--a:var(--asp);align-self:center;min-width:70px"><span class="ar">→</span>map</div>
-    <div class="dto step" data-with style="--a:var(--asp);flex:1.1"><div class="h">Product</div><div class="f"><span class="add">Id = 4</span> ← სერვერი<br>Name<br>Price<br>CostPrice<br><span class="add">CreatedAt</span> ← სერვერი</div></div>
+    <div class="dto step" data-with style="--a:var(--asp);flex:1.1"><div class="h">Product</div><div class="f"><span class="add">Id = Guid</span> ← სერვერი<br>Name<br>Price<br>CostPrice<br><span class="add">CreatedAt</span> ← სერვერი</div></div>
     <div class="farrow step" style="--a:var(--mvc);align-self:center;min-width:70px"><span class="ar">→</span>map</div>
     <div class="dto step" data-with style="--a:var(--mvc);flex:1.1"><div class="h">ProductResponse</div><div class="f">Id<br>Name<br>Price<br><span class="no">CostPrice</span><br><span class="no">CreatedAt</span></div></div>
     <div class="farrow step" style="--a:var(--pink);align-self:center;min-width:70px"><span class="ar">→</span></div>
-    <div class="dto step" data-with style="--a:var(--pink);flex:1"><div class="h">📤 JSON</div><div class="f">"id": 4<br>"name": "მონიტორი"<br>"price": 650</div></div>
+    <div class="dto step" data-with style="--a:var(--pink);flex:1"><div class="h">📤 JSON</div><div class="f">"id": "9b2e…"<br>"name": "მონიტორი"<br>"price": 650</div></div>
   </div>
   <div class="grid3 mt2" style="gap:20px">
     <div class="solve step"><b>CostPrice</b> გარეთ აღარ გადის</div>
@@ -550,7 +558,7 @@ public record UpdateProductRequest(
     decimal CostPrice);
 
 public record ProductResponse(
-    int Id,
+    Guid Id,
     string Name,
     decimal Price);
     </code-block>
@@ -585,7 +593,7 @@ public record UpdateProductRequest(
     decimal CostPrice);
 
 public record ProductResponse(
-    int Id,
+    Guid Id,
     string Name,
     decimal Price);
 ```
@@ -604,7 +612,7 @@ public record ProductResponse(
 
 ```prompt record vs class
 ამიხსენი C#-ში record-ის და class-ის განსხვავება მარტივად. მაგალითად აიღე:
-public record ProductResponse(int Id, string Name, decimal Price);
+public record ProductResponse(Guid Id, string Name, decimal Price);
 რა იქმნება ავტომატურად ამ ერთი ხაზით? რატომ ჯობია record DTO-სთვის? ახსნა ქართულად, დამწყებისთვის.
 ```
   </aside>
@@ -623,8 +631,8 @@ public IActionResult GetAll()
     return Ok(response);
 }
 
-[HttpGet("{id}")]
-public IActionResult GetById(int id)
+[HttpGet("{id:guid}")]
+public IActionResult GetById(Guid id)
 {
     var product = _products.FirstOrDefault(p => p.Id == id);
     if (product is null)
@@ -656,8 +664,8 @@ public IActionResult GetAll()
     return Ok(response);
 }
 
-[HttpGet("{id}")]
-public IActionResult GetById(int id)
+[HttpGet("{id:guid}")]
+public IActionResult GetById(Guid id)
 {
     var product = _products.FirstOrDefault(p => p.Id == id);
     if (product is null)
@@ -687,7 +695,7 @@ public IActionResult Create(CreateProductRequest request)
         Price = request.Price,
         CostPrice = request.CostPrice
     };
-    product.Id = _nextId++;
+    product.Id = Guid.NewGuid();
     product.CreatedAt = DateTime.UtcNow;
     _products.Add(product);
 
@@ -695,8 +703,8 @@ public IActionResult Create(CreateProductRequest request)
     return CreatedAtAction(nameof(GetById), new { id = product.Id }, response);
 }
 
-[HttpPut("{id}")]
-public IActionResult Update(int id, UpdateProductRequest request)
+[HttpPut("{id:guid}")]
+public IActionResult Update(Guid id, UpdateProductRequest request)
 {
     var product = _products.FirstOrDefault(p => p.Id == id);
     if (product is null)
@@ -732,7 +740,7 @@ public IActionResult Create(CreateProductRequest request)
         Price = request.Price,
         CostPrice = request.CostPrice
     };
-    product.Id = _nextId++;
+    product.Id = Guid.NewGuid();
     product.CreatedAt = DateTime.UtcNow;
     _products.Add(product);
 
@@ -740,8 +748,8 @@ public IActionResult Create(CreateProductRequest request)
     return CreatedAtAction(nameof(GetById), new { id = product.Id }, response);
 }
 
-[HttpPut("{id}")]
-public IActionResult Update(int id, UpdateProductRequest request)
+[HttpPut("{id:guid}")]
+public IActionResult Update(Guid id, UpdateProductRequest request)
 {
     var product = _products.FirstOrDefault(p => p.Id == id);
     if (product is null)
@@ -787,10 +795,10 @@ public IActionResult Update(int id, UpdateProductRequest request)
     <div class="col" style="gap:10px">
       <div class="tag step" style="--a:var(--mvc);align-self:flex-start">Response · რას ვაჩვენებთ</div>
       <div class="swr step" data-with style="--c:#61affe">
-        <div class="rh"><span class="m">GET</span><span class="p">/api/products/1</span></div>
+        <div class="rh"><span class="m">GET</span><span class="p">/api/products/7c9e…</span></div>
         <div class="lab"><span>Code</span><span>Response body</span></div>
         <div class="rr"><span class="sc">200</span><pre class="rb">{
-  <span class="k">"id"</span>: <span class="n">1</span>,
+  <span class="k">"id"</span>: <span class="s">"7c9e6679-…"</span>,
   <span class="k">"name"</span>: <span class="s">"ლეპტოპი"</span>,
   <span class="k">"price"</span>: <span class="n">2400</span>
 }</pre></div>
@@ -1008,7 +1016,7 @@ public IActionResult GetAll()
 public IActionResult Create(CreateProductRequest request)
 {
     var product = request.ToEntity();
-    product.Id = _nextId++;
+    product.Id = Guid.NewGuid();
     product.CreatedAt = DateTime.UtcNow;
     _products.Add(product);
 
@@ -1016,8 +1024,8 @@ public IActionResult Create(CreateProductRequest request)
         new { id = product.Id }, product.ToResponse());
 }
 
-[HttpPut("{id}")]
-public IActionResult Update(int id, UpdateProductRequest request)
+[HttpPut("{id:guid}")]
+public IActionResult Update(Guid id, UpdateProductRequest request)
 {
     var product = _products.FirstOrDefault(p => p.Id == id);
     if (product is null)
@@ -1051,7 +1059,7 @@ public IActionResult GetAll()
 public IActionResult Create(CreateProductRequest request)
 {
     var product = request.ToEntity();
-    product.Id = _nextId++;
+    product.Id = Guid.NewGuid();
     product.CreatedAt = DateTime.UtcNow;
     _products.Add(product);
 
@@ -1059,8 +1067,8 @@ public IActionResult Create(CreateProductRequest request)
         new { id = product.Id }, product.ToResponse());
 }
 
-[HttpPut("{id}")]
-public IActionResult Update(int id, UpdateProductRequest request)
+[HttpPut("{id:guid}")]
+public IActionResult Update(Guid id, UpdateProductRequest request)
 {
     var product = _products.FirstOrDefault(p => p.Id == id);
     if (product is null)
@@ -1434,7 +1442,7 @@ public static partial ProductResponse ToResponse(this Product product)
         <h3 style="font-size:22px">ProductsController-ის საქმეები დღეს</h3>
         <ul class="clean small">
           <li>📋 პროდუქტების <b>სიას ინახავს</b> (static List)</li>
-          <li>🔢 Id-ებს <b>ითვლის</b> (_nextId)</li>
+          <li>🆔 Id-ებს <b>ქმნის</b> (Guid.NewGuid)</li>
           <li>🔍 <b>ეძებს</b> Id-ით</li>
           <li>🔁 DTO ↔ Product <b>mapping</b>-ს იძახებს</li>
           <li>📨 <b>HTTP</b>-ს წყვეტს: 200 · 201 · 404…</li>
@@ -1457,7 +1465,7 @@ public static partial ProductResponse ToResponse(this Product product)
 შეხედე `ProductsController`-ს — რამდენ საქმეს აკეთებს?
 
 - 📋 პროდუქტების სიას ინახავს (`static List`)
-- 🔢 Id-ებს ითვლის (`_nextId`)
+- 🆔 Id-ებს ქმნის (`Guid.NewGuid()`)
 - 🔍 ეძებს Id-ით
 - 🔁 DTO ↔ Product mapping-ს იძახებს
 - 📨 HTTP-ს წყვეტს: 200 · 201 · 404…

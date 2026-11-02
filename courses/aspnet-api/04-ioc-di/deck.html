@@ -169,23 +169,22 @@ public class ProductsController : ControllerBase
 {
     private static List<Product> _products = new List<Product>
     {
-        new Product { Id = 1, Name = "ლეპტოპი", Price = 2400 },
-        new Product { Id = 2, Name = "მაუსი", Price = 45 },
-        new Product { Id = 3, Name = "კლავიატურა", Price = 120 }
+        new Product { Id = Guid.NewGuid(), Name = "ლეპტოპი", Price = 2400 },
+        new Product { Id = Guid.NewGuid(), Name = "მაუსი", Price = 45 },
+        new Product { Id = Guid.NewGuid(), Name = "კლავიატურა", Price = 120 }
     };
-    private static int _nextId = 4;
 
     [HttpGet]    public IActionResult GetAll() { ... }
-    [HttpGet("{id}")]    public IActionResult GetById(int id) { ... }
+    [HttpGet("{id:guid}")]    public IActionResult GetById(Guid id) { ... }
     [HttpPost]   public IActionResult Create(Product product) { ... }
-    [HttpPut("{id}")]    public IActionResult Update(int id, ...) { ... }
-    [HttpDelete("{id}")] public IActionResult Delete(int id) { ... }
+    [HttpPut("{id:guid}")]    public IActionResult Update(Guid id, ...) { ... }
+    [HttpDelete("{id:guid}")] public IActionResult Delete(Guid id) { ... }
 }
     </code-block>
     <div class="col" style="gap:16px">
-      <i class="codestep" data-for="rc" data-lines="13-17"></i>
+      <i class="codestep" data-for="rc" data-lines="12-16"></i>
       <div class="solve step" data-with>5 endpoint · სწორი სტატუს კოდები · Swagger-ში გატესტილი</div>
-      <i class="codestep" data-for="rc" data-lines="5-11"></i>
+      <i class="codestep" data-for="rc" data-lines="5-10"></i>
       <div class="col step" data-with style="gap:12px">
         <div class="callout" style="--a:var(--asp)"><b>static</b> სია — რადგან Controller <b>ყოველ მოთხოვნაზე ახლიდან</b> იქმნება</div>
         <div class="problem" style="font-size:19px">ჩვენ თვითონ ვთქვით: ეს <b>დროებითი</b> გამოსავალია</div>
@@ -199,7 +198,6 @@ ShopApi-ს ხუთი endpoint აქვს, სწორი სტატუ�
 
 ```csharp Controllers/ProductsController.cs
 private static List<Product> _products = new List<Product> { ... };
-private static int _nextId = 4;
 ```
 
 სია `static` იმიტომ არის, რომ **Controller ყოველ მოთხოვნაზე თავიდან იქმნება** — `static`-ის გარეშე ყოველ მოთხოვნას საკუთარი, ახალი სია ექნებოდა. თვითონვე ვთქვით, რომ ეს დროებითი გამოსავალია. დღეს ვნახავთ, რატომ და რით შევცვალოთ.
@@ -323,32 +321,31 @@ public class ProductStore
 {
     private List<Product> _products = new List<Product>
     {
-        new Product { Id = 1, Name = "ლეპტოპი", Price = 2400 },
-        new Product { Id = 2, Name = "მაუსი", Price = 45 },
-        new Product { Id = 3, Name = "კლავიატურა", Price = 120 }
+        new Product { Id = Guid.NewGuid(), Name = "ლეპტოპი", Price = 2400 },
+        new Product { Id = Guid.NewGuid(), Name = "მაუსი", Price = 45 },
+        new Product { Id = Guid.NewGuid(), Name = "კლავიატურა", Price = 120 }
     };
-    private int _nextId = 4;
 
     public List<Product> GetAll()
     {
         return _products;
     }
 
-    public Product? GetById(int id)
+    public Product? GetById(Guid id)
     {
         return _products.FirstOrDefault(p => p.Id == id);
     }
 
     public Product Add(Product product)
     {
-        product.Id = _nextId++;
+        product.Id = Guid.NewGuid();
         _products.Add(product);
         return product;
     }
     </code-block>
     <div class="col" style="gap:16px">
       <code-block id="ps2" lang="csharp" cls="xs" title="Services/ProductStore.cs · გაგრძელება">
-    public bool Update(int id, Product updated)
+    public bool Update(Guid id, Product updated)
     {
         var product = GetById(id);
         if (product is null) return false;
@@ -358,7 +355,7 @@ public class ProductStore
         return true;
     }
 
-    public bool Delete(int id)
+    public bool Delete(Guid id)
     {
         var product = GetById(id);
         if (product is null) return false;
@@ -369,11 +366,11 @@ public class ProductStore
 }
       </code-block>
       <div style="position:relative;min-height:110px">
-        <i class="codestep" data-for="ps" data-lines="5-11"></i>
-        <div id="pc1" class="callout step" data-with style="--a:var(--asp);position:absolute;inset:0 0 auto 0;background:#fff8ec">სია და <code class="i">_nextId</code> Controller-იდან გადმოვიდა — <b>static აღარ არის</b></div>
-        <i class="codestep" data-for="ps" data-lines="13-21" data-hide="#pc1"></i>
+        <i class="codestep" data-for="ps" data-lines="5-10"></i>
+        <div id="pc1" class="callout step" data-with style="--a:var(--asp);position:absolute;inset:0 0 auto 0;background:#fff8ec">სია Controller-იდან გადმოვიდა — <b>static აღარ არის</b></div>
+        <i class="codestep" data-for="ps" data-lines="12-20" data-hide="#pc1"></i>
         <div id="pc2" class="callout step" data-with style="--a:var(--mvc);position:absolute;inset:0 0 auto 0;background:#f2faf4">Controller-ის კოდი მეთოდებად გადმოვიდა — <b>HTTP-ის გარეშე</b>: არც <code class="i">Ok</code>, არც <code class="i">NotFound</code></div>
-        <i class="codestep" data-for="ps" data-lines="23-28" data-hide="#pc2"></i>
+        <i class="codestep" data-for="ps" data-lines="22-27" data-hide="#pc2"></i>
         <div id="pc3" class="callout step" data-with style="--a:var(--api);position:absolute;inset:0 0 auto 0;background:#f1f6fe"><code class="i">Add</code> Id-ს თვითონ ანიჭებს და შექმნილ პროდუქტს აბრუნებს</div>
         <i class="codestep" data-for="ps2" data-lines="1-18" data-hide="#pc3"></i>
         <div class="callout step" data-with style="--a:var(--red);position:absolute;inset:0 0 auto 0;background:#fdf3f3"><code class="i">bool</code> — „გამოვიდა თუ არა“. 404-ს Controller თვითონ დააბრუნებს</div>
@@ -390,24 +387,23 @@ public class ProductStore
 {
     private List<Product> _products = new List<Product>
     {
-        new Product { Id = 1, Name = "ლეპტოპი", Price = 2400 },
-        new Product { Id = 2, Name = "მაუსი", Price = 45 },
-        new Product { Id = 3, Name = "კლავიატურა", Price = 120 }
+        new Product { Id = Guid.NewGuid(), Name = "ლეპტოპი", Price = 2400 },
+        new Product { Id = Guid.NewGuid(), Name = "მაუსი", Price = 45 },
+        new Product { Id = Guid.NewGuid(), Name = "კლავიატურა", Price = 120 }
     };
-    private int _nextId = 4;
 
     public List<Product> GetAll() => _products;
 
-    public Product? GetById(int id) => _products.FirstOrDefault(p => p.Id == id);
+    public Product? GetById(Guid id) => _products.FirstOrDefault(p => p.Id == id);
 
     public Product Add(Product product)
     {
-        product.Id = _nextId++;
+        product.Id = Guid.NewGuid();
         _products.Add(product);
         return product;
     }
 
-    public bool Update(int id, Product updated)
+    public bool Update(Guid id, Product updated)
     {
         var product = GetById(id);
         if (product is null) return false;
@@ -416,7 +412,7 @@ public class ProductStore
         return true;
     }
 
-    public bool Delete(int id)
+    public bool Delete(Guid id)
     {
         var product = GetById(id);
         if (product is null) return false;
@@ -426,7 +422,7 @@ public class ProductStore
 }
 ```
 
-- სია და `_nextId` Controller-იდან გადმოვიდა — და **`static` აღარ წერია**. რატომ — ცოტა ხანში გამოჩნდება.
+- სია Controller-იდან გადმოვიდა — და **`static` აღარ წერია**. რატომ — ცოტა ხანში გამოჩნდება.
 - მეთოდებში **HTTP არ არის**: არც `Ok`, არც `NotFound`. ProductStore მხოლოდ მონაცემებზე ზრუნავს.
 - `Product?` — კითხვის ნიშანი ნიშნავს, რომ შეიძლება `null` დაბრუნდეს (პროდუქტი ვერ მოიძებნა).
 - `Add` Id-ს თვითონ ანიჭებს და შექმნილ პროდუქტს აბრუნებს.
@@ -1114,8 +1110,8 @@ public class ProductsController : ControllerBase
         return Ok(_store.GetAll());
     }
 
-    [HttpGet("{id}")]
-    public IActionResult GetById(int id)
+    [HttpGet("{id:guid}")]
+    public IActionResult GetById(Guid id)
     {
         var product = _store.GetById(id);
         if (product is null) return NotFound();
@@ -1131,15 +1127,15 @@ public class ProductsController : ControllerBase
             new { id = created.Id }, created);
     }
 
-    [HttpPut("{id}")]
-    public IActionResult Update(int id, Product updated)
+    [HttpPut("{id:guid}")]
+    public IActionResult Update(Guid id, Product updated)
     {
         if (!_store.Update(id, updated)) return NotFound();
         return NoContent();
     }
 
-    [HttpDelete("{id}")]
-    public IActionResult Delete(int id)
+    [HttpDelete("{id:guid}")]
+    public IActionResult Delete(Guid id)
     {
         if (!_store.Delete(id)) return NotFound();
         return NoContent();
@@ -1168,8 +1164,8 @@ public class ProductsController : ControllerBase
     [HttpGet]
     public IActionResult GetAll() => Ok(_store.GetAll());
 
-    [HttpGet("{id}")]
-    public IActionResult GetById(int id)
+    [HttpGet("{id:guid}")]
+    public IActionResult GetById(Guid id)
     {
         var product = _store.GetById(id);
         if (product is null) return NotFound();
@@ -1183,15 +1179,15 @@ public class ProductsController : ControllerBase
         return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
     }
 
-    [HttpPut("{id}")]
-    public IActionResult Update(int id, Product updated)
+    [HttpPut("{id:guid}")]
+    public IActionResult Update(Guid id, Product updated)
     {
         if (!_store.Update(id, updated)) return NotFound();
         return NoContent();
     }
 
-    [HttpDelete("{id}")]
-    public IActionResult Delete(int id)
+    [HttpDelete("{id:guid}")]
+    public IActionResult Delete(Guid id)
     {
         if (!_store.Delete(id)) return NotFound();
         return NoContent();

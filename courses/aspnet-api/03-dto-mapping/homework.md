@@ -4,7 +4,7 @@ LibraryApi-ს ბიბლიოთეკის წევრები ემა
 
 ## მოთხოვნები
 
-- `Models/Member`: `Id`, `FullName`, `Email`, `PasswordHash`, `JoinedAt`
+- `Models/Member`: `Id` (Guid), `FullName`, `Email`, `PasswordHash`, `JoinedAt`
 - `Dtos/`: **CreateMemberRequest** (FullName, Email, Password), **UpdateMemberRequest** (FullName, Email), **MemberResponse** (Id, FullName, Email, JoinedAt)
 - `Mappers/MemberMapper` — პირდაპირ **Mapperly**-ით
 - **MembersController** — სრული CRUD, სწორი სტატუს კოდები
@@ -47,7 +47,7 @@ public record CreateMemberRequest(
 public record UpdateMemberRequest(string FullName, string Email);
 
 public record MemberResponse(
-    int Id, string FullName, string Email, DateTime JoinedAt);
+    Guid Id, string FullName, string Email, DateTime JoinedAt);
 ```
 
 Mapper: ყველა „განზრახ გამოტოვებული“ ველი ცხადად წერია.
@@ -83,7 +83,7 @@ public IActionResult Create(CreateMemberRequest request)
         return Conflict();
 
     var member = request.ToEntity();
-    member.Id = _nextId++;
+    member.Id = Guid.NewGuid();
     member.JoinedAt = DateTime.UtcNow;
     member.PasswordHash = Argon2.Hash(request.Password);
     _members.Add(member);

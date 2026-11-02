@@ -5,7 +5,7 @@ LoansController სამ dependency-ს ითხოვს
 ## მოთხოვნები
 
 - `MemberStore` — წევრები MembersController-იდან ცალკე კლასში, `AddSingleton`
-- `Models/Loan`: `Id`, `BookId`, `MemberId`, `LoanedAt` · `LoanStore` — სია და `Add`, `GetAll`
+- `Models/Loan`: `Id`, `BookId`, `MemberId` (სამივე Guid), `LoanedAt` · `LoanStore` — სია და `Add`, `GetAll`
 - `LoansController` — constructor-ში **სამი** dependency: `BookStore`, `MemberStore`, `LoanStore`
 - `POST /api/loans` `{ bookId, memberId }` → 201, ან 404, თუ წიგნი ან წევრი არ არსებობს
 - `GET /api/loans` — ყველა გატანა
@@ -20,7 +20,7 @@ Ctrl+Shift+F → `new …Store` — 0 შედეგი, და არარს
 
 ## 💡 მინიშნება
 
-DTO-ები — `record CreateLoanRequest(int BookId, int MemberId)` და `record LoanResponse(int Id, int BookId, int MemberId, DateTime LoanedAt)`. Entity გარეთ ისევ არ გადის. Controller-ს რამდენიც სჭირდება, იმდენ პარამეტრს წერს constructor-ში — Container ყველას მოუტანს, თუ სამივე დარეგისტრირებულია.
+DTO-ები — `record CreateLoanRequest(Guid BookId, Guid MemberId)` და `record LoanResponse(Guid Id, Guid BookId, Guid MemberId, DateTime LoanedAt)`. Entity გარეთ ისევ არ გადის. Controller-ს რამდენიც სჭირდება, იმდენ პარამეტრს წერს constructor-ში — Container ყველას მოუტანს, თუ სამივე დარეგისტრირებულია.
 
 ## ამოხსნა
 
@@ -77,13 +77,12 @@ builder.Services.AddSingleton<LoanStore>();
 public class LoanStore
 {
     private readonly List<Loan> _loans = new();
-    private int _nextId = 1;
 
     public List<Loan> GetAll() => _loans;
 
     public Loan Add(Loan loan)
     {
-        loan.Id = _nextId++;
+        loan.Id = Guid.NewGuid();
         loan.LoanedAt = DateTime.UtcNow;
         _loans.Add(loan);
         return loan;

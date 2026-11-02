@@ -8,7 +8,7 @@
 - LoanService ითხოვს: `BookStore`, `MemberStore`, `LoanStore`, `ILogger<LoanService>` — HTTP-ის გარეშე, ვერ შეიქმნა → `null`
 - ლოგი: გატანა → `LogInformation`, უარი → `LogWarning`
 - LoansController — მხოლოდ **LoanService** სჭირდება: `null` → 400, წარმატება → 201
-- `Program.cs`: `AddSingleton<LoanService>()` · Minimal API: `GET /api/loans/count`
+- `Program.cs`: `AddSingleton<LoanService>()` · `GET /api/loans/count` — LoanService-ის `Count()`-ით
 
 ## ✓ მზადაა, როცა
 

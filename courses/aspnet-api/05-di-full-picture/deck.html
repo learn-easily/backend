@@ -113,7 +113,7 @@ i.codestep{display:none}
   <div class="vcenter" style="max-width:820px">
     <div class="kicker in" style="color:var(--core)">ASP.NET Core Web API · ლექცია 5</div>
     <h1 class="in" style="--d:.15s">Dependency Injection<br><span class="grad">სრული სურათი</span></h1>
-    <p class="lead in mt" style="--d:.35s">დამოკიდებულებების <b>ჯაჭვი</b>, Minimal API, framework-ის სერვისები და ის, <b>როგორ არ</b> უნდა გავაკეთოთ</p>
+    <p class="lead in mt" style="--d:.35s">დამოკიდებულებების <b>ჯაჭვი</b>, framework-ის სერვისები, injection-ის გზები და ის, <b>როგორ არ</b> უნდა გავაკეთოთ</p>
   </div>
   <div class="abs" style="right:90px;top:170px">
     <svg viewBox="0 0 560 560" width="560" height="560">
@@ -140,8 +140,8 @@ i.codestep{display:none}
     <path class="autodraw" style="--d:.2s" d="M70 230 C170 90 250 380 340 230 S520 90 590 230 S760 380 830 230 S1000 90 1080 230 S1250 380 1350 230" stroke="#cfc6b6" stroke-width="4" fill="none" stroke-dasharray="10 10"/>
     <g class="in zoom" style="--d:.3s;transform-origin:70px 230px"><circle cx="70" cy="230" r="42" fill="#e6f6f4" stroke="#0d9488" stroke-width="3"/><text x="70" y="245" text-anchor="middle" font-size="32">💉</text><text x="70" y="306" text-anchor="middle" class="tw b" font-size="19">საფუძვლები</text><text x="70" y="332" text-anchor="middle" class="tg b" font-size="15">✓ წინა ლექცია</text><circle cx="101" cy="199" r="14" fill="#16a34a"/><text x="101" y="205" text-anchor="middle" font-size="16" style="fill:#fff" class="b">✓</text></g>
     <g class="step zoom" style="transform-origin:250px 165px"><circle cx="250" cy="165" r="44" fill="#fdf2f8" stroke="#db2777" stroke-width="3"/><text x="250" y="180" text-anchor="middle" font-size="34">🧾</text><text x="250" y="90" text-anchor="middle" class="tw b" font-size="19">შეკვეთები</text><text x="250" y="66" text-anchor="middle" class="tm" font-size="15">დამოკიდებულებების ჯაჭვი</text></g>
-    <g class="step zoom" style="transform-origin:470px 230px"><circle cx="470" cy="230" r="44" fill="#e6f6f4" stroke="#0d9488" stroke-width="3"/><text x="470" y="245" text-anchor="middle" font-size="34">⚡</text><text x="470" y="306" text-anchor="middle" class="tw b" font-size="19">Minimal API</text><text x="470" y="332" text-anchor="middle" class="tm" font-size="15">DI პარამეტრებში</text></g>
-    <g class="step zoom" style="transform-origin:700px 160px"><circle cx="700" cy="160" r="44" fill="#eaf2fe" stroke="#2563eb" stroke-width="3"/><text x="700" y="175" text-anchor="middle" font-size="34">🧰</text><text x="700" y="86" text-anchor="middle" class="tw b" font-size="19">Framework-ის სერვისები</text><text x="700" y="62" text-anchor="middle" class="tm" font-size="15">ILogger · IConfiguration</text></g>
+    <g class="step zoom" style="transform-origin:470px 230px"><circle cx="470" cy="230" r="44" fill="#eaf2fe" stroke="#2563eb" stroke-width="3"/><text x="470" y="245" text-anchor="middle" font-size="34">🧰</text><text x="470" y="306" text-anchor="middle" class="tw b" font-size="19">Framework-ის სერვისები</text><text x="470" y="332" text-anchor="middle" class="tm" font-size="15">ILogger · IConfiguration</text></g>
+    <g class="step zoom" style="transform-origin:700px 160px"><circle cx="700" cy="160" r="44" fill="#e6f6f4" stroke="#0d9488" stroke-width="3"/><text x="700" y="175" text-anchor="middle" font-size="34">✍️</text><text x="700" y="86" text-anchor="middle" class="tw b" font-size="19">ჩანაწერის გზები</text><text x="700" y="62" text-anchor="middle" class="tm" font-size="15">constructor · primary constructor</text></g>
     <g class="step zoom" style="transform-origin:930px 270px"><circle cx="930" cy="270" r="44" fill="#fef2f2" stroke="#dc2626" stroke-width="3"/><text x="930" y="285" text-anchor="middle" font-size="34">🚫</text><text x="930" y="346" text-anchor="middle" class="tw b" font-size="19">როგორ არ უნდა</text><text x="930" y="372" text-anchor="middle" class="tm" font-size="15">Service Locator · ექსპერიმენტი</text></g>
     <g class="step zoom" style="transform-origin:1350px 230px"><circle cx="1350" cy="230" r="48" fill="#eaf8ef" stroke="#16a34a" stroke-width="4" class="pulse"/><text x="1350" y="246" text-anchor="middle" font-size="38">⌨️</text><text x="1350" y="314" text-anchor="middle" class="tg b" font-size="19">პრაქტიკა</text><text x="1350" y="340" text-anchor="middle" class="tm" font-size="15">LibraryApi</text></g>
   </svg>
@@ -149,10 +149,9 @@ i.codestep{display:none}
 ### ლექციის გეგმა
 
 1. **შეკვეთები** — პირველი დამოკიდებულებების ჯაჭვი: კლასი, რომელსაც კლასი სჭირდება, რომელსაც კიდევ კლასი სჭირდება.
-2. **Minimal API** — იგივე სერვისი, ოღონდ constructor-ის გარეშე.
-3. **Framework-ის სერვისები** — `ILogger` და `IConfiguration`, რომლებიც უკვე Container-შია.
-4. **ჩანაწერის გზები** — constructor, პარამეტრი, primary constructor.
-5. **როგორ არ უნდა** — Service Locator და ერთი ექსპერიმენტი lifetime-ზე.
+2. **Framework-ის სერვისები** — `ILogger` და `IConfiguration`, რომლებიც უკვე Container-შია.
+3. **ჩანაწერის გზები** — constructor, action-ის პარამეტრი, primary constructor.
+4. **როგორ არ უნდა** — Service Locator და ერთი ექსპერიმენტი lifetime-ზე.
   </aside>
 </section>
 <section class="slide divider" data-section="1 · შეკვეთები">
@@ -175,8 +174,9 @@ ShopApi-ს ვაგრძელებთ (ProductStore, StatsController, `AddS
     <div class="col" style="gap:16px">
       <div class="col step" style="gap:8px">
         <div class="rq"><span class="mth" style="--a:var(--asp)">POST</span><span class="url">/api/orders</span></div>
-        <div class="rs" style="--a:var(--api)"><div class="h">Body</div><pre class="json">{ <span class="k">"productId"</span>: <span class="n">2</span>, <span class="k">"quantity"</span>: <span class="n">3</span> }</pre></div>
-        <div class="rs" style="--a:var(--mvc)"><div class="h"><span class="st" style="--a:var(--mvc);font-size:15px">201 Created</span></div><pre class="json">{ <span class="k">"id"</span>: <span class="n">1</span>, <span class="k">"productId"</span>: <span class="n">2</span>, <span class="k">"quantity"</span>: <span class="n">3</span>, <span class="k">"total"</span>: <span class="n">135</span> }</pre></div>
+        <div class="rs" style="--a:var(--api)"><div class="h">Body</div><pre class="json">{ <span class="k">"productId"</span>: <span class="s">"7c9e…"</span>, <span class="k">"quantity"</span>: <span class="n">3</span> }</pre></div>
+        <div class="rs" style="--a:var(--mvc)"><div class="h"><span class="st" style="--a:var(--mvc);font-size:15px">201 Created</span></div><pre class="json">{ <span class="k">"id"</span>: <span class="s">"a1f3…"</span>, <span class="k">"productId"</span>: <span class="s">"7c9e…"</span>,
+  <span class="k">"quantity"</span>: <span class="n">3</span>, <span class="k">"total"</span>: <span class="n">135</span> }</pre></div>
       </div>
     </div>
     <div class="col" style="gap:16px">
@@ -194,10 +194,10 @@ ShopApi-ს ვაგრძელებთ (ProductStore, StatsController, `AddS
 
 ```http
 POST /api/orders
-{ "productId": 2, "quantity": 3 }
+{ "productId": "7c9e6679-…", "quantity": 3 }
 
 → 201 Created
-{ "id": 1, "productId": 2, "quantity": 3, "total": 135 }
+{ "id": "a1f3…", "productId": "7c9e6679-…", "quantity": 3, "total": 135 }
 ```
 
 შეკვეთის შექმნისას სამი რამ ხდება:
@@ -247,8 +247,8 @@ namespace ShopApi.Models;
 
 public class Order
 {
-    public int Id { get; set; }
-    public int ProductId { get; set; }
+    public Guid Id { get; set; }
+    public Guid ProductId { get; set; }
     public int Quantity { get; set; }
     public decimal Total { get; set; }
 }
@@ -259,7 +259,6 @@ namespace ShopApi.Services;
 public class OrderStore
 {
     private List<Order> _orders = new List<Order>();
-    private int _nextId = 1;
 
     public List<Order> GetAll()
     {
@@ -268,7 +267,7 @@ public class OrderStore
 
     public Order Add(Order order)
     {
-        order.Id = _nextId++;
+        order.Id = Guid.NewGuid();
         _orders.Add(order);
         return order;
     }
@@ -276,16 +275,16 @@ public class OrderStore
     </code-block>
   </div>
   <i class="codestep" data-for="om" data-lines="5-8"></i>
-  <i class="codestep" data-for="os" data-lines="5-6"></i>
-  <i class="codestep" data-for="os" data-lines="8-18"></i>
+  <i class="codestep" data-for="os" data-lines="5"></i>
+  <i class="codestep" data-for="os" data-lines="7-17"></i>
   <aside class="study">
 ### Order და OrderStore
 
 ```csharp Models/Order.cs
 public class Order
 {
-    public int Id { get; set; }
-    public int ProductId { get; set; }
+    public Guid Id { get; set; }
+    public Guid ProductId { get; set; }
     public int Quantity { get; set; }
     public decimal Total { get; set; }
 }
@@ -295,13 +294,12 @@ public class Order
 public class OrderStore
 {
     private List<Order> _orders = new List<Order>();
-    private int _nextId = 1;
 
     public List<Order> GetAll() => _orders;
 
     public Order Add(Order order)
     {
-        order.Id = _nextId++;
+        order.Id = Guid.NewGuid();
         _orders.Add(order);
         return order;
     }
@@ -327,7 +325,7 @@ public class OrderService
         _orders = orders;
     }
 
-    public Order? Create(int productId, int quantity)
+    public Order? Create(Guid productId, int quantity)
     {
         var product = _products.GetById(productId);
         if (product is null) return null;
@@ -373,7 +371,7 @@ public class OrderService
         _orders = orders;
     }
 
-    public Order? Create(int productId, int quantity)
+    public Order? Create(Guid productId, int quantity)
     {
         var product = _products.GetById(productId);
         if (product is null) return null;
@@ -472,7 +470,7 @@ public class OrdersController : ControllerBase
 Controller-ს **მხოლოდ OrderService** სჭირდება — Store-ების შესახებ არაფერი იცის. ლოგიკას Service-ს ვანდობთ, Controller კი HTTP-ს წყვეტს: `null` → 400, წარმატება → 201.
 
 ```note
-აქ Body-დ პირდაპირ `Order` შემოდის, რომ ყურადღება DI-ზე იყოს. რეალურად — წინა ლექციებიდან იცი — `CreateOrderRequest(int ProductId, int Quantity)` DTO დაიწერებოდა.
+აქ Body-დ პირდაპირ `Order` შემოდის, რომ ყურადღება DI-ზე იყოს. რეალურად — წინა ლექციებიდან იცი — `CreateOrderRequest(Guid ProductId, int Quantity)` DTO დაიწერებოდა.
 ```
   </aside>
 </section>
@@ -595,7 +593,7 @@ Container-თან: **რეგისტრაციის ერთი ხა�
   <div class="grid2" style="gap:40px;align-items:start">
     <div class="card accent step left" style="--a:var(--mvc)"><h3><span class="ico">📄</span>მონაცემი → <code class="i">new</code> ✓</h3>
       <code-block lang="csharp" cls="sm">
-var order = new Order { ProductId = 2, Quantity = 3 };
+var order = new Order { ProductId = product.Id, Quantity = 3 };
 var list  = new List<Order>();
       </code-block>
       <p class="small" style="margin-top:12px"><b>Product, Order, List</b> — უბრალოდ მონაცემებია. სამუშაოს არ აკეთებენ, არავის ვუზიარებთ</p>
@@ -616,7 +614,7 @@ public OrderService(ProductStore products, ...)
 - 📄 **მონაცემი → `new` ✓** — `Product`, `Order`, `List` უბრალოდ მონაცემებია: სამუშაოს არ აკეთებენ და არავის ვუზიარებთ.
 
 ```csharp
-var order = new Order { ProductId = 2, Quantity = 3 };
+var order = new Order { ProductId = product.Id, Quantity = 3 };
 var list  = new List<Order>();
 ```
 
@@ -629,107 +627,6 @@ public OrderService(ProductStore products, OrderStore orders)
 **წესი:** თუ კლასი სხვა კლასს სამუშაოდ სჭირდება — ის dependency-ა და constructor-ით მოდის.
   </aside>
 </section>
-<section class="slide divider" data-section="2 · Minimal API">
-  <div class="vcenter">
-    <div class="kicker in">ნაწილი 2</div>
-    <h1 class="in" style="--d:.1s">DI <span class="grad">Minimal API</span>-ში</h1>
-    <p class="lead mt in" style="--d:.3s">იგივე Container — სხვა ჩანაწერი</p>
-  </div>
-  <div class="big-num">02</div>
-  <aside class="study">
-## ნაწილი 2 · DI Minimal API-ში
-
-პირველ ლექციაზე endpoint-ს პირდაპირ `Program.cs`-ში ვწერდით, და ორივე გზა ერთ პროექტშიც შეიძლება იყოს. Container იგივეა — ჩანაწერი სხვაა, რადგან constructor იქ არ გვაქვს.
-  </aside>
-</section>
-<section class="slide" data-section="2 · Minimal API">
-  <div class="kicker">ახალი endpoint · Program.cs</div>
-  <h2>Service — <span class="c-core">პირდაპირ პარამეტრად</span></h2>
-  <div class="grid2" style="grid-template-columns:1.2fr 1fr;align-items:start;gap:34px">
-    <code-block id="mn" lang="csharp" title="Program.cs">
-var app = builder.Build();
-// ...
-app.MapControllers();
-
-app.MapGet("/api/orders/count", (OrderService orderService) =>
-{
-    return orderService.GetAll().Count;
-});
-
-app.Run();
-    </code-block>
-    <div class="col" style="gap:14px">
-      <i class="codestep" data-for="mn" data-lines="5"></i>
-      <div class="callout step" data-with style="--a:var(--core)">Constructor აქ <b>არ არის</b> — ამიტომ dependency-ს <b>ფუნქციის პარამეტრად</b> ვითხოვთ</div>
-      <i class="codestep" data-for="mn" data-lines="6-8"></i>
-      <div class="col step" data-with style="gap:8px">
-        <div class="rq"><span class="mth" style="--a:var(--mvc)">GET</span><span class="url">/api/orders/count</span></div>
-        <div class="rs" style="--a:var(--mvc)"><div class="h"><span class="st" style="--a:var(--mvc);font-size:15px">200 OK</span></div><pre class="json"><span class="n">2</span></pre></div>
-      </div>
-      <div class="solve step" style="font-size:20px">იგივე Singleton OrderService — Controller-იც და Minimal API-იც <b>ერთსა და იმავეს</b> ხედავს</div>
-    </div>
-  </div>
-  <aside class="study">
-### Service — პირდაპირ პარამეტრად
-
-```csharp Program.cs
-var app = builder.Build();
-// ...
-app.MapControllers();
-
-app.MapGet("/api/orders/count", (OrderService orderService) =>
-{
-    return orderService.GetAll().Count;
-});
-
-app.Run();
-```
-
-Minimal API-ში კლასი არ არის, მაშასადამე, არც constructor. ამიტომ dependency-ს **ფუნქციის პარამეტრად** ვითხოვთ.
-
-`GET /api/orders/count` → 200, `2`. OrdersController-მა შეკვეთები შექმნა, Minimal API endpoint-მა დაითვალა — ორივემ Container-იდან **იგივე Singleton OrderService** მიიღო.
-  </aside>
-</section>
-<section class="slide" data-section="2 · Minimal API">
-  <div class="kicker">როგორ ხვდება ASP.NET Core</div>
-  <h2>პარამეტრი <span class="c-api">საიდან მოდის?</span></h2>
-  <div class="src" style="background:transparent;border:0;box-shadow:none;font:600 15px var(--mono);color:var(--muted);padding-top:0;padding-bottom:0"><span>პარამეტრი</span><span>რატომ</span><span style="text-align:center">წყარო</span></div>
-  <div class="src step left"><span class="p">{id} → int id</span><span>სახელი მისამართის <code class="i">{id}</code>-ს ემთხვევა</span><span class="w" style="--a:var(--api)">Route</span></div>
-  <div class="src step left"><span class="p">int page</span><span>მარტივი ტიპი, მისამართში არ არის → <code class="i">?page=2</code></span><span class="w" style="--a:var(--wf)">Query</span></div>
-  <div class="src step left"><span class="p">OrderService service</span><span><b>Container-ში დარეგისტრირებულია</b></span><span class="w" style="--a:var(--core)">DI ✓</span></div>
-  <div class="src step left"><span class="p">Order order</span><span>რთული ტიპი, Container-ში არ არის (POST/PUT)</span><span class="w" style="--a:var(--asp)">Body</span></div>
-  <div class="grid2 mt" style="gap:24px;align-items:center">
-    <code-block lang="csharp" cls="sm" title="ცალსახად">
-([FromServices] OrderService orderService) =>
-    </code-block>
-    <div class="callout step" style="--a:var(--core)"><code class="i">[FromServices]</code> — „ეს <b>აუცილებლად</b> Container-იდან აიღე“. ავტომატურადაც ხვდება, მაგრამ ასე კოდის მკითხველისთვის <b>ცხადია</b></div>
-  </div>
-  <aside class="study">
-### პარამეტრი საიდან მოდის?
-
-ASP.NET Core ყოველ პარამეტრს უყურებს და წყაროს თვითონ ირჩევს:
-
-| პარამეტრი | რატომ | წყარო |
-|---|---|---|
-| `{id}` → `int id` | სახელი მისამართის `{id}`-ს ემთხვევა | Route |
-| `int page` | მარტივი ტიპი, მისამართში არ არის → `?page=2` | Query |
-| `OrderService service` | Container-ში დარეგისტრირებულია | **DI** ✓ |
-| `Order order` | რთული ტიპი, Container-ში არ არის (POST/PUT) | Body |
-
-თუ გინდა, ცალსახად დაწერე:
-
-```csharp
-([FromServices] OrderService orderService) =>
-```
-
-`[FromServices]` — „ეს აუცილებლად Container-იდან აიღე“.
-
-```prompt პარამეტრების წყაროები
-ASP.NET Core Minimal API-ში ვწერ endpoint-ებს. ამიხსენი, როგორ წყვეტს framework, საიდან აიღოს თითოეული პარამეტრი: Route, Query, Body, DI (services), Header.
-თითოეულზე მომეცი მოკლე მაგალითი და ახსენი [FromRoute], [FromQuery], [FromBody], [FromServices] ატრიბუტები. ქართულად.
-```
-  </aside>
-</section>
 <section class="slide" data-section="შესვენება">
   <div class="center">
     <div class="big-emoji in" style="font-size:120px">☕</div>
@@ -737,20 +634,20 @@ ASP.NET Core Minimal API-ში ვწერ endpoint-ებს. ამიხს
     <p class="lead in" style="--d:.3s">შემდეგ: სერვისები, რომლებიც <b class="c-api">უკვე</b> გვაქვს — <b>ILogger</b> და <b>IConfiguration</b></p>
   </div>
 </section>
-<section class="slide divider" data-section="3 · Framework-ის სერვისები">
+<section class="slide divider" data-section="2 · Framework-ის სერვისები">
   <div class="vcenter">
-    <div class="kicker in">ნაწილი 3</div>
+    <div class="kicker in">ნაწილი 2</div>
     <h1 class="in" style="--d:.1s">სერვისები, რომლებიც <span class="grad">უკვე გვაქვს</span></h1>
     <p class="lead mt in" style="--d:.3s">ASP.NET Core თვითონაც DI-ზეა აგებული</p>
   </div>
-  <div class="big-num">03</div>
+  <div class="big-num">02</div>
   <aside class="study">
-## ნაწილი 3 · სერვისები, რომლებიც უკვე გვაქვს
+## ნაწილი 2 · სერვისები, რომლებიც უკვე გვაქვს
 
 აქამდე Container-ში ჩვენი კლასები ჩავწერეთ. მაგრამ ის ცარიელი არასდროს ყოფილა — ASP.NET Core თვითონაც DI-ზეა აგებული.
   </aside>
 </section>
-<section class="slide" data-section="3 · Framework-ის სერვისები">
+<section class="slide" data-section="2 · Framework-ის სერვისები">
   <div class="kicker">ლოგირება</div>
   <h2>OrderService-ს <span class="c-api">ILogger</span> სჭირდება</h2>
   <div class="grid2" style="grid-template-columns:1.25fr 1fr;align-items:start;gap:28px">
@@ -765,7 +662,7 @@ public OrderService(ProductStore products, OrderStore orders,
     _logger = logger;
 }
 
-public Order? Create(int productId, int quantity)
+public Order? Create(Guid productId, int quantity)
 {
     var product = _products.GetById(productId);
     if (product is null)
@@ -811,7 +708,7 @@ public OrderService(ProductStore products, OrderStore orders,
     _logger = logger;
 }
 
-public Order? Create(int productId, int quantity)
+public Order? Create(Guid productId, int quantity)
 {
     var product = _products.GetById(productId);
     if (product is null)
@@ -841,7 +738,7 @@ warn: ShopApi.Services.OrderService[0]
 ```
   </aside>
 </section>
-<section class="slide" data-section="3 · Framework-ის სერვისები">
+<section class="slide" data-section="2 · Framework-ის სერვისები">
   <div class="kicker">კონფიგურაცია</div>
   <h2><span class="c-api">IConfiguration</span> — appsettings.json-იდან</h2>
   <i class="codestep" data-for="js" data-lines="2-4"></i>
@@ -925,7 +822,7 @@ public IActionResult Get()
 - რიცხვისთვის: `_configuration.GetValue<int>("Library:MaxLoans")`.
   </aside>
 </section>
-<section class="slide" data-section="3 · Framework-ის სერვისები">
+<section class="slide" data-section="2 · Framework-ის სერვისები">
   <div class="kicker">დიდი სურათი</div>
   <h2>Container <span class="c-api">არასდროს</span> ყოფილა ცარიელი</h2>
   <div class="grid2" style="grid-template-columns:1.1fr 1fr;align-items:center;gap:40px">
@@ -956,24 +853,24 @@ public IActionResult Get()
 ჩვენი კლასები და framework-ის სერვისები **ერთ Container-ში, ერთი წესით** ცხოვრობენ. ამიტომაა DI ამ კურსის ერთ-ერთი ყველაზე მნიშვნელოვანი თემა: ბაზა, ავტორიზაცია, ქეში — ყველაფერი ასე მოვა: დაარეგისტრირე, მოითხოვე.
   </aside>
 </section>
-<section class="slide divider" data-section="4 · ჩანაწერის გზები">
+<section class="slide divider" data-section="3 · ჩანაწერის გზები">
   <div class="vcenter">
-    <div class="kicker in">ნაწილი 4</div>
+    <div class="kicker in">ნაწილი 3</div>
     <h1 class="in" style="--d:.1s">როგორ <span class="grad">მოვითხოვოთ</span></h1>
     <p class="lead mt in" style="--d:.3s">Injection-ის გზები და თანამედროვე ჩანაწერი</p>
   </div>
-  <div class="big-num">04</div>
+  <div class="big-num">03</div>
   <aside class="study">
-## ნაწილი 4 · როგორ მოვითხოვოთ
+## ნაწილი 3 · როგორ მოვითხოვოთ
 
-dependency-ს მოთხოვნის ორი გზა უკვე ვნახეთ — constructor და პარამეტრი. შევაჯამოთ და თანამედროვე ჩანაწერიც ვნახოთ.
+dependency-ს მოთხოვნის მთავარი გზა უკვე ვიცით — constructor. ვნახოთ, კიდევ რა გზები არსებობს და რომელი არ გამოვიყენოთ, ბოლოს კი — თანამედროვე ჩანაწერი.
   </aside>
 </section>
-<section class="slide" data-section="4 · ჩანაწერის გზები">
+<section class="slide" data-section="3 · ჩანაწერის გზები">
   <div class="kicker">Injection-ის გზები</div>
   <h2>სამი გზა — <span class="c-mvc">ერთი მთავარი</span></h2>
   <div class="way step left" style="--a:var(--mvc)"><h3>Constructor</h3><div><code class="i">public OrdersController(OrderService orderService)</code><p style="margin-top:6px">მთელ კლასს სჭირდება · ჩანს, რაზეა დამოკიდებული · <b>სტანდარტი</b></p></div><span class="v">✓ ძირითადი</span></div>
-  <div class="way step left" style="--a:var(--core)"><h3>პარამეტრი</h3><div><code class="i">(OrderService s) =></code> · <code class="i">Count([FromServices] OrderService s)</code><p style="margin-top:6px">მხოლოდ <b>ერთ</b> endpoint-ს სჭირდება · Minimal API-ში — ერთადერთი გზა</p></div><span class="v">✓ საჭიროებისას</span></div>
+  <div class="way step left" style="--a:var(--core)"><h3>პარამეტრი</h3><div><code class="i">public IActionResult Count([FromServices] OrderService s)</code><p style="margin-top:6px">მხოლოდ <b>ერთ</b> action-ს სჭირდება · <code class="i">[FromServices]</code> — „Container-იდან აიღე“</p></div><span class="v">✓ საჭიროებისას</span></div>
   <div class="way step left" style="--a:var(--red)"><h3>Property</h3><div><code class="i">public OrderService Service { get; set; }</code><p style="margin-top:6px">ჩაშენებული Container <b>არ უჭერს მხარს</b> · შეიძლება null დარჩეს, dependency იმალება</p></div><span class="v">✗ არა</span></div>
   <aside class="study">
 ### Injection-ის სამი გზა
@@ -981,11 +878,13 @@ dependency-ს მოთხოვნის ორი გზა უკვე ვ�
 | გზა | ჩანაწერი | როდის |
 |---|---|---|
 | **Constructor** ✓ ძირითადი | `public OrdersController(OrderService orderService)` | მთელ კლასს სჭირდება · constructor-ზე ჩანს, რაზეა დამოკიდებული · სტანდარტი |
-| **პარამეტრი** ✓ საჭიროებისას | `(OrderService s) =>` · `Count([FromServices] OrderService s)` | მხოლოდ ერთ endpoint-ს სჭირდება · Minimal API-ში ერთადერთი გზა |
+| **action-ის პარამეტრი** ✓ საჭიროებისას | `public IActionResult Count([FromServices] OrderService s)` | მხოლოდ ერთ action-ს სჭირდება — მთელ Controller-ს constructor-ში არ ვტვირთავთ |
 | **Property** ✗ | `public OrderService Service { get; set; }` | .NET-ის ჩაშენებული Container ამას განზრახ არ აკეთებს: შეიძლება `null` დარჩეს და dependency იმალება |
+
+`[FromServices]` ეუბნება ASP.NET Core-ს: ეს პარამეტრი მისამართიდან ან Body-დან კი არა, **Container-იდან** აიღე. ასე წერენ, როცა სერვისი Controller-ის მხოლოდ ერთ action-ს სჭირდება.
   </aside>
 </section>
-<section class="slide" data-section="4 · ჩანაწერის გზები">
+<section class="slide" data-section="3 · ჩანაწერის გზები">
   <div class="kicker">C# 12+ · Primary constructor</div>
   <h2>იგივე, <span class="c-mvc">ნაკლები კოდით</span></h2>
   <div class="grid2" style="align-items:start;gap:30px">
@@ -1064,20 +963,20 @@ primary constructor-ის პარამეტრი `readonly` არ არ�
 ```
   </aside>
 </section>
-<section class="slide divider" data-section="5 · როგორ არ უნდა">
+<section class="slide divider" data-section="4 · როგორ არ უნდა">
   <div class="vcenter">
-    <div class="kicker in">ნაწილი 5</div>
+    <div class="kicker in">ნაწილი 4</div>
     <h1 class="in" style="--d:.1s">როგორ <span class="grad">არ უნდა</span></h1>
     <p class="lead mt in" style="--d:.3s">ერთი ცუდი პრაქტიკა და ერთი ექსპერიმენტი</p>
   </div>
-  <div class="big-num">05</div>
+  <div class="big-num">04</div>
   <aside class="study">
-## ნაწილი 5 · როგორ არ უნდა
+## ნაწილი 4 · როგორ არ უნდა
 
 ერთი ცუდი პრაქტიკა, რომელსაც ძველ პროექტებში აუცილებლად ნახავ, და ერთი ექსპერიმენტი.
   </aside>
 </section>
-<section class="slide" data-section="5 · როგორ არ უნდა">
+<section class="slide" data-section="4 · როგორ არ უნდა">
   <div class="kicker">Anti-pattern · Service Locator</div>
   <h2>Container-ს <span class="c-red">თვითონ ვეკითხებით</span></h2>
   <div class="grid2" style="grid-template-columns:1.2fr 1fr;align-items:start;gap:30px">
@@ -1135,7 +1034,7 @@ Service Locator — როცა კლასი Container-ს თვითო�
 ```
   </aside>
 </section>
-<section class="slide" data-section="5 · როგორ არ უნდა">
+<section class="slide" data-section="4 · როგორ არ უნდა">
   <div class="kicker">ექსპერიმენტი</div>
   <h2>Singleton → <span class="c-red">Transient</span>: რა მოხდება?</h2>
   <div class="grid2" style="grid-template-columns:1fr 1.15fr;align-items:start;gap:34px">
@@ -1191,13 +1090,13 @@ POST „მონიტორი“ → 201. GET → ისევ 3 პროდ
 </section>
 <section class="slide divider" data-section="პრაქტიკა">
   <div class="vcenter">
-    <div class="kicker in">ნაწილი 6</div>
+    <div class="kicker in">ნაწილი 5</div>
     <h1 class="in" style="--d:.1s">ახლა <span class="grad">თქვენი ჯერია</span></h1>
     <p class="lead mt in" style="--d:.3s">LibraryApi — წიგნების გაცემა</p>
   </div>
-  <div class="big-num">06</div>
+  <div class="big-num">05</div>
   <aside class="study">
-## ნაწილი 6 · თქვენი ჯერია
+## ნაწილი 5 · თქვენი ჯერია
 
 OrderService-ის მსგავსად — ბიბლიოთეკაში წიგნის გატანა. სტრუქტურა ზუსტად იგივეა: Controller → Service → Store.
   </aside>
@@ -1209,7 +1108,6 @@ OrderService-ის მსგავსად — ბიბლიოთეკა�
   <table class="t" style="font-size:16px">
     <tr><th style="width:40%">რას ხედავ</th><th style="width:28%">მიზეზი</th><th>გამოსწორება</th></tr>
     <tr class="step fade"><td class="mono" style="font-size:14px">Unable to resolve service for type '…LoanStore' while attempting to activate '…LoanService'</td><td>ჯაჭვის <b>შუა</b> რგოლი არ არის დარეგისტრირებული</td><td><code class="i">AddSingleton&lt;LoanStore&gt;()</code></td></tr>
-    <tr class="step fade"><td class="mono" style="font-size:14px">Body was inferred but the method does not allow inferred body parameters</td><td>Minimal API-ში სერვისი <b>არ არის</b> დარეგისტრირებული → Body ეგონა</td><td>დაარეგისტრირე ან <code class="i">[FromServices]</code></td></tr>
     <tr class="step fade"><td class="mono" style="font-size:14px">A circular dependency was detected for the service of type '…'</td><td>A-ს სჭირდება B, B-ს — A</td><td>ერთ-ერთმა მეორე <b>არ უნდა</b> მოითხოვოს</td></tr>
     <tr class="step fade"><td><code class="i">_configuration["Library:Max…"]</code> → <b>null</b></td><td>გასაღებში შეცდომა ან <b>:</b>-ის ნაცვლად <b>.</b></td><td>შეამოწმე appsettings.json და <code class="i">"Section:Key"</code></td></tr>
     <tr class="step fade"><td>ლოგი console-ში <b>არ ჩანს</b></td><td><code class="i">LogDebug</code> ნაგულისხმევად <b>არ ჩანს</b>, ან სხვა ფანჯარას უყურებ</td><td><code class="i">LogInformation</code> · ფანჯარა: ASP.NET Core Web Server</td></tr>
@@ -1220,7 +1118,6 @@ OrderService-ის მსგავსად — ბიბლიოთეკა�
 | რას ხედავ | მიზეზი და გამოსწორება |
 |---|---|
 | `Unable to resolve service for type '…LoanStore' while attempting to activate '…LoanService'` | ჯაჭვის შუა რგოლი არ არის დარეგისტრირებული → `AddSingleton<LoanStore>()`. შეცდომაში ორივე სახელი წერია: ვის ვერ პოულობს და ვისთვის |
-| `Body was inferred but the method does not allow inferred body parameters` | Minimal API-ში სერვისი არ არის დარეგისტრირებული, და ASP.NET Core-ს Body ეგონა → დაარეგისტრირე ან `[FromServices]` |
 | `A circular dependency was detected for the service of type '…'` | A-ს სჭირდება B, B-ს — A. ერთ-ერთმა მეორე არ უნდა მოითხოვოს |
 | `_configuration["Library:Max…"]` → `null` | გასაღებში შეცდომა, ან `:`-ის ნაცვლად `.`. შეამოწმე `appsettings.json` და `"Section:Key"` |
 | ლოგი console-ში არ ჩანს | `LogDebug` ნაგულისხმევად არ ჩანს, ან სხვა ფანჯარას უყურებ → `LogInformation`; Output ფანჯარა: ASP.NET Core Web Server |
@@ -1254,7 +1151,7 @@ OrderService-ის მსგავსად — ბიბლიოთეკა�
 **დაიმახსოვრე:**
 
 1. **Controller → Service → Store**: HTTP · წესები · მონაცემები. Container constructor-ებს კითხულობს და ჯაჭვს ქვემოდან ზემოთ აწყობს.
-2. **Minimal API**-ში dependency ფუნქციის პარამეტრია; **`ILogger`** და **`IConfiguration`** რეგისტრაციის გარეშე მოდის.
+2. **`ILogger`** და **`IConfiguration`** რეგისტრაციის გარეშე მოდის; თუ სერვისი მხოლოდ ერთ action-ს სჭირდება — `[FromServices]` პარამეტრი.
 3. **Service Locator** — არა. **Lifetime** მნიშვნელოვანია: `Transient`-ით ProductStore-მა ისევ „დაკარგა“ მონაცემი.
 
 ### ⏭️ შემდეგი მოდული
@@ -1262,7 +1159,7 @@ OrderService-ის მსგავსად — ბიბლიოთეკა�
 გააჩერე პროგრამა და თავიდან გაუშვი: `GET /api/orders` → `[]`, მონიტორიც გაქრა. Singleton-იც მეხსიერებაშია და პროგრამასთან ერთად კვდება. დრო მოვიდა **მონაცემთა ბაზის — EF Core**. ProductStore-ის ადგილს ბაზა დაიკავებს — დააკვირდი, რამდენი კოდი შეიცვლება და სად.
 
 ```prompt გამოცდა DI-ის მოდულზე
-ვსწავლობ ASP.NET Core-ს. გავიარეთ: Store/Service/Controller როლები, constructor injection, AddSingleton/AddScoped/AddTransient, DI Minimal API-ში და [FromServices], ILogger<T>, IConfiguration, primary constructor, Service Locator anti-pattern.
+ვსწავლობ ASP.NET Core-ს. გავიარეთ: Store/Service/Controller როლები, constructor injection, AddSingleton/AddScoped/AddTransient, [FromServices] action-ის პარამეტრში, ILogger<T>, IConfiguration, primary constructor, Service Locator anti-pattern.
 დამისვი 8 კითხვა სათითაოდ (ზოგი — პატარა კოდის ნაწყვეტზე: „რა მოხდება?“). ყოველ პასუხზე შემიფასე და ამიხსენი. ბოლოს მითხარი, რა გავიმეორო. ქართულად.
 ```
   </aside>
