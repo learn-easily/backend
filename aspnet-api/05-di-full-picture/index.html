@@ -348,8 +348,8 @@ padding:6px 10px;border-radius:8px;opacity:0;transition:opacity .25s}
 background:var(--net);border:0;border-radius:10px;padding:7px 13px;cursor:pointer;opacity:.9;box-shadow:0 4px 14px rgba(109,40,217,.25)}
 #studybtn:hover{opacity:1}#studybtn kbd{font:600 11px var(--mono);background:rgba(255,255,255,.22);border-radius:5px;padding:1px 6px}
 body[data-study] #help{right:190px}</style></head>
-<body>
-<a id="home" href="../../" title="ყველა ლექცია">← ლექციები</a>
+<body data-study="1">
+<a id="home" href="../../" title="ყველა ლექცია">← ლექციები</a><button id="studybtn" type="button" title="კონსპექტი ცალკე ფანჯარაში — სლაიდებს მიჰყვება">📖 კონსპექტი <kbd>P</kbd></button>
 <div id="stage"><div id="deck">
 <style>
 i.codestep{display:none}
@@ -464,7 +464,7 @@ i.codestep{display:none}
 <!-- 1. TITLE -->
 <section class="slide" data-section="შესავალი">
   <div class="vcenter" style="max-width:820px">
-    <div class="kicker in" style="color:var(--core)">ASP.NET Core Web API · ლექცია 4</div>
+    <div class="kicker in" style="color:var(--core)">ASP.NET Core Web API · ლექცია 5</div>
     <h1 class="in" style="--d:.15s">Dependency Injection<br><span class="grad">სრული სურათი</span></h1>
     <p class="lead in mt" style="--d:.35s">დამოკიდებულებების <b>ჯაჭვი</b>, Minimal API, framework-ის სერვისები და ის, <b>როგორ არ</b> უნდა გავაკეთოთ</p>
   </div>
@@ -482,23 +482,38 @@ i.codestep{display:none}
       <g class="in fade" style="--d:1.8s"><rect x="150" y="460" width="260" height="70" rx="18" fill="#e6f6f4" stroke="#0d9488" stroke-width="3" class="pulse"/><text x="280" y="503" text-anchor="middle" class="tp b" font-size="19">📦 ყველაფერს აწყობს</text></g>
     </svg>
   </div>
+</section>
+<section class="slide" data-section="გამეორება">
+  <div class="kicker">გამეორება · ლექცია 4</div>
+  <h2>გავიხსენოთ: <span class="grad">Inversion of Control და Dependency Injection</span></h2>
+  <div class="qa"><span class="n">1</span><span class="q">რატომ გაქრა მონიტორი, როცა Controller-ში <code class="i">new ProductStore()</code> ეწერა?</span><span class="a step">Controller ყოველ მოთხოვნაზე ახალია → თავის ახალ ProductStore-ს ქმნის → ახალი სია</span></div><div class="qa"><span class="n">2</span><span class="q">რა არის Inversion of Control?</span><span class="a step">პრინციპი: კონტროლს framework-ს ვაძლევთ — ის ქმნის ობიექტებს და იძახებს ჩვენს კოდს</span></div><div class="qa"><span class="n">3</span><span class="q">რა არის dependency და როგორ ითხოვს მას Controller?</span><span class="a step">ის, რაც კლასს სამუშაოდ სჭირდება · constructor-ის პარამეტრით</span></div><div class="qa"><span class="n">4</span><span class="q">რას ნიშნავს „Unable to resolve service for type …“?</span><span class="a step">Container-მა ეს ტიპი არ იცის — <code class="i">builder.Services</code>-ში რეგისტრაცია აკლია</span></div><div class="qa"><span class="n">5</span><span class="q">რას აკეთებს <code class="i">AddSingleton&lt;ProductStore&gt;()</code>?</span><span class="a step">Container-ს ასწავლის ProductStore-ს · ერთ ობიექტს ქმნის და ყველას იმავეს აწვდის</span></div>
   
 </section>
-
-<!-- 2. RECALL -->
-<section class="slide" data-section="შესავალი">
-  <div class="kicker">გავიხსენოთ · ლექცია 3</div>
-  <h2>ობიექტებს <span class="grad">აღარ ვქმნით — ვითხოვთ</span></h2>
-  <div class="grid3" style="gap:24px">
-    <div class="card accent step" style="--a:var(--net)"><h3><span class="ico">🙋</span>ვითხოვთ</h3><pre class="code xs"><code><span class="ln"><span class="k">public</span><span class="w"> </span><span class="nf">ProductsController</span><span class="p">(</span></span><span class="ln"><span class="w">    </span><span class="n">ProductStore</span><span class="w"> </span><span class="n">store</span><span class="p">)</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="n">_store</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">store</span><span class="p">;</span></span><span class="ln"><span class="p">}</span></span><span class="ln"><span class="w">    </span></span></code></pre><p class="small" style="margin-top:12px">Constructor-ის პარამეტრი = <b>dependency</b></p></div>
-    <div class="card accent step" style="--a:var(--core)"><h3><span class="ico">📋</span>ვარეგისტრირებთ</h3><pre class="code xs"><code><span class="ln"><span class="n">builder</span><span class="p">.</span><span class="n">Services</span></span><span class="ln"><span class="w">  </span><span class="p">.</span><span class="n">AddSingleton</span><span class="o">&lt;</span><span class="n">ProductStore</span><span class="o">&gt;</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span></span></code></pre><p class="small" style="margin-top:12px">Container-ს ვასწავლით · <b>Singleton</b> = ერთი ყველასთვის</p></div>
-    <div class="card accent step" style="--a:var(--api)"><h3><span class="ico">📦</span>Container აწვდის</h3><p class="small">ყოველ მოთხოვნაზე: <b>ახალი</b> Controller, <b>იგივე</b> ProductStore</p><p class="small" style="margin-top:10px">ეს არის <b>IoC</b>: ქმნის და იძახებს framework</p></div>
+<section class="slide" data-section="საშინაოს განხილვა">
+  <div class="kicker">🏠 საშინაოს განხილვა · ლექცია 4</div>
+  <h2>LibraryApi — წიგნის გატანა</h2>
+  <div class="grid2" style="grid-template-columns:1fr 1.25fr;align-items:start;gap:30px">
+    <div class="card accent step" style="--a:var(--mvc)"><h3><span class="ico">📝</span>რა უნდა გაგეკეთებინათ</h3><ul class="clean small">
+<li><code class="i">MemberStore</code> — წევრები MembersController-იდან ცალკე კლასში, <code class="i">AddSingleton</code></li>
+<li><code class="i">Models/Loan</code>: <code class="i">Id</code>, <code class="i">BookId</code>, <code class="i">MemberId</code>, <code class="i">LoanedAt</code> · <code class="i">LoanStore</code> — სია და <code class="i">Add</code>, <code class="i">GetAll</code></li>
+<li><code class="i">LoansController</code> — constructor-ში <strong>სამი</strong> dependency: <code class="i">BookStore</code>, <code class="i">MemberStore</code>, <code class="i">LoanStore</code></li>
+<li><code class="i">POST /api/loans</code> <code class="i">{ bookId, memberId }</code> → 201, ან 404, თუ წიგნი ან წევრი არ არსებობს</li>
+<li><code class="i">GET /api/loans</code> — ყველა გატანა</li>
+</ul></div>
+    <div class="step"><pre class="code sm"><span class="ttl">Controllers/LoansController.cs · Create</span><code><span class="ln"><span class="na">[HttpPost]</span></span><span class="ln"><span class="k">public</span><span class="w"> </span><span class="n">IActionResult</span><span class="w"> </span><span class="nf">Create</span><span class="p">(</span><span class="n">CreateLoanRequest</span><span class="w"> </span><span class="n">request</span><span class="p">)</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">_books</span><span class="p">.</span><span class="n">GetById</span><span class="p">(</span><span class="n">request</span><span class="p">.</span><span class="n">BookId</span><span class="p">)</span><span class="w"> </span><span class="k">is</span><span class="w"> </span><span class="k">null</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">NotFound</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">_members</span><span class="p">.</span><span class="n">GetById</span><span class="p">(</span><span class="n">request</span><span class="p">.</span><span class="n">MemberId</span><span class="p">)</span><span class="w"> </span><span class="k">is</span><span class="w"> </span><span class="k">null</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">NotFound</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">_loans</span><span class="p">.</span><span class="n">GetAll</span><span class="p">(</span><span class="p">)</span><span class="p">.</span><span class="n">Any</span><span class="p">(</span><span class="n">l</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">l</span><span class="p">.</span><span class="n">BookId</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">request</span><span class="p">.</span><span class="n">BookId</span><span class="p">)</span><span class="p">)</span></span><span class="ln"><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="nf">Conflict</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="kt">var</span><span class="w"> </span><span class="n">loan</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">_loans</span><span class="p">.</span><span class="n">Add</span><span class="p">(</span><span class="k">new</span><span class="w"> </span><span class="n">Loan</span></span><span class="ln"><span class="w">        </span><span class="p">{</span><span class="w"> </span><span class="n">BookId</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">request</span><span class="p">.</span><span class="n">BookId</span><span class="p">,</span><span class="w"> </span><span class="n">MemberId</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">request</span><span class="p">.</span><span class="n">MemberId</span><span class="w"> </span><span class="p">}</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nf">Created</span><span class="p">(</span><span class="s">$"/api/loans/{loan.Id}"</span><span class="p">,</span><span class="w"> </span><span class="n">ToResponse</span><span class="p">(</span><span class="n">loan</span><span class="p">)</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="p">}</span></span><span class="ln"> </span><span class="ln"><span class="na">[HttpGet]</span></span><span class="ln"><span class="k">public</span><span class="w"> </span><span class="n">IActionResult</span><span class="w"> </span><span class="nf">GetAll</span><span class="p">(</span><span class="p">)</span><span class="w"> </span><span class="o">=&gt;</span></span><span class="ln"><span class="w">    </span><span class="n">Ok</span><span class="p">(</span><span class="n">_loans</span><span class="p">.</span><span class="n">GetAll</span><span class="p">(</span><span class="p">)</span><span class="p">.</span><span class="n">Select</span><span class="p">(</span><span class="n">ToResponse</span><span class="p">)</span><span class="p">.</span><span class="n">ToList</span><span class="p">(</span><span class="p">)</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="k">private</span><span class="w"> </span><span class="k">static</span><span class="w"> </span><span class="n">LoanResponse</span><span class="w"> </span><span class="nf">ToResponse</span><span class="p">(</span><span class="n">Loan</span><span class="w"> </span><span class="n">l</span><span class="p">)</span><span class="w"> </span><span class="o">=&gt;</span></span><span class="ln"><span class="w">    </span><span class="k">new</span><span class="p">(</span><span class="n">l</span><span class="p">.</span><span class="n">Id</span><span class="p">,</span><span class="w"> </span><span class="n">l</span><span class="p">.</span><span class="n">BookId</span><span class="p">,</span><span class="w"> </span><span class="n">l</span><span class="p">.</span><span class="n">MemberId</span><span class="p">,</span><span class="w"> </span><span class="n">l</span><span class="p">.</span><span class="n">LoanedAt</span><span class="p">)</span><span class="p">;</span></span></code></pre></div>
   </div>
-  <div class="callout mt step" style="--a:var(--mvc)">საშინაოს შემოწმება: LibraryApi-ში <code class="i">new BookStore()</code> <b>არსად</b> 🔍 — ვის აქვს 0 შედეგი?</div>
+  <div class="callout step mt" style="--a:var(--api)">შეადარეთ თქვენს კოდს. რა გამოგივიდათ სხვანაირად — და რატომ?</div>
   
 </section>
-
-<!-- 3. ROADMAP -->
+<section class="slide" data-section="დღის თემა">
+  <div class="kicker">დღის თემა</div>
+  <h2><span class="grad">Dependency Injection: სრული სურათი</span></h2>
+  <div class="grid2" style="grid-template-columns:1fr 1fr;align-items:start;gap:40px">
+    <div class="card accent step" style="--a:var(--asp)"><h3><span class="ico">🤔</span>რატომ გჭირდებათ</h3><p class="small">წინა ლექციაზე ერთმა Controller-მა ერთი Store ითხოვა. რეალურ პროექტში კლასს კლასი სჭირდება, იმას — კიდევ რამდენიმე, და ლოგიკა Controller-ში აღარ ეტევა. დღეს ვნახავთ DI-ს სრულ სურათს: ვინ აწყობს დამოკიდებულებების ჯაჭვს, როგორ მუშაობს DI Minimal API-ში, რა სერვისები აქვს framework-ს უკვე მზად და რა არ უნდა გავაკეთოთ.</p></div>
+    <div class="card accent" style="--a:var(--mvc)"><h3><span class="ico">🎯</span>ლექციის ბოლოს შეძლებთ</h3><ul class="clean small"><li class="step">Controller → Service → Store ჯაჭვის აწყობა: ვის რა საქმე აქვს</li><li class="step">dependency-ს მოთხოვნა Minimal API-ში და <code class="i">[FromServices]</code></li><li class="step"><code class="i">ILogger</code> და <code class="i">IConfiguration</code> გამოყენება რეგისტრაციის გარეშე</li><li class="step">Service Locator-ის ამოცნობა და lifetime-ის მნიშვნელობა</li></ul></div>
+  </div>
+  
+</section>
 <section class="slide">
   <div class="kicker">დღის გზა</div>
   <h2>ProductStore-იდან — <span class="c-pink">შეკვეთებამდე</span></h2>
@@ -513,8 +528,6 @@ i.codestep{display:none}
   </svg>
   
 </section>
-
-<!-- ============ PART 1: ORDERS ============ -->
 <section class="slide divider" data-section="1 · შეკვეთები">
   <div class="vcenter">
     <div class="kicker in">ნაწილი 1</div>
@@ -524,8 +537,6 @@ i.codestep{display:none}
   <div class="big-num">01</div>
   
 </section>
-
-<!-- 4. ORDER REQUIREMENT -->
 <section class="slide" data-section="1 · შეკვეთები">
   <div class="kicker">ახალი მოთხოვნა</div>
   <h2>„მომხმარებელს <span class="c-pink">შეკვეთა</span> უნდა შეეძლოს“</h2>
@@ -549,8 +560,6 @@ i.codestep{display:none}
   </div>
   
 </section>
-
-<!-- 5. WHERE DOES LOGIC LIVE -->
 <section class="slide" data-section="1 · შეკვეთები">
   <div class="kicker">სამი როლი</div>
   <h2>ვის რა <span class="c-pink">საქმე</span> აქვს</h2>
@@ -566,8 +575,6 @@ i.codestep{display:none}
   </div>
   
 </section>
-
-<!-- 6. ORDER + ORDERSTORE -->
 <section class="slide" data-section="1 · შეკვეთები">
   <div class="kicker">მოდელი და საცავი</div>
   <h2><span class="c-asp">Order</span> და <span class="c-asp">OrderStore</span></h2>
@@ -580,8 +587,6 @@ i.codestep{display:none}
   <i class="codestep" data-for="os" data-lines="8-18"></i>
   
 </section>
-
-<!-- 7. ORDERSERVICE -->
 <section class="slide" data-section="1 · შეკვეთები">
   <div class="kicker">ლოგიკა</div>
   <h2><span class="c-pink">OrderService</span> — ორი dependency</h2>
@@ -600,8 +605,6 @@ i.codestep{display:none}
   </div>
   
 </section>
-
-<!-- 8. ORDERSCONTROLLER -->
 <section class="slide" data-section="1 · შეკვეთები">
   <div class="kicker">HTTP</div>
   <h2><span class="c-net">OrdersController</span> — ერთი dependency</h2>
@@ -618,8 +621,6 @@ i.codestep{display:none}
   </div>
   
 </section>
-
-<!-- 9. ERROR + REGISTER -->
 <section class="slide" data-section="1 · შეკვეთები">
   <div class="kicker">ვუშვებთ… POST /api/orders</div>
   <h2>ნაცნობი შეცდომა — <span class="c-mvc">ნაცნობი გამოსავალი</span></h2>
@@ -637,8 +638,6 @@ i.codestep{display:none}
   </div>
   
 </section>
-
-<!-- 10. CONTAINER BUILDS THE TREE -->
 <section class="slide" data-section="1 · შეკვეთები">
   <div class="kicker">კაპოტის ქვეშ</div>
   <h2>Container <span class="c-core">მთელ ჯაჭვს</span> თვითონ აწყობს</h2>
@@ -660,8 +659,6 @@ i.codestep{display:none}
   </div>
   
 </section>
-
-<!-- 11. BY HAND -->
 <section class="slide" data-section="1 · შეკვეთები">
   <div class="kicker">წარმოიდგინეთ Container-ის გარეშე</div>
   <h2>ხელით რომ ავაწყოთ…</h2>
@@ -676,8 +673,6 @@ i.codestep{display:none}
   </div>
   
 </section>
-
-<!-- 12. NEW IS NOT EVIL -->
 <section class="slide" data-section="1 · შეკვეთები">
   <div class="kicker">ხშირი კითხვა</div>
   <h2>მაშ, <code class="i" style="font-size:.85em">new</code> საერთოდ <span class="c-red">აკრძალულია</span>?</h2>
@@ -694,8 +689,6 @@ i.codestep{display:none}
   <div class="callout mt2 in" style="--a:var(--api);--d:.2s">წესი: თუ კლასი <b>სხვა კლასს სჭირდება სამუშაოდ</b> — ის dependency-ა და constructor-ით მოდის</div>
   
 </section>
-
-<!-- ============ PART 2: MINIMAL API ============ -->
 <section class="slide divider" data-section="2 · Minimal API">
   <div class="vcenter">
     <div class="kicker in">ნაწილი 2</div>
@@ -705,8 +698,6 @@ i.codestep{display:none}
   <div class="big-num">02</div>
   
 </section>
-
-<!-- 13. MINIMAL ENDPOINT -->
 <section class="slide" data-section="2 · Minimal API">
   <div class="kicker">ახალი endpoint · Program.cs</div>
   <h2>Service — <span class="c-core">პირდაპირ პარამეტრად</span></h2>
@@ -725,8 +716,6 @@ i.codestep{display:none}
   </div>
   
 </section>
-
-<!-- 14. WHERE DO PARAMS COME FROM -->
 <section class="slide" data-section="2 · Minimal API">
   <div class="kicker">როგორ ხვდება ASP.NET Core</div>
   <h2>პარამეტრი <span class="c-api">საიდან მოდის?</span></h2>
@@ -741,18 +730,13 @@ i.codestep{display:none}
   </div>
   
 </section>
-
-<!-- BREAK -->
 <section class="slide" data-section="შესვენება">
   <div class="center">
     <div class="big-emoji in" style="font-size:120px">☕</div>
     <h1 class="in" style="--d:.15s">10 წუთი</h1>
     <p class="lead in" style="--d:.3s">შემდეგ: სერვისები, რომლებიც <b class="c-api">უკვე</b> გვაქვს — <b>ILogger</b> და <b>IConfiguration</b></p>
   </div>
-  
 </section>
-
-<!-- ============ PART 3: FRAMEWORK SERVICES ============ -->
 <section class="slide divider" data-section="3 · Framework-ის სერვისები">
   <div class="vcenter">
     <div class="kicker in">ნაწილი 3</div>
@@ -762,8 +746,6 @@ i.codestep{display:none}
   <div class="big-num">03</div>
   
 </section>
-
-<!-- 15. ILOGGER -->
 <section class="slide" data-section="3 · Framework-ის სერვისები">
   <div class="kicker">ლოგირება</div>
   <h2>OrderService-ს <span class="c-api">ILogger</span> სჭირდება</h2>
@@ -787,8 +769,6 @@ i.codestep{display:none}
   </div>
   
 </section>
-
-<!-- 16. ICONFIGURATION -->
 <section class="slide" data-section="3 · Framework-ის სერვისები">
   <div class="kicker">კონფიგურაცია</div>
   <h2><span class="c-api">IConfiguration</span> — appsettings.json-იდან</h2>
@@ -805,8 +785,6 @@ i.codestep{display:none}
   </div>
   
 </section>
-
-<!-- 17. CONTAINER IS FULL ALREADY -->
 <section class="slide" data-section="3 · Framework-ის სერვისები">
   <div class="kicker">დიდი სურათი</div>
   <h2>Container <span class="c-api">არასდროს</span> ყოფილა ცარიელი</h2>
@@ -827,8 +805,6 @@ i.codestep{display:none}
   </div>
   
 </section>
-
-<!-- ============ PART 4: WAYS ============ -->
 <section class="slide divider" data-section="4 · ჩანაწერის გზები">
   <div class="vcenter">
     <div class="kicker in">ნაწილი 4</div>
@@ -838,8 +814,6 @@ i.codestep{display:none}
   <div class="big-num">04</div>
   
 </section>
-
-<!-- 18. THREE WAYS -->
 <section class="slide" data-section="4 · ჩანაწერის გზები">
   <div class="kicker">Injection-ის გზები</div>
   <h2>სამი გზა — <span class="c-mvc">ერთი მთავარი</span></h2>
@@ -848,8 +822,6 @@ i.codestep{display:none}
   <div class="way step left" style="--a:var(--red)"><h3>Property</h3><div><code class="i">public OrderService Service { get; set; }</code><p style="margin-top:6px">ჩაშენებული Container <b>არ უჭერს მხარს</b> · შეიძლება null დარჩეს, dependency იმალება</p></div><span class="v">✗ არა</span></div>
   
 </section>
-
-<!-- 19. PRIMARY CONSTRUCTORS -->
 <section class="slide" data-section="4 · ჩანაწერის გზები">
   <div class="kicker">C# 12+ · Primary constructor</div>
   <h2>იგივე, <span class="c-mvc">ნაკლები კოდით</span></h2>
@@ -869,8 +841,6 @@ i.codestep{display:none}
   <div class="callout step" style="--a:var(--asp);margin-top:18px">⚠ Primary constructor-ის პარამეტრი <b>readonly არ არის</b> — შემთხვევით შეიძლება შეცვალო. ორივე ჩანაწერი სწორია, გუნდი ირჩევს</div>
   
 </section>
-
-<!-- ============ PART 5: HOW NOT TO ============ -->
 <section class="slide divider" data-section="5 · როგორ არ უნდა">
   <div class="vcenter">
     <div class="kicker in">ნაწილი 5</div>
@@ -880,8 +850,6 @@ i.codestep{display:none}
   <div class="big-num">05</div>
   
 </section>
-
-<!-- 20. SERVICE LOCATOR -->
 <section class="slide" data-section="5 · როგორ არ უნდა">
   <div class="kicker">Anti-pattern · Service Locator</div>
   <h2>Container-ს <span class="c-red">თვითონ ვეკითხებით</span></h2>
@@ -897,8 +865,6 @@ i.codestep{display:none}
   </div>
   
 </section>
-
-<!-- 21. TRANSIENT EXPERIMENT -->
 <section class="slide" data-section="5 · როგორ არ უნდა">
   <div class="kicker">ექსპერიმენტი</div>
   <h2>Singleton → <span class="c-red">Transient</span>: რა მოხდება?</h2>
@@ -929,9 +895,7 @@ i.codestep{display:none}
   </div>
   
 </section>
-
-<!-- ============ PART 6: PRACTICE ============ -->
-<section class="slide divider" data-section="6 · პრაქტიკა">
+<section class="slide divider" data-section="პრაქტიკა">
   <div class="vcenter">
     <div class="kicker in">ნაწილი 6</div>
     <h1 class="in" style="--d:.1s">ახლა <span class="grad">თქვენი ჯერია</span></h1>
@@ -940,37 +904,30 @@ i.codestep{display:none}
   <div class="big-num">06</div>
   
 </section>
-
-<!-- 22. YOU DO -->
-<section class="slide" data-section="6 · პრაქტიკა">
-  <div class="kicker">🧑‍💻 თქვენ აკეთებთ</div>
-  <h2>LibraryApi → <span class="c-pink">LoanService</span></h2>
-  <div class="grid2" style="align-items:start">
-    <div class="card accent step left" style="--a:var(--mvc)">
-      <h3><span class="ico">📝</span>დავალება</h3>
+<section class="slide" data-section="პრაქტიკა">
+  <div class="kicker">🧑‍💻 თქვენ აკეთებთ · კლასში</div>
+  <h2>LibraryApi → LoanService</h2>
+  <div class="grid2" style="grid-template-columns:1.5fr 1fr;align-items:start">
+    <div class="card accent step" style="--a:var(--mvc)">
+      <h3><span class="ico">📝</span>საშინაოს LoansController — ლოგიკა Service-ში</h3>
       <ul class="clean small">
-        <li><code class="i">Loan</code>: Id, BookId, ReaderName, LoanDate</li>
-        <li><code class="i">LoanStore</code> — სია, GetAll, Add</li>
-        <li><code class="i">LoanService</code>(BookStore, LoanStore, <b>ILogger</b>) — წიგნი არსებობს? → თარიღი → შენახვა → ლოგი</li>
-        <li><code class="i">LoansController</code> — GET და POST (არ არსებობს → 400)</li>
-        <li>Minimal API: <code class="i">GET /api/loans/count</code></li>
-      </ul>
+<li><code class="i">Services/LoanService</code> — წესები LoansController-იდან: წიგნი და წევრი არსებობს? წიგნი უკვე გატანილია?</li>
+<li>LoanService ითხოვს: <code class="i">BookStore</code>, <code class="i">MemberStore</code>, <code class="i">LoanStore</code>, <code class="i">ILogger&lt;LoanService&gt;</code> — HTTP-ის გარეშე, ვერ შეიქმნა → <code class="i">null</code></li>
+<li>ლოგი: გატანა → <code class="i">LogInformation</code>, უარი → <code class="i">LogWarning</code></li>
+<li>LoansController — მხოლოდ <strong>LoanService</strong> სჭირდება: <code class="i">null</code> → 400, წარმატება → 201</li>
+<li><code class="i">Program.cs</code>: <code class="i">AddSingleton&lt;LoanService&gt;()</code> · Minimal API: <code class="i">GET /api/loans/count</code></li>
+</ul>
+      <p class="tiny" style="margin-top:14px">✓ მზადაა, როცა: LoansController-ში არცერთი Store არ ჩანს, <code>/api/loans/count</code> მუშაობს და console-ში გატანის ლოგი ჩნდება</p>
     </div>
-    <div class="card accent step right" style="--a:var(--asp)">
-      <h3><span class="ico">⭐</span>ბონუსი</h3>
-      <ul class="clean small">
-        <li>appsettings: <code class="i">"Library": { "MaxLoansPerReader": 3 }</code> — LoanService-ში <b>IConfiguration</b>-ით შეამოწმე</li>
-        <li>LoanService და LoansController — <b>primary constructor</b>-ით</li>
-      </ul>
-      <p class="tiny mt" style="margin-top:14px">მინიშნება: <code class="i">_configuration.GetValue&lt;int&gt;("Library:MaxLoansPerReader")</code></p>
-    </div>
+    <div class="card accent step" style="--a:var(--asp)"><h3><span class="ico">⭐</span>ბონუსი</h3><ul class="clean small">
+<li><code class="i">appsettings.json</code>: <code class="i">"Library": { "MaxLoansPerMember": 3 }</code> — LoanService-ში <code class="i">IConfiguration</code>-ით შეამოწმე</li>
+<li>LoanService და LoansController — primary constructor-ით</li>
+</ul></div>
   </div>
-  <div class="callout step mt" style="--a:var(--api)">ShopApi-ის <b>OrderService</b> — თქვენი ნიმუშია. Controller → Service → Store 🙂</div>
+  <div class="callout step mt" style="--a:var(--api)">წესი: <b>ჯერ ცდი თვითონ</b> → გვერდით მჯდომს ჰკითხე → მერე მე</div>
   
 </section>
-
-<!-- 23. COMMON ERRORS -->
-<section class="slide" data-section="6 · პრაქტიკა">
+<section class="slide" data-section="პრაქტიკა">
   <div class="kicker">გაჭედე?</div>
   <h2>ხშირი შეცდომები</h2>
   <table class="t" style="font-size:16px">
@@ -983,26 +940,18 @@ i.codestep{display:none}
   </table>
   
 </section>
-
-<!-- 24. QUIZ -->
 <section class="slide" data-section="შეჯამება">
   <div class="kicker">შევამოწმოთ</div>
   <h2>5 კითხვა</h2>
-  <div class="qa"><span class="n">1</span><span class="q">Controller, Service, Store — რა საქმე აქვს თითოეულს?</span><span class="a step">HTTP · ლოგიკა და წესები · მონაცემების შენახვა</span></div>
-  <div class="qa"><span class="n">2</span><span class="q">საიდან იცის Container-მა, რა სჭირდება OrderService-ს?</span><span class="a step">მის constructor-ს კითხულობს და ჯაჭვს ქვემოდან ზემოთ აწყობს</span></div>
-  <div class="qa"><span class="n">3</span><span class="q">როგორ ვითხოვთ dependency-ს Minimal API-ში?</span><span class="a step">ფუნქციის პარამეტრად (სურვილისამებრ <code class="i">[FromServices]</code>)</span></div>
-  <div class="qa"><span class="n">4</span><span class="q">ILogger და IConfiguration რატომ არ დაგვირეგისტრირებია?</span><span class="a step">CreateBuilder-მა უკვე ჩაწერა Container-ში — framework თვითონ DI-ზეა აგებული</span></div>
-  <div class="qa"><span class="n">5</span><span class="q">რა არის Service Locator და რატომ არის ცუდი?</span><span class="a step">Container-ს მეთოდის შიგნით ვეკითხებით · dependency იმალება, შეცდომა გვიან ჩანს</span></div>
+  <div class="qa"><span class="n">1</span><span class="q">Controller, Service, Store — რა საქმე აქვს თითოეულს?</span><span class="a step">HTTP · ლოგიკა და წესები · მონაცემების შენახვა</span></div><div class="qa"><span class="n">2</span><span class="q">საიდან იცის Container-მა, რა სჭირდება OrderService-ს?</span><span class="a step">მის constructor-ს კითხულობს და ჯაჭვს ქვემოდან ზემოთ აწყობს</span></div><div class="qa"><span class="n">3</span><span class="q">როგორ ვითხოვთ dependency-ს Minimal API-ში?</span><span class="a step">ფუნქციის პარამეტრად (სურვილისამებრ <code class="i">[FromServices]</code>)</span></div><div class="qa"><span class="n">4</span><span class="q"><code class="i">ILogger</code> და <code class="i">IConfiguration</code> რატომ არ დაგვირეგისტრირებია?</span><span class="a step">CreateBuilder-მა უკვე ჩაწერა Container-ში — framework თვითონ DI-ზეა აგებული</span></div><div class="qa"><span class="n">5</span><span class="q">რა არის Service Locator და რატომ არის ცუდი?</span><span class="a step">Container-ს მეთოდის შიგნით ვეკითხებით · dependency იმალება, შეცდომა გვიან ჩანს</span></div>
   
 </section>
-
-<!-- 25. FINAL + BRIDGE -->
 <section class="slide" data-section="შეჯამება">
   <div class="kicker in" style="color:var(--core)">DI — მოდულის დასასრული</div>
   <h2 class="in" style="--d:.1s">დაარეგისტრირე — <span class="grad">მოითხოვე</span> — Container ააწყობს</h2>
   <div class="grid2" style="grid-template-columns:1fr 1.1fr;gap:40px;align-items:start">
     <div class="col" style="gap:18px">
-      <div class="card accent step" style="--a:var(--mvc)"><h3><span class="ico">🏠</span>საშინაო</h3><p class="small">LibraryApi: <b>LoanService</b> სრულად + ორივე ბონუსი. ყველაფერი Swagger-ში გატესტეთ</p></div>
+      <div class="card accent step" style="--a:var(--mvc)"><h3><span class="ico">🧠</span>დაიმახსოვრე</h3><ul class="clean small"><li><b>Controller → Service → Store</b> — HTTP · წესები · მონაცემები</li><li><b>ILogger</b>, <b>IConfiguration</b> — უკვე Container-შია</li><li><b>Lifetime</b> მნიშვნელოვანია · Service Locator — არა</li></ul></div>
       <div class="card accent step" style="--a:var(--asp)"><h3><span class="ico">⏭️</span>შემდეგი მოდული</h3><p class="small">პროგრამა გადატვირთეთ — <b>ყველა შეკვეთა ქრება</b>. Singleton-იც მეხსიერებაშია. დრო მოვიდა <b>მონაცემთა ბაზის</b>: EF Core</p></div>
     </div>
     <div class="step" data-with>
@@ -1018,6 +967,28 @@ i.codestep{display:none}
       <div class="callout mt" style="--a:var(--asp)">ProductStore-ის ადგილს <b>ბაზა</b> დაიკავებს. ნახეთ, რამდენი კოდი შეიცვლება — და <b>სად</b> 👀</div>
     </div>
   </div>
+  
+</section>
+<section class="slide" data-section="საშინაო">
+  <div class="kicker">🏠 საშინაო დავალება</div>
+  <h2>LibraryApi — დაბრუნება და ჯარიმა</h2>
+  <div class="grid2" style="grid-template-columns:1.5fr 1fr;align-items:start">
+    <div class="card accent step" style="--a:var(--net)">
+      <h3><span class="ico">🏠</span>FineService ჯარიმის ოდენობას appsettings-იდან იღებს</h3>
+      <ul class="clean small">
+<li><code class="i">Loan</code> + <code class="i">DueAt</code>, <code class="i">ReturnedAt</code> · <code class="i">LoanStore</code> + <code class="i">GetById</code> · <code class="i">LoanResponse</code> + <code class="i">ReturnedAt</code>, <code class="i">Fine</code></li>
+<li><code class="i">appsettings.json</code>: <code class="i">LoanDays</code>, <code class="i">FinePerDay</code> — რიცხვები კოდში არ წერია</li>
+<li><code class="i">FineService(IConfiguration)</code> — ჯარიმა = დაგვიანებული დღეები × FinePerDay</li>
+<li><code class="i">POST /api/loans/{id}/return</code> → <code class="i">LoanService.Return</code> → 200 და ჯარიმა, ან 404 · ჯარიმაზე <code class="i">LogWarning</code></li>
+</ul>
+      <p class="tiny" style="margin-top:14px">✓ მზადაა, როცა: FinePerDay-ის შეცვლა appsettings-ში ჯარიმას ცვლის — კოდის შეხების გარეშე</p>
+    </div>
+    <div class="card accent step" style="--a:var(--asp)"><h3><span class="ico">⭐</span>ბონუსი</h3><ul class="clean small">
+<li>Minimal API: <code class="i">GET /api/members/{id}/fines</code> — წევრის ჯამური ჯარიმა</li>
+<li>ყველა ახალი კლასი — primary constructor-ით</li>
+</ul></div>
+  </div>
+  <div class="callout step mt" style="--a:var(--api)">შემდეგი ლექციის დასაწყისში ამ დავალებას <b>ერთად განვიხილავთ</b></div>
   
 </section>
 

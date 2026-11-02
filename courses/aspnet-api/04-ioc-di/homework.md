@@ -24,7 +24,7 @@ DTO-ები — `record CreateLoanRequest(int BookId, int MemberId)` და `r
 
 ## ამოხსნა
 
-```csharp Controllers/LoansController.cs !
+```csharp Controllers/LoansController.cs
 [ApiController]
 [Route("api/[controller]")]
 public class LoansController : ControllerBase
@@ -41,6 +41,11 @@ public class LoansController : ControllerBase
         _loans = loans;
     }
 
+    // Create, GetAll — ქვემოთ
+}
+```
+
+```csharp Controllers/LoansController.cs · Create !
     [HttpPost]
     public IActionResult Create(CreateLoanRequest request)
     {
@@ -60,7 +65,6 @@ public class LoansController : ControllerBase
 
     private static LoanResponse ToResponse(Loan l) =>
         new(l.Id, l.BookId, l.MemberId, l.LoanedAt);
-}
 ```
 
 ```csharp Program.cs

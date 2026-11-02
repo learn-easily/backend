@@ -176,6 +176,8 @@ def gen_homework_review(prev):
     hw = prev['homework']
     sol = part(hw, 'ამოხსნ')
     code = first_code(sol)
+    if code and code[2].strip('\n').count('\n') >= 20:
+        print(f'  ⚠ ლექცია {prev["num"]}-ის ამოხსნის კოდი სლაიდზე {code[2].strip(chr(10)).count(chr(10)) + 1} ხაზია — ≤20 ჯობია (მონიშნე სხვა ბლოკი "!"-ით)')
     right = (f'<code-block lang="{code[0]}" cls="sm" title="{esc(code[1])}">\n{code[2]}</code-block>' if code else '')   # code-block escapes itself
     return f'''<section class="slide" data-section="საშინაოს განხილვა">
   <div class="kicker">🏠 საშინაოს განხილვა · ლექცია {prev["num"]}</div>
