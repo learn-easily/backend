@@ -348,8 +348,8 @@ padding:6px 10px;border-radius:8px;opacity:0;transition:opacity .25s}
 background:var(--net);border:0;border-radius:10px;padding:7px 13px;cursor:pointer;opacity:.9;box-shadow:0 4px 14px rgba(109,40,217,.25)}
 #studybtn:hover{opacity:1}#studybtn kbd{font:600 11px var(--mono);background:rgba(255,255,255,.22);border-radius:5px;padding:1px 6px}
 body[data-study] #help{right:190px}</style></head>
-<body>
-<a id="home" href="../../" title="ყველა ლექცია">← ლექციები</a>
+<body data-study="1">
+<a id="home" href="../../" title="ყველა ლექცია">← ლექციები</a><button id="studybtn" type="button" title="კონსპექტი ცალკე ფანჯარაში — სლაიდებს მიჰყვება">📖 კონსპექტი <kbd>P</kbd></button>
 <div id="stage"><div id="deck">
 <!-- =========================================================
      ლექცია 2 — Minimal API vs Controller · REST · CRUD · Swagger
@@ -463,10 +463,37 @@ i.codestep{display:none}
       <g class="in fade" style="--d:2s"><text x="310" y="405" text-anchor="middle" class="tm" font-size="18">ორი გზა → ერთი და იგივე შედეგი</text></g>
     </svg>
   </div>
+</section>
+<section class="slide" data-section="გამეორება">
+  <div class="kicker">გამეორება · ლექცია 1</div>
+  <h2>გავიხსენოთ: <span class="grad">Backend, API, REST და პირველი Web API</span></h2>
+  <div class="qa"><span class="n">1</span><span class="q">რატომ ვერ იცხოვრებს ონლაინ მაღაზია მხოლოდ ბრაუზერში?</span><span class="a step">მონაცემი და წესები ყველასთვის საერთო უნდა იყოს და დაცული — ეს Backend-ის საქმეა</span></div><div class="qa"><span class="n">2</span><span class="q">რა არის Endpoint?</span><span class="a step">მეთოდი + მისამართი, რომელიც Backend-ში კონკრეტულ ფუნქციას იძახებს</span></div><div class="qa"><span class="n">3</span><span class="q">რომელი მეთოდით შევქმნით ახალ მომხმარებელს?</span><span class="a step"><code class="i">POST /users</code> → 201 Created</span></div><div class="qa"><span class="n">4</span><span class="q">PUT და PATCH — რა განსხვავებაა?</span><span class="a step">PUT მთლიანად ცვლის, PATCH — მხოლოდ გაგზავნილ ველებს</span></div><div class="qa"><span class="n">5</span><span class="q">რას ნიშნავს 404?</span><span class="a step">მოთხოვნილი რესურსი ვერ მოიძებნა (4xx = კლიენტის შეცდომა)</span></div>
   
 </section>
-
-<!-- 2. ROADMAP -->
+<section class="slide" data-section="საშინაოს განხილვა">
+  <div class="kicker">🏠 საშინაოს განხილვა · ლექცია 1</div>
+  <h2>კატეგორიები და REST ცხრილი</h2>
+  <div class="grid2" style="grid-template-columns:1fr 1.25fr;align-items:start;gap:30px">
+    <div class="card accent step" style="--a:var(--mvc)"><h3><span class="ico">📝</span>რა უნდა გაგეკეთებინათ</h3><ul class="clean small">
+<li><code class="i">record Category(int Id, string Name)</code> და სია 3-4 კატეგორიით</li>
+<li><code class="i">GET /api/categories</code> — კატეგორიების სია</li>
+<li>შეამოწმეთ <code class="i">.http</code> ფაილით: 200 და JSON</li>
+<li>ცხრილი (რვეულში ან ფაილში): Category-ს 5 REST endpoint — მეთოდი, მისამართი, წარმატების სტატუს კოდი</li>
+</ul></div>
+    <div class="step"><pre class="code sm"><span class="ttl">Program.cs</span><code><span class="ln"><span class="kt">var</span><span class="w"> </span><span class="n">categories</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">List</span><span class="o">&lt;</span><span class="n">Category</span><span class="o">&gt;</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="k">new</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="s">"ლეპტოპები"</span><span class="p">)</span><span class="p">,</span></span><span class="ln"><span class="w">    </span><span class="k">new</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="s">"აქსესუარები"</span><span class="p">)</span><span class="p">,</span></span><span class="ln"><span class="w">    </span><span class="k">new</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span><span class="w"> </span><span class="s">"მონიტორები"</span><span class="p">)</span><span class="p">,</span></span><span class="ln"><span class="p">}</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="n">app</span><span class="p">.</span><span class="n">MapGet</span><span class="p">(</span><span class="s">"/api/categories"</span><span class="p">,</span><span class="w"> </span><span class="p">(</span><span class="p">)</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">categories</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="n">app</span><span class="p">.</span><span class="n">MapGet</span><span class="p">(</span><span class="s">"/api/categories/count"</span><span class="p">,</span><span class="w"> </span><span class="p">(</span><span class="p">)</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">categories</span><span class="p">.</span><span class="n">Count</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="n">app</span><span class="p">.</span><span class="n">Run</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="k">record</span><span class="w"> </span><span class="nf">Category</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">Id</span><span class="p">,</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="n">Name</span><span class="p">)</span><span class="p">;</span></span></code></pre></div>
+  </div>
+  <div class="callout step mt" style="--a:var(--api)">შეადარეთ თქვენს კოდს. რა გამოგივიდათ სხვანაირად — და რატომ?</div>
+  
+</section>
+<section class="slide" data-section="დღის თემა">
+  <div class="kicker">დღის თემა</div>
+  <h2><span class="grad">Minimal API vs Controller, REST, CRUD და Swagger</span></h2>
+  <div class="grid2" style="grid-template-columns:1fr 1fr;align-items:start;gap:40px">
+    <div class="card accent step" style="--a:var(--asp)"><h3><span class="ico">🤔</span>რატომ გჭირდებათ</h3><p class="small">წინა ლექციაზე ერთი endpoint Program.cs-ში დავწერეთ. რეალურ API-ს ათეულობით endpoint აქვს — ერთ ფაილში ყველაფერი აირევა, და ბრაუზერით მხოლოდ GET-ის შემოწმება შეიძლება. დღეს ვნახავთ API-ის აწყობის ორ გზას, REST-ის წესებს, Swagger-ს — და ვწერთ პროდუქტების სრულ CRUD-ს.</p></div>
+    <div class="card accent" style="--a:var(--mvc)"><h3><span class="ico">🎯</span>ლექციის ბოლოს შეძლებთ</h3><ul class="clean small"><li class="step">Minimal API-სა და Controller-ის განსხვავება, Controller-ის ანატომია</li><li class="step">REST-ის 4 წესი და სწორი სტატუს კოდი ყოველ მეთოდზე</li><li class="step">Swagger-ის დაყენება და endpoint-ების ტესტირება</li><li class="step">სრული CRUD: GetAll, GetById, Create, Update, Delete</li></ul></div>
+  </div>
+  
+</section>
 <section class="slide">
   <div class="kicker">დღის გზა</div>
   <h2>სადამდე მოვედით და სად მივდივართ</h2>
@@ -482,8 +509,6 @@ i.codestep{display:none}
   </svg>
   
 </section>
-
-<!-- ============ PART 1: TWO WAYS ============ -->
 <section class="slide divider" data-section="1 · ორი გზა">
   <div class="vcenter">
     <div class="kicker in">ნაწილი 1</div>
@@ -493,8 +518,6 @@ i.codestep{display:none}
   <div class="big-num">01</div>
   
 </section>
-
-<!-- 3. RECALL -->
 <section class="slide" data-section="1 · ორი გზა">
   <div class="kicker">გაიხსენეთ</div>
   <h2>წინა ლექციაზე ასე დავწერეთ</h2>
@@ -513,8 +536,6 @@ i.codestep{display:none}
   </div>
   
 </section>
-
-<!-- 4. CHECKBOX -->
 <section class="slide" data-section="1 · ორი გზა">
   <div class="kicker">პროექტის შექმნა</div>
   <h2>გზას <span class="c-asp">ერთი checkbox</span> ირჩევს</h2>
@@ -537,8 +558,6 @@ i.codestep{display:none}
   </div>
   
 </section>
-
-<!-- 5. OTHER WAYS -->
 <section class="slide" data-section="1 · ორი გზა">
   <div class="kicker">სხვა გზებიც არსებობს?</div>
   <h2>კი — მაგრამ შაბლონი <span class="c-net">ორს</span> გვთავაზობს</h2>
@@ -563,8 +582,6 @@ i.codestep{display:none}
   </div>
   
 </section>
-
-<!-- 6. SAME ENDPOINT TWO WAYS -->
 <section class="slide" data-section="1 · ორი გზა">
   <div class="kicker">ერთი და იგივე endpoint</div>
   <h2><span class="c-core">Minimal API</span> და <span class="c-net">Controller</span> — გვერდიგვერდ</h2>
@@ -596,8 +613,6 @@ i.codestep{display:none}
   </div>
   
 </section>
-
-<!-- 7. CONTROLLER ANATOMY -->
 <section class="slide" data-section="1 · ორი გზა">
   <div class="kicker">ანატომია</div>
   <h2>Controller-ი — ნაწილ-ნაწილ</h2>
@@ -618,8 +633,6 @@ i.codestep{display:none}
   </div>
   
 </section>
-
-<!-- 8. PROGRAM.CS -->
 <section class="slide" data-section="1 · ორი გზა">
   <div class="kicker">Program.cs</div>
   <h2>Controller-ებს Program.cs-ში <span class="c-net">ორი ხაზი</span> სჭირდება</h2>
@@ -646,8 +659,6 @@ i.codestep{display:none}
   </div>
   
 </section>
-
-<!-- 9. GROWTH -->
 <section class="slide" data-section="1 · ორი გზა">
   <div class="kicker">პროექტი იზრდება</div>
   <h2>რა ხდება, როცა endpoint-ი <span class="c-red">30</span> გახდება?</h2>
@@ -676,8 +687,6 @@ i.codestep{display:none}
   <div class="callout step mt" style="--a:var(--asp)">Minimal API-ის დალაგებაც შეიძლება — მაგრამ <b>სტრუქტურა თვითონ უნდა მოიფიქრო</b>. ამას <b>არქიტექტურის</b> ლექციებზე ვისწავლით</div>
   
 </section>
-
-<!-- 10. COMPARISON TABLE -->
 <section class="slide" data-section="1 · ორი გზა">
   <div class="kicker">შედარება</div>
   <h2>Minimal API vs Controller</h2>
@@ -693,8 +702,6 @@ i.codestep{display:none}
   <div class="callout step mt" style="--a:var(--mvc);font-size:23px;text-align:center;border-left:0;border-radius:16px">ორივე <b>ერთი და იგივე ASP.NET Core-ია</b> — ერთ პროექტში ორივე შეიძლება ერთად იყოს. „უკეთესი“ არ არსებობს — არსებობს <b>უფრო შესაფერისი</b></div>
   
 </section>
-
-<!-- 11. WHY CONTROLLERS NOW -->
 <section class="slide" data-section="1 · ორი გზა">
   <div class="kicker">ჩვენი გეგმა</div>
   <h2>რატომ ვიწყებთ <span class="c-net">Controller</span>-ებით</h2>
@@ -712,8 +719,6 @@ i.codestep{display:none}
   </div>
   
 </section>
-
-<!-- ============ PART 2: REST ============ -->
 <section class="slide divider" data-section="2 · REST">
   <div class="vcenter">
     <div class="kicker in">ნაწილი 2</div>
@@ -723,8 +728,6 @@ i.codestep{display:none}
   <div class="big-num">02</div>
   
 </section>
-
-<!-- 12. WITHOUT REST -->
 <section class="slide" data-section="2 · REST">
   <div class="kicker">წარმოიდგინეთ</div>
   <h2>REST რომ <span class="c-red">არ არსებობდეს</span>…</h2>
@@ -750,8 +753,6 @@ i.codestep{display:none}
   </div>
   
 </section>
-
-<!-- 13. WITH REST -->
 <section class="slide" data-section="2 · REST">
   <div class="kicker">და ახლა — REST-ით</div>
   <h2>ერთი მისამართი + <span class="c-api">HTTP მეთოდი</span> = მოქმედება</h2>
@@ -765,8 +766,6 @@ i.codestep{display:none}
   <div class="callout step mt" style="--a:var(--api);font-size:23px">მისამართი = <b>რა</b> (არსებითი სახელი) · მეთოდი = <b>რა ვუყოთ</b> (ზმნა). ამ ცხრილს <b>ნებისმიერი დეველოპერი</b> მსოფლიოში ერთნაირად წაიკითხავს</div>
   
 </section>
-
-<!-- 14. REST RULES -->
 <section class="slide" data-section="2 · REST">
   <div class="kicker">REST-ის წესები</div>
   <h2>4 მთავარი წესი</h2>
@@ -779,8 +778,6 @@ i.codestep{display:none}
   <div class="callout step mt2" style="--a:var(--net);font-size:24px;text-align:center;border-left:0;border-radius:16px;padding:22px">REST <b>არ არის</b> პაკეტი ან ბიბლიოთეკა — ეს <b>შეთანხმებაა</b>. ASP.NET Core ამ შეთანხმების დაცვას გვიმარტივებს</div>
   
 </section>
-
-<!-- 15. STATUS CODES -->
 <section class="slide" data-section="2 · REST">
   <div class="kicker">სტატუს კოდები</div>
   <h2>რომელ კოდს რომელი მეთოდი აბრუნებს</h2>
@@ -801,8 +798,6 @@ i.codestep{display:none}
   </div>
   
 </section>
-
-<!-- 16. CRUD PLAN -->
 <section class="slide" data-section="2 · REST">
   <div class="kicker">ჩვენი გეგმა</div>
   <h2>ProductsController — <span class="c-asp">5 endpoint</span></h2>
@@ -817,8 +812,6 @@ i.codestep{display:none}
   <div class="mr step left"><span class="mth" style="--a:var(--red)">DELETE</span><span class="u">/api/products/{id}</span><span>წაშლა</span><span class="fn">Delete(id)</span><span class="sc">204 · 404</span></div>
   
 </section>
-
-<!-- ============ PART 3: CRUD ============ -->
 <section class="slide divider" data-section="3 · CRUD">
   <div class="vcenter">
     <div class="kicker in">ნაწილი 3</div>
@@ -828,8 +821,6 @@ i.codestep{display:none}
   <div class="big-num">03</div>
   
 </section>
-
-<!-- 17. PROJECT SETUP -->
 <section class="slide" data-section="3 · CRUD">
   <div class="kicker">ნაბიჯი 0</div>
   <h2>პროექტის მომზადება</h2>
@@ -855,8 +846,6 @@ i.codestep{display:none}
   </div>
   
 </section>
-
-<!-- 18. MODEL -->
 <section class="slide" data-section="3 · CRUD">
   <div class="kicker">ნაბიჯი 1 · მოდელი</div>
   <h2>Product — რას ვინახავთ</h2>
@@ -879,8 +868,6 @@ i.codestep{display:none}
   </div>
   
 </section>
-
-<!-- 19. WHERE IS DATA / STATIC -->
 <section class="slide" data-section="3 · CRUD">
   <div class="kicker">ნაბიჯი 2 · მონაცემები</div>
   <h2>ბაზა ჯერ არ გვაქვს — სად შევინახოთ?</h2>
@@ -907,8 +894,6 @@ i.codestep{display:none}
   </div>
   
 </section>
-
-<!-- 20. CONTROLLER + LIST -->
 <section class="slide" data-section="3 · CRUD">
   <div class="kicker">ნაბიჯი 3 · Controller</div>
   <h2>ProductsController და საწყისი მონაცემები</h2>
@@ -925,8 +910,6 @@ i.codestep{display:none}
   </div>
   
 </section>
-
-<!-- 21. GET ALL -->
 <section class="slide" data-section="3 · CRUD">
   <div class="kicker">Read · 1</div>
   <h2><span class="mth" style="--a:var(--mvc);font-size:26px">GET</span> ყველა პროდუქტი</h2>
@@ -948,8 +931,6 @@ i.codestep{display:none}
   </div>
   
 </section>
-
-<!-- ============ PART 4: SWAGGER ============ -->
 <section class="slide divider" data-section="4 · Swagger">
   <div class="vcenter">
     <div class="kicker in">ნაწილი 4</div>
@@ -959,8 +940,6 @@ i.codestep{display:none}
   <div class="big-num">04</div>
   
 </section>
-
-<!-- 27. THE PROBLEM -->
 <section class="slide" data-section="4 · Swagger">
   <div class="kicker">ბრაუზერი მხოლოდ GET-ს აგზავნის</div>
   <h2>GET მუშაობს. მაგრამ ასე ტესტვა <span class="c-red">რთულია</span></h2>
@@ -986,8 +965,6 @@ i.codestep{display:none}
   </div>
   
 </section>
-
-<!-- 28. WHAT IS SWAGGER -->
 <section class="slide" data-section="4 · Swagger">
   <div class="kicker">რა არის Swagger</div>
   <h2>კოდი → <span class="c-asp">აღწერა</span> → <span class="c-pink">გვერდი</span></h2>
@@ -1004,8 +981,6 @@ i.codestep{display:none}
   </div>
   
 </section>
-
-<!-- 29. INSTALL + 3 LINES -->
 <section class="slide" data-section="4 · Swagger">
   <div class="kicker">დაყენება</div>
   <h2>1 პაკეტი + <span class="c-pink">3 ხაზი</span></h2>
@@ -1027,8 +1002,6 @@ i.codestep{display:none}
   </div>
   
 </section>
-
-<!-- 30. SWAGGER UI -->
 <section class="slide" data-section="4 · Swagger">
   <div class="kicker">ასე გამოიყურება</div>
   <h2>Swagger UI — ჩვენი API ერთ გვერდზე</h2>
@@ -1052,8 +1025,6 @@ i.codestep{display:none}
   </div>
   
 </section>
-
-<!-- 31. TRY IT OUT -->
 <section class="slide" data-section="4 · Swagger">
   <div class="kicker">Try it out</div>
   <h2>ნებისმიერი მოთხოვნა — <span class="c-pink">4 დაჭერით</span></h2>
@@ -1070,8 +1041,6 @@ i.codestep{display:none}
   </div>
   
 </section>
-
-<!-- ============ PART 5: CRUD TO THE END ============ -->
 <section class="slide divider" data-section="5 · სრული CRUD">
   <div class="vcenter">
     <div class="kicker in">ნაწილი 5</div>
@@ -1081,8 +1050,6 @@ i.codestep{display:none}
   <div class="big-num">05</div>
   
 </section>
-
-<!-- 22. GET BY ID -->
 <section class="slide" data-section="5 · სრული CRUD">
   <div class="kicker">Read · 2</div>
   <h2><span class="mth" style="--a:var(--mvc);font-size:26px">GET</span> ერთი პროდუქტი Id-ით</h2>
@@ -1102,8 +1069,6 @@ i.codestep{display:none}
   </div>
   
 </section>
-
-<!-- 23. POST -->
 <section class="slide" data-section="5 · სრული CRUD">
   <div class="kicker">Create</div>
   <h2><span class="mth" style="--a:var(--asp);font-size:26px">POST</span> ახალი პროდუქტი</h2>
@@ -1128,8 +1093,6 @@ i.codestep{display:none}
   </div>
   
 </section>
-
-<!-- 24. PUT -->
 <section class="slide" data-section="5 · სრული CRUD">
   <div class="kicker">Update</div>
   <h2><span class="mth" style="--a:var(--api);font-size:26px">PUT</span> პროდუქტის განახლება</h2>
@@ -1152,8 +1115,6 @@ i.codestep{display:none}
   </div>
   
 </section>
-
-<!-- 25. DELETE -->
 <section class="slide" data-section="5 · სრული CRUD">
   <div class="kicker">Delete</div>
   <h2><span class="mth" style="--a:var(--red);font-size:26px">DELETE</span> პროდუქტის წაშლა</h2>
@@ -1171,8 +1132,6 @@ i.codestep{display:none}
   </div>
   
 </section>
-
-<!-- 26. FULL PICTURE -->
 <section class="slide" data-section="5 · სრული CRUD">
   <div class="kicker">შეჯამება</div>
   <h2>სრული CRUD — <span class="c-mvc">5 endpoint</span> ✓</h2>
@@ -1188,8 +1147,6 @@ i.codestep{display:none}
   </div>
   
 </section>
-
-<!-- 32. TEST SCENARIO -->
 <section class="slide" data-section="5 · სრული CRUD">
   <div class="kicker">ყველაფერი ერთად</div>
   <h2>სრული სცენარი — თავიდან ბოლომდე</h2>
@@ -1210,9 +1167,7 @@ i.codestep{display:none}
   </div>
   
 </section>
-
-<!-- ============ PART 5: PRACTICE ============ -->
-<section class="slide divider" data-section="6 · პრაქტიკა">
+<section class="slide divider" data-section="პრაქტიკა">
   <div class="vcenter">
     <div class="kicker in">ნაწილი 6</div>
     <h1 class="in" style="--d:.1s">ახლა <span class="grad">თქვენი ჯერია</span></h1>
@@ -1221,38 +1176,27 @@ i.codestep{display:none}
   <div class="big-num">06</div>
   
 </section>
-
-<!-- 33. YOU DO -->
-<section class="slide" data-section="6 · პრაქტიკა">
-  <div class="kicker">🧑‍💻 თქვენ აკეთებთ</div>
+<section class="slide" data-section="პრაქტიკა">
+  <div class="kicker">🧑‍💻 თქვენ აკეთებთ · კლასში</div>
   <h2>BooksController — სრული CRUD</h2>
-  <div class="grid2" style="align-items:start">
-    <div class="card accent step left" style="--a:var(--mvc)">
+  <div class="grid2" style="grid-template-columns:1fr;align-items:start">
+    <div class="card accent step" style="--a:var(--mvc)">
       <h3><span class="ico">📝</span>დავალება · ახალი პროექტი LibraryApi</h3>
       <ul class="clean small">
-        <li><code class="i">Models/Book.cs</code>: Id, Title, Author, Year, Price</li>
-        <li><code class="i">BooksController</code> · static სია 3 წიგნით</li>
-        <li>5 endpoint: GetAll, GetById, Create, Update, Delete</li>
-        <li>სწორი სტატუს კოდები: <b>200 · 201 · 204 · 404</b></li>
-        <li>Swagger: ყოველი endpoint დაწერისთანავე გატესტეთ</li>
-      </ul>
-      <p class="tiny mt" style="margin-top:14px">✓ მზადაა, როცა Swagger-ში ჩანს <b>Books</b> ჯგუფი და სრული სცენარი გადის</p>
+<li>ახალი პროექტი <strong>LibraryApi</strong>: ☑ Use controllers, Swagger — 1 პაკეტი + 3 ხაზი</li>
+<li><code class="i">Models/Book.cs</code>: <code class="i">Id</code>, <code class="i">Title</code>, <code class="i">Author</code>, <code class="i">Year</code>, <code class="i">Price</code></li>
+<li><code class="i">BooksController</code> · <code class="i">static</code> სია 3 წიგნით</li>
+<li>5 endpoint: GetAll, GetById, Create, Update, Delete — სწორი კოდებით: 200 · 201 · 204 · 404</li>
+<li>ყოველი endpoint დაწერისთანავე Swagger-ში გატესტეთ</li>
+</ul>
+      <p class="tiny" style="margin-top:14px">✓ მზადაა, როცა: Swagger-ში Books ჯგუფი ჩანს და სრული სცენარი გადის: POST → GET → PUT → GET → DELETE → GET (404)</p>
     </div>
-    <div class="card accent step right" style="--a:var(--asp)">
-      <h3><span class="ico">⭐</span>ბონუსი</h3>
-      <ul class="clean small">
-        <li>POST-ში: თუ <code class="i">Title</code> ცარიელია → <code class="i">BadRequest()</code> (400)</li>
-        <li>ახალი endpoint: <code class="i">GET /api/books/cheap</code> — ფასი &lt; 20</li>
-      </ul>
-      <p class="tiny mt" style="margin-top:14px">მინიშნება: <code class="i">[HttpGet("cheap")]</code> + LINQ <code class="i">Where</code></p>
-    </div>
+    
   </div>
-  <div class="callout step mt" style="--a:var(--api)">წესი: <b>ჯერ ცდი თვითონ</b> → გვერდით მჯდომს ჰკითხე → მერე მე. ProductsController — თქვენი ნიმუშია 🙂</div>
+  <div class="callout step mt" style="--a:var(--api)">წესი: <b>ჯერ ცდი თვითონ</b> → გვერდით მჯდომს ჰკითხე → მერე მე</div>
   
 </section>
-
-<!-- 34. COMMON ERRORS -->
-<section class="slide" data-section="6 · პრაქტიკა">
+<section class="slide" data-section="პრაქტიკა">
   <div class="kicker">გაჭედე?</div>
   <h2>ხშირი შეცდომები</h2>
   <table class="t" style="font-size:17px">
@@ -1267,26 +1211,18 @@ i.codestep{display:none}
   </table>
   
 </section>
-
-<!-- 35. QUIZ -->
 <section class="slide" data-section="შეჯამება">
   <div class="kicker">შევამოწმოთ</div>
   <h2>5 კითხვა</h2>
-  <div class="qa"><span class="n">1</span><span class="q">API-ის აწყობის რომელ ორ გზას გვთავაზობს .NET და რით ვირჩევთ?</span><span class="a step">Minimal API და Controllers · „Use controllers“ checkbox პროექტის შექმნისას</span></div>
-  <div class="qa"><span class="n">2</span><span class="q">რატომ არსებობს REST?</span><span class="a step">საერთო წესები: რესურსი — URL-ში, მოქმედება — HTTP მეთოდით, შედეგი — სტატუს კოდით. ყველა ერთნაირად წერს და კითხულობს</span></div>
-  <div class="qa"><span class="n">3</span><span class="q">პროდუქტი 7-ის წაშლა: რომელი მეთოდი, რომელი მისამართი, რა პასუხი?</span><span class="a step">DELETE /api/products/7 → 204, ან 404 თუ არ არსებობს</span></div>
-  <div class="qa"><span class="n">4</span><span class="q">რატომ არის სია static?</span><span class="a step">Controller ყოველ მოთხოვნაზე ახლიდან იქმნება · static სია კლასს ეკუთვნის — ყველა მოთხოვნას ერთი აქვს</span></div>
-  <div class="qa"><span class="n">5</span><span class="q">რისთვის გვჭირდება Swagger?</span><span class="a step">ავტომატური დოკუმენტაცია + ტესტირება ბრაუზერიდან (Try it out)</span></div>
+  <div class="qa"><span class="n">1</span><span class="q">API-ის აწყობის რომელ ორ გზას გვთავაზობს .NET და რით ვირჩევთ?</span><span class="a step">Minimal API და Controllers · „Use controllers“ checkbox პროექტის შექმნისას</span></div><div class="qa"><span class="n">2</span><span class="q">რატომ არსებობს REST?</span><span class="a step">საერთო წესები: რესურსი — URL-ში, მოქმედება — HTTP მეთოდით, შედეგი — სტატუს კოდით. ყველა ერთნაირად წერს და კითხულობს</span></div><div class="qa"><span class="n">3</span><span class="q">პროდუქტი 7-ის წაშლა: რომელი მეთოდი, რომელი მისამართი, რა პასუხი?</span><span class="a step"><code class="i">DELETE /api/products/7</code> → 204, ან 404, თუ არ არსებობს</span></div><div class="qa"><span class="n">4</span><span class="q">რატომ არის სია <code class="i">static</code>?</span><span class="a step">Controller ყოველ მოთხოვნაზე თავიდან იქმნება · <code class="i">static</code> სია კლასს ეკუთვნის — ყველა მოთხოვნას ერთი აქვს</span></div><div class="qa"><span class="n">5</span><span class="q">რისთვის გვჭირდება Swagger?</span><span class="a step">ავტომატური დოკუმენტაცია + ტესტირება ბრაუზერიდან (Try it out)</span></div>
   
 </section>
-
-<!-- 36. FINAL -->
 <section class="slide" data-section="შეჯამება">
   <div class="vcenter" style="max-width:980px">
     <div class="kicker in" style="color:var(--net)">დღეს</div>
     <h1 class="in" style="--d:.1s;font-size:64px">პირველი სრული<br><span class="grad">REST API</span> 🚀</h1>
     <div class="grid2 mt2">
-      <div class="card accent step" style="--a:var(--mvc)"><h3><span class="ico">🏠</span>საშინაო</h3><p class="small"><b>BooksController</b> სრულად + ორივე ბონუსი. ყველაფერი გატესტეთ Swagger-ში</p></div>
+      <div class="card accent step" style="--a:var(--mvc)"><h3><span class="ico">🧠</span>დაიმახსოვრე</h3><ul class="clean small"><li><b>REST</b> — რესურსი · მეთოდი · სტატუს კოდი</li><li><b>Swagger</b> — დოკუმენტაცია + ტესტი</li><li><b>CRUD</b> — იპოვე → 404? → გააკეთე → უპასუხე</li></ul></div>
       <div class="card accent step" style="--a:var(--api)"><h3><span class="ico">⏭️</span>წინ</h3><p class="small">ვაგრძელებთ <b>Controller</b>-ებით · მოგვიანებით — <b>არქიტექტურა</b> და Minimal API სწორი სტრუქტურით</p></div>
     </div>
   </div>
@@ -1298,6 +1234,26 @@ i.codestep{display:none}
       <rect x="20" y="146" width="260" height="34" rx="8" fill="#fef2f2" stroke="#dc2626"/><text x="34" y="169" class="tr b mono" font-size="15">DELETE /api/products/4 204</text>
     </svg>
   </div>
+  
+</section>
+<section class="slide" data-section="საშინაო">
+  <div class="kicker">🏠 საშინაო დავალება</div>
+  <h2>LibraryApi — BooksController სრულად</h2>
+  <div class="grid2" style="grid-template-columns:1fr;align-items:start">
+    <div class="card accent step" style="--a:var(--net)">
+      <h3><span class="ico">🏠</span>ლექციაზე დაწყებული LibraryApi დაასრულეთ: ხუთივე endpoint და ორივე ბონუსი.</h3>
+      <ul class="clean small">
+<li><code class="i">Book</code>: <code class="i">Id</code>, <code class="i">Title</code>, <code class="i">Author</code>, <code class="i">Year</code>, <code class="i">Price</code></li>
+<li><code class="i">BooksController</code> — <code class="i">static</code> სია 3 წიგნით, 5 endpoint</li>
+<li>სწორი სტატუს კოდები: 200 · 201 · 204 · 404</li>
+<li>POST-ში ცარიელი <code class="i">Title</code> → <code class="i">BadRequest()</code> (400)</li>
+<li><code class="i">GET /api/books/cheap</code> — წიგნები, რომელთა ფასი 20-ზე ნაკლებია</li>
+</ul>
+      <p class="tiny" style="margin-top:14px">✓ მზადაა, როცა: Swagger-ში Books ჯგუფი ჩანს და ყველა endpoint, ორივე ბონუსის ჩათვლით, გატესტილია.</p>
+    </div>
+    
+  </div>
+  <div class="callout step mt" style="--a:var(--api)">შემდეგი ლექციის დასაწყისში ამ დავალებას <b>ერთად განვიხილავთ</b></div>
   
 </section>
 
