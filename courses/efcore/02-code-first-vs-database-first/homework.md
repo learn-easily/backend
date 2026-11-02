@@ -47,9 +47,9 @@ Update-Database
 Add-Migration AddStudentEmail
 Update-Database
 
-Update-Database AddGroups     # უკან: AddStudentEmail-ის Down() → Email სვეტი იშლება
-Update-Database               # წინ: Email ისევ ემატება — ცარიელი
-Script-Migration              # ყველა მიგრაცია ერთ SQL სკრიპტად
+Update-Database AddGroups   # უკან: Email სვეტი იშლება
+Update-Database             # წინ: Email ბრუნდება — ცარიელი
+Script-Migration            # ყველა მიგრაცია — SQL-ად
 ```
 
 ```warn

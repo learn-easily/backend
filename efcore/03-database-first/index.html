@@ -348,8 +348,8 @@ padding:6px 10px;border-radius:8px;opacity:0;transition:opacity .25s}
 background:var(--net);border:0;border-radius:10px;padding:7px 13px;cursor:pointer;opacity:.9;box-shadow:0 4px 14px rgba(109,40,217,.25)}
 #studybtn:hover{opacity:1}#studybtn kbd{font:600 11px var(--mono);background:rgba(255,255,255,.22);border-radius:5px;padding:1px 6px}
 body[data-study] #help{right:190px}</style></head>
-<body>
-<a id="home" href="../../" title="ყველა ლექცია">← ლექციები</a>
+<body data-study="1">
+<a id="home" href="../../" title="ყველა ლექცია">← ლექციები</a><button id="studybtn" type="button" title="კონსპექტი ცალკე ფანჯარაში — სლაიდებს მიჰყვება">📖 კონსპექტი <kbd>P</kbd></button>
 <div id="stage"><div id="deck">
 <!-- EF Core · Code First vs Database First · ლექცია 2/2 — Database First პრაქტიკაში. ფერები: ბაზა = ქარვისფერი · C# = იისფერი · Code First/EF = teal · შეცდომა = წითელი -->
 <style>
@@ -470,10 +470,37 @@ i.codestep{display:none}
       <g class="in fade" style="--d:2.2s"><text x="300" y="330" text-anchor="middle" class="tm" font-size="18">ცხრილები → კლასები · ავტომატურად</text></g>
     </svg>
   </div>
+</section>
+<section class="slide" data-section="გამეორება">
+  <div class="kicker">გამეორება · ლექცია 2</div>
+  <h2>გავიხსენოთ: <span class="grad">Code First vs Database First</span></h2>
+  <div class="qa"><span class="n">1</span><span class="q">რა არის ჭეშმარიტების წყარო Code First-ში და Database First-ში?</span><span class="a step">C# კლასები · ბაზა</span></div><div class="qa"><span class="n">2</span><span class="q">Database First-ის მთავარი ბრძანება?</span><span class="a step"><code class="i">Scaffold-DbContext</code> — ბაზიდან კლასებს და DbContext-ს აგენერირებს</span></div><div class="qa"><span class="n">3</span><span class="q">ბანკის 15 წლის ბაზა, რომელსაც 5 პროგრამა იყენებს — რომელს ავირჩევთ?</span><span class="a step">Database First — ბაზა უკვე არსებობს და ჩვენი არ არის</span></div><div class="qa"><span class="n">4</span><span class="q">AddCategories რატომ ჩავარდა პირველად?</span><span class="a step">ძველ პროდუქტებს <code class="i">CategoryId = 0</code> ჩაეწერა, კატეგორია Id = 0 კი არ არსებობდა → <code class="i">int?</code></span></div><div class="qa"><span class="n">5</span><span class="q"><code class="i">Remove-Migration</code> vs <code class="i">Update-Database &lt;სახელი&gt;</code>?</span><span class="a step">Remove — შლის გაუშვებელ ფაილს · Update-Database &lt;სახელი&gt; — ბაზას აბრუნებს</span></div>
   
 </section>
-
-<!-- 2. ROADMAP -->
+<section class="slide" data-section="საშინაოს განხილვა">
+  <div class="kicker">🏠 საშინაოს განხილვა · ლექცია 2</div>
+  <h2>SchoolDemo — ისტორიაში მოგზაურობა</h2>
+  <div class="grid2" style="grid-template-columns:1fr 1.25fr;align-items:start;gap:30px">
+    <div class="card accent step" style="--a:var(--mvc)"><h3><span class="ico">📝</span>რა უნდა გაგეკეთებინათ</h3><ul class="clean small">
+<li>SchoolDemo ბოლომდე: Group + 1-N კავშირი + დაბეჭდვა (თუ კლასში ვერ მორჩით)</li>
+<li><code class="i">Student</code>-ს <code class="i">Email</code> → <code class="i">Add-Migration AddStudentEmail</code> → წაიკითხე → <code class="i">Update-Database</code></li>
+<li><code class="i">Update-Database &lt;Groups-ის მიგრაცია&gt;</code> — უკან; SSMS: Email გაქრა? მერე ისევ წინ</li>
+<li><code class="i">Script-Migration</code> — შეინახე SQL, რომელიც EF-მა დაწერა</li>
+</ul></div>
+    <div class="step"><pre class="code sm"><span class="ttl">Package Manager Console</span><code><span class="ln">Add-Migration AddGroups</span><span class="ln">Update-Database</span><span class="ln">Add-Migration AddStudentEmail</span><span class="ln">Update-Database</span><span class="ln"> </span><span class="ln">Update-Database AddGroups   # უკან: Email სვეტი იშლება</span><span class="ln">Update-Database             # წინ: Email ბრუნდება — ცარიელი</span><span class="ln">Script-Migration            # ყველა მიგრაცია — SQL-ად</span></code></pre></div>
+  </div>
+  <div class="callout step mt" style="--a:var(--api)">შეადარეთ თქვენს კოდს. რა გამოგივიდათ სხვანაირად — და რატომ?</div>
+  
+</section>
+<section class="slide" data-section="დღის თემა">
+  <div class="kicker">დღის თემა</div>
+  <h2><span class="grad">Database First პრაქტიკაში</span></h2>
+  <div class="grid2" style="grid-template-columns:1fr 1fr;align-items:start;gap:40px">
+    <div class="card accent step" style="--a:var(--asp)"><h3><span class="ico">🤔</span>რატომ გჭირდებათ</h3><p class="small">სამსახურში ხშირად ბაზა უკვე არსებობს: წლების წინ შექმნილი, სხვისი, DBA-ს მიერ მართული — და ცხრილების შეცვლის უფლება არ გაქვს. კლასებს ხელით ხომ არ გადაწერ? დღეს Database First-ს პრაქტიკაში ვხედავთ: ერთი ბრძანებით ბაზიდან კოდი, და როგორ განვაახლოთ ის ისე, რომ ჩვენი კოდი არ დაიკარგოს.</p></div>
+    <div class="card accent" style="--a:var(--mvc)"><h3><span class="ico">🎯</span>ლექციის ბოლოს შეძლებთ</h3><ul class="clean small"><li class="step">SQL სკრიპტით შექმნილი ბაზიდან კლასების გენერაცია: <code class="i">Scaffold-DbContext</code></li><li class="step">გენერირებული Entity-ების და <code class="i">OnModelCreating</code>-ის წაკითხვა</li><li class="step">ბაზის ცვლილების შემდეგ განახლება: <code class="i">-Force</code></li><li class="step">საკუთარი კოდის დაცვა <code class="i">partial</code> კლასებით</li></ul></div>
+  </div>
+  
+</section>
 <section class="slide">
   <div class="kicker">დღის გზა</div>
   <h2>სად ვართ და სად მივდივართ</h2>
@@ -487,8 +514,6 @@ i.codestep{display:none}
   </svg>
   
 </section>
-
-<!-- ============ PART 1: RECAP ============ -->
 <section class="slide divider" data-section="1 · გავიხსენოთ">
   <div class="vcenter">
     <div class="kicker in">ნაწილი 1</div>
@@ -498,8 +523,6 @@ i.codestep{display:none}
   <div class="big-num">01</div>
   
 </section>
-
-<!-- 3. RECAP WHO -->
 <section class="slide" data-section="1 · გავიხსენოთ">
   <div class="kicker">ჭეშმარიტების წყარო</div>
   <h2>ვინ ვისი <span class="c-asp">ასლია</span>?</h2>
@@ -526,18 +549,6 @@ i.codestep{display:none}
   <div class="solve step mt2">შედეგი ორივეგან <b>ერთია</b>: Entity კლასები + DbContext. განსხვავება — <b>ვინ წერს</b> მათ</div>
   
 </section>
-
-<!-- 4. RECAP QUIZ -->
-<section class="slide" data-section="1 · გავიხსენოთ">
-  <div class="kicker">სწრაფი შემოწმება</div>
-  <h2>3 კითხვა გასული შეხვედრიდან</h2>
-  <div class="qa" style="margin-top:40px"><span class="n">1</span><span class="q">ახალი სტარტაპი, ბაზა ჯერ არ არსებობს. რომელ მიდგომას ავირჩევთ?</span><span class="a step">Code First — ბაზა ჩვენია და ახლა იქმნება</span></div>
-  <div class="qa"><span class="n">2</span><span class="q">ბანკის 15 წლის ბაზა, მას DBA-ები მართავენ. რომელს?</span><span class="a step">Database First — ბაზა უკვე არსებობს და სხვისია <span class="tiny">(DBA — Database Administrator, ბაზის ადმინისტრატორი)</span></span></div>
-  <div class="qa"><span class="n">3</span><span class="q">ცხრილს ახალი სვეტი სჭირდება. სად იწყება ცვლილება თითოეულ მიდგომაში?</span><span class="a step">Code First — კლასში → მიგრაცია · Database First — ბაზაში (ALTER TABLE) → კლასები თავიდან</span></div>
-  
-</section>
-
-<!-- 5. TODAY'S 5 STEPS -->
 <section class="slide" data-section="1 · გავიხსენოთ">
   <div class="kicker">დღევანდელი გეგმა</div>
   <h2>Database First — <span class="c-asp">5 ნაბიჯი</span></h2>
@@ -551,8 +562,6 @@ i.codestep{display:none}
   <div class="callout step mt2" style="--a:var(--muted);font-size:22px">რა <b>არ</b> იქნება დღეს: <code class="i">Add-Migration</code>, <code class="i">Update-Database</code> და Migrations ფოლდერი — ბაზას EF Core <b>არ ქმნის</b></div>
   
 </section>
-
-<!-- ============ PART 2: I DO ============ -->
 <section class="slide divider" data-section="2 · StoreDb · მე ვაჩვენებ">
   <div class="vcenter">
     <div class="kicker in">ნაწილი 2 · მე ვაჩვენებ</div>
@@ -562,8 +571,6 @@ i.codestep{display:none}
   <div class="big-num">02</div>
   
 </section>
-
-<!-- 6. SCENARIO -->
 <section class="slide" data-section="2 · StoreDb · მე ვაჩვენებ">
   <div class="kicker">სცენარი</div>
   <h2>პირველი დღე ახალ სამსახურში 💼</h2>
@@ -581,8 +588,6 @@ i.codestep{display:none}
   </div>
   
 </section>
-
-<!-- 7. SQL SCRIPT -->
 <section class="slide" data-section="2 · StoreDb · მე ვაჩვენებ">
   <div class="stepper"><span class="on">① ბაზა</span><span>② პროექტი</span><span>③ Scaffold</span><span>④ გამოყენება</span><span>⑤ ცვლილება</span></div>
   <div class="kicker">ნაბიჯი 1 · ვთამაშობთ DBA-ს</div>
@@ -604,8 +609,6 @@ i.codestep{display:none}
   </div>
   
 </section>
-
-<!-- 8. SSMS RESULT -->
 <section class="slide" data-section="2 · StoreDb · მე ვაჩვენებ">
   <div class="stepper"><span class="on">① ბაზა</span><span>② პროექტი</span><span>③ Scaffold</span><span>④ გამოყენება</span><span>⑤ ცვლილება</span></div>
   <div class="kicker">ნაბიჯი 1 · შედეგი</div>
@@ -633,8 +636,6 @@ i.codestep{display:none}
   </div>
   
 </section>
-
-<!-- 9. PROJECT + PACKAGES -->
 <section class="slide" data-section="2 · StoreDb · მე ვაჩვენებ">
   <div class="stepper"><span class="done">① ✓</span><span class="on">② პროექტი</span><span>③ Scaffold</span><span>④ გამოყენება</span><span>⑤ ცვლილება</span></div>
   <div class="kicker">ნაბიჯი 2 · ახალი არაფერია</div>
@@ -658,8 +659,6 @@ i.codestep{display:none}
   <div class="callout step mt" style="--a:var(--asp)">4-ივე — <b>ერთი ვერსია</b> (10.0.x). <b>.Tools</b> ან <b>.Design</b> თუ აკლია — Scaffold <b>არ იმუშავებს</b></div>
   
 </section>
-
-<!-- 10. SCAFFOLD COMMAND -->
 <section class="slide" data-section="2 · StoreDb · მე ვაჩვენებ">
   <div class="stepper"><span class="done">① ✓</span><span class="done">② ✓</span><span class="on">③ Scaffold</span><span>④ გამოყენება</span><span>⑤ ცვლილება</span></div>
   <div class="kicker">ნაბიჯი 3 · მთავარი ბრძანება</div>
@@ -676,8 +675,6 @@ i.codestep{display:none}
   <p class="tiny mt" style="margin-top:10px">Server = ის სახელი, რითაც SSMS-ში შედიხარ: <code class="i">localhost</code> · <code class="i">.\SQLEXPRESS</code> · <code class="i">(localdb)\MSSQLLocalDB</code> · ან დააკოპირე VS-დან და <b>Database=StoreDb</b> ჩაწერე</p>
   
 </section>
-
-<!-- 11. RESULT FILES + NAMING -->
 <section class="slide" data-section="2 · StoreDb · მე ვაჩვენებ">
   <div class="stepper"><span class="done">① ✓</span><span class="done">② ✓</span><span class="on">③ Scaffold</span><span>④ გამოყენება</span><span>⑤ ცვლილება</span></div>
   <div class="kicker">ნაბიჯი 3 · შედეგი</div>
@@ -709,8 +706,6 @@ i.codestep{display:none}
   </div>
   
 </section>
-
-<!-- 12. GENERATED ENTITY -->
 <section class="slide" data-section="2 · StoreDb · მე ვაჩვენებ">
   <div class="stepper"><span class="done">① ✓</span><span class="done">② ✓</span><span class="on">③ Scaffold</span><span>④ გამოყენება</span><span>⑤ ცვლილება</span></div>
   <div class="kicker">გენერირებული კოდი · Entity</div>
@@ -730,8 +725,6 @@ i.codestep{display:none}
   </div>
   
 </section>
-
-<!-- 13. GENERATED CONTEXT 1 -->
 <section class="slide" data-section="2 · StoreDb · მე ვაჩვენებ">
   <div class="stepper"><span class="done">① ✓</span><span class="done">② ✓</span><span class="on">③ Scaffold</span><span>④ გამოყენება</span><span>⑤ ცვლილება</span></div>
   <div class="kicker">გენერირებული კოდი · DbContext</div>
@@ -751,8 +744,6 @@ i.codestep{display:none}
   </div>
   
 </section>
-
-<!-- 14. GENERATED CONTEXT 2 -->
 <section class="slide" data-section="2 · StoreDb · მე ვაჩვენებ">
   <div class="stepper"><span class="done">① ✓</span><span class="done">② ✓</span><span class="on">③ Scaffold</span><span>④ გამოყენება</span><span>⑤ ცვლილება</span></div>
   <div class="kicker">გენერირებული კოდი · OnModelCreating</div>
@@ -776,8 +767,6 @@ i.codestep{display:none}
   </div>
   
 </section>
-
-<!-- 15. USE IT -->
 <section class="slide" data-section="2 · StoreDb · მე ვაჩვენებ">
   <div class="stepper"><span class="done">① ✓</span><span class="done">② ✓</span><span class="done">③ ✓</span><span class="on">④ გამოყენება</span><span>⑤ ცვლილება</span></div>
   <div class="kicker">ნაბიჯი 4</div>
@@ -798,8 +787,6 @@ i.codestep{display:none}
   </div>
   
 </section>
-
-<!-- ============ PART 3: CHANGE ============ -->
 <section class="slide divider" data-section="3 · ბაზა შეიცვალა">
   <div class="vcenter">
     <div class="kicker in">ნაწილი 3 · მე ვაჩვენებ</div>
@@ -809,8 +796,6 @@ i.codestep{display:none}
   <div class="big-num">03</div>
   
 </section>
-
-<!-- 16. DBA CHANGE + LABEL -->
 <section class="slide" data-section="3 · ბაზა შეიცვალა">
   <div class="stepper"><span class="done">① ✓</span><span class="done">② ✓</span><span class="done">③ ✓</span><span class="done">④ ✓</span><span class="on">⑤ ცვლილება</span></div>
   <div class="kicker">ნაბიჯი 5 · ორი რამ ერთდროულად</div>
@@ -833,8 +818,6 @@ i.codestep{display:none}
   </div>
   
 </section>
-
-<!-- 17. SCAFFOLD AGAIN -->
 <section class="slide" data-section="3 · ბაზა შეიცვალა">
   <div class="stepper"><span class="done">① ✓</span><span class="done">② ✓</span><span class="done">③ ✓</span><span class="done">④ ✓</span><span class="on">⑤ ცვლილება</span></div>
   <div class="kicker">ნაბიჯი 5 · Scaffold თავიდან</div>
@@ -853,8 +836,6 @@ i.codestep{display:none}
   </div>
   
 </section>
-
-<!-- 18. BOOM -->
 <section class="slide" data-section="3 · ბაზა შეიცვალა">
   <div class="stepper"><span class="done">① ✓</span><span class="done">② ✓</span><span class="done">③ ✓</span><span class="done">④ ✓</span><span class="on">⑤ ცვლილება</span></div>
   <div class="kicker">მახე</div>
@@ -872,8 +853,6 @@ i.codestep{display:none}
   </div>
   
 </section>
-
-<!-- 19. PARTIAL FIX -->
 <section class="slide" data-section="3 · ბაზა შეიცვალა">
   <div class="stepper"><span class="done">① ✓</span><span class="done">② ✓</span><span class="done">③ ✓</span><span class="done">④ ✓</span><span class="on">⑤ ცვლილება</span></div>
   <div class="kicker">გამოსავალი · partial</div>
@@ -904,8 +883,6 @@ i.codestep{display:none}
   </div>
   
 </section>
-
-<!-- 20. GOLDEN RULES -->
 <section class="slide" data-section="3 · ბაზა შეიცვალა">
   <div class="kicker">ოქროს წესები</div>
   <h2>Database First-ის <span class="c-asp">4 წესი</span></h2>
@@ -918,8 +895,6 @@ i.codestep{display:none}
   <div class="callout step mt" style="--a:var(--muted);font-size:20px">და: Database First პროექტში <code class="i">Add-Migration</code> / <code class="i">Update-Database</code> — <b>არა</b>. ბაზას აქ კოდი არ ცვლის</div>
   
 </section>
-
-<!-- 21. CHEAT SHEET -->
 <section class="slide" data-section="3 · ბაზა შეიცვალა">
   <div class="kicker">პარამეტრების ფურცელი</div>
   <h2>Scaffold-DbContext — <span class="c-core">სასარგებლო პარამეტრები</span></h2>
@@ -936,8 +911,6 @@ i.codestep{display:none}
   <p class="tiny mt" style="margin-top:14px">ტერმინალიდან: <code class="i">dotnet ef dbcontext scaffold "Server=…" Microsoft.EntityFrameworkCore.SqlServer -o Models -f</code></p>
   
 </section>
-
-<!-- 22. TWO LECTURES -->
 <section class="slide" data-section="3 · ბაზა შეიცვალა">
   <div class="kicker">ორი ლექცია — ერთ სლაიდზე</div>
   <h2>ყოველდღიური ციკლი</h2>
@@ -963,8 +936,6 @@ i.codestep{display:none}
   </div>
   
 </section>
-
-<!-- ============ PART 4: PRACTICE ============ -->
 <section class="slide divider" data-section="4 · პრაქტიკა">
   <div class="vcenter">
     <div class="kicker in">ნაწილი 4</div>
@@ -974,8 +945,6 @@ i.codestep{display:none}
   <div class="big-num">04</div>
   
 </section>
-
-<!-- 23. ROUNDS -->
 <section class="slide" data-section="4 · პრაქტიკა">
   <div class="kicker">სამი ეტაპი</div>
   <h2>მე → თქვენ → საშინაო</h2>
@@ -987,60 +956,27 @@ i.codestep{display:none}
   <div class="callout step mt2" style="--a:var(--asp)">SQL სკრიპტები — რეპოს <b>sql/</b> ფოლდერში: <code class="i">LibraryDb.sql</code> · <code class="i">CinemaDb.sql</code> + <code class="i">…-change.sql</code></div>
   
 </section>
-
-<!-- 24. YOU DO (IN CLASS) -->
-<section class="slide" data-section="4 · პრაქტიკა">
-  <div class="kicker">🧑‍💻 თქვენ აკეთებთ · კლასში · ~30 წთ</div>
+<section class="slide" data-section="პრაქტიკა">
+  <div class="kicker">🧑‍💻 თქვენ აკეთებთ · კლასში</div>
   <h2>LibraryDemo — ბიბლიოთეკა</h2>
-  <div class="grid2" style="grid-template-columns:1.15fr 1fr;align-items:start;gap:26px">
-    <pre class="code xs"><span class="ttl">sql/LibraryDb.sql</span><code><span class="ln"><span class="k">CREATE</span><span class="w"> </span><span class="k">DATABASE</span><span class="w"> </span><span class="n">LibraryDb</span><span class="p">;</span></span><span class="ln"><span class="k">GO</span></span><span class="ln"><span class="n">USE</span><span class="w"> </span><span class="n">LibraryDb</span><span class="p">;</span></span><span class="ln"><span class="k">GO</span></span><span class="ln"><span class="k">CREATE</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="n">Authors</span><span class="w"> </span><span class="p">(</span></span><span class="ln"><span class="w">    </span><span class="n">Id</span><span class="w"> </span><span class="nb">INT</span><span class="w"> </span><span class="k">IDENTITY</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="k">PRIMARY</span><span class="w"> </span><span class="k">KEY</span><span class="p">,</span></span><span class="ln"><span class="w">    </span><span class="n">FullName</span><span class="w"> </span><span class="n">NVARCHAR</span><span class="p">(</span><span class="mi">100</span><span class="p">)</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="p">,</span></span><span class="ln"><span class="w">    </span><span class="n">Country</span><span class="w"> </span><span class="n">NVARCHAR</span><span class="p">(</span><span class="mi">50</span><span class="p">)</span><span class="w"> </span><span class="k">NULL</span></span><span class="ln"><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="k">CREATE</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="n">Books</span><span class="w"> </span><span class="p">(</span></span><span class="ln"><span class="w">    </span><span class="n">Id</span><span class="w"> </span><span class="nb">INT</span><span class="w"> </span><span class="k">IDENTITY</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="k">PRIMARY</span><span class="w"> </span><span class="k">KEY</span><span class="p">,</span></span><span class="ln"><span class="w">    </span><span class="n">Title</span><span class="w"> </span><span class="n">NVARCHAR</span><span class="p">(</span><span class="mi">200</span><span class="p">)</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="p">,</span></span><span class="ln"><span class="w">    </span><span class="k">Year</span><span class="w"> </span><span class="nb">INT</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="p">,</span></span><span class="ln"><span class="w">    </span><span class="n">AuthorId</span><span class="w"> </span><span class="nb">INT</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="w"> </span><span class="k">FOREIGN</span><span class="w"> </span><span class="k">KEY</span><span class="w"> </span><span class="k">REFERENCES</span><span class="w"> </span><span class="n">Authors</span><span class="p">(</span><span class="n">Id</span><span class="p">)</span></span><span class="ln"><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="k">INSERT</span><span class="w"> </span><span class="k">INTO</span><span class="w"> </span><span class="n">Authors</span><span class="w"> </span><span class="p">(</span><span class="n">FullName</span><span class="p">,</span><span class="w"> </span><span class="n">Country</span><span class="p">)</span></span><span class="ln"><span class="k">VALUES</span><span class="w"> </span><span class="p">(</span><span class="n">N</span><span class="s1">'ილია ჭავჭავაძე'</span><span class="p">,</span><span class="w"> </span><span class="n">N</span><span class="s1">'საქართველო'</span><span class="p">)</span><span class="p">,</span></span><span class="ln"><span class="w">       </span><span class="p">(</span><span class="n">N</span><span class="s1">'ვაჟა-ფშაველა'</span><span class="p">,</span><span class="w"> </span><span class="n">N</span><span class="s1">'საქართველო'</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="k">INSERT</span><span class="w"> </span><span class="k">INTO</span><span class="w"> </span><span class="n">Books</span><span class="w"> </span><span class="p">(</span><span class="n">Title</span><span class="p">,</span><span class="w"> </span><span class="k">Year</span><span class="p">,</span><span class="w"> </span><span class="n">AuthorId</span><span class="p">)</span></span><span class="ln"><span class="k">VALUES</span><span class="w"> </span><span class="p">(</span><span class="n">N</span><span class="s1">'კაცია-ადამიანი?!'</span><span class="p">,</span><span class="w"> </span><span class="mi">1863</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="p">,</span></span><span class="ln"><span class="w">       </span><span class="p">(</span><span class="n">N</span><span class="s1">'ოთარაანთ ქვრივი'</span><span class="p">,</span><span class="w"> </span><span class="mi">1887</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="p">,</span></span><span class="ln"><span class="w">       </span><span class="p">(</span><span class="n">N</span><span class="s1">'ალუდა ქეთელაური'</span><span class="p">,</span><span class="w"> </span><span class="mi">1888</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span></span></code></pre>
-    <div class="col" style="gap:14px">
-      <ul class="check in" style="--d:.2s;margin-top:0">
-        <li>① SSMS: გაუშვი <b>LibraryDb.sql</b></li>
-        <li>② Console App <b>LibraryDemo</b> + 4 პაკეტი</li>
-        <li>③ <code class="i">Scaffold-DbContext</code> … <b>Database=LibraryDb</b> … <code class="i">-OutputDir Models</code></li>
-        <li>④ Program.cs: წიგნები ავტორებით (<code class="i">Include</code>) + 1 ახალი წიგნი</li>
-        <li><b>Partials/Book.cs</b>: <code class="i">Info =&gt; $"{Title} ({Year})"</code></li>
-        <li>⑤ <b>LibraryDb-change.sql</b> (Books + Pages) → Scaffold <code class="i">-Force</code></li>
-      </ul>
-      <div class="solve step" style="font-size:19px">მზადაა, როცა Book.cs-ში ჩანს <b>Pages</b> და <b>Info</b> ისევ მუშაობს</div>
-      <div class="callout step" style="--a:var(--api);font-size:18px">გაჭედე? → ჯერ <b>StoreDemo-ს სლაიდები</b> (ნაბიჯები 1–5), მერე გვერდით მჯდომი, მერე — მე</div>
+  <div class="grid2" style="grid-template-columns:1fr;align-items:start">
+    <div class="card accent step" style="--a:var(--mvc)">
+      <h3><span class="ico">📝</span>კლასში · ~30 წთ · იგივე 5 ნაბიჯი</h3>
+      <ul class="clean small">
+<li>① SSMS: გაუშვი <code class="i">LibraryDb.sql</code> (მასალებში)</li>
+<li>② Console App <strong>LibraryDemo</strong> + 4 პაკეტი</li>
+<li>③ <code class="i">Scaffold-DbContext … Database=LibraryDb … -OutputDir Models</code></li>
+<li>④ Program.cs: წიგნები ავტორებით (<code class="i">Include</code>) + 1 ახალი წიგნი · <code class="i">Partials/Book.cs</code>: <code class="i">Info =&gt; $"{Title} ({Year})"</code></li>
+<li>⑤ <code class="i">LibraryDb-change.sql</code> (Books + Pages) → Scaffold <code class="i">-Force</code></li>
+</ul>
+      <p class="tiny" style="margin-top:14px">✓ მზადაა, როცა: <code>Book.cs</code>-ში ჩანს <code>Pages</code>, და <code>Info</code> ისევ მუშაობს</p>
     </div>
+    
   </div>
+  <div class="callout step mt" style="--a:var(--api)">წესი: <b>ჯერ ცდი თვითონ</b> → გვერდით მჯდომს ჰკითხე → მერე მე</div>
   
 </section>
-
-<!-- 25. HOMEWORK -->
-<section class="slide" data-section="4 · პრაქტიკა">
-  <div class="kicker">🏠 საშინაო დავალება</div>
-  <h2>CinemaDemo — კინოთეატრი</h2>
-  <div class="grid2" style="grid-template-columns:1.2fr 1fr;align-items:start">
-    <div class="card accent step left" style="--a:var(--asp)">
-      <h3><span class="ico">📝</span>დავალება</h3>
-      <ul class="clean small">
-        <li>SSMS: <b>CinemaDb.sql</b> — Movies, Sessions</li>
-        <li><b>CinemaDemo</b> → Scaffold, კონტექსტის სახელი: <code class="i">-Context CinemaContext</code></li>
-        <li>დაბეჭდე სეანსები <b>დროის მიხედვით</b>: „19:30 · ოპენჰაიმერი · 15.00 ₾“</li>
-        <li><b>Partials/Session.cs</b>: <code class="i">Time =&gt; StartsAt.ToString("HH:mm")</code></li>
-        <li><b>CinemaDb-change.sql</b> (Halls + HallId) → <code class="i">-Force</code> → დაბეჭდე <b>დარბაზიც</b></li>
-      </ul>
-      <p class="tiny mt" style="margin-top:12px">✓ მზადაა, როცა კონსოლი ბეჭდავს: დრო · ფილმი · ფასი · დარბაზი — და Time ისევ მუშაობს</p>
-    </div>
-    <div class="card accent step right" style="--a:var(--net)">
-      <h3><span class="ico">⭐</span>ბონუსი</h3>
-      <ul class="clean small">
-        <li><code class="i">-Tables Movies -OutputDir OnlyMovies</code> — რა დაგენერირდა?</li>
-        <li><code class="i">-DataAnnotations</code> — Session.cs-ში რა <b>ატრიბუტები</b> გაჩნდა და რა დარჩა <b>OnModelCreating</b>-ში?</li>
-        <li>დაამატე დარბაზი <b>უკვე არსებული სახელით</b> — რას იტყვის ბაზა?</li>
-      </ul>
-    </div>
-  </div>
-  <div class="callout step mt" style="--a:var(--api);font-size:20px">მინიშნება: <code class="i">db.Sessions.Include(s =&gt; s.Movie).Include(s =&gt; s.Hall).OrderBy(s =&gt; s.StartsAt)</code> · დარბაზი შეიძლება <b>null</b> იყოს → <code class="i">s.Hall?.Name</code></div>
-  
-</section>
-
-<!-- 26. COMMON ERRORS -->
-<section class="slide" data-section="4 · პრაქტიკა">
+<section class="slide" data-section="პრაქტიკა">
   <div class="kicker">გაჭედე?</div>
   <h2>Scaffold-ის ხშირი შეცდომები</h2>
   <table class="t" style="font-size:18px">
@@ -1056,26 +992,18 @@ i.codestep{display:none}
   </table>
   
 </section>
-
-<!-- 27. QUIZ -->
 <section class="slide" data-section="შეჯამება">
   <div class="kicker">შევამოწმოთ</div>
   <h2>5 კითხვა</h2>
-  <div class="qa"><span class="n">1</span><span class="q">რას აკეთებს Scaffold-DbContext?</span><span class="a step">ბაზას კითხულობს და აგენერირებს Entity კლასებს + DbContext-ს</span></div>
-  <div class="qa"><span class="n">2</span><span class="q">ცხრილი Products — რა ჰქვია კლასს და DbSet-ს?</span><span class="a step">class Product (მხოლობითი) · DbSet Products</span></div>
-  <div class="qa"><span class="n">3</span><span class="q">DBA-მ სვეტი დაამატა. რას ვაკეთებთ?</span><span class="a step">იგივე Scaffold-DbContext + <b>-Force</b></span></div>
-  <div class="qa"><span class="n">4</span><span class="q">-Force-მა ჩვენი კოდი წაშალა. როგორ ავიცილოთ თავიდან?</span><span class="a step">partial კლასი ცალკე ფოლდერში, <b>იგივე namespace</b>-ით</span></div>
-  <div class="qa"><span class="n">5</span><span class="q">Database First პროექტში Migrations ფოლდერი რატომ არ არის?</span><span class="a step">ბაზას EF არ ქმნის — ის უკვე არსებობს; ცვლილებები ბაზაში ხდება</span></div>
+  <div class="qa"><span class="n">1</span><span class="q">რას აკეთებს <code class="i">Scaffold-DbContext</code>?</span><span class="a step">ბაზას კითხულობს და აგენერირებს Entity კლასებს + DbContext-ს</span></div><div class="qa"><span class="n">2</span><span class="q">ცხრილი Products — რა ჰქვია კლასს და DbSet-ს?</span><span class="a step"><code class="i">class Product</code> (მხოლობითი) · <code class="i">DbSet Products</code></span></div><div class="qa"><span class="n">3</span><span class="q">DBA-მ სვეტი დაამატა. რას ვაკეთებთ?</span><span class="a step">იგივე <code class="i">Scaffold-DbContext</code> + <code class="i">-Force</code></span></div><div class="qa"><span class="n">4</span><span class="q"><code class="i">-Force</code>-მა ჩვენი კოდი წაშალა. როგორ ავიცილოთ თავიდან?</span><span class="a step"><code class="i">partial</code> კლასი ცალკე ფოლდერში, იგივე namespace-ით</span></div><div class="qa"><span class="n">5</span><span class="q">Database First პროექტში Migrations ფოლდერი რატომ არ არის?</span><span class="a step">ბაზას EF არ ქმნის — ის უკვე არსებობს; ცვლილებები ბაზაში ხდება</span></div>
   
 </section>
-
-<!-- 28. FINAL -->
 <section class="slide" data-section="შეჯამება">
   <div class="vcenter" style="max-width:1000px">
     <div class="kicker in" style="color:var(--asp)">ორი შეხვედრა</div>
     <h1 class="in" style="--d:.1s;font-size:64px">კოდი ქმნის ბაზას —<br><span class="grad">ან ბაზა ქმნის კოდს</span></h1>
     <div class="grid2 mt2">
-      <div class="card accent step" style="--a:var(--mvc)"><h3><span class="ico">🏠</span>საშინაო</h3><p class="small"><b>CinemaDemo</b> — კინოთეატრი + ბონუსი: <b>-Tables</b>, <b>-DataAnnotations</b>, UNIQUE დარბაზზე</p></div>
+      <div class="card accent step" style="--a:var(--mvc)"><h3><span class="ico">🧠</span>დაიმახსოვრე</h3><ul class="clean small"><li><code class="i">Scaffold-DbContext</code> — ბაზა → კლასები</li><li>ბაზა შეიცვალა → <code class="i">-Force</code></li><li>ჩვენი კოდი → <b>partial</b>, ცალკე ფოლდერში</li></ul></div>
       <div class="card accent step" style="--a:var(--asp)"><h3><span class="ico">🧭</span>დაიმახსოვრე</h3><p class="small">ბაზა შენია → <b>Code First</b> · არსებობს ან სხვისია → <b>Database First</b> · ჩვენი კოდი → <b>partial</b></p></div>
     </div>
   </div>
@@ -1089,6 +1017,30 @@ i.codestep{display:none}
       <path d="M210 55 v60 a45 12 0 0 0 90 0 v-60" fill="#fef5e4" stroke="#d97706" stroke-width="3"/><ellipse cx="255" cy="55" rx="45" ry="12" fill="#fef5e4" stroke="#d97706" stroke-width="3"/><text x="255" y="103" text-anchor="middle" font-size="26">🗄️</text>
     </svg>
   </div>
+  
+</section>
+<section class="slide" data-section="საშინაო">
+  <div class="kicker">🏠 საშინაო დავალება</div>
+  <h2>CinemaDemo — კინოთეატრი</h2>
+  <div class="grid2" style="grid-template-columns:1.5fr 1fr;align-items:start">
+    <div class="card accent step" style="--a:var(--net)">
+      <h3><span class="ico">🏠</span>იგივე 5 ნაბიჯი + ორი ახალი რამ</h3>
+      <ul class="clean small">
+<li>SSMS: <code class="i">CinemaDb.sql</code> — Movies, Sessions (მასალებში)</li>
+<li>CinemaDemo → Scaffold, კონტექსტის სახელი: <code class="i">-Context CinemaContext</code></li>
+<li>დაბეჭდე სეანსები დროის მიხედვით: „19:30 · ოპენჰაიმერი · 15.00 ₾“</li>
+<li><code class="i">Partials/Session.cs</code>: <code class="i">Time =&gt; StartsAt.ToString("HH:mm")</code></li>
+<li><code class="i">CinemaDb-change.sql</code> (Halls + HallId) → <code class="i">-Force</code> → დაბეჭდე დარბაზიც</li>
+</ul>
+      <p class="tiny" style="margin-top:14px">✓ მზადაა, როცა: კონსოლი ბეჭდავს: დრო · ფილმი · ფასი · დარბაზი — და <code>Time</code> ისევ მუშაობს</p>
+    </div>
+    <div class="card accent step" style="--a:var(--asp)"><h3><span class="ico">⭐</span>ბონუსი</h3><ul class="clean small">
+<li><code class="i">-Tables Movies -OutputDir OnlyMovies</code> — რა დაგენერირდა?</li>
+<li><code class="i">-DataAnnotations</code> — Session.cs-ში რა ატრიბუტები გაჩნდა და რა დარჩა <code class="i">OnModelCreating</code>-ში?</li>
+<li>დაამატე დარბაზი უკვე არსებული სახელით — რას იტყვის ბაზა?</li>
+</ul></div>
+  </div>
+  <div class="callout step mt" style="--a:var(--api)">შემდეგი ლექციის დასაწყისში ამ დავალებას <b>ერთად განვიხილავთ</b></div>
   
 </section>
 

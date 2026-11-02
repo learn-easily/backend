@@ -117,17 +117,10 @@ i.codestep{display:none}
       <g class="in fade" style="--d:2.2s"><text x="300" y="330" text-anchor="middle" class="tm" font-size="18">ცხრილები → კლასები · ავტომატურად</text></g>
     </svg>
   </div>
-  <aside class="notes">
-⏱ 0:00 · 2 წთ
-~ სლაიდი ღიაა, სანამ სტუდენტები სხდებიან.
-გამარჯობა! ეს ჩვენი მეორე და ბოლო შეხვედრაა.
-გასულ შეხვედრაზე ორი მიდგომა შევადარეთ და Code First პრაქტიკაში ვნახეთ. დღეს — საპირისპირო გზა: Database First.
-მარჯვნივ: ბაზა უკვე არსებობს და გვირგვინი მას ახურავს. EF Core მისგან C#-ის კლასებს ერთი ბრძანებით წერს — Scaffold-DbContext.
-! ლექციის ბოლოს თქვენ თვითონ აიღებთ მზა ბაზას და ხელით ერთ კლასსაც არ დაწერთ.
-  </aside>
 </section>
-
-<!-- 2. ROADMAP -->
+<lecture-review/>
+<lecture-homework-review/>
+<lecture-intro/>
 <section class="slide">
   <div class="kicker">დღის გზა</div>
   <h2>სად ვართ და სად მივდივართ</h2>
@@ -139,21 +132,17 @@ i.codestep{display:none}
     <g class="step zoom" style="transform-origin:800px 230px"><circle cx="800" cy="230" r="46" fill="#fdecec" stroke="#dc2626" stroke-width="3"/><text x="800" y="246" text-anchor="middle" font-size="38">🔧</text><text x="800" y="152" text-anchor="middle" class="tw b" font-size="20">ბაზა შეიცვალა</text><text x="800" y="128" text-anchor="middle" class="tm" font-size="16">-Force · partial</text></g>
     <g class="step zoom" style="transform-origin:1110px 230px"><circle cx="1110" cy="230" r="50" fill="#eaf8ef" stroke="#16a34a" stroke-width="4" class="pulse"/><text x="1110" y="247" text-anchor="middle" font-size="40">⌨️</text><text x="1110" y="318" text-anchor="middle" class="tg b" font-size="20">პრაქტიკა</text><text x="1110" y="344" text-anchor="middle" class="tm" font-size="16">მე → თქვენ → საშინაო</text></g>
   </svg>
-  <aside class="notes">
-⏱ 0:02 · 2 წთ
-Code First გასულ შეხვედრაზე გავიარეთ — მწვანე ნიშანი აქვს.
-→ გავიხსენოთ
-ჯერ 10 წუთში გავიხსენებთ, რით განსხვავდება ორი მიდგომა.
-→ StoreDb
-მერე მე ვაჩვენებ: მზა ბაზა StoreDb — და მისგან C#-ის კოდი ერთი ბრძანებით.
-→ ბაზა შეიცვალა
-შემდეგ ყველაზე საინტერესო ნაწილი: ბაზა შეიცვალა — როგორ განვაახლოთ კოდი ისე, რომ ჩვენი ნამუშევარი არ დაიკარგოს.
-→ პრაქტიკა
-და ბოლოს პრაქტიკა: ჯერ მე ვაჩვენე, მერე თქვენ აკეთებთ ბიბლიოთეკას კლასში, სახლში კი — კინოთეატრი.
+  <aside class="study">
+### ლექციის გეგმა
+
+✓ **Code First** — გასულ შეხვედრაზე. დღეს:
+
+1. **გავიხსენოთ** — 10 წუთში: რით განსხვავდება ორი მიდგომა.
+2. 🗄️ **StoreDb → კოდი** — მზა ბაზიდან C#-ის კოდი ერთი ბრძანებით.
+3. **ბაზა შეიცვალა** — `-Force` და `partial`.
+4. ⌨️ **პრაქტიკა** — მე → თქვენ → საშინაო.
   </aside>
 </section>
-
-<!-- ============ PART 1: RECAP ============ -->
 <section class="slide divider" data-section="1 · გავიხსენოთ">
   <div class="vcenter">
     <div class="kicker in">ნაწილი 1</div>
@@ -161,13 +150,12 @@ Code First გასულ შეხვედრაზე გავიარე�
     <p class="lead mt in" style="--d:.3s">ვინ არის მთავარი — კოდი თუ ბაზა?</p>
   </div>
   <div class="big-num">01</div>
-  <aside class="notes">
-⏱ 0:04
-სანამ პრაქტიკაზე გადავალთ — ორი წუთით გავიხსენოთ, რაზე ვილაპარაკეთ.
+  <aside class="study">
+## ნაწილი 1 · გავიხსენოთ ორი მიდგომა
+
+ვინ არის მთავარი — კოდი თუ ბაზა?
   </aside>
 </section>
-
-<!-- 3. RECAP WHO -->
 <section class="slide" data-section="1 · გავიხსენოთ">
   <div class="kicker">ჭეშმარიტების წყარო</div>
   <h2>ვინ ვისი <span class="c-asp">ასლია</span>?</h2>
@@ -192,40 +180,15 @@ Code First გასულ შეხვედრაზე გავიარე�
     </div>
   </div>
   <div class="solve step mt2">შედეგი ორივეგან <b>ერთია</b>: Entity კლასები + DbContext. განსხვავება — <b>ვინ წერს</b> მათ</div>
-  <aside class="notes">
-⏱ 0:04 · 3 წთ
-? ვინ მეტყვის: Code First-ში ვინ არის მთავარი? Database First-ში? — ჯერ მოუსმინე, მერე →.
-→ Code First
-Code First: მთავარი კლასებია. ბაზა მათი ასლია — მიგრაციებით იქმნება და იცვლება. ეს გასულ ჯერზე ვნახეთ.
-→ Database First
-Database First: მთავარი ბაზაა. ის უკვე არსებობს — SQL-ით შექმნილი. კლასები მისი ასლია — EF Core მათ Scaffold-DbContext-ით აგენერირებს.
-→ შედეგი
-! ბოლოს ორივე გზაზე ერთი და იგივე გვაქვს: Entity კლასები და DbContext. ამიტომ Add, SaveChanges, Include, Where — დღესაც ზუსტად ისე იმუშავებს.
+  <aside class="study">
+### ჭეშმარიტების წყარო: ვინ ვისი ასლია?
+
+- 🟢 **Code First** (ლექცია 1) — 👑 **C# კლასები** → ბაზა. `კლასი → Add-Migration → Update-Database`.
+- 🟠 **Database First** (დღეს) — 👑 **ბაზა** → C# კლასები. `ბაზა (SQL) → Scaffold-DbContext → კლასები`.
+
+შედეგი ორივეგან ერთია: **Entity კლასები + DbContext**. მერე LINQ, `Add`, `SaveChanges` — ზუსტად ერთნაირად.
   </aside>
 </section>
-
-<!-- 4. RECAP QUIZ -->
-<section class="slide" data-section="1 · გავიხსენოთ">
-  <div class="kicker">სწრაფი შემოწმება</div>
-  <h2>3 კითხვა გასული შეხვედრიდან</h2>
-  <div class="qa" style="margin-top:40px"><span class="n">1</span><span class="q">ახალი სტარტაპი, ბაზა ჯერ არ არსებობს. რომელ მიდგომას ავირჩევთ?</span><span class="a step">Code First — ბაზა ჩვენია და ახლა იქმნება</span></div>
-  <div class="qa"><span class="n">2</span><span class="q">ბანკის 15 წლის ბაზა, მას DBA-ები მართავენ. რომელს?</span><span class="a step">Database First — ბაზა უკვე არსებობს და სხვისია <span class="tiny">(DBA — Database Administrator, ბაზის ადმინისტრატორი)</span></span></div>
-  <div class="qa"><span class="n">3</span><span class="q">ცხრილს ახალი სვეტი სჭირდება. სად იწყება ცვლილება თითოეულ მიდგომაში?</span><span class="a step">Code First — კლასში → მიგრაცია · Database First — ბაზაში (ALTER TABLE) → კლასები თავიდან</span></div>
-  <aside class="notes">
-⏱ 0:07 · 4 წთ · ~ კითხვა ხმამაღლა, დაელოდე პასუხს, მერე → პასუხის გამოსაჩენად
-? 1. ახალი სტარტაპი — რომელი მიდგომა?
-→ პასუხი 1
-Code First — ბაზა ჩვენია და ახლა იქმნება.
-? 2. ბანკის ძველი ბაზა, DBA-ები მართავენ?
-→ პასუხი 2
-Database First. DBA — ბაზის ადმინისტრატორი: ადამიანი ან გუნდი, რომელიც ბაზის სქემას, უფლებებს, backup-ებს მართავს. ასეთ კომპანიებში დეველოპერს ხშირად CREATE TABLE-ის უფლებაც არ აქვს.
-? 3. ახალი სვეტი — სად იწყება ცვლილება?
-→ პასუხი 3
-! ცვლილება ყოველთვის იწყება იქ, სადაც ჭეშმარიტებაა. დღეს ამას ხელით გავაკეთებთ: ჯერ ბაზა შეიცვლება, მერე კლასები.
-  </aside>
-</section>
-
-<!-- 5. TODAY'S 5 STEPS -->
 <section class="slide" data-section="1 · გავიხსენოთ">
   <div class="kicker">დღევანდელი გეგმა</div>
   <h2>Database First — <span class="c-asp">5 ნაბიჯი</span></h2>
@@ -237,25 +200,22 @@ Database First. DBA — ბაზის ადმინისტრატორ�
     <div class="card accent step zoom" style="--a:var(--red);text-align:center;padding:22px 14px"><div class="verb" style="--a:var(--red);font-size:52px">5</div><h3 style="justify-content:center;font-size:23px">ცვლილება</h3><p class="small">-Force + partial</p></div>
   </div>
   <div class="callout step mt2" style="--a:var(--muted);font-size:22px">რა <b>არ</b> იქნება დღეს: <code class="i">Add-Migration</code>, <code class="i">Update-Database</code> და Migrations ფოლდერი — ბაზას EF Core <b>არ ქმნის</b></div>
-  <aside class="notes">
-⏱ 0:11 · 3 წთ
-დღევანდელი გეგმა — ხუთი ნაბიჯი. ამ ხუთეულს ყოველ სლაიდზე ზემოთ, მარჯვენა კუთხეში დაინახავთ.
-→ 1 ბაზა
-პირველი: ბაზა. დღეს ჩვენ ვთამაშობთ DBA-ს როლს — SQL სკრიპტით ვქმნით ბაზას SSMS-ში. რეალურად ის უკვე არსებობს.
-→ 2 პროექტი
-მეორე: Console App და იგივე ოთხი პაკეტი, რაც Code First-ში.
-→ 3 Scaffold
-მესამე — მთავარი: Scaffold-DbContext. EF ბაზას კითხულობს და კლასებს წერს.
-→ 4 გამოყენება
-მეოთხე: ვიყენებთ — ზუსტად ისე, როგორც Code First-ში.
-→ 5 ცვლილება
-მეხუთე: ბაზა შეიცვალა. როგორ განვაახლოთ კლასები და არ დავკარგოთ ჩვენი კოდი.
-→ რა არ იქნება
-! დღეს მიგრაციები არ გვაქვს. ბაზას EF არ ქმნის და არ ცვლის — ამიტომ Add-Migration და Update-Database აქ არ გამოიყენება.
+  <aside class="study">
+### დღევანდელი გეგმა: Database First — 5 ნაბიჯი
+
+1. **ბაზა** — SQL სკრიპტი SSMS-ში (დღეს ჩვენ ვთამაშობთ DBA-ს როლს; რეალურად ბაზა უკვე არსებობს).
+2. **პროექტი** — Console App + იგივე 4 პაკეტი.
+3. **Scaffold** — ბაზა → კლასები + DbContext.
+4. **გამოყენება** — Program.cs: LINQ, `Add`, `SaveChanges`.
+5. **ცვლილება** — `-Force` + `partial`.
+
+**რა არ იქნება დღეს:** `Add-Migration`, `Update-Database` — ბაზას EF არ ქმნის და არ ცვლის.
+
+```terms
+DBA — Database Administrator: ადამიანი ან გუნდი, რომელიც ბაზას მართავს — სქემას, უფლებებს, ბექაპებს
+```
   </aside>
 </section>
-
-<!-- ============ PART 2: I DO ============ -->
 <section class="slide divider" data-section="2 · StoreDb · მე ვაჩვენებ">
   <div class="vcenter">
     <div class="kicker in">ნაწილი 2 · მე ვაჩვენებ</div>
@@ -263,14 +223,12 @@ Database First. DBA — ბაზის ადმინისტრატორ�
     <p class="lead mt in" style="--d:.3s">StoreDb — მაღაზიის ბაზა, რომელიც „უკვე არსებობს“</p>
   </div>
   <div class="big-num">02</div>
-  <aside class="notes">
-⏱ 0:14
-! ახლა მე ვაკეთებ, თქვენ უყურებთ. ~ ამ ნაწილს პარალელურად ატარებ: სლაიდი → SSMS / Visual Studio → სლაიდი.
-~ მომზადება: SSMS და VS ღია; sql/StoreDb.sql და sql/StoreDb-change.sql ხელთ გქონდეს. თუ StoreDb უკვე არსებობს — წაშალე, რომ სუფთად დაიწყო.
+  <aside class="study">
+## ნაწილი 2 · ბაზიდან კოდამდე
+
+StoreDb — მაღაზიის ბაზა, რომელიც „უკვე არსებობს“. ჯერ ლექტორი აჩვენებს, მერე — თქვენ.
   </aside>
 </section>
-
-<!-- 6. SCENARIO -->
 <section class="slide" data-section="2 · StoreDb · მე ვაჩვენებ">
   <div class="kicker">სცენარი</div>
   <h2>პირველი დღე ახალ სამსახურში 💼</h2>
@@ -286,18 +244,14 @@ Database First. DBA — ბაზის ადმინისტრატორ�
       <div class="solve step" style="font-size:21px">ბაზამ <b>უკვე იცის</b> ყველაფერი → ვთხოვოთ EF Core-ს, თვითონ წაიკითხოს: <b>Scaffold-DbContext</b></div>
     </div>
   </div>
-  <aside class="notes">
-⏱ 0:14 · 2 წთ
-წარმოიდგინეთ: პირველი დღეა ახალ სამსახურში. DBA-სგან — ბაზის ადმინისტრატორისგან — ასეთ მესიჯს იღებთ.
-ბაზა უკვე არსებობს, სამი ცხრილით. ცხრილების შეცვლის უფლება არ გაქვთ. დავალება — პროდუქტების დაბეჭდვა.
-→ ხელით?
-? როგორ დავიწყებდით Code First-ის ცოდნით? (კლასებს ხელით დავწერდით და ბაზას დავამთხვევდით.) სამ ცხრილზე ეს შეიძლება. მაგრამ ყოველი ტიპი, სიგრძე, NULL, FK ზუსტად უნდა ემთხვეოდეს — ერთი შეცდომა და EF ბაზას ვერ წაიკითხავს.
-→ Scaffold
-! ბაზამ თავისი სქემა უკვე იცის. Database First-ის იდეა მარტივია: EF Core-ს ვთხოვთ, ბაზა თვითონ წაიკითხოს და კლასები თვითონ დაწეროს.
+  <aside class="study">
+### სცენარი: პირველი დღე ახალ სამსახურში 💼
+
+DBA ლევანი გწერს: ბაზა **StoreDb** სერვერზე უკვე გაქვს — Categories, Products, Customers. ⚠ **ცხრილებს ნუ შეცვლი** — სქემის ცვლილებებს ის აკეთებს. დავალება: კონსოლის პროგრამა, რომელიც პროდუქტებს კატეგორიებით ბეჭდავს.
+
+Code First-ის ცოდნით კლასებს ხელით დავწერდით — სამ ცხრილზე ეს ჯერ კიდევ შესაძლებელია. 300 ცხრილზე? და ყოველ ცვლილებაზე ხელით გასწორება? ამისთვისაა Database First.
   </aside>
 </section>
-
-<!-- 7. SQL SCRIPT -->
 <section class="slide" data-section="2 · StoreDb · მე ვაჩვენებ">
   <div class="stepper"><span class="on">① ბაზა</span><span>② პროექტი</span><span>③ Scaffold</span><span>④ გამოყენება</span><span>⑤ ცვლილება</span></div>
   <div class="kicker">ნაბიჯი 1 · ვთამაშობთ DBA-ს</div>
@@ -344,24 +298,45 @@ VALUES (N'გიორგი მაისურაძე', N'giorgi@mail.ge');
       <div class="callout step" data-with style="--a:var(--mvc);font-size:18px">მონაცემები · <b>N'…'</b> — ქართული ტექსტისთვის აუცილებელია</div>
     </div>
   </div>
-  <aside class="notes">
-⏱ 0:16 · 5 წთ · ~ SSMS: New Query → ჩასვი sql/StoreDb.sql → F5
-პირველი ნაბიჯი. რეალურ სამსახურში ბაზა უკვე იქნებოდა. ჩვენ თვითონ შევქმნით — ერთი წუთით DBA ვართ.
-→ ცხრილები
-სამი ცხრილი — ჩვეულებრივი SQL, ზუსტად ისე, როგორც SQL-ის ლექციებზე წერდით. ! EF Core აქ არსად არის: არც C#, არც მიგრაცია.
-→ FK
-Products.CategoryId — Foreign Key Categories-ზე. ერთ კატეგორიას ბევრი პროდუქტი.
-→ NULL და DEFAULT
-Description — NULL, ანუ არასავალდებულო. CreatedAt — DEFAULT GETDATE(): თუ არ მივუთითეთ, ბაზა თვითონ ჩაწერს მიმდინარე დროს. ? ეს დეტალები კოდში გადავა? — ნახავთ.
-→ UNIQUE
-Email — UNIQUE: ერთი და იგივე მეილი ორჯერ ვერ ჩაიწერება. ამასაც დღეს გამოვცდით.
-→ მონაცემები
-! INSERT-ში ქართულ ტექსტს წინ N აუცილებლად: N'ტექნიკა'. N-ის გარეშე ბაზაში ????-ები ჩაიწერება.
-~ PK/FK/UNIQUE inline წერია, სახელების გარეშე — სახელებს SQL Server თვითონ არქმევს. ეს გენერირებულ კოდში გამოჩნდება.
+  <aside class="study">
+### ნაბიჯი 1 · ვთამაშობთ DBA-ს: ბაზა იქმნება SQL-ით
+
+სკრიპტი მასალებშია (`StoreDb.sql`): SSMS → New Query → ჩასვი → F5.
+
+```sql sql/StoreDb.sql
+CREATE DATABASE StoreDb;
+GO
+USE StoreDb;
+GO
+CREATE TABLE Categories (
+    Id INT IDENTITY(1,1) PRIMARY KEY,
+    Name NVARCHAR(50) NOT NULL
+);
+CREATE TABLE Products (
+    Id INT IDENTITY(1,1) PRIMARY KEY,
+    Name NVARCHAR(100) NOT NULL,
+    Description NVARCHAR(500) NULL,
+    Price DECIMAL(10,2) NOT NULL,
+    CreatedAt DATETIME2 NOT NULL DEFAULT GETDATE(),
+    CategoryId INT NOT NULL FOREIGN KEY REFERENCES Categories(Id)
+);
+CREATE TABLE Customers (
+    Id INT IDENTITY(1,1) PRIMARY KEY,
+    FullName NVARCHAR(100) NOT NULL,
+    Email NVARCHAR(100) NOT NULL UNIQUE
+);
+INSERT INTO Categories (Name) VALUES (N'ტექნიკა'), (N'აქსესუარები');
+INSERT INTO Products (Name, Price, CategoryId)
+VALUES (N'ლეპტოპი', 2400, 1), (N'მაუსი', 45, 2), (N'კლავიატურა', 120, 2);
+INSERT INTO Customers (FullName, Email)
+VALUES (N'გიორგი მაისურაძე', N'giorgi@mail.ge');
+```
+
+- 3 ცხრილი — ჩვეულებრივი SQL. **EF Core აქ არსად არის**: არც C#, არც მიგრაცია.
+- `FOREIGN KEY` — Products → Categories (1 → N).
+- `NULL`, `DEFAULT`, `UNIQUE` — EF ამასაც წაიკითხავს.
   </aside>
 </section>
-
-<!-- 8. SSMS RESULT -->
 <section class="slide" data-section="2 · StoreDb · მე ვაჩვენებ">
   <div class="stepper"><span class="on">① ბაზა</span><span>② პროექტი</span><span>③ Scaffold</span><span>④ გამოყენება</span><span>⑤ ცვლილება</span></div>
   <div class="kicker">ნაბიჯი 1 · შედეგი</div>
@@ -387,17 +362,16 @@ Email — UNIQUE: ერთი და იგივე მეილი ორჯ�
       <div class="callout step" style="--a:var(--red);font-size:20px">ცხრილი <b>__EFMigrationsHistory</b> აქ <b>არ არის</b> — ამ ბაზას EF Core-ს არ შეუქმნია</div>
     </div>
   </div>
-  <aside class="notes">
-⏱ 0:21 · 2 წთ · ~ SSMS: Databases → Refresh
-ბაზა შეიქმნა: სამი ცხრილი.
-→ მონაცემები
-SELECT * FROM Products — სამი პროდუქტი. ! CreatedAt-ში ჩვენ არაფერი ჩაგვიწერია — DEFAULT GETDATE()-მა შეავსო.
-→ __EFMigrationsHistory
-? რას ვერ ხედავთ, რაც Code First-ში ყოველთვის იყო? (__EFMigrationsHistory.) ეს ბაზა EF-ს არ შეუქმნია, ამიტომ მიგრაციების დღიურიც არ აქვს. ასე გამოიყურება ყოველი „ნამდვილი“ ძველი ბაზა.
+  <aside class="study">
+### შედეგი: StoreDb უკვე არსებობს
+
+SSMS → Databases → Refresh: **StoreDb** → Tables: `dbo.Categories`, `dbo.Customers`, `dbo.Products`.
+
+`SELECT * FROM Products` — სამი პროდუქტი. `CreatedAt`-ში არაფერი ჩაგვიწერია — `DEFAULT GETDATE()`-მა შეავსო.
+
+რას ვერ ხედავ, რაც Code First-ში ყოველთვის იყო? **`__EFMigrationsHistory`** — ბაზა EF-ს არ შეუქმნია.
   </aside>
 </section>
-
-<!-- 9. PROJECT + PACKAGES -->
 <section class="slide" data-section="2 · StoreDb · მე ვაჩვენებ">
   <div class="stepper"><span class="done">① ✓</span><span class="on">② პროექტი</span><span>③ Scaffold</span><span>④ გამოყენება</span><span>⑤ ცვლილება</span></div>
   <div class="kicker">ნაბიჯი 2 · ახალი არაფერია</div>
@@ -419,20 +393,19 @@ SELECT * FROM Products — სამი პროდუქტი. ! CreatedAt-�
     </div>
   </div>
   <div class="callout step mt" style="--a:var(--asp)">4-ივე — <b>ერთი ვერსია</b> (10.0.x). <b>.Tools</b> ან <b>.Design</b> თუ აკლია — Scaffold <b>არ იმუშავებს</b></div>
-  <aside class="notes">
-⏱ 0:23 · 3 წთ · ~ VS: New Project → Console App → StoreDemo → NuGet: 4 პაკეტი
-მეორე ნაბიჯში ახალი არაფერია.
-→ პროექტი
-Console App, სახელი StoreDemo, .NET 10.
-→ პაკეტები
-? რომელი ოთხი პაკეტი? — სანამ გამოაჩენ, ჰკითხე.
-იგივე ოთხი. ერთი განსხვავება: Code First-ში .Tools და .Design მიგრაციებისთვის გვჭირდებოდა, დღეს Scaffold-ისთვის. .Tools PMC-ში ბრძანებას გვაძლევს, .Design კი კლასების ფაილებს რეალურად წერს.
-→ ვერსია
-! ვერსიები ერთნაირი. .Tools ან .Design თუ აკლია — Scaffold არ იმუშავებს; შეცდომებს მოგვიანებით ვნახავთ.
+  <aside class="study">
+### ნაბიჯი 2 · Console App + იგივე 4 პაკეტი
+
+Console App **StoreDemo**, .NET 10, და:
+
+- `Microsoft.EntityFrameworkCore` — ძრავი
+- `Microsoft.EntityFrameworkCore.SqlServer` — SQL Server
+- `Microsoft.EntityFrameworkCore.Tools` — `Scaffold-DbContext` ბრძანება
+- `Microsoft.EntityFrameworkCore.Design` — კოდის გენერაცია
+
+იგივე ოთხი, რაც Code First-ში. ერთი განსხვავება: `.Tools` და `.Design` აქ მიგრაციებისთვის კი არა, **Scaffold**-ისთვის გვჭირდება.
   </aside>
 </section>
-
-<!-- 10. SCAFFOLD COMMAND -->
 <section class="slide" data-section="2 · StoreDb · მე ვაჩვენებ">
   <div class="stepper"><span class="done">① ✓</span><span class="done">② ✓</span><span class="on">③ Scaffold</span><span>④ გამოყენება</span><span>⑤ ცვლილება</span></div>
   <div class="kicker">ნაბიჯი 3 · მთავარი ბრძანება</div>
@@ -447,25 +420,23 @@ Console App, სახელი StoreDemo, .NET 10.
     <div class="body wrap" style="font-size:15.5px"><div class="pm">Scaffold-DbContext "Server=localhost;Database=StoreDb;Trusted_Connection=True;TrustServerCertificate=True;" Microsoft.EntityFrameworkCore.SqlServer -OutputDir Models</div>
       <div class="out late" style="--ld:1s">Build started...<br>Build succeeded.<br><span class="warn">To protect potentially sensitive information in your connection string, you should move it out of source code…</span></div></div></div>
   <p class="tiny mt" style="margin-top:10px">Server = ის სახელი, რითაც SSMS-ში შედიხარ: <code class="i">localhost</code> · <code class="i">.\SQLEXPRESS</code> · <code class="i">(localdb)\MSSQLLocalDB</code> · ან დააკოპირე VS-დან და <b>Database=StoreDb</b> ჩაწერე</p>
-  <aside class="notes">
-⏱ 0:26 · 5 წთ · ~ VS: Tools → NuGet Package Manager → Package Manager Console. ზემოთ Default project: StoreDemo
-მესამე ნაბიჯი — დღევანდელი მთავარი ბრძანება. ერთი შეხედვით გრძელია, მაგრამ მხოლოდ ოთხი ნაწილისგან შედგება.
-→ ბრძანება
-Scaffold-DbContext — „ბაზიდან ააშენე DbContext და კლასები“. .Tools პაკეტიდან მოდის.
-→ connection string
-პირველი პარამეტრი — connection string ბრჭყალებში. იგივეა, რაც Code First-ში UseSqlServer-ში გვქონდა: სერვერი და ბაზის სახელი — StoreDb.
-~ PMC-ში @ არ გვჭირდება — ეს C# არ არის. \ სერვერის სახელში აქ პრობლემა არ არის.
-→ პროვაიდერი
-მეორე — პროვაიდერი: რა ბაზაა. SQL Server-ისთვის — SqlServer პაკეტის სახელი. PostgreSQL-ზე სხვა იქნებოდა.
-→ OutputDir
-მესამე — -OutputDir Models: კლასები პროექტის Models ფოლდერში ჩაიწერება. მის გარეშე პროექტის ძირში ჩაყრიდა.
-→ გაშვება
-გავუშვათ. ! Scaffold ჯერ პროექტს აბილდებს — კოდში შეცდომა თუ გაქვთ, Scaffold არ გაეშვება.
-ყვითელი ტექსტი შეცდომა არ არის — გაფრთხილებაა connection string-ზე. მას ცოტა ხანში კოდში ვნახავთ.
+  <aside class="study">
+### ნაბიჯი 3 · მთავარი ბრძანება: Scaffold-DbContext — 4 ნაწილი
+
+Package Manager Console (ზემოთ Default project: **StoreDemo**):
+
+```plain Package Manager Console
+Scaffold-DbContext "Server=localhost;Database=StoreDb;Trusted_Connection=True;TrustServerCertificate=True;" Microsoft.EntityFrameworkCore.SqlServer -OutputDir Models
+```
+
+1. **`Scaffold-DbContext`** — ბრძანება (.Tools პაკეტიდან): „ბაზიდან ააშენე DbContext და კლასები“.
+2. **`"Server=…;Database=StoreDb;…"`** — connection string: რომელ ბაზას წაიკითხოს. (შენთან სერვერი შეიძლება `(localdb)\MSSQLLocalDB` იყოს — აიღე VS-ის SQL Server Object Explorer-იდან.)
+3. **`Microsoft.EntityFrameworkCore.SqlServer`** — პროვაიდერი: რა ტიპის ბაზაა.
+4. **`-OutputDir Models`** — სად ჩაწეროს ფაილები.
+
+ტერმინალიდან: `dotnet ef dbcontext scaffold "…" Microsoft.EntityFrameworkCore.SqlServer -o Models`.
   </aside>
 </section>
-
-<!-- 11. RESULT FILES + NAMING -->
 <section class="slide" data-section="2 · StoreDb · მე ვაჩვენებ">
   <div class="stepper"><span class="done">① ✓</span><span class="done">② ✓</span><span class="on">③ Scaffold</span><span>④ გამოყენება</span><span>⑤ ცვლილება</span></div>
   <div class="kicker">ნაბიჯი 3 · შედეგი</div>
@@ -495,21 +466,28 @@ Scaffold-DbContext — „ბაზიდან ააშენე DbContext დ
       <div class="callout step" style="--a:var(--core);font-size:18px">კლასი — <b>მხოლობითში</b> (Product), DbSet — <b>მრავლობითში</b> (Products). სხვა სახელი? → <code class="i">-Context StoreContext</code></div>
     </div>
   </div>
-  <aside class="notes">
-⏱ 0:31 · 4 წთ · ~ VS: გახსენი Models ფოლდერი
-→ ფაილები
-პროექტში გაჩნდა ფოლდერი Models — ოთხი ფაილი: სამი Entity, თითო ცხრილზე, და StoreDbContext. ! ხელით ერთი ხაზიც არ დაგვიწერია.
-→ Migrations
-? რა აკლია Code First-თან შედარებით? Migrations ფოლდერი. ბაზა EF-ს არ შეუქმნია, ამიტომ არც მიგრაციები აქვს.
-→ სახელები
-როგორ არქმევს EF სახელებს: ბაზის სახელს + „Context“ → StoreDbContext. ცხრილი → კლასი, სვეტი → property.
-→ მხოლობითი
-! შეამჩნიეთ: ცხრილი Products-ია, კლასი კი Product — მხოლობითში, რადგან ერთი ობიექტი ერთი პროდუქტია. DbSet კი ისევ Products. Categories → Category — EF ინგლისურ მრავლობითსაც სწორად ხსნის.
-კონტექსტს სხვა სახელი რომ დავარქვათ — -Context პარამეტრი.
+  <aside class="study">
+### რა გაჩნდა პროექტში?
+
+```plain Solution Explorer
+📦 StoreDemo
+ ├ 📁 Models          NEW
+ │  ├ 📄 Category.cs
+ │  ├ 📄 Customer.cs
+ │  ├ 📄 Product.cs
+ │  └ 🎛️ StoreDbContext.cs
+ └ 📄 Program.cs
+```
+
+სამი Entity — თითო ცხრილზე — და `StoreDbContext`. ხელით ერთი ხაზიც არ დაგვიწერია.
+
+ფოლდერი **Migrations — არ არის**, და არც დაგვჭირდება: ბაზა EF-ს არ შეუქმნია, ცვლილებებიც ბაზაში ხდება.
+
+| ბაზაში | C#-ში |
+|---|---|
+| ცხრილი `Products` (მრავლობითი) | `class Product` (მხოლობითი) · `DbSet<Product> Products` |
   </aside>
 </section>
-
-<!-- 12. GENERATED ENTITY -->
 <section class="slide" data-section="2 · StoreDb · მე ვაჩვენებ">
   <div class="stepper"><span class="done">① ✓</span><span class="done">② ✓</span><span class="on">③ Scaffold</span><span>④ გამოყენება</span><span>⑤ ცვლილება</span></div>
   <div class="kicker">გენერირებული კოდი · Entity</div>
@@ -544,22 +522,34 @@ public partial class Product
       <div class="callout step" data-with style="--a:var(--api);font-size:18px">FK → <code class="i">CategoryId</code> + ნავიგაცია <code class="i">Category</code>. Category.cs-ში: <code class="i">ICollection&lt;Product&gt; Products</code></div>
     </div>
   </div>
-  <aside class="notes">
-⏱ 0:35 · 5 წთ · ~ VS: გახსენი Models/Product.cs და Category.cs
-შევხედოთ, რა დაწერა EF-მა. ! ეს ფაილი ჩვენ არ დაგვიწერია — ბაზიდან წაიკითხა.
-→ partial
-პირველი: partial. ეს ნიშნავს, რომ კლასი შეიძლება ორ ფაილში იყოს გაყოფილი — ნაწილი აქ, ნაწილი სხვაგან. ? რატომ დასჭირდა EF-ს? — დაიმახსოვრეთ, ლექციის მეორე ნახევარში პასუხს ნახავთ.
-→ NULL
-Name ბაზაში NOT NULL-ია — C#-ში string, ბოლოს = null!: „ნუ ღელავ კომპილატორო, null არ იქნება“. Description NULL-ია — string? კითხვის ნიშნით. ზუსტად ბაზიდან.
-→ ტიპები
-DECIMAL → decimal, DATETIME2 → DateTime. ტიპები EF-მა თვითონ დააწყვილა.
-→ კავშირი
-CategoryId — FK სვეტი. Category — ნავიგაცია, virtual სიტყვით. ! Category.cs-ში საპირისპირო მხარეა: ICollection of Product — ზუსტად ის 1-N, რასაც Code First-ში ხელით ვწერდით.
-~ virtual — lazy loading-ისთვისაა; ჩვენ მას არ ვიყენებთ, უბრალოდ ასე აგენერირებს.
+  <aside class="study">
+### გენერირებული Entity: Product.cs — ცხრილის ასლი
+
+```csharp Models/Product.cs · გენერირებული
+public partial class Product
+{
+    public int Id { get; set; }
+    public string Name { get; set; } = null!;
+    public string? Description { get; set; }
+    public decimal Price { get; set; }
+    public DateTime CreatedAt { get; set; }
+    public int CategoryId { get; set; }
+
+    public virtual Category Category { get; set; } = null!;
+}
+```
+
+- **`partial`** — კლასი შეიძლება რამდენიმე ფაილში გაგრძელდეს. ეს დღეს გადაგვარჩენს 😉
+- `NOT NULL` → `string … = null!` · `NULL` → `string?` (Description).
+- `DECIMAL` → `decimal` · `DATETIME2` → `DateTime`.
+- FK `CategoryId` + ნავიგაცია `Category` — EF-მა კავშირიც წაიკითხა. `Category.cs`-ში კი `ICollection<Product> Products`.
+
+```terms
+null! — „აქ null არ იქნება, დამიჯერე“: კომპილატორის გაფრთხილებას აჩუმებს; მნიშვნელობას EF ჩაწერს ბაზიდან
+virtual — ნავიგაციას EF-ს „გადაფარვის“ უფლებას აძლევს (lazy loading-ისთვის); ჩვენთვის არაფერს ცვლის
+```
   </aside>
 </section>
-
-<!-- 13. GENERATED CONTEXT 1 -->
 <section class="slide" data-section="2 · StoreDb · მე ვაჩვენებ">
   <div class="stepper"><span class="done">① ✓</span><span class="done">② ✓</span><span class="on">③ Scaffold</span><span>④ გამოყენება</span><span>⑤ ცვლილება</span></div>
   <div class="kicker">გენერირებული კოდი · DbContext</div>
@@ -596,22 +586,36 @@ public partial class StoreDbContext : DbContext
       <div class="callout step" data-with style="--a:var(--asp);font-size:18px"><b>#warning</b> — „სტრიქონი კოდიდან გაიტანე“. კონსოლში — OK. API-ში → <b>appsettings.json</b></div>
     </div>
   </div>
-  <aside class="notes">
-⏱ 0:40 · 3 წთ · ~ VS: გახსენი StoreDbContext.cs
-ახლა DbContext. ორ ნაწილად ვნახავთ — ჯერ ზედა.
-→ DbSet
-DbSet-ები — სამი ცხრილი, სამი DbSet. ზუსტად ის, რასაც Code First-ში ხელით ვწერდით.
-→ კონსტრუქტორები
-ორი კონსტრუქტორი. ჩვენ კონსოლში new StoreDbContext()-ს დავწერთ — პირველი, ცარიელი. მეორე options-ით ASP.NET Core-ში გამოიყენება, როცა კონტექსტს DI გვაძლევს. დღეს არ გვჭირდება.
-→ OnConfiguring
-OnConfiguring — Code First-ში ამას ხელით ვწერდით. აქ EF-მა connection string თვითონ ჩაწერა — ზუსტად ის, რაც Scaffold-ს მივეცით.
-→ #warning
-#warning — სწორედ ის ყვითელი ტექსტი, რაც PMC-ში ვნახეთ. EF გვეუბნება: პაროლიანი connection string კოდში და Git-ში არ უნდა იდოს. კონსოლის სასწავლო პროექტში ეს ნორმალურია. Web API-ში ის appsettings.json-ში გადადის.
-~ თუ ჰკითხავენ: -NoOnConfiguring პარამეტრით OnConfiguring საერთოდ არ დაიწერება.
+  <aside class="study">
+### გენერირებული DbContext — ზედა ნაწილი
+
+```csharp Models/StoreDbContext.cs · გენერირებული
+public partial class StoreDbContext : DbContext
+{
+    public StoreDbContext()
+    {
+    }
+
+    public StoreDbContext(DbContextOptions<StoreDbContext> options)
+        : base(options)
+    {
+    }
+
+    public virtual DbSet<Category> Categories { get; set; }
+    public virtual DbSet<Customer> Customers { get; set; }
+    public virtual DbSet<Product> Products { get; set; }
+
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+#warning To protect potentially sensitive information in your connection string…
+        => optionsBuilder.UseSqlServer("Server=localhost;Database=StoreDb;…");
+```
+
+- **DbSet-ები** — თითო ცხრილზე. ზუსტად ის, რასაც Code First-ში ხელით ვწერდით.
+- **ორი constructor** — კონსოლში `new StoreDbContext()`-ს ვწერთ (პირველი). მეორე — Web API-სთვის, სადაც DbContext-ს DI აწვდის.
+- **`OnConfiguring`** — connection string, რომელიც ბრძანებაში მივეცით.
+- **`#warning`** — EF გაფრთხილებს: connection string კოდში არ უნდა ეწეროს (პაროლი შეიძლება იყოს). რეალურ პროექტში ის `appsettings.json`-ში ან secrets-შია.
   </aside>
 </section>
-
-<!-- 14. GENERATED CONTEXT 2 -->
 <section class="slide" data-section="2 · StoreDb · მე ვაჩვენებ">
   <div class="stepper"><span class="done">① ✓</span><span class="done">② ✓</span><span class="on">③ Scaffold</span><span>④ გამოყენება</span><span>⑤ ცვლილება</span></div>
   <div class="kicker">გენერირებული კოდი · OnModelCreating</div>
@@ -657,27 +661,47 @@ protected override void OnModelCreating(ModelBuilder modelBuilder)
       <div class="callout step" data-with style="--a:var(--red);font-size:17px"><b>OnModelCreatingPartial</b> — ადგილი <b>ჩვენი</b> კონფიგურაციისთვის, partial ფაილში</div>
     </div>
   </div>
-  <aside class="notes">
-⏱ 0:43 · 5 წთ · ~ VS: StoreDbContext.cs → OnModelCreating
-ქვედა ნაწილი — OnModelCreating. ? გახსოვთ, SQL სკრიპტში რა დეტალები გვქონდა? NVARCHAR(100), DECIMAL, DEFAULT, UNIQUE, FK. ყველაფერი აქაა.
-~ ფაილში ყველა ცხრილისთვის არის ბლოკი; სლაიდზე ამონარიდია.
-→ PK
-PK. ! სკრიპტში PRIMARY KEY სახელის გარეშე დავწერეთ — SQL Server-მა სახელი თვითონ დაარქვა, ასეთი უცნაური ბოლოთი. EF-მა ზუსტად ის ჩაიწერა. თქვენს კომპიუტერზე ბოლო ციფრები სხვა იქნება.
-→ UNIQUE
-UNIQUE — IsUnique-ით უნიკალური ინდექსი.
-→ ზომები და ტიპები
-NVARCHAR(100) — HasMaxLength(100). DECIMAL(10,2) — HasColumnType. Code First-ში ამას ჩვენ ვწერდით, თუ გვინდოდა; აქ EF ბაზიდან იღებს.
-→ DEFAULT
-DEFAULT GETDATE() — HasDefaultValueSql. EF-მა იცის, რომ CreatedAt-ს ბაზა თვითონ ავსებს.
-→ FK
-კავშირი — HasOne, WithMany, HasForeignKey: „ერთ პროდუქტს ერთი კატეგორია, კატეგორიას ბევრი პროდუქტი“.
-~ OnDelete(ClientSetNull) — ბაზაში FK „NO ACTION“-ია; EF ასე აღნიშნავს. თუ ჰკითხავენ, მოკლედ.
-→ OnModelCreatingPartial
-ბოლო ხაზი — OnModelCreatingPartial. ესეც partial-ის ამბავია: ჩვენი დამატებითი კონფიგურაციის ადგილი სხვა ფაილში. ! partial ორჯერ ვნახეთ — ეს შემთხვევითი არ არის.
+  <aside class="study">
+### OnModelCreating: EF-მა ბაზიდან დეტალებიც წაიკითხა
+
+```csharp StoreDbContext.cs · OnModelCreating (ამონარიდი)
+protected override void OnModelCreating(ModelBuilder modelBuilder)
+{
+    modelBuilder.Entity<Customer>(entity =>
+    {
+        entity.HasKey(e => e.Id).HasName("PK__Customer__3214EC07…");
+        entity.HasIndex(e => e.Email, "UQ__Customer__A9D10534…").IsUnique();
+        entity.Property(e => e.Email).HasMaxLength(100);
+    });
+
+    modelBuilder.Entity<Product>(entity =>
+    {
+        entity.Property(e => e.Name).HasMaxLength(100);
+        entity.Property(e => e.Price).HasColumnType("decimal(10, 2)");
+        entity.Property(e => e.CreatedAt).HasDefaultValueSql("(getdate())");
+
+        entity.HasOne(d => d.Category).WithMany(p => p.Products)
+            .HasForeignKey(d => d.CategoryId)
+            .OnDelete(DeleteBehavior.ClientSetNull)
+            .HasConstraintName("FK__Products__Catego__…");
+    });
+
+    OnModelCreatingPartial(modelBuilder);
+}
+```
+
+| SQL სკრიპტში | OnModelCreating-ში |
+|---|---|
+| `PRIMARY KEY` (სახელი SQL Server-მა დაარქვა) | `HasKey(...).HasName("PK__…")` |
+| `UNIQUE` | `HasIndex(...).IsUnique()` |
+| `NVARCHAR(100)` | `HasMaxLength(100)` |
+| `DECIMAL(10,2)` | `HasColumnType("decimal(10, 2)")` |
+| `DEFAULT GETDATE()` | `HasDefaultValueSql("(getdate())")` |
+| `FOREIGN KEY` | `HasOne(...).WithMany(...).HasForeignKey(...)` |
+
+`OnModelCreatingPartial` — კიდევ ერთი `partial`: საკუთარ კონფიგურაციას ცალკე ფაილში დაამატებ.
   </aside>
 </section>
-
-<!-- 15. USE IT -->
 <section class="slide" data-section="2 · StoreDb · მე ვაჩვენებ">
   <div class="stepper"><span class="done">① ✓</span><span class="done">② ✓</span><span class="done">③ ✓</span><span class="on">④ გამოყენება</span><span>⑤ ცვლილება</span></div>
   <div class="kicker">ნაბიჯი 4</div>
@@ -710,24 +734,34 @@ Console.WriteLine($"მომხმარებლები: {db.Customers.Count
       <div class="solve step" style="font-size:18px">კოდი <b>იგივეა</b>. განსხვავება მხოლოდ ისაა — <b>ვინ დაწერა</b> კლასები</div>
     </div>
   </div>
-  <aside class="notes">
-⏱ 0:48 · 4 წთ · ~ VS: Program.cs → F5 · მეორედ გაუშვი და აჩვენე UNIQUE-ის შეცდომა
-ახლა გამოვიყენოთ. ყურადღებით: აქ ახალი თითქმის არაფერია.
-→ using
-ერთი ახალი რამ: კლასები Models ფოლდერში, ანუ StoreDemo.Models namespace-შია. ამიტომ using StoreDemo.Models.
-→ კონტექსტი
-new StoreDbContext() — ის კლასი, რაც EF-მა დაწერა.
-→ წაკითხვა
-Include — კატეგორიებთან ერთად, JOIN. F5 — სამი პროდუქტი, კატეგორიებით. ! ეს მონაცემები SQL-ის INSERT-ით ჩაიწერა, C#-ით კი წავიკითხეთ.
-→ ჩაწერა
-Add და SaveChanges — ახალი მომხმარებელი. ორი გახდა.
-~ ახლა მეორედ გაუშვი F5: Violation of UNIQUE KEY constraint — nino@mail.ge უკვე არსებობს. ბაზამ თავი დაიცვა. ! ეს სწორედ ის UNIQUE-ია, რაც სკრიპტში დავწერეთ.
-→ დასკვნა
-! Add, SaveChanges, Include, Where — ყველაფერი ზუსტად ისე, როგორც Code First-ში. EF-ს არ აინტერესებს, კლასები ჩვენ დავწერეთ თუ Scaffold-მა.
+  <aside class="study">
+### ნაბიჯი 4 · ვიყენებთ — ზუსტად ისე, როგორც Code First-ში
+
+```csharp Program.cs
+using Microsoft.EntityFrameworkCore;
+using StoreDemo.Models;
+
+Console.OutputEncoding = System.Text.Encoding.UTF8;
+using var db = new StoreDbContext();
+
+var products = db.Products.Include(p => p.Category).ToList();
+foreach (var p in products)
+    Console.WriteLine($"{p.Name} — {p.Price} ₾ · {p.Category.Name}");
+
+db.Customers.Add(new Customer { FullName = "ნინო", Email = "nino@mail.ge" });
+db.SaveChanges();
+Console.WriteLine($"მომხმარებლები: {db.Customers.Count()}");
+```
+
+- კლასები `Models` namespace-შია → `using StoreDemo.Models`.
+- `new StoreDbContext()` — გენერირებული კონტექსტი.
+- დანარჩენი — `Include`, `Add`, `SaveChanges` — უკვე იცი.
+
+```warn
+პროგრამა მეორედ გაუშვი — `SaveChanges` ჩავარდება: `nino@mail.ge` უკვე არსებობს, და `Email` `UNIQUE`-ია. ბაზა წესს იცავს — ზუსტად ისე, როგორც DBA-მ დააწესა.
+```
   </aside>
 </section>
-
-<!-- ============ PART 3: CHANGE ============ -->
 <section class="slide divider" data-section="3 · ბაზა შეიცვალა">
   <div class="vcenter">
     <div class="kicker in">ნაწილი 3 · მე ვაჩვენებ</div>
@@ -735,13 +769,12 @@ Add და SaveChanges — ახალი მომხმარებელი.
     <p class="lead mt in" style="--d:.3s">როგორ განვაახლოთ კლასები ისე, რომ <b>ჩვენი კოდი არ დაიკარგოს</b></p>
   </div>
   <div class="big-num">03</div>
-  <aside class="notes">
-⏱ 0:52
-ბაზა არასდროს რჩება უცვლელი. ახლა ვნახავთ, რა ხდება Database First-ში, როცა DBA ცხრილს ცვლის. აქ არის ერთი მახე, რომელშიც თითქმის ყველა ერთხელ მაინც ვარდება.
+  <aside class="study">
+## ნაწილი 3 · ბაზა შეიცვალა
+
+ბაზა არასდროს რჩება უცვლელი. რა ხდება Database First-ში, როცა DBA ცხრილს ცვლის? აქ ერთი მახეა, რომელშიც თითქმის ყველა ერთხელ მაინც ვარდება.
   </aside>
 </section>
-
-<!-- 16. DBA CHANGE + LABEL -->
 <section class="slide" data-section="3 · ბაზა შეიცვალა">
   <div class="stepper"><span class="done">① ✓</span><span class="done">② ✓</span><span class="done">③ ✓</span><span class="done">④ ✓</span><span class="on">⑤ ცვლილება</span></div>
   <div class="kicker">ნაბიჯი 5 · ორი რამ ერთდროულად</div>
@@ -773,21 +806,33 @@ foreach (var p in products)
       <div class="callout step" style="--a:var(--core);font-size:19px">კლასები ბაზას უნდა დავამთხვიოთ → <b>Scaffold — თავიდან</b></div>
     </div>
   </div>
-  <aside class="notes">
-⏱ 0:52 · 3 წთ · ~ SSMS: გაუშვი sql/StoreDb-change.sql · VS: Product.cs-ში დაამატე Label, Program.cs-ში გამოიყენე
-→ DBA
-DBA-მ ბაზა შეცვალა: Customers-ს Phone დაემატა. ! Database First-ში ცვლილება ბაზაში იწყება — და არა კოდში.
-→ კოდმა არ იცის
-ბაზაში Phone უკვე არის, Customer.cs-ში — არა. ~ პროგრამა გაეშვება, EF ზედმეტ სვეტს უბრალოდ ვერ ხედავს. მაგრამ c.Phone-ს ვერ დავწერთ.
-→ ჩვენი ხაზი
-ამასობაში ჩვენც ვიმუშავეთ: Product.cs-ში ხელით დავამატეთ Label — ლამაზად დასაბეჭდი ტექსტი. Program.cs-ში მას ვიყენებთ.
-~ Label-ს setter არ აქვს — EF მას სვეტად არ თვლის, ბაზაში არაფერს ეძებს.
-→ Scaffold თავიდან
-კლასები ბაზას უნდა დავამთხვიოთ. ? რას გავაკეთებთ? (Scaffold-ს თავიდან გავუშვებთ.) ვცადოთ.
+  <aside class="study">
+### ორი რამ ერთდროულად: DBA ცვლის ბაზას, ჩვენ — კოდს
+
+DBA: „მომხმარებლებს ტელეფონი დავუმატე 📱“
+
+```sql sql/StoreDb-change.sql
+ALTER TABLE Customers ADD Phone NVARCHAR(20) NULL;
+```
+
+Database First-ში **ცვლილება ბაზაში იწყება**. ბაზაში `Phone` უკვე არის, `Customer.cs`-ში — არა: კოდმა ცვლილების შესახებ არ იცის.
+
+ამასობაში ჩვენ `Product.cs`-ში ხელით დავამატეთ:
+
+```csharp Models/Product.cs · ✍️ ხელით
+public partial class Product
+{
+    // ... გენერირებული property-ები
+    public string Label => $"{Name} — {Price} ₾";
+}
+```
+
+```csharp Program.cs
+foreach (var p in products)
+    Console.WriteLine(p.Label);
+```
   </aside>
 </section>
-
-<!-- 17. SCAFFOLD AGAIN -->
 <section class="slide" data-section="3 · ბაზა შეიცვალა">
   <div class="stepper"><span class="done">① ✓</span><span class="done">② ✓</span><span class="done">③ ✓</span><span class="done">④ ✓</span><span class="on">⑤ ცვლილება</span></div>
   <div class="kicker">ნაბიჯი 5 · Scaffold თავიდან</div>
@@ -806,19 +851,25 @@ public string? Phone { get; set; }
       </code-block></div>
     </div>
   </div>
-  <aside class="notes">
-⏱ 0:55 · 3 წთ · ~ PMC: ↑ ისარი — წინა ბრძანება ბრუნდება
-→ უარი
-იგივე ბრძანება — და წითელი ტექსტი: ფაილები უკვე არსებობს. EF ჩვენს ფაილებს უნებართვოდ არ გადააწერს.
-→ -Force
-ბოლოში ვამატებთ -Force — „ზედ გადააწერე“. Build succeeded.
-→ შედეგი
-Customer.cs-ში ახლა Phone-ია — string?, რადგან ბაზაში NULL-ია. კლასები ისევ ბაზის ზუსტი ასლია. ✓
-? ყველაფერი კარგადაა? — ვნახოთ Product.cs…
+  <aside class="study">
+### Scaffold თავიდან — და… უარი
+
+იგივე ბრძანება (PMC-ში ↑ ისარი აბრუნებს წინა ბრძანებას):
+
+```plain Package Manager Console
+The following file(s) already exist in directory …\Models: …
+Specify the force flag to overwrite these files.
+```
+
+EF ჩვენს ფაილებს უნებართვოდ არ გადააწერს. ბოლოში ვამატებთ **`-Force`** — „ზედ გადააწერე“ → Build succeeded:
+
+```csharp Models/Customer.cs · განახლდა
+public string? Phone { get; set; }
+```
+
+`string?` — რადგან ბაზაში `NULL`-ია.
   </aside>
 </section>
-
-<!-- 18. BOOM -->
 <section class="slide" data-section="3 · ბაზა შეიცვალა">
   <div class="stepper"><span class="done">① ✓</span><span class="done">② ✓</span><span class="done">③ ✓</span><span class="done">④ ✓</span><span class="on">⑤ ცვლილება</span></div>
   <div class="kicker">მახე</div>
@@ -842,19 +893,26 @@ public partial class Product
       <div class="problem step" style="display:block;font-size:20px"><b>-Force</b> ყველა გენერირებულ ფაილს <b>თავიდან</b> წერს — ხელით დამატებული კოდი <b>იკარგება</b>. Product ცხრილი არც შეცვლილა!</div>
     </div>
   </div>
-  <aside class="notes">
-⏱ 0:58 · 2 წთ · ~ VS: Product.cs — Label აღარ არის; Build → Error List
-Product.cs გავხსენით და… Label აღარ არის.
-→ შეცდომა
-Program.cs აღარ კომპილირდება: Product-ს Label არ აქვს.
-→ რატომ
-! -Force ყველა ფაილს თავიდან წერს — ბაზიდან, ნულიდან. EF-მა არ იცის, რომ ჩვენ ამ ფაილში რამე დავწერეთ. Products ცხრილი არც შეცვლილა — მაინც თავიდან დაიწერა.
-~ შემდეგი Scaffold ახლა საერთოდ არ გაეშვება — „Build failed“, რადგან Program.cs Label-ს ითხოვს. ჯერ კოდი უნდა გასწორდეს.
-? აქედან რა წესი გამოვიტანოთ? (გენერირებულ ფაილს ხელით არ ვცვლით.) ? მაშინ ჩვენი კოდი სად დავწეროთ? — გახსოვთ, ორჯერ ვნახეთ ერთი სიტყვა…
+  <aside class="study">
+### მახე: ჩვენი Label გაქრა 💥
+
+```csharp Models/Product.cs · -Force-ის შემდეგ
+public partial class Product
+{
+    public int Id { get; set; }
+    public string Name { get; set; } = null!;
+    // ... დანარჩენი გენერირებული
+    public virtual Category Category { get; set; } = null!;
+}
+```
+
+```plain Error List
+CS1061  'Product' does not contain a definition for 'Label'
+```
+
+**`-Force` ყველა გენერირებულ ფაილს თავიდან წერს** — ბაზიდან, ნულიდან. EF-მა არ იცის, რომ ჩვენ ამ ფაილში რამე დავწერეთ. ხელით დამატებული კოდი იკარგება.
   </aside>
 </section>
-
-<!-- 19. PARTIAL FIX -->
 <section class="slide" data-section="3 · ბაზა შეიცვალა">
   <div class="stepper"><span class="done">① ✓</span><span class="done">② ✓</span><span class="done">③ ✓</span><span class="done">④ ✓</span><span class="on">⑤ ცვლილება</span></div>
   <div class="kicker">გამოსავალი · partial</div>
@@ -890,23 +948,43 @@ public partial class Product
       <div class="solve step" style="font-size:19px">Label <b>ცოცხალია</b> ✓ — Scaffold <b>Partials</b> ფოლდერს არ ეხება</div>
     </div>
   </div>
-  <aside class="notes">
-⏱ 1:00 · 4 წთ · ~ VS: Add → New Folder → Partials → Add → Class → Product.cs
-? ორჯერ ვნახეთ სიტყვა partial — სად? (Product.cs-ში და OnModelCreatingPartial-ში.) აი, რატომ.
-ვქმნით ცალკე ფოლდერს Partials — ეს „ჩვენი“ ტერიტორიაა. Models — Scaffold-ის.
-→ partial
-ფაილში partial class Product და მხოლოდ ჩვენი Label. ! C# კომპილაციისას ორ ფაილს ერთ კლასად აერთებს: გენერირებული property-ები + ჩვენი Label.
-→ namespace
-! ყველაზე ხშირი შეცდომა: namespace. ფოლდერი Partials-ია, ამიტომ VS ავტომატურად StoreDemo.Partials-ს დაწერს — ეს უნდა შეიცვალოს StoreDemo.Models-ად. სხვა namespace = სულ სხვა კლასი, და partial არ გაერთიანდება.
-→ Scaffold
-ახლა ისევ Scaffold -Force.
-→ შედეგი
-Label ცოცხალია. Scaffold მხოლოდ Models-ში წერს — ჩვენს ფოლდერს არ ეხება.
-~ DbContext-ზეც იგივე: საკუთარი კონფიგურაცია — partial class StoreDbContext და OnModelCreatingPartial მეთოდი ცალკე ფაილში.
+  <aside class="study">
+### გამოსავალი: partial — ჩვენი კოდი ცალკე ფაილში
+
+```plain Solution Explorer
+📦 StoreDemo
+ ├ 📁 Models      🔁 Scaffold-ის
+ │  ├ 📄 Category.cs
+ │  ├ 📄 Customer.cs
+ │  ├ 📄 Product.cs
+ │  └ 🎛️ StoreDbContext.cs
+ ├ 📁 Partials    ✍️ ჩვენი
+ │  └ 📄 Product.cs
+ └ 📄 Program.cs
+```
+
+```csharp Partials/Product.cs
+namespace StoreDemo.Models;
+
+public partial class Product
+{
+    public string Label => $"{Name} — {Price} ₾";
+}
+```
+
+- `partial class Product` — **იგივე კლასის** გაგრძელება. კომპილატორი ორივე ფაილს ერთ კლასად აწყობს.
+- **იგივე namespace** (`StoreDemo.Models`) — თორემ ორი სხვადასხვა კლასი გამოვა.
+- `-Force` მხოლოდ `Models`-ს ეხება — `Partials` უსაფრთხოა.
+
+```terms
+partial class — კლასი, რომლის კოდი რამდენიმე ფაილშია გაყოფილი; კომპილატორი მათ ერთ კლასად აერთიანებს
+```
+
+```prompt partial კლასები
+C#-ში ვსწავლობ partial class-ს EF Core Database First-თან ერთად. ამიხსენი მარტივად: რატომ აგენერირებს Scaffold-DbContext partial კლასებს, როგორ დავამატო საკუთარი property ცალკე ფაილში და რა მოხდება, თუ namespace არ დაემთხვევა. მომეცი პატარა მაგალითი. ქართულად.
+```
   </aside>
 </section>
-
-<!-- 20. GOLDEN RULES -->
 <section class="slide" data-section="3 · ბაზა შეიცვალა">
   <div class="kicker">ოქროს წესები</div>
   <h2>Database First-ის <span class="c-asp">4 წესი</span></h2>
@@ -917,23 +995,15 @@ Label ცოცხალია. Scaffold მხოლოდ Models-ში წე
     <div class="card accent step zoom gold" style="--a:var(--core)"><span class="verb" style="--a:var(--core)">4</span><div><h3>ბრძანება — შეინახე</h3><p class="small">ყოველთვის <b>ერთი და იგივე</b> Scaffold + <code class="i">-Force</code> (README-ში / scaffold.txt-ში)</p></div></div>
   </div>
   <div class="callout step mt" style="--a:var(--muted);font-size:20px">და: Database First პროექტში <code class="i">Add-Migration</code> / <code class="i">Update-Database</code> — <b>არა</b>. ბაზას აქ კოდი არ ცვლის</div>
-  <aside class="notes">
-⏱ 1:04 · 2 წთ
-ყველაფერი, რაც ვნახეთ — ოთხ წესად.
-→ 1
-ცვლილება ჯერ ბაზაში. Database First-ში ჭეშმარიტება ბაზაა.
-→ 2
-Models ფოლდერში ხელით არაფერს ვწერთ — ვნახეთ, რა მოხდა Label-ზე.
-→ 3
-ჩვენი კოდი — partial კლასებში, ცალკე ფოლდერში, იგივე namespace-ით.
-→ 4
-Scaffold-ის ბრძანება გრძელია — შეინახეთ README-ში ან ტექსტურ ფაილში და ყოველთვის ზუსტად იმავეს უშვებთ. სხვა პარამეტრებით გაშვება კლასებს სხვანაირად დააგენერირებს.
-→ მიგრაციები
-! და ბოლოს: Database First-ში მიგრაციები არ გამოიყენება. Add-Migration აქ მთელ ბაზას „ახლად“ ჩათვლის და CREATE TABLE-ებს დაწერს — ბაზა კი უკვე არსებობს.
+  <aside class="study">
+### Database First-ის 4 ოქროს წესი
+
+1. **ცვლილება — ჯერ ბაზაში.** `ALTER` / `CREATE` — SQL-ით ან DBA-ს მიერ. მერე Scaffold.
+2. **Models-ს ხელით არ ვეხებით** — შემდეგი `-Force` ყველაფერს წაშლის.
+3. **ჩვენი კოდი → `partial`**, ცალკე ფოლდერში, იგივე namespace-ით.
+4. **ბრძანება — შეინახე.** გრძელია და ყოველ ცვლილებაზე დაგჭირდება: README-ში ან `.ps1`/`.sh` ფაილში.
   </aside>
 </section>
-
-<!-- 21. CHEAT SHEET -->
 <section class="slide" data-section="3 · ბაზა შეიცვალა">
   <div class="kicker">პარამეტრების ფურცელი</div>
   <h2>Scaffold-DbContext — <span class="c-core">სასარგებლო პარამეტრები</span></h2>
@@ -948,27 +1018,19 @@ Scaffold-ის ბრძანება გრძელია — შეინ�
     <tr class="step fade"><td class="mono">-NoOnConfiguring</td><td class="mono">--no-onconfiguring</td><td>connection string <b>კოდში არ ჩაიწერება</b></td></tr>
   </table>
   <p class="tiny mt" style="margin-top:14px">ტერმინალიდან: <code class="i">dotnet ef dbcontext scaffold "Server=…" Microsoft.EntityFrameworkCore.SqlServer -o Models -f</code></p>
-  <aside class="notes">
-⏱ 1:06 · 2 წთ · ~ ეს სლაიდი პრაქტიკაშიც გამოგადგებათ
-ჩვენ ოთხი ნაწილი გამოვიყენეთ. კიდევ რამდენიმე პარამეტრი, რომელიც ხშირად გამოგადგებათ.
-→ OutputDir
-OutputDir — უკვე ვიცით.
-→ ContextDir
-ContextDir — DbContext ცალკე ფოლდერში, მაგალითად Data. ასე Models-ში მხოლოდ Entity-ები დარჩება.
-→ Context
-Context — კონტექსტის სახელი. StoreDbContext-ის ნაცვლად, მაგალითად, StoreContext. თქვენს დავალებაში დაგჭირდებათ.
-→ Tables
-Tables — მხოლოდ კონკრეტული ცხრილები. 300 ცხრილიდან 5 თუ გჭირდებათ.
-→ DataAnnotations
-DataAnnotations — დეტალები OnModelCreating-ის ნაცვლად ატრიბუტებად ჩაიწერება, თვითონ კლასში.
-→ Force
-Force — ვიცით.
-→ NoOnConfiguring
-NoOnConfiguring — connection string კოდში არ დაიწერება. Web API-ში ასე ჯობია.
+  <aside class="study">
+### Scaffold-DbContext — სასარგებლო პარამეტრები
+
+| PMC | `dotnet ef` | რას აკეთებს |
+|---|---|---|
+| `-OutputDir Models` | `-o Models` | Entity კლასების ფოლდერი |
+| `-ContextDir Data` | `--context-dir Data` | DbContext — ცალკე ფოლდერში |
+| `-Context StoreContext` | `-c StoreContext` | კონტექსტის სახელი |
+| `-Tables Products,Categories` | `-t Products -t Categories` | მხოლოდ ეს ცხრილები |
+| `-DataAnnotations` | `-d` | კონფიგურაცია ატრიბუტებით (`[MaxLength]`…) კლასებში, სადაც შესაძლებელია |
+| `-Force` | `-f` | არსებული ფაილების გადაწერა |
   </aside>
 </section>
-
-<!-- 22. TWO LECTURES -->
 <section class="slide" data-section="3 · ბაზა შეიცვალა">
   <div class="kicker">ორი ლექცია — ერთ სლაიდზე</div>
   <h2>ყოველდღიური ციკლი</h2>
@@ -992,19 +1054,15 @@ NoOnConfiguring — connection string კოდში არ დაიწერ�
     <div class="callout step" style="--a:var(--core);font-size:21px">🏠 ბაზა <b>შენია</b> და ახლა იქმნება → <b>Code First</b></div>
     <div class="callout step" data-with style="--a:var(--asp);font-size:21px">🏛️ ბაზა <b>უკვე არსებობს</b> ან სხვისია → <b>Database First</b></div>
   </div>
-  <aside class="notes">
-⏱ 1:08 · 2 წთ
-სანამ პრაქტიკაზე გადავალთ — ორივე ლექცია ერთ სლაიდზე.
-→ Code First
-Code First-ის ციკლი: კლასი → მიგრაცია → ბაზა.
-→ Database First
-Database First-ის ციკლი: ბაზა → Scaffold -Force → კლასები. ჩვენი კოდი partial-ებში უსაფრთხოდაა.
-→ არჩევანი
-! და არჩევანის წესი: ბაზა შენია — Code First. არსებობს ან სხვისია — Database First.
+  <aside class="study">
+### ორი ლექცია — ერთ სლაიდზე: ყოველდღიური ციკლი
+
+- **Code First** ✍️ — კლასი იცვლება → `Add-Migration` → `Update-Database` → ✓ ბაზა განახლდა.
+- **Database First** 🗄️ — `ALTER TABLE` → `Scaffold … -Force` → partial-ები ადგილზეა → ✓ კლასები განახლდა.
+
+🏠 **ბაზა შენია და ახლა იქმნება → Code First** · 🏛️ **არსებობს ან სხვისია → Database First**
   </aside>
 </section>
-
-<!-- ============ PART 4: PRACTICE ============ -->
 <section class="slide divider" data-section="4 · პრაქტიკა">
   <div class="vcenter">
     <div class="kicker in">ნაწილი 4</div>
@@ -1012,13 +1070,12 @@ Database First-ის ციკლი: ბაზა → Scaffold -Force → კ�
     <p class="lead mt in" style="--d:.3s">მზა ბაზა → Scaffold → კოდი → ცვლილება</p>
   </div>
   <div class="big-num">04</div>
-  <aside class="notes">
-⏱ 1:10
-„მე ვხსნი და ვაკეთებ“ — StoreDemo — გავიარეთ. ახლა თქვენ აკეთებთ კლასში, მერე — საშინაო დავალება.
+  <aside class="study">
+## ნაწილი 4 · თქვენი ჯერია
+
+მზა ბაზა → Scaffold → კოდი → ცვლილება.
   </aside>
 </section>
-
-<!-- 23. ROUNDS -->
 <section class="slide" data-section="4 · პრაქტიკა">
   <div class="kicker">სამი ეტაპი</div>
   <h2>მე → თქვენ → საშინაო</h2>
@@ -1028,112 +1085,20 @@ Database First-ის ციკლი: ბაზა → Scaffold -Force → კ�
     <div class="card accent phase step zoom" style="--a:var(--asp)"><div class="em">🏠</div><h3 style="justify-content:center">საშინაო</h3><p class="small">Movies · Sessions → Halls</p><p class="tt mt" style="margin-top:12px">CinemaDemo · სახლში</p></div>
   </div>
   <div class="callout step mt2" style="--a:var(--asp)">SQL სკრიპტები — რეპოს <b>sql/</b> ფოლდერში: <code class="i">LibraryDb.sql</code> · <code class="i">CinemaDb.sql</code> + <code class="i">…-change.sql</code></div>
-  <aside class="notes">
-⏱ 1:10 · 1 წთ
-პირველი ეტაპი — მე ვხსენი და ვაკეთე — გავიარეთ.
-→ თქვენ
-ახლა თქვენ აკეთებთ კლასში: ბიბლიოთეკა — ავტორები და წიგნები. ზუსტად ის ხუთი ნაბიჯი, რაც StoreDemo-ში ნახეთ. მე ოთახში დავდივარ და ვეხმარები.
-→ საშინაო
-სახლში — კინოთეატრი: ფილმები, სეანსები და დარბაზები.
-→ სკრიპტები
-! SQL სკრიპტებს ხელით არ წერთ — sql ფოლდერიდან აკოპირებთ. ჩვენ DBA-ები არ ვართ 🙂 ~ გაუზიარე რეპოს ბმული ან ფაილები ჩატში.
+  <aside class="study">
+### სამი ეტაპი: მე → თქვენ → საშინაო
+
+| | რას ვაკეთებთ | პროექტი |
+|---|---|---|
+| 👨‍🏫 მე ვხსნი და ვაკეთებ | StoreDb → Scaffold → partial | StoreDemo · ✓ დასრულდა |
+| 🧑‍💻 თქვენ აკეთებთ | Authors · Books → Pages | LibraryDemo · კლასში · ~30 წთ |
+| 🏠 საშინაო | Movies · Sessions → Halls | CinemaDemo · სახლში |
+
+SQL სკრიპტები — **მასალებში** (ამ გვერდის მარცხენა მხარეს, ან ქარდზე „📎 მასალები“): `LibraryDb.sql`, `LibraryDb-change.sql`, `CinemaDb.sql`, `CinemaDb-change.sql`.
   </aside>
 </section>
-
-<!-- 24. YOU DO (IN CLASS) -->
-<section class="slide" data-section="4 · პრაქტიკა">
-  <div class="kicker">🧑‍💻 თქვენ აკეთებთ · კლასში · ~30 წთ</div>
-  <h2>LibraryDemo — ბიბლიოთეკა</h2>
-  <div class="grid2" style="grid-template-columns:1.15fr 1fr;align-items:start;gap:26px">
-    <code-block lang="sql" cls="xs" title="sql/LibraryDb.sql">
-CREATE DATABASE LibraryDb;
-GO
-USE LibraryDb;
-GO
-CREATE TABLE Authors (
-    Id INT IDENTITY(1,1) PRIMARY KEY,
-    FullName NVARCHAR(100) NOT NULL,
-    Country NVARCHAR(50) NULL
-);
-CREATE TABLE Books (
-    Id INT IDENTITY(1,1) PRIMARY KEY,
-    Title NVARCHAR(200) NOT NULL,
-    Year INT NOT NULL,
-    AuthorId INT NOT NULL FOREIGN KEY REFERENCES Authors(Id)
-);
-INSERT INTO Authors (FullName, Country)
-VALUES (N'ილია ჭავჭავაძე', N'საქართველო'),
-       (N'ვაჟა-ფშაველა', N'საქართველო');
-INSERT INTO Books (Title, Year, AuthorId)
-VALUES (N'კაცია-ადამიანი?!', 1863, 1),
-       (N'ოთარაანთ ქვრივი', 1887, 1),
-       (N'ალუდა ქეთელაური', 1888, 2);
-    </code-block>
-    <div class="col" style="gap:14px">
-      <ul class="check in" style="--d:.2s;margin-top:0">
-        <li>① SSMS: გაუშვი <b>LibraryDb.sql</b></li>
-        <li>② Console App <b>LibraryDemo</b> + 4 პაკეტი</li>
-        <li>③ <code class="i">Scaffold-DbContext</code> … <b>Database=LibraryDb</b> … <code class="i">-OutputDir Models</code></li>
-        <li>④ Program.cs: წიგნები ავტორებით (<code class="i">Include</code>) + 1 ახალი წიგნი</li>
-        <li><b>Partials/Book.cs</b>: <code class="i">Info =&gt; $"{Title} ({Year})"</code></li>
-        <li>⑤ <b>LibraryDb-change.sql</b> (Books + Pages) → Scaffold <code class="i">-Force</code></li>
-      </ul>
-      <div class="solve step" style="font-size:19px">მზადაა, როცა Book.cs-ში ჩანს <b>Pages</b> და <b>Info</b> ისევ მუშაობს</div>
-      <div class="callout step" style="--a:var(--api);font-size:18px">გაჭედე? → ჯერ <b>StoreDemo-ს სლაიდები</b> (ნაბიჯები 1–5), მერე გვერდით მჯდომი, მერე — მე</div>
-    </div>
-  </div>
-  <aside class="notes">
-⏱ 1:11 · 30 წთ · ~ ეს სლაიდი ეკრანზე დატოვე და ოთახში იარე
-ახლა თქვენ — დამოუკიდებლად, კლასში. ბიბლიოთეკა: ზუსტად ის ხუთი ნაბიჯი, რაც StoreDemo-ში გაჩვენეთ. ჩეკლისტი ეკრანზეა.
-~ ყველაზე მეტი შეცდომა Scaffold-ზე იქნება (connection string, Database=LibraryDb, პაკეტები) — 10 წუთის შემდეგ შეცდომების სლაიდი გამოიტანე.
-~ გადაამოწმე: Models-ში Author, Book — მხოლობითში; Country — string?; partial-ის namespace — LibraryDemo.Models.
-→ მზადაა
-როდის ითვლება დასრულებულად: Scaffold -Force-ის შემდეგ Book.cs-ში Pages ჩანს, Info კი ისევ მუშაობს. ! ვისაც ასეა — ხელი ასწიეთ 🙌
-→ გაჭედე?
-გაჭედეთ? ჯერ StoreDemo-ს სლაიდები — იქ ყველა ნაბიჯია. მერე გვერდით მჯდომს ჰკითხეთ, მერე მე.
-  </aside>
-</section>
-
-<!-- 25. HOMEWORK -->
-<section class="slide" data-section="4 · პრაქტიკა">
-  <div class="kicker">🏠 საშინაო დავალება</div>
-  <h2>CinemaDemo — კინოთეატრი</h2>
-  <div class="grid2" style="grid-template-columns:1.2fr 1fr;align-items:start">
-    <div class="card accent step left" style="--a:var(--asp)">
-      <h3><span class="ico">📝</span>დავალება</h3>
-      <ul class="clean small">
-        <li>SSMS: <b>CinemaDb.sql</b> — Movies, Sessions</li>
-        <li><b>CinemaDemo</b> → Scaffold, კონტექსტის სახელი: <code class="i">-Context CinemaContext</code></li>
-        <li>დაბეჭდე სეანსები <b>დროის მიხედვით</b>: „19:30 · ოპენჰაიმერი · 15.00 ₾“</li>
-        <li><b>Partials/Session.cs</b>: <code class="i">Time =&gt; StartsAt.ToString("HH:mm")</code></li>
-        <li><b>CinemaDb-change.sql</b> (Halls + HallId) → <code class="i">-Force</code> → დაბეჭდე <b>დარბაზიც</b></li>
-      </ul>
-      <p class="tiny mt" style="margin-top:12px">✓ მზადაა, როცა კონსოლი ბეჭდავს: დრო · ფილმი · ფასი · დარბაზი — და Time ისევ მუშაობს</p>
-    </div>
-    <div class="card accent step right" style="--a:var(--net)">
-      <h3><span class="ico">⭐</span>ბონუსი</h3>
-      <ul class="clean small">
-        <li><code class="i">-Tables Movies -OutputDir OnlyMovies</code> — რა დაგენერირდა?</li>
-        <li><code class="i">-DataAnnotations</code> — Session.cs-ში რა <b>ატრიბუტები</b> გაჩნდა და რა დარჩა <b>OnModelCreating</b>-ში?</li>
-        <li>დაამატე დარბაზი <b>უკვე არსებული სახელით</b> — რას იტყვის ბაზა?</li>
-      </ul>
-    </div>
-  </div>
-  <div class="callout step mt" style="--a:var(--api);font-size:20px">მინიშნება: <code class="i">db.Sessions.Include(s =&gt; s.Movie).Include(s =&gt; s.Hall).OrderBy(s =&gt; s.StartsAt)</code> · დარბაზი შეიძლება <b>null</b> იყოს → <code class="i">s.Hall?.Name</code></div>
-  <aside class="notes">
-⏱ 1:41 · 3 წთ · ~ ხმამაღლა გაიარე დავალება, რომ სახლში ყველაფერი გასაგები იყოს
-საშინაო დავალება — კინოთეატრი. იგივე ხუთი ნაბიჯი, ოღონდ სახლში და ორი ახალი რამით.
-→ დავალება
-ახალი 1: -Context პარამეტრით კონტექსტს CinemaContext დაარქვით. ახალი 2: DBA-ს ცვლილება ახალ ცხრილს ამატებს — Halls — და Sessions-ს FK-ს. ! ცვლილების შემდეგ Session-ს Hall გაუჩნდება — Hall? კითხვის ნიშნით, რადგან HallId NULL-ია.
-→ ბონუსი
-ბონუსი: -Tables — მხოლოდ ერთი ცხრილი; -DataAnnotations — იგივე დეტალები ატრიბუტებად კლასში, ნაწილი კი OnModelCreating-ში რჩება; და UNIQUE-ის შემოწმება Halls.Name-ზე.
-→ მინიშნება
-მინიშნება: ორი Include და OrderBy. Hall შეიძლება null იყოს — ?. გამოიყენეთ.
-  </aside>
-</section>
-
-<!-- 26. COMMON ERRORS -->
-<section class="slide" data-section="4 · პრაქტიკა">
+<lecture-classwork/>
+<section class="slide" data-section="პრაქტიკა">
   <div class="kicker">გაჭედე?</div>
   <h2>Scaffold-ის ხშირი შეცდომები</h2>
   <table class="t" style="font-size:18px">
@@ -1147,58 +1112,33 @@ VALUES (N'კაცია-ადამიანი?!', 1863, 1),
     <tr class="step fade"><td class="mono" style="font-size:16px">'Book' does not contain a definition for 'Info'</td><td>partial — <b>სხვა namespace</b>-ში</td><td>namespace = <code class="i">…Models</code></td></tr>
     <tr class="step fade"><td class="mono" style="font-size:16px">ბაზაში ქართული ტექსტი ????-ად ჩანს</td><td>INSERT-ში <b>N</b> დაგავიწყდა</td><td><code class="i">N'ტექსტი'</code></td></tr>
   </table>
-  <aside class="notes">
-⏱ საჭიროებისამებრ · ~ იყენებ კლასში პრაქტიკის დროს
-→ not recognized
-Scaffold-DbContext-ს ვერ ცნობს — .Tools პაკეტი არ არის.
-→ Design
-startup project doesn't reference Design — .Design პაკეტი აკლია.
-→ Build failed
-Build failed — Scaffold ჯერ პროექტს აბილდებს. ! ხშირად ეს ხდება მაშინ, როცა -Force-მა ჩვენი კოდი წაშალა და Program.cs აღარ კომპილირდება.
-→ Cannot open database
-ბაზა ვერ იპოვა — სკრიპტი არ გაეშვა ან connection string-ში სახელი სხვაა.
-→ certificate
-სერტიფიკატის შეცდომა — TrustServerCertificate=True.
-→ already exist
-ფაილები უკვე არის — -Force.
-→ namespace
-partial-ის property ვერ მოიძებნა — partial კლასი სხვა namespace-შია. VS ფოლდერის სახელს უწერს — Partials; უნდა იყოს Models.
-→ ????
-ქართული ტექსტი ????-ებად — SQL-ში N აკლია. ეს SQL-ის შეცდომაა და არა EF-ის.
+  <aside class="study">
+### Scaffold-ის ხშირი შეცდომები
+
+| შეცდომა | მიზეზი | გამოსწორება |
+|---|---|---|
+| `The term 'Scaffold-DbContext' is not recognized` | .Tools აკლია | დააყენე .Tools |
+| `Your startup project doesn't reference Microsoft.EntityFrameworkCore.Design` | .Design აკლია | დააყენე .Design |
+| `Build failed.` | Scaffold ჯერ პროექტს აბილდებს — კოდში შეცდომაა (ხშირად `-Force`-ის შემდეგ დაკარგული კოდის გამო) | ჯერ შეცდომა გაასწორე, მერე Scaffold |
+| `The following file(s) already exist` | ფაილები უკვე დაგენერირდა | `-Force` (ჯერ partial-ები!) |
+| `Cannot open database "LibraryDb"` / login failed | SQL სკრიპტი არ გაუშვი, ან სახელი არასწორია | SSMS-ში შეამოწმე ბაზა; connection string-ში `Database=…` |
+| `The certificate chain was issued by an authority that is not trusted` | SSL სერტიფიკატი | `TrustServerCertificate=True;` |
+
+```prompt Scaffold-ის შეცდომა
+ვმუშაობ EF Core Database First-ით (.NET 10, SQL Server). Scaffold-DbContext-ზე მაქვს შეცდომა: [ჩასვი ტექსტი]
+ჩემი ბრძანება: [ჩასვი, პაროლი წაშალე]
+დაყენებული პაკეტები: [ჩამოთვალე]
+ამიხსენი, რას ნიშნავს და რა შევამოწმო ნაბიჯ-ნაბიჯ. ქართულად.
+```
   </aside>
 </section>
-
-<!-- 27. QUIZ -->
-<section class="slide" data-section="შეჯამება">
-  <div class="kicker">შევამოწმოთ</div>
-  <h2>5 კითხვა</h2>
-  <div class="qa"><span class="n">1</span><span class="q">რას აკეთებს Scaffold-DbContext?</span><span class="a step">ბაზას კითხულობს და აგენერირებს Entity კლასებს + DbContext-ს</span></div>
-  <div class="qa"><span class="n">2</span><span class="q">ცხრილი Products — რა ჰქვია კლასს და DbSet-ს?</span><span class="a step">class Product (მხოლობითი) · DbSet Products</span></div>
-  <div class="qa"><span class="n">3</span><span class="q">DBA-მ სვეტი დაამატა. რას ვაკეთებთ?</span><span class="a step">იგივე Scaffold-DbContext + <b>-Force</b></span></div>
-  <div class="qa"><span class="n">4</span><span class="q">-Force-მა ჩვენი კოდი წაშალა. როგორ ავიცილოთ თავიდან?</span><span class="a step">partial კლასი ცალკე ფოლდერში, <b>იგივე namespace</b>-ით</span></div>
-  <div class="qa"><span class="n">5</span><span class="q">Database First პროექტში Migrations ფოლდერი რატომ არ არის?</span><span class="a step">ბაზას EF არ ქმნის — ის უკვე არსებობს; ცვლილებები ბაზაში ხდება</span></div>
-  <aside class="notes">
-⏱ 1:44 · 5 წთ · ~ კითხვა ხმამაღლა, დაელოდე პასუხს აუდიტორიიდან, მერე → პასუხის გამოსაჩენად
-? 1. რას აკეთებს Scaffold-DbContext?
-→ პასუხი 1
-? 2. Products — კლასი და DbSet?
-→ პასუხი 2
-? 3. DBA-მ სვეტი დაამატა — რას ვაკეთებთ?
-→ პასუხი 3
-? 4. როგორ დავიცვათ ჩვენი კოდი -Force-ისგან?
-→ პასუხი 4
-? 5. რატომ არ არის Migrations?
-→ პასუხი 5
-  </aside>
-</section>
-
-<!-- 28. FINAL -->
+<lecture-check/>
 <section class="slide" data-section="შეჯამება">
   <div class="vcenter" style="max-width:1000px">
     <div class="kicker in" style="color:var(--asp)">ორი შეხვედრა</div>
     <h1 class="in" style="--d:.1s;font-size:64px">კოდი ქმნის ბაზას —<br><span class="grad">ან ბაზა ქმნის კოდს</span></h1>
     <div class="grid2 mt2">
-      <div class="card accent step" style="--a:var(--mvc)"><h3><span class="ico">🏠</span>საშინაო</h3><p class="small"><b>CinemaDemo</b> — კინოთეატრი + ბონუსი: <b>-Tables</b>, <b>-DataAnnotations</b>, UNIQUE დარბაზზე</p></div>
+      <div class="card accent step" style="--a:var(--mvc)"><h3><span class="ico">🧠</span>დაიმახსოვრე</h3><ul class="clean small"><li><code class="i">Scaffold-DbContext</code> — ბაზა → კლასები</li><li>ბაზა შეიცვალა → <code class="i">-Force</code></li><li>ჩვენი კოდი → <b>partial</b>, ცალკე ფოლდერში</li></ul></div>
       <div class="card accent step" style="--a:var(--asp)"><h3><span class="ico">🧭</span>დაიმახსოვრე</h3><p class="small">ბაზა შენია → <b>Code First</b> · არსებობს ან სხვისია → <b>Database First</b> · ჩვენი კოდი → <b>partial</b></p></div>
     </div>
   </div>
@@ -1212,14 +1152,19 @@ partial-ის property ვერ მოიძებნა — partial კლა
       <path d="M210 55 v60 a45 12 0 0 0 90 0 v-60" fill="#fef5e4" stroke="#d97706" stroke-width="3"/><ellipse cx="255" cy="55" rx="45" ry="12" fill="#fef5e4" stroke="#d97706" stroke-width="3"/><text x="255" y="103" text-anchor="middle" font-size="26">🗄️</text>
     </svg>
   </div>
-  <aside class="notes">
-⏱ 1:49 · 3 წთ
-ორ შეხვედრაში EF Core-თან ორივე გზა გავიარეთ: კოდიდან ბაზისკენ — მიგრაციებით, და ბაზიდან კოდისკენ — Scaffold-ით.
-? ერთი წინადადებით — როდის რომელი? (ბაზა შენია → Code First; არსებობს/სხვისია → Database First.)
-→ საშინაო
-საშინაო: CinemaDemo — დავალება უკვე ვნახეთ. ვინც კლასში LibraryDemo ვერ დაასრულა — ჯერ ის დაასრულეთ.
-→ დაიმახსოვრე
-და სამი რამ დაიმახსოვრეთ: როდის რომელი მიდგომა, და Database First-ში ჩვენი კოდი — მხოლოდ partial-ში.
-! მადლობა — წარმატებები! 🙂
+  <aside class="study">
+## შეჯამება · კოდი ქმნის ბაზას — ან ბაზა ქმნის კოდს
+
+**დაიმახსოვრე:**
+
+1. **ბაზა შენია → Code First · არსებობს ან სხვისია → Database First.**
+2. Database First: `Scaffold-DbContext` → Entity-ები + DbContext; ბაზა შეიცვალა → `-Force`.
+3. **ჩვენი კოდი → `partial`**, ცალკე ფოლდერში — `-Force` მას ვერ შეეხება.
+
+```prompt გამოცდა ორივე ლექციაზე
+ვსწავლობ EF Core-ს. ორ ლექციაზე გავიარეთ: Code First (მიგრაციები, Add-Migration, Update-Database, Remove-Migration, FK და int?) და Database First (Scaffold-DbContext, OnModelCreating, -Force, partial კლასები, -Context, -Tables, -DataAnnotations).
+დამისვი 8 კითხვა სათითაოდ — ნახევარი სიტუაციაზე („რას გააკეთებ?“). შემიფასე და ამიხსენი. ბოლოს მითხარი, რა გავიმეორო. ქართულად.
+```
   </aside>
 </section>
+<lecture-homework/>
