@@ -1,0 +1,685 @@
+<!doctype html>
+<html lang="ka"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>📖 EF Core კონსოლში — ORM, DataContext, მიგრაცია — კონსპექტი</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Georgian:wght@400;600;700;800&family=JetBrains+Mono:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#fbf8f3;--card:#fff;--ink:#1e2132;--ink2:#3b3f54;--muted:#7b8096;--line:#e6dfd2;--accent:#6d28d9;--accent-soft:#f3effe;--teal:#0d9488;
+  --green:#15803d;--amber:#b45309;--mono:"JetBrains Mono",ui-monospace,monospace;--sans:"Noto Sans Georgian",system-ui,sans-serif}
+*{box-sizing:border-box}
+html{scroll-padding-top:76px}
+body{margin:0;background:var(--bg);color:var(--ink);font:17.5px/1.75 var(--sans);-webkit-font-smoothing:antialiased}
+a{color:var(--accent)}
+/* top bar */
+.top{position:sticky;top:0;z-index:10;display:flex;align-items:center;gap:14px;padding:10px 20px;background:rgba(251,248,243,.92);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.top .back{font:600 14px var(--mono);color:var(--muted);text-decoration:none;white-space:nowrap}
+.top .back:hover{color:var(--ink)}
+.top .ttl{flex:1;min-width:0;font-weight:700;font-size:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.top .ttl small{font:500 13px var(--mono);color:var(--muted);margin-right:8px}
+.btn{font:700 14px var(--sans);text-decoration:none;border-radius:10px;padding:7px 14px;white-space:nowrap;border:1px solid var(--line);color:var(--ink);background:var(--card);cursor:pointer}
+.btn.play{background:var(--accent);border-color:var(--accent);color:#fff}
+.live{display:none;align-items:center;gap:8px;font:600 13px var(--mono);color:var(--teal);background:#e6f6f4;border:1px solid #bfe7e2;border-radius:999px;padding:5px 12px;cursor:pointer}
+.live.on{display:flex}
+.live .dot{width:8px;height:8px;border-radius:50%;background:var(--teal);animation:pulse 1.6s infinite}
+.live.off{color:var(--muted);background:var(--card);border-color:var(--line)}.live.off .dot{background:var(--muted);animation:none}
+@keyframes pulse{50%{opacity:.3}}
+/* layout */
+.wrap{display:grid;grid-template-columns:230px minmax(0,1000px);gap:44px;justify-content:center;padding:32px 28px 120px}
+nav.toc{position:sticky;top:84px;align-self:start;font-size:14px;line-height:1.45}
+nav.toc .h{font:700 12px var(--mono);color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px}
+nav.toc a{display:block;color:var(--ink2);text-decoration:none;padding:6px 10px;border-left:2px solid var(--line)}
+nav.toc a:hover{color:var(--accent)}
+nav.toc a.cur{color:var(--accent);border-left-color:var(--accent);font-weight:700}
+nav.toc .mats{margin-top:22px;display:flex;flex-direction:column;gap:6px}
+nav.toc .mats a{border:0;padding:2px 0;font:500 13px var(--mono);color:var(--teal);word-break:break-all}
+header.hero{margin-bottom:8px}
+header.hero .k{font:600 14px var(--mono);color:var(--accent)}
+header.hero h1{font-size:38px;line-height:1.2;margin:6px 0 10px;letter-spacing:-.01em}
+header.hero p{color:var(--muted);margin:0;font-size:15.5px}
+header.hero kbd{font:500 12px var(--mono);border:1px solid var(--line);border-radius:5px;padding:0 5px;background:var(--card)}
+h2.sec{font-size:15px;font:700 13px var(--mono);color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin:48px 0 6px;padding-top:18px;border-top:1px solid var(--line)}
+/* blocks */
+.blk{position:relative;padding:14px 0 6px 22px;margin-left:-22px;border-left:3px solid transparent;transition:border-color .3s,background .3s;border-radius:0 12px 12px 0}
+.blk.cur{border-left-color:var(--accent);background:linear-gradient(90deg,var(--accent-soft),transparent 70%)}
+.anchor{position:absolute;top:0}
+.bh{display:flex;align-items:baseline;justify-content:space-between;gap:12px}
+.bh h3{font-size:22px;line-height:1.35;margin:4px 0 6px}
+.chip{flex:none;font:600 12px var(--mono);color:var(--muted);text-decoration:none;border:1px solid var(--line);border-radius:999px;padding:2px 10px;background:var(--card)}
+.chip:hover{color:var(--accent);border-color:var(--accent)}
+.blk h2{font-size:26px;line-height:1.3;margin:6px 0 10px}
+.blk h3:not(.bh h3){font-size:19px;margin:22px 0 6px}
+.blk h4{font-size:17px;margin:18px 0 4px}
+.blk p{margin:10px 0}
+.blk ul,.blk ol{padding-left:24px;margin:8px 0}
+.blk li{margin:4px 0}
+.blk strong{color:var(--ink)}
+.blk :not(pre)>code{font:600 .86em var(--mono);background:#f1ece3;border-radius:6px;padding:1px 6px;color:#5b21b6}
+.blk table{border-collapse:collapse;margin:14px 0;font-size:15.5px;width:100%;display:block;overflow-x:auto}
+.blk th,.blk td{border:1px solid var(--line);padding:8px 12px;text-align:left;vertical-align:top}
+.blk th{background:#f6f1e8}
+/* code */
+.codebox{margin:14px 0;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:#fffdf9}
+.codebox .ch,.prompt .ph{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:6px 8px 6px 14px;font:600 12.5px var(--mono);color:var(--muted);background:#f6f1e8;border-bottom:1px solid var(--line)}
+.copy{font:600 12px var(--mono);border:1px solid var(--line);background:var(--card);color:var(--ink2);border-radius:7px;padding:3px 10px;cursor:pointer}
+.copy:hover{border-color:var(--ink)}
+.copy.ok{color:var(--green);border-color:var(--green)}
+pre.code{margin:0;padding:12px 0;overflow-x:auto;font:14px/1.65 var(--mono)}
+pre.code .ln{display:block;padding:0 16px;white-space:pre}
+.code .ttl{background:var(--bg2);color:var(--muted)}
+.code .ln.hl{background:rgba(109,40,217,.07);box-shadow:inset 3px 0 0 var(--net)}
+.code .ln.dim{opacity:.42}
+.code .k,.code .kd,.code .kn,.code .kr,.code .kc{color:#7c3aed}
+.code .kt{color:#2563eb}
+.code .s,.code .s1,.code .s2,.code .sa,.code .se,.code .si,.code .sd{color:#15803d}
+.code .c,.code .c1,.code .cm,.code .cp,.code .ch{color:#8b8fa3}
+.code .m,.code .mi,.code .mf,.code .mh{color:#c2410c}
+.code .nf,.code .fm{color:#1d4ed8}
+.code .nc,.code .nn,.code .nt,.code .nd{color:#b45309}
+.code .na{color:#7c3aed} .code .nb{color:#0e7490}
+.code .o,.code .p{color:#64748b}
+.code .nv,.code .nx{color:var(--ink)}
+.code .go{color:#64748b}
+/* prompt */
+.prompt{margin:16px 0;border:1px solid #ddd2fb;border-radius:12px;overflow:hidden;background:var(--accent-soft)}
+.prompt .ph{background:#ebe3fd;border-color:#ddd2fb;color:var(--accent)}
+.prompt .pb{padding:12px 16px;white-space:pre-wrap;font-size:15.5px;line-height:1.6;color:var(--ink2)}
+/* self check */
+.selfcheck{margin:16px 0;border:1px solid #cfe9d6;border-radius:12px;background:#f3fbf5;padding:12px 16px}
+.selfcheck .sh{font-weight:700;color:var(--green);margin-bottom:6px}
+.selfcheck .sh small{font-weight:400;color:var(--muted);font-size:13.5px;margin-left:6px}
+.selfcheck details{border-top:1px solid #dcefe1;padding:8px 0}
+.selfcheck summary{cursor:pointer;font-weight:600;list-style:none;padding-left:26px;position:relative}
+.selfcheck summary::-webkit-details-marker{display:none}
+.selfcheck summary::before{content:"?";position:absolute;left:0;top:2px;width:18px;height:18px;border-radius:50%;background:var(--green);color:#fff;font:700 12px/18px var(--mono);text-align:center}
+.selfcheck details[open] summary::before{content:"✓"}
+.selfcheck .ans{padding:6px 0 2px 26px;color:var(--ink2)}
+/* terms */
+.terms{margin:16px 0;border:1px solid var(--line);border-radius:12px;background:var(--card);padding:12px 16px}
+.terms .th{font-weight:700;margin-bottom:6px}
+.terms dl{display:grid;grid-template-columns:max-content 1fr;gap:6px 18px;margin:0}
+.terms dt{font:600 14.5px var(--mono);color:var(--accent)}
+.terms dd{margin:0;color:var(--ink2)}
+/* callouts */
+.callout{display:flex;gap:12px;margin:14px 0;padding:12px 16px;border-radius:12px;border:1px solid var(--line);background:var(--card)}
+.callout .ci{font-size:20px;line-height:1.6}
+.callout>div>p:first-child{margin-top:0}.callout>div>p:last-child{margin-bottom:0}
+.callout.warn{background:#fff8eb;border-color:#f6dfb5}
+.callout.note{background:#eef5ff;border-color:#cfe0fb}
+@media (max-width:980px){
+  .wrap{grid-template-columns:minmax(0,1fr);gap:0;padding:20px 16px 100px}
+  nav.toc{position:static;margin-bottom:12px}
+  nav.toc details{border:1px solid var(--line);border-radius:12px;background:var(--card);padding:8px 12px}
+  nav.toc details>summary{cursor:pointer;font-weight:700}
+  nav.toc .h{display:none}
+  header.hero h1{font-size:30px}
+  .blk{padding-left:14px;margin-left:-14px}
+  .top .ttl small{display:none}
+  .terms dl{grid-template-columns:1fr}.terms dd{margin-bottom:8px}
+}
+@media (min-width:981px){nav.toc details>summary{display:none}}
+@media print{.top,nav.toc,.copy,.chip,.live{display:none}.wrap{display:block;padding:0}.selfcheck details{display:block}.blk.cur{background:none}}
+</style></head>
+<body>
+<div class="top">
+  <a class="back" href="../../">← ლექციები</a>
+  <div class="ttl"><small>Entity Framework Core · 1</small>EF Core კონსოლში — ORM, DataContext, მიგრაცია</div>
+  <button class="live" id="live" type="button" title="ჩართული: ტექსტი პრეზენტაციას მიჰყვება"><span class="dot"></span><span class="lt">მიჰყვება სლაიდებს</span></button>
+  <a class="btn play" href="index.html">▶ პრეზენტაცია</a>
+</div>
+<div class="wrap">
+  <nav class="toc"><details id="tocd"><summary>სარჩევი</summary><div class="h">სარჩევი</div><a href="#sec-1">დღის თემა</a><a href="#sec-2"></a><a href="#sec-3">1 · პრობლემა</a><a href="#sec-4">2 · ORM</a><a href="#sec-5">3 · EF Core</a><a href="#sec-6">4 · 4 ნაბიჯი</a><a href="#sec-7">5 · პრაქტიკა</a><a href="#sec-8">პრაქტიკა</a><a href="#sec-9">5 · პრაქტიკა</a><a href="#sec-10">შეჯამება</a><a href="#sec-11">საშინაო</a><div class="mats"></div></details></nav>
+  <main>
+    <header class="hero">
+      <div class="k">📖 კონსპექტი · Entity Framework Core · ლექცია 1</div>
+      <h1>EF Core კონსოლში — ORM, DataContext, მიგრაცია</h1>
+      <p>წაიკითხე ლექციის შემდეგ, ან პრეზენტაციასთან ერთად: პრეზენტაციაში დააჭირე <kbd>P</kbd> და ეს გვერდი სლაიდებს გაჰყვება. კოდი და AI-ს პრომპტები კოპირდება ერთი დაჭერით.</p>
+    </header>
+    <h2 class="sec" id="sec-1">დღის თემა</h2>
+<article class="blk" data-slides="1,2"><span class="anchor" id="s-1"></span><span class="anchor" id="s-2"></span><div class="bh"><h3>დღის თემა: EF Core კონსოლში — ORM, DataContext, მიგრაცია</h3><a class="chip" href="index.html#/1" data-go="1" title="პრეზენტაციაში გახსნა">სლაიდი 1</a></div>
+<p>C# და SQL უკვე ვიცით, მაგრამ ჯერ ცალ-ცალკე ცხოვრობენ: C#-ის ობიექტები პროგრამის დახურვისას ქრება, ბაზასთან ხელით ლაპარაკი კი ათობით ხაზი და SQL ტექსტად ბრჭყალებში. დღეს ორ სამყაროს ვაკავშირებთ: ვიგებთ, რა არის ORM, ვეცნობით EF Core-ს და 4 ნაბიჯში ვამზადებთ პროექტს, რომელიც ბაზას თვითონ ქმნის.</p>
+<p><strong>ლექციის ბოლოს შეძლებ:</strong></p>
+<ul>
+<li>ORM-ის იდეის ახსნა: კლასი = ცხრილი, property = სვეტი, ობიექტი = ჩანაწერი</li>
+<li>EF Core-ის 4 პაკეტის დაყენება და DataContext-ის დაწერა</li>
+<li>Connection String-ის აღება Visual Studio-დან</li>
+<li>მიგრაცია: <code>Add-Migration</code> + <code>Update-Database</code>, და პირველი <code>SaveChanges</code></li>
+</ul></article>
+<h2 class="sec" id="sec-2"></h2>
+<article class="blk" data-slides="3"><span class="anchor" id="s-3"></span><div class="bh"><h3>ლექციის გეგმა</h3><a class="chip" href="index.html#/3" data-go="3" title="პრეზენტაციაში გახსნა">სლაიდი 3</a></div>
+<p>✓ <strong>C#</strong> და ✓ <strong>MS SQL</strong> უკვე ვიცით. დღეს:</p>
+<ol>
+<li><strong>ORM</strong> — იდეა, რომელიც ამ ორ სამყაროს აკავშირებს.</li>
+<li><strong>EF Core</strong> — ეს იდეა C#-ში.</li>
+<li><strong>4 ნაბიჯი</strong> — რითაც ნებისმიერ პროექტს ვამზადებთ.</li>
+<li>⌨️ <strong>პრაქტიკა</strong> — მე → ერთად → თქვენ.</li>
+</ol></article>
+<h2 class="sec" id="sec-3">1 · პრობლემა</h2>
+<article class="blk" data-slides="4"><span class="anchor" id="s-4"></span><div class="bh"><h3>ნაწილი 1 · ორი სამყარო, ორი ენა</h3><a class="chip" href="index.html#/4" data-go="4" title="პრეზენტაციაში გახსნა">სლაიდი 4</a></div>
+<p>რატომ არ ელაპარაკება C# ბაზას „თავისით“? თუ პრობლემას არ გავიგებთ, გამოსავალი არ დაგვაფასდება.</p></article>
+<article class="blk" data-slides="5"><span class="anchor" id="s-5"></span><div class="bh"><h3>ერთი და იგივე პროდუქტი — C#-ში და SQL-ში</h3><a class="chip" href="index.html#/5" data-go="5" title="პრეზენტაციაში გახსნა">სლაიდი 5</a></div>
+<div class="codebox"><div class="ch"><span>🟣 C# სამყარო</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="k">class</span><span class="w"> </span><span class="nc">Product</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">Id</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">get</span><span class="p">;</span><span class="w"> </span><span class="k">set</span><span class="p">;</span><span class="w"> </span><span class="p">}</span></span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="n">Name</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">get</span><span class="p">;</span><span class="w"> </span><span class="k">set</span><span class="p">;</span><span class="w"> </span><span class="p">}</span></span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="kt">decimal</span><span class="w"> </span><span class="n">Price</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">get</span><span class="p">;</span><span class="w"> </span><span class="k">set</span><span class="p">;</span><span class="w"> </span><span class="p">}</span></span><span class="ln"><span class="p">}</span></span><span class="ln"> </span><span class="ln"><span class="kt">var</span><span class="w"> </span><span class="n">p</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">Product</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">Name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"მაუსი"</span><span class="p">,</span><span class="w"> </span><span class="n">Price</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">45</span><span class="w"> </span><span class="p">}</span><span class="p">;</span></span></code></pre></div>
+<p>C# ფიქრობს <strong>კლასებით და ობიექტებით</strong>. ყველაფერი მეხსიერებაშია: პროგრამა დაიხურა — მონაცემი გაქრა.</p>
+<div class="codebox"><div class="ch"><span>🗄️ SQL სამყარო</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="k">CREATE</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="n">Products</span><span class="w"> </span><span class="p">(</span></span><span class="ln"><span class="w">    </span><span class="n">Id</span><span class="w"> </span><span class="nb">INT</span><span class="w"> </span><span class="k">IDENTITY</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="k">PRIMARY</span><span class="w"> </span><span class="k">KEY</span><span class="p">,</span></span><span class="ln"><span class="w">    </span><span class="n">Name</span><span class="w"> </span><span class="n">NVARCHAR</span><span class="p">(</span><span class="mi">100</span><span class="p">)</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="p">,</span></span><span class="ln"><span class="w">    </span><span class="n">Price</span><span class="w"> </span><span class="nb">DECIMAL</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span></span><span class="ln"><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="k">INSERT</span><span class="w"> </span><span class="k">INTO</span><span class="w"> </span><span class="n">Products</span><span class="w"> </span><span class="p">(</span><span class="n">Name</span><span class="p">,</span><span class="w"> </span><span class="n">Price</span><span class="p">)</span></span><span class="ln"><span class="k">VALUES</span><span class="w"> </span><span class="p">(</span><span class="n">N</span><span class="s1">'მაუსი'</span><span class="p">,</span><span class="w"> </span><span class="mi">45</span><span class="p">)</span><span class="p">;</span></span></code></pre></div>
+<p>SQL ფიქრობს <strong>ცხრილებით და ჩანაწერებით</strong>, და მონაცემი მუდმივად ინახება.</p>
+<p>ორივე ერთსა და იმავეს აღწერს, მაგრამ სხვადასხვა ენაზე ლაპარაკობს. როგორ ვათარგმნოთ ერთიდან მეორეში?</p></article>
+<article class="blk" data-slides="6"><span class="anchor" id="s-6"></span><div class="bh"><h3>ვცადოთ ხელით — ORM-ის გარეშე</h3><a class="chip" href="index.html#/6" data-go="6" title="პრეზენტაციაში გახსნა">სლაიდი 6</a></div>
+<p>ასე კითხულობდნენ ბაზას ORM-მდე (ADO.NET — .NET-ის „დაბალი დონის“ გზა):</p>
+<div class="codebox"><div class="ch"><span>ADO.NET — ბაზიდან პროდუქტების წაკითხვა</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="k">using</span><span class="w"> </span><span class="nn">var</span><span class="w"> </span><span class="n">conn</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">SqlConnection</span><span class="p">(</span><span class="n">connectionString</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="n">conn</span><span class="p">.</span><span class="n">Open</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="kt">var</span><span class="w"> </span><span class="n">cmd</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">SqlCommand</span><span class="p">(</span><span class="s">"SELECT Id, Name, Price FROM Products"</span><span class="p">,</span><span class="w"> </span><span class="n">conn</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="k">using</span><span class="w"> </span><span class="nn">var</span><span class="w"> </span><span class="n">reader</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cmd</span><span class="p">.</span><span class="n">ExecuteReader</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="kt">var</span><span class="w"> </span><span class="n">products</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">List</span><span class="o">&lt;</span><span class="n">Product</span><span class="o">&gt;</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="n">reader</span><span class="p">.</span><span class="n">Read</span><span class="p">(</span><span class="p">)</span><span class="p">)</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="n">products</span><span class="p">.</span><span class="n">Add</span><span class="p">(</span><span class="k">new</span><span class="w"> </span><span class="n">Product</span></span><span class="ln"><span class="w">    </span><span class="p">{</span></span><span class="ln"><span class="w">        </span><span class="n">Id</span><span class="w">    </span><span class="o">=</span><span class="w"> </span><span class="n">reader</span><span class="p">.</span><span class="n">GetInt32</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="p">,</span></span><span class="ln"><span class="w">        </span><span class="n">Name</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="n">reader</span><span class="p">.</span><span class="n">GetString</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="p">,</span></span><span class="ln"><span class="w">        </span><span class="n">Price</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">reader</span><span class="p">.</span><span class="n">GetDecimal</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="p">}</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="p">}</span></span></code></pre></div>
+<ul>
+<li><strong>კავშირი</strong> — ხელით ვხსნით და ვხურავთ.</li>
+<li><strong>SQL — უბრალო ტექსტია.</strong> <code>Products</code>-ში შეცდომა რომ დაუშვა, კომპილატორი ვერ დაინახავს — მხოლოდ გაშვებისას ჩავარდება.</li>
+<li><strong>ყოველი სვეტი ხელით</strong>, ნომრით გადაგვაქვს property-ში.</li>
+</ul>
+<p>16 ხაზი — და ეს მხოლოდ ერთი SELECT-ია. INSERT, UPDATE, DELETE — ყველა ცხრილზე ისევ ასე. (ეს კოდი დასამახსოვრებელი არ არის — მხოლოდ შრომის მასშტაბს აჩვენებს.)</p></article>
+<article class="blk" data-slides="7"><span class="anchor" id="s-7"></span><div class="bh"><h3>იგივე ამოცანა — ORM-ით: 16 → 1 ხაზი</h3><a class="chip" href="index.html#/7" data-go="7" title="პრეზენტაციაში გახსნა">სლაიდი 7</a></div>
+<div class="codebox"><div class="ch"><span>csharp</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="kt">var</span><span class="w"> </span><span class="n">products</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">db</span><span class="p">.</span><span class="n">Products</span><span class="p">.</span><span class="n">ToList</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span></code></pre></div>
+<ul>
+<li><strong>SQL-ს ORM წერს</strong> ჩვენ მაგივრად.</li>
+<li><strong>სვეტები property-ებში თვითონ ჯდება</strong> — <code>reader.GetInt32(0)</code> აღარ გვჭირდება.</li>
+<li><strong>შეცდომას კომპილატორი გვაჩვენებს</strong> — <code>Products</code>-ს თუ არასწორად დაწერ, კოდი არ აეწყობა.</li>
+</ul></article>
+<h2 class="sec" id="sec-4">2 · ORM</h2>
+<article class="blk" data-slides="8"><span class="anchor" id="s-8"></span><div class="bh"><h3>ნაწილი 2 · რა არის ORM?</h3><a class="chip" href="index.html#/8" data-go="8" title="პრეზენტაციაში გახსნა">სლაიდი 8</a></div>
+<p>ზოგადი იდეაა, არა მხოლოდ C#-ის: ერთხელ თუ გაიგებ, Java-შიც, Python-შიც, JavaScript-შიც ამოიცნობ.</p></article>
+<article class="blk" data-slides="9"><span class="anchor" id="s-9"></span><div class="bh"><h3>სამი ასო: O · R · M</h3><a class="chip" href="index.html#/9" data-go="9" title="პრეზენტაციაში გახსნა">სლაიდი 9</a></div>
+<ul>
+<li><strong>O — Object</strong>: ობიექტი — C#-ის კლასები და ობიექტები.</li>
+<li><strong>R — Relational</strong>: რელაციური ბაზა — ცხრილები, სვეტები და მათი კავშირები (Foreign Key-ები). MS SQL სწორედ ასეთია.</li>
+<li><strong>M — Mapping</strong>: დაკავშირება — რა რას შეესაბამება ერთ და მეორე მხარეს.</li>
+</ul>
+<p><strong>ORM — თარჯიმანი C#-სა და ბაზას შორის.</strong> ჩვენ ვწერთ C#-ს, ის ბაზას SQL-ით ელაპარაკება.</p>
+<div class="terms"><div class="th">📘 ტერმინები</div><dl><dt>ORM</dt><dd>Object-Relational Mapping: ბიბლიოთეკა, რომელიც C#-ის ობიექტებს ბაზის ცხრილებთან აკავშირებს და SQL-ს თვითონ წერს</dd></dl></div></article>
+<article class="blk" data-slides="10"><span class="anchor" id="s-10"></span><div class="bh"><h3>Mapping: რა რას შეესაბამება</h3><a class="chip" href="index.html#/10" data-go="10" title="პრეზენტაციაში გახსნა">სლაიდი 10</a></div>
+<table>
+<thead>
+<tr>
+<th>C# · კოდი</th>
+<th>SQL · ბაზა</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>კლასი <code>class Product</code></td>
+<td>ცხრილი <code>Products</code></td>
+</tr>
+<tr>
+<td>property <code>decimal Price</code></td>
+<td>სვეტი <code>Price</code></td>
+</tr>
+<tr>
+<td>ობიექტი <code>new Product { … }</code></td>
+<td>ჩანაწერი (ერთი ხაზი)</td>
+</tr>
+</tbody>
+</table>
+<p>ORM-მა ეს სამი წესი იცის, და მათით ორივე მიმართულებით თარგმნის.</p></article>
+<article class="blk" data-slides="11"><span class="anchor" id="s-11"></span><div class="bh"><h3>როგორ თარგმნის ORM — ორივე მიმართულებით</h3><a class="chip" href="index.html#/11" data-go="11" title="პრეზენტაციაში გახსნა">სლაიდი 11</a></div>
+<p>„მომეცი 100 ლარზე იაფი პროდუქტები“:</p>
+<ol>
+<li><strong>C# კოდი</strong> — <code>db.Products.Where(p =&gt; p.Price &lt; 100)</code>. SQL-ის არცერთი სიტყვა.</li>
+<li><strong>ORM იღებს</strong> — მან იცის ჩვენი Mapping.</li>
+<li><strong>ORM თარგმნის</strong> C# → SQL: <code>SELECT … FROM Products WHERE Price &lt; 100</code>. ეს SQL ჩვენ არ დაგვიწერია!</li>
+<li><strong>ბაზა</strong> იღებს ჩვეულებრივ SQL-ს და აბრუნებს ჩანაწერებს.</li>
+<li><strong>ORM თარგმნის უკან</strong>: ჩანაწერები → <code>Product</code> ობიექტები.</li>
+</ol></article>
+<article class="blk" data-slides="12"><span class="anchor" id="s-12"></span><div class="bh"><h3>ORM ყველგანაა</h3><a class="chip" href="index.html#/12" data-go="12" title="პრეზენტაციაში გახსნა">სლაიდი 12</a></div>
+<table>
+<thead>
+<tr>
+<th>ენა</th>
+<th>ORM</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Java</td>
+<td>Hibernate</td>
+</tr>
+<tr>
+<td>Python</td>
+<td>SQLAlchemy · Django ORM</td>
+</tr>
+<tr>
+<td>JavaScript / TypeScript</td>
+<td>Prisma · TypeORM</td>
+</tr>
+<tr>
+<td>PHP (Laravel)</td>
+<td>Eloquent</td>
+</tr>
+<tr>
+<td>Ruby (Rails)</td>
+<td>Active Record</td>
+</tr>
+<tr>
+<td>Go</td>
+<td>GORM</td>
+</tr>
+<tr>
+<td>C# · მცირე ORM</td>
+<td>Dapper (SQL-ს თვითონ წერ, ის მხოლოდ ობიექტებად გარდაქმნის)</td>
+</tr>
+<tr>
+<td>C# · .NET</td>
+<td><strong>EF Core</strong> ⭐</td>
+</tr>
+</tbody>
+</table>
+<p>სახელები სხვადასხვაა, იდეა — ერთი: კლასი = ცხრილი, property = სვეტი, ობიექტი = ჩანაწერი.</p></article>
+<h2 class="sec" id="sec-5">3 · EF Core</h2>
+<article class="blk" data-slides="13"><span class="anchor" id="s-13"></span><div class="bh"><h3>ნაწილი 3 · EF Core — C#-ის ORM</h3><a class="chip" href="index.html#/13" data-go="13" title="პრეზენტაციაში გახსნა">სლაიდი 13</a></div>
+<p>Entity Framework Core — ჩვენი ORM.</p></article>
+<article class="blk" data-slides="14"><span class="anchor" id="s-14"></span><div class="bh"><h3>რა არის EF Core?</h3><a class="chip" href="index.html#/14" data-go="14" title="პრეზენტაციაში გახსნა">სლაიდი 14</a></div>
+<p><strong>EF Core 10</strong> · .NET 10 · LTS (მხარდაჭერა 3 წელი)</p>
+<ul>
+<li>🏢 <strong>Microsoft-ის ოფიციალური</strong> — .NET-ის გუნდი ქმნის, .NET-თან ერთად ახლდება ყოველ წელს.</li>
+<li>🆓 <strong>უფასო და Open Source</strong> — კოდი GitHub-ზეა, მოდის როგორც NuGet პაკეტი.</li>
+<li>💻 <strong>ყველგან მუშაობს</strong> — Windows, Linux, macOS · Console, Web API, Desktop.</li>
+<li>🔌 <strong>ბევრ ბაზას ელაპარაკება</strong> — SQL Server, PostgreSQL, MySQL, SQLite…</li>
+</ul></article>
+<article class="blk" data-slides="15"><span class="anchor" id="s-15"></span><div class="bh"><h3>ჩვენ ვწერთ LINQ-ს, ბაზა იღებს SQL-ს</h3><a class="chip" href="index.html#/15" data-go="15" title="პრეზენტაციაში გახსნა">სლაიდი 15</a></div>
+<div class="codebox"><div class="ch"><span>ჩვენ ვწერთ · C#</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="kt">var</span><span class="w"> </span><span class="n">cheap</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">db</span><span class="p">.</span><span class="n">Products</span></span><span class="ln"><span class="w">    </span><span class="p">.</span><span class="n">Where</span><span class="p">(</span><span class="n">p</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">Price</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">100</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="p">.</span><span class="n">OrderBy</span><span class="p">(</span><span class="n">p</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">Name</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="p">.</span><span class="n">ToList</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span></code></pre></div>
+<div class="codebox"><div class="ch"><span>EF Core აგენერირებს · SQL</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="k">SELECT</span><span class="w"> </span><span class="p">[</span><span class="n">p</span><span class="p">]</span><span class="p">.</span><span class="p">[</span><span class="n">Id</span><span class="p">]</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="n">p</span><span class="p">]</span><span class="p">.</span><span class="p">[</span><span class="n">Name</span><span class="p">]</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="n">p</span><span class="p">]</span><span class="p">.</span><span class="p">[</span><span class="n">Price</span><span class="p">]</span></span><span class="ln"><span class="k">FROM</span><span class="w"> </span><span class="p">[</span><span class="n">Products</span><span class="p">]</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="p">[</span><span class="n">p</span><span class="p">]</span></span><span class="ln"><span class="k">WHERE</span><span class="w"> </span><span class="p">[</span><span class="n">p</span><span class="p">]</span><span class="p">.</span><span class="p">[</span><span class="n">Price</span><span class="p">]</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">100</span><span class="p">.</span><span class="mi">0</span></span><span class="ln"><span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="p">[</span><span class="n">p</span><span class="p">]</span><span class="p">.</span><span class="p">[</span><span class="n">Name</span><span class="p">]</span></span></code></pre></div>
+<table>
+<thead>
+<tr>
+<th>C#</th>
+<th>SQL</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>db.Products</code></td>
+<td><code>FROM Products</code></td>
+</tr>
+<tr>
+<td><code>Where</code></td>
+<td><code>WHERE</code></td>
+</tr>
+<tr>
+<td><code>OrderBy</code></td>
+<td><code>ORDER BY</code></td>
+</tr>
+<tr>
+<td><code>ToList()</code></td>
+<td><strong>ახლა იგზავნება!</strong></td>
+</tr>
+</tbody>
+</table>
+<p><code>Where</code> და <code>OrderBy</code> სიებზე უკვე ვიცით. აქ ისინი მოთხოვნას მხოლოდ „აწყობენ“ — ბაზაში ის <code>ToList()</code>-ზე მიდის.</p></article>
+<article class="blk" data-slides="16"><span class="anchor" id="s-16"></span><div class="bh"><h3>ორი მიდგომა: რა იქმნება პირველი — კოდი თუ ბაზა?</h3><a class="chip" href="index.html#/16" data-go="16" title="პრეზენტაციაში გახსნა">სლაიდი 16</a></div>
+<ul>
+<li><strong>Database First</strong> — ბაზა უკვე არსებობს: 🗄️ ბაზა → <em>Scaffold</em> → 📄 C# კლასები გენერირდება.</li>
+<li><strong>Code First</strong> — ჯერ კოდს ვწერთ: 📄 C# კლასები (ჩვენ ვწერთ) → <em>მიგრაცია</em> → 🗄️ ბაზას EF Core ქმნის.</li>
+</ul>
+<p>დღეს <strong>Code First</strong>-ით ვმუშაობთ — ბაზას ხელით არ ვქმნით, მას ჩვენი C# შექმნის. ორ მიდგომას დაწვრილებით შემდეგ ლექციაზე შევადარებთ.</p></article>
+<article class="blk" data-slides="17"><span class="anchor" id="s-17"></span><div class="bh"><h3>4 ცნება, რომელსაც დღეს შევხვდებით</h3><a class="chip" href="index.html#/17" data-go="17" title="პრეზენტაციაში გახსნა">სლაიდი 17</a></div>
+<table>
+<thead>
+<tr>
+<th>ცნება</th>
+<th>ჩვენთან</th>
+<th>რა არის</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>📄 <strong>Entity</strong></td>
+<td><code>Product</code></td>
+<td>ჩვეულებრივი კლასი, რომელიც ცხრილი გახდება</td>
+</tr>
+<tr>
+<td>🎛️ <strong>DbContext</strong></td>
+<td><code>DataContext</code></td>
+<td>ბაზის „პულტი“: კავშირი და ყველა ცხრილი ერთად</td>
+</tr>
+<tr>
+<td>📋 <strong>DbSet</strong></td>
+<td><code>Products</code></td>
+<td>ცხრილი კოდში: <code>Add</code>, <code>Remove</code>, <code>Where</code>…</td>
+</tr>
+<tr>
+<td>📐 <strong>Migration</strong></td>
+<td><code>InitialCreate</code></td>
+<td>ბაზის ცვლილების „ნახაზი“</td>
+</tr>
+</tbody>
+</table>
+<div class="terms"><div class="th">📘 ტერმინები</div><dl><dt>Entity</dt><dd>კლასი, რომელიც ბაზის ცხრილს აღწერს</dd><dt>DbContext</dt><dd>EF Core-ის მთავარი კლასი: იცის, სად არის ბაზა და რა ცხრილებია</dd><dt>DbSet<T></dt><dd>ერთი ცხრილი კოდში; მასზე LINQ-ს ვწერთ</dd><dt>Migration</dt><dd>ფაილი, რომელიც აღწერს, როგორ უნდა შეიცვალოს ბაზა</dd></dl></div></article>
+<h2 class="sec" id="sec-6">4 · 4 ნაბიჯი</h2>
+<article class="blk" data-slides="18"><span class="anchor" id="s-18"></span><div class="bh"><h3>ნაწილი 4 · პროექტის მომზადება 4 ნაბიჯში</h3><a class="chip" href="index.html#/18" data-go="18" title="პრეზენტაციაში გახსნა">სლაიდი 18</a></div>
+<p>① პაკეტები ② DataContext ③ Connection String ④ მიგრაცია — ეს ოთხი ნაბიჯი ყოველ ახალ პროექტში ერთნაირია: დღესაც, Web API-შიც, სამსახურშიც.</p></article>
+<article class="blk" data-slides="19"><span class="anchor" id="s-19"></span><div class="bh"><h3>ნაბიჯი 0 · ახალი Console App</h3><a class="chip" href="index.html#/19" data-go="19" title="პრეზენტაციაში გახსნა">სლაიდი 19</a></div>
+<p>Visual Studio → Create a new project → <strong>Console App</strong> · C# → სახელი <strong>ShopDemo</strong> → Framework <strong>.NET 10.0 (LTS)</strong>.</p>
+<p>ან ტერმინალიდან:</p>
+<div class="codebox"><div class="ch"><span>bash</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln">dotnet<span class="w"> </span>new<span class="w"> </span>console<span class="w"> </span>-n<span class="w"> </span>ShopDemo</span></code></pre></div>
+<p>ჩვენი მაგალითი — მაღაზია და ერთი ცხრილი, Products.</p></article>
+<article class="blk" data-slides="20"><span class="anchor" id="s-20"></span><div class="bh"><h3>ნაბიჯი 1 · 4 პაკეტის დაყენება</h3><a class="chip" href="index.html#/20" data-go="20" title="პრეზენტაციაში გახსნა">სლაიდი 20</a></div>
+<p>Project → <strong>Manage NuGet Packages</strong> → <strong>Browse</strong> → Install:</p>
+<ol>
+<li><code>Microsoft.EntityFrameworkCore</code></li>
+<li><code>Microsoft.EntityFrameworkCore.SqlServer</code></li>
+<li><code>Microsoft.EntityFrameworkCore.Tools</code></li>
+<li><code>Microsoft.EntityFrameworkCore.Design</code></li>
+</ol>
+<p>ან ტერმინალიდან:</p>
+<div class="codebox"><div class="ch"><span>bash</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln">dotnet<span class="w"> </span>add<span class="w"> </span>package<span class="w"> </span>Microsoft.EntityFrameworkCore</span><span class="ln">dotnet<span class="w"> </span>add<span class="w"> </span>package<span class="w"> </span>Microsoft.EntityFrameworkCore.SqlServer</span><span class="ln">dotnet<span class="w"> </span>add<span class="w"> </span>package<span class="w"> </span>Microsoft.EntityFrameworkCore.Tools</span><span class="ln">dotnet<span class="w"> </span>add<span class="w"> </span>package<span class="w"> </span>Microsoft.EntityFrameworkCore.Design</span></code></pre></div>
+<p>NuGet — .NET-ის „მაღაზია“ ბიბლიოთეკებისთვის.</p></article>
+<article class="blk" data-slides="21"><span class="anchor" id="s-21"></span><div class="bh"><h3>რას აკეთებს თითოეული პაკეტი?</h3><a class="chip" href="index.html#/21" data-go="21" title="პრეზენტაციაში გახსნა">სლაიდი 21</a></div>
+<table>
+<thead>
+<tr>
+<th>პაკეტი</th>
+<th>როლი</th>
+<th>როდის</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>⚙️ <strong>EntityFrameworkCore</strong></td>
+<td>ძრავი: DbContext, DbSet, LINQ → SQL თარგმანი</td>
+<td>🏃 პროგრამის გაშვებისას</td>
+</tr>
+<tr>
+<td>🗣️ <strong>.SqlServer</strong></td>
+<td>პროვაიდერი — იცის SQL Server-ის „დიალექტი“. PostgreSQL-ს სხვა პროვაიდერი აქვს</td>
+<td>🏃 პროგრამის გაშვებისას</td>
+</tr>
+<tr>
+<td>🛠️ <strong>.Tools</strong></td>
+<td>Visual Studio-ის ბრძანებები: <code>Add-Migration</code>, <code>Update-Database</code></td>
+<td>👨‍💻 დეველოპერისთვის</td>
+</tr>
+<tr>
+<td>📐 <strong>.Design</strong></td>
+<td>მიგრაციის ფაილების გენერაცია</td>
+<td>👨‍💻 დეველოპერისთვის</td>
+</tr>
+</tbody>
+</table></article>
+<article class="blk" data-slides="22"><span class="anchor" id="s-22"></span><div class="bh"><h3>ნაბიჯი 2 · Entity — კლასი, რომელიც ცხრილი გახდება</h3><a class="chip" href="index.html#/22" data-go="22" title="პრეზენტაციაში გახსნა">სლაიდი 22</a></div>
+<div class="codebox"><div class="ch"><span>Product.cs</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="k">namespace</span><span class="w"> </span><span class="nn">ShopDemo</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="k">public</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">Product</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">Id</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">get</span><span class="p">;</span><span class="w"> </span><span class="k">set</span><span class="p">;</span><span class="w"> </span><span class="p">}</span></span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="n">Name</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">get</span><span class="p">;</span><span class="w"> </span><span class="k">set</span><span class="p">;</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kt">string</span><span class="p">.</span><span class="n">Empty</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="kt">decimal</span><span class="w"> </span><span class="n">Price</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">get</span><span class="p">;</span><span class="w"> </span><span class="k">set</span><span class="p">;</span><span class="w"> </span><span class="p">}</span></span><span class="ln"><span class="p">}</span></span></code></pre></div>
+<ul>
+<li>ჩვეულებრივი C#-ის კლასია. <code>class Product</code> → ცხრილი <code>Products</code>.</li>
+<li><strong><code>Id</code></strong> — EF Core-ს შეთანხმება აქვს: property სახელით <code>Id</code> არის <strong>Primary Key</strong>, <code>IDENTITY</code>-თი (ბაზა თვითონ ანიჭებს).</li>
+<li>C#-ის ტიპი → SQL-ის ტიპი ავტომატურად:</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>სვეტი</th>
+<th>SQL ტიპი</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Id</code></td>
+<td><code>int IDENTITY</code> 🔑 PK</td>
+</tr>
+<tr>
+<td><code>Name</code></td>
+<td><code>nvarchar(max)</code></td>
+</tr>
+<tr>
+<td><code>Price</code></td>
+<td><code>decimal(18,2)</code></td>
+</tr>
+</tbody>
+</table></article>
+<article class="blk" data-slides="23"><span class="anchor" id="s-23"></span><div class="bh"><h3>ნაბიჯი 2 · DataContext — ბაზის „პულტი“</h3><a class="chip" href="index.html#/23" data-go="23" title="პრეზენტაციაში გახსნა">სლაიდი 23</a></div>
+<div class="codebox"><div class="ch"><span>DataContext.cs</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="k">using</span><span class="w"> </span><span class="nn">Microsoft.EntityFrameworkCore</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="k">namespace</span><span class="w"> </span><span class="nn">ShopDemo</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="k">public</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">DataContext</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">DbContext</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="n">DbSet</span><span class="o">&lt;</span><span class="n">Product</span><span class="o">&gt;</span><span class="w"> </span><span class="n">Products</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">get</span><span class="p">;</span><span class="w"> </span><span class="k">set</span><span class="p">;</span><span class="w"> </span><span class="p">}</span></span><span class="ln"><span class="p">}</span></span></code></pre></div>
+<ul>
+<li><strong><code>using Microsoft.EntityFrameworkCore</code></strong> — EF Core-ის კლასები პაკეტიდან. პირველი ნაბიჯის გარეშე ეს ხაზი წითელი იქნებოდა.</li>
+<li><strong><code>: DbContext</code></strong> — მემკვიდრეობით ჩვენი კლასი ხდება ბაზის „პულტი“.</li>
+<li><strong><code>DbSet&lt;Product&gt; Products</code></strong> — ცხრილი. property-ს სახელი = ცხრილის სახელი.</li>
+<li>ახალი ცხრილი? → ახალი <code>DbSet</code> ხაზი.</li>
+</ul>
+<p>სახელი <code>DataContext</code> ჩვენი არჩეულია — ხშირად <code>AppDbContext</code>-საც არქმევენ.</p></article>
+<article class="blk" data-slides="24"><span class="anchor" id="s-24"></span><div class="bh"><h3>ნაბიჯი 3 · Connection String — Visual Studio-დან</h3><a class="chip" href="index.html#/24" data-go="24" title="პრეზენტაციაში გახსნა">სლაიდი 24</a></div>
+<p>Connection String-ს ხელით არ ვწერთ:</p>
+<ol>
+<li><strong>View → SQL Server Object Explorer</strong></li>
+<li>სერვერზე (მაგ. <code>(localdb)\MSSQLLocalDB</code>) მარჯვენა კლიკი → <strong>Properties</strong></li>
+<li><strong>Connection String</strong> — დააკოპირე</li>
+</ol>
+<div class="terms"><div class="th">📘 ტერმინები</div><dl><dt>Connection String</dt><dd>სტრიქონი, რომელიც ამბობს, სად არის ბაზა და როგორ დავუკავშირდეთ (სერვერი, ბაზის სახელი, ავტორიზაცია)</dd></dl></div></article>
+<article class="blk" data-slides="25"><span class="anchor" id="s-25"></span><div class="bh"><h3>ჩასმა კოდში</h3><a class="chip" href="index.html#/25" data-go="25" title="პრეზენტაციაში გახსნა">სლაიდი 25</a></div>
+<div class="codebox"><div class="ch"><span>DataContext.cs</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="k">public</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">DataContext</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">DbContext</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="n">DbSet</span><span class="o">&lt;</span><span class="n">Product</span><span class="o">&gt;</span><span class="w"> </span><span class="n">Products</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">get</span><span class="p">;</span><span class="w"> </span><span class="k">set</span><span class="p">;</span><span class="w"> </span><span class="p">}</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="k">protected</span><span class="w"> </span><span class="k">override</span><span class="w"> </span><span class="k">void</span><span class="w"> </span><span class="nf">OnConfiguring</span><span class="p">(</span><span class="n">DbContextOptionsBuilder</span><span class="w"> </span><span class="n">options</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="p">{</span></span><span class="ln"><span class="w">        </span><span class="n">options</span><span class="p">.</span><span class="n">UseSqlServer</span><span class="p">(</span><span class="s">@"აქ ჩასვი VS-დან დაკოპირებული სტრიქონი"</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="p">}</span></span><span class="ln"><span class="p">}</span></span></code></pre></div>
+<ul>
+<li><strong><code>OnConfiguring</code></strong> — DbContext-ის მეთოდი, რომელსაც <code>override</code>-ით ვცვლით. EF Core მას იძახებს, როცა ბაზასთან კავშირი სჭირდება. (VS-ში დაწერე <code>override</code> + Space და სიიდან აირჩიე.)</li>
+<li><strong><code>UseSqlServer</code></strong> — <code>.SqlServer</code> პაკეტიდან მოდის.</li>
+<li><strong><code>@</code></strong> სტრიქონის წინ — VS-ის სტრიქონში <code>\</code> არის (<code>(localdb)\MSSQLLocalDB</code>), და <code>@</code> მას ჩვეულებრივ სიმბოლოდ აქცევს.</li>
+<li>სტრიქონში <strong>ბაზის სახელი</strong> (<code>Initial Catalog=ShopDb</code> ან <code>Database=ShopDb</code>) ჩვენ ვწერთ — ასეთი ბაზა ჯერ არ არსებობს, მიგრაცია შექმნის.</li>
+</ul></article>
+<article class="blk" data-slides="26"><span class="anchor" id="s-26"></span><div class="bh"><h3>ნაბიჯი 4 · მიგრაცია: ჯერ ნახაზი, მერე მშენებლობა</h3><a class="chip" href="index.html#/26" data-go="26" title="პრეზენტაციაში გახსნა">სლაიდი 26</a></div>
+<ol>
+<li><strong>ჩვენი კოდი</strong> — <code>Product</code> · <code>DataContext</code>. ბაზა ჯერ არ არსებობს.</li>
+<li><strong><code>Add-Migration</code></strong> — კოდს კითხულობს და წერს <strong>ნახაზს</strong> (<code>InitialCreate.cs</code>): „უნდა შეიქმნას ცხრილი Products, ამ სვეტებით“. <strong>ბაზას ჯერ არ ეხება!</strong></li>
+<li><strong><code>Update-Database</code></strong> — ნახაზს ბაზაში ასრულებს: ქმნის ბაზას და ცხრილს.</li>
+</ol>
+<p>კოდი შეიცვალა? → ახალი მიგრაცია → <code>Update-Database</code>. მიგრაციები — <strong>ბაზის ცვლილებების ისტორიაა</strong>, როგორც Git კოდისთვის.</p></article>
+<article class="blk" data-slides="27"><span class="anchor" id="s-27"></span><div class="bh"><h3>ორი ბრძანება — Package Manager Console-ში</h3><a class="chip" href="index.html#/27" data-go="27" title="პრეზენტაციაში გახსნა">სლაიდი 27</a></div>
+<p><strong>Tools → NuGet Package Manager → Package Manager Console.</strong> ზემოთ შეამოწმე <strong>Default project</strong> — ჩვენი პროექტი უნდა ეწეროს.</p>
+<div class="codebox"><div class="ch"><span>Package Manager Console</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln">Add-Migration InitialCreate</span><span class="ln">Update-Database</span></code></pre></div>
+<ul>
+<li><code>Add-Migration InitialCreate</code> — სახელი აღწერს, რა შეიცვალა (პირველს ტრადიციულად InitialCreate ჰქვია). Solution Explorer-ში ჩნდება ფოლდერი <strong>Migrations</strong>.</li>
+<li><code>Update-Database</code> — ბაზა იქმნება.</li>
+</ul>
+<p>ტერმინალიდან იგივე: <code>dotnet ef migrations add InitialCreate</code> და <code>dotnet ef database update</code> (საჭიროა <code>dotnet tool install --global dotnet-ef</code>).</p></article>
+<article class="blk" data-slides="28"><span class="anchor" id="s-28"></span><div class="bh"><h3>ნახაზის შიგნით: CREATE TABLE, ოღონდ C#-ში</h3><a class="chip" href="index.html#/28" data-go="28" title="პრეზენტაციაში გახსნა">სლაიდი 28</a></div>
+<div class="codebox"><div class="ch"><span>Migrations/…_InitialCreate.cs · Up()</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="n">migrationBuilder</span><span class="p">.</span><span class="n">CreateTable</span><span class="p">(</span></span><span class="ln"><span class="w">    </span><span class="n">name</span><span class="p">:</span><span class="w"> </span><span class="s">"Products"</span><span class="p">,</span></span><span class="ln"><span class="w">    </span><span class="n">columns</span><span class="p">:</span><span class="w"> </span><span class="n">table</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="k">new</span></span><span class="ln"><span class="w">    </span><span class="p">{</span></span><span class="ln"><span class="w">        </span><span class="n">Id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">table</span><span class="p">.</span><span class="n">Column</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">(</span><span class="n">type</span><span class="p">:</span><span class="w"> </span><span class="s">"int"</span><span class="p">,</span><span class="w"> </span><span class="n">nullable</span><span class="p">:</span><span class="w"> </span><span class="k">false</span><span class="p">)</span></span><span class="ln"><span class="w">            </span><span class="p">.</span><span class="n">Annotation</span><span class="p">(</span><span class="s">"SqlServer:Identity"</span><span class="p">,</span><span class="w"> </span><span class="s">"1, 1"</span><span class="p">)</span><span class="p">,</span></span><span class="ln"><span class="w">        </span><span class="n">Name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">table</span><span class="p">.</span><span class="n">Column</span><span class="o">&lt;</span><span class="kt">string</span><span class="o">&gt;</span><span class="p">(</span><span class="n">type</span><span class="p">:</span><span class="w"> </span><span class="s">"nvarchar(max)"</span><span class="p">,</span><span class="w"> </span><span class="n">nullable</span><span class="p">:</span><span class="w"> </span><span class="k">false</span><span class="p">)</span><span class="p">,</span></span><span class="ln"><span class="w">        </span><span class="n">Price</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">table</span><span class="p">.</span><span class="n">Column</span><span class="o">&lt;</span><span class="kt">decimal</span><span class="o">&gt;</span><span class="p">(</span><span class="n">type</span><span class="p">:</span><span class="w"> </span><span class="s">"decimal(18,2)"</span><span class="p">,</span><span class="w"> </span><span class="n">nullable</span><span class="p">:</span><span class="w"> </span><span class="k">false</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="p">}</span><span class="p">,</span></span><span class="ln"><span class="w">    </span><span class="n">constraints</span><span class="p">:</span><span class="w"> </span><span class="n">table</span><span class="w"> </span><span class="o">=&gt;</span></span><span class="ln"><span class="w">    </span><span class="p">{</span></span><span class="ln"><span class="w">        </span><span class="n">table</span><span class="p">.</span><span class="n">PrimaryKey</span><span class="p">(</span><span class="s">"PK_Products"</span><span class="p">,</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">x</span><span class="p">.</span><span class="n">Id</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="p">}</span><span class="p">)</span><span class="p">;</span></span></code></pre></div>
+<div class="codebox"><div class="ch"><span>რაც ჩვენ SSMS-ში დავწერდით</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="k">CREATE</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="n">Products</span><span class="w"> </span><span class="p">(</span></span><span class="ln"><span class="w">    </span><span class="n">Id</span><span class="w"> </span><span class="nb">INT</span><span class="w"> </span><span class="k">IDENTITY</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="k">PRIMARY</span><span class="w"> </span><span class="k">KEY</span><span class="p">,</span></span><span class="ln"><span class="w">    </span><span class="n">Name</span><span class="w"> </span><span class="n">NVARCHAR</span><span class="p">(</span><span class="k">MAX</span><span class="p">)</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="p">,</span></span><span class="ln"><span class="w">    </span><span class="n">Price</span><span class="w"> </span><span class="nb">DECIMAL</span><span class="p">(</span><span class="mi">18</span><span class="p">,</span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span></span><span class="ln"><span class="p">)</span><span class="p">;</span></span></code></pre></div>
+<p>იგივეა! უბრალოდ EF Core-მა დაწერა ფაილში. ფაილში ასევე არის <strong><code>Down()</code></strong> — მიგრაციის უკან დაბრუნება: <code>DropTable("Products")</code>.</p></article>
+<article class="blk" data-slides="29"><span class="anchor" id="s-29"></span><div class="bh"><h3>ვამოწმებთ SSMS-ში 🎉</h3><a class="chip" href="index.html#/29" data-go="29" title="პრეზენტაციაში გახსნა">სლაიდი 29</a></div>
+<p>Databases → Refresh:</p>
+<ul>
+<li>🗄️ <strong>ShopDb</strong> — ჩვენ ის არ შეგვიქმნია, ჩვენმა C#-მა შექმნა.</li>
+<li>▦ <strong>dbo.Products</strong> — <code>Id</code> (PK, int), <code>Name</code> (nvarchar(max)), <code>Price</code> (decimal(18,2)).</li>
+<li>▦ <strong>dbo.__EFMigrationsHistory</strong> — EF Core-ის „ჟურნალი“: რომელი მიგრაციები უკვე შესრულდა. ასე იცის, რომელი მიგრაცია დარჩა გასაშვები.</li>
+</ul></article>
+<article class="blk" data-slides="30"><span class="anchor" id="s-30"></span><div class="bh"><h3>ჯილდო: ბაზაში ვწერთ და ვკითხულობთ</h3><a class="chip" href="index.html#/30" data-go="30" title="პრეზენტაციაში გახსნა">სლაიდი 30</a></div>
+<div class="codebox"><div class="ch"><span>Program.cs</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="k">using</span><span class="w"> </span><span class="nn">ShopDemo</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="n">Console</span><span class="p">.</span><span class="n">OutputEncoding</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">System</span><span class="p">.</span><span class="n">Text</span><span class="p">.</span><span class="n">Encoding</span><span class="p">.</span><span class="n">UTF8</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="k">using</span><span class="w"> </span><span class="nn">var</span><span class="w"> </span><span class="n">db</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">DataContext</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="n">db</span><span class="p">.</span><span class="n">Products</span><span class="p">.</span><span class="n">Add</span><span class="p">(</span><span class="k">new</span><span class="w"> </span><span class="n">Product</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">Name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"ლეპტოპი"</span><span class="p">,</span><span class="w"> </span><span class="n">Price</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">2400</span><span class="w"> </span><span class="p">}</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="n">db</span><span class="p">.</span><span class="n">Products</span><span class="p">.</span><span class="n">Add</span><span class="p">(</span><span class="k">new</span><span class="w"> </span><span class="n">Product</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">Name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"მაუსი"</span><span class="p">,</span><span class="w"> </span><span class="n">Price</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">45</span><span class="w"> </span><span class="p">}</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="n">db</span><span class="p">.</span><span class="n">SaveChanges</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="k">foreach</span><span class="w"> </span><span class="p">(</span><span class="kt">var</span><span class="w"> </span><span class="n">p</span><span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="n">db</span><span class="p">.</span><span class="n">Products</span><span class="p">.</span><span class="n">ToList</span><span class="p">(</span><span class="p">)</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="s">$"{p.Id}. {p.Name} — {p.Price} ₾"</span><span class="p">)</span><span class="p">;</span></span></code></pre></div>
+<ul>
+<li><strong><code>new DataContext()</code></strong> — ვიღებთ „პულტს“. <code>using</code> — ბოლოს კავშირი თავისით დაიხუროს.</li>
+<li><strong><code>Add</code></strong> — ჯერ მხოლოდ მეხსიერებაში!</li>
+<li><strong><code>SaveChanges()</code></strong> — ახლა მიდის <code>INSERT</code> ბაზაში. მის გარეშე ბაზა ცარიელი დარჩება.</li>
+<li><code>Console.OutputEncoding = UTF8</code> — თუ ქართული კონსოლში <code>???</code>-ად ჩანს.</li>
+</ul>
+<p>SSMS-ში <code>SELECT * FROM Products</code> — ორი ჩანაწერი.</p></article>
+<article class="blk" data-slides="31"><span class="anchor" id="s-31"></span><div class="bh"><h3>4 ნაბიჯი — ყოველ ახალ პროექტში</h3><a class="chip" href="index.html#/31" data-go="31" title="პრეზენტაციაში გახსნა">სლაიდი 31</a></div>
+<ol>
+<li><strong>პაკეტები</strong> — EF Core · SqlServer · Tools · Design</li>
+<li><strong>DataContext</strong> — Entity + DbContext + DbSet</li>
+<li><strong>Connection</strong> — სტრიქონი VS-დან → <code>UseSqlServer</code></li>
+<li><strong>მიგრაცია</strong> — <code>Add-Migration</code> + <code>Update-Database</code></li>
+</ol>
+<p>ეს ერთხელ კეთდება. შემდეგ <strong>ყოველ ცვლილებაზე</strong>: შეცვალე კლასი → <code>Add-Migration</code> → <code>Update-Database</code>.</p></article>
+<h2 class="sec" id="sec-7">5 · პრაქტიკა</h2>
+<article class="blk" data-slides="32"><span class="anchor" id="s-32"></span><div class="bh"><h3>ნაწილი 5 · თქვენი ჯერია</h3><a class="chip" href="index.html#/32" data-go="32" title="პრეზენტაციაში გახსნა">სლაიდი 32</a></div>
+<p>ორ რაუნდად: ჯერ ერთად, მერე დამოუკიდებლად.</p></article>
+<article class="blk" data-slides="33"><span class="anchor" id="s-33"></span><div class="bh"><h3>სამი რაუნდი: მე → ერთად → თქვენ</h3><a class="chip" href="index.html#/33" data-go="33" title="პრეზენტაციაში გახსნა">სლაიდი 33</a></div>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>ვინ</th>
+<th>პროექტი</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>👨‍🏫 მე ვაკეთებ</td>
+<td>თქვენ უყურებთ და იგებთ</td>
+<td>ShopDemo · ✓ დასრულდა</td>
+</tr>
+<tr>
+<td>👥 ერთად ვაკეთებთ</td>
+<td>ნაბიჯ-ნაბიჯ, ერთ ტემპში</td>
+<td>LibraryDemo · ~17 წთ</td>
+</tr>
+<tr>
+<td>🧑‍💻 თქვენ აკეთებთ</td>
+<td>დამოუკიდებლად, ლექტორი ეხმარება</td>
+<td>SchoolDemo · ~15 წთ</td>
+</tr>
+</tbody>
+</table>
+<p>წესი: ჯერ ცდი თვითონ → გაჭედე — გვერდით მჯდომს ჰკითხე → მერე ლექტორს.</p></article>
+<article class="blk" data-slides="34"><span class="anchor" id="s-34"></span><div class="bh"><h3>👥 ერთად: LibraryDemo — ბიბლიოთეკა</h3><a class="chip" href="index.html#/34" data-go="34" title="პრეზენტაციაში გახსნა">სლაიდი 34</a></div>
+<p>ბაზა: <strong>LibraryDb</strong> · ცხრილი: <strong>Books</strong></p>
+<div class="codebox"><div class="ch"><span>Book.cs</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="k">public</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">Book</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">Id</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">get</span><span class="p">;</span><span class="w"> </span><span class="k">set</span><span class="p">;</span><span class="w"> </span><span class="p">}</span></span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="n">Title</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">get</span><span class="p">;</span><span class="w"> </span><span class="k">set</span><span class="p">;</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kt">string</span><span class="p">.</span><span class="n">Empty</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="n">Author</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">get</span><span class="p">;</span><span class="w"> </span><span class="k">set</span><span class="p">;</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kt">string</span><span class="p">.</span><span class="n">Empty</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">Year</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">get</span><span class="p">;</span><span class="w"> </span><span class="k">set</span><span class="p">;</span><span class="w"> </span><span class="p">}</span></span><span class="ln"><span class="p">}</span></span></code></pre></div>
+<ol>
+<li>ახალი Console App: <strong>LibraryDemo</strong> (.NET 10)</li>
+<li>① 4 პაკეტი: EF Core · .SqlServer · .Tools · .Design</li>
+<li>② <code>Book.cs</code> და <code>DataContext.cs</code> + <code>DbSet&lt;Book&gt; Books</code></li>
+<li>③ <code>OnConfiguring</code> + სტრიქონი VS-დან (ბაზა: <strong>LibraryDb</strong>)</li>
+<li>④ <code>Add-Migration InitialCreate</code> → <code>Update-Database</code></li>
+<li><code>Program.cs</code>: 2 წიგნი, <code>SaveChanges</code>, დაბეჭდე</li>
+</ol></article>
+<h2 class="sec" id="sec-8">პრაქტიკა</h2>
+<article class="blk" data-slides="35"><span class="anchor" id="s-35"></span><div class="bh"><h3>კლასში დავალება: SchoolDemo — დამოუკიდებლად</h3><a class="chip" href="index.html#/35" data-go="35" title="პრეზენტაციაში გახსნა">სლაიდი 35</a></div>
+<p>დავალება · ~15 წთ</p>
+<h3>ნაბიჯები</h3>
+<ul>
+<li>პროექტი <strong>SchoolDemo</strong>, ბაზა <strong>SchoolDb</strong></li>
+<li>Entity <code>Student</code>: <code>Id</code>, <code>FirstName</code>, <code>LastName</code>, <code>Age</code></li>
+<li>4 ნაბიჯი — სლაიდების გარეშე 💪</li>
+<li><code>Program.cs</code>: დაამატე 3 სტუდენტი და დაბეჭდე</li>
+</ul>
+<h3>✓ მზადაა, როცა</h3>
+<p>SSMS-ში ჩანს SchoolDb → Students, და კონსოლი 3 სტუდენტს ბეჭდავს</p>
+<h3>⭐ ბონუსი</h3>
+<ul>
+<li>Entity <code>Course</code>: <code>Id</code>, <code>Title</code>, <code>Credits</code> · DataContext-ში <code>DbSet&lt;Course&gt; Courses</code></li>
+<li><code>Add-Migration AddCourses</code> → <code>Update-Database</code> · SSMS: ახალი ცხრილი და 2 ჩანაწერი <code>__EFMigrationsHistory</code>-ში</li>
+</ul>
+<h3>💡 რჩევა</h3>
+<p>ჯერ ცდი თვითონ → გვერდით მჯდომს ჰკითხე → მერე ლექტორს. თუ გაჭედე — შემდეგი სლაიდი „ხშირი შეცდომები“ გეტყვის, რას ნიშნავს შეცდომის ტექსტი.</p></article>
+<h2 class="sec" id="sec-9">5 · პრაქტიკა</h2>
+<article class="blk" data-slides="36"><span class="anchor" id="s-36"></span><div class="bh"><h3>ხშირი შეცდომები</h3><a class="chip" href="index.html#/36" data-go="36" title="პრეზენტაციაში გახსნა">სლაიდი 36</a></div>
+<table>
+<thead>
+<tr>
+<th>შეცდომა</th>
+<th>მიზეზი</th>
+<th>გამოსწორება</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>The term 'Add-Migration' is not recognized</code></td>
+<td>.Tools / .Design პაკეტი აკლია</td>
+<td>დააყენე .Tools + .Design</td>
+</tr>
+<tr>
+<td><code>No DbContext was found in assembly</code></td>
+<td>PMC-ში სხვა პროექტია არჩეული</td>
+<td>შეცვალე Default project</td>
+</tr>
+<tr>
+<td><code>The certificate chain was issued by an authority that is not trusted</code></td>
+<td>SSL სერტიფიკატი</td>
+<td>სტრიქონში: <code>Trust Server Certificate=True</code></td>
+</tr>
+<tr>
+<td><code>A network-related or instance-specific error…</code></td>
+<td>სერვერის სახელი არასწორია</td>
+<td>ხელახლა დააკოპირე VS-დან · წინ <code>@</code></td>
+</tr>
+<tr>
+<td><code>The entity type 'Book' requires a primary key</code></td>
+<td><code>Id</code> property არ არის</td>
+<td><code>public int Id { get; set; }</code></td>
+</tr>
+<tr>
+<td>ბაზა ცარიელია, შეცდომა არ არის</td>
+<td><code>SaveChanges</code> დაგავიწყდა</td>
+<td><code>db.SaveChanges();</code></td>
+</tr>
+</tbody>
+</table>
+<div class="callout note"><span class="ci">💡</span><div><p>ყვითელი warning <code>decimal</code>-ზე („No store type was specified…“) შეცდომა არ არის. მიგრაცია მაინც შეიქმნება, <code>decimal(18,2)</code>-ით.</p></div></div>
+<div class="prompt"><div class="ph"><span>🤖 როცა რამე არ მუშაობს</span><button class="copy" type="button">კოპირება</button></div><div class="pb">ვსწავლობ EF Core-ს Console App-ში (.NET 10, SQL Server, Code First). Package Manager Console-ში / გაშვებისას მაქვს ეს შეცდომა: [ჩასვი ტექსტი]
+ჩემი DataContext: [ჩასვი კოდი, connection string-ში პაროლი წაშალე]
+ამიხსენი, რას ნიშნავს შეცდომა და რა შევამოწმო — ნაბიჯ-ნაბიჯ. ქართულად.</div></div></article>
+<h2 class="sec" id="sec-10">შეჯამება</h2>
+<article class="blk" data-slides="37"><span class="anchor" id="s-37"></span><div class="bh"><h3>შეამოწმე, რა დაგამახსოვრდა</h3><a class="chip" href="index.html#/37" data-go="37" title="პრეზენტაციაში გახსნა">სლაიდი 37</a></div>
+<p>ეს კითხვები შემდეგი ლექციის დასაწყისშიც დაისმება.</p>
+<div class="selfcheck"><div class="sh">✅ შეამოწმე თავი <small>დაფიქრდი, მერე გახსენი პასუხი</small></div><details><summary>რა არის ORM და რას ნიშნავს მისი სამი ასო?</summary><div class="ans">თარჯიმანი ობიექტებსა და ცხრილებს შორის · Object · Relational · Mapping</div></details><details><summary>რა შეესაბამება ბაზაში კლასს, property-ს და ობიექტს?</summary><div class="ans">ცხრილი · სვეტი · ჩანაწერი</div></details><details><summary>რომელი 4 პაკეტი დავაყენეთ?</summary><div class="ans">EF Core — ძრავი · .SqlServer — SQL Server · .Tools — VS-ის ბრძანებები · .Design — მიგრაციის გენერაცია</div></details><details><summary>რით განსხვავდება <code>Add-Migration</code> და <code>Update-Database</code>?</summary><div class="ans">Add-Migration წერს ნახაზს (ფაილს) · Update-Database ცვლის ბაზას</div></details><details><summary><code>Add()</code> გამოვიძახეთ, ბაზა კი ცარიელია. რატომ?</summary><div class="ans"><code>SaveChanges()</code> არ გამოგვიძახებია</div></details></div></article>
+<article class="blk" data-slides="38"><span class="anchor" id="s-38"></span><div class="bh"><h3>შეჯამება · C# და ბაზა ახლა ერთმანეთს იცნობენ 🤝</h3><a class="chip" href="index.html#/38" data-go="38" title="პრეზენტაციაში გახსნა">სლაიდი 38</a></div>
+<p><strong>დაიმახსოვრე:</strong></p>
+<ol>
+<li><strong>ORM</strong> — თარჯიმანი: კლასი = ცხრილი, property = სვეტი, ობიექტი = ჩანაწერი. EF Core — C#-ის ORM.</li>
+<li><strong>4 ნაბიჯი</strong> — პაკეტები, DataContext, Connection String, მიგრაცია.</li>
+<li><strong><code>Add</code></strong> მეხსიერებაშია — ბაზაში მხოლოდ <strong><code>SaveChanges()</code></strong> აგზავნის.</li>
+</ol>
+<h3>⏭️ შემდეგ ლექციაზე</h3>
+<p>CRUD სრულად — წაკითხვა, განახლება, წაშლა — და ცხრილებს შორის კავშირები.</p>
+<div class="prompt"><div class="ph"><span>🤖 გამოცდა ლექციაზე</span><button class="copy" type="button">კოპირება</button></div><div class="pb">ვსწავლობ EF Core-ს. გავიარეთ: ORM-ის იდეა, Entity, DbContext, DbSet, 4 NuGet პაკეტი, Connection String, OnConfiguring/UseSqlServer, Add-Migration, Update-Database, __EFMigrationsHistory, Add + SaveChanges, LINQ → SQL.
+დამისვი 8 კითხვა სათითაოდ, მარტივიდან რთულისკენ. ყოველ პასუხზე შემიფასე და ამიხსენი. ბოლოს მითხარი, რა გავიმეორო. ქართულად.</div></div></article>
+<h2 class="sec" id="sec-11">საშინაო</h2>
+<article class="blk" data-slides="39"><span class="anchor" id="s-39"></span><div class="bh"><h3>საშინაო დავალება: SchoolDemo — კურსები და ახალი სვეტი</h3><a class="chip" href="index.html#/39" data-go="39" title="პრეზენტაციაში გახსნა">სლაიდი 39</a></div>
+<p>ორი ახალი მიგრაცია</p>
+<h3>მოთხოვნები</h3>
+<ul>
+<li><code>Course</code>: <code>Id</code>, <code>Title</code>, <code>Credits</code> · <code>Add-Migration AddCourses</code> (თუ კლასში ვერ მოასწარით)</li>
+<li><code>Student</code>-ს დაამატეთ <code>Email</code> → <code>Add-Migration AddStudentEmail</code> → <code>Update-Database</code></li>
+<li><code>Program.cs</code>: 2 კურსი და Email-ები სტუდენტებისთვის · <code>SaveChanges</code></li>
+<li>დაბეჭდეთ მხოლოდ 18+ სტუდენტები, ასაკით დალაგებული (<code>Where</code> + <code>OrderBy</code>)</li>
+</ul>
+<h3>✓ მზადაა, როცა</h3>
+<p><code>__EFMigrationsHistory</code>-ში 3 ჩანაწერია და SSMS-ში Students ცხრილს Email სვეტი აქვს</p>
+<h3>⭐ ბონუსი</h3>
+<ul>
+<li><code>Remove-Migration</code> — შექმენით ზედმეტი მიგრაცია და <code>Update-Database</code>-მდე წაშალეთ</li>
+</ul></article>
+  </main>
+</div>
+<script>
+const DECK = "Entity Framework Core · 1 — EF Core კონსოლში — ORM, DataContext, მიგრაცია";
+if (matchMedia('(min-width:981px)').matches) document.getElementById('tocd').open = true;
+const blocks = [...document.querySelectorAll('.blk')];
+const tocLinks = [...document.querySelectorAll('nav.toc a[href^="#sec-"]')];
+const secOf = b => { let e = b; while (e && !(e.matches && e.matches('h2.sec'))) e = e.previousElementSibling; return e; };
+function mark(b, toc_only) {
+  if (!toc_only) blocks.forEach(x => x.classList.toggle('cur', x === b));
+  const s = b && secOf(b); tocLinks.forEach(a => a.classList.toggle('cur', s && a.getAttribute('href') === '#' + s.id));
+}
+const blockFor = n => blocks.find(b => b.dataset.slides.split(',').includes(String(n)));
+
+// copy buttons (code: one line per .ln)
+document.addEventListener('click', e => {
+  const btn = e.target.closest('.copy'); if (!btn) return;
+  const box = btn.closest('.codebox, .prompt');
+  const text = box.matches('.prompt') ? box.querySelector('.pb').textContent : [...box.querySelectorAll('.ln')].map(l => l.textContent).join('\n');
+  navigator.clipboard.writeText(text).then(() => { btn.textContent = '✓ დაკოპირდა'; btn.classList.add('ok'); setTimeout(() => { btn.textContent = 'კოპირება'; btn.classList.remove('ok'); }, 1600); });
+});
+
+// live mode: opened from the deck with P — follow the projector
+const live = new URLSearchParams(location.search).has('live');
+let follow = true, bc = null;
+const liveBtn = document.getElementById('live');
+if (live) {
+  try { bc = new BroadcastChannel('deck-' + DECK); } catch (e) {}
+  liveBtn.classList.add('on');
+  liveBtn.onclick = () => { follow = !follow; liveBtn.classList.toggle('off', !follow); liveBtn.querySelector('.lt').textContent = follow ? 'მიჰყვება სლაიდებს' : 'თავისუფლად ვკითხულობ'; };
+  if (bc) {
+    bc.onmessage = ({ data }) => {
+      if (data.t !== 'state' || !follow) return;
+      const b = blockFor(data.i + 1); if (!b || b.classList.contains('cur')) return;
+      mark(b); b.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    };
+    bc.postMessage({ t: 'hello' });
+  }
+  document.addEventListener('click', e => {   // slide chip → move the projector deck
+    const c = e.target.closest('.chip[data-go]'); if (!c || !bc) return;
+    e.preventDefault(); bc.postMessage({ t: 'go', n: +c.dataset.go - 1 });
+  });
+}
+// deep link #s-12
+const h = location.hash.match(/^#s-(\d+)$/);
+if (h) { const b = blockFor(+h[1]); if (b) { mark(b); setTimeout(() => b.scrollIntoView({ block: 'start' }), 50); } }
+// highlight section in the TOC while reading
+const io = new IntersectionObserver(es => es.forEach(x => { if (x.isIntersecting && !(live && follow)) mark(x.target, true); }), { rootMargin: '-30% 0px -60% 0px' });
+blocks.forEach(b => io.observe(b));
+</script>
+</body></html>

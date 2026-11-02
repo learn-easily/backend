@@ -348,8 +348,8 @@ padding:6px 10px;border-radius:8px;opacity:0;transition:opacity .25s}
 background:var(--net);border:0;border-radius:10px;padding:7px 13px;cursor:pointer;opacity:.9;box-shadow:0 4px 14px rgba(109,40,217,.25)}
 #studybtn:hover{opacity:1}#studybtn kbd{font:600 11px var(--mono);background:rgba(255,255,255,.22);border-radius:5px;padding:1px 6px}
 body[data-study] #help{right:190px}</style></head>
-<body>
-<a id="home" href="../../" title="ყველა ლექცია">← ლექციები</a>
+<body data-study="1">
+<a id="home" href="../../" title="ყველა ლექცია">← ლექციები</a><button id="studybtn" type="button" title="კონსპექტი ცალკე ფანჯარაში — სლაიდებს მიჰყვება">📖 კონსპექტი <kbd>P</kbd></button>
 <div id="stage"><div id="deck">
 <!-- =========================================================
      EF Core კონსოლში — C# + MS SQL → ORM → EF Core → 4 ნაბიჯი → პრაქტიკა
@@ -422,10 +422,16 @@ i.codestep{display:none}
       <g class="in fade" style="--d:2.2s"><text x="300" y="330" text-anchor="middle" class="tm" font-size="18">ობიექტები ⇄ ცხრილები</text></g>
     </svg>
   </div>
+</section>
+<section class="slide" data-section="დღის თემა">
+  <div class="kicker">დღის თემა</div>
+  <h2><span class="grad">EF Core კონსოლში — ORM, DataContext, მიგრაცია</span></h2>
+  <div class="grid2" style="grid-template-columns:1fr 1fr;align-items:start;gap:40px">
+    <div class="card accent step" style="--a:var(--asp)"><h3><span class="ico">🤔</span>რატომ გჭირდებათ</h3><p class="small">C# და SQL უკვე ვიცით, მაგრამ ჯერ ცალ-ცალკე ცხოვრობენ: C#-ის ობიექტები პროგრამის დახურვისას ქრება, ბაზასთან ხელით ლაპარაკი კი ათობით ხაზი და SQL ტექსტად ბრჭყალებში. დღეს ორ სამყაროს ვაკავშირებთ: ვიგებთ, რა არის ORM, ვეცნობით EF Core-ს და 4 ნაბიჯში ვამზადებთ პროექტს, რომელიც ბაზას თვითონ ქმნის.</p></div>
+    <div class="card accent" style="--a:var(--mvc)"><h3><span class="ico">🎯</span>ლექციის ბოლოს შეძლებთ</h3><ul class="clean small"><li class="step">ORM-ის იდეის ახსნა: კლასი = ცხრილი, property = სვეტი, ობიექტი = ჩანაწერი</li><li class="step">EF Core-ის 4 პაკეტის დაყენება და DataContext-ის დაწერა</li><li class="step">Connection String-ის აღება Visual Studio-დან</li><li class="step">მიგრაცია: <code class="i">Add-Migration</code> + <code class="i">Update-Database</code>, და პირველი <code class="i">SaveChanges</code></li></ul></div>
+  </div>
   
 </section>
-
-<!-- 2. ROADMAP -->
 <section class="slide">
   <div class="kicker">დღის გზა</div>
   <h2>სადამდე მოვედით და სად მივდივართ</h2>
@@ -440,8 +446,6 @@ i.codestep{display:none}
   </svg>
   
 </section>
-
-<!-- ============ PART 1: PROBLEM ============ -->
 <section class="slide divider" data-section="1 · პრობლემა">
   <div class="vcenter">
     <div class="kicker in">ნაწილი 1</div>
@@ -451,8 +455,6 @@ i.codestep{display:none}
   <div class="big-num">01</div>
   
 </section>
-
-<!-- 3. TWO WORLDS -->
 <section class="slide" data-section="1 · პრობლემა">
   <div class="kicker">ერთი და იგივე პროდუქტი</div>
   <h2>C#-ში და SQL-ში ასე გამოიყურება</h2>
@@ -476,8 +478,6 @@ i.codestep{display:none}
   <div class="callout step mt" style="--a:var(--red)">ორივე ერთსა და იმავეს აღწერს. მაგრამ <b>სხვადასხვა ენაზე ლაპარაკობენ</b> — როგორ ვათარგმნოთ ერთიდან მეორეში?</div>
   
 </section>
-
-<!-- 4. WITHOUT ORM -->
 <section class="slide" data-section="1 · პრობლემა">
   <div class="kicker">ვცადოთ ხელით</div>
   <h2>ORM-ის გარეშე: <span class="c-red">ყველაფერი ხელით</span></h2>
@@ -496,8 +496,6 @@ i.codestep{display:none}
   </div>
   
 </section>
-
-<!-- 5. WITH EF CORE (TEASER) -->
 <section class="slide" data-section="1 · პრობლემა">
   <div class="kicker">იგივე ამოცანა</div>
   <h2>და ახლა — <span class="c-core">ORM-ით</span></h2>
@@ -519,8 +517,6 @@ i.codestep{display:none}
   </div>
   
 </section>
-
-<!-- ============ PART 2: ORM ============ -->
 <section class="slide divider" data-section="2 · ORM">
   <div class="vcenter">
     <div class="kicker in">ნაწილი 2</div>
@@ -530,8 +526,6 @@ i.codestep{display:none}
   <div class="big-num">02</div>
   
 </section>
-
-<!-- 6. ORM LETTERS -->
 <section class="slide" data-section="2 · ORM">
   <div class="kicker">სამი ასო</div>
   <h2>O · R · M</h2>
@@ -555,8 +549,6 @@ i.codestep{display:none}
   <div class="callout step mt2" style="--a:var(--core);font-size:26px;text-align:center;border-left:0;border-radius:16px;padding:22px"><b>ORM</b> — თარჯიმანი C#-სა და ბაზას შორის. ჩვენ ვწერთ <b>C#-ს</b>, ის ბაზას ელაპარაკება <b>SQL-ით</b>.</div>
   
 </section>
-
-<!-- 7. MAPPING -->
 <section class="slide" data-section="2 · ORM">
   <div class="kicker">Mapping</div>
   <h2>რა რას შეესაბამება</h2>
@@ -593,8 +585,6 @@ i.codestep{display:none}
   </svg>
   
 </section>
-
-<!-- 8. TRANSLATOR FLOW -->
 <section class="slide" data-section="2 · ORM">
   <div class="kicker">ORM მუშაობაში</div>
   <h2>როგორ თარგმნის ORM — ორივე მიმართულებით</h2>
@@ -642,8 +632,6 @@ i.codestep{display:none}
   </svg>
   
 </section>
-
-<!-- 9. ORMs EVERYWHERE -->
 <section class="slide" data-section="2 · ORM">
   <div class="kicker">ORM ყველგანაა</div>
   <h2>ყველა ენას თავისი ORM აქვს</h2>
@@ -660,8 +648,6 @@ i.codestep{display:none}
   <div class="callout step mt2" style="--a:var(--core)">სახელები სხვადასხვაა, <b>იდეა — ერთი</b>: კლასი = ცხრილი, property = სვეტი, ობიექტი = ჩანაწერი. ერთხელ ისწავლი — ყველგან ამოიცნობ.</div>
   
 </section>
-
-<!-- ============ PART 3: EF CORE ============ -->
 <section class="slide divider" data-section="3 · EF Core">
   <div class="vcenter">
     <div class="kicker in">ნაწილი 3</div>
@@ -671,8 +657,6 @@ i.codestep{display:none}
   <div class="big-num">03</div>
   
 </section>
-
-<!-- 10. WHAT IS EF CORE -->
 <section class="slide" data-section="3 · EF Core">
   <div class="kicker">გაცნობა</div>
   <h2 style="display:flex;align-items:center;gap:24px">რა არის <span class="c-core">EF Core?</span><span class="pill on in zoom" style="--d:.3s;--a:var(--core);font-size:18px;padding:10px 18px">EF Core 10 · .NET 10 · LTS</span></h2>
@@ -685,8 +669,6 @@ i.codestep{display:none}
   <div class="callout step mt" style="--a:var(--asp)">ბაზის შეცვლა = <b>მხოლოდ ერთი პაკეტის</b> შეცვლა. ჩვენ ვიყენებთ <b>SQL Server</b>-ს.</div>
   
 </section>
-
-<!-- 11. LINQ -> SQL -->
 <section class="slide" data-section="3 · EF Core">
   <div class="kicker">EF Core თარგმნის</div>
   <h2>ჩვენ ვწერთ <span class="c-net">LINQ</span>-ს, ბაზა იღებს <span class="c-asp">SQL</span>-ს</h2>
@@ -708,8 +690,6 @@ i.codestep{display:none}
   </div>
   
 </section>
-
-<!-- 12. CODE FIRST -->
 <section class="slide" data-section="3 · EF Core">
   <div class="kicker">ორი მიდგომა</div>
   <h2>რა იქმნება პირველი — კოდი თუ ბაზა?</h2>
@@ -734,8 +714,6 @@ i.codestep{display:none}
   <div class="solve step mt">დღეს ვმუშაობთ <b>Code First</b>-ით — <b>ბაზას ხელით არ ვქმნით</b>, მას ჩვენი კოდიდან EF Core შექმნის</div>
   
 </section>
-
-<!-- 13. KEY PLAYERS -->
 <section class="slide" data-section="3 · EF Core">
   <div class="kicker">მთავარი მოთამაშეები</div>
   <h2>4 ცნება, რომელსაც დღეს შევხვდებით</h2>
@@ -757,8 +735,6 @@ i.codestep{display:none}
   </svg>
   
 </section>
-
-<!-- ============ PART 4: 4 STEPS ============ -->
 <section class="slide divider" data-section="4 · 4 ნაბიჯი">
   <div class="vcenter">
     <div class="kicker in">ნაწილი 4 · მე ვაჩვენებ</div>
@@ -773,8 +749,6 @@ i.codestep{display:none}
   <div class="big-num">04</div>
   
 </section>
-
-<!-- 14. PREP: CONSOLE APP -->
 <section class="slide" data-section="4 · 4 ნაბიჯი">
   <div class="kicker">ნაბიჯი 0 · მომზადება</div>
   <h2>ახალი პროექტი: <span class="c-net">Console App</span></h2>
@@ -796,8 +770,6 @@ i.codestep{display:none}
   </div>
   
 </section>
-
-<!-- 15. STEP 1: PACKAGES -->
 <section class="slide" data-section="4 · 4 ნაბიჯი">
   <div class="stepper"><span class="on">① პაკეტები</span><span>② DataContext</span><span>③ Connection</span><span>④ მიგრაცია</span></div>
   <div class="kicker">ნაბიჯი 1 / 4</div>
@@ -820,8 +792,6 @@ i.codestep{display:none}
   <div class="callout step mt" style="--a:var(--asp)">⚠ 4-ივე პაკეტი — <b>ერთი და იგივე ვერსია</b> (10.0.x), და ემთხვევა პროექტის <b>.NET 10</b>-ს</div>
   
 </section>
-
-<!-- 16. STEP 1: WHAT EACH PACKAGE DOES -->
 <section class="slide" data-section="4 · 4 ნაბიჯი">
   <div class="stepper"><span class="on">① პაკეტები</span><span>② DataContext</span><span>③ Connection</span><span>④ მიგრაცია</span></div>
   <div class="kicker">ნაბიჯი 1 / 4</div>
@@ -834,8 +804,6 @@ i.codestep{display:none}
   </div>
   
 </section>
-
-<!-- 17. STEP 2a: ENTITY -->
 <section class="slide" data-section="4 · 4 ნაბიჯი">
   <div class="stepper"><span class="done">① ✓</span><span class="on">② DataContext</span><span>③ Connection</span><span>④ მიგრაცია</span></div>
   <div class="kicker">ნაბიჯი 2 / 4 · ჯერ Entity</div>
@@ -860,8 +828,6 @@ i.codestep{display:none}
   </div>
   
 </section>
-
-<!-- 18. STEP 2b: DATACONTEXT -->
 <section class="slide" data-section="4 · 4 ნაბიჯი">
   <div class="stepper"><span class="done">① ✓</span><span class="on">② DataContext</span><span>③ Connection</span><span>④ მიგრაცია</span></div>
   <div class="kicker">ნაბიჯი 2 / 4 · ახლა DataContext</div>
@@ -881,8 +847,6 @@ i.codestep{display:none}
   </div>
   
 </section>
-
-<!-- 19. STEP 3a: COPY FROM VISUAL STUDIO -->
 <section class="slide" data-section="4 · 4 ნაბიჯი">
   <div class="stepper"><span class="done">① ✓</span><span class="done">② ✓</span><span class="on">③ Connection</span><span>④ მიგრაცია</span></div>
   <div class="kicker">ნაბიჯი 3 / 4 · Connection String</div>
@@ -901,8 +865,6 @@ i.codestep{display:none}
   <div class="solve step mt">სტრიქონს ხელით არ ვწერთ — <b>Visual Studio მზას გვაძლევს</b></div>
   
 </section>
-
-<!-- 21. STEP 3b: OnConfiguring -->
 <section class="slide" data-section="4 · 4 ნაბიჯი">
   <div class="stepper"><span class="done">① ✓</span><span class="done">② ✓</span><span class="on">③ Connection</span><span>④ მიგრაცია</span></div>
   <div class="kicker">ნაბიჯი 3 / 4 · ჩასმა კოდში</div>
@@ -917,8 +879,6 @@ i.codestep{display:none}
   </div>
   
 </section>
-
-<!-- 22. STEP 4a: MIGRATION CONCEPT -->
 <section class="slide" data-section="4 · 4 ნაბიჯი">
   <div class="stepper"><span class="done">① ✓</span><span class="done">② ✓</span><span class="done">③ ✓</span><span class="on">④ მიგრაცია</span></div>
   <div class="kicker">ნაბიჯი 4 / 4 · იდეა</div>
@@ -947,8 +907,6 @@ i.codestep{display:none}
   <div class="callout step" style="--a:var(--core)">კოდი შეიცვალა? → <b>ახალი მიგრაცია</b> → Update-Database. მიგრაციები — ბაზის <b>ცვლილებების ისტორია</b>, როგორც Git კოდისთვის.</div>
   
 </section>
-
-<!-- 23. STEP 4b: COMMANDS -->
 <section class="slide" data-section="4 · 4 ნაბიჯი">
   <div class="stepper"><span class="done">① ✓</span><span class="done">② ✓</span><span class="done">③ ✓</span><span class="on">④ მიგრაცია</span></div>
   <div class="kicker">ნაბიჯი 4 / 4 · ბრძანებები</div>
@@ -976,8 +934,6 @@ i.codestep{display:none}
   </div>
   
 </section>
-
-<!-- 24. MIGRATION FILE vs SQL -->
 <section class="slide" data-section="4 · 4 ნაბიჯი">
   <div class="stepper"><span class="done">① ✓</span><span class="done">② ✓</span><span class="done">③ ✓</span><span class="on">④ მიგრაცია</span></div>
   <div class="kicker">ნახაზის შიგნით</div>
@@ -992,8 +948,6 @@ i.codestep{display:none}
   <div class="callout step mt" style="--a:var(--core)">ფაილში ასევე არის <b>Down()</b> — მიგრაციის უკან დაბრუნება: <code class="i">DropTable("Products")</code></div>
   
 </section>
-
-<!-- 25. RESULT IN SSMS -->
 <section class="slide" data-section="4 · 4 ნაბიჯი">
   <div class="stepper"><span class="done">① ✓</span><span class="done">② ✓</span><span class="done">③ ✓</span><span class="done">④ ✓</span></div>
   <div class="kicker">შედეგი</div>
@@ -1018,8 +972,6 @@ i.codestep{display:none}
   </div>
   
 </section>
-
-<!-- 26. PAYOFF: USE IT -->
 <section class="slide" data-section="4 · 4 ნაბიჯი">
   <div class="kicker">ჯილდო</div>
   <h2>ახლა გამოვიყენოთ — <span class="c-core">Program.cs</span></h2>
@@ -1040,8 +992,6 @@ i.codestep{display:none}
   </div>
   
 </section>
-
-<!-- 27. RECAP 4 STEPS -->
 <section class="slide" data-section="4 · 4 ნაბიჯი">
   <div class="kicker">შეჯამება</div>
   <h2>4 ნაბიჯი — ყოველ ახალ პროექტში</h2>
@@ -1054,8 +1004,6 @@ i.codestep{display:none}
   <div class="callout step mt2" style="--a:var(--mvc);font-size:26px;text-align:center;border-left:0;border-radius:16px;padding:22px">შემდეგ ყოველ ცვლილებაზე: <b>შეცვალე კლასი → Add-Migration → Update-Database</b></div>
   
 </section>
-
-<!-- ============ PART 5: PRACTICE ============ -->
 <section class="slide divider" data-section="5 · პრაქტიკა">
   <div class="vcenter">
     <div class="kicker in">ნაწილი 5</div>
@@ -1065,8 +1013,6 @@ i.codestep{display:none}
   <div class="big-num">05</div>
   
 </section>
-
-<!-- 28. I DO / WE DO / YOU DO -->
 <section class="slide" data-section="5 · პრაქტიკა">
   <div class="kicker">სამი რაუნდი</div>
   <h2>მე → ერთად → თქვენ</h2>
@@ -1078,8 +1024,6 @@ i.codestep{display:none}
   <div class="callout step mt2" style="--a:var(--asp)">წესი: <b>ჯერ ცდი თვითონ</b>, გაჭედე — გვერდით მჯდომს ჰკითხე, მერე — მე. შეცდომა ნორმალურია 🙂</div>
   
 </section>
-
-<!-- 29. WE DO -->
 <section class="slide" data-section="5 · პრაქტიკა">
   <div class="kicker">👥 ერთად ვაკეთებთ</div>
   <h2>LibraryDemo — ბიბლიოთეკა</h2>
@@ -1100,37 +1044,28 @@ i.codestep{display:none}
   </div>
   
 </section>
-
-<!-- 30. YOU DO -->
-<section class="slide" data-section="5 · პრაქტიკა">
-  <div class="kicker">🧑‍💻 თქვენ აკეთებთ · ~15 წთ</div>
+<section class="slide" data-section="პრაქტიკა">
+  <div class="kicker">🧑‍💻 თქვენ აკეთებთ · კლასში</div>
   <h2>SchoolDemo — დამოუკიდებლად</h2>
-  <div class="grid2" style="align-items:start">
-    <div class="card accent step left" style="--a:var(--mvc)">
-      <h3><span class="ico">📝</span>დავალება</h3>
+  <div class="grid2" style="grid-template-columns:1.5fr 1fr;align-items:start">
+    <div class="card accent step" style="--a:var(--mvc)">
+      <h3><span class="ico">📝</span>დავალება · ~15 წთ</h3>
       <ul class="clean small">
-        <li>პროექტი <b>SchoolDemo</b>, ბაზა <b>SchoolDb</b></li>
-        <li>Entity <code class="i">Student</code>: Id, FirstName, LastName, Age</li>
-        <li>4 ნაბიჯი — <b>სლაიდების გარეშე</b> 💪</li>
-        <li>Program.cs: დაამატე <b>3 სტუდენტი</b> და დაბეჭდე</li>
-      </ul>
-      <p class="tiny mt" style="margin-top:14px">✓ მზადაა, როცა SSMS-ში ჩანს SchoolDb → Students და კონსოლი 3 სტუდენტს ბეჭდავს</p>
+<li>პროექტი <strong>SchoolDemo</strong>, ბაზა <strong>SchoolDb</strong></li>
+<li>Entity <code class="i">Student</code>: <code class="i">Id</code>, <code class="i">FirstName</code>, <code class="i">LastName</code>, <code class="i">Age</code></li>
+<li>4 ნაბიჯი — სლაიდების გარეშე 💪</li>
+<li><code class="i">Program.cs</code>: დაამატე 3 სტუდენტი და დაბეჭდე</li>
+</ul>
+      <p class="tiny" style="margin-top:14px">✓ მზადაა, როცა: SSMS-ში ჩანს SchoolDb → Students, და კონსოლი 3 სტუდენტს ბეჭდავს</p>
     </div>
-    <div class="card accent step right" style="--a:var(--asp)">
-      <h3><span class="ico">⭐</span>ბონუსი — ვინც ადრე მორჩება</h3>
-      <ul class="clean small">
-        <li>დაამატე Entity <code class="i">Course</code>: Id, Title, Credits</li>
-        <li>DataContext-ში: <code class="i">DbSet&lt;Course&gt; Courses</code></li>
-        <li><code class="i">Add-Migration AddCourses</code> → <code class="i">Update-Database</code></li>
-        <li>SSMS: ახალი ცხრილი + <b>2 ჩანაწერი</b> __EFMigrationsHistory-ში</li>
-      </ul>
-    </div>
+    <div class="card accent step" style="--a:var(--asp)"><h3><span class="ico">⭐</span>ბონუსი</h3><ul class="clean small">
+<li>Entity <code class="i">Course</code>: <code class="i">Id</code>, <code class="i">Title</code>, <code class="i">Credits</code> · DataContext-ში <code class="i">DbSet&lt;Course&gt; Courses</code></li>
+<li><code class="i">Add-Migration AddCourses</code> → <code class="i">Update-Database</code> · SSMS: ახალი ცხრილი და 2 ჩანაწერი <code class="i">__EFMigrationsHistory</code>-ში</li>
+</ul></div>
   </div>
-  <div class="callout step mt" style="--a:var(--api)">გაჭედე? → შემდეგი სლაიდი: <b>ხშირი შეცდომები</b> და მათი გამოსწორება</div>
+  <div class="callout step mt" style="--a:var(--api)">წესი: <b>ჯერ ცდი თვითონ</b> → გვერდით მჯდომს ჰკითხე → მერე მე</div>
   
 </section>
-
-<!-- 31. COMMON ERRORS -->
 <section class="slide" data-section="5 · პრაქტიკა">
   <div class="kicker">გაჭედე?</div>
   <h2>ხშირი შეცდომები</h2>
@@ -1146,26 +1081,18 @@ i.codestep{display:none}
   <p class="tiny mt step fade" style="margin-top:16px">⚠ ყვითელი warning decimal-ზე („No store type was specified…“) — შეცდომა არ არის. მიგრაცია მაინც შეიქმნება, decimal(18,2)-ით.</p>
   
 </section>
-
-<!-- 32. QUIZ -->
 <section class="slide" data-section="შეჯამება">
   <div class="kicker">შევამოწმოთ</div>
   <h2>5 კითხვა</h2>
-  <div class="qa"><span class="n">1</span><span class="q">რა არის ORM და რას ნიშნავს მისი სამი ასო?</span><span class="a step">თარჯიმანი ობიექტებსა და ცხრილებს შორის · Object · Relational · Mapping</span></div>
-  <div class="qa"><span class="n">2</span><span class="q">რა შეესაბამება ბაზაში კლასს, property-ს და ობიექტს?</span><span class="a step">ცხრილი · სვეტი · ჩანაწერი</span></div>
-  <div class="qa"><span class="n">3</span><span class="q">რომელი 4 პაკეტი დავაყენეთ?</span><span class="a step">EF Core — ძრავი · .SqlServer — SQL Server · .Tools — VS-ის ბრძანებები · .Design — მიგრაციის გენერაცია</span></div>
-  <div class="qa"><span class="n">4</span><span class="q">რით განსხვავდება Add-Migration და Update-Database?</span><span class="a step">Add-Migration წერს ნახაზს (ფაილს) · Update-Database ცვლის ბაზას</span></div>
-  <div class="qa"><span class="n">5</span><span class="q">Add() გამოვიძახეთ, ბაზა კი ცარიელია. რატომ?</span><span class="a step">SaveChanges() არ გამოგვიძახებია</span></div>
+  <div class="qa"><span class="n">1</span><span class="q">რა არის ORM და რას ნიშნავს მისი სამი ასო?</span><span class="a step">თარჯიმანი ობიექტებსა და ცხრილებს შორის · Object · Relational · Mapping</span></div><div class="qa"><span class="n">2</span><span class="q">რა შეესაბამება ბაზაში კლასს, property-ს და ობიექტს?</span><span class="a step">ცხრილი · სვეტი · ჩანაწერი</span></div><div class="qa"><span class="n">3</span><span class="q">რომელი 4 პაკეტი დავაყენეთ?</span><span class="a step">EF Core — ძრავი · .SqlServer — SQL Server · .Tools — VS-ის ბრძანებები · .Design — მიგრაციის გენერაცია</span></div><div class="qa"><span class="n">4</span><span class="q">რით განსხვავდება <code class="i">Add-Migration</code> და <code class="i">Update-Database</code>?</span><span class="a step">Add-Migration წერს ნახაზს (ფაილს) · Update-Database ცვლის ბაზას</span></div><div class="qa"><span class="n">5</span><span class="q"><code class="i">Add()</code> გამოვიძახეთ, ბაზა კი ცარიელია. რატომ?</span><span class="a step"><code class="i">SaveChanges()</code> არ გამოგვიძახებია</span></div>
   
 </section>
-
-<!-- 33. FINAL -->
 <section class="slide" data-section="შეჯამება">
   <div class="vcenter" style="max-width:1000px">
     <div class="kicker in" style="color:var(--core)">დღეს</div>
     <h1 class="in" style="--d:.1s;font-size:66px">C# და ბაზა<br><span class="grad">ახლა ერთმანეთს იცნობენ</span> 🤝</h1>
     <div class="grid2 mt2">
-      <div class="card accent step" style="--a:var(--mvc)"><h3><span class="ico">🏠</span>საშინაო</h3><p class="small">SchoolDemo-ს ბონუსი, თუ ვერ მოასწარით: <b>Course</b> + მეორე მიგრაცია + 2 ჩანაწერი</p></div>
+      <div class="card accent step" style="--a:var(--mvc)"><h3><span class="ico">🧠</span>დაიმახსოვრე</h3><ul class="clean small"><li><b>ORM</b> — კლასი = ცხრილი, ობიექტი = ჩანაწერი</li><li><b>4 ნაბიჯი</b> — პაკეტები · DataContext · Connection · მიგრაცია</li><li><code class="i">Add</code> → მეხსიერება · <code class="i">SaveChanges</code> → ბაზა</li></ul></div>
       <div class="card accent step" style="--a:var(--api)"><h3><span class="ico">⏭️</span>შემდეგ ლექციაზე</h3><p class="small">CRUD სრულად: წაკითხვა, განახლება, წაშლა · ცხრილებს შორის <b>კავშირები</b></p></div>
     </div>
   </div>
@@ -1177,6 +1104,27 @@ i.codestep{display:none}
       <path d="M210 50 v60 a45 12 0 0 0 90 0 v-60" fill="#fef5e4" stroke="#d97706" stroke-width="3"/><ellipse cx="255" cy="50" rx="45" ry="12" fill="#fef5e4" stroke="#d97706" stroke-width="3"/><text x="255" y="98" text-anchor="middle" font-size="26">🗄️</text>
     </svg>
   </div>
+  
+</section>
+<section class="slide" data-section="საშინაო">
+  <div class="kicker">🏠 საშინაო დავალება</div>
+  <h2>SchoolDemo — კურსები და ახალი სვეტი</h2>
+  <div class="grid2" style="grid-template-columns:1.5fr 1fr;align-items:start">
+    <div class="card accent step" style="--a:var(--net)">
+      <h3><span class="ico">🏠</span>ორი ახალი მიგრაცია</h3>
+      <ul class="clean small">
+<li><code class="i">Course</code>: <code class="i">Id</code>, <code class="i">Title</code>, <code class="i">Credits</code> · <code class="i">Add-Migration AddCourses</code> (თუ კლასში ვერ მოასწარით)</li>
+<li><code class="i">Student</code>-ს დაამატეთ <code class="i">Email</code> → <code class="i">Add-Migration AddStudentEmail</code> → <code class="i">Update-Database</code></li>
+<li><code class="i">Program.cs</code>: 2 კურსი და Email-ები სტუდენტებისთვის · <code class="i">SaveChanges</code></li>
+<li>დაბეჭდეთ მხოლოდ 18+ სტუდენტები, ასაკით დალაგებული (<code class="i">Where</code> + <code class="i">OrderBy</code>)</li>
+</ul>
+      <p class="tiny" style="margin-top:14px">✓ მზადაა, როცა: <code>__EFMigrationsHistory</code>-ში 3 ჩანაწერია და SSMS-ში Students ცხრილს Email სვეტი აქვს</p>
+    </div>
+    <div class="card accent step" style="--a:var(--asp)"><h3><span class="ico">⭐</span>ბონუსი</h3><ul class="clean small">
+<li><code class="i">Remove-Migration</code> — შექმენით ზედმეტი მიგრაცია და <code class="i">Update-Database</code>-მდე წაშალეთ</li>
+</ul></div>
+  </div>
+  <div class="callout step mt" style="--a:var(--api)">შემდეგი ლექციის დასაწყისში ამ დავალებას <b>ერთად განვიხილავთ</b></div>
   
 </section>
 
