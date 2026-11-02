@@ -1,0 +1,1314 @@
+<!-- =========================================================
+     ლექცია 1 — Backend · API · საიტის მუშაობა · REST · .NET · პრაქტიკა
+     ========================================================= -->
+
+<!-- 1. TITLE -->
+<section class="slide" data-section="შესავალი">
+  <div class="vcenter" style="max-width:900px">
+    <div class="kicker in">ASP.NET Core Web API · ლექცია 1</div>
+    <h1 class="in" style="--d:.15s">Backend, API<br>და ჩვენი <span class="grad">პირველი Web API</span></h1>
+    <p class="lead in mt" style="--d:.35s">რატომ არსებობს Backend, როგორ ელაპარაკება საიტი სერვერს და როგორ ვწერთ ამას C#-ში</p>
+  </div>
+  <div class="abs" style="right:110px;top:200px">
+    <svg viewBox="0 0 460 500" width="460" height="500">
+      <g class="in" style="--d:.5s"><rect x="130" y="10" width="200" height="110" rx="18" class="box"/><text x="230" y="65" text-anchor="middle" font-size="40">💻</text><text x="230" y="102" text-anchor="middle" class="tw b" font-size="19">Frontend</text></g>
+      <g class="in" style="--d:.8s"><rect x="130" y="195" width="200" height="110" rx="18" fill="#1d1640" stroke="#8b6cff" stroke-width="3"/><text x="230" y="250" text-anchor="middle" font-size="40">⚙️</text><text x="230" y="287" text-anchor="middle" class="tn b" font-size="19">Backend / API</text></g>
+      <g class="in" style="--d:1.1s"><rect x="130" y="380" width="200" height="110" rx="18" class="box"/><text x="230" y="435" text-anchor="middle" font-size="40">🗄️</text><text x="230" y="472" text-anchor="middle" class="tw b" font-size="19">Database</text></g>
+      <g class="in fade" style="--d:1.3s"><path d="M220 120 V195" stroke="#22d3ee" stroke-width="3" class="flow"/><path d="M240 195 V120" stroke="#22c55e" stroke-width="3" class="flow"/><path d="M220 305 V380" stroke="#22d3ee" stroke-width="3" class="flow"/><path d="M240 380 V305" stroke="#22c55e" stroke-width="3" class="flow"/></g>
+    </svg>
+  </div>
+  <aside class="notes">
+⏱ 0:00 · 2 წთ
+~ სლაიდი ჯერ ღიაა, სანამ სტუდენტები სხდებიან. → არ დააჭირო.
+გამარჯობა! დღეს ჩვენი კურსის პირველი ლექციაა.
+ბოლოს თქვენი ხელით დაწერილი პირველი API გექნებათ — სერვერი, რომელსაც ნებისმიერი საიტი ან მობილური აპი შეიძლება მიუერთდეს.
+მაგრამ სანამ კოდს დავწერთ, უნდა გავიგოთ: რატომ? რატომ არსებობს Backend, რა არის API, როგორ ლაპარაკობს საიტი სერვერთან.
+მარჯვნივ ხედავთ დღევანდელ სურათს: Frontend, Backend და Database. ლექციის ბოლოს ამ სამი ყუთის ყოველი ისარი გასაგები იქნება.
+</aside>
+</section>
+
+<!-- 2. ROADMAP -->
+<section class="slide">
+  <div class="kicker">დღის გზა</div>
+  <h2>6 გაჩერება</h2>
+  <svg viewBox="0 0 1420 420" width="1420" height="420">
+    <path class="autodraw" style="--d:.2s" d="M80 210 C250 60 380 360 560 210 S880 60 1000 210 S1260 360 1360 210" stroke="#353b6b" stroke-width="4" fill="none" stroke-dasharray="10 10"/>
+    <g class="step zoom" style="transform-origin:80px 210px"><circle cx="80" cy="210" r="44" fill="#1d1640" stroke="#8b6cff" stroke-width="3"/><text x="80" y="226" text-anchor="middle" font-size="40">⚙️</text><text x="80" y="300" text-anchor="middle" class="tw b" font-size="21">Backend</text><text x="80" y="326" text-anchor="middle" class="tm" font-size="16">რა და რატომ</text></g>
+    <g class="step zoom" style="transform-origin:330px 200px"><circle cx="330" cy="200" r="44" fill="#0e2a33" stroke="#22d3ee" stroke-width="3"/><text x="330" y="216" text-anchor="middle" font-size="40">🤝</text><text x="330" y="120" text-anchor="middle" class="tw b" font-size="21">API</text><text x="330" y="94" text-anchor="middle" class="tm" font-size="16">რა და რატომ</text></g>
+    <g class="step zoom" style="transform-origin:560px 210px"><circle cx="560" cy="210" r="44" fill="#123321" stroke="#22c55e" stroke-width="3"/><text x="560" y="226" text-anchor="middle" font-size="40">🌐</text><text x="560" y="300" text-anchor="middle" class="tw b" font-size="21">როგორ მუშაობს საიტი</text><text x="560" y="326" text-anchor="middle" class="tm" font-size="16">Frontend ↔ Backend</text></g>
+    <g class="step zoom" style="transform-origin:790px 150px"><circle cx="790" cy="140" r="44" fill="#33240b" stroke="#f5a524" stroke-width="3"/><text x="790" y="156" text-anchor="middle" font-size="40">📮</text><text x="790" y="60" text-anchor="middle" class="tw b" font-size="21">REST</text><text x="790" y="36" text-anchor="middle" class="tm" font-size="16">5 მეთოდი</text></g>
+    <g class="step zoom" style="transform-origin:1000px 210px"><circle cx="1000" cy="210" r="44" fill="#2a1d4d" stroke="#8b6cff" stroke-width="3"/><text x="1000" y="226" text-anchor="middle" font-size="40">🟣</text><text x="1000" y="300" text-anchor="middle" class="tw b" font-size="21">.NET</text><text x="1000" y="326" text-anchor="middle" class="tm" font-size="16">პროექტის ტიპები</text></g>
+    <g class="step zoom" style="transform-origin:1360px 210px"><circle cx="1360" cy="210" r="50" fill="#0e2a33" stroke="#22d3ee" stroke-width="4" class="pulse"/><text x="1360" y="228" text-anchor="middle" font-size="44">⌨️</text><text x="1360" y="300" text-anchor="middle" class="ta b" font-size="21">პრაქტიკა</text><text x="1360" y="326" text-anchor="middle" class="tm" font-size="16">Visual Studio</text></g>
+  </svg>
+  <aside class="notes">
+⏱ 2 წთ
+დღეს ექვს გაჩერებას გავივლით. თითოეული წინაზე დგას — ერთიც რომ გამოტოვოთ, შემდეგი გაგიჭირდებათ.
+→ Backend
+ჯერ — რა არის Backend და რატომ ვერ გავძლებთ მის გარეშე.
+→ API
+შემდეგ — API: როგორ ელაპარაკება საიტი Backend-ს.
+→ როგორ მუშაობს საიტი
+შემდეგ ავაწყობთ სრულ სურათს: რა ხდება, როცა ღილაკს აჭერ.
+→ REST
+REST — წესები, რომლითაც API-ს ვაპროექტებთ, და ხუთი მეთოდი.
+→ .NET
+.NET — რა ხელსაწყოები გვაქვს და რომელს ვირჩევთ.
+→ პრაქტიკა
+და ბოლოს Visual Studio-ში დავწერთ ჩვენს პირველ API-ს.
+~ შემდეგ სლაიდზე გადასვლა: ისევ →.
+</aside>
+</section>
+
+<!-- ============ PART 1: BACKEND ============ -->
+<section class="slide divider" data-section="1 · Backend">
+  <div class="vcenter">
+    <div class="kicker in">ნაწილი 1</div>
+    <h1 class="in" style="--d:.1s">რა არის <span class="grad">Backend?</span></h1>
+    <p class="lead mt in" style="--d:.3s">და რატომ ვერ ავაწყობთ საიტს მის გარეშე</p>
+  </div>
+  <div class="big-num">01</div>
+  <aside class="notes">
+⏱ 0:04 · ნაწილი 1 (≈15 წთ)
+? დავიწყოთ კითხვით: რა გგონიათ, რას ნიშნავს „Backend“? ვინმემ თქვას თავისი სიტყვებით.
+~ მოუსმინე 2-3 პასუხს, არ შეასწორო. „კარგი, ვნახოთ“ და →.
+</aside>
+</section>
+
+<!-- 4. ICEBERG -->
+<section class="slide" data-section="1 · Backend">
+  <div class="kicker">აისბერგი</div>
+  <h2>რასაც ხედავ — და რასაც <span class="c-net">ვერ</span> ხედავ</h2>
+  <svg viewBox="0 0 1420 640" width="1420" height="640" style="margin-top:-20px">
+    <g class="in"><polygon points="560,40 700,10 860,60 900,180 520,180" fill="#e8ecff" opacity=".92"/><text x="710" y="120" text-anchor="middle" class="tw b" font-size="30">Frontend</text></g>
+    <g class="in" style="--d:.2s"><rect x="0" y="180" width="1420" height="460" fill="rgba(34,211,238,.06)"/><path d="M0 180 Q 60 170 120 180 T 240 180 T 360 180 T 480 180 T 600 180 T 720 180 T 840 180 T 960 180 T 1080 180 T 1200 180 T 1320 180 T 1440 180" stroke="#22d3ee" stroke-width="3" fill="none"/></g>
+    <g class="step fade"><polygon points="520,180 900,180 1080,330 1020,520 760,620 440,560 330,380" fill="#2a1d4d" stroke="#8b6cff" stroke-width="3"/>
+      <text x="710" y="280" text-anchor="middle" class="tn b" font-size="38">Backend</text></g>
+    <g class="step fade"><text x="930" y="80" class="tw" font-size="22">👆 ღილაკები, ფერები, ტექსტი, ფორმები</text></g>
+    <g class="step fade" font-size="22">
+      <text x="560" y="350" class="tw">🗄️ მონაცემების შენახვა</text>
+      <text x="560" y="395" class="tw">📏 წესები და ლოგიკა</text>
+      <text x="560" y="440" class="tw">🔐 ვინ ხარ და რა შეგიძლია</text>
+      <text x="560" y="485" class="tw">💳 გადახდა, ფოსტა, SMS</text>
+    </g>
+  </svg>
+  <aside class="notes">
+⏱ 2 წთ
+საიტი აისბერგს ჰგავს. ზემოთ პატარა ნაწილია — ის, რასაც მომხმარებელი ხედავს. ეს არის Frontend.
+→ Backend (წყლის ქვეშ)
+მაგრამ წყლის ქვეშ გაცილებით დიდი ნაწილია, რომელსაც ვერავინ ხედავს. ეს არის Backend.
+→ ზედა ნაწილის აღწერა
+Frontend — ღილაკები, ფერები, ტექსტი, ფორმები. ლამაზი და ხილული.
+→ Backend-ის საქმეები
+Backend კი ინახავს მონაცემებს, ამოწმებს წესებს, ამოწმებს ვინ ხარ და რისი უფლება გაქვს, და ელაპარაკება ბანკს, ფოსტას, SMS სერვისს.
+! მთავარი: რასაც ეკრანზე ხედავთ, ეს საიტის მხოლოდ პატარა ნაწილია.
+</aside>
+</section>
+
+<!-- 5. WITHOUT BACKEND -->
+<section class="slide" data-section="1 · Backend">
+  <div class="kicker">ექსპერიმენტი</div>
+  <h2>ონლაინ მაღაზია <span class="c-red">Backend-ის გარეშე</span></h2>
+  <div class="grid2">
+    <div class="card" style="border-color:rgba(244,63,94,.4)"><h3 class="c-red">❌ მხოლოდ ბრაუზერი</h3>
+      <svg viewBox="0 0 620 380" width="100%" height="380">
+        <rect x="10" y="20" width="270" height="230" rx="14" class="box"/><text x="145" y="70" text-anchor="middle" font-size="34">👩 ანა</text>
+        <text x="145" y="115" text-anchor="middle" class="tm" font-size="17">მარაგში: 1 ლეპტოპი</text>
+        <rect x="340" y="20" width="270" height="230" rx="14" class="box"/><text x="475" y="70" text-anchor="middle" font-size="34">👨 გიორგი</text>
+        <text x="475" y="115" text-anchor="middle" class="tm" font-size="17">მარაგში: 1 ლეპტოპი</text>
+        <g class="step fade"><rect x="55" y="140" width="180" height="44" rx="10" fill="#22c55e"/><text x="145" y="169" text-anchor="middle" class="td" font-size="17">✓ ვიყიდე!</text></g>
+        <g class="step fade" data-with><rect x="385" y="140" width="180" height="44" rx="10" fill="#22c55e"/><text x="475" y="169" text-anchor="middle" class="td" font-size="17">✓ ვიყიდე!</text></g>
+        <g class="step fade"><text x="310" y="300" text-anchor="middle" class="tr b" font-size="22">😱 გაიყიდა 2 ლეპტოპი — მარაგში 1 იყო</text>
+          <text x="310" y="340" text-anchor="middle" class="tm" font-size="17">თითოეულს თავისი „ასლი“ აქვს, საერთო არაფერია</text></g>
+      </svg></div>
+    <div class="card" style="border-color:rgba(34,197,94,.4)"><h3 class="c-mvc">✅ Backend-ით</h3>
+      <svg viewBox="0 0 620 380" width="100%" height="380">
+        <rect x="10" y="20" width="180" height="110" rx="14" class="box"/><text x="100" y="80" text-anchor="middle" font-size="30">👩 ანა</text>
+        <rect x="430" y="20" width="180" height="110" rx="14" class="box"/><text x="520" y="80" text-anchor="middle" font-size="30">👨 გიორგი</text>
+        <rect x="200" y="210" width="220" height="130" rx="16" fill="#1d1640" stroke="#8b6cff" stroke-width="3"/><text x="310" y="255" text-anchor="middle" class="tn b" font-size="20">⚙️ სერვერი</text>
+        <text x="310" y="300" text-anchor="middle" class="tw mono step fade" font-size="20" id="stock1">მარაგი: 1</text>
+        <g class="step fade"><path d="M100 130 C100 190 200 230 210 240" stroke="#22d3ee" stroke-width="3" fill="none"/><text x="20" y="235" class="ta" font-size="16">① ვყიდულობ</text></g>
+        <g class="trigger" data-hide="#stock1"></g>
+        <g class="step fade" data-with><text x="310" y="300" text-anchor="middle" class="tr mono b" font-size="20">მარაგი: 0</text><text x="100" y="160" text-anchor="middle" class="tg b" font-size="17">✓ შენია!</text></g>
+        <g class="step fade"><path d="M520 130 C520 190 420 230 410 240" stroke="#22d3ee" stroke-width="3" fill="none"/><text x="500" y="235" class="ta" font-size="16">② ვყიდულობ</text>
+          <text x="520" y="160" text-anchor="middle" class="tr b" font-size="16">✗ ამოიწურა</text></g>
+      </svg></div>
+  </div>
+  <aside class="notes">
+⏱ 4 წთ
+მოდით ექსპერიმენტი ჩავატაროთ. ავაწყოთ ონლაინ მაღაზია მხოლოდ ბრაუზერში, Backend-ის გარეშე.
+მარცხნივ: ანა და გიორგი, თითოეული საკუთარ კომპიუტერთან. ორივე ხედავს — მარაგში 1 ლეპტოპია.
+→ ორივე აჭერს „ვიყიდე“
+ორივემ ერთდროულად დააჭირა „ვიყიდე“. და ორივეს ეუბნება — წარმატებით!
+→ პრობლემა
+გაიყიდა ორი ლეპტოპი, მარაგში კი ერთი იყო. რატომ? იმიტომ, რომ ბრაუზერის კოდი თითოეულის კომპიუტერზე მუშაობს — ანას ბრაუზერმა არ იცის, რა ხდება გიორგისთან.
+? როგორ გამოვასწოროთ? ~ (სწორი პასუხი: საჭიროა ერთი საერთო ადგილი)
+→ (მარჯვნივ) სერვერი — მარაგი: 1
+სწორედ. საჭიროა ერთი საერთო ადგილი ყველასთვის — სერვერი. მარაგი ახლა ინახება იქ, ერთ ადგილას.
+→ ანა ყიდულობს
+ანა აგზავნის: ვყიდულობ.
+→ მარაგი 0, ანას „შენია!“
+სერვერი ამოწმებს: მარაგი 1-ია, კარგი — ყიდის, მარაგი ხდება 0.
+→ გიორგი — „ამოიწურა“
+გიორგი იგივეს აგზავნის, მაგრამ სერვერი ამოწმებს — მარაგი 0-ია, უარი.
+! Backend = ერთი საერთო ადგილი, სადაც მონაცემი და წესები ცხოვრობს.
+~ ბონუსი (თუ დრო გაქვს): ბრაუზერში კოდს ნებისმიერი შეცვლის DevTools-ით — ფასსაც კი. ამიტომ წესებს ბრაუზერს ვერ ვანდობთ.
+</aside>
+</section>
+
+<!-- 6. BACKEND JOBS -->
+<section class="slide" data-section="1 · Backend">
+  <div class="kicker">Backend-ის სამუშაო</div>
+  <h2>4 მთავარი მოვალეობა</h2>
+  <div class="grid4" style="margin-top:40px">
+    <div class="card accent step zoom" style="--a:var(--asp);text-align:center"><div class="big-emoji">🗄️</div><h3 class="mt" style="justify-content:center">ინახავს</h3><p>მონაცემებს — მომხმარებლები, პროდუქტები, შეკვეთები</p></div>
+    <div class="card accent step zoom" style="--a:var(--net);text-align:center"><div class="big-emoji">📏</div><h3 class="mt" style="justify-content:center">ამოწმებს</h3><p>წესებს — „მარაგი 0-ზე ნაკლები ვერ იქნება“</p></div>
+    <div class="card accent step zoom" style="--a:var(--red);text-align:center"><div class="big-emoji">🔐</div><h3 class="mt" style="justify-content:center">იცავს</h3><p>ვინ ხარ? რის უფლება გაქვს?</p></div>
+    <div class="card accent step zoom" style="--a:var(--api);text-align:center"><div class="big-emoji">🔌</div><h3 class="mt" style="justify-content:center">აკავშირებს</h3><p>ბანკს, ფოსტას, SMS-ს, სხვა სერვისებს</p></div>
+  </div>
+  <div class="callout step mt2" style="--a:var(--net);font-size:26px">Backend = პროგრამა, რომელიც <b>სერვერზე</b> მუშაობს და ყველა მომხმარებლისთვის <b>ერთია</b>.</div>
+  <aside class="notes">
+⏱ 2 წთ
+შევაჯამოთ, რას აკეთებს Backend. ოთხი მთავარი საქმე:
+→ ინახავს
+ინახავს მონაცემებს: მომხმარებლებს, პროდუქტებს, შეკვეთებს.
+→ ამოწმებს
+ამოწმებს წესებს — მაგალითად, მარაგი უარყოფითი ვერ გახდება. ზუსტად ის, რაც წინა სლაიდზე ვნახეთ.
+→ იცავს
+იცავს: ვინ ხარ? შეგიძლია ამის გაკეთება? მაგალითად, სხვისი შეკვეთა ვერ ნახო.
+→ აკავშირებს
+აკავშირებს სხვა სერვისებთან: ბარათით გადახდა ბანკთან მიდის, დადასტურების კოდი SMS სერვისთან.
+→ განმარტება
+! Backend არის პროგრამა, რომელიც სერვერზე მუშაობს და ყველა მომხმარებლისთვის ერთია.
+? მაგალითი: ბანკის აპში გადარიცხვას აკეთებთ — რომელ ოთხივეს აკეთებს აქ Backend?
+</aside>
+</section>
+
+<!-- 7. RESTAURANT -->
+<section class="slide" data-section="1 · Backend">
+  <div class="kicker">ანალოგია</div>
+  <h2>საიტი = <span class="c-asp">რესტორანი</span> 🍽️</h2>
+  <svg viewBox="0 0 1420 520" width="1420" height="520">
+    <g class="step left"><rect x="10" y="60" width="380" height="330" rx="22" fill="#151935" stroke="#ec4899" stroke-width="3"/><text x="200" y="160" text-anchor="middle" font-size="70">🪑</text><text x="200" y="240" text-anchor="middle" class="tw b" font-size="28">დარბაზი</text><text x="200" y="290" text-anchor="middle" font-size="24" style="fill:#ec4899;font-weight:800">= Frontend</text><text x="200" y="330" text-anchor="middle" class="tm" font-size="17">ლამაზი, სტუმარი აქ ზის</text></g>
+    <g class="step fade"><rect x="440" y="150" width="200" height="150" rx="22" fill="#0e2a33" stroke="#22d3ee" stroke-width="3" stroke-dasharray="8 6"/><text x="540" y="215" text-anchor="middle" font-size="54">🤵</text><text x="540" y="275" text-anchor="middle" class="ta b" font-size="22">მიმტანი = ?</text></g>
+    <g class="step right"><rect x="690" y="60" width="380" height="330" rx="22" fill="#1d1640" stroke="#8b6cff" stroke-width="3"/><text x="880" y="160" text-anchor="middle" font-size="70">👨‍🍳</text><text x="880" y="240" text-anchor="middle" class="tw b" font-size="28">სამზარეულო</text><text x="880" y="290" text-anchor="middle" class="tn b" font-size="24">= Backend</text><text x="880" y="330" text-anchor="middle" class="tm" font-size="17">სტუმარი აქ ვერ შედის</text></g>
+    <g class="step right"><rect x="1110" y="60" width="300" height="330" rx="22" fill="#33240b" stroke="#f5a524" stroke-width="3"/><text x="1260" y="160" text-anchor="middle" font-size="70">🧊</text><text x="1260" y="240" text-anchor="middle" class="tw b" font-size="28">საწყობი</text><text x="1260" y="290" text-anchor="middle" class="to b" font-size="24">= Database</text><text x="1260" y="330" text-anchor="middle" class="tm" font-size="17">პროდუქტები ინახება</text></g>
+    <g class="step fade"><text x="710" y="470" text-anchor="middle" class="tw" font-size="24">სტუმარი სამზარეულოში არ შედის. მაშ როგორ შეუკვეთოს? → <tspan class="ta b">ნაწილი 2</tspan></text></g>
+  </svg>
+  <aside class="notes">
+⏱ 3 წთ
+ახლა ერთი ანალოგია, რომელსაც მთელი ლექციის განმავლობაში გამოვიყენებთ. საიტი = რესტორანი.
+→ დარბაზი = Frontend
+დარბაზი — ლამაზი, მყუდრო. სტუმარი აქ ზის. ეს არის Frontend.
+→ მიმტანი = ?
+ამ კითხვის ნიშანს ცოტა ხანში დავუბრუნდებით.
+→ სამზარეულო = Backend
+სამზარეულო — სადაც რეალური საქმე კეთდება. სტუმარი აქ ვერ შევა. ეს არის Backend.
+→ საწყობი = Database
+საწყობი — სადაც პროდუქტები ინახება. ეს არის ბაზა, რომელსაც ბაზების კურსიდან იცნობთ.
+→ კითხვა
+! სტუმარი სამზარეულოში ვერ შედის. მაშ როგორ შეუკვეთოს?
+? ვინ აკავშირებს სტუმარს სამზარეულოსთან? ~ (მიმტანი) — ზუსტად, და ეს არის API.
+</aside>
+</section>
+
+<!-- ============ PART 2: API ============ -->
+<section class="slide divider" data-section="2 · API">
+  <div class="vcenter">
+    <div class="kicker in">ნაწილი 2</div>
+    <h1 class="in" style="--d:.1s">რა არის <span class="grad">API?</span></h1>
+    <p class="lead mt in" style="--d:.3s">მიმტანი, რომელიც Frontend-სა და Backend-ს აკავშირებს</p>
+  </div>
+  <div class="big-num">02</div>
+  <aside class="notes">
+⏱ 0:19 · ნაწილი 2 (≈15 წთ)
+ასე რომ, მიმტანი არის API. ვნახოთ, რას აკეთებს.
+</aside>
+</section>
+
+<!-- 9. WAITER ANIMATION -->
+<section class="slide" data-section="2 · API">
+  <div class="kicker">API = მიმტანი</div>
+  <h2>შეკვეთა მიდის — კერძი მოდის</h2>
+  <svg viewBox="0 0 1420 470" width="1420" height="470">
+    <g class="in"><rect x="10" y="120" width="290" height="220" rx="20" fill="#151935" stroke="#ec4899" stroke-width="3"/><text x="155" y="210" text-anchor="middle" font-size="64">🙋</text><text x="155" y="280" text-anchor="middle" class="tw b" font-size="22">სტუმარი</text><text x="155" y="310" text-anchor="middle" font-size="17" style="fill:#ec4899">Frontend</text></g>
+    <g class="in" style="--d:.15s"><rect x="560" y="120" width="300" height="220" rx="20" fill="#0e2a33" stroke="#22d3ee" stroke-width="3"/><text x="710" y="210" text-anchor="middle" font-size="64">🤵</text><text x="710" y="280" text-anchor="middle" class="tw b" font-size="22">მიმტანი</text><text x="710" y="310" text-anchor="middle" class="ta b" font-size="17">API</text></g>
+    <g class="in" style="--d:.3s"><rect x="1120" y="120" width="290" height="220" rx="20" fill="#1d1640" stroke="#8b6cff" stroke-width="3"/><text x="1265" y="210" text-anchor="middle" font-size="64">👨‍🍳</text><text x="1265" y="280" text-anchor="middle" class="tw b" font-size="22">სამზარეულო</text><text x="1265" y="310" text-anchor="middle" class="tn" font-size="17">Backend</text></g>
+    <g class="step fade">
+      <path d="M300 190 H560" stroke="#22d3ee" stroke-width="3" class="flow"/><path d="M860 190 H1120" stroke="#22d3ee" stroke-width="3" class="flow"/>
+      <g><rect x="-80" y="-22" width="160" height="44" rx="10" fill="#22d3ee"/><text x="0" y="8" text-anchor="middle" class="td" font-size="19">📝 ხაჭაპური</text>
+        <animateMotion dur="2.4s" begin="indefinite" fill="freeze" path="M380 150 H1040"/></g>
+      <text x="710" y="80" text-anchor="middle" class="ta" font-size="20">① მოთხოვნა (Request)</text>
+    </g>
+    <g class="step fade">
+      <path d="M1120 280 H860" stroke="#22c55e" stroke-width="3" class="flow"/><path d="M560 280 H300" stroke="#22c55e" stroke-width="3" class="flow"/>
+      <g><rect x="-80" y="-22" width="160" height="44" rx="10" fill="#22c55e"/><text x="0" y="8" text-anchor="middle" class="td" font-size="19">🍽️ კერძი</text>
+        <animateMotion dur="2.4s" begin="indefinite" fill="freeze" path="M1040 380 H380"/></g>
+      <text x="710" y="440" text-anchor="middle" class="tg" font-size="20">② პასუხი (Response)</text>
+    </g>
+  </svg>
+  <div class="grid2 step">
+    <div class="callout" style="--a:var(--api)">სტუმარმა <b>არ იცის</b>, როგორ მზადდება კერძი — და არც სჭირდება.</div>
+    <div class="callout" style="--a:var(--asp)">სამზარეულო <b>არ იცნობს</b> სტუმარს — მხოლოდ შეკვეთას ხედავს.</div>
+  </div>
+  <aside class="notes">
+⏱ 3 წთ
+სტუმარს ხაჭაპური უნდა.
+→ შეკვეთა მიდის
+სტუმარი მიმტანს ეუბნება, მიმტანი შეკვეთას სამზარეულოში მიიტანს. ამას ჰქვია მოთხოვნა — Request.
+→ კერძი ბრუნდება
+სამზარეულო ამზადებს, მიმტანი კერძს უკან მოიტანს. ეს არის პასუხი — Response.
+→ ორი ბლოკი ქვემოთ
+! სტუმარმა არ იცის, როგორ მზადდება კერძი — და არც სჭირდება. სამზარეულო სტუმარს არ იცნობს — მხოლოდ შეკვეთას ხედავს.
+Frontend-საც არ აინტერესებს, რა ბაზაა ან რა ენაზეა Backend დაწერილი. მას მხოლოდ შეკვეთის გაგზავნა და პასუხის მიღება სჭირდება.
+</aside>
+</section>
+
+<!-- 10a. WAITER ROUTES ORDERS -->
+<section class="slide" data-section="2 · API">
+  <div class="kicker">მიმტანმა იცის, ვის მიუტანოს</div>
+  <h2>ყოველ შეკვეთას — <span class="c-asp">თავისი მზარეული</span></h2>
+  <svg viewBox="0 0 1420 560" width="1420" height="560">
+    <g class="in"><rect x="20" y="170" width="250" height="220" rx="20" fill="#0e2a33" stroke="#22d3ee" stroke-width="3"/><text x="145" y="265" text-anchor="middle" font-size="64">🤵</text><text x="145" y="330" text-anchor="middle" class="tw b" font-size="22">მიმტანი</text><text x="145" y="360" text-anchor="middle" class="ta b" font-size="17">API</text></g>
+    <g class="in" style="--d:.15s">
+      <rect x="1000" y="20" width="400" height="140" rx="18" fill="#1d1640" stroke="#8b6cff" stroke-width="2"/><text x="1030" y="105" font-size="48">👩‍🍳</text><text x="1110" y="85" class="tw b" font-size="22">თონე</text><text x="1110" y="118" class="tm" font-size="17">აცხობს ხაჭაპურს</text>
+      <rect x="1000" y="210" width="400" height="140" rx="18" fill="#1d1640" stroke="#8b6cff" stroke-width="2"/><text x="1030" y="295" font-size="48">👨‍🍳</text><text x="1110" y="275" class="tw b" font-size="22">ცივი კერძები</text><text x="1110" y="308" class="tm" font-size="17">ამზადებს სალათს</text>
+      <rect x="1000" y="400" width="400" height="140" rx="18" fill="#1d1640" stroke="#8b6cff" stroke-width="2"/><text x="1030" y="485" font-size="48">💵</text><text x="1110" y="465" class="tw b" font-size="22">სალარო</text><text x="1110" y="498" class="tm" font-size="17">ითვლის ანგარიშს</text>
+    </g>
+    <g class="step fade">
+      <path d="M270 230 C600 230 700 90 1000 90" stroke="#f5a524" stroke-width="3" fill="none" class="flow"/>
+      <g><rect x="-85" y="-20" width="170" height="40" rx="10" fill="#f5a524"/><text x="0" y="7" text-anchor="middle" class="td" font-size="18">„ხაჭაპური“</text>
+        <animateMotion dur="1.6s" begin="indefinite" fill="freeze" path="M360 230 C600 230 700 90 900 90"/></g>
+    </g>
+    <g class="step fade">
+      <path d="M270 280 H1000" stroke="#22c55e" stroke-width="3" fill="none" class="flow"/>
+      <g><rect x="-85" y="-20" width="170" height="40" rx="10" fill="#22c55e"/><text x="0" y="7" text-anchor="middle" class="td" font-size="18">„სალათი“</text>
+        <animateMotion dur="1.6s" begin="indefinite" fill="freeze" path="M360 280 H900"/></g>
+    </g>
+    <g class="step fade">
+      <path d="M270 330 C600 330 700 470 1000 470" stroke="#ec4899" stroke-width="3" fill="none" class="flow"/>
+      <g><rect x="-85" y="-20" width="170" height="40" rx="10" fill="#ec4899"/><text x="0" y="7" text-anchor="middle" class="td" font-size="18">„ანგარიში“</text>
+        <animateMotion dur="1.6s" begin="indefinite" fill="freeze" path="M360 330 C600 330 700 470 900 470"/></g>
+    </g>
+  </svg>
+  <div class="callout step" style="--a:var(--api);font-size:24px">მიმტანი თვითონ არ ამზადებს — ის <b>სწორ ადგილას</b> მიაქვს შეკვეთა. API-შიც ასეა: ყოველ მოთხოვნას <b>თავისი ადგილი</b> აქვს.</div>
+  <aside class="notes">
+⏱ 3 წთ
+მაგრამ სტუმარი ერთ რამეს არ უკვეთავს. და სამზარეულოში ყველაფერს ერთი მზარეული არ აკეთებს.
+→ „ხაჭაპური“ → თონე
+ხაჭაპურის შეკვეთა მიმტანს თონესთან მიაქვს.
+→ „სალათი“ → ცივი კერძები
+სალათი — ცივი კერძების მზარეულთან.
+→ „ანგარიში“ → სალარო
+ანგარიში — სალაროში, საერთოდ არა სამზარეულოში.
+→ დასკვნა
+! მიმტანი თვითონ არაფერს ამზადებს. მან იცის: რომელი თხოვნა სად წაიღოს.
+API-შიც ასეა — ყოველ მოთხოვნას თავისი ადგილი აქვს. ვნახოთ, როგორ გამოიყურება ეს რეალურად.
+</aside>
+</section>
+
+<!-- 10b. API = MANY ENDPOINTS -->
+<section class="slide" data-section="2 · API">
+  <div class="kicker">Endpoint</div>
+  <h2>API შედგება <span class="c-api">Endpoint</span>-ებისგან</h2>
+  <svg viewBox="0 0 1420 520" width="1420" height="520">
+    <text x="130" y="30" text-anchor="middle" class="tm b" font-size="18">Frontend</text>
+    <text x="560" y="30" text-anchor="middle" class="ta b" font-size="18">API · Endpoint-ები</text>
+    <text x="1150" y="30" text-anchor="middle" class="tn b" font-size="18">Backend · ფუნქციები</text>
+    <g class="in"><rect x="20" y="170" width="220" height="180" rx="18" class="box"/><text x="130" y="260" text-anchor="middle" font-size="50">💻</text><text x="130" y="310" text-anchor="middle" class="tw b" font-size="19">საიტი</text></g>
+    <g class="in" style="--d:.1s">
+      <rect x="370" y="50" width="380" height="450" rx="20" fill="none" stroke="#22d3ee" stroke-width="2" stroke-dasharray="8 6"/>
+      <g class="mono" font-size="19">
+        <rect x="395" y="75" width="330" height="80" rx="12" fill="#0e2a33" stroke="#22d3ee" stroke-width="2"/><text x="415" y="108" class="tg b">GET</text><text x="480" y="108" class="tw">/api/products</text><text x="415" y="138" class="tm" font-size="15">პროდუქტების სია</text>
+        <rect x="395" y="175" width="330" height="80" rx="12" fill="#0e2a33" stroke="#22d3ee" stroke-width="2"/><text x="415" y="208" class="tg b">GET</text><text x="480" y="208" class="tw">/api/products/5</text><text x="415" y="238" class="tm" font-size="15">ერთი პროდუქტი</text>
+        <rect x="395" y="275" width="330" height="80" rx="12" fill="#0e2a33" stroke="#22d3ee" stroke-width="2"/><text x="415" y="308" class="to b">POST</text><text x="490" y="308" class="tw">/api/orders</text><text x="415" y="338" class="tm" font-size="15">შეკვეთის გაკეთება</text>
+        <rect x="395" y="375" width="330" height="80" rx="12" fill="#0e2a33" stroke="#22d3ee" stroke-width="2"/><text x="415" y="408" class="tg b">GET</text><text x="480" y="408" class="tw">/api/cart</text><text x="415" y="438" class="tm" font-size="15">ჩემი კალათა</text>
+      </g>
+    </g>
+    <g class="in mono" style="--d:.2s" font-size="20">
+      <rect x="960" y="75" width="380" height="80" rx="12" fill="#1d1640" stroke="#8b6cff" stroke-width="2"/><text x="985" y="122" class="tn">GetAllProducts()</text>
+      <rect x="960" y="175" width="380" height="80" rx="12" fill="#1d1640" stroke="#8b6cff" stroke-width="2"/><text x="985" y="222" class="tn">GetProduct(id)</text>
+      <rect x="960" y="275" width="380" height="80" rx="12" fill="#1d1640" stroke="#8b6cff" stroke-width="2"/><text x="985" y="322" class="tn">CreateOrder(order)</text>
+      <rect x="960" y="375" width="380" height="80" rx="12" fill="#1d1640" stroke="#8b6cff" stroke-width="2"/><text x="985" y="422" class="tn">GetCart(userId)</text>
+    </g>
+    <g class="step fade">
+      <g stroke="#353b6b" stroke-width="2.5" fill="none"><path d="M725 115 H960"/><path d="M725 215 H960"/><path d="M725 315 H960"/><path d="M725 415 H960"/></g>
+      <text x="842" y="103" text-anchor="middle" class="tm" font-size="15">იძახებს →</text>
+    </g>
+    <g class="step fade">
+      <path d="M240 230 C310 230 320 115 395 115" stroke="#22d3ee" stroke-width="3" fill="none"/>
+      <rect x="395" y="75" width="330" height="80" rx="12" fill="none" stroke="#22d3ee" stroke-width="4" class="pulse"/>
+      <rect x="960" y="75" width="380" height="80" rx="12" fill="rgba(139,108,255,.25)" stroke="#8b6cff" stroke-width="4"/>
+      <g><circle r="12" fill="#22d3ee"/><animateMotion dur="2.4s" begin="indefinite" fill="freeze" path="M240 230 C310 230 320 115 395 115 H960"/></g>
+    </g>
+    <g class="step fade">
+      <path d="M240 290 C310 290 320 315 395 315" stroke="#f5a524" stroke-width="3" fill="none"/>
+      <rect x="395" y="275" width="330" height="80" rx="12" fill="none" stroke="#f5a524" stroke-width="4" class="pulse"/>
+      <rect x="960" y="275" width="380" height="80" rx="12" fill="rgba(245,165,36,.2)" stroke="#f5a524" stroke-width="4"/>
+      <g><circle r="12" fill="#f5a524"/><animateMotion dur="2.4s" begin="indefinite" fill="freeze" path="M240 290 C310 290 320 315 395 315 H960"/></g>
+    </g>
+  </svg>
+  <div class="callout step" style="--a:var(--api);font-size:24px"><b>Endpoint</b> = <b>მეთოდი + მისამართი</b> ერთი კონკრეტული მიზნით. მოთხოვნა მოდის Endpoint-ზე → Endpoint Backend-ში შესაბამის <b>ფუნქციას</b> ააქტიურებს.</div>
+  <aside class="notes">
+⏱ 4 წთ · ! ერთ-ერთი მთავარი სლაიდი, ნელა
+აი, რეალური API. სამი სვეტი: მარცხნივ საიტი, შუაში API, მარჯვნივ Backend-ის კოდი.
+შუა სვეტს დააკვირდით. API ერთი დიდი კარი არ არის — ეს ბევრი პატარა კარია. თითოეულ კარს ჰქვია Endpoint.
+თითოეულ Endpoint-ს აქვს: მეთოდი (GET, POST) + მისამართი (/api/products) + ერთი კონკრეტული მიზანი.
+პირველი — პროდუქტების სია. მეორე — ერთი პროდუქტი. მესამე — შეკვეთის გაკეთება. მეოთხე — ჩემი კალათა.
+→ კავშირები („იძახებს“)
+ყოველი Endpoint მიბმულია Backend-ში ერთ ფუნქციაზე. ეს ფუნქციები ჩვენ დავწერთ C#-ში.
+→ მოთხოვნა #1
+საიტს პროდუქტების სია სჭირდება. აგზავნის მოთხოვნას GET /api/products-ზე. ეს Endpoint ანთდება და Backend-ში იძახებს ფუნქციას GetAllProducts().
+→ მოთხოვნა #2
+მომხმარებელმა „შეკვეთა“ დააჭირა. საიტი აგზავნის POST /api/orders-ს — ეს უკვე სხვა კარია, და ის სხვა ფუნქციას იძახებს: CreateOrder().
+→ განმარტება
+! Endpoint = მეთოდი + მისამართი. მოთხოვნა მოდის Endpoint-ზე → Endpoint Backend-ში შესაბამის ფუნქციას ააქტიურებს.
+? რესტორანთან დავაკავშიროთ: რა არის აქ „ხაჭაპური → თონე“? ~ (Endpoint → ფუნქცია)
+~ ეს სლაიდი დაიმახსოვრე — პრაქტიკაში app.MapGet(...) ზუსტად ერთი ასეთი Endpoint-ია, და იქ ამ სლაიდზე მიუთითებ.
+</aside>
+</section>
+
+<!-- 11. API DEFINITION -->
+<section class="slide" data-section="2 · API">
+  <div class="kicker">განმარტება</div>
+  <h2>API — სიტყვა-სიტყვით</h2>
+  <div class="grid3" style="margin-top:30px">
+    <div class="card accent step zoom" style="--a:var(--api);text-align:center"><div class="verb">A</div><h3 style="justify-content:center">Application</h3><p>პროგრამა</p></div>
+    <div class="card accent step zoom" style="--a:var(--net);text-align:center"><div class="verb">P</div><h3 style="justify-content:center">Programming</h3><p>პროგრამირების</p></div>
+    <div class="card accent step zoom" style="--a:var(--mvc);text-align:center"><div class="verb">I</div><h3 style="justify-content:center">Interface</h3><p>ინტერფეისი — „შეხების წერტილი“</p></div>
+  </div>
+  <div class="callout step mt2" style="--a:var(--api);font-size:30px;text-align:center;border-radius:14px;border-left:0">API = <b>წესები</b>, რომლითაც ერთი პროგრამა <b>ელაპარაკება</b> მეორეს</div>
+  <aside class="notes">
+⏱ 1 წთ
+თავად სიტყვა API ასე იშიფრება:
+→ A — Application · პროგრამა
+→ P — Programming · პროგრამირების
+→ I — Interface · ინტერფეისი, „შეხების წერტილი“
+→ განმარტება
+! API = წესები, რომლითაც ერთი პროგრამა ელაპარაკება მეორეს.
+ადამიანი პროგრამას ღილაკებით ელაპარაკება — ეს UI-ა. პროგრამა სხვა პროგრამას API-ით ელაპარაკება.
+</aside>
+</section>
+
+<!-- 12. ONE API MANY CLIENTS -->
+<section class="slide" data-section="2 · API">
+  <div class="kicker">რატომ არსებობს API?</div>
+  <h2>ერთი Backend — <span class="c-api">ბევრი კლიენტი</span></h2>
+  <svg viewBox="0 0 1420 520" width="1420" height="520">
+    <g class="in"><circle cx="710" cy="270" r="130" fill="#1d1640" stroke="#8b6cff" stroke-width="4"/><text x="710" y="260" text-anchor="middle" font-size="54">⚙️</text><text x="710" y="315" text-anchor="middle" class="tn b" font-size="24">ერთი API</text></g>
+    <g class="step fade"><rect x="40" y="60" width="300" height="110" rx="18" class="box"/><text x="190" y="110" text-anchor="middle" font-size="34">💻</text><text x="190" y="150" text-anchor="middle" class="tw b" font-size="20">ვებ საიტი</text><path d="M340 120 C460 120 520 200 590 220" stroke="#22d3ee" stroke-width="3" fill="none" class="flow"/></g>
+    <g class="step fade"><rect x="40" y="360" width="300" height="110" rx="18" class="box"/><text x="190" y="410" text-anchor="middle" font-size="34">📱</text><text x="190" y="450" text-anchor="middle" class="tw b" font-size="20">მობილური აპი</text><path d="M340 410 C460 410 520 340 590 320" stroke="#22d3ee" stroke-width="3" fill="none" class="flow"/></g>
+    <g class="step fade"><rect x="1080" y="60" width="300" height="110" rx="18" class="box"/><text x="1230" y="110" text-anchor="middle" font-size="34">⌚</text><text x="1230" y="150" text-anchor="middle" class="tw b" font-size="20">სმარტ საათი</text><path d="M1080 120 C960 120 900 200 830 220" stroke="#22d3ee" stroke-width="3" fill="none" class="flow"/></g>
+    <g class="step fade"><rect x="1080" y="360" width="300" height="110" rx="18" class="box"/><text x="1230" y="410" text-anchor="middle" font-size="34">🏦</text><text x="1230" y="450" text-anchor="middle" class="tw b" font-size="20">სხვა კომპანია</text><path d="M1080 410 C960 410 900 340 830 320" stroke="#22d3ee" stroke-width="3" fill="none" class="flow"/></g>
+  </svg>
+  <div class="callout step" style="--a:var(--mvc);font-size:24px">ლოგიკა იწერება <b>ერთხელ</b> — და ყველა კლიენტი ერთსა და იმავე API-ს იყენებს.</div>
+  <aside class="notes">
+⏱ 3 წთ
+რატომ არის API ასეთი მნიშვნელოვანი? შუაში ერთი API-ა, ერთი Backend.
+→ ვებ საიტი
+მას ვებ საიტი იყენებს.
+→ მობილური აპი
+იგივე API-ს — მობილური აპი.
+→ სმარტ საათი
+სმარტ საათი.
+→ სხვა კომპანია
+და სხვა კომპანიის სისტემაც კი.
+→ დასკვნა
+! ლოგიკა იწერება ერთხელ, და ყველა კლიენტი ერთსა და იმავე API-ს იყენებს.
+? რატომ არის თქვენი ბალანსი ბანკის საიტზეც და აპშიც ერთნაირი? ~ (ორივე ერთ API-ს ელაპარაკება)
+</aside>
+</section>
+
+<!-- ============ PART 3: HOW A SITE WORKS ============ -->
+<section class="slide divider" data-section="3 · როგორ მუშაობს საიტი">
+  <div class="vcenter">
+    <div class="kicker in">ნაწილი 3</div>
+    <h1 class="in" style="--d:.1s">როგორ მუშაობს <span class="grad">საიტი?</span></h1>
+    <p class="lead mt in" style="--d:.3s">სრული სურათი: Frontend ↔ Backend ↔ Database</p>
+  </div>
+  <div class="big-num">03</div>
+  <aside class="notes">
+⏱ 0:34 · ნაწილი 3 (≈20 წთ)
+ახლა სრულ სურათს ავაწყობთ: ზუსტად რა ხდება, როცა საიტზე ღილაკს აჭერთ.
+</aside>
+</section>
+
+<!-- 14. THREE PARTS -->
+<section class="slide" data-section="3 · როგორ მუშაობს საიტი">
+  <div class="kicker">სამი ნაწილი</div>
+  <h2>ვინ ვინ არის</h2>
+  <div class="grid3" style="margin-top:20px">
+    <div class="card accent step" style="--a:var(--pink)"><div class="big-emoji">💻</div><h3 class="mt">Frontend</h3><p class="small">ინახება სერვერზე, <b>მუშაობს ბრაუზერში</b></p><p class="small">რას აკეთებს: აჩვენებს და იღებს კლიკებს</p><div class="mt"><span class="chip">HTML</span><span class="chip">CSS</span><span class="chip">JavaScript</span><span class="chip">Angular</span><span class="chip">React</span></div></div>
+    <div class="card accent step" style="--a:var(--net)"><div class="big-emoji">⚙️</div><h3 class="mt">Backend (API)</h3><p class="small">ინახება და <b>მუშაობს სერვერზე</b></p><p class="small">რას აკეთებს: წესები, ლოგიკა, უსაფრთხოება</p><div class="mt"><span class="chip">C#</span><span class="chip">ASP.NET Core</span></div></div>
+    <div class="card accent step" style="--a:var(--asp)"><div class="big-emoji">🗄️</div><h3 class="mt">Database</h3><p class="small">ინახება და <b>მუშაობს სერვერზე</b></p><p class="small">რას აკეთებს: ინახავს მონაცემს მუდმივად</p><div class="mt"><span class="chip">SQL Server</span><span class="chip">PostgreSQL</span></div></div>
+  </div>
+  <div class="row step mt2" style="justify-content:center;gap:24px;align-items:center;font-size:24px">
+    <span class="pill on" style="--a:var(--pink);font-size:20px">Frontend</span><span class="c-api">⇄ API ⇄</span><span class="pill on" style="--a:var(--net);font-size:20px">Backend</span><span class="c-asp">⇄ SQL ⇄</span><span class="pill on" style="--a:var(--asp);font-size:20px">Database</span>
+  </div>
+  <div class="callout step mt" style="--a:var(--red)">Frontend <b>არასოდეს</b> ელაპარაკება ბაზას პირდაპირ — მხოლოდ API-ის გავლით.</div>
+  <aside class="notes">
+⏱ 4 წთ
+ჯერ მონაწილეები:
+→ Frontend
+Frontend-ის ფაილები სერვერზე ინახება, მაგრამ მუშაობს მომხმარებლის ბრაუზერში. აჩვენებს ინფორმაციას და იღებს კლიკებს. HTML, CSS, JavaScript, Angular, React.
+→ Backend
+Backend სერვერზე ინახება და იქვე მუშაობს. აქ წესები, ლოგიკა და უსაფრთხოებაა. ჩვენ მას C#-ში და ASP.NET Core-ში დავწერთ.
+→ Database
+ბაზაც სერვერზეა. ინახავს მონაცემს მუდმივად — SQL Server-ს უკვე იცნობთ.
+→ ჯაჭვი
+ჯაჭვი ასეთია: Frontend ელაპარაკება Backend-ს API-ით, Backend ელაპარაკება ბაზას SQL-ით.
+→ გაფრთხილება
+! Frontend ბაზას არასოდეს ელაპარაკება პირდაპირ.
+? რატომ? ~ (ბაზის პაროლი ყველას ბრაუზერში გამოჩნდებოდა; ნებისმიერი რამეს წაშლიდა)
+~ თუ იკითხეს „Frontend-იც ხომ სერვერზეა?“ — დიახ, ინახება. მაგრამ სერვერი მას მხოლოდ გადმოგცემს, როგორც ფაილს. გადმოწერის შემდეგ კოდი შენს კომპიუტერზე მუშაობს — ამიტომ ნებისმიერს შეუძლია ნახოს და შეცვალოს (F12). Backend-ის კოდი სერვერს არასოდეს ტოვებს: მომხმარებელი ხედავს მხოლოდ პასუხს, თვითონ კოდს — ვერასოდეს.
+~ ანალოგია: Frontend = IKEA-ს კარადა — მაღაზიაში ინახება, მაგრამ სახლში მიგაქვს და აწყობ შენ. Backend = რესტორნის სამზარეულო — კერძი შენთან მოდის, სამზარეულო კი იქვე რჩება.
+</aside>
+</section>
+
+<!-- 15. FULL JOURNEY -->
+<section class="slide" data-section="3 · როგორ მუშაობს საიტი">
+  <div class="kicker">ერთი კლიკის მოგზაურობა</div>
+  <h2>ანამ დააჭირა „<span class="c-pink">პროდუქტები</span>“</h2>
+  <svg viewBox="0 0 1420 560" width="1420" height="560">
+    <!-- nodes -->
+    <g class="in"><rect x="10" y="130" width="340" height="300" rx="20" class="box"/>
+      <rect x="10" y="130" width="340" height="44" rx="20" fill="#1b1f3d"/><rect x="10" y="160" width="340" height="14" fill="#1b1f3d"/>
+      <circle cx="36" cy="152" r="6" fill="#ff5f57"/><circle cx="56" cy="152" r="6" fill="#febc2e"/><circle cx="76" cy="152" r="6" fill="#28c840"/>
+      <rect x="40" y="200" width="160" height="44" rx="10" fill="#ec4899"/><text x="120" y="229" text-anchor="middle" class="td" font-size="17">პროდუქტები</text>
+      <text x="180" y="470" text-anchor="middle" class="tw b" font-size="22">💻 Frontend</text></g>
+    <g class="in" style="--d:.15s"><rect x="540" y="130" width="340" height="300" rx="20" fill="#1d1640" stroke="#8b6cff" stroke-width="3"/><text x="710" y="290" text-anchor="middle" font-size="60">⚙️</text><text x="710" y="470" text-anchor="middle" class="tn b" font-size="22">Backend (API)</text></g>
+    <g class="in" style="--d:.3s"><rect x="1070" y="130" width="340" height="300" rx="20" fill="#33240b" stroke="#f5a524" stroke-width="3"/><text x="1240" y="290" text-anchor="middle" font-size="60">🗄️</text><text x="1240" y="470" text-anchor="middle" class="to b" font-size="22">Database</text></g>
+    <!-- steps -->
+    <g class="step fade"><circle cx="120" cy="222" r="34" fill="none" stroke="#ec4899" stroke-width="3" class="pulse"/><text x="180" y="100" text-anchor="middle" font-size="20" style="fill:#ec4899;font-weight:800">① კლიკი</text></g>
+    <g class="step fade"><path d="M350 200 H540" stroke="#22d3ee" stroke-width="3" class="flow"/>
+      <g><rect x="-95" y="-18" width="190" height="36" rx="9" fill="#22d3ee"/><text x="0" y="6" text-anchor="middle" class="td mono" font-size="15">GET /api/products</text><animateMotion dur="1.4s" begin="indefinite" fill="freeze" path="M360 170 H520"/></g>
+      <text x="445" y="100" text-anchor="middle" class="ta b" font-size="20">② Request</text></g>
+    <g class="step fade"><path d="M880 200 H1070" stroke="#f5a524" stroke-width="3" class="flow"/>
+      <g><rect x="-95" y="-18" width="190" height="36" rx="9" fill="#f5a524"/><text x="0" y="6" text-anchor="middle" class="td mono" font-size="15">SELECT * FROM …</text><animateMotion dur="1.4s" begin="indefinite" fill="freeze" path="M890 170 H1060"/></g>
+      <text x="975" y="100" text-anchor="middle" class="to b" font-size="20">③ SQL</text></g>
+    <g class="step fade"><path d="M1070 360 H880" stroke="#f5a524" stroke-width="3" class="flow"/>
+      <g><rect x="-60" y="-18" width="120" height="36" rx="9" fill="#f5a524"/><text x="0" y="6" text-anchor="middle" class="td" font-size="15">3 ჩანაწერი</text><animateMotion dur="1.4s" begin="indefinite" fill="freeze" path="M1060 395 H900"/></g>
+      <text x="975" y="530" text-anchor="middle" class="to b" font-size="20">④ მონაცემი</text></g>
+    <g class="step fade"><path d="M540 360 H350" stroke="#22c55e" stroke-width="3" class="flow"/>
+      <g><rect x="-80" y="-18" width="160" height="36" rx="9" fill="#22c55e"/><text x="0" y="6" text-anchor="middle" class="td mono" font-size="15">200 OK · JSON</text><animateMotion dur="1.4s" begin="indefinite" fill="freeze" path="M530 395 H370"/></g>
+      <text x="445" y="530" text-anchor="middle" class="tg b" font-size="20">⑤ Response</text></g>
+    <g class="step fade"><rect x="40" y="265" width="90" height="70" rx="10" fill="#151935" stroke="#22c55e" stroke-width="2"/><rect x="138" y="265" width="90" height="70" rx="10" fill="#151935" stroke="#22c55e" stroke-width="2"/><rect x="236" y="265" width="90" height="70" rx="10" fill="#151935" stroke="#22c55e" stroke-width="2"/>
+      <text x="85" y="307" text-anchor="middle" font-size="26">💻</text><text x="183" y="307" text-anchor="middle" font-size="26">🖱️</text><text x="281" y="307" text-anchor="middle" font-size="26">⌨️</text>
+      <text x="180" y="385" text-anchor="middle" class="tg b" font-size="20">⑥ ეკრანზე!</text></g>
+  </svg>
+  <aside class="notes">
+⏱ 5 წთ · ! მთავარი სლაიდი — ნელა, ყოველ ნაბიჯზე ერთი-ორი წინადადება
+ანა საიტზეა და აჭერს ღილაკს „პროდუქტები“. მივყვეთ ამ ერთ კლიკს.
+→ ① კლიკი
+ანამ დააჭირა. ჯერ არაფერი ჩანს.
+→ ② Request
+Frontend აგზავნის მოთხოვნას API-ს: GET /api/products. ეს სწორედ ის Endpoint-ია, რომელიც ცოტა ხნის წინ ვნახეთ.
+→ ③ SQL
+Endpoint Backend-ში იძახებს ფუნქციას, ფუნქცია კი ბაზას ეკითხება SQL-ით: მომეცი ყველა პროდუქტი.
+→ ④ მონაცემი
+ბაზა აბრუნებს სამ ჩანაწერს.
+→ ⑤ Response
+Backend ამ ჩანაწერებს JSON-ად აქცევს და აბრუნებს პასუხით: 200 OK.
+→ ⑥ ეკრანზე
+Frontend იღებს JSON-ს და ხატავს სამ ბარათს. ანა ხედავს პროდუქტებს.
+! ეს ყველაფერი ხდება წამის მეასედებში. ყოველ ჯერზე, ყოველ კლიკზე.
+? ვინმემ გაიმეოროს ექვსივე ნაბიჯი თავისი სიტყვებით.
+~ თუ დრო გაქვს, ← ღილაკით დაბრუნდი და მეორედ გაატარე ანიმაცია.
+</aside>
+</section>
+
+<!-- 16. REQUEST / RESPONSE LETTER -->
+<section class="slide" data-section="3 · როგორ მუშაობს საიტი">
+  <div class="kicker">HTTP — მათი საერთო ენა</div>
+  <h2>Request და Response = <span class="c-api">წერილი</span> და <span class="c-mvc">პასუხი</span></h2>
+  <div class="grid2" style="margin-top:20px">
+    <div class="card" style="border-color:rgba(34,211,238,.5)"><h3 class="c-api">✉️ Request — რას ვითხოვთ</h3>
+      <div class="col mt" style="gap:14px">
+        <div class="row step left" style="align-items:center;gap:16px"><span class="pill on" style="--a:var(--api);min-width:140px;justify-content:center">მეთოდი</span><span style="font-size:22px">რა გვინდა? <code class="i">GET</code></span></div>
+        <div class="row step left" style="align-items:center;gap:16px"><span class="pill on" style="--a:var(--api);min-width:140px;justify-content:center">მისამართი</span><span style="font-size:22px">რისი? <code class="i">/api/products</code></span></div>
+        <div class="row step left" style="align-items:center;gap:16px"><span class="pill on" style="--a:var(--api);min-width:140px;justify-content:center">მონაცემი</span><span style="font-size:22px">(თუ საჭიროა) ახალი პროდუქტი</span></div>
+      </div></div>
+    <div class="card" style="border-color:rgba(34,197,94,.5)"><h3 class="c-mvc">📬 Response — რა მივიღეთ</h3>
+      <div class="col mt" style="gap:14px">
+        <div class="row step right" style="align-items:center;gap:16px"><span class="pill on" style="--a:var(--mvc);min-width:140px;justify-content:center">სტატუსი</span><span style="font-size:22px">გამოვიდა? <code class="i">200 OK</code></span></div>
+        <div class="row step right" style="align-items:center;gap:16px"><span class="pill on" style="--a:var(--mvc);min-width:140px;justify-content:center">მონაცემი</span><span style="font-size:22px">პროდუქტების სია (JSON)</span></div>
+      </div></div>
+  </div>
+  <code-block lang="http" cls="big step" style="margin-top:30px">
+GET /api/products HTTP/1.1          →          HTTP/1.1 200 OK   [ { "id": 1, "name": "ლეპტოპი" } ]
+  </code-block>
+  <aside class="notes">
+⏱ 4 წთ
+Frontend და Backend ერთმანეთს ელაპარაკებიან ენით, რომელსაც HTTP ჰქვია. წარმოიდგინეთ წერილი და პასუხი.
+წერილს — Request-ს — სამი ნაწილი აქვს:
+→ მეთოდი
+მეთოდი: რა გვინდა? მაგალითად GET — „მომეცი“.
+→ მისამართი
+მისამართი: რისი? /api/products.
+→ მონაცემი
+მონაცემი — თუ რამე ახალს ვაგზავნით, მაგალითად ახალი პროდუქტი. GET-ს ეს არ სჭირდება.
+პასუხს — Response-ს — ორი მთავარი ნაწილი:
+→ სტატუსი
+სტატუსი: გამოვიდა თუ არა? 200 OK — გამოვიდა.
+→ მონაცემი
+და თავად მონაცემი — პროდუქტების სია.
+→ მაგალითი ერთ ხაზზე
+აი, ასე გამოიყურება რეალურად: მარცხნივ მოთხოვნა, მარჯვნივ პასუხი.
+! ყოველ Request-ს ყოველთვის ერთი Response აქვს.
+</aside>
+</section>
+
+<!-- 17. JSON -->
+<section class="slide" data-section="3 · როგორ მუშაობს საიტი">
+  <div class="kicker">JSON</div>
+  <h2>მონაცემი, რომელიც <span class="c-api">ყველას ესმის</span></h2>
+  <div class="grid2" style="grid-template-columns:1fr 1fr;align-items:center">
+    <div class="card step left" style="text-align:center;padding:40px"><div class="big-emoji">💻</div>
+      <div class="mt" style="display:inline-block;text-align:left;background:#0d1024;border:1px solid var(--line);border-radius:14px;padding:20px 30px">
+        <div style="font-size:26px;font-weight:800;color:var(--ink)">ლეპტოპი</div><div style="font-size:22px;color:var(--mvc)">2 400 ₾</div><div style="font-size:18px;color:var(--muted)">მარაგშია ✓</div></div>
+      <p class="tiny mt">ასე ხედავს მომხმარებელი</p></div>
+    <div class="col step right">
+      <code-block lang="json" cls="big" title="ასე მოდის API-დან">
+{
+  "id": 1,
+  "name": "ლეპტოპი",
+  "price": 2400,
+  "inStock": true
+}
+      </code-block>
+      <div class="callout" style="--a:var(--api)"><b>„გასაღები“: მნიშვნელობა</b> — უბრალო ტექსტი. ესმის JavaScript-ს, C#-ს, ყველა ენას.</div>
+    </div>
+  </div>
+  <aside class="notes">
+⏱ 2 წთ
+პასუხში ახსენეთ „JSON“. რა არის ეს?
+→ მარცხნივ
+ასე ხედავს პროდუქტს მომხმარებელი — ლამაზ ბარათად.
+→ მარჯვნივ
+ხოლო API-დან ის ასე მოდის — უბრალო ტექსტი: „გასაღები“: მნიშვნელობა. id არის 1, name არის ლეპტოპი, price არის 2400.
+! API ხატვაზე არ ზრუნავს. აბრუნებს მხოლოდ მონაცემს. როგორ გამოჩნდება, Frontend-ის საქმეა.
+ეს ფორმატი ყველა ენას ესმის: JavaScript-საც, C#-საც.
+</aside>
+</section>
+
+<!-- 18. STATUS CODES -->
+<section class="slide" data-section="3 · როგორ მუშაობს საიტი">
+  <div class="kicker">სტატუს კოდები</div>
+  <h2>პასუხის „შუქნიშანი“ 🚦</h2>
+  <div class="grid3" style="margin-top:30px">
+    <div class="card step zoom" style="border-color:rgba(34,197,94,.6);text-align:center;padding:34px"><div style="width:90px;height:90px;border-radius:50%;background:#22c55e;margin:0 auto 20px;box-shadow:0 0 50px #22c55e"></div><h3 class="c-mvc" style="justify-content:center;font-size:34px">2xx</h3><p style="font-size:24px">✓ ყველაფერი კარგად</p><p class="small mt"><code class="i">200</code> OK · <code class="i">201</code> Created · <code class="i">204</code> No Content</p></div>
+    <div class="card step zoom" style="border-color:rgba(245,165,36,.6);text-align:center;padding:34px"><div style="width:90px;height:90px;border-radius:50%;background:#f5a524;margin:0 auto 20px;box-shadow:0 0 50px #f5a524"></div><h3 class="c-asp" style="justify-content:center;font-size:34px">4xx</h3><p style="font-size:24px">🙋 <b>შენ</b> შეცდი</p><p class="small mt"><code class="i">400</code> Bad Request · <code class="i">401</code> ვინ ხარ? · <code class="i">404</code> Not Found</p></div>
+    <div class="card step zoom" style="border-color:rgba(244,63,94,.6);text-align:center;padding:34px"><div style="width:90px;height:90px;border-radius:50%;background:#f43f5e;margin:0 auto 20px;box-shadow:0 0 50px #f43f5e"></div><h3 class="c-red" style="justify-content:center;font-size:34px">5xx</h3><p style="font-size:24px">⚙️ <b>სერვერი</b> შეცდა</p><p class="small mt"><code class="i">500</code> Internal Server Error</p></div>
+  </div>
+  <aside class="notes">
+⏱ 3 წთ
+გახსოვთ, პასუხს სტატუსი აქვს. სტატუს კოდები შუქნიშანს ჰგავს.
+→ მწვანე · 2xx
+2-ით დაწყებული — ყველაფერი კარგადაა. 200 — OK, 201 — შეიქმნა, 204 — შესრულდა, დასაბრუნებელი არაფერია.
+→ ყვითელი · 4xx
+4-ით დაწყებული — შენ შეცდი, კლიენტო. 400 — არასწორი მოთხოვნა, 401 — ვინ ხარ?, 404 — ვერ ვიპოვე.
+? 404 ვის უნახავს ბრაუზერში? ~ (ყველას)
+→ წითელი · 5xx
+5-ით დაწყებული — სერვერმა შეცდა. 500 — სერვერზე რაღაც გაფუჭდა.
+! მარტივად: 4xx — „შენი ბრალია“, 5xx — „ჩემი ბრალია“.
+</aside>
+</section>
+
+<!-- ============ PART 4: REST ============ -->
+<section class="slide divider" data-section="4 · REST">
+  <div class="vcenter">
+    <div class="kicker in">ნაწილი 4</div>
+    <h1 class="in" style="--d:.1s"><span class="grad">REST API</span><br>და 5 მეთოდი</h1>
+    <p class="lead mt in" style="--d:.3s">როგორ ავაწყოთ API ისე, რომ ყველამ ერთნაირად გაიგოს</p>
+  </div>
+  <div class="big-num">04</div>
+  <aside class="notes">
+⏱ 0:54 · ნაწილი 4 (≈20 წთ)
+უკვე ვიცით, რომ API ბევრი Endpoint-ისგან შედგება. მაგრამ როგორ დავარქვათ მათ სახელები? როგორ დავალაგოთ? ამისთვის არსებობს REST.
+</aside>
+</section>
+
+<!-- 20. WHY REST -->
+<section class="slide" data-section="4 · REST">
+  <div class="kicker">რატომ გვჭირდება წესები?</div>
+  <h2>ყველა თავისებურად რომ წერდეს… 🤯</h2>
+  <div class="grid2" style="margin-top:20px">
+    <div class="card" style="border-color:rgba(244,63,94,.45)"><h3 class="c-red">❌ წესების გარეშე</h3>
+      <div class="col mt" style="gap:12px;font:21px var(--mono)">
+        <div class="step left"><span class="c-red">/getAllProducts</span></div>
+        <div class="step left"><span class="c-red">/product_list_new</span></div>
+        <div class="step left"><span class="c-red">/deleteProduct?id=5</span></div>
+        <div class="step left"><span class="c-red">/removeItemFromDb/5</span></div>
+        <div class="step left"><span class="c-red">/updateProductPriceFinal2</span></div>
+      </div>
+      <p class="small mt step">ყოველ პროექტში ახლიდან უნდა ისწავლო</p></div>
+    <div class="card" style="border-color:rgba(34,197,94,.45)"><h3 class="c-mvc">✅ REST</h3>
+      <div class="col mt" style="gap:12px;font:21px var(--mono)">
+        <div class="step right"><span class="c-mvc">GET</span>    /products</div>
+        <div class="step right" data-with><span class="c-mvc">GET</span>    /products/5</div>
+        <div class="step right" data-with><span class="c-asp">POST</span>   /products</div>
+        <div class="step right" data-with><span class="c-wf">PUT</span>    /products/5</div>
+        <div class="step right" data-with><span class="c-red">DELETE</span> /products/5</div>
+      </div>
+      <p class="small mt step">ერთხელ ისწავლე — ყველგან წაიკითხავ</p></div>
+  </div>
+  <aside class="notes">
+⏱ 3 წთ
+წარმოიდგინეთ, ყველა პროგრამისტი თავისებურად რომ არქმევდეს Endpoint-ებს.
+→ /getAllProducts
+→ /product_list_new
+→ /deleteProduct?id=5
+→ /removeItemFromDb/5
+→ /updateProductPriceFinal2
+~ (5 ხაზი სათითაოდ, ყოველზე პატარა პაუზა — ჩაეღიმება)
+→ „ყოველ პროექტში ახლიდან უნდა ისწავლო“
+ყოველ ახალ პროექტში ყველაფერი თავიდან უნდა ისწავლო. ერთ ადგილას „delete“-ა, მეორეგან „remove“.
+→ REST სვეტი
+ახლა შეხედეთ REST-ს. ყოველთვის ერთი და იგივე სიტყვა — products — და იცვლება მხოლოდ მეთოდი: GET, POST, PUT, DELETE.
+→ „ერთხელ ისწავლე“
+! REST ბიბლიოთეკა ან პროგრამა არ არის. ეს შეთანხმებაა, როგორ დავაპროექტოთ API, რომ ყველამ ერთნაირად წაიკითხოს.
+</aside>
+</section>
+
+<!-- 21. RESOURCE + VERB -->
+<section class="slide" data-section="4 · REST">
+  <div class="kicker">REST-ის მთავარი იდეა</div>
+  <h2><span class="c-api">მეთოდი</span> + <span class="c-asp">რესურსი</span></h2>
+  <div style="display:flex;justify-content:center;align-items:center;gap:40px;margin-top:50px">
+    <div class="step zoom" style="text-align:center"><div class="verb" style="--a:var(--api)">GET</div><p class="tiny">მეთოდი: რა ვუყოთ?</p></div>
+    <div class="step zoom" data-with style="font-size:60px;color:var(--muted)">+</div>
+    <div class="step zoom" data-with style="text-align:center"><div class="verb" style="--a:var(--asp)">/products/5</div><p class="tiny">რესურსი: რას?</p></div>
+  </div>
+  <div class="grid2 mt2">
+    <div class="callout step" style="--a:var(--asp);font-size:24px"><b>რესურსი</b> = „საგანი“, რომელსაც API მართავს: პროდუქტები, მომხმარებლები, შეკვეთები. მისამართში იწერება <b>მხოლოდ რესურსის სახელი</b>, მრავლობითში: <code class="i">/products</code>.</div>
+    <div class="callout step" style="--a:var(--api);font-size:24px"><b>HTTP მეთოდი</b> = რა ვუყოთ ამ რესურსს. მოქმედება მისამართში <b>არ</b> იწერება — <code class="i">/deleteProduct</code> ❌</div>
+  </div>
+  <div class="step mt" style="text-align:center;font-size:24px;color:var(--ink2)">„<span class="c-api">მომეცი</span> <span class="c-asp">პროდუქტი #5</span>“ = <code class="i" style="font-size:24px">GET /products/5</code></div>
+  <aside class="notes">
+⏱ 3 წთ
+REST-ის მთავარი იდეა მარტივია: ყოველი მოთხოვნა = მეთოდი + რესურსი.
+→ GET + /products/5
+GET — მეთოდი: რა ვუყოთ? /products/5 — რესურსი: რას?
+→ რესურსი
+რესურსი არის „საგანი“, რომელსაც API მართავს: პროდუქტები, მომხმარებლები, შეკვეთები. მისამართში მხოლოდ მისი სახელი იწერება, მრავლობითში — /products.
+→ მეთოდი
+ხოლო რა ვუყოთ ამ რესურსს — წავიკითხოთ, შევქმნათ, წავშალოთ — ამას მეთოდი ამბობს. ამიტომ მოქმედება მისამართში არ იწერება: /deleteProduct არასწორია, სწორია DELETE /products/5.
+→ მაგალითი
+„მომეცი პროდუქტი ნომერი 5“ = GET /products/5.
+? როგორ ჩაიწერება „მომეცი ყველა მომხმარებელი“? ~ (GET /users)
+</aside>
+</section>
+
+<!-- 22. CRUD -> 5 METHODS -->
+<section class="slide" data-section="4 · REST">
+  <div class="kicker">რატომ ზუსტად 5?</div>
+  <h2>მონაცემთან 4 მოქმედება — <span class="c-api">CRUD</span></h2>
+  <div class="grid4" style="margin-top:30px">
+    <div class="card step zoom" style="text-align:center;border-color:rgba(245,165,36,.5)"><div class="verb" style="--a:var(--asp)">C</div><h3 style="justify-content:center">Create</h3><p>შექმნა</p><div class="mt"><span class="pill on" style="--a:var(--asp);font-size:20px">POST</span></div></div>
+    <div class="card step zoom" style="text-align:center;border-color:rgba(34,197,94,.5)"><div class="verb" style="--a:var(--mvc)">R</div><h3 style="justify-content:center">Read</h3><p>წაკითხვა</p><div class="mt"><span class="pill on" style="--a:var(--mvc);font-size:20px">GET</span></div></div>
+    <div class="card step zoom" style="text-align:center;border-color:rgba(59,130,246,.5)"><div class="verb" style="--a:var(--wf)">U</div><h3 style="justify-content:center">Update</h3><p>შეცვლა</p><div class="mt"><span class="pill on" style="--a:var(--wf);font-size:20px">PUT</span> <span class="pill on" style="--a:var(--core);font-size:20px">PATCH</span></div></div>
+    <div class="card step zoom" style="text-align:center;border-color:rgba(244,63,94,.5)"><div class="verb" style="--a:var(--red)">D</div><h3 style="justify-content:center">Delete</h3><p>წაშლა</p><div class="mt"><span class="pill on" style="--a:var(--red);font-size:20px">DELETE</span></div></div>
+  </div>
+  <div class="callout step mt2" style="--a:var(--core);font-size:24px">4 მოქმედება → <b>5 მეთოდი</b>, რადგან შეცვლა ორნაირია: <b>მთლიანად</b> (PUT) ან <b>ნაწილობრივ</b> (PATCH).</div>
+  <aside class="notes">
+⏱ 3 წთ
+რამდენი მეთოდია? ხუთი. რატომ ზუსტად ხუთი?
+ბაზების კურსიდან გახსოვთ: მონაცემთან მხოლოდ ოთხი რამის გაკეთება შეგიძლია — CRUD.
+→ C · Create → POST
+შექმნა — POST.
+→ R · Read → GET
+წაკითხვა — GET.
+→ U · Update → PUT, PATCH
+შეცვლა — აქ ორი მეთოდია, PUT და PATCH.
+→ D · Delete → DELETE
+წაშლა — DELETE.
+→ დასკვნა
+! ოთხი მოქმედება, მაგრამ ხუთი მეთოდი — რადგან შეცვლა ორნაირია: მთლიანად (PUT) ან ნაწილობრივ (PATCH).
+შემდეგ ხუთ სლაიდზე თითოეულს ვნახავთ ერთსა და იმავე ცხრილზე — დააკვირდით, რა ემართება ცხრილს.
+</aside>
+</section>
+
+<!-- 23. GET -->
+<section class="slide" data-section="4 · REST" style="--a:var(--mvc)">
+  <div class="kicker c-mvc">მეთოდი 1 / 5</div>
+  <h2><span class="c-mvc">GET</span> — წაკითხვა 👀</h2>
+  <div class="grid2" style="grid-template-columns:1fr 1.05fr;align-items:start">
+    <div class="col">
+      <div class="method-card" style="--a:var(--mvc)"><span class="m">GET</span><span class="t mono">/products/2</span></div>
+      <p class="lead" style="font-size:26px">„მაჩვენე პროდუქტი #2“</p>
+      <code-block lang="json" cls="big step" title="Response · 200 OK">
+{ "id": 2, "name": "მაუსი", "price": 45 }
+      </code-block>
+      <div class="callout step" style="--a:var(--mvc)">GET <b>არაფერს ცვლის</b> — მხოლოდ კითხულობს. 100-ჯერ გამოიძახო, შედეგი იგივეა.</div>
+      <p class="small step"><code class="i">GET /products</code> — ყველა პროდუქტი (სია)</p>
+    </div>
+    <svg viewBox="0 0 660 340" width="660" height="340">
+      <rect x="0" y="0" width="660" height="54" rx="10" fill="#1b1f3d"/><g class="tm b" font-size="18"><text x="30" y="34">Id</text><text x="120" y="34">სახელი</text><text x="470" y="34">ფასი</text></g>
+      <g font-size="21"><rect x="0" y="64" width="660" height="52" rx="8" fill="#151935" stroke="#272c52"/><text x="30" y="98" class="tm mono">1</text><text x="120" y="98" class="tw">ლეპტოპი</text><text x="470" y="98" class="tw mono">2400 ₾</text>
+        <rect x="0" y="124" width="660" height="52" rx="8" fill="#151935" stroke="#272c52"/><text x="30" y="158" class="tm mono">2</text><text x="120" y="158" class="tw">მაუსი</text><text x="470" y="158" class="tw mono">45 ₾</text>
+        <rect x="0" y="184" width="660" height="52" rx="8" fill="#151935" stroke="#272c52"/><text x="30" y="218" class="tm mono">3</text><text x="120" y="218" class="tw">კლავიატურა</text><text x="470" y="218" class="tw mono">120 ₾</text></g>
+      <g class="step fade" data-with><rect x="0" y="124" width="660" height="52" rx="8" fill="rgba(34,197,94,.12)" stroke="#22c55e" stroke-width="3"/>
+        <g><rect x="-36" y="-18" width="72" height="36" rx="8" fill="#22c55e"/><text x="0" y="6" text-anchor="middle" class="td" font-size="15">ასლი</text>
+          <animateMotion dur="1.2s" begin="indefinite" fill="freeze" path="M600 150 C600 260 420 270 330 270"/></g></g>
+      <text x="330" y="330" text-anchor="middle" class="tg" font-size="17">ცხრილი არ შეცვლილა ✓</text>
+    </svg>
+  </div>
+  <aside class="notes">
+⏱ 2 წთ
+GET — წაკითხვა. მოთხოვნა: GET /products/2 — „მაჩვენე პროდუქტი ნომერი 2“.
+→ პასუხი + მონიშნული ხაზი
+API პოულობს ხაზს და აბრუნებს მის ასლს: 200 OK და JSON.
+→ GET არაფერს ცვლის
+! შეხედეთ ცხრილს — არაფერი შეცვლილა. GET მხოლოდ კითხულობს. ასჯერაც რომ გამოიძახოთ, ცხრილი იგივე დარჩება.
+→ GET /products
+თუ id-ს არ მივუთითებთ — GET /products — ყველა პროდუქტი მოვა, სიად.
+~ ბრაუზერში მისამართის აკრეფაც GET მოთხოვნაა — კარგი მომენტია ამის სათქმელად.
+SQL-ში ეს არის SELECT.
+</aside>
+</section>
+
+<!-- 24. POST -->
+<section class="slide" data-section="4 · REST">
+  <div class="kicker c-asp">მეთოდი 2 / 5</div>
+  <h2><span class="c-asp">POST</span> — შექმნა ✨</h2>
+  <div class="grid2" style="grid-template-columns:1fr 1.05fr;align-items:start">
+    <div class="col">
+      <div class="method-card" style="--a:var(--asp)"><span class="m">POST</span><span class="t mono">/products</span></div>
+      <p class="lead" style="font-size:26px">„დაამატე ახალი პროდუქტი“</p>
+      <code-block lang="json" cls="big" title="Request body">
+{ "name": "ყურსასმენი", "price": 180 }
+      </code-block>
+      <div class="callout step" style="--a:var(--asp)">Id-ს <b>სერვერი</b> ანიჭებს, არა კლიენტი. პასუხი: <b>201 Created</b> + ახალი ჩანაწერი.</div>
+    </div>
+    <svg viewBox="0 0 660 340" width="660" height="340">
+      <rect x="0" y="0" width="660" height="54" rx="10" fill="#1b1f3d"/><g class="tm b" font-size="18"><text x="30" y="34">Id</text><text x="120" y="34">სახელი</text><text x="470" y="34">ფასი</text></g>
+      <g font-size="21"><rect x="0" y="64" width="660" height="52" rx="8" fill="#151935" stroke="#272c52"/><text x="30" y="98" class="tm mono">1</text><text x="120" y="98" class="tw">ლეპტოპი</text><text x="470" y="98" class="tw mono">2400 ₾</text>
+        <rect x="0" y="124" width="660" height="52" rx="8" fill="#151935" stroke="#272c52"/><text x="30" y="158" class="tm mono">2</text><text x="120" y="158" class="tw">მაუსი</text><text x="470" y="158" class="tw mono">45 ₾</text>
+        <rect x="0" y="184" width="660" height="52" rx="8" fill="#151935" stroke="#272c52"/><text x="30" y="218" class="tm mono">3</text><text x="120" y="218" class="tw">კლავიატურა</text><text x="470" y="218" class="tw mono">120 ₾</text></g>
+      <g class="step drop" data-with style="transform-box:fill-box"><rect x="0" y="244" width="660" height="52" rx="8" fill="rgba(245,165,36,.15)" stroke="#f5a524" stroke-width="3"/><g font-size="21"><text x="30" y="278" class="to mono b">4</text><text x="120" y="278" class="tw b">ყურსასმენი</text><text x="470" y="278" class="tw mono">180 ₾</text></g>
+        <text x="620" y="278" text-anchor="end" class="to b" font-size="17">ახალი!</text></g>
+    </svg>
+  </div>
+  <aside class="notes">
+⏱ 2 წთ
+POST — შექმნა. მისამართი: /products — id-ის გარეშე. რატომ? იმიტომ, რომ ჯერ არ არსებობს!
+ვაგზავნით მონაცემს: სახელი — ყურსასმენი, ფასი — 180.
+→ ახალი ხაზი ცხრილში
+ცხრილში ახალი ხაზი გაჩნდა, ნომერი 4.
+! შეხედეთ — id-ი ჩვენ არ გაგვიგზავნია. id-ს სერვერი ანიჭებს, არა კლიენტი. პასუხი: 201 Created.
+SQL-ში ეს არის INSERT.
+? თუ ერთსა და იმავე POST-ს ორჯერ გავგზავნით, რა მოხდება? ~ (ორი ახალი ხაზი — ამიტომ „ყიდვას“ ორჯერ არ აჭერენ)
+</aside>
+</section>
+
+<!-- 25. PUT -->
+<section class="slide" data-section="4 · REST">
+  <div class="kicker c-wf">მეთოდი 3 / 5</div>
+  <h2><span class="c-wf">PUT</span> — მთლიანი ჩანაცვლება 🔄</h2>
+  <div class="grid2" style="grid-template-columns:1fr 1.05fr;align-items:start">
+    <div class="col">
+      <div class="method-card" style="--a:var(--wf)"><span class="m">PUT</span><span class="t mono">/products/2</span></div>
+      <p class="lead" style="font-size:26px">„პროდუქტი #2 შეცვალე ამით“</p>
+      <code-block lang="json" cls="big" title="Request body — სრული ობიექტი">
+{ "name": "მაუსი Pro", "price": 60 }
+      </code-block>
+      <div class="callout step" style="--a:var(--wf)">აგზავნი <b>ყველა ველს</b>, თუნდაც ერთი შეიცვალოს. პასუხი: <b>204 No Content</b> ან <b>200</b>.</div>
+    </div>
+    <svg viewBox="0 0 660 340" width="660" height="340">
+      <rect x="0" y="0" width="660" height="54" rx="10" fill="#1b1f3d"/><g class="tm b" font-size="18"><text x="30" y="34">Id</text><text x="120" y="34">სახელი</text><text x="470" y="34">ფასი</text></g>
+      <g font-size="21"><rect x="0" y="64" width="660" height="52" rx="8" fill="#151935" stroke="#272c52"/><text x="30" y="98" class="tm mono">1</text><text x="120" y="98" class="tw">ლეპტოპი</text><text x="470" y="98" class="tw mono">2400 ₾</text>
+        <g id="put-old"><rect x="0" y="124" width="660" height="52" rx="8" fill="#151935" stroke="#272c52"/><text x="30" y="158" class="tm mono">2</text><text x="120" y="158" class="tw">მაუსი</text><text x="470" y="158" class="tw mono">45 ₾</text></g>
+        <rect x="0" y="184" width="660" height="52" rx="8" fill="#151935" stroke="#272c52"/><text x="30" y="218" class="tm mono">3</text><text x="120" y="218" class="tw">კლავიატურა</text><text x="470" y="218" class="tw mono">120 ₾</text></g>
+      <g class="step fade" data-with><rect x="0" y="124" width="660" height="52" rx="8" fill="rgba(59,130,246,.18)" stroke="#3b82f6" stroke-width="3"/><g font-size="21"><text x="30" y="158" class="tb mono b">2</text><text x="120" y="158" class="tb b">მაუსი Pro</text><text x="470" y="158" class="tb mono b">60 ₾</text></g></g>
+      <text x="330" y="300" text-anchor="middle" class="tb" font-size="18">მთელი ჩანაწერი ახლით შეიცვალა</text>
+    </svg>
+  </div>
+  <i class="trigger" data-hide="#put-old" data-with style="position:absolute"></i>
+  <aside class="notes">
+⏱ 2 წთ
+PUT — მთლიანი ჩანაცვლება. PUT /products/2 — „პროდუქტი ნომერი 2 შეცვალე ამით“.
+ვაგზავნით მთელ ობიექტს: სახელი — მაუსი Pro, ფასი — 60.
+→ ხაზი იცვლება
+მეორე ხაზი მთლიანად ახლით შეიცვალა: სახელიც, ფასიც.
+! PUT-ში ვაგზავნით ყველა ველს, თუნდაც მხოლოდ ერთი გვინდა შევცვალოთ. როგორც ფორმის თავიდან შევსება.
+პასუხი: 204 No Content — „შევასრულე, დასაბრუნებელი არაფერი მაქვს“.
+</aside>
+</section>
+
+<!-- 26. PATCH -->
+<section class="slide" data-section="4 · REST">
+  <div class="kicker c-core">მეთოდი 4 / 5</div>
+  <h2><span class="c-core">PATCH</span> — ნაწილობრივი შეცვლა ✏️</h2>
+  <div class="grid2" style="grid-template-columns:1fr 1.05fr;align-items:start">
+    <div class="col">
+      <div class="method-card" style="--a:var(--core)"><span class="m">PATCH</span><span class="t mono">/products/2</span></div>
+      <p class="lead" style="font-size:26px">„პროდუქტ #2-ს მხოლოდ ფასი შეუცვალე“</p>
+      <code-block lang="json" cls="big" title="Request body — მხოლოდ ის, რაც იცვლება">
+{ "price": 39 }
+      </code-block>
+      <div class="callout step" style="--a:var(--core)">სახელი <b>ხელუხლებელი რჩება</b>. მოსახერხებელია, როცა ობიექტი დიდია და ერთი ველი იცვლება.</div>
+    </div>
+    <svg viewBox="0 0 660 340" width="660" height="340">
+      <rect x="0" y="0" width="660" height="54" rx="10" fill="#1b1f3d"/><g class="tm b" font-size="18"><text x="30" y="34">Id</text><text x="120" y="34">სახელი</text><text x="470" y="34">ფასი</text></g>
+      <g font-size="21"><rect x="0" y="64" width="660" height="52" rx="8" fill="#151935" stroke="#272c52"/><text x="30" y="98" class="tm mono">1</text><text x="120" y="98" class="tw">ლეპტოპი</text><text x="470" y="98" class="tw mono">2400 ₾</text>
+        <rect x="0" y="124" width="660" height="52" rx="8" fill="#151935" stroke="#272c52"/><text x="30" y="158" class="tm mono">2</text><text x="120" y="158" class="tw">მაუსი</text><text x="470" y="158" class="tw mono" id="patch-old">45 ₾</text>
+        <rect x="0" y="184" width="660" height="52" rx="8" fill="#151935" stroke="#272c52"/><text x="30" y="218" class="tm mono">3</text><text x="120" y="218" class="tw">კლავიატურა</text><text x="470" y="218" class="tw mono">120 ₾</text></g>
+      <g class="step fade" data-with><rect x="450" y="124" width="210" height="52" rx="8" fill="rgba(167,139,250,.2)" stroke="#a78bfa" stroke-width="3"/><text x="470" y="158" class="tp mono b" font-size="21">39 ₾</text></g>
+      <text x="330" y="300" text-anchor="middle" class="tp" font-size="18">შეიცვალა მხოლოდ ერთი უჯრა</text>
+    </svg>
+  </div>
+  <i class="trigger" data-hide="#patch-old" data-with></i>
+  <aside class="notes">
+⏱ 2 წთ
+PATCH — ნაწილობრივი შეცვლა. იგივე მისამართი: /products/2.
+მაგრამ ახლა ვაგზავნით მხოლოდ ერთ ველს: ფასი — 39.
+→ ერთი უჯრა იცვლება
+შეიცვალა მხოლოდ ერთი უჯრა. სახელი ხელუხლებელი დარჩა.
+! PUT და PATCH: PUT — მთელი ფორმა თავიდან; PATCH — მხოლოდ ერთი ველის გასწორება.
+? პროფილში მხოლოდ ფოტოს ცვლით. რომელს გამოიყენებდით? ~ (PATCH)
+</aside>
+</section>
+
+<!-- 27. DELETE -->
+<section class="slide" data-section="4 · REST">
+  <div class="kicker c-red">მეთოდი 5 / 5</div>
+  <h2><span class="c-red">DELETE</span> — წაშლა 🗑️</h2>
+  <div class="grid2" style="grid-template-columns:1fr 1.05fr;align-items:start">
+    <div class="col">
+      <div class="method-card" style="--a:var(--red)"><span class="m">DELETE</span><span class="t mono">/products/3</span></div>
+      <p class="lead" style="font-size:26px">„წაშალე პროდუქტი #3“</p>
+      <div class="callout step" style="--a:var(--red)">Body არ სჭირდება — მისამართში უკვე ჩანს, <b>რომელი</b>. პასუხი: <b>204 No Content</b>.</div>
+      <div class="callout step" style="--a:var(--asp)">უკვე წაშლილს თუ ისევ წაშლი → <b>404 Not Found</b></div>
+    </div>
+    <svg viewBox="0 0 660 340" width="660" height="340">
+      <rect x="0" y="0" width="660" height="54" rx="10" fill="#1b1f3d"/><g class="tm b" font-size="18"><text x="30" y="34">Id</text><text x="120" y="34">სახელი</text><text x="470" y="34">ფასი</text></g>
+      <g font-size="21"><rect x="0" y="64" width="660" height="52" rx="8" fill="#151935" stroke="#272c52"/><text x="30" y="98" class="tm mono">1</text><text x="120" y="98" class="tw">ლეპტოპი</text><text x="470" y="98" class="tw mono">2400 ₾</text>
+        <rect x="0" y="124" width="660" height="52" rx="8" fill="#151935" stroke="#272c52"/><text x="30" y="158" class="tm mono">2</text><text x="120" y="158" class="tw">მაუსი</text><text x="470" y="158" class="tw mono">45 ₾</text></g>
+      <g id="del-row" font-size="21"><rect x="0" y="184" width="660" height="52" rx="8" fill="#151935" stroke="#272c52"/><text x="30" y="218" class="tm mono">3</text><text x="120" y="218" class="tw">კლავიატურა</text><text x="470" y="218" class="tw mono">120 ₾</text>
+        <g class="step fade" data-with><rect x="0" y="184" width="660" height="52" rx="8" fill="rgba(244,63,94,.25)" stroke="#f43f5e" stroke-width="3"/><line x1="20" y1="210" x2="640" y2="210" stroke="#f43f5e" stroke-width="3"/></g></g>
+      <text x="330" y="300" text-anchor="middle" class="tr" font-size="18">ჩანაწერი #3 აღარ არსებობს</text>
+    </svg>
+  </div>
+  <i class="trigger" data-hide="#del-row"></i>
+  <aside class="notes">
+⏱ 2 წთ
+DELETE — წაშლა. DELETE /products/3 — „წაშალე პროდუქტი ნომერი 3“.
+→ Body არ სჭირდება
+მონაცემის გაგზავნა არ სჭირდება — მისამართშივე ჩანს, რომელი. პასუხი: 204.
+→ ხაზი წითლდება და ქრება
+→ (ხაზი ქრება)
+მესამე ხაზი აღარ არსებობს.
+? და თუ ახლა იგივე DELETE /products/3-ს თავიდან გავგზავნით? ~ (404 — აღარ არსებობს)
+SQL-ში — DELETE.
+</aside>
+</section>
+
+<!-- 28. SUMMARY TABLE -->
+<section class="slide" data-section="4 · REST">
+  <div class="kicker">REST — შეჯამება</div>
+  <h2>5 მეთოდი ერთ ცხრილში</h2>
+  <table class="t" style="font-size:23px">
+    <tr><th>მეთოდი</th><th>მაგალითი</th><th>რას აკეთებს</th><th>SQL-ში</th><th>წარმატებისას</th></tr>
+    <tr class="step"><td><span class="pill on" style="--a:var(--mvc);font-size:18px">GET</span></td><td><code class="i">/products</code></td><td>სია</td><td>SELECT</td><td><code class="i">200</code></td></tr>
+    <tr class="step"><td><span class="pill on" style="--a:var(--mvc);font-size:18px">GET</span></td><td><code class="i">/products/2</code></td><td>ერთი</td><td>SELECT … WHERE</td><td><code class="i">200</code> / <code class="i">404</code></td></tr>
+    <tr class="step"><td><span class="pill on" style="--a:var(--asp);font-size:18px">POST</span></td><td><code class="i">/products</code></td><td>შექმნა</td><td>INSERT</td><td><code class="i">201</code></td></tr>
+    <tr class="step"><td><span class="pill on" style="--a:var(--wf);font-size:18px">PUT</span></td><td><code class="i">/products/2</code></td><td>მთლიანად შეცვლა</td><td>UPDATE (ყველა ველი)</td><td><code class="i">204</code></td></tr>
+    <tr class="step"><td><span class="pill on" style="--a:var(--core);font-size:18px">PATCH</span></td><td><code class="i">/products/2</code></td><td>ნაწილობრივ შეცვლა</td><td>UPDATE (ერთი ველი)</td><td><code class="i">204</code></td></tr>
+    <tr class="step"><td><span class="pill on" style="--a:var(--red);font-size:18px">DELETE</span></td><td><code class="i">/products/2</code></td><td>წაშლა</td><td>DELETE</td><td><code class="i">204</code></td></tr>
+  </table>
+  <aside class="notes">
+⏱ 2 წთ
+შევკრიბოთ ყველაფერი ერთ ცხრილში. კარგი იქნება ჩაიწეროთ.
+~ ყოველ ხაზზე: მეთოდი → მაგალითი → რას აკეთებს → SQL → სტატუსი. მოკლედ.
+→ GET /products — სია — SELECT — 200
+→ GET /products/2 — ერთი — SELECT WHERE — 200 ან 404
+→ POST — შექმნა — INSERT — 201
+→ PUT — მთლიანად შეცვლა — UPDATE ყველა ველი — 204
+→ PATCH — ნაწილობრივ — UPDATE ერთი ველი — 204
+→ DELETE — წაშლა — DELETE — 204
+! ბოლო სვეტს დააკვირდით: ყოველ მეთოდს თავისი „ტიპიური“ წარმატების კოდი აქვს.
+</aside>
+</section>
+
+<!-- 29. BREAK -->
+<section class="slide" data-section="☕ შესვენება">
+  <div class="center">
+    <div class="big-emoji in" style="font-size:140px">☕</div>
+    <h1 class="in mt" style="--d:.2s">10 წუთი შესვენება</h1>
+    <p class="lead mt in" style="--d:.4s">შემდეგ: <b>.NET</b> და ჩვენი <b>პირველი API</b></p>
+  </div>
+  <aside class="notes">
+⏱ 1:14 · შესვენება 10 წთ
+~ შესვენების დროს ეს სლაიდი ეკრანზე დატოვე.
+~ თხოვე სტუდენტებს: გახსენით Visual Studio და შეამოწმეთ, რომ .NET 10 დაყენებულია — შესვენების შემდეგ პრაქტიკა გვაქვს.
+</aside>
+</section>
+
+<!-- ============ PART 5: .NET ============ -->
+<section class="slide divider" data-section="5 · .NET">
+  <div class="vcenter">
+    <div class="kicker in">ნაწილი 5</div>
+    <h1 class="in" style="--d:.1s">API <span class="grad">.NET-ში</span></h1>
+    <p class="lead mt in" style="--d:.3s">საიდან მოვიდა და რა არჩევანი გვაქვს</p>
+  </div>
+  <div class="big-num">05</div>
+  <aside class="notes">
+⏱ 1:24 · ნაწილი 5 (≈10 წთ)
+თეორია დავასრულეთ. ახლა ვნახოთ, რა ხელსაწყოები გვაქვს, რომ ეს ყველაფერი C#-ში დავწეროთ.
+</aside>
+</section>
+
+<!-- 31. SHORT HISTORY -->
+<section class="slide" data-section="5 · .NET">
+  <div class="kicker">მოკლე ისტორია</div>
+  <h2>Microsoft-ის ვებ ტექნოლოგიები</h2>
+  <svg viewBox="0 0 1420 460" width="1420" height="460">
+    <line x1="40" y1="230" x2="1380" y2="230" stroke="#353b6b" stroke-width="4"/>
+    <g class="step fade"><circle cx="110" cy="230" r="16" fill="#f5a524"/><text x="110" y="190" text-anchor="middle" class="mono to b" font-size="22">1996</text><text x="110" y="285" text-anchor="middle" class="tw b" font-size="22">Classic ASP</text><text x="110" y="315" text-anchor="middle" class="tm" font-size="16">HTML + კოდი ერთად</text></g>
+    <g class="step fade"><circle cx="360" cy="230" r="16" fill="#3b82f6"/><text x="360" y="190" text-anchor="middle" class="mono tb b" font-size="22">2002</text><text x="360" y="285" text-anchor="middle" class="tw b" font-size="22">ASP.NET Web Forms</text><text x="360" y="315" text-anchor="middle" class="tm" font-size="16">C#, „ვები როგორც Windows“</text></g>
+    <g class="step fade"><circle cx="610" cy="230" r="16" fill="#22c55e"/><text x="610" y="190" text-anchor="middle" class="mono tg b" font-size="22">2009</text><text x="610" y="285" text-anchor="middle" class="tw b" font-size="22">ASP.NET MVC</text><text x="610" y="315" text-anchor="middle" class="tm" font-size="16">მოწესრიგებული კოდი</text></g>
+    <g class="step fade"><circle cx="860" cy="230" r="16" fill="#22d3ee"/><text x="860" y="190" text-anchor="middle" class="mono ta b" font-size="22">2012</text><text x="860" y="285" text-anchor="middle" class="tw b" font-size="22">ASP.NET Web API</text><text x="860" y="315" text-anchor="middle" class="tm" font-size="16">JSON მობილურისთვის</text></g>
+    <g class="step fade"><circle cx="1110" cy="230" r="20" fill="#8b6cff"/><text x="1110" y="190" text-anchor="middle" class="mono tn b" font-size="22">2016</text><text x="1110" y="285" text-anchor="middle" class="tw b" font-size="22">ASP.NET Core</text><text x="1110" y="315" text-anchor="middle" class="tm" font-size="16">თავიდან დაწერილი</text></g>
+    <g class="step zoom" style="transform-origin:1320px 230px"><circle cx="1320" cy="230" r="26" fill="#22c55e" class="pulse"/><text x="1320" y="180" text-anchor="middle" class="mono tg b" font-size="22">2025</text><text x="1320" y="295" text-anchor="middle" class="tg b" font-size="24">.NET 10</text><text x="1320" y="325" text-anchor="middle" class="tw" font-size="17">← ჩვენ აქ ვართ</text></g>
+  </svg>
+  <aside class="notes">
+⏱ 3 წთ · ~ მოკლედ, დეტალებში ნუ შეხვალ
+Microsoft ვებისთვის ხელსაწყოებს 30 წელია აკეთებს. ძალიან მოკლედ:
+→ 1996 · Classic ASP
+პირველი ვერსია — HTML და კოდი ერთ ფაილში, არეულად.
+→ 2002 · Web Forms
+ASP.NET და C#. იდეა: ვები ისე ააწყო, როგორც Windows პროგრამა — ღილაკის გადმოთრევით.
+→ 2009 · MVC
+კოდი მოწესრიგდა — დაიყო ნაწილებად.
+→ 2012 · Web API
+გაჩნდა სმარტფონები. მათ HTML არ სჭირდებათ, მხოლოდ მონაცემი — JSON. ასე დაიბადა Web API.
+→ 2016 · ASP.NET Core
+ყველაფერი თავიდან დაიწერა: უფრო სწრაფი, მუშაობს ნებისმიერ კომპიუტერზე.
+→ 2025 · .NET 10
+და დღეს — .NET 10. ჩვენ ზუსტად ამას ვიყენებთ.
+! ყოველი ახალი ტექნოლოგია წინას პრობლემას აგვარებდა.
+</aside>
+</section>
+
+<!-- 32. PROJECT TYPES -->
+<section class="slide" data-section="5 · .NET">
+  <div class="kicker">ASP.NET Core · პროექტის ტიპები</div>
+  <h2>რა შეგვიძლია ავაწყოთ?</h2>
+  <div class="grid3" style="margin-top:30px">
+    <div class="card accent step" style="--a:var(--mvc)"><div class="big-emoji">🔺</div><h3 class="mt">MVC</h3><p class="small">სერვერი აწყობს <b>მთლიან HTML გვერდს</b>. კოდი დაყოფილია Model / View / Controller-ად.</p><p class="tiny mt">აბრუნებს: <b>HTML</b> · მხოლოდ ბრაუზერისთვის</p></div>
+    <div class="card accent step" style="--a:var(--asp)"><div class="big-emoji">📄</div><h3 class="mt">Razor Pages</h3><p class="small">ყოველი გვერდი = ერთი ფაილი + მისი კოდი. მარტივი ფორმებისთვის.</p><p class="tiny mt">აბრუნებს: <b>HTML</b> · მხოლოდ ბრაუზერისთვის</p></div>
+    <div class="card accent step zoom" style="--a:var(--api);box-shadow:0 0 50px -12px var(--api)"><div class="big-emoji">🔌</div><h3 class="mt">Web API</h3><p class="small">გვერდს <b>არ ხატავს</b> — აბრუნებს მხოლოდ მონაცემს.</p><p class="tiny mt">აბრუნებს: <b>JSON</b> · ნებისმიერი კლიენტისთვის</p></div>
+  </div>
+  <div class="callout step mt2" style="--a:var(--muted)">Web API-ს ორი სტილი აქვს: <b>Controllers</b> (კლასებით) და <b>Minimal API</b> (მოკლე, თანამედროვე). დღეს Minimal-ს ვნახავთ.</div>
+  <aside class="notes">
+⏱ 3 წთ
+ASP.NET Core-ში რამდენიმე ტიპის პროექტი შეგვიძლია შევქმნათ. თითოეულზე ერთი წინადადება:
+→ MVC
+MVC — სერვერი აწყობს მთლიან HTML გვერდს და ბრაუზერს უგზავნის.
+→ Razor Pages
+Razor Pages — ყოველი გვერდი ერთი ფაილია თავისი კოდით. მარტივი ფორმებისთვის. ესეც HTML-ს აბრუნებს.
+→ Web API
+Web API — გვერდს საერთოდ არ ხატავს. აბრუნებს მხოლოდ მონაცემს — JSON-ს. ზუსტად ის, რაზეც დღეს მთელი ლექცია ვსაუბრობდით.
+→ ორი სტილი
+Web API-ს ორნაირად წერენ: Controllers — კლასებით, და Minimal API — მოკლედ, თანამედროვედ. დღეს Minimal-ს ვნახავთ.
+</aside>
+</section>
+
+<!-- 33. WHY WEB API -->
+<section class="slide" data-section="5 · .NET">
+  <div class="kicker">ჩვენი არჩევანი</div>
+  <h2>რატომ <span class="c-api">ASP.NET Core Web API?</span></h2>
+  <svg viewBox="0 0 1420 400" width="1420" height="400">
+    <g class="step left"><rect x="20" y="40" width="560" height="140" rx="18" fill="#151935" stroke="#22c55e" stroke-width="2"/><text x="50" y="100" class="tg b" font-size="24">MVC / Razor Pages</text><text x="50" y="140" class="tw" font-size="20">→ 📄 HTML გვერდი</text>
+      <path d="M580 110 H700" stroke="#353b6b" stroke-width="3"/><rect x="700" y="70" width="200" height="80" rx="14" class="box"/><text x="800" y="118" text-anchor="middle" class="tw" font-size="20">💻 მხოლოდ ბრაუზერი</text></g>
+    <g class="step left"><rect x="20" y="220" width="560" height="140" rx="18" fill="#0e2a33" stroke="#22d3ee" stroke-width="3"/><text x="50" y="280" class="ta b" font-size="24">Web API</text><text x="50" y="320" class="tw" font-size="20">→ { JSON }</text>
+      <g stroke="#22d3ee" stroke-width="3" fill="none" class="flow"><path d="M580 290 C640 290 640 230 700 230"/><path d="M580 290 H700"/><path d="M580 290 C640 290 640 350 700 350"/></g>
+      <g font-size="19"><text x="710" y="236" class="tw">💻 Angular / React საიტი</text><text x="710" y="296" class="tw">📱 მობილური აპი</text><text x="710" y="356" class="tw">🏦 სხვა სისტემა</text></g></g>
+  </svg>
+  <div class="grid3">
+    <div class="callout step" style="--a:var(--api)">ასე მუშაობს <b>თანამედროვე კომპანიების</b> უმეტესობა</div>
+    <div class="callout step" data-with style="--a:var(--pink)">Frontend-ს (Angular/React) <b>ცალკე</b> ააწყობთ და ამ API-ს მიუერთებთ</div>
+    <div class="callout step" data-with style="--a:var(--mvc)">ვაკანსიებში „.NET Developer“ ≈ <b>API</b>-ს წერა</div>
+  </div>
+  <aside class="notes">
+⏱ 3 წთ
+მაშ, რას ვირჩევთ?
+→ MVC / Razor Pages
+MVC და Razor Pages HTML გვერდს აბრუნებენ — ის მხოლოდ ბრაუზერს გამოადგება.
+→ Web API
+Web API აბრუნებს JSON-ს — და მას იყენებს Angular-ის ან React-ის საიტიც, მობილური აპიც, სხვა სისტემაც.
+→ სამი მიზეზი
+ამიტომ ვირჩევთ ASP.NET Core Web API-ს: ასე მუშაობს კომპანიების უმეტესობა; Frontend-ს ცალკე ააწყობთ და ამ API-ს მიუერთებთ; და ვაკანსიებში „.NET Developer“ ძირითადად სწორედ API-ს წერას ნიშნავს.
+~ სილაბუსში ბოლო მაგალითი Razor Pages-ზეა — თუ გკითხეს, ახსენი რატომ ვირჩევთ Web API-ს.
+</aside>
+</section>
+
+<!-- ============ PART 6: PRACTICE ============ -->
+<section class="slide divider" data-section="6 · პრაქტიკა">
+  <div class="vcenter">
+    <div class="kicker in">ნაწილი 6</div>
+    <h1 class="in" style="--d:.1s">გადავდივართ<br><span class="grad">Visual Studio-ში</span> ⌨️</h1>
+    <p class="lead mt in" style="--d:.3s">ვქმნით პროექტს და ვწერთ პირველ endpoint-ს</p>
+  </div>
+  <div class="big-num">06</div>
+  <aside class="notes">
+⏱ 1:34 · ნაწილი 6 · პრაქტიკა (≈20 წთ)
+~ აქ პრეზენტაციიდან გადი (Alt+Tab) და გახსენი Visual Studio. შემდეგი სლაიდები სარეზერვოა — თუ VS-ში რამე არ გამოვიდა, ან ეკრანზე დაბრუნება მოგინდა.
+ახლა ყველაფერი, რაც თეორიაში ვისწავლეთ, კოდად ვაქციოთ.
+</aside>
+</section>
+
+<!-- 35. CREATE PROJECT IN VS -->
+<section class="slide" data-section="6 · პრაქტიკა">
+  <div class="kicker">ნაბიჯი 1</div>
+  <h2>ახალი პროექტი Visual Studio-ში</h2>
+  <div class="grid2" style="grid-template-columns:1fr 1.1fr">
+    <div class="col" style="gap:14px">
+      <div class="method-card step left" style="--a:var(--net)"><span class="m" style="min-width:50px">1</span><span class="t"><b>Create a new project</b></span></div>
+      <div class="method-card step left" style="--a:var(--net)"><span class="m" style="min-width:50px">2</span><span class="t">ძებნა: <b>ASP.NET Core Web API</b></span></div>
+      <div class="method-card step left" style="--a:var(--net)"><span class="m" style="min-width:50px">3</span><span class="t">სახელი: <b>ProductsApi</b></span></div>
+      <div class="method-card step left" style="--a:var(--net)"><span class="m" style="min-width:50px">4</span><span class="t">Framework: <b>.NET 10</b></span></div>
+      <div class="method-card step left" style="--a:var(--mvc)"><span class="m" style="min-width:50px">5</span><span class="t"><b>Create</b> → ▶ გაშვება (F5)</span></div>
+    </div>
+    <div class="card step fade" style="padding:0;overflow:hidden">
+      <div style="background:#1b1f3d;padding:12px 20px;font-size:16px;color:var(--muted)">Additional information</div>
+      <div style="padding:22px 26px;font-size:19px;line-height:2.1;color:var(--ink2)">
+        <div>Framework &nbsp;<span class="chip">.NET 10.0 (Long Term Support)</span></div>
+        <div>Authentication type &nbsp;<span class="chip">None</span></div>
+        <div><span class="c-mvc">☑</span> Configure for HTTPS</div>
+        <div><span class="c-mvc">☑</span> Enable OpenAPI support</div>
+        <div><span class="muted">☐</span> Use controllers <span class="tiny">← მოხსნილი = Minimal API</span></div>
+      </div>
+    </div>
+  </div>
+  <aside class="notes">
+~ სარეზერვო · VS-ში ამ ნაბიჯებს ცოცხლად აკეთებ, სტუდენტები შენთან ერთად.
+→ 1 Create a new project
+→ 2 ძებნა: ASP.NET Core Web API
+→ 3 სახელი: ProductsApi
+→ 4 Framework: .NET 10
+→ 5 Create → F5
+→ პარამეტრების ფანჯარა
+Additional information ფანჯარაში: .NET 10, Authentication — None, HTTPS — მონიშნული, OpenAPI — მონიშნული.
+! „Use controllers“ — მოხსნილი უნდა იყოს. ასე ვიღებთ Minimal API-ს.
+~ დაელოდე, სანამ ყველას შეექმნება პროექტი. ჩამორჩენილებს მეზობელი დაეხმაროს.
+</aside>
+</section>
+
+<!-- 36. WHAT WAS CREATED -->
+<section class="slide" data-section="6 · პრაქტიკა">
+  <div class="kicker">ნაბიჯი 2</div>
+  <h2>რა შეიქმნა?</h2>
+  <div class="grid2" style="grid-template-columns:.9fr 1.1fr;align-items:center">
+    <div class="card" style="font:24px/2.1 var(--mono)">
+      📁 <b>ProductsApi</b><br>
+      &nbsp;├ 📁 Properties<br>
+      &nbsp;├ 📄 appsettings.json<br>
+      &nbsp;├ 📄 <b class="c-api">Program.cs</b> ⭐<br>
+      &nbsp;└ 📄 ProductsApi.http
+    </div>
+    <div class="col" style="gap:16px">
+      <div class="callout step" style="--a:var(--api);font-size:23px"><b>Program.cs</b> — აპლიკაციის „გული“. აქ ვწერთ ჩვენს endpoint-ებს. <b>დღეს მხოლოდ ეს გვჭირდება.</b></div>
+      <div class="callout step" style="--a:var(--asp);font-size:23px"><b>appsettings.json</b> — პარამეტრები (მაგ. ბაზასთან კავშირი — მოგვიანებით).</div>
+      <div class="callout step" style="--a:var(--mvc);font-size:23px"><b>.http ფაილი</b> — აქედან ვგზავნით მოთხოვნებს და ვამოწმებთ API-ს.</div>
+    </div>
+  </div>
+  <aside class="notes">
+~ სარეზერვო · VS-ში Solution Explorer-ზე აჩვენე
+→ Program.cs
+Program.cs — აპლიკაციის „გული“. აქ ვწერთ ჩვენს Endpoint-ებს. დღეს მხოლოდ ეს ფაილი გვჭირდება.
+→ appsettings.json
+appsettings.json — პარამეტრები. მაგალითად, ბაზასთან კავშირი — მოგვიანებით.
+→ .http ფაილი
+.http ფაილი — აქედან ვგზავნით მოთხოვნებს და ვამოწმებთ API-ს.
+~ Properties-ს არ შეეხო — „მოგვიანებით“ და გადადი.
+</aside>
+</section>
+
+<!-- 37. FIRST ENDPOINT -->
+<section class="slide" data-section="6 · პრაქტიკა">
+  <div class="kicker">ნაბიჯი 3</div>
+  <h2>ჩვენი პირველი endpoint</h2>
+  <div class="grid2" style="grid-template-columns:1.25fr 1fr">
+    <code-block id="first" lang="csharp" cls="big" title="Program.cs">
+var builder = WebApplication.CreateBuilder(args);
+var app = builder.Build();
+
+var products = new List<Product>
+{
+    new(1, "ლეპტოპი", 2400),
+    new(2, "მაუსი", 45),
+};
+
+app.MapGet("/api/products", () => products);
+
+app.Run();
+
+record Product(int Id, string Name, decimal Price);
+    </code-block>
+    <div class="col">
+      <i class="codestep" data-for="first" data-lines="1-2"></i>
+      <div class="callout step" data-with style="--a:var(--muted)"><b>აპლიკაციის შექმნა</b> — ყოველთვის ასე იწყება</div>
+      <i class="codestep" data-for="first" data-lines="4-8,14"></i>
+      <div class="callout step" data-with style="--a:var(--asp)"><b>მონაცემი</b> — ჯერ ბაზის ნაცვლად უბრალო სია</div>
+      <i class="codestep" data-for="first" data-lines="10"></i>
+      <div class="callout step" data-with style="--a:var(--api)"><b>Endpoint</b> — GET მოთხოვნა ამ მისამართზე → დააბრუნე სია</div>
+      <i class="codestep" data-for="first" data-lines="12"></i>
+      <div class="callout step" data-with style="--a:var(--mvc)"><b>გაშვება</b> — სერვერი იწყებს მოთხოვნების მიღებას</div>
+    </div>
+  </div>
+  <aside class="notes">
+~ სარეზერვო · VS-ში Program.cs-ის შიგთავსს შლი და ამ კოდს ნელა წერ, ხმამაღლა ახსნით.
+→ ხაზები 1–2
+აპლიკაციის შექმნა — ასე ყოველთვის იწყება.
+→ მონაცემი
+ჯერ ბაზა არ გვაქვს, ამიტომ უბრალო სიას ვიყენებთ. record Product — მოკლე ჩანაწერი: Id, Name, Price.
+→ ხაზი 10 — Endpoint
+! აი, ჩვენი პირველი Endpoint. გახსოვთ სლაიდი, სადაც Endpoint ფუნქციას იძახებდა? აი ის.
+→ app.Run()
+გაშვება — სერვერი იწყებს მოთხოვნების მიღებას.
+</aside>
+</section>
+
+<!-- 38. ENDPOINT ANATOMY -->
+<section class="slide" data-section="6 · პრაქტიკა">
+  <div class="kicker">ერთი ხაზის ანატომია</div>
+  <h2>რას ნიშნავს ეს ხაზი?</h2>
+  <div style="text-align:center;margin-top:60px;font:700 44px var(--mono);letter-spacing:-.5px">
+    <span style="color:var(--muted)">app.</span><span class="c-mvc" style="border-bottom:5px solid var(--mvc);padding-bottom:6px">MapGet</span><span style="color:var(--muted)">(</span><span class="c-asp" style="border-bottom:5px solid var(--asp);padding-bottom:6px">"/api/products"</span><span style="color:var(--muted)">, </span><span class="c-api" style="border-bottom:5px solid var(--api);padding-bottom:6px">() => products</span><span style="color:var(--muted)">);</span>
+  </div>
+  <div class="grid3" style="margin-top:70px">
+    <div class="card step" style="border-color:rgba(34,197,94,.5);text-align:center"><h3 class="c-mvc" style="justify-content:center">MapGet</h3><p>REST მეთოდი: <b>GET</b><br>„წაკითხვა“</p></div>
+    <div class="card step" style="border-color:rgba(245,165,36,.5);text-align:center"><h3 class="c-asp" style="justify-content:center">"/api/products"</h3><p>მისამართი — <b>რესურსი</b></p></div>
+    <div class="card step" style="border-color:rgba(34,211,238,.5);text-align:center"><h3 class="c-api" style="justify-content:center">() => products</h3><p>რა გავაკეთოთ და <b>რა დავაბრუნოთ</b></p></div>
+  </div>
+  <div class="callout step mt2" style="--a:var(--net);font-size:24px;text-align:center;border-left:0;border-radius:14px">REST ცოდნა პირდაპირ კოდად იქცა: <b>მეთოდი + რესურსი + პასუხი</b></div>
+  <aside class="notes">
+⏱ 3 წთ · ! „აჰა“ მომენტი — დაბრუნდი პრეზენტაციაში და ეს სლაიდი აჩვენე
+ერთ ხაზს უფრო ახლოდან შევხედოთ.
+→ MapGet
+MapGet — ეს REST-ის მეთოდია: GET, წაკითხვა.
+→ "/api/products"
+"/api/products" — მისამართი, ანუ რესურსი.
+→ () => products
+() => products — ფუნქცია: რა გავაკეთოთ და რა დავაბრუნოთ. სწორედ ის ფუნქცია, რომელსაც Endpoint ააქტიურებს.
+→ დასკვნა
+! ყველაფერი, რაც დღეს REST-ზე და Endpoint-ზე ვთქვით, ერთ ხაზში ჩაეტია: მეთოდი + მისამართი + ფუნქცია.
+</aside>
+</section>
+
+<!-- 39. TEST -->
+<section class="slide" data-section="6 · პრაქტიკა">
+  <div class="kicker">ნაბიჯი 4</div>
+  <h2>ვამოწმებთ 🎉</h2>
+  <div class="grid2">
+    <div class="col">
+      <code-block lang="http" cls="big" title="ProductsApi.http">
+GET https://localhost:7001/api/products
+      </code-block>
+      <p class="tiny">პორტი ყველას თავისი აქვს — Visual Studio თვითონ ჩაწერს</p>
+      <div class="callout step" style="--a:var(--muted)">ან უბრალოდ ბრაუზერში აკრიფე მისამართი — ესეც GET მოთხოვნაა!</div>
+    </div>
+    <div class="col">
+      <code-block lang="http" cls="big step" title="Response">
+HTTP/1.1 200 OK
+Content-Type: application/json
+      </code-block>
+      <code-block lang="json" cls="big step" data-with>
+[
+  { "id": 1, "name": "ლეპტოპი", "price": 2400 },
+  { "id": 2, "name": "მაუსი", "price": 45 }
+]
+      </code-block>
+    </div>
+  </div>
+  <aside class="notes">
+⏱ 4 წთ · ~ VS-ში: F5, შემდეგ .http ფაილიდან Send Request
+ახლა შევამოწმოთ. .http ფაილში ვწერთ GET მოთხოვნას ჩვენს მისამართზე. პორტი ყველას თავისი აქვს — VS თვითონ წერს.
+→ ბრაუზერის ვარიანტი
+ან უბრალოდ ბრაუზერში აკრიფეთ მისამართი — ესეც GET მოთხოვნაა!
+→ პასუხი
+და აი, პასუხი: 200 OK, და ჩვენი ორი პროდუქტი JSON-ში.
+! დააკვირდით: C#-ში Name დავწერეთ დიდი ასოთი, JSON-ში name მოვიდა პატარათი. ASP.NET Core ამას ავტომატურად აკეთებს.
+~ შეამოწმე, ყველას თუ ამოუვიდა. ვისაც 404 აქვს — ხშირად მისამართში შეცდომაა.
+</aside>
+</section>
+
+<!-- 40. METHODS IN CODE -->
+<section class="slide" data-section="6 · პრაქტიკა">
+  <div class="kicker">შემდეგი ნაბიჯები</div>
+  <h2>5 მეთოდი = 5 <span class="c-api">Map</span></h2>
+  <div class="col" style="gap:14px;margin-top:20px">
+    <div class="method-card step left" style="--a:var(--mvc)"><span class="m">MapGet</span><span class="t mono">("/api/products", …)</span><span class="t" style="margin-left:auto">წაკითხვა</span></div>
+    <div class="method-card step left" style="--a:var(--asp)"><span class="m">MapPost</span><span class="t mono">("/api/products", …)</span><span class="t" style="margin-left:auto">შექმნა</span></div>
+    <div class="method-card step left" style="--a:var(--wf)"><span class="m">MapPut</span><span class="t mono">("/api/products/{id}", …)</span><span class="t" style="margin-left:auto">მთლიანად შეცვლა</span></div>
+    <div class="method-card step left" style="--a:var(--core)"><span class="m">MapPatch</span><span class="t mono">("/api/products/{id}", …)</span><span class="t" style="margin-left:auto">ნაწილობრივ შეცვლა</span></div>
+    <div class="method-card step left" style="--a:var(--red)"><span class="m">MapDelete</span><span class="t mono">("/api/products/{id}", …)</span><span class="t" style="margin-left:auto">წაშლა</span></div>
+  </div>
+  <p class="lead step mt" style="text-align:center">დანარჩენ 4-ს შემდეგ ლექციებზე დავწერთ ✍️</p>
+  <aside class="notes">
+⏱ 2 წთ
+დღეს მხოლოდ ერთი მეთოდი დავწერეთ. მაგრამ თითოეულ REST მეთოდს თავისი Map აქვს:
+→ MapGet — წაკითხვა
+→ MapPost — შექმნა
+→ MapPut — მთლიანად შეცვლა
+→ MapPatch — ნაწილობრივ შეცვლა
+→ MapDelete — წაშლა
+→ ანონსი
+დანარჩენ ოთხს შემდეგ ლექციაზე დავწერთ. {id} მისამართში ნიშნავს — აქ კონკრეტული ნომერი ჩაჯდება.
+</aside>
+</section>
+
+<!-- 41. RECAP -->
+<section class="slide" data-section="შეჯამება">
+  <div class="kicker">შეჯამება</div>
+  <h2>დღეს ვისწავლეთ</h2>
+  <div class="col" style="gap:34px;margin-top:40px">
+    <div class="row step left" style="gap:20px;align-items:center"><span class="big-emoji" style="font-size:44px">⚙️</span><span style="font-size:30px"><b>Backend</b> — საერთო ადგილი მონაცემისა და წესებისთვის</span></div>
+    <div class="row step left" style="gap:20px;align-items:center"><span class="big-emoji" style="font-size:44px">🤵</span><span style="font-size:30px"><b>API</b> — „მიმტანი“, რომელიც Endpoint-ებისგან შედგება</span></div>
+    <div class="row step left" style="gap:20px;align-items:center"><span class="big-emoji" style="font-size:44px">🌐</span><span style="font-size:30px"><b>Request → Response</b>, JSON და სტატუს კოდები</span></div>
+    <div class="row step left" style="gap:20px;align-items:center"><span class="big-emoji" style="font-size:44px">📮</span><span style="font-size:30px"><b>REST</b> — რესურსი + 5 მეთოდი: GET, POST, PUT, PATCH, DELETE</span></div>
+    <div class="row step left" style="gap:20px;align-items:center"><span class="big-emoji" style="font-size:44px">🔌</span><span style="font-size:30px"><b>ASP.NET Core Web API</b> — და ჩვენი პირველი <code class="i">MapGet</code></span></div>
+  </div>
+  <aside class="notes">
+⏱ 1:54 · შეჯამება (≈5 წთ)
+შევაჯამოთ, რა ვისწავლეთ დღეს:
+→ Backend
+Backend — ერთი საერთო ადგილი მონაცემისა და წესებისთვის.
+→ API
+API — მიმტანი, რომელიც Endpoint-ებისგან შედგება. თითოეული Endpoint Backend-ში ფუნქციას იძახებს.
+→ Request → Response
+საიტი და სერვერი ელაპარაკებიან Request-ით და Response-ით, JSON-ით და სტატუს კოდებით.
+→ REST
+REST — რესურსი + ხუთი მეთოდი.
+→ ASP.NET Core Web API
+და დავწერეთ ჩვენი პირველი Endpoint ASP.NET Core Web API-ში.
+</aside>
+</section>
+
+<!-- 42. QUIZ / HOMEWORK -->
+<section class="slide" data-section="შეჯამება">
+  <div class="kicker">შეამოწმე თავი</div>
+  <h2>5 კითხვა 🙋</h2>
+  <div class="qa"><span class="n">01</span><span class="q">რატომ არ შეიძლება ონლაინ მაღაზია მხოლოდ ბრაუზერში ცხოვრობდეს?</span><span class="a step">მონაცემი და წესები ყველასთვის საერთო უნდა იყოს და დაცული — ეს Backend-ის საქმეა.</span></div>
+  <div class="qa"><span class="n">02</span><span class="q">რა არის Endpoint?</span><span class="a step">მეთოდი + მისამართი, რომელიც Backend-ში კონკრეტულ ფუნქციას იძახებს.</span></div>
+  <div class="qa"><span class="n">03</span><span class="q">რომელი მეთოდით შევქმნით ახალ მომხმარებელს?</span><span class="a step"><code class="i">POST /users</code> → 201 Created</span></div>
+  <div class="qa"><span class="n">04</span><span class="q">PUT და PATCH — რა განსხვავებაა?</span><span class="a step">PUT მთლიანად ცვლის, PATCH — მხოლოდ გაგზავნილ ველებს.</span></div>
+  <div class="qa"><span class="n">05</span><span class="q">რას ნიშნავს 404?</span><span class="a step">მოთხოვნილი რესურსი ვერ მოიძებნა (4xx = კლიენტის შეცდომა).</span></div>
+  <div class="callout step mt" style="--a:var(--api)">🏠 <b>დავალება:</b> დაამატე endpoint <code class="i">GET /api/categories</code> საკუთარი სიით და შეამოწმე .http ფაილით.</div>
+  <aside class="notes">
+~ ჯერ კითხვა ხმამაღლა დასვი, დაელოდე პასუხს აუდიტორიიდან, მერე → პასუხის გამოსაჩენად.
+? 1. რატომ ვერ იცხოვრებს ონლაინ მაღაზია მხოლოდ ბრაუზერში?
+→ პასუხი 1
+? 2. რა არის Endpoint?
+→ პასუხი 2
+? 3. რომელი მეთოდით შევქმნით ახალ მომხმარებელს?
+→ პასუხი 3
+? 4. რით განსხვავდება PUT და PATCH?
+→ პასუხი 4
+? 5. რას ნიშნავს 404?
+→ პასუხი 5
+→ დავალება
+საშინაო დავალება: დაამატეთ Endpoint GET /api/categories თქვენივე სიით და შეამოწმეთ .http ფაილით.
+მადლობა! კითხვები?
+</aside>
+</section>

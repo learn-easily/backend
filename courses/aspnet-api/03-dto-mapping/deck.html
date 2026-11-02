@@ -1,0 +1,1285 @@
+<style>
+i.codestep{display:none}
+.mono{font-family:var(--mono)}
+.late{opacity:0}
+.shown .late,.shown.late{animation:inFade .6s var(--ease) var(--ld,.9s) forwards}
+.term .ok{color:#4ade80}
+.term .warn{color:#fbbf24}
+.term .body{font-size:18px;line-height:1.65}
+.tree{font:19px/1.9 var(--mono);color:var(--ink2)}
+.tree .n{display:block;white-space:nowrap}
+.tree .n i{font-style:normal;margin-right:8px}
+.tree .lvl1{padding-left:30px}.tree .lvl2{padding-left:60px}
+.tree .hi{color:var(--ink);font-weight:700}
+.tree .x{color:var(--muted);text-decoration:line-through}
+.nuget{display:flex;align-items:center;gap:16px;background:#fff;border:1px solid var(--line);border-radius:14px;padding:16px 18px;box-shadow:var(--shadow)}
+.nuget .logo{width:52px;height:52px;border-radius:12px;display:grid;place-items:center;font:800 16px var(--mono);color:#fff;background:linear-gradient(135deg,#db2777,#6d28d9);flex:none}
+.nuget .nm{font:700 20px var(--mono);color:var(--ink)}
+.nuget .ds{font-size:16px;color:var(--muted)}
+.nuget .btn{margin-left:auto;font:700 15px var(--mono);padding:8px 16px;border-radius:10px;background:var(--pink);color:#fff}
+.flowrow{display:flex;align-items:center;gap:16px}
+.fbox{flex:1;border-radius:16px;padding:14px 18px;border:2px solid var(--a);background:color-mix(in srgb,var(--a) 8%,#fff);text-align:center}
+.fbox .e{font-size:34px;line-height:1.2}
+.fbox .l{font-size:20px;font-weight:700;color:var(--ink)}
+.fbox .s{font:15px var(--mono);color:var(--muted)}
+.farrow{font:700 16px var(--mono);color:var(--a);text-align:center;min-width:120px}
+.farrow .ar{display:block;font-size:36px;line-height:1}
+.check li{list-style:none;position:relative;padding-left:44px;margin:12px 0;font-size:22px}
+.check li::before{content:"";position:absolute;left:0;top:.2em;width:26px;height:26px;border-radius:8px;border:2px solid var(--line2);background:#fff}
+.check li.shown::before{content:"✓";color:#fff;background:var(--mvc);border-color:var(--mvc);font:800 18px/26px var(--font);text-align:center}
+.mock{background:#fff;border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);overflow:hidden}
+.mock .mh{background:var(--bg2);padding:10px 16px;font:600 14px var(--mono);color:var(--muted);border-bottom:1px solid var(--line)}
+.mock .mb{padding:18px 22px}
+.phase{text-align:center}
+.phase .em{font-size:64px;line-height:1.1}
+/* VS dialog */
+.vs .row2{display:flex;align-items:center;gap:14px;margin:10px 0;font-size:19px;color:var(--ink2)}
+.vs .lbl{width:210px;color:var(--muted);font-size:17px}
+.vs .sel{flex:1;border:1px solid var(--line2);border-radius:8px;padding:8px 12px;font:600 17px var(--mono);color:var(--ink);background:#fff}
+.cb{width:24px;height:24px;border-radius:6px;border:2px solid var(--line2);display:inline-grid;place-items:center;font:800 16px var(--font);color:#fff;flex:none}
+.cb.on{background:var(--api);border-color:var(--api)}
+.cbrow{display:flex;align-items:center;gap:12px;margin:12px 0;font-size:20px;padding:6px 10px;border-radius:10px}
+.cbrow.hot{background:rgba(217,119,6,.10);box-shadow:0 0 0 2px var(--asp)}
+/* request / response */
+.mth{display:inline-block;font:800 17px var(--mono);color:#fff;background:var(--a);padding:4px 12px;border-radius:8px;min-width:84px;text-align:center}
+.url{font:700 21px var(--mono);color:var(--ink)}
+.rq{display:flex;align-items:center;gap:14px;background:#fff;border:1px solid var(--line);border-radius:12px;padding:12px 16px;box-shadow:var(--shadow)}
+.st{display:inline-block;font:800 18px var(--mono);padding:4px 12px;border-radius:8px;color:#fff;background:var(--a)}
+.rs{border-left:5px solid var(--a);background:color-mix(in srgb,var(--a) 6%,#fff);border-radius:0 12px 12px 0;padding:12px 16px}
+.rs .h{font:600 16px var(--mono);color:var(--muted);margin-bottom:6px}
+.json{font:600 17px/1.55 var(--mono);color:var(--ink2);white-space:pre;margin:0}
+.json .k{color:#7c3aed}.json .s{color:#15803d}.json .n{color:#c2410c}
+/* method rows */
+.mr{display:grid;grid-template-columns:120px 330px 1fr 230px 120px;align-items:center;gap:16px;padding:12px 18px;border-radius:14px;background:#fff;border:1px solid var(--line);box-shadow:var(--shadow);margin:10px 0;font-size:19px}
+.mr .u{font:700 19px var(--mono);color:var(--ink)}
+.mr .fn{font:600 17px var(--mono);color:var(--net)}
+.mr .sc{font:700 16px var(--mono);color:var(--muted);text-align:right}
+.mr.hd{background:transparent;border:0;box-shadow:none;font:600 15px var(--mono);color:var(--muted);padding-top:0;padding-bottom:0}
+/* dev cards (no-REST chaos) */
+.dev{background:#fff;border:1px solid var(--line);border-radius:16px;padding:18px 20px;box-shadow:var(--shadow)}
+.dev h3{font-size:21px;margin-bottom:10px}
+.dev .ep{font:600 16px/1.9 var(--mono);color:var(--ink2);white-space:nowrap}
+.dev .ep b{display:inline-block;min-width:66px;font-weight:800}
+/* swagger mock (real Swagger UI colours) */
+.sw{background:#fff;border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);overflow:hidden;font-family:system-ui,sans-serif}
+.sw .top{background:#1b1b1b;color:#fff;padding:12px 20px;font:700 20px var(--font);display:flex;align-items:center;gap:10px}
+.sw .top i{width:30px;height:30px;border-radius:50%;background:#85ea2d;display:inline-block}
+.sw .ttl{padding:14px 22px 4px;font:800 26px var(--font);color:#3b4151}
+.sw .ttl small{font:700 13px var(--mono);background:#7d8492;color:#fff;border-radius:10px;padding:2px 8px;vertical-align:middle}
+.sw .grp{padding:6px 22px 0;font:700 21px var(--font);color:#3b4151;border-bottom:1px solid #e5e5e5;margin:0 22px 8px;padding-left:0}
+.sw .op{display:flex;align-items:center;gap:14px;margin:8px 22px;border:1px solid var(--c);background:color-mix(in srgb,var(--c) 10%,#fff);border-radius:6px;padding:7px 10px}
+.sw .op .m{font:800 15px var(--mono);color:#fff;background:var(--c);border-radius:4px;padding:6px 0;width:82px;text-align:center}
+.sw .op .p{font:700 17px var(--mono);color:#3b4151}
+.sw .op .d{font-size:15px;color:#3b4151;opacity:.7}
+.sw .schema{margin:12px 22px 18px;border:1px solid #e5e5e5;border-radius:6px;padding:10px 14px;font:600 16px/1.6 var(--mono);color:#3b4151}
+.c-get{--c:#61affe}.c-post{--c:#49cc90}.c-put{--c:#fca130}.c-del{--c:#f93e3e}
+.found{display:flex;flex-direction:column;align-items:stretch;gap:10px}
+.layer{border-radius:14px;padding:14px 18px;text-align:center;font-size:20px;font-weight:700;border:2px solid var(--a);background:color-mix(in srgb,var(--a) 9%,#fff);color:var(--ink)}
+.layer small{display:block;font:500 15px var(--mono);color:var(--muted)}
+.lnum{display:inline-grid;place-items:center;width:30px;height:30px;border-radius:50%;background:var(--a);color:#fff;font:800 16px var(--mono);margin-right:8px;flex:none}
+.big-n{font:800 110px/1 var(--mono)}
+.strike{text-decoration:line-through;text-decoration-thickness:3px;color:var(--muted)}
+</style>
+<!-- =========================================================
+     ლექცია 3 — DTO და Mapping
+     ფერები: Request DTO = ლურჯი · Entity (Product) = ქარვისფერი · Response DTO = მწვანე
+             JSON/კლიენტი = ვარდისფერი · Mapperly/framework = ზღვისფერი · შეცდომა/გაპარვა = წითელი
+     ========================================================= -->
+<style>
+.swr{background:#fff;border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow);overflow:hidden;font-family:system-ui,sans-serif}
+.swr .rh{display:flex;align-items:center;gap:12px;padding:9px 14px;border-bottom:1px solid #e5e5e5;background:color-mix(in srgb,var(--c) 10%,#fff)}
+.swr .rh .m{font:800 14px var(--mono);color:#fff;background:var(--c);border-radius:4px;padding:5px 0;width:78px;text-align:center}
+.swr .rh .p{font:700 17px var(--mono);color:#3b4151}
+.swr .lab{font:700 13px var(--font);color:#3b4151;padding:10px 16px 2px;display:flex;gap:60px;opacity:.8}
+.swr .rr{display:grid;grid-template-columns:70px 1fr;gap:14px;padding:4px 16px 14px;align-items:start}
+.swr .sc{font:800 22px var(--mono);color:#3b4151;padding-top:4px}
+.swr .sc.bad{color:var(--red)}
+.swr .rb{background:#41444e;color:#fff;font:600 16px/1.5 var(--mono);padding:10px 14px;border-radius:6px;white-space:pre;margin:0}
+.swr .rb .k{color:#a5d6ff}.swr .rb .s{color:#a2fca2}.swr .rb .n{color:#fcc28c}
+.swr .hdr{font:600 14px/1.6 var(--mono);color:#3b4151;margin-top:6px}
+.swr .hdr b{color:#3b4151}
+.ring{box-shadow:0 0 0 3px var(--red);border-radius:6px;padding:0 6px}
+.fam{display:grid;grid-template-columns:120px 1fr 1.25fr;align-items:center;gap:18px;padding:12px 20px;border-radius:14px;background:#fff;border:1px solid var(--line);border-left:7px solid var(--a);box-shadow:var(--shadow);margin:10px 0}
+.fam .x{font:800 34px var(--mono);color:var(--a)}
+.fam .t{font-size:23px;font-weight:700;color:var(--ink)}
+.fam .d{font-size:19px;color:var(--ink2)}
+.fam.dim{opacity:.55}
+.toast{display:flex;align-items:center;gap:14px;background:#fff;border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);padding:16px 20px;font-size:22px;font-weight:700;color:var(--ink)}
+.toast .e{font-size:30px}
+.lie{position:relative}
+.lie::after{content:"სინამდვილეში არაფერი წაშლილა";position:absolute;right:-8px;top:-16px;transform:rotate(4deg);background:var(--red);color:#fff;font:700 15px var(--font);padding:4px 12px;border-radius:8px}
+.stbadge{display:inline-block;font:800 17px var(--mono);color:#fff;background:var(--a);border-radius:8px;padding:3px 10px;min-width:56px;text-align:center}
+.mrow{display:grid;grid-template-columns:330px 110px 1fr;gap:16px;align-items:center;padding:10px 18px;border-radius:12px;background:#fff;border:1px solid var(--line);box-shadow:var(--shadow);margin:8px 0}
+.mrow .c{font:700 19px var(--mono);color:var(--ink)}
+.mrow .w{font-size:18px;color:var(--ink2)}
+table.t td .old{color:var(--red);font:700 17px var(--mono)}
+table.t td .new{color:var(--mvc);font:700 17px var(--mono)}
+.dto{border-radius:14px;border:2px solid var(--a);background:color-mix(in srgb,var(--a) 7%,#fff);padding:12px 16px;min-width:0}
+.dto .h{font:800 15px var(--mono);color:var(--a);margin-bottom:6px;overflow-wrap:anywhere}
+.dto .f{font:600 16px/1.7 var(--mono);color:var(--ink2)}
+.dto .f .no{color:var(--muted);text-decoration:line-through}
+.dto .f .add{color:var(--mvc);font-weight:800}
+.rb .leak{background:rgba(248,113,113,.3);box-shadow:0 0 0 2px #f87171}
+.leak{background:#fef2f2;color:#991b1b;border-radius:4px;padding:0 4px;box-shadow:0 0 0 2px #fca5a5}
+.mc{flex-direction:column;align-items:flex-start;gap:8px;padding:22px 24px}
+.mc .m{font-size:24px!important}
+.mc .t{font-size:20px}
+.errbox{background:#fff;border:2px solid var(--red);border-radius:14px;box-shadow:var(--shadow);overflow:hidden}
+.errbox .eh{background:#fef2f2;color:#991b1b;font:700 17px var(--mono);padding:10px 18px;border-bottom:1px solid #fca5a5}
+.errbox .eb{padding:16px 20px;font:600 19px/1.6 var(--mono);color:var(--ink2)}
+.errbox .eb u{text-decoration:none;border-bottom:3px solid var(--a,var(--red));padding-bottom:1px}
+</style>
+<!-- 1. TITLE -->
+<section class="slide" data-section="შესავალი">
+  <div class="vcenter" style="max-width:820px">
+    <div class="kicker in" style="color:var(--asp)">ASP.NET Core Web API · ლექცია 3</div>
+    <h1 class="in" style="--d:.15s"><span class="grad">DTO</span> და Mapping</h1>
+    <p class="lead in mt" style="--d:.35s">რას ვიღებთ კლიენტისგან, რას ვაჩვენებთ მას და როგორ გადავიტანოთ მონაცემი <b>ერთი ფორმიდან მეორეში</b></p>
+  </div>
+  <div class="abs" style="right:100px;top:190px;width:520px">
+    <div class="dto in" style="--a:var(--api);--d:.4s"><div class="h">CreateProductRequest</div><div class="f">Name · Price · CostPrice</div></div>
+    <div class="in" style="--d:.6s;text-align:center;font:800 34px var(--mono);color:var(--muted);margin:6px 0">↓</div>
+    <div class="dto in" style="--a:var(--asp);--d:.7s"><div class="h">Product · Entity</div><div class="f">Id · Name · Price · CostPrice · CreatedAt</div></div>
+    <div class="in" style="--d:.9s;text-align:center;font:800 34px var(--mono);color:var(--muted);margin:6px 0">↓</div>
+    <div class="dto in" style="--a:var(--mvc);--d:1s"><div class="h">ProductResponse</div><div class="f">Id · Name · Price</div></div>
+  </div>
+  <aside class="notes">
+⏱ 0:00 · 2 წთ
+~ სლაიდი ღიაა, სანამ სტუდენტები სხდებიან.
+გამარჯობა! წინა ლექციაზე CRUD დავწერეთ, ხუთივე endpoint მუშაობს. დღეს ვნახავთ, რატომ არ წერენ რეალურ პროექტებში ასე და როგორ წერენ.
+დღის თემა: DTO და Mapping. მარჯვნივ ერთი და იგივე პროდუქტია სამ სხვადასხვა ფორმაში. ლექციის ბოლოს გეცოდინებათ, რატომ სჭირდება სამი ფორმა და როგორ გადადის მონაცემი ერთიდან მეორეში.
+  </aside>
+</section>
+
+<!-- 2. RECALL -->
+<section class="slide" data-section="შესავალი">
+  <div class="kicker">გავიხსენოთ · ლექცია 2</div>
+  <h2>წინა ლექციაზე <span class="grad">ასე დავწერეთ</span></h2>
+  <div class="grid2" style="grid-template-columns:1.3fr 1fr;align-items:start;gap:30px">
+    <code-block id="old" lang="csharp" cls="sm" title="Controllers/ProductsController.cs">
+[HttpGet]
+public IActionResult GetAll()
+{
+    return Ok(_products);
+}
+
+[HttpPost]
+public IActionResult Create(Product product)
+{
+    product.Id = _nextId++;
+    _products.Add(product);
+    return CreatedAtAction(nameof(GetById),
+        new { id = product.Id }, product);
+}
+
+[HttpPut("{id}")]
+public IActionResult Update(int id, Product updated) { ... }
+    </code-block>
+    <div class="col" style="gap:16px">
+      <i class="codestep" data-for="old" data-lines="1-5"></i>
+      <div class="callout step" data-with style="--a:var(--mvc)">სტატუსი სწორია, მაგრამ <code class="i">Ok()</code>-ში <b>Product</b> დევს — პირდაპირ</div>
+      <i class="codestep" data-for="old" data-lines="7-8,12-13"></i>
+      <div class="callout step" data-with style="--a:var(--api)">შიგნით <b>Product</b> შემოდის და გარეთაც <b>Product</b> გადის</div>
+      <i class="codestep" data-for="old" data-lines="16-17"></i>
+      <div class="callout step" data-with style="--a:var(--wf)">განახლებაც — <b>Product</b>-ით</div>
+      <div class="callout step" style="--a:var(--asp)">ერთი კლასი <b>ყველაფრისთვის</b>: შენახვა, მიღება, გაგზავნა. მუშაობს. <b>მაგრამ ასე არ კეთდება</b> 🤔</div>
+    </div>
+  </div>
+  <aside class="notes">
+⏱ 0:02 · 3 წთ
+~ თუ კლასში ოდნავ სხვანაირად დაწერეთ, შენი ვარიანტი აჩვენე — იდეა იგივეა: Product პირდაპირ შემოდის და გადის.
+ასე დავასრულეთ წინა ლექცია.
+→ GetAll
+GetAll: სტატუს კოდები უკვე სწორად გვაქვს — IActionResult, Ok. მაგრამ შეხედეთ, რა დევს Ok-ში: Product-ების სია, პირდაპირ.
+→ Create
+Create კლიენტისგან პირდაპირ Product-ს იღებს და პასუხადაც Product-ს აბრუნებს.
+→ Update
+Update-იც Product-ს იღებს.
+→ ერთი კლასი
+! ყველგან ერთი კლასია: Product. მასში ვინახავთ, მას ვიღებთ, მას ვაბრუნებთ. სტატუსი სწორია — ფორმა არა. რეალურ პროექტში ასე არ წერენ. დღეს ვნახავთ, რატომ.
+  </aside>
+</section>
+
+<!-- 3. ENTITY = TABLE -->
+<section class="slide" data-section="შესავალი">
+  <div class="kicker">მთავარი იდეა</div>
+  <h2>Product — უბრალო კლასი კი არა, <span class="c-asp">ბაზის ნაწილია</span></h2>
+  <div class="grid2" style="grid-template-columns:1fr 1.15fr;gap:30px;align-items:center">
+    <code-block lang="csharp" cls="big" title="Models/Product.cs">
+public class Product
+{
+    public int Id { get; set; }
+    public string Name { get; set; } = "";
+    public decimal Price { get; set; }
+}
+    </code-block>
+    <svg viewBox="0 0 700 380" width="700" height="380">
+      <g class="step">
+        <path class="draw" d="M10 190 H 140" stroke="#d97706" stroke-width="4" fill="none"/>
+        <text x="75" y="175" text-anchor="middle" class="to b" font-size="17">ხდება</text>
+        <rect x="150" y="60" width="400" height="260" rx="14" fill="#fff" stroke="#d97706" stroke-width="3"/>
+        <rect x="150" y="60" width="400" height="54" rx="14" fill="#fef5e4" stroke="#d97706" stroke-width="3"/>
+        <text x="350" y="95" text-anchor="middle" class="to b" font-size="22">🗄️ Products ცხრილი</text>
+        <text x="180" y="150" class="tw b mono" font-size="18">Id</text><text x="330" y="150" class="tm mono" font-size="16">int · PK</text>
+        <text x="180" y="200" class="tw b mono" font-size="18">Name</text><text x="330" y="200" class="tm mono" font-size="16">nvarchar</text>
+        <text x="180" y="250" class="tw b mono" font-size="18">Price</text><text x="330" y="250" class="tm mono" font-size="16">decimal</text>
+        <text x="180" y="300" class="tm" font-size="15">… ყოველი ობიექტი = ერთი რიგი</text>
+      </g>
+      <g class="step"><text x="350" y="30" text-anchor="middle" class="tp b" font-size="20">ამას ჰქვია Entity</text></g>
+    </svg>
+  </div>
+  <div class="callout step mt" style="--a:var(--asp)">ბაზა ჯერ <b>არ გვაქვს</b> — static სია მის ადგილს იკავებს. მაგრამ Product უკვე ისე უნდა მოვეპყრათ, როგორც <b>ბაზის ცხრილს</b></div>
+  <aside class="notes">
+⏱ 0:05 · 4 წთ
+მთავარი იდეა, რომელზეც მთელი ლექცია დგას.
+ეს Product კლასია. ჩვენთვის ის უბრალოდ კლასია, რომელშიც პროდუქტს ვინახავთ.
+→ ცხრილი
+მაგრამ როცა ბაზა შემოვა, ზუსტად ამ კლასიდან ცხრილი შეიქმნება: Products. ყოველი property — სვეტი. ყოველი ობიექტი — ერთი რიგი. Id — Primary Key.
+→ Entity
+კლასს, რომელიც ბაზის ცხრილს აღწერს, Entity ჰქვია. ! Product ჩვენი Entity-ა.
+→ ბაზა ჯერ არ გვაქვს
+? ბაზა ჯერ არ გვაქვს — რა იკავებს მის ადგილს? (static სია.) ! მაგრამ კოდი ახლავე ისე უნდა დავწეროთ, თითქოს ბაზა გვაქვს. რომ ბაზა შემოვა, Controller-ის თავიდან წერა არ მოგვიწიოს.
+? და აი კითხვა: ბაზის ცხრილი პირდაპირ კლიენტს უნდა ვაჩვენოთ? კლიენტმა ცხრილში პირდაპირ უნდა ჩაწეროს?
+  </aside>
+</section>
+
+<!-- 4. ROADMAP -->
+<section class="slide" data-section="შესავალი">
+  <div class="kicker">დღის გზა</div>
+  <h2>სადამდე მოვედით და სად მივდივართ</h2>
+  <svg viewBox="0 0 1420 470" width="1420" height="470">
+    <path class="autodraw" style="--d:.2s" d="M70 230 C170 90 250 380 340 230 S520 90 590 230 S760 380 830 230 S1000 90 1080 230 S1250 380 1350 230" stroke="#cfc6b6" stroke-width="4" fill="none" stroke-dasharray="10 10"/>
+    <g class="in zoom" style="--d:.3s;transform-origin:70px 230px"><circle cx="70" cy="230" r="42" fill="#f3effe" stroke="#6d28d9" stroke-width="3"/><text x="70" y="245" text-anchor="middle" font-size="32">🛒</text><text x="70" y="306" text-anchor="middle" class="tw b" font-size="19">CRUD</text><text x="70" y="332" text-anchor="middle" class="tg b" font-size="15">✓ წინა ლექცია</text><circle cx="101" cy="199" r="14" fill="#16a34a"/><text x="101" y="205" text-anchor="middle" font-size="16" style="fill:#fff" class="b">✓</text></g>
+    <g class="step zoom" style="transform-origin:300px 170px"><circle cx="300" cy="170" r="44" fill="#fef2f2" stroke="#dc2626" stroke-width="3"/><text x="300" y="185" text-anchor="middle" font-size="34">⚠️</text><text x="300" y="96" text-anchor="middle" class="tw b" font-size="19">სამი პრობლემა</text><text x="300" y="72" text-anchor="middle" class="tm" font-size="15">Entity გარეთ</text></g>
+    <g class="step zoom" style="transform-origin:560px 240px"><circle cx="560" cy="240" r="44" fill="#eaf2fe" stroke="#2563eb" stroke-width="3"/><text x="560" y="255" text-anchor="middle" font-size="34">📦</text><text x="560" y="316" text-anchor="middle" class="tw b" font-size="19">DTO</text><text x="560" y="342" text-anchor="middle" class="tm" font-size="15">Request · Response</text></g>
+    <g class="step zoom" style="transform-origin:820px 180px"><circle cx="820" cy="180" r="44" fill="#fef5e4" stroke="#d97706" stroke-width="3"/><text x="820" y="195" text-anchor="middle" font-size="34">✍️</text><text x="820" y="106" text-anchor="middle" class="tw b" font-size="19">Mapper</text><text x="820" y="82" text-anchor="middle" class="tm" font-size="15">ჩვენი ხელით</text></g>
+    <g class="step zoom" style="transform-origin:1080px 260px"><circle cx="1080" cy="260" r="44" fill="#e6f6f4" stroke="#0d9488" stroke-width="3"/><text x="1080" y="275" text-anchor="middle" font-size="34">⚙️</text><text x="1080" y="336" text-anchor="middle" class="tw b" font-size="19">Mapperly</text><text x="1080" y="362" text-anchor="middle" class="tm" font-size="15">NuGet package</text></g>
+    <g class="step zoom" style="transform-origin:1350px 230px"><circle cx="1350" cy="230" r="48" fill="#eaf8ef" stroke="#16a34a" stroke-width="4" class="pulse"/><text x="1350" y="246" text-anchor="middle" font-size="38">⌨️</text><text x="1350" y="314" text-anchor="middle" class="tg b" font-size="19">პრაქტიკა</text><text x="1350" y="340" text-anchor="middle" class="tm" font-size="15">LibraryApi</text></g>
+  </svg>
+  <aside class="notes">
+⏱ 0:09 · 1 წთ
+გეგმა ასეთია.
+→ პრობლემები
+ჯერ ვნახავთ სამ პრობლემას, რომელიც Entity-ის გარეთ გატანას მოაქვს.
+→ DTO
+შემდეგ — გამოსავალი: DTO.
+→ Mapper
+DTO-ს ახალი სამუშაო მოაქვს — ერთი ფორმიდან მეორეში გადატანა. ჯერ ხელით დავწერთ Mapper-ს.
+→ Mapperly
+მერე ვნახავთ package-ს, რომელიც ამ კოდს ჩვენს მაგივრად წერს.
+→ პრაქტიკა
+ბოლოს — თქვენი LibraryApi.
+  </aside>
+</section>
+
+<!-- ============ PART 1 ============ -->
+<section class="slide divider" data-section="1 · პრობლემა">
+  <div class="vcenter">
+    <div class="kicker in">ნაწილი 1</div>
+    <h1 class="in" style="--d:.1s">Entity <span class="grad">გარეთ</span></h1>
+    <p class="lead mt in" style="--d:.3s">რა ხდება, როცა ბაზის ცხრილს პირდაპირ ვაჩვენებთ და ვავსებინებთ</p>
+  </div>
+  <div class="big-num">01</div>
+  <aside class="notes">
+⏱ 0:10
+ვნახოთ, რა პრობლემები მოაქვს Product-ის პირდაპირ გამოყენებას. სამი პრობლემაა.
+  </aside>
+</section>
+
+<!-- 6. PRODUCT GROWS -->
+<section class="slide" data-section="1 · პრობლემა">
+  <div class="kicker">ბიზნესის მოთხოვნა</div>
+  <h2>ცხრილს <span class="c-asp">ახალი სვეტები</span> სჭირდება</h2>
+  <div class="grid2" style="grid-template-columns:1.2fr 1fr;gap:34px;align-items:start">
+    <code-block id="pm" lang="csharp" cls="sm" title="Models/Product.cs">
+public class Product
+{
+    public int Id { get; set; }
+    public string Name { get; set; } = "";
+    public decimal Price { get; set; }
+    public decimal CostPrice { get; set; }  // შესყიდვის ფასი
+    public DateTime CreatedAt { get; set; } // როდის დაემატა
+}
+    </code-block>
+    <div class="col" style="gap:16px">
+      <i class="codestep" data-for="pm" data-lines="6"></i>
+      <div class="callout step" data-with style="--a:var(--asp)">მაღაზიას უნდა იცოდეს, <b>რამდენად იყიდა</b> — მოგების დასათვლელად</div>
+      <i class="codestep" data-for="pm" data-lines="7"></i>
+      <div class="callout step" data-with style="--a:var(--asp)">და <b>როდის</b> დაემატა — ამას სერვერი წერს</div>
+      <div class="callout step" style="--a:var(--net)">ეს <b>შიდა</b> ინფორმაციაა — ბაზისთვის და ჩვენთვის. მყიდველისთვის <b>არა</b></div>
+    </div>
+  </div>
+  <aside class="notes">
+⏱ 0:10 · 3 წთ
+~ Visual Studio-ში Product-ს ორი ველი დაუმატე და საწყის სიაში CostPrice-ები ჩაწერე: ლეპტოპი 1650, მაუსი 25, კლავიატურა 70.
+რეალურ პროექტში ცხრილი იზრდება. მოვიდა მოთხოვნა.
+→ CostPrice
+მაღაზიას უნდა იცოდეს შესყიდვის ფასი — რომ მოგება დაითვალოს.
+→ CreatedAt
+და როდის დაემატა პროდუქტი. ამას კლიენტი არ წერს — სერვერი წერს.
+→ შიდა
+! ორივე შიდა ინფორმაციაა. ბაზას სჭირდება, ჩვენ გვჭირდება — მყიდველს არა. ახლა გავუშვათ და ვნახოთ, რა ხდება.
+  </aside>
+</section>
+
+<!-- 7. PROBLEM: LEAK -->
+<section class="slide" data-section="1 · პრობლემა">
+  <div class="kicker">პრობლემა 1</div>
+  <h2>შიდა მონაცემი <span class="c-red">გაიპარა</span></h2>
+  <div class="grid2" style="grid-template-columns:1fr 1fr;gap:40px;align-items:start">
+    <div class="swr step left" style="--c:#61affe">
+      <div class="rh"><span class="m">GET</span><span class="p">/api/products/1</span></div>
+      <div class="lab"><span>Code</span><span>Response body</span></div>
+      <div class="rr"><span class="sc">200</span><pre class="rb">{
+  <span class="k">"id"</span>: <span class="n">1</span>,
+  <span class="k">"name"</span>: <span class="s">"ლეპტოპი"</span>,
+  <span class="k">"price"</span>: <span class="n">2400</span>,
+  <span class="leak"><span class="k">"costPrice"</span>: <span class="n">1650</span></span>,
+  <span class="k">"createdAt"</span>: <span class="s">"2026-10-26T…"</span>
+}</pre></div>
+    </div>
+    <div class="col" style="gap:18px">
+      <div class="problem step">ყველა მყიდველი — და <b>კონკურენტიც</b> — ხედავს, რამდენს ვიგებთ 😬</div>
+      <div class="callout step" style="--a:var(--red)">ეს ჩვენ <b>არ დაგვიწერია</b>. უბრალოდ ცხრილს სვეტი დავუმატეთ — და ის <b>ავტომატურად</b> გარეთ გავიდა</div>
+      <div class="callout step" style="--a:var(--red)">ახლა წარმოიდგინეთ <code class="i">User</code> ცხრილი სვეტით <code class="i">PasswordHash</code> — და <code class="i">GET /api/users</code></div>
+    </div>
+  </div>
+  <aside class="notes">
+⏱ 0:13 · 3 წთ
+~ Swagger-ში GET /api/products/1 აჩვენე.
+→ პასუხი
+GET-ის პასუხი. ? რას ხედავთ ზედმეტს? (costPrice-ს.)
+→ კონკურენტი
+2400-ად ვყიდით, 1650-ად ვყიდულობთ. ამას ყველა ხედავს — მყიდველიც და კონკურენტიც.
+→ ავტომატურად
+! ჩვენ GET-ში არაფერი შეგვიცვლია. უბრალოდ ცხრილს სვეტი დავუმატეთ. რადგან GET Entity-ს პირდაპირ აბრუნებს, ახალი სვეტი თვითონ გავიდა გარეთ.
+→ User
+ახლა წარმოიდგინეთ მომხმარებლების ცხრილი, სადაც პაროლის hash ინახება. ერთი GET და ყველა hash გარეთაა. ეს ნამდვილი და ძალიან ხშირი უსაფრთხოების შეცდომაა.
+  </aside>
+</section>
+
+<!-- 8. PROBLEM: CLIENT WRITES SERVER FIELDS -->
+<section class="slide" data-section="1 · პრობლემა">
+  <div class="kicker">პრობლემა 2</div>
+  <h2>კლიენტი ავსებს იმას, რასაც <span class="c-red">არ უნდა ეხებოდეს</span></h2>
+  <div class="grid2" style="grid-template-columns:1fr 1.1fr;gap:40px;align-items:start">
+    <div class="swr step left" style="--c:#49cc90">
+      <div class="rh"><span class="m">POST</span><span class="p">/api/products</span></div>
+      <div class="lab"><span>Request body · Example Value</span></div>
+      <div style="padding:6px 16px 16px"><pre class="rb">{
+  <span class="leak"><span class="k">"id"</span>: <span class="n">0</span></span>,
+  <span class="k">"name"</span>: <span class="s">"string"</span>,
+  <span class="k">"price"</span>: <span class="n">0</span>,
+  <span class="k">"costPrice"</span>: <span class="n">0</span>,
+  <span class="leak"><span class="k">"createdAt"</span>: <span class="s">"2026-10-26…"</span></span>
+}</pre></div>
+    </div>
+    <div class="col" style="gap:18px">
+      <div class="callout step" style="--a:var(--red)"><b>Id</b>-ს ბაზა (ჩვენ) ანიჭებს. <b>CreatedAt</b>-ს — სერვერი. Swagger კი კლიენტს <b>ორივეს სთხოვს</b></div>
+      <div class="callout step" style="--a:var(--asp)"><b>PUT</b>-ში უარესია: Id მისამართშიც არის <code class="i">/products/2</code> და body-შიც <code class="i">"id": 5</code>. რომელს დავუჯეროთ?</div>
+      <div class="problem step">კონტრაქტი <b>იტყუება</b>: „გამომიგზავნე Id“ — თუმცა არ გვჭირდება</div>
+    </div>
+  </div>
+  <aside class="notes">
+⏱ 0:16 · 3 წთ
+→ POST
+POST-ის მაგალითი Swagger-ში. ! შეხედეთ id-ს და createdAt-ს.
+→ ვინ ავსებს
+Id-ს ჩვენ ვანიჭებთ — _nextId-ით, ბაზაში კი ბაზა თვითონ. CreatedAt-ს სერვერი წერს. კლიენტმა რაც არ უნდა გამოგზავნოს, მაინც გადავაწერთ. ? და თუ დაგვავიწყდა გადაწერა? (კლიენტი თვითონ ჩაწერს Id-ს ან თარიღს — ცხრილში.)
+→ PUT
+PUT-ში Id ორ ადგილასაა. ? თუ განსხვავდება — რომელს დავუჯეროთ? (მისამართს. body-ში Id ზედმეტია.)
+→ კონტრაქტი
+! Swagger-ი აღწერს, რა უნდა გამოგზავნოს კლიენტმა. ჩვენი აღწერა იტყუება.
+  </aside>
+</section>
+
+<!-- 9. PROBLEM: CONTRACT -->
+<section class="slide" data-section="1 · პრობლემა">
+  <div class="kicker">პრობლემა 3</div>
+  <h2>ცხრილის ცვლილება <span class="c-red">ამტვრევს კლიენტებს</span></h2>
+  <div class="flowrow mt" style="gap:12px">
+    <div class="fbox step" style="--a:var(--asp)"><div class="e">🗄️</div><div class="l">Product</div><div class="s"><span class="strike">Name</span> → Title</div></div>
+    <div class="farrow step" data-with style="--a:var(--asp)"><span class="ar">→</span>JSON</div>
+    <div class="fbox step" data-with style="--a:var(--api)"><div class="e">📨</div><div class="l">პასუხი</div><div class="s"><span class="strike">"name"</span> → "title"</div></div>
+    <div class="farrow step" style="--a:var(--red)"><span class="ar">→</span></div>
+    <div class="col" style="flex:1.2;gap:12px">
+      <div class="fbox step" data-with style="--a:var(--red)"><div class="l">🌐 საიტი</div><div class="s">product.name → undefined</div></div>
+      <div class="fbox step" data-with style="--a:var(--red)"><div class="l">📱 აპლიკაცია</div><div class="s">ველი ვერ მოიძებნა 💥</div></div>
+    </div>
+  </div>
+  <div class="grid2 mt2" style="gap:26px">
+    <div class="card accent step" style="--a:var(--asp)"><h3><span class="ico">🗄️</span>Entity</h3><p class="small">ბაზის ფორმა — <b>ჩვენი შიდა</b> საქმე. იცვლება, როცა ბაზას ან ბიზნესს სჭირდება</p></div>
+    <div class="card accent step" data-with style="--a:var(--api)"><h3><span class="ico">🤝</span>JSON</h3><p class="small"><b>შეთანხმება</b> კლიენტთან (კონტრაქტი). არ უნდა შეიცვალოს <b>შემთხვევით</b></p></div>
+  </div>
+  <aside class="notes">
+⏱ 0:19 · 3 წთ
+→ გადარქმევა
+მესამე პრობლემა. ბაზაში სვეტს გადავარქმევთ: Name → Title. კოდში ერთი ცვლილებაა, Visual Studio ყველგან ჩაანაცვლებს.
+→ კლიენტები
+მაგრამ JSON-ში ველის სახელიც შეიცვალა. საიტი ეძებს name-ს — undefined. მობილური აპლიკაცია, რომელიც უკვე ხალხის ტელეფონებზეა, ფუჭდება. მისი განახლება კვირები სჭირდება.
+→ ორი როლი
+! მიზეზი: ერთი კლასი ორ როლს ასრულებს. Entity — ბაზის ფორმაა, ჩვენი შიდა საქმე. JSON — შეთანხმებაა კლიენტთან. ისინი სხვადასხვა მიზეზით იცვლება. ამიტომ ერთი კლასი უნდა გავყოთ.
+  </aside>
+</section>
+
+<!-- ============ PART 2: DTO ============ -->
+<section class="slide divider" data-section="2 · DTO">
+  <div class="vcenter">
+    <div class="kicker in">ნაწილი 2</div>
+    <h1 class="in" style="--d:.1s"><span class="grad">DTO</span></h1>
+    <p class="lead mt in" style="--d:.3s">თითოეული მიმართულებისთვის — საკუთარი ფორმა</p>
+  </div>
+  <div class="big-num">02</div>
+  <aside class="notes">
+⏱ 0:22
+სამივე პრობლემას ერთი გამოსავალი აქვს.
+  </aside>
+</section>
+
+<!-- 11. DTO DEFINITION -->
+<section class="slide" data-section="2 · DTO">
+  <div class="kicker">გამოსავალი</div>
+  <h2><span class="grad">DTO</span> — Data Transfer Object</h2>
+  <p class="lead">კლასი, რომელიც მხოლოდ <b>მონაცემის გადასატანად</b> არსებობს — ლოგიკის გარეშე. Entity <b>შიგნით</b> რჩება, გარეთ DTO გადის</p>
+  <div class="grid3 mt2" style="gap:24px">
+    <div class="card accent step" style="--a:var(--api)"><h3><span class="ico">📝</span>Request DTO</h3><p class="small">ბანკის <b>განაცხადის ფორმა</b>: მხოლოდ ის ველები, რაც შენ უნდა შეავსო</p><p class="tiny" style="margin-top:12px">კლიენტი → სერვერი · <b>CreateProductRequest</b></p></div>
+    <div class="card accent step" style="--a:var(--asp)"><h3><span class="ico">🗄️</span>Entity</h3><p class="small">ბანკის <b>შიდა ბაზა</b>: ყველაფერი, რაც ბანკმა იცის. გარედან არავინ ხედავს</p><p class="tiny" style="margin-top:12px">სერვერის შიგნით · <b>Product</b></p></div>
+    <div class="card accent step" style="--a:var(--mvc)"><h3><span class="ico">🧾</span>Response DTO</h3><p class="small">ბანკის <b>ამონაწერი</b>: მხოლოდ ის, რაც შენ უნდა ნახო</p><p class="tiny" style="margin-top:12px">სერვერი → კლიენტი · <b>ProductResponse</b></p></div>
+  </div>
+  <aside class="notes">
+⏱ 0:22 · 4 წთ
+DTO — Data Transfer Object. ობიექტი მონაცემის გადასატანად. მასში ლოგიკა არ არის — მხოლოდ ველები.
+→ Request
+ბანკი წარმოიდგინეთ. ანგარიშის გასახსნელად ფორმას ავსებთ: სახელი, პირადი ნომერი, ტელეფონი. ანგარიშის ნომერს ფორმაში არ წერთ — ბანკი გაძლევთ. ეს Request DTO-ა.
+→ Entity
+ბანკის ბაზაში ბევრად მეტია: რისკის შეფასება, ვინ გახსნა, როდის. ეს Entity-ა. გარედან არავინ ხედავს.
+→ Response
+ამონაწერი, რომელსაც ბანკი გაძლევთ — მხოლოდ თქვენთვის საჭირო: ნომერი, ნაშთი, ტრანზაქციები. ეს Response DTO-ა.
+! ერთი ანგარიში — სამი ფორმა. ზუსტად იგივეს ვაკეთებთ პროდუქტისთვის.
+  </aside>
+</section>
+
+<!-- 12. DATA PATH -->
+<section class="slide" data-section="2 · DTO">
+  <div class="kicker">მონაცემის გზა · POST</div>
+  <h2>JSON → <span class="c-wf">Request</span> → <span class="c-asp">Entity</span> → <span class="c-mvc">Response</span> → JSON</h2>
+  <div class="flowrow mt" style="gap:10px;align-items:stretch">
+    <div class="dto in" style="--a:var(--pink);--d:.1s;flex:1"><div class="h">📥 JSON</div><div class="f">"name": "მონიტორი"<br>"price": 650<br>"costPrice": 480</div></div>
+    <div class="farrow step" style="--a:var(--api);align-self:center;min-width:70px"><span class="ar">→</span></div>
+    <div class="dto step" data-with style="--a:var(--api);flex:1.1"><div class="h">CreateProductRequest</div><div class="f">Name<br>Price<br>CostPrice<br><span class="no">Id</span><br><span class="no">CreatedAt</span></div></div>
+    <div class="farrow step" style="--a:var(--asp);align-self:center;min-width:70px"><span class="ar">→</span>map</div>
+    <div class="dto step" data-with style="--a:var(--asp);flex:1.1"><div class="h">Product</div><div class="f"><span class="add">Id = 4</span> ← სერვერი<br>Name<br>Price<br>CostPrice<br><span class="add">CreatedAt</span> ← სერვერი</div></div>
+    <div class="farrow step" style="--a:var(--mvc);align-self:center;min-width:70px"><span class="ar">→</span>map</div>
+    <div class="dto step" data-with style="--a:var(--mvc);flex:1.1"><div class="h">ProductResponse</div><div class="f">Id<br>Name<br>Price<br><span class="no">CostPrice</span><br><span class="no">CreatedAt</span></div></div>
+    <div class="farrow step" style="--a:var(--pink);align-self:center;min-width:70px"><span class="ar">→</span></div>
+    <div class="dto step" data-with style="--a:var(--pink);flex:1"><div class="h">📤 JSON</div><div class="f">"id": 4<br>"name": "მონიტორი"<br>"price": 650</div></div>
+  </div>
+  <div class="grid3 mt2" style="gap:20px">
+    <div class="solve step"><b>CostPrice</b> გარეთ აღარ გადის</div>
+    <div class="solve step" data-with><b>Id</b> და <b>CreatedAt</b> კლიენტს აღარ ეთხოვება</div>
+    <div class="solve step" data-with>ცხრილის ცვლილება <b>JSON-ს არ ცვლის</b></div>
+  </div>
+  <aside class="notes">
+⏱ 0:26 · 4 წთ
+ასე გაივლის მონაცემი POST-ის დროს.
+→ Request
+კლიენტის JSON ჯდება CreateProductRequest-ში. მასში მხოლოდ სამი ველია — რასაც კლიენტი უნდა ავსებდეს. Id და CreatedAt იქ საერთოდ არ არის.
+→ Entity
+Request-იდან ვაწყობთ Product-ს. ! ამას ჰქვია mapping — ველების გადატანა ერთი ობიექტიდან მეორეში. სერვერი ამატებს Id-ს და CreatedAt-ს. Product ინახება.
+→ Response
+პასუხისთვის Product-იდან ვაწყობთ ProductResponse-ს. CostPrice და CreatedAt აქ არ არის. ესეც mapping-ია.
+→ JSON
+კლიენტთან მიდის მხოლოდ სამი ველი.
+→ შედეგი
+! სამივე პრობლემა მოგვარდა. დაიმახსოვრეთ სიტყვა mapping — ლექციის მეორე ნახევარი მასზეა.
+  </aside>
+</section>
+
+<!-- 13. RECORDS -->
+<section class="slide" data-section="2 · DTO">
+  <div class="kicker">🧑‍💻 ვწერთ · Dtos ფოლდერი</div>
+  <h2>DTO-ები კოდში — <span class="grad">record</span></h2>
+  <div class="grid2" style="grid-template-columns:1.2fr 1fr;align-items:start;gap:30px">
+    <code-block id="r" lang="csharp" cls="sm" title="Dtos/*.cs">
+public record CreateProductRequest(
+    string Name,
+    decimal Price,
+    decimal CostPrice);
+
+public record UpdateProductRequest(
+    string Name,
+    decimal Price,
+    decimal CostPrice);
+
+public record ProductResponse(
+    int Id,
+    string Name,
+    decimal Price);
+    </code-block>
+    <div class="col" style="gap:16px">
+      <i class="codestep" data-for="r" data-lines="1-4"></i>
+      <div class="callout step" data-with style="--a:var(--api)">შექმნისას — <b>Id-ს და CreatedAt-ის გარეშე</b></div>
+      <i class="codestep" data-for="r" data-lines="6-9"></i>
+      <div class="callout step" data-with style="--a:var(--wf)">განახლებისას — <b>Id-ს გარეშე</b>. Id მისამართიდან მოდის</div>
+      <i class="codestep" data-for="r" data-lines="11-14"></i>
+      <div class="callout step" data-with style="--a:var(--mvc)">პასუხში — <b>CostPrice-ის და CreatedAt-ის გარეშე</b></div>
+      <div class="card accent step" style="--a:var(--net);padding:18px 22px">
+        <h3 style="font-size:22px"><span class="ico">✍️</span>რატომ record?</h3>
+        <p class="small">ერთი ხაზი = properties + constructor. DTO-ს მეტი არ სჭირდება</p>
+        <p class="tiny" style="margin-top:8px">სახელები: <b>…Request</b> — შემოდის · <b>…Response</b> — გადის</p>
+      </div>
+    </div>
+  </div>
+  <aside class="notes">
+⏱ 0:30 · 5 წთ
+~ შექმენი ფოლდერი Dtos, თითო ფაილი თითო DTO-სთვის. სლაიდზე ერთადაა, რომ ეტეოდეს.
+DTO-სთვის class-იც გამოდგება, მაგრამ record უფრო მოკლეა.
+→ Create
+CreateProductRequest — სამი ველი. Id და CreatedAt არ არის.
+→ Update
+UpdateProductRequest — იგივე ველები. ? ერთნაირია — რატომ ცალკე? (ხვალ შეიძლება განსხვავდებოდეს: მაგალითად, განახლებისას შესყიდვის ფასის შეცვლა აიკრძალოს. ცალკე კლასით ერთი მეორეს არ დააზიანებს.)
+→ Response
+ProductResponse — Id, Name, Price. შიდა ველები არ არის.
+→ record
+record: ფრჩხილებში ჩამოწერილი პარამეტრები ავტომატურად ხდება property-ები და constructor. ! JSON-ში Name ისევ "name"-ად გადაიქცევა, როგორც ადრე.
+~ record-ის property-ები init-only-ია — შექმნის შემდეგ ვერ შეიცვლება. DTO-სთვის ეს კარგია: გადასატანი მონაცემი გზაში არ უნდა შეიცვალოს.
+  </aside>
+</section>
+
+<!-- 14. CONTROLLER GET -->
+<section class="slide" data-section="2 · DTO">
+  <div class="kicker">🧑‍💻 ვწერთ · GET</div>
+  <h2>გარეთ — მხოლოდ <span class="c-mvc">ProductResponse</span></h2>
+  <div class="grid2" style="grid-template-columns:1.4fr 1fr;align-items:start;gap:28px">
+    <code-block id="g" lang="csharp" cls="sm" title="Controllers/ProductsController.cs">
+[HttpGet]
+public IActionResult GetAll()
+{
+    var response = _products
+        .Select(p => new ProductResponse(p.Id, p.Name, p.Price))
+        .ToList();
+    return Ok(response);
+}
+
+[HttpGet("{id}")]
+public IActionResult GetById(int id)
+{
+    var product = _products.FirstOrDefault(p => p.Id == id);
+    if (product is null)
+        return NotFound();
+
+    return Ok(new ProductResponse(product.Id, product.Name, product.Price));
+}
+    </code-block>
+    <div class="col" style="gap:16px">
+      <i class="codestep" data-for="g" data-lines="4-6"></i>
+      <div class="callout step" data-with style="--a:var(--asp)"><code class="i">Select</code> — <b>თითოეულ</b> Product-ს Response-ად ვაქცევთ</div>
+      <i class="codestep" data-for="g" data-lines="7"></i>
+      <div class="callout step" data-with style="--a:var(--mvc)"><code class="i">Ok()</code> იგივეა — შიგნით ახლა <b>ProductResponse</b>-ები დევს</div>
+      <i class="codestep" data-for="g" data-lines="14-15,17"></i>
+      <div class="callout step" data-with style="--a:var(--mvc)">404 — უცვლელი. 200 — იგივე <code class="i">new ProductResponse(...)</code></div>
+      <div class="solve step">Swagger-ში <b>costPrice</b> და <b>createdAt</b> აღარ ჩანს</div>
+    </div>
+  </div>
+  <aside class="notes">
+⏱ 0:35 · 5 წთ
+~ ფაილის თავში: using ShopApi.Dtos;
+→ Select
+GetAll: Select-ით სიის თითოეულ ელემენტს ვაქცევთ ახალ ობიექტად. აქ — Product-იდან ვქმნით ProductResponse-ს, მხოლოდ სამი ველით. ToList — ახალი სია. ~ Select LINQ-იდან იციან; თუ არა — „foreach, რომელიც ახალ სიას აწყობს“.
+→ Ok
+IActionResult და Ok — როგორც ადრე. ! სტატუს კოდები არ იცვლება, იცვლება მხოლოდ ის, რა დევს body-ში.
+→ GetById
+GetById: NotFound ისევ 404-ია. წარმატებისას Ok-ში Product-ის ნაცვლად ProductResponse.
+→ Swagger
+გაუშვი: GET-ში costPrice და createdAt აღარ ჩანს. პრობლემა 1 მოგვარდა.
+  </aside>
+</section>
+
+<!-- 15. CONTROLLER POST/PUT -->
+<section class="slide" data-section="2 · DTO">
+  <div class="kicker">🧑‍💻 ვწერთ · POST და PUT</div>
+  <h2>შიგნით — <span class="c-wf">Request</span>, ინახება — <span class="c-asp">Product</span></h2>
+  <div class="grid2" style="grid-template-columns:1.45fr 1fr;align-items:start;gap:26px">
+    <code-block id="c" lang="csharp" cls="xs" title="Controllers/ProductsController.cs">
+[HttpPost]
+public IActionResult Create(CreateProductRequest request)
+{
+    var product = new Product
+    {
+        Name = request.Name,
+        Price = request.Price,
+        CostPrice = request.CostPrice
+    };
+    product.Id = _nextId++;
+    product.CreatedAt = DateTime.UtcNow;
+    _products.Add(product);
+
+    var response = new ProductResponse(product.Id, product.Name, product.Price);
+    return CreatedAtAction(nameof(GetById), new { id = product.Id }, response);
+}
+
+[HttpPut("{id}")]
+public IActionResult Update(int id, UpdateProductRequest request)
+{
+    var product = _products.FirstOrDefault(p => p.Id == id);
+    if (product is null)
+        return NotFound();
+
+    product.Name = request.Name;
+    product.Price = request.Price;
+    product.CostPrice = request.CostPrice;
+    return NoContent();
+}
+    </code-block>
+    <div class="col" style="gap:14px">
+      <i class="codestep" data-for="c" data-lines="2,4-9"></i>
+      <div class="callout step" data-with style="--a:var(--api)">Request → Product: ველ-ველ <b>ვაკოპირებთ</b></div>
+      <i class="codestep" data-for="c" data-lines="10-11"></i>
+      <div class="callout step" data-with style="--a:var(--asp)"><b>Id</b> და <b>CreatedAt</b> — მხოლოდ სერვერი</div>
+      <i class="codestep" data-for="c" data-lines="14-15"></i>
+      <div class="callout step" data-with style="--a:var(--mvc)">201-ის body-ში — <b>Response</b>, არა Product</div>
+      <i class="codestep" data-for="c" data-lines="19,25-28"></i>
+      <div class="callout step" data-with style="--a:var(--wf)">PUT: Id — <b>მხოლოდ მისამართიდან</b>. Request-ში ის უბრალოდ არ არის</div>
+    </div>
+  </div>
+  <aside class="notes">
+⏱ 0:40 · 6 წთ
+→ Create · Request
+Create იღებს CreateProductRequest-ს. ახალ Product-ს ვქმნით და Request-იდან ველებს ვაკოპირებთ: Name, Price, CostPrice.
+→ სერვერის ველები
+Id-ს და CreatedAt-ს ჩვენ ვავსებთ. ! კლიენტს ფიზიკურად აღარ შეუძლია მათი გამოგზავნა — Request-ში არ არის.
+→ Response
+CreatedAtAction — როგორც ადრე, 201. ოღონდ მესამე პარამეტრში, body-ში, ახლა ProductResponse-ს ვდებთ.
+→ Update
+Update: Id მისამართიდან, ველები Request-იდან, პასუხი — NoContent, 204. „რომელ Id-ს დავუჯეროთ?“ — კითხვა აღარ დგას. პრობლემა 2 მოგვარდა.
+~ Delete-ს body არ აქვს და Product-ს არ აბრუნებს — DTO არ სჭირდება, არ იცვლება.
+? შეამჩნიეთ რამე, რაც ამ კოდში მეორდება? — ცოტა ხანში დავუბრუნდებით.
+  </aside>
+</section>
+
+<!-- 16. SWAGGER RESULT -->
+<section class="slide" data-section="2 · DTO">
+  <div class="kicker">Swagger · შედეგი</div>
+  <h2>კონტრაქტი ახლა <span class="grad">სიმართლეს ამბობს</span></h2>
+  <div class="grid2" style="gap:40px;align-items:start">
+    <div class="col" style="gap:10px">
+      <div class="tag step" style="--a:var(--api);align-self:flex-start">Request · რას ვიღებთ</div>
+      <div class="swr step" data-with style="--c:#49cc90">
+        <div class="rh"><span class="m">POST</span><span class="p">/api/products</span></div>
+        <div class="lab"><span>Request body · Example Value</span></div>
+        <div style="padding:6px 16px 16px"><pre class="rb">{
+  <span class="k">"name"</span>: <span class="s">"string"</span>,
+  <span class="k">"price"</span>: <span class="n">0</span>,
+  <span class="k">"costPrice"</span>: <span class="n">0</span>
+}</pre></div>
+      </div>
+    </div>
+    <div class="col" style="gap:10px">
+      <div class="tag step" style="--a:var(--mvc);align-self:flex-start">Response · რას ვაჩვენებთ</div>
+      <div class="swr step" data-with style="--c:#61affe">
+        <div class="rh"><span class="m">GET</span><span class="p">/api/products/1</span></div>
+        <div class="lab"><span>Code</span><span>Response body</span></div>
+        <div class="rr"><span class="sc">200</span><pre class="rb">{
+  <span class="k">"id"</span>: <span class="n">1</span>,
+  <span class="k">"name"</span>: <span class="s">"ლეპტოპი"</span>,
+  <span class="k">"price"</span>: <span class="n">2400</span>
+}</pre></div>
+      </div>
+    </div>
+  </div>
+  <div class="callout step mt" style="--a:var(--net)">Product-ს <b>Name → Title</b> რომ გადავარქვათ, JSON <b>არ შეიცვლება</b> — შეიცვლება მხოლოდ ერთი ხაზი, სადაც Response-ს ვაწყობთ</div>
+  <aside class="notes">
+⏱ 0:46 · 3 წთ
+~ Swagger-ში ცოცხლად აჩვენე.
+→ Request
+POST-ის მაგალითში id და createdAt აღარ არის. მხოლოდ ის, რაც კლიენტმა უნდა შეავსოს.
+→ Response
+GET-ის პასუხში მხოლოდ სამი ველი.
+→ კონტრაქტი
+და მესამე პრობლემა: Product-ში სვეტს გადავარქმევთ — ProductResponse-ში Name რჩება. ვცვლით მხოლოდ იქ, სადაც Response-ს ვაწყობთ: Name = product.Title. JSON იგივეა, კლიენტი ვერაფერს ამჩნევს.
+? ერთი ხაზი? დარწმუნებული ხართ? რამდენ ადგილას ვაწყობთ ProductResponse-ს? — შესვენების შემდეგ.
+  </aside>
+</section>
+
+<!-- BREAK -->
+<section class="slide divider" data-section="შესვენება">
+  <div class="vcenter">
+    <div class="kicker in">შესვენება</div>
+    <h1 class="in" style="--d:.1s">10 <span class="grad">წუთი</span> ☕</h1>
+    <p class="lead mt in" style="--d:.3s">შემდეგ: რა ღირს ამდენი <b>new ProductResponse(...)</b>-ის წერა</p>
+  </div>
+  <div class="big-num">☕</div>
+  <aside class="notes">
+⏱ 0:49 · 10 წთ
+~ შესვენების წინ: ვისაც ShopApi არ ეშვება, ახლა მოგიახლოვდეს.
+  </aside>
+</section>
+
+<!-- ============ PART 3: HAND MAPPER ============ -->
+<section class="slide divider" data-section="3 · Mapper">
+  <div class="vcenter">
+    <div class="kicker in">ნაწილი 3</div>
+    <h1 class="in" style="--d:.1s"><span class="grad">Mapper</span> — ხელით</h1>
+    <p class="lead mt in" style="--d:.3s">mapping-ის კოდი — ერთ ადგილას</p>
+  </div>
+  <div class="big-num">03</div>
+  <aside class="notes">
+⏱ 1:00
+DTO-მ სამი პრობლემა მოაგვარა. მაგრამ ახალი მოიტანა.
+  </aside>
+</section>
+
+<!-- 19. REPETITION PROBLEM -->
+<section class="slide" data-section="3 · Mapper">
+  <div class="kicker">ახალი პრობლემა</div>
+  <h2>ერთი და იგივე კოდი — <span class="c-red">ყველგან</span></h2>
+  <div class="grid2" style="grid-template-columns:1.35fr 1fr;align-items:start;gap:28px">
+    <code-block id="rep" lang="csharp" cls="sm" title="ProductsController.cs · მოკლედ">
+// GetAll
+.Select(p => new ProductResponse(p.Id, p.Name, p.Price))
+
+// GetById
+Ok(new ProductResponse(product.Id, product.Name, product.Price));
+
+// Create
+var response = new ProductResponse(product.Id, product.Name, product.Price);
+
+// Create + Update
+Name = request.Name, Price = request.Price, CostPrice = request.CostPrice
+    </code-block>
+    <div class="col" style="gap:16px">
+      <i class="codestep" data-for="rep" data-lines="2,5,8"></i>
+      <div class="callout step" data-with style="--a:var(--red)">Product → Response — <b>3-ჯერ</b></div>
+      <i class="codestep" data-for="rep" data-lines="11"></i>
+      <div class="callout step" data-with style="--a:var(--red)">Request → Product — <b>2-ჯერ</b></div>
+      <div class="card accent step" style="--a:var(--asp);padding:18px 22px">
+        <h3 style="font-size:22px"><span class="ico">📣</span>ახალი მოთხოვნა</h3>
+        <p class="small">პასუხში <b>Category</b> უნდა გამოჩნდეს</p>
+      </div>
+      <div class="problem step">ყველა ადგილი უნდა ვიპოვოთ. ერთი დაგვავიწყდა → ერთ endpoint-ს Category <b>აკლია</b></div>
+    </div>
+  </div>
+  <aside class="notes">
+⏱ 1:00 · 5 წთ
+შევხედოთ Controller-ს.
+→ Response
+Product-იდან ProductResponse-ის აწყობა — სამ ადგილას: GetAll, GetById, Create. ერთი და იგივე კოდი.
+→ Request
+და Request-იდან ველების კოპირება — ორ ადგილას: Create და Update.
+→ მოთხოვნა
+მოდის მოთხოვნა: პასუხში კატეგორიაც უნდა ჩანდეს.
+→ დაგვავიწყდა
+ProductResponse-ს ველს ვამატებთ — და ყველა ადგილი უნდა ვიპოვოთ. ? ახლა წარმოიდგინეთ 10 Controller და 50 endpoint. ერთგან დაგვავიწყდა — და ერთ გვერდზე კატეგორია ცარიელია. ასეთ შეცდომას კვირები ეძებენ.
+! წესი პროგრამირებაში: ერთი და იგივე ცოდნა ერთ ადგილას უნდა ცხოვრობდეს. „როგორ ვაქციოთ Product Response-ად“ — ერთი ცოდნაა. ერთ ადგილას გავიტანოთ.
+  </aside>
+</section>
+
+<!-- 20. HAND MAPPER -->
+<section class="slide" data-section="3 · Mapper">
+  <div class="kicker">🧑‍💻 ვწერთ · Mappers ფოლდერი</div>
+  <h2><span class="grad">ProductMapper</span> — mapping ერთ ადგილას</h2>
+  <div class="grid2" style="grid-template-columns:1.35fr 1fr;align-items:start;gap:26px">
+    <code-block id="m" lang="csharp" cls="xs" title="Mappers/ProductMapper.cs">
+public static class ProductMapper
+{
+    public static ProductResponse ToResponse(this Product product)
+    {
+        return new ProductResponse(product.Id, product.Name, product.Price);
+    }
+
+    public static Product ToEntity(this CreateProductRequest request)
+    {
+        return new Product
+        {
+            Name = request.Name,
+            Price = request.Price,
+            CostPrice = request.CostPrice
+        };
+    }
+
+    public static void UpdateFrom(this Product product, UpdateProductRequest request)
+    {
+        product.Name = request.Name;
+        product.Price = request.Price;
+        product.CostPrice = request.CostPrice;
+    }
+}
+    </code-block>
+    <div class="col" style="gap:14px">
+      <i class="codestep" data-for="m" data-lines="1"></i>
+      <div class="callout step" data-with style="--a:var(--net)"><b>static</b> კლასი — ობიექტი არ სჭირდება, მხოლოდ მეთოდები</div>
+      <i class="codestep" data-for="m" data-lines="3-6"></i>
+      <div class="callout step" data-with style="--a:var(--mvc)">Product → Response</div>
+      <i class="codestep" data-for="m" data-lines="8-16"></i>
+      <div class="callout step" data-with style="--a:var(--api)">Request → <b>ახალი</b> Product</div>
+      <i class="codestep" data-for="m" data-lines="18-23"></i>
+      <div class="callout step" data-with style="--a:var(--wf)">Request → <b>არსებული</b> Product (განახლება)</div>
+      <i class="codestep" data-for="m" data-lines="3,8,18"></i>
+      <div class="callout step" data-with style="--a:var(--core)"><code class="i">this</code> პარამეტრის წინ = <b>extension method</b>: <code class="i">product.ToResponse()</code></div>
+    </div>
+  </div>
+  <aside class="notes">
+⏱ 1:05 · 7 წთ
+~ შექმენი ფოლდერი Mappers და კლასი ProductMapper.
+→ static
+static კლასი: მისი ობიექტის შექმნა არ გვჭირდება, მხოლოდ მეთოდები.
+→ ToResponse
+პირველი მეთოდი — Product-იდან ProductResponse. ზუსტად ის ხაზი, რომელიც სამ ადგილას გვქონდა.
+→ ToEntity
+მეორე — Request-იდან ახალი Product. ! Id-ს და CreatedAt-ს აქ არ ვავსებთ — ეს სერვერის საქმეა, Controller-ში დარჩება.
+→ UpdateFrom
+მესამე — განახლება. ახალს არ ქმნის, არსებულ Product-ს ცვლის. ამიტომ void-ია.
+→ this
+და ახალი რამ — this პარამეტრის წინ. ამას extension method ჰქვია. ! ის საშუალებას გვაძლევს მეთოდი ისე გამოვიძახოთ, თითქოს Product-ს ეკუთვნის: product.ToResponse() — ნაცვლად ProductMapper.ToResponse(product)-ისა. ორივე ერთი და იგივეა, პირველი უბრალოდ უფრო იკითხება.
+~ extension method-ისთვის კლასი და მეთოდი static უნდა იყოს. LINQ-ის Select, Where — ზუსტად ასეთი extension method-ებია List-ზე.
+  </aside>
+</section>
+
+<!-- 21. CONTROLLER AFTER -->
+<section class="slide" data-section="3 · Mapper">
+  <div class="kicker">🧑‍💻 ვწერთ · Controller</div>
+  <h2>Controller — <span class="grad">ბევრად სუფთა</span></h2>
+  <div class="grid2" style="grid-template-columns:1.45fr 1fr;align-items:start;gap:26px">
+    <code-block id="ca" lang="csharp" cls="xs" title="Controllers/ProductsController.cs">
+[HttpGet]
+public IActionResult GetAll()
+{
+    return Ok(_products.Select(p => p.ToResponse()).ToList());
+}
+
+[HttpPost]
+public IActionResult Create(CreateProductRequest request)
+{
+    var product = request.ToEntity();
+    product.Id = _nextId++;
+    product.CreatedAt = DateTime.UtcNow;
+    _products.Add(product);
+
+    return CreatedAtAction(nameof(GetById),
+        new { id = product.Id }, product.ToResponse());
+}
+
+[HttpPut("{id}")]
+public IActionResult Update(int id, UpdateProductRequest request)
+{
+    var product = _products.FirstOrDefault(p => p.Id == id);
+    if (product is null)
+        return NotFound();
+
+    product.UpdateFrom(request);
+    return NoContent();
+}
+    </code-block>
+    <div class="col" style="gap:14px">
+      <i class="codestep" data-for="ca" data-lines="4"></i>
+      <div class="callout step" data-with style="--a:var(--mvc)">სიაში: <code class="i">p =&gt; p.ToResponse()</code></div>
+      <i class="codestep" data-for="ca" data-lines="10-12,16"></i>
+      <div class="callout step" data-with style="--a:var(--api)">შემოსვლა — <code class="i">ToEntity()</code>, გასვლა — <code class="i">ToResponse()</code>. სერვერის ველები — აქვე</div>
+      <i class="codestep" data-for="ca" data-lines="26"></i>
+      <div class="callout step" data-with style="--a:var(--wf)">განახლება — <b>ერთი</b> ხაზი</div>
+      <div class="solve step">Category დაემატება → ვცვლით <b>მხოლოდ ProductMapper-ს</b></div>
+    </div>
+  </div>
+  <aside class="notes">
+⏱ 1:12 · 4 წთ
+~ ფაილის თავში: using ShopApi.Mappers;
+→ GetAll
+GetAll: Select-ში ახლა უბრალოდ p.ToResponse().
+→ Create
+Create: request.ToEntity() — ერთი ხაზი. Id და CreatedAt Controller-ში რჩება — ეს „სერვერის გადაწყვეტილებაა“, არა გადატანა. პასუხში — product.ToResponse().
+→ Update
+Update: UpdateFrom — ერთი ხაზი. სტატუს კოდები — NotFound, NoContent — ხელუხლებელია.
+~ GetById-ში იგივე: return Ok(product.ToResponse()). სლაიდზე არ ეტევა.
+→ შედეგი
+! Category დაემატება — ვცვლით ერთ ადგილას, ProductMapper-ში. Controller-მა არც კი იცის, რომ შეიცვალა. ? გავუშვათ — Swagger-ში რამე შეიცვალა? (არა. კოდი შიგნით გადავალაგეთ, გარეთ იგივეა.)
+  </aside>
+</section>
+
+<!-- 22. SCALE PROBLEM -->
+<section class="slide" data-section="3 · Mapper">
+  <div class="kicker">მაგრამ…</div>
+  <h2>რეალურ პროექტში — <span class="c-red">ასობით</span> ასეთი ხაზი</h2>
+  <div class="grid3 mt" style="gap:24px">
+    <div class="card accent step" style="--a:var(--asp);text-align:center"><div class="big-n c-asp">20</div><p class="small">Entity<br><span class="tiny">Product, Order, User, Category…</span></p></div>
+    <div class="card accent step" style="--a:var(--api);text-align:center"><div class="big-n c-wf">× 3</div><p class="small">DTO თითოეულზე<br><span class="tiny">Create · Update · Response</span></p></div>
+    <div class="card accent step" style="--a:var(--red);text-align:center"><div class="big-n c-red">× 10</div><p class="small">ველი თითოეულში<br><span class="tiny">= 600 ხაზი <b>„A = B“</b></span></p></div>
+  </div>
+  <div class="callout mt2 step" style="--a:var(--net)">ეს კოდი <b>მოსაწყენია</b> და <b>ერთნაირი</b>: სახელი ემთხვევა სახელს. ასეთ კოდს <b>პროგრამა</b> უნდა წერდეს და არა ადამიანი 🤖</div>
+  <aside class="notes">
+⏱ 1:16 · 3 წთ
+Mapper-მა განმეორება მოაშორა. მაგრამ ერთი პროდუქტისთვის უკვე 20-ზე მეტი ხაზი დავწერეთ.
+→ 20
+რეალურ პროექტში — 20 Entity, ზოგჯერ ასი.
+→ × 3
+თითოეულს 3 DTO.
+→ × 10
+თითოეულში 10 ველი. ! 600 ხაზი, სადაც წერია Name = request.Name, Price = request.Price…
+→ პროგრამა
+? შეამჩნიეთ კანონზომიერება? Name — Name-ს, Price — Price-ს. სახელი სახელს ემთხვევა. ეს ისეთი კოდია, რომელიც წესით იწერება. ! ასეთ კოდს პროგრამამ უნდა დაწეროს. და ასეთი პროგრამები არსებობს.
+  </aside>
+</section>
+
+<!-- ============ PART 4: PACKAGE ============ -->
+<section class="slide divider" data-section="4 · Mapperly">
+  <div class="vcenter">
+    <div class="kicker in">ნაწილი 4</div>
+    <h1 class="in" style="--d:.1s">Mapping <span class="grad">package</span></h1>
+    <p class="lead mt in" style="--d:.3s">ჩვენ ვწერთ <b>რა</b> გადავიტანოთ — package წერს <b>როგორ</b></p>
+  </div>
+  <div class="big-num">04</div>
+  <aside class="notes">
+⏱ 1:19
+ახლა, როცა ვიცით, რას აკეთებს mapping-ი, შეგვიძლია package-ს ვანდოთ. ! ჯერ ხელით რომ არ დაგვეწერა, package „მაგიად“ მოგეჩვენებოდათ.
+  </aside>
+</section>
+
+<!-- 24. PACKAGES -->
+<section class="slide" data-section="4 · Mapperly">
+  <div class="kicker">NuGet</div>
+  <h2>სამი ცნობილი <span class="grad">package</span></h2>
+  <table class="t">
+    <tr><th>Package</th><th>როგორ მუშაობს</th><th>ლიცენზია</th><th>სტატუსი</th></tr>
+    <tr class="step fade"><td class="mono">AutoMapper</td><td>პროგრამის მუშაობისას (reflection)</td><td>2025-დან <b>ფასიანი</b> (კომერციული)</td><td>წლების განმავლობაში #1 — ახალი პროექტები მისგან მიდიან</td></tr>
+    <tr class="step fade"><td class="mono">Mapster</td><td>პროგრამის მუშაობისას</td><td>უფასო · MIT</td><td>პოპულარული ალტერნატივა</td></tr>
+    <tr class="step fade"><td class="mono" style="color:var(--mvc)">Mapperly ✓</td><td><b>კომპილაციისას</b> კოდს წერს (source generator)</td><td>უფასო · Apache-2.0</td><td>ყველაზე სწრაფად მზარდი — ABP framework-იც მასზე გადავიდა</td></tr>
+  </table>
+  <div class="callout mt step" style="--a:var(--mvc)">ჩვენ ვიყენებთ <b>Mapperly</b>-ს: ის წერს <b>ზუსტად ისეთ კოდს</b>, როგორიც ჩვენ ხელით დავწერეთ — და მას <b>ვხედავთ</b></div>
+  <aside class="notes">
+⏱ 1:19 · 4 წთ
+mapping-ის რამდენიმე package არსებობს. სამს ვნახავთ.
+→ AutoMapper
+AutoMapper — წლების განმავლობაში ყველაზე გამოყენებადი. ბევრ არსებულ პროექტში შეხვდებით, ამიტომ სახელი უნდა იცოდეთ. ! 2025-დან ფასიანი გახდა კომერციული გამოყენებისთვის, ამიტომ ახალი პროექტები ალტერნატივებზე გადადიან.
+→ Mapster
+Mapster — უფასო, მარტივი, პოპულარული.
+→ Mapperly
+Mapperly — ყველაზე ახალი მიდგომა. უფასოა და ყველაზე სწრაფად იზრდება: ABP — დიდი .NET framework — AutoMapper-იდან სწორედ Mapperly-ზე გადავიდა.
+→ რატომ Mapperly
+! მთავარი მიზეზი ჩვენთვის: Mapperly კოდს კომპილაციისას წერს. ის წერს ზუსტად იმას, რაც ჩვენ ხელით დავწერეთ, და ამ კოდს Visual Studio-ში დავინახავთ. მაგია არ არის.
+~ AutoMapper და Mapster პროგრამის მუშაობისას „ეძებენ“ ველებს (reflection) — შეცდომა მხოლოდ გაშვებისას ჩანს. Mapperly-ში — კომპილაციისას.
+  </aside>
+</section>
+
+<!-- 25. INSTALL -->
+<section class="slide" data-section="4 · Mapperly">
+  <div class="kicker">🧑‍💻 ვაყენებთ</div>
+  <h2>NuGet → <span class="grad">Riok.Mapperly</span></h2>
+  <div class="grid2" style="gap:34px;align-items:start">
+    <div class="col" style="gap:16px">
+      <ul class="check" style="margin-top:0">
+        <li class="step">Solution Explorer → პროექტზე მარჯვენა კლიკი → <b>Manage NuGet Packages</b></li>
+        <li class="step"><b>Browse</b> → ძებნა: <code class="i">Riok.Mapperly</code> → <b>Install</b></li>
+        <li class="step"><b>Dependencies → Packages</b>-ში გამოჩნდა</li>
+      </ul>
+      <div class="term step">
+        <div class="bar"><i></i><i></i><i></i><span>ან ტერმინალიდან</span></div>
+        <div class="body"><div><span class="cmd">dotnet add package Riok.Mapperly</span></div></div>
+      </div>
+    </div>
+    <div class="nuget step zoom">
+      <div class="logo">RM</div>
+      <div><div class="nm">Riok.Mapperly</div><div class="ds">A .NET source generator for object-to-object mappings</div></div>
+      <div class="btn">Install</div>
+    </div>
+  </div>
+  <aside class="notes">
+⏱ 1:23 · 3 წთ
+→ NuGet
+პროექტზე მარჯვენა კლიკი, Manage NuGet Packages.
+→ ძებნა
+Browse, ვწერთ Riok.Mapperly. ! სახელი ასე იწყება — Riok მისი ავტორების კომპანიაა. ვაჭერთ Install.
+→ შემოწმება
+Dependencies-ში, Packages-ში ჩანს.
+→ CLI
+იგივე ტერმინალიდან ერთი ბრძანებით.
+→ კარტა
+~ ამ სლაიდს ეკრანზე დატოვე, სანამ ყველა დააყენებს.
+  </aside>
+</section>
+
+<!-- 26. MAPPERLY MAPPER -->
+<section class="slide" data-section="4 · Mapperly">
+  <div class="kicker">🧑‍💻 ვწერთ · ProductMapper-ის ახალი ვერსია</div>
+  <h2>ვწერთ მხოლოდ <span class="grad">„რა“</span> — სხეულის გარეშე</h2>
+  <div class="grid2" style="grid-template-columns:1.4fr 1fr;align-items:start;gap:26px">
+    <code-block id="mp" lang="csharp" cls="sm" title="Mappers/ProductMapper.cs">
+using Riok.Mapperly.Abstractions;
+
+[Mapper]
+public static partial class ProductMapper
+{
+    public static partial ProductResponse ToResponse(this Product product);
+
+    public static partial Product ToEntity(this CreateProductRequest request);
+
+    public static partial void UpdateFrom(
+        [MappingTarget] this Product product,
+        UpdateProductRequest request);
+}
+    </code-block>
+    <div class="col" style="gap:14px">
+      <i class="codestep" data-for="mp" data-lines="3"></i>
+      <div class="callout step" data-with style="--a:var(--core)"><code class="i">[Mapper]</code> — „Mapperly, ეს კლასი შენ შეავსე“</div>
+      <i class="codestep" data-for="mp" data-lines="4,6"></i>
+      <div class="callout step" data-with style="--a:var(--net)"><b>partial</b> — მეთოდს სხეული <b>არ აქვს</b>. მეორე ნახევარს Mapperly დაწერს</div>
+      <i class="codestep" data-for="mp" data-lines="10-12"></i>
+      <div class="callout step" data-with style="--a:var(--wf)"><code class="i">[MappingTarget]</code> — <b>ამ</b> ობიექტს ცვლის, ახალს არ ქმნის</div>
+      <div class="solve step">მეთოდების სახელები <b>იგივეა</b> → Controller-ში <b>ერთი ხაზიც არ</b> იცვლება</div>
+    </div>
+  </div>
+  <aside class="notes">
+⏱ 1:26 · 6 წთ
+ProductMapper-ს თავიდან ვწერთ. ~ ძველი სხეულები წაშალე — ან ძველი ფაილი გადაარქვი, რომ შეადარონ.
+→ [Mapper]
+[Mapper] ატრიბუტი Mapperly-ს ეუბნება: ეს კლასი შენი საქმეა.
+→ partial
+partial — ნიშნავს „ნაწილობრივი“. კლასი და მეთოდი ორ ნაწილად იწერება: ერთს ჩვენ ვწერთ — სათაურს, მეორეს Mapperly — სხეულს. ! ჩვენ ვწერთ მხოლოდ „რა“: Product-იდან ProductResponse. „როგორ“ — Mapperly-ს საქმეა: სახელებს ადარებს და ველებს აკოპირებს.
+→ MappingTarget
+განახლებისთვის ვეუბნებით: ეს არის სამიზნე, მას შეცვალე.
+→ Controller
+! მეთოდების სახელები იგივე დავტოვეთ — ToResponse, ToEntity, UpdateFrom. Controller-ში ერთი ხაზიც არ იცვლება. ჩვენი ხელით დაწერილი Mapper package-ით შევცვალეთ და Controller-მა ვერც გაიგო.
+~ ააწყვე (Build) — შემდეგ სლაიდზე ვნახავთ გაფრთხილებებს.
+  </aside>
+</section>
+
+<!-- 27. WARNINGS -->
+<section class="slide" data-section="4 · Mapperly">
+  <div class="kicker">Build · გაფრთხილებები</div>
+  <h2>Mapperly <span class="c-asp">გეკითხება</span>: „განზრახ გამოტოვე?“</h2>
+  <div class="errbox step" style="--a:var(--asp);border-color:var(--asp)">
+    <div class="eh" style="background:#fef5e4;color:#92400e;border-color:#fcd34d">⚠ Warning RMG020 · ProductMapper.cs</div>
+    <div class="eb">The member <u>CostPrice</u> on the mapping source type Product is not mapped to any member on the mapping target type ProductResponse</div>
+  </div>
+  <div class="grid2 mt" style="grid-template-columns:1.3fr 1fr;gap:26px;align-items:start">
+    <code-block id="ig" lang="csharp" cls="sm" title="Mappers/ProductMapper.cs">
+[MapperIgnoreSource(nameof(Product.CostPrice))]
+[MapperIgnoreSource(nameof(Product.CreatedAt))]
+public static partial ProductResponse ToResponse(this Product product);
+
+[MapperIgnoreTarget(nameof(Product.Id))]
+[MapperIgnoreTarget(nameof(Product.CreatedAt))]
+public static partial Product ToEntity(this CreateProductRequest request);
+    </code-block>
+    <div class="col" style="gap:14px">
+      <i class="codestep" data-for="ig" data-lines="1-3"></i>
+      <div class="callout step" data-with style="--a:var(--mvc)">„დიახ, <b>განზრახ</b> არ გავიტანე“</div>
+      <i class="codestep" data-for="ig" data-lines="5-7"></i>
+      <div class="callout step" data-with style="--a:var(--api)">„ამათ <b>სერვერი</b> ავსებს“</div>
+      <div class="solve step">ველი <b>შემთხვევით</b> ვეღარ გამოგვრჩება — Mapperly <b>შეგვახსენებს</b></div>
+    </div>
+  </div>
+  <aside class="notes">
+⏱ 1:32 · 4 წთ
+Build-ის შემდეგ Error List-ში გაფრთხილებები ჩნდება.
+→ RMG020
+Mapperly ამბობს: Product-ს CostPrice აქვს, ProductResponse-ში კი ის არსად წავიდა. ! ეს ზრუნვაა: „შემთხვევით ხომ არ დაგავიწყდა?“
+→ IgnoreSource
+ვპასუხობთ ატრიბუტით: MapperIgnoreSource — წყაროს ეს ველი განზრახ არ გადავიტანე. nameof — რომ სახელი ტექსტად არ ვწეროთ და შეცდომა არ დავუშვათ.
+→ IgnoreTarget
+ToEntity-ზე პირიქით: Product-ს აქვს Id და CreatedAt, Request-ში კი არ არის. MapperIgnoreTarget — ამათ სხვა ავსებს. იგივე დაამატე UpdateFrom-ზე.
+→ სარგებელი
+! ხელით დაწერილ Mapper-ში Category-ს დამატება შეიძლებოდა დაგვვიწყებოდა. Mapperly-ში — ახალ ველზე ის თვითონ გვეტყვის. ეს ზუსტად ის პრობლემაა, რომლითაც ეს ნაწილი დავიწყეთ.
+  </aside>
+</section>
+
+<!-- 28. GENERATED CODE -->
+<section class="slide" data-section="4 · Mapperly">
+  <div class="kicker">კაპოტის ქვეშ</div>
+  <h2>Mapperly-მ <span class="grad">ზუსტად ჩვენი კოდი</span> დაწერა</h2>
+  <div class="grid2" style="gap:26px;align-items:start">
+    <div class="col" style="gap:10px">
+      <div class="tag step" style="--a:var(--net);align-self:flex-start">ჩვენ · ხელით</div>
+      <code-block lang="csharp" cls="xs" title="ჩვენი ProductMapper" style="padding-top:36px">
+public static ProductResponse ToResponse(this Product product)
+{
+    return new ProductResponse(
+        product.Id, product.Name, product.Price);
+}
+      </code-block>
+    </div>
+    <div class="col" style="gap:10px">
+      <div class="tag step" style="--a:var(--core);align-self:flex-start">Mapperly · გენერირებული</div>
+      <code-block lang="csharp" cls="xs" title="ProductMapper.g.cs · გამარტივებული" style="padding-top:36px">
+public static partial ProductResponse ToResponse(this Product product)
+{
+    var target = new ProductResponse(
+        product.Id, product.Name, product.Price);
+    return target;
+}
+      </code-block>
+    </div>
+  </div>
+  <div class="mock mt step">
+    <div class="mh">Solution Explorer — სად ვნახოთ</div>
+    <div class="mb tree" style="font-size:18px">
+      <span class="n"><i>📦</i>ShopApi</span>
+      <span class="n lvl1"><i>📁</i>Dependencies → Analyzers → <b>Riok.Mapperly</b></span>
+      <span class="n lvl2 hi"><i>📄</i>ProductMapper.g.cs</span>
+    </div>
+  </div>
+  <div class="solve mt step">მაგია არ არის: Mapperly <b>კოდს წერს</b>, ჩვენ კი მას <b>ვხედავთ და ვამოწმებთ</b></div>
+  <aside class="notes">
+⏱ 1:36 · 4 წთ
+სად არის მეთოდის სხეული? Mapperly-მ დაწერა. ვნახოთ.
+→ ჩვენი
+მარცხნივ — ჩვენი ხელით დაწერილი ToResponse.
+→ გენერირებული
+მარჯვნივ — Mapperly-ს დაწერილი. ? რა განსხვავებაა? (თითქმის არანაირი.) ~ ნამდვილ ფაილში სახელები სრულად წერია (global::ShopApi…) — აქ გამარტივებულია.
+→ სად
+Visual Studio-ში: Dependencies → Analyzers → Riok.Mapperly → ProductMapper.g.cs. ~ ცოცხლად გახსენი — ToEntity და UpdateFrom-იც აჩვენე.
+→ მაგია არ არის
+! ამიტომ დავწერეთ ჯერ ხელით: ახლა იცით, რას აკეთებს package. თუ რამე არასწორად გადაიტანა — გახსნით ამ ფაილს და დაინახავთ.
+  </aside>
+</section>
+
+<!-- 29. SUMMARY OF EVOLUTION -->
+<section class="slide" data-section="4 · Mapperly">
+  <div class="kicker">ჩვენი გზა</div>
+  <h2>სამი ნაბიჯი — <span class="grad">ერთი შედეგი</span></h2>
+  <div class="flowrow mt" style="gap:12px">
+    <div class="fbox step" style="--a:var(--red)"><div class="e">😵</div><div class="l">mapping ყველგან</div><div class="s">ერთი კოდი რამდენჯერმე</div></div>
+    <div class="farrow step" data-with style="--a:var(--muted)"><span class="ar">→</span></div>
+    <div class="fbox step" style="--a:var(--asp)"><div class="e">✍️</div><div class="l">ხელით Mapper</div><div class="s">ერთ ადგილას · ჩვენ ვწერთ</div></div>
+    <div class="farrow step" data-with style="--a:var(--muted)"><span class="ar">→</span></div>
+    <div class="fbox step" style="--a:var(--mvc)"><div class="e">⚙️</div><div class="l">Mapperly</div><div class="s">ერთ ადგილას · package წერს</div></div>
+  </div>
+  <table class="t mt2 step">
+    <tr><th></th><th>ხელით Mapper</th><th>Mapperly</th></tr>
+    <tr><td>კოდის რაოდენობა</td><td>ყველა ველი ხელით</td><td>მხოლოდ მეთოდის სათაური</td></tr>
+    <tr><td>ახალი ველი</td><td>შეიძლება <b>დაგვავიწყდეს</b></td><td>გაფრთხილება Build-ზე</td></tr>
+    <tr><td>Controller</td><td colspan="2" style="text-align:center"><b>ერთნაირი</b> — <code class="i">product.ToResponse()</code></td></tr>
+  </table>
+  <aside class="notes">
+⏱ 1:40 · 2 წთ
+შევაჯამოთ გზა.
+→ ყველგან
+დავიწყეთ mapping-ით, რომელიც Controller-ში ყველგან იყო გაბნეული.
+→ ხელით
+გავიტანეთ ერთ ადგილას — ჩვენი ხელით დაწერილ Mapper-ში.
+→ Mapperly
+და ბოლოს — ეს კოდი package-ს ვანდეთ.
+→ შედარება
+! Controller ორივე შემთხვევაში ერთნაირია. ? როდის დავწერდით ხელით? (პატარა პროექტში, 2-3 DTO-ზე — package ზედმეტია. ან როცა გადატანა რთულია — მაგალითად, ფასს გამოთვლა სჭირდება.)
+  </aside>
+</section>
+
+<!-- ============ PRACTICE ============ -->
+<section class="slide" data-section="5 · პრაქტიკა">
+  <div class="kicker">🧑‍💻 თქვენ აკეთებთ</div>
+  <h2>LibraryApi — <span class="grad">DTO და Mapping</span></h2>
+  <div class="grid2" style="align-items:start">
+    <div class="card accent step left" style="--a:var(--mvc)">
+      <h3><span class="ico">📝</span>დავალება · LibraryApi</h3>
+      <ul class="clean small">
+        <li><code class="i">Book</code>-ს დაამატეთ <code class="i">PurchasePrice</code> და <code class="i">CreatedAt</code></li>
+        <li><code class="i">Dtos/</code>: <b>CreateBookRequest</b>, <b>UpdateBookRequest</b>, <b>BookResponse</b> (PurchasePrice-ის გარეშე)</li>
+        <li>ჯერ <b>ხელით</b>: <code class="i">Mappers/BookMapper</code> — ToResponse, ToEntity, UpdateFrom</li>
+        <li>BooksController — მხოლოდ DTO-ები შემოდის და გადის</li>
+        <li>მერე <b>Riok.Mapperly</b>: BookMapper გადაწერეთ partial-ად. Controller <b>არ</b> უნდა შეიცვალოს</li>
+      </ul>
+      <p class="tiny mt" style="margin-top:14px">✓ მზადაა, როცა Swagger-ში POST-ს id არ აქვს, GET-ში purchasePrice არ ჩანს და Build-ზე Mapperly-ს გაფრთხილება არ არის</p>
+    </div>
+    <div class="card accent step right" style="--a:var(--asp)">
+      <h3><span class="ico">⭐</span>ბონუსი</h3>
+      <ul class="clean small">
+        <li><code class="i">BookResponse</code>-ს დაამატეთ <code class="i">Author</code> — ნახეთ, სად შეიცვალა კოდი</li>
+        <li>გახსენით <code class="i">BookMapper.g.cs</code> და შეადარეთ თქვენს ხელით დაწერილს</li>
+        <li><code class="i">GET /api/books/cheap</code> — <b>BookResponse</b>-ების სიით</li>
+      </ul>
+    </div>
+  </div>
+  <div class="callout step mt" style="--a:var(--api)">წესი: <b>ჯერ ცდი თვითონ</b> → გვერდით მჯდომს ჰკითხე → მერე მე. ShopApi — თქვენი ნიმუშია 🙂</div>
+  <aside class="notes">
+⏱ 1:42 · 10 წთ · ~ სლაიდი ეკრანზე დატოვე და ოთახში იარე. ვინც ვერ მორჩება — საშინაოდ დაასრულებს.
+→ დავალება
+წინა ლექციის LibraryApi. Book-ს ორი შიდა ველი ემატება. მერე DTO-ები. ! რიგი მნიშვნელოვანია: ჯერ ხელით Mapper, გატესტეთ, მერე Mapperly. ორივე ვერსია უნდა გესმოდეთ.
+→ ბონუსი
+ვინც ადრე მორჩება: ახალი ველი, გენერირებული კოდის შედარება, იაფი წიგნები.
+→ წესი
+! ShopApi ნიმუშია. გადაწერა კი არა, ყოველი ხაზის გაგებაა მიზანი.
+  </aside>
+</section>
+
+<!-- MISTAKES -->
+<section class="slide" data-section="5 · პრაქტიკა">
+  <div class="kicker">ყურადღება</div>
+  <h2>ხშირი <span class="c-red">შეცდომები</span></h2>
+  <div class="col" style="gap:14px">
+    <div class="grid2 step" style="grid-template-columns:1fr 1fr;gap:18px"><div class="problem">ერთ endpoint-ში <code class="i">Book</code> დარჩა — ველი „გაიპარა“</div><div class="solve">ყველგან <code class="i">.ToResponse()</code> · Swagger-ში შეამოწმე</div></div>
+    <div class="grid2 step" style="grid-template-columns:1fr 1fr;gap:18px"><div class="problem">Request DTO-ში <code class="i">Id</code> ჩაწერე</div><div class="solve">Id — სერვერი ანიჭებს ან მისამართიდან მოდის</div></div>
+    <div class="grid2 step" style="grid-template-columns:1fr 1fr;gap:18px"><div class="problem"><code class="i">this</code> დაგავიწყდა → <code class="i">book.ToResponse()</code> არ ჩანს</div><div class="solve">extension method = <b>static</b> კლასი + <code class="i">this</code></div></div>
+    <div class="grid2 step" style="grid-template-columns:1fr 1fr;gap:18px"><div class="problem">Mapperly: <code class="i">partial</code> აკლია კლასს ან მეთოდს</div><div class="solve"><code class="i">static partial class</code> + <code class="i">static partial</code> მეთოდი</div></div>
+    <div class="grid2 step" style="grid-template-columns:1fr 1fr;gap:18px"><div class="problem">გაფრთხილებები <b>იგნორირებულია</b></div><div class="solve">წაიკითხე: <b>განზრახ</b> გამოტოვე? → <code class="i">MapperIgnore…</code></div></div>
+  </div>
+  <aside class="notes">
+⏱ 1:52 · 2 წთ · ~ როცა ბევრს ერთი და იგივე შეცდომა აქვს, ეს სლაიდი აჩვენე.
+→ Entity დარჩა
+ყველაზე ხშირი: ერთ endpoint-ში DTO დაგავიწყდათ — და შიდა ველი გარეთაა. ყოველი endpoint Swagger-ში შეამოწმეთ.
+→ Id Request-ში
+Request-ში Id ზედმეტია — ზუსტად ის პრობლემა, რომელსაც DTO ხსნის.
+→ this
+this-ის გარეშე მეთოდი ჩვეულებრივი static მეთოდია: BookMapper.ToResponse(book) იმუშავებს, book.ToResponse() — არა.
+→ partial
+Mapperly-ს partial სჭირდება კლასზეც და მეთოდზეც — თორემ „მეთოდს სხეული აკლია“.
+→ გაფრთხილებები
+! გაფრთხილება შეცდომა არ არის — პროგრამა გაეშვება. მაგრამ ის რაღაცას გეუბნებათ. წაიკითხეთ.
+  </aside>
+</section>
+
+<!-- QUIZ -->
+<section class="slide" data-section="შეჯამება">
+  <div class="kicker">შევამოწმოთ</div>
+  <h2>5 კითხვა</h2>
+  <div class="qa"><span class="n">1</span><span class="q">რა არის Entity და რატომ არ ვაბრუნებთ მას პირდაპირ?</span><span class="a step">ბაზის ცხრილის აღწერა · შიდა ველები გაიპარება, კლიენტი სერვერის ველებს შეავსებს, ცხრილის ცვლილება კლიენტს გატეხავს</span></div>
+  <div class="qa"><span class="n">2</span><span class="q">რა განსხვავებაა Request DTO-სა და Response DTO-ს შორის?</span><span class="a step">Request — რას ვიღებთ (Id-ს გარეშე) · Response — რას ვაჩვენებთ (შიდა ველების გარეშე)</span></div>
+  <div class="qa"><span class="n">3</span><span class="q">რა არის mapping და რატომ გავიტანეთ ცალკე Mapper-ში?</span><span class="a step">ველების გადატანა ერთი ობიექტიდან მეორეში · რომ ერთი ცოდნა ერთ ადგილას იყოს და ახალი ველი ერთგან შეიცვალოს</span></div>
+  <div class="qa"><span class="n">4</span><span class="q">რას აკეთებს <code class="i">this</code> mapper-ის მეთოდის პარამეტრში?</span><span class="a step">extension method: <code class="i">product.ToResponse()</code> — თითქოს მეთოდი Product-ს ეკუთვნის</span></div>
+  <div class="qa"><span class="n">5</span><span class="q">სად არის Mapperly-ს მეთოდის სხეული?</span><span class="a step">კომპილაციისას თვითონ წერს · <code class="i">ProductMapper.g.cs</code> — Dependencies → Analyzers</span></div>
+  <aside class="notes">
+⏱ 1:54 · 3 წთ · ~ კითხვა ხმამაღლა, დაელოდე პასუხს, მერე → პასუხის გამოსაჩენად
+? 1. Entity?
+→ პასუხი 1
+? 2. Request vs Response?
+→ პასუხი 2
+? 3. Mapping და Mapper?
+→ პასუხი 3
+? 4. this?
+→ პასუხი 4
+? 5. Mapperly-ს სხეული?
+→ პასუხი 5
+  </aside>
+</section>
+
+<!-- FINAL -->
+<section class="slide" data-section="შეჯამება">
+  <div class="kicker in" style="color:var(--asp)">დღეს</div>
+  <h2 class="in" style="--d:.1s">Entity <span class="grad">შიგნით</span> — DTO <span class="grad">გარეთ</span></h2>
+  <div class="grid2" style="grid-template-columns:1fr 1.1fr;gap:40px;align-items:start">
+    <div class="col" style="gap:18px">
+      <div class="card accent step" style="--a:var(--mvc)"><h3><span class="ico">🏠</span>საშინაო</h3><p class="small">LibraryApi: ხელით Mapper → Mapperly + ბონუსები. ყველა endpoint Swagger-ში გატესტეთ</p></div>
+      <div class="card accent step" style="--a:var(--asp)"><h3><span class="ico">⏭️</span>შემდეგი ლექცია</h3><p class="small">Controller-ი ახლა ბევრს აკეთებს. მონაცემებს <b>თავისი სახლი</b> სჭირდება — და ჩნდება კითხვა: <b>ვინ ქმნის ობიექტებს?</b></p></div>
+    </div>
+    <div class="step" data-with>
+      <div class="card" style="padding:20px 24px">
+        <h3 style="font-size:22px">ProductsController-ის საქმეები დღეს</h3>
+        <ul class="clean small">
+          <li>📋 პროდუქტების <b>სიას ინახავს</b> (static List)</li>
+          <li>🔢 Id-ებს <b>ითვლის</b> (_nextId)</li>
+          <li>🔍 <b>ეძებს</b> Id-ით</li>
+          <li>🔁 DTO ↔ Product <b>mapping</b>-ს იძახებს</li>
+          <li>📨 <b>HTTP</b>-ს წყვეტს: 200 · 201 · 404…</li>
+        </ul>
+      </div>
+      <div class="callout mt" style="--a:var(--asp)">ხუთი საქმე ერთ კლასში. მეორე Controller-საც რომ დასჭირდეს პროდუქტები? 🤔</div>
+    </div>
+  </div>
+  <aside class="notes">
+⏱ 1:57 · 3 წთ
+დღეს: Entity — ბაზის ფორმა, შიგნით რჩება. DTO — Request და Response, გარეთ გადის. Mapping — ხელით, მერე Mapperly-ით.
+→ საშინაო
+საშინაო: LibraryApi — ჯერ ხელით, მერე Mapperly. ორივე ნაბიჯი.
+→ შემდეგი
+? შეხედეთ ჩვენს ProductsController-ს: რამდენ საქმეს აკეთებს? (ხუთს.) სია, Id-ები, ძებნა, mapping, HTTP. mapping უკვე გავიტანეთ — ახლა წარმოიდგინეთ, რომ მეორე Controller-საც სჭირდება პროდუქტები.
+! შემდეგ ლექციაზე მონაცემებს საკუთარ კლასში გავიტანთ და ვნახავთ, რა ახალი კითხვა ჩნდება: ვინ ქმნის ობიექტებს?
+მადლობა! კითხვები?
+  </aside>
+</section>
