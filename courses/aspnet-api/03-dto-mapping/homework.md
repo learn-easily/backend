@@ -21,13 +21,17 @@ LibraryApi-ს ბიბლიოთეკის წევრები ემა
 
 ## 💡 მინიშნება
 
-პაროლის hash-ისთვის ახალი package არ გჭირდებათ — ASP.NET Core-ში უკვე არის:
+პაროლის hash-ისთვის სტანდარტი **Argon2id**-ია. .NET-ში ჩაშენებული არ არის — ვაყენებთ NuGet-იდან:
+
+```bash
+dotnet add package Isopoh.Cryptography.Argon2
+```
 
 ```csharp
-using Microsoft.AspNetCore.Identity;
+using Isopoh.Cryptography.Argon2;
 
-var hasher = new PasswordHasher<Member>();
-member.PasswordHash = hasher.HashPassword(member, request.Password);
+member.PasswordHash = Argon2.Hash(request.Password);   // Argon2id, salt-ით
+bool ok = Argon2.Verify(member.PasswordHash, password); // შემოწმება — შესვლისას
 ```
 
 `Password` და `PasswordHash` სხვადასხვა სახელია — ნახეთ, რას გეტყვით Mapperly და როგორ უპასუხებთ.
@@ -78,7 +82,7 @@ public IActionResult Create(CreateMemberRequest request)
     var member = request.ToEntity();
     member.Id = _nextId++;
     member.JoinedAt = DateTime.UtcNow;
-    member.PasswordHash = _hasher.HashPassword(member, request.Password);
+    member.PasswordHash = Argon2.Hash(request.Password);
     _members.Add(member);
 
     return CreatedAtAction(nameof(GetById), new { id = member.Id }, member.ToResponse());
@@ -86,5 +90,5 @@ public IActionResult Create(CreateMemberRequest request)
 ```
 
 ```note
-`_hasher` — `private static readonly PasswordHasher<Member> _hasher = new();` Controller-ის თავში. ერთი და იგივე hash-ი ერთ პაროლზე ორჯერ არ გამოვა: `PasswordHasher` ყოველ ჯერზე ახალ „მარილს“ (salt) ამატებს. შემოწმება `VerifyHashedPassword`-ით ხდება — ამას ავტორიზაციის თემაში ვნახავთ.
+`Argon2.Hash` აბრუნებს ერთ სტრიქონს, მაგალითად `$argon2id$v=19$m=…,t=…,p=…$…`. მასშივე წერია ალგორითმი, პარამეტრები და „მარილი“ (salt) — ამიტომ ერთი და იგივე პაროლი ორჯერ ერთნაირ hash-ს არ იძლევა, და ცალკე სვეტი salt-ისთვის არ გვჭირდება. პაროლის შემოწმებას (`Argon2.Verify`) ავტორიზაციის თემაში ვნახავთ.
 ```
