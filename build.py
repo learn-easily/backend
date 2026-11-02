@@ -108,6 +108,7 @@ def render_fence(kind, arg, body):
         ico = {'note': '💡', 'warn': '⚠️', 'tip': '👉'}[kind]
         return f'<div class="callout {kind}"><span class="ci">{ico}</span><div>{markdown.markdown(body, extensions=["sane_lists"])}</div></div>'
     lang = kind or 'plain'
+    arg = arg.rstrip('!').strip()   # '!' only marks the block shown on the homework-review slide
     title = esc(arg) if arg else esc(lang)
     return (f'<div class="codebox"><div class="ch"><span>{title}</span><button class="copy" type="button">კოპირება</button></div>'
             f'<pre class="code"><code>{highlight(body, lang)}</code></pre></div>')
@@ -143,9 +144,10 @@ def slide_md(text):   # markdown → slide markup (deck classes)
     h = markdown.markdown(text, extensions=['sane_lists']).replace('<code>', '<code class="i">')
     return h.replace('<ul>', '<ul class="clean small">').replace('<ol>', '<ol class="clean small">')
 
-def first_code(text):
-    m = FENCE.search(text)
-    return (m.group(1), m.group(2).strip(), m.group(3)) if m and m.group(1) not in ('prompt', 'check', 'terms', 'note', 'warn', 'tip') else None
+def first_code(text):   # the code fence marked with a trailing "!" in its title, else the first code fence
+    fences = [m for m in FENCE.finditer(text) if m.group(1) not in ('prompt', 'check', 'terms', 'note', 'warn', 'tip')]
+    m = next((f for f in fences if f.group(2).strip().endswith('!')), fences[0] if fences else None)
+    return (m.group(1), m.group(2).strip().rstrip('!').strip(), m.group(3)) if m else None
 
 # ---------- generated slides ----------
 def qa_rows(review):

@@ -41,16 +41,18 @@ bool ok = Argon2.Verify(member.PasswordHash, password); // შემოწმე
 DTO-ები: `Password` მხოლოდ შემოდის, `PasswordHash` საერთოდ არსად გადის.
 
 ```csharp Dtos/MemberDtos.cs
-public record CreateMemberRequest(string FullName, string Email, string Password);
+public record CreateMemberRequest(
+    string FullName, string Email, string Password);
 
 public record UpdateMemberRequest(string FullName, string Email);
 
-public record MemberResponse(int Id, string FullName, string Email, DateTime JoinedAt);
+public record MemberResponse(
+    int Id, string FullName, string Email, DateTime JoinedAt);
 ```
 
 Mapper: ყველა „განზრახ გამოტოვებული“ ველი ცხადად წერია.
 
-```csharp Mappers/MemberMapper.cs
+```csharp Mappers/MemberMapper.cs !
 [Mapper]
 public static partial class MemberMapper
 {
@@ -66,7 +68,8 @@ public static partial class MemberMapper
     [MapperIgnoreTarget(nameof(Member.Id))]
     [MapperIgnoreTarget(nameof(Member.PasswordHash))]
     [MapperIgnoreTarget(nameof(Member.JoinedAt))]
-    public static partial void UpdateFrom([MappingTarget] this Member member, UpdateMemberRequest request);
+    public static partial void UpdateFrom(
+        [MappingTarget] this Member member, UpdateMemberRequest request);
 }
 ```
 
@@ -85,7 +88,8 @@ public IActionResult Create(CreateMemberRequest request)
     member.PasswordHash = Argon2.Hash(request.Password);
     _members.Add(member);
 
-    return CreatedAtAction(nameof(GetById), new { id = member.Id }, member.ToResponse());
+    return CreatedAtAction(nameof(GetById),
+        new { id = member.Id }, member.ToResponse());
 }
 ```
 
