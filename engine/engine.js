@@ -97,7 +97,11 @@
     if (data.t === 'hello') bc.postMessage({ t: 'state', i, k });
     if (data.t === 'go') go(data.n);
   };
-  const openStudy = () => window.open('study.html?live#s-' + (i + 1), 'study-' + document.title, 'width=900,height=900');
+  const openStudy = () => {
+    const w = Math.min(1440, Math.max(1100, Math.round(screen.availWidth * .7))), h = screen.availHeight;
+    window.open('study.html?live#s-' + (i + 1), 'study-' + document.title, `width=${w},height=${h}`);
+  };
+  document.getElementById('studybtn')?.addEventListener('click', e => { e.currentTarget.blur(); openStudy(); });
 
   document.addEventListener('keydown', e => {
     if (e.ctrlKey || e.metaKey || e.altKey) return;

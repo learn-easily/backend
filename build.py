@@ -291,7 +291,11 @@ def expand(src, meta, ldir, prev):
 HOME_CSS = '''#home{position:fixed;left:12px;top:10px;z-index:41;font:600 13px var(--mono);color:var(--muted);text-decoration:none;
 padding:6px 10px;border-radius:8px;opacity:0;transition:opacity .25s}
 #home:hover,#home:focus-visible{opacity:1;background:rgba(0,0,0,.05)}
-:fullscreen #home{display:none}'''
+:fullscreen #home{display:none}
+#studybtn{position:fixed;right:16px;top:12px;z-index:41;display:flex;align-items:center;gap:6px;font:700 14px var(--font);color:#fff;
+background:var(--net);border:0;border-radius:10px;padding:7px 13px;cursor:pointer;opacity:.9;box-shadow:0 4px 14px rgba(109,40,217,.25)}
+#studybtn:hover{opacity:1}#studybtn kbd{font:600 11px var(--mono);background:rgba(255,255,255,.22);border-radius:5px;padding:1px 6px}
+body[data-study] #help{right:190px}'''
 
 def heading(sl):
     h = re.search(r'<h[12][^>]*>(.*?)</h[12]>', sl, re.S)
@@ -328,13 +332,13 @@ def build_lecture(course, cdir, ldir, meta, prev):
 <style>{CSS}
 {HOME_CSS}</style></head>
 <body{' data-study="1"' if has_study else ''}>
-<a id="home" href="../../" title="ყველა ლექცია">← ლექციები</a>
+<a id="home" href="../../" title="ყველა ლექცია">← ლექციები</a>{'<button id="studybtn" type="button" title="კონსპექტი ცალკე ფანჯარაში — სლაიდებს მიჰყვება">📖 კონსპექტი <kbd>P</kbd></button>' if has_study else ''}
 <div id="stage"><div id="deck">
 {src}
 <div id="hud"><span class="sec"></span><span class="dots"></span><span class="num"></span></div><div id="bar"></div>
 </div></div>
 <div id="overview"></div>
-<div id="help">← → · F{' · P კონსპექტი' if has_study else ''}</div>
+<div id="help">← → · F</div>
 <script>{JS}</script>
 </body></html>''')
     for stale in ('script.html', 'study.html'):

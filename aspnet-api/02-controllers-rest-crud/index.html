@@ -343,7 +343,11 @@ svg .td{fill:#fff}
 #home{position:fixed;left:12px;top:10px;z-index:41;font:600 13px var(--mono);color:var(--muted);text-decoration:none;
 padding:6px 10px;border-radius:8px;opacity:0;transition:opacity .25s}
 #home:hover,#home:focus-visible{opacity:1;background:rgba(0,0,0,.05)}
-:fullscreen #home{display:none}</style></head>
+:fullscreen #home{display:none}
+#studybtn{position:fixed;right:16px;top:12px;z-index:41;display:flex;align-items:center;gap:6px;font:700 14px var(--font);color:#fff;
+background:var(--net);border:0;border-radius:10px;padding:7px 13px;cursor:pointer;opacity:.9;box-shadow:0 4px 14px rgba(109,40,217,.25)}
+#studybtn:hover{opacity:1}#studybtn kbd{font:600 11px var(--mono);background:rgba(255,255,255,.22);border-radius:5px;padding:1px 6px}
+body[data-study] #help{right:190px}</style></head>
 <body>
 <a id="home" href="../../" title="ყველა ლექცია">← ლექციები</a>
 <div id="stage"><div id="deck">
@@ -1400,7 +1404,11 @@ i.codestep{display:none}
     if (data.t === 'hello') bc.postMessage({ t: 'state', i, k });
     if (data.t === 'go') go(data.n);
   };
-  const openStudy = () => window.open('study.html?live#s-' + (i + 1), 'study-' + document.title, 'width=900,height=900');
+  const openStudy = () => {
+    const w = Math.min(1440, Math.max(1100, Math.round(screen.availWidth * .7))), h = screen.availHeight;
+    window.open('study.html?live#s-' + (i + 1), 'study-' + document.title, `width=${w},height=${h}`);
+  };
+  document.getElementById('studybtn')?.addEventListener('click', e => { e.currentTarget.blur(); openStudy(); });
 
   document.addEventListener('keydown', e => {
     if (e.ctrlKey || e.metaKey || e.altKey) return;
