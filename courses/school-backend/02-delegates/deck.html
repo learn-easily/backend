@@ -1,0 +1,1401 @@
+<style>
+#deck,#deck *{font-variant-ligatures:none!important}
+.stepper{position:absolute;right:90px;top:calc(72px + (var(--h,900px) - 900px) / 2);display:flex;gap:8px;z-index:3}
+.stepper span{font:600 14px var(--mono);padding:6px 13px;border-radius:99px;border:1px solid var(--line2);color:var(--muted);background:#fff}
+.stepper span.done{color:var(--mvc);border-color:color-mix(in srgb,var(--mvc) 45%,#fff)}
+.stepper span.on{background:var(--net);border-color:var(--net);color:#fff;box-shadow:0 6px 16px -8px var(--net)}
+i.codestep{display:none}
+.mono{font-family:var(--mono)}
+.vs{display:grid;grid-template-columns:1fr 1fr;gap:28px;align-items:start}
+.lang{display:inline-block;font:800 15px var(--mono);padding:5px 14px;border-radius:99px;color:#fff;background:var(--a);margin-bottom:10px;letter-spacing:.04em}
+.term .usr{color:#fbbf24}
+.term .g{color:#4ade80}
+.term .cy{color:#22d3ee}
+.term .r{color:#f87171}
+.term .y{color:#fbbf24}
+.term .body{font-size:18px;line-height:1.6}
+.box{border-radius:16px;padding:18px 22px;border:2px solid var(--a);background:color-mix(in srgb,var(--a) 8%,#fff);text-align:center}
+.box .e{font-size:46px;line-height:1.2}
+.box .l{font:700 21px var(--mono);color:var(--ink);margin-top:6px}
+.box .s{font-size:16px;color:var(--muted);margin-top:4px}
+.arrow{font:800 40px var(--mono);color:var(--a,var(--muted));text-align:center}
+.anat{display:flex;justify-content:center;gap:14px;align-items:flex-end;margin-top:10px}
+.anat .p{text-align:center}
+.anat .p code{display:block;font:800 46px var(--mono);color:var(--a);padding:8px 18px;border-radius:14px;background:color-mix(in srgb,var(--a) 9%,#fff);border:2px solid color-mix(in srgb,var(--a) 40%,#fff)}
+.anat .p small{display:block;font:600 16px var(--font);color:var(--muted);margin-top:8px}
+.quiz{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.quiz .q{background:#fff;border:1px solid var(--line);border-radius:14px;padding:16px 20px;box-shadow:var(--shadow);display:flex;justify-content:space-between;align-items:center;gap:14px}
+.quiz .q code{font:700 21px var(--mono);color:var(--ink)}
+.quiz .q .ans{font:800 18px var(--mono);color:#fff;background:var(--net);padding:7px 14px;border-radius:99px;white-space:nowrap}
+.trace{border-collapse:collapse;font:20px var(--mono);background:#fff;box-shadow:var(--shadow);border-radius:12px;overflow:hidden;width:100%}
+.trace th{background:var(--bg2);color:var(--ink2);padding:9px 16px;text-align:left;border-bottom:1px solid var(--line)}
+.trace td{padding:8px 16px;border-bottom:1px solid var(--line);color:var(--ink)}
+.trace tr:last-child td{border-bottom:0}
+.trace .yes{color:var(--mvc);font-weight:800}
+.trace .no{color:var(--muted)}
+.chips{display:flex;gap:12px;flex-wrap:wrap}
+.chip2{font:700 20px var(--mono);padding:10px 18px;border-radius:12px;border:2px solid var(--a);background:color-mix(in srgb,var(--a) 8%,#fff);color:var(--a);text-align:center}
+.chip2 small{display:block;font:600 15px var(--font);color:var(--muted);margin-top:2px}
+.stage{border-radius:16px;padding:18px 20px;border:2px solid var(--a);background:color-mix(in srgb,var(--a) 6%,#fff)}
+.stage .n{font:800 15px var(--mono);color:var(--a)}
+.stage h3{margin:6px 0 4px}
+.stage .tool{display:inline-block;margin-top:10px;font:700 15px var(--mono);padding:4px 12px;border-radius:99px;background:#fff;border:1px solid var(--line2);color:var(--ink2)}
+.vsbig{display:flex;align-items:center;justify-content:center;gap:40px}
+.vsbig .f{font-size:110px;line-height:1}
+.vsbig .x{font:800 54px var(--mono);color:var(--red)}
+.hp{font:700 15px var(--mono);color:var(--muted);text-align:center;margin-top:6px}
+.brain{display:grid;grid-template-columns:1fr 70px 1.1fr 70px 1fr;align-items:center;gap:8px}
+</style>
+<!-- =========================================================
+     Backend · დელეგატები — პრობლემა → Action/Func + ლამბდა → ქცევა გარედან (Button) → პირობის გადაცემა (Filter)
+                             → += და ?.Invoke() → თამაში „შენ vs ბოტი“ (4 ეტაპი)
+     აუდიტორია: სკოლის მოსწავლეები, 15–16 წელი · ონლაინ ლექცია
+     ფერები: C# / დელეგატი = იისფერი · მოთამაშე = ლურჯი · ბოტი = წითელი · წარმატება = მწვანე · Func = ქარვისფერი
+     ========================================================= -->
+
+<!-- TITLE -->
+<section class="slide" data-section="შესავალი">
+  <div class="vcenter" style="max-width:820px">
+    <div class="kicker in" style="color:var(--net)">C# · დელეგატები</div>
+    <h1 class="in" style="--d:.15s">მეთოდი,<br><span class="grad">როგორც მნიშვნელობა</span></h1>
+    <p class="lead in mt" style="--d:.35s">ცვლადში რიცხვს უკვე ინახავთ. დღეს — <b>მოქმედებას</b>. ბოლოს კი ბოტს შეებრძოლებით ⚔️</p>
+  </div>
+  <div class="abs in" style="--d:.5s;right:120px;top:300px">
+    <div class="vsbig">
+      <div><div class="f">🧑</div><div class="hp">შენ · 100 HP</div></div>
+      <div class="x">VS</div>
+      <div><div class="f">🤖</div><div class="hp">ბოტი · 100 HP</div></div>
+    </div>
+  </div>
+  <aside class="study">
+# დელეგატები — მეთოდი, როგორც მნიშვნელობა
+
+ცვლადში რიცხვს და ტექსტს უკვე ინახავ. დღეს ვისწავლით ცვლადში **მეთოდის** შენახვას — და ბოლოს ამით ავაწყობთ თამაშს, სადაც ბოტს ებრძვი.
+  </aside>
+</section>
+<lecture-review/>
+<lecture-homework-review/>
+<lecture-intro/>
+<section class="slide" data-section="შესავალი">
+  <div class="kicker">ლექციის ბოლოს</div>
+  <h2>ამას <span class="grad">თქვენ დაწერთ</span></h2>
+  <div class="grid2" style="grid-template-columns:1.1fr 1fr;gap:36px;align-items:start;margin-top:8px">
+    <div class="term in" style="--d:.2s"><div class="bar"><i></i><i></i><i></i><span>Console · შენ vs ბოტი</span></div>
+      <div class="body" style="font-size:17px">──── რაუნდი 3 ──── შენ: 64 HP | ბოტი: 41 HP<br>1 - დარტყმა | 2 - ძლიერი | 3 - განკურნება: <span class="usr">2⏎</span><br>🔥 შენ: ძლიერი დარტყმა...<br>&nbsp;&nbsp;&nbsp;💥 ბოტმა მიიღო 37 დაზიანება<br>🧪 ბოტი: განკურნება<br>&nbsp;&nbsp;&nbsp;<span class="g">💚 ბოტმა აღიდგინა 18 HP</span><br>──── რაუნდი 4 ──── შენ: 64 HP | ბოტი: 22 HP<br>1 - დარტყმა | 2 - ძლიერი | 3 - განკურნება: <span class="usr">1⏎</span><br>👊 შენ: დარტყმა<br>&nbsp;&nbsp;&nbsp;💥 ბოტმა მიიღო 19 დაზიანება<br>…<br><span class="y">🏆 მოიგე!</span></div></div>
+    <div class="col" style="gap:14px">
+      <p class="small step">ამისთვის ოთხი იარაღი გვჭირდება:</p>
+      <div class="chips">
+        <div class="chip2 step" style="--a:var(--net)">Action · Func<small>მეთოდი ცვლადში</small></div>
+        <div class="chip2 step" style="--a:var(--api)">ქცევა გარედან<small>ერთი კლასი — ბევრი ქცევა</small></div>
+        <div class="chip2 step" style="--a:var(--asp)">პირობის გადაცემა<small>ერთი მეთოდი — ბევრი წესი</small></div>
+        <div class="chip2 step" style="--a:var(--mvc)">+=<small>ერთი მოვლენა — ბევრი რეაქცია</small></div>
+      </div>
+    </div>
+  </div>
+  <aside class="study">
+### ლექციის ბოლოს ამას შენ დაწერ
+
+კონსოლის თამაში: **შენ vs ბოტი**. ყოველ რაუნდში ირჩევ სვლას — დარტყმა, ძლიერი დარტყმა ან განკურნება. ბოტი თავისით წყვეტს.
+
+ამისთვის ოთხი იარაღი გვჭირდება — ოთხივეს დღეს ვისწავლით:
+
+1. **Action · Func** — მეთოდი ცვლადში
+2. **ქცევა გარედან** — ერთი კლასი, ბევრი სხვადასხვა ქცევა
+3. **პირობის გადაცემა** — ერთი მეთოდი, ბევრი წესი
+4. **`+=`** — ერთ მოვლენაზე ბევრი რეაქცია
+  </aside>
+</section>
+
+<!-- ============ 1 · პრობლემა ============ -->
+<section class="slide divider" data-section="1 · პრობლემა">
+  <div class="vcenter">
+    <div class="kicker in">ნაწილი 1</div>
+    <h1 class="in" style="--d:.1s">ერთნაირი<br><span class="grad">მეთოდები</span></h1>
+    <p class="lead mt in" style="--d:.3s">რა ხდება, როცა მეთოდები ერთმანეთს თითქმის ზუსტად იმეორებს</p>
+  </div>
+  <div class="big-num">01</div>
+  <aside class="study">
+## ნაწილი 1 · პრობლემა: ერთნაირი მეთოდები
+  </aside>
+</section>
+<section class="slide" data-section="1 · პრობლემა">
+  <div class="kicker">ქულების სია</div>
+  <h2>იპოვე მაღალი და დაბალი <span class="grad">ქულები</span></h2>
+  <div class="vs" style="margin-top:6px">
+    <code-block id="hi" lang="csharp" cls="sm" title="მაღალი ქულები">
+static List<int> GetHighScores(List<int> list)
+{
+    List<int> result = new List<int>();
+
+    foreach (int s in list)
+        if (s >= 80) result.Add(s);
+
+    return result;
+}
+    </code-block>
+    <code-block id="lo" lang="csharp" cls="sm" title="დაბალი ქულები">
+static List<int> GetLowScores(List<int> list)
+{
+    List<int> result = new List<int>();
+
+    foreach (int s in list)
+        if (s < 20) result.Add(s);
+
+    return result;
+}
+    </code-block>
+  </div>
+  <div class="problem step shake mt" style="display:block;font-size:24px;text-align:center">რით განსხვავდება ეს ორი მეთოდი? 🤔</div>
+  <i class="codestep" data-for="hi" data-lines="6"></i>
+  <i class="codestep" data-for="lo" data-lines="6" data-with></i>
+  <div class="callout step mt" style="--a:var(--red);font-size:22px">მხოლოდ <b>ერთი ხაზით</b> — პირობით. ახლა თუ გვინდა „ზუსტად 100“, „ლუწი“, „50-დან 70-მდე“ → <b>ყოველ პირობაზე ახალი მეთოდი</b> 😩</div>
+  <aside class="study">
+### პრობლემა: ერთნაირი მეთოდები
+
+```csharp მაღალი ქულები
+static List<int> GetHighScores(List<int> list)
+{
+    List<int> result = new List<int>();
+
+    foreach (int s in list)
+        if (s >= 80) result.Add(s);
+
+    return result;
+}
+```
+
+```csharp დაბალი ქულები
+static List<int> GetLowScores(List<int> list)
+{
+    List<int> result = new List<int>();
+
+    foreach (int s in list)
+        if (s < 20) result.Add(s);
+
+    return result;
+}
+```
+
+ორი მეთოდი განსხვავდება **მხოლოდ ერთი ხაზით** — `if`-ის პირობით. დანარჩენი ზუსტი ასლია.
+
+ახალი პირობა („ზუსტად 100“, „ლუწი“) → ახალი მეთოდი → კიდევ ერთი ასლი. ასეთი კოდი სწრაფად იზრდება, და თუ ერთ ადგილას შეცდომას იპოვი, ყველა ასლში უნდა გაასწორო.
+  </aside>
+</section>
+<section class="slide" data-section="1 · პრობლემა">
+  <div class="kicker">იდეა</div>
+  <h2>რიცხვს ვაწვდით მეთოდს. <span class="grad">წესს რატომ არა?</span></h2>
+  <div class="grid2" style="gap:30px;margin-top:20px;align-items:stretch">
+    <div class="box in" style="--a:var(--asp);--d:.15s">
+      <div class="e">📦 <span style="font:800 40px var(--mono)">80</span></div>
+      <div class="l">int limit = 80;</div>
+      <div class="s">ცვლადში ინახება <b>რიცხვი</b></div>
+    </div>
+    <div class="box step zoom" style="--a:var(--net)">
+      <div class="e">📦 <span style="font:800 34px var(--mono)">s =&gt; s &gt;= 80</span></div>
+      <div class="l">Func&lt;int, bool&gt; rule = …;</div>
+      <div class="s">ცვლადში ინახება <b>მოქმედება</b> — „აი, ასე შეამოწმე“</div>
+    </div>
+  </div>
+  <div class="callout step mt2" style="--a:var(--net);font-size:30px;text-align:center;border-left:0;border-radius:16px;padding:26px"><b>დელეგატი</b> — ცვლადი, რომელშიც <b>მეთოდი</b> ინახება</div>
+  <div class="solve step mt" style="display:block;font-size:22px;text-align:center">მერე ამ ცვლადს მეთოდს გადავცემთ — და ერთი მეთოდი <b>ნებისმიერ</b> პირობაზე იმუშავებს</div>
+  <aside class="study">
+### იდეა: წესიც გადავცეთ მეთოდს
+
+რიცხვს მეთოდს ყოველთვის ვაწვდით: `Filter(scores, 80)`. მაგრამ ეს მხოლოდ „80-ზე მეტზე“ იმუშავებს. „ლუწზე“ ან „ზუსტად 100-ზე“ — ვერა.
+
+რა იქნება, თუ მეთოდს მივაწვდით **თვითონ წესს** — „აი, ასე შეამოწმე“?
+
+| ცვლადი | რა ინახება |
+|---|---|
+| `int limit = 80;` | **რიცხვი** |
+| `Func<int, bool> rule = s => s >= 80;` | **მოქმედება** — „შეამოწმე, 80-ზე მეტია თუ არა“ |
+
+```terms
+დელეგატი — ცვლადი, რომელშიც მეთოდი ინახება. შეგიძლია შეინახო, გადასცე სხვა მეთოდს და მოგვიანებით გამოიძახო
+```
+  </aside>
+</section>
+
+<!-- ============ 2 · Action და Func ============ -->
+<section class="slide divider" data-section="2 · Action და Func">
+  <div class="vcenter">
+    <div class="kicker in">ნაწილი 2</div>
+    <h1 class="in" style="--d:.1s">Action <span class="muted">და</span><br><span class="grad">Func</span></h1>
+    <p class="lead mt in" style="--d:.3s">მეთოდი ცვლადში და ლამბდა</p>
+  </div>
+  <div class="big-num">02</div>
+  <aside class="study">
+## ნაწილი 2 · Action და Func
+  </aside>
+</section>
+<section class="slide" data-section="2 · Action და Func">
+  <div class="kicker c-mvc">⌨️ მე ვაჩვენებ</div>
+  <h2>მეთოდი <span class="grad">ცვლადში</span></h2>
+  <div class="grid2" style="grid-template-columns:1.2fr 1fr;gap:30px;align-items:start">
+    <code-block id="m1" lang="csharp" cls="big" title="Program.cs">
+Action greet = SayHello;
+greet();
+
+greet = SayBye;
+greet();
+
+static void SayHello() => Console.WriteLine("გამარჯობა!");
+static void SayBye() => Console.WriteLine("ნახვამდის!");
+    </code-block>
+    <div class="col" style="gap:14px">
+      <i class="codestep" data-for="m1" data-lines="1"></i>
+      <div class="callout step" data-with style="--a:var(--net);font-size:20px"><code class="i">SayHello</code> <b>ფრჩხილების გარეშე</b> — არ ვიძახებთ, ვინახავთ</div>
+      <i class="codestep" data-for="m1" data-lines="2"></i>
+      <div class="callout step" data-with style="--a:var(--mvc);font-size:20px"><code class="i">greet()</code> — ახლა ვიძახებთ</div>
+      <i class="codestep" data-for="m1" data-lines="4-5"></i>
+      <div class="callout step" data-with style="--a:var(--asp);font-size:20px">იგივე ცვლადი — <b>სხვა</b> მეთოდი</div>
+      <div class="term step"><div class="bar"><i></i><i></i><i></i><span>Console</span></div><div class="body">გამარჯობა!<br>ნახვამდის!</div></div>
+    </div>
+  </div>
+  <aside class="study">
+### მეთოდი ცვლადში
+
+```csharp Program.cs
+Action greet = SayHello;
+greet();          // გამარჯობა!
+
+greet = SayBye;
+greet();          // ნახვამდის!
+
+static void SayHello() => Console.WriteLine("გამარჯობა!");
+static void SayBye() => Console.WriteLine("ნახვამდის!");
+```
+
+| ჩანაწერი | რას ნიშნავს |
+|---|---|
+| `SayHello` | მეთოდი — **ვინახავთ** (ფრჩხილების გარეშე) |
+| `SayHello()` | **ვიძახებთ** ახლავე |
+
+`Action` — ტიპი, რომელშიც ინახება მეთოდი, რომელიც არაფერს იღებს და არაფერს აბრუნებს (`void`).
+  </aside>
+</section>
+<section class="slide" data-section="2 · Action და Func">
+  <div class="kicker">ლამბდა</div>
+  <h2>მეთოდი <span class="grad">სახელის გარეშე</span></h2>
+  <div class="grid2" style="grid-template-columns:1fr 70px 1fr;gap:10px;align-items:center;margin-top:10px">
+    <code-block lang="csharp" cls="big" title="ჩვეულებრივი მეთოდი">
+static int Double(int x)
+{
+    return x * 2;
+}
+    </code-block>
+    <div class="arrow step" style="--a:var(--net)">→</div>
+    <code-block lang="csharp" cls="big" title="ლამბდა" data-with>
+x => x * 2
+    </code-block>
+  </div>
+  <div class="anat step mt2">
+    <div class="p" style="--a:var(--api)"><code>x</code><small>რას იღებს</small></div>
+    <div class="p" style="--a:var(--net)"><code>=&gt;</code><small>„გადაიქცევა“</small></div>
+    <div class="p" style="--a:var(--mvc)"><code>x * 2</code><small>რას აბრუნებს</small></div>
+  </div>
+  <div class="chips step mt2" style="justify-content:center">
+    <div class="chip2" style="--a:var(--muted)">() =&gt; …<small>არაფერს იღებს</small></div>
+    <div class="chip2" style="--a:var(--api)">name =&gt; …<small>ერთს იღებს</small></div>
+    <div class="chip2" style="--a:var(--net)">(a, b) =&gt; a + b<small>ორს იღებს</small></div>
+  </div>
+  <aside class="study">
+### ლამბდა — მეთოდი სახელის გარეშე
+
+```csharp ჩვეულებრივი მეთოდი
+static int Double(int x)
+{
+    return x * 2;
+}
+```
+
+```csharp იგივე — ლამბდით
+x => x * 2
+```
+
+| ნაწილი | რას ნიშნავს |
+|---|---|
+| `x` | რას იღებს (პარამეტრი) |
+| `=>` | „გადაიქცევა“ |
+| `x * 2` | რას აბრუნებს |
+
+ტიპის წერა არ გჭირდება — C# ცვლადის ტიპიდან ხვდება. `return` და `{ }` ერთ ხაზიან ლამბდაში არ იწერება.
+
+| ლამბდა | პარამეტრები |
+|---|---|
+| `() => Console.WriteLine("hi")` | არცერთი |
+| `name => Console.WriteLine(name)` | ერთი |
+| `(a, b) => a + b` | ორი — ფრჩხილებით |
+
+```terms
+ლამბდა — მოკლედ ჩაწერილი მეთოდი სახელის გარეშე, პირდაპირ იქ, სადაც გჭირდება
+```
+  </aside>
+</section>
+<section class="slide" data-section="2 · Action და Func">
+  <div class="kicker">ორი მზა ტიპი</div>
+  <h2><span class="c-net">Action</span> ასრულებს · <span class="c-asp">Func</span> აბრუნებს</h2>
+  <table class="t" style="font-size:20px;margin-top:14px">
+    <tr><th style="width:30%">ტიპი</th><th style="width:22%">იღებს</th><th style="width:18%">აბრუნებს</th><th>მაგალითი</th></tr>
+    <tr class="step"><td class="mono c-net b">Action</td><td>არაფერს</td><td>—</td><td class="mono">() =&gt; Console.WriteLine("hi")</td></tr>
+    <tr class="step"><td class="mono c-net b">Action&lt;string&gt;</td><td>string</td><td>—</td><td class="mono">name =&gt; Console.WriteLine(name)</td></tr>
+    <tr class="step"><td class="mono c-asp b">Func&lt;int&gt;</td><td>არაფერს</td><td class="mono">int</td><td class="mono">() =&gt; 42</td></tr>
+    <tr class="step"><td class="mono c-asp b">Func&lt;int, bool&gt;</td><td>int</td><td class="mono">bool</td><td class="mono">n =&gt; n % 2 == 0</td></tr>
+    <tr class="step"><td class="mono c-asp b">Func&lt;int, int, int&gt;</td><td>int, int</td><td class="mono">int</td><td class="mono">(a, b) =&gt; a + b</td></tr>
+  </table>
+  <div class="callout step mt" style="--a:var(--asp);font-size:23px;text-align:center"><code class="i">Func</code>-ში <b>ბოლო</b> ტიპი = რას აბრუნებს. დანარჩენი = რას იღებს.</div>
+  <aside class="study">
+### Action და Func — ორი მზა ტიპი
+
+**Action ასრულებს · Func აბრუნებს.**
+
+| ტიპი | იღებს | აბრუნებს | მაგალითი |
+|---|---|---|---|
+| `Action` | არაფერს | — | `() => Console.WriteLine("hi")` |
+| `Action<string>` | string | — | `name => Console.WriteLine(name)` |
+| `Func<int>` | არაფერს | int | `() => 42` |
+| `Func<int, bool>` | int | bool | `n => n % 2 == 0` |
+| `Func<int, int, int>` | int, int | int | `(a, b) => a + b` |
+
+```note
+`Func`-ში **ბოლო** ტიპი ყოველთვის ის არის, რასაც აბრუნებს. `Func<int, bool>` — იღებს int-ს, აბრუნებს bool-ს.
+```
+  </aside>
+</section>
+<section class="slide" data-section="2 · Action და Func">
+  <div class="kicker c-mvc">⌨️ მე ვაჩვენებ</div>
+  <h2>Action და Func <span class="grad">მოქმედებაში</span></h2>
+  <div class="grid2" style="grid-template-columns:1.35fr 1fr;gap:30px;align-items:start">
+    <code-block id="af" lang="csharp" title="Program.cs">
+Console.OutputEncoding = System.Text.Encoding.UTF8;
+
+Action<string> print = text => Console.WriteLine(text);
+Func<int, int, int> add = (a, b) => a + b;
+Func<int, bool> isEven = n => n % 2 == 0;
+
+print("C# მაგარია");
+Console.WriteLine(add(3, 4));
+Console.WriteLine(isEven(10));
+Console.WriteLine(isEven(7));
+    </code-block>
+    <div class="col" style="gap:14px">
+      <i class="codestep" data-for="af" data-lines="3-5"></i>
+      <div class="callout step" data-with style="--a:var(--net);font-size:20px">სამი ცვლადი — სამი <b>მეთოდი</b> შიგნით</div>
+      <i class="codestep" data-for="af" data-lines="7-10"></i>
+      <div class="term step" data-with><div class="bar"><i></i><i></i><i></i><span>Console</span></div><div class="body">C# მაგარია<br>7<br>True<br>False</div></div>
+      <div class="callout step" style="--a:var(--mvc);font-size:20px">ცვლადს ვიძახებთ <b>ზუსტად ისე</b>, როგორც მეთოდს</div>
+    </div>
+  </div>
+  <aside class="study">
+### Action და Func მოქმედებაში
+
+```csharp Program.cs
+Console.OutputEncoding = System.Text.Encoding.UTF8;
+
+Action<string> print = text => Console.WriteLine(text);
+Func<int, int, int> add = (a, b) => a + b;
+Func<int, bool> isEven = n => n % 2 == 0;
+
+print("C# მაგარია");            // C# მაგარია
+Console.WriteLine(add(3, 4));    // 7
+Console.WriteLine(isEven(10));   // True
+Console.WriteLine(isEven(7));    // False
+```
+
+სამი ცვლადი, თითოეულში — მეთოდი. ცვლადს ვიძახებთ ზუსტად ისე, როგორც ჩვეულებრივ მეთოდს: `add(3, 4)`.
+
+```prompt Action და Func — ვარჯიში
+ვსწავლობ C#-ში Action-ს და Func-ს. მომეცი 5 მარტივი ლამბდა (მაგ. x => x * 2) და მე ვეცდები ვთქვა, რა ტიპის ცვლადში ჩაიწერება თითოეული (Action, Action<string>, Func<int, int> ...). პასუხები მერე მაჩვენე, როცა ვუპასუხებ. ქართულად, 15 წლის მოსწავლისთვის.
+```
+  </aside>
+</section>
+<section class="slide" data-section="2 · Action და Func">
+  <div class="kicker">🧠 გამოიცანი · ჩატში დაწერეთ</div>
+  <h2>რომელ ცვლადში <span class="grad">ჩაიწერება?</span></h2>
+  <div class="quiz mt">
+    <div class="q"><code>() =&gt; Console.WriteLine("ბიპ")</code><span class="ans step">Action</span></div>
+    <div class="q"><code>x =&gt; x * x</code> <span class="small muted">(x — int)</span><span class="ans step">Func&lt;int, int&gt;</span></div>
+    <div class="q"><code>s =&gt; s.Length</code> <span class="small muted">(s — string)</span><span class="ans step">Func&lt;string, int&gt;</span></div>
+    <div class="q"><code>age =&gt; age &gt;= 18</code><span class="ans step">Func&lt;int, bool&gt;</span></div>
+    <div class="q"><code>name =&gt; Console.WriteLine(name)</code><span class="ans step">Action&lt;string&gt;</span></div>
+    <div class="q"><code>() =&gt; Random.Shared.Next(1, 7)</code><span class="ans step">Func&lt;int&gt;</span></div>
+  </div>
+  <aside class="study">
+### გამოიცანი: რომელ ცვლადში ჩაიწერება?
+
+```check
+? `() => Console.WriteLine("ბიპ")`
+= `Action` — არაფერს იღებს, არაფერს აბრუნებს
+? `x => x * x` (x — int)
+= `Func<int, int>` — იღებს int-ს, აბრუნებს int-ს
+? `s => s.Length` (s — string)
+= `Func<string, int>` — იღებს ტექსტს, აბრუნებს მის სიგრძეს
+? `age => age >= 18`
+= `Func<int, bool>` — შედარება ყოველთვის bool-ს აბრუნებს
+? `name => Console.WriteLine(name)`
+= `Action<string>` — იღებს, მაგრამ არაფერს აბრუნებს
+? `() => Random.Shared.Next(1, 7)`
+= `Func<int>` — არაფერს იღებს, აბრუნებს შემთხვევით რიცხვს (კამათელი 🎲)
+```
+  </aside>
+</section>
+
+<!-- ============ 3 · ქცევა გარედან ============ -->
+<section class="slide divider" data-section="3 · ქცევა გარედან">
+  <div class="vcenter">
+    <div class="kicker in">ნაწილი 3</div>
+    <h1 class="in" style="--d:.1s">ქცევა<br><span class="grad">გარედან</span></h1>
+    <p class="lead mt in" style="--d:.3s">დელეგატი — კლასის ველად</p>
+  </div>
+  <div class="big-num">03</div>
+  <aside class="study">
+## ნაწილი 3 · ქცევა გარედან
+  </aside>
+</section>
+<section class="slide" data-section="3 · ქცევა გარედან">
+  <div class="kicker">პრობლემა</div>
+  <h2>თამაშის ღილაკი — <span class="c-red">ყველაფერი შიგნით</span></h2>
+  <div class="grid2" style="grid-template-columns:1.25fr 1fr;gap:30px;align-items:start">
+    <code-block id="bad" lang="csharp" title="Button.cs">
+class Button
+{
+    public string Text;
+
+    public void Click()
+    {
+        if (Text == "Jump")
+            Console.WriteLine("🦘 მოთამაშე ხტება!");
+        else if (Text == "Shoot")
+            Console.WriteLine("🔫 პიუ-პიუ!");
+        else if (Text == "Pause")
+            Console.WriteLine("⏸ პაუზა");
+    }
+}
+    </code-block>
+    <div class="col" style="gap:16px">
+      <i class="codestep" data-for="bad" data-lines="7-12"></i>
+      <div class="problem step shake" data-with style="display:block;font-size:22px">ახალი ღილაკი „Reload“ — რა უნდა შევცვალოთ?</div>
+      <div class="callout step" style="--a:var(--red);font-size:21px"><b>Button კლასი.</b> ყოველ ახალ ღილაკზე — ახალი <code class="i">else if</code>. 50 ღილაკი → 50 <code class="i">else if</code> ერთ მეთოდში 😵</div>
+      <div class="solve step" style="display:block;font-size:21px">ღილაკმა არ უნდა იცოდეს, <b>რას</b> აკეთებს. მან მხოლოდ უნდა თქვას: „დამაჭირეს!“</div>
+    </div>
+  </div>
+  <aside class="study">
+### პრობლემა: ღილაკი, რომელმაც ყველაფერი იცის
+
+```csharp Button.cs
+class Button
+{
+    public string Text;
+
+    public void Click()
+    {
+        if (Text == "Jump")
+            Console.WriteLine("🦘 მოთამაშე ხტება!");
+        else if (Text == "Shoot")
+            Console.WriteLine("🔫 პიუ-პიუ!");
+        else if (Text == "Pause")
+            Console.WriteLine("⏸ პაუზა");
+    }
+}
+```
+
+ახალი ღილაკის დასამატებლად **Button კლასი** უნდა შეცვალო — კიდევ ერთი `else if`. 50 ღილაკი → 50 `else if` ერთ მეთოდში.
+
+ღილაკმა არ უნდა იცოდეს, რას აკეთებს. მისი საქმეა მხოლოდ თქვას: „დამაჭირეს!“ — დანარჩენი გარედან უნდა მოვიდეს.
+  </aside>
+</section>
+<section class="slide" data-section="3 · ქცევა გარედან">
+  <div class="kicker c-mvc">⌨️ მე ვაჩვენებ · გადაწყვეტა</div>
+  <h2>ღილაკი <span class="grad">დელეგატით</span></h2>
+  <div class="vs" style="grid-template-columns:1fr 1.15fr;gap:26px">
+    <div class="col" style="gap:14px">
+      <code-block id="btn" lang="csharp" title="Button.cs">
+class Button
+{
+    public string Text;
+    public Action OnClick;
+
+    public void Click()
+    {
+        Console.WriteLine($"[{Text}] დაჭერილია");
+        OnClick();
+    }
+}
+      </code-block>
+      <i class="codestep" data-for="btn" data-lines="4"></i>
+      <div class="callout step" data-with style="--a:var(--net);font-size:19px">ველი, რომელშიც <b>მოქმედება</b> ჩაიწერება</div>
+    </div>
+    <div class="col" style="gap:14px">
+      <code-block id="btnuse" lang="csharp" title="Program.cs">
+Button jump = new Button { Text = "Jump" };
+Button shoot = new Button { Text = "Shoot" };
+
+jump.OnClick = () => Console.WriteLine("🦘 მოთამაშე ხტება!");
+shoot.OnClick = () => Console.WriteLine("🔫 პიუ-პიუ!");
+
+jump.Click();
+shoot.Click();
+      </code-block>
+      <i class="codestep" data-for="btnuse" data-lines="4-5"></i>
+      <i class="codestep" data-for="btnuse" data-lines="7-8"></i>
+      <div class="term step" data-with><div class="bar"><i></i><i></i><i></i><span>Console</span></div><div class="body">[Jump] დაჭერილია<br>🦘 მოთამაშე ხტება!<br>[Shoot] დაჭერილია<br>🔫 პიუ-პიუ!</div></div>
+    </div>
+  </div>
+  <div class="callout step mt" style="--a:var(--mvc);font-size:22px;text-align:center">კლასი <b>ერთია</b>, ქცევა — <b>სხვადასხვა</b>. ახალი ღილაკისთვის Button-ს აღარ ვეხებით</div>
+  <aside class="study">
+### გადაწყვეტა: ღილაკი დელეგატით
+
+```csharp Button.cs
+class Button
+{
+    public string Text;
+    public Action OnClick;     // აქ ჩაიწერება მოქმედება
+
+    public void Click()
+    {
+        Console.WriteLine($"[{Text}] დაჭერილია");
+        OnClick();             // რაც ჩაწერეს — ის შესრულდება
+    }
+}
+```
+
+```csharp Program.cs
+Button jump = new Button { Text = "Jump" };
+Button shoot = new Button { Text = "Shoot" };
+
+jump.OnClick = () => Console.WriteLine("🦘 მოთამაშე ხტება!");
+shoot.OnClick = () => Console.WriteLine("🔫 პიუ-პიუ!");
+
+jump.Click();
+shoot.Click();
+```
+
+Button-მა აღარ იცის, რას აკეთებს — ის უბრალოდ იძახებს `OnClick`-ს. **რა** მოხდეს, ამას ის წყვეტს, ვინც ღილაკს ქმნის. ახალი ღილაკი „Reload“ → Button კლასს არ ვეხებით, მხოლოდ ახალ ობიექტს ვქმნით.
+  </aside>
+</section>
+
+<!-- ============ 4 · პირობის გადაცემა ============ -->
+<section class="slide divider" data-section="4 · პირობის გადაცემა">
+  <div class="vcenter">
+    <div class="kicker in">ნაწილი 4</div>
+    <h1 class="in" style="--d:.1s">ერთი მეთოდი —<br><span class="grad">ბევრი წესი</span></h1>
+    <p class="lead mt in" style="--d:.3s">ვხსნით ნაწილი 1-ის პრობლემას</p>
+  </div>
+  <div class="big-num">04</div>
+  <aside class="study">
+## ნაწილი 4 · პირობის გადაცემა
+  </aside>
+</section>
+<section class="slide" data-section="4 · პირობის გადაცემა">
+  <div class="kicker c-mvc">⌨️ მე ვაჩვენებ · გადაწყვეტა</div>
+  <h2>ერთი <span class="grad">Filter</span> ყველა პირობისთვის</h2>
+  <div class="grid2" style="grid-template-columns:1.3fr 1fr;gap:28px;align-items:start">
+    <code-block id="flt" lang="csharp" cls="sm" title="Program.cs">
+List<int> scores = new List<int> { 45, 92, 13, 78, 100, 5, 67 };
+
+Print(Filter(scores, s => s >= 80));
+Print(Filter(scores, s => s < 20));
+Print(Filter(scores, s => s == 100));
+Print(Filter(scores, s => s % 2 == 0));
+
+static List<int> Filter(List<int> list, Func<int, bool> condition)
+{
+    List<int> result = new List<int>();
+
+    foreach (int s in list)
+        if (condition(s)) result.Add(s);
+
+    return result;
+}
+
+static void Print(List<int> list) => Console.WriteLine(string.Join(", ", list));
+    </code-block>
+    <div class="col" style="gap:14px">
+      <i class="codestep" data-for="flt" data-lines="8"></i>
+      <div class="callout step" data-with style="--a:var(--asp);font-size:19px">მეორე პარამეტრი — <b>პირობა</b>: იღებს int-ს, აბრუნებს bool-ს</div>
+      <i class="codestep" data-for="flt" data-lines="13"></i>
+      <div class="callout step" data-with style="--a:var(--net);font-size:19px">რა პირობაც მოვიდა — <b>ის</b> შემოწმდება</div>
+      <i class="codestep" data-for="flt" data-lines="3-6"></i>
+      <div class="term step" data-with><div class="bar"><i></i><i></i><i></i><span>Console</span></div><div class="body">92, 100<br>13, 5<br>100<br>92, 78, 100</div></div>
+      <div class="callout step" style="--a:var(--mvc);font-size:19px">ახალი პირობა = <b>ერთი ხაზი</b>. ახალი მეთოდი აღარ გვჭირდება</div>
+    </div>
+  </div>
+  <aside class="study">
+### გადაწყვეტა: ერთი Filter ყველა პირობისთვის
+
+```csharp Program.cs
+List<int> scores = new List<int> { 45, 92, 13, 78, 100, 5, 67 };
+
+Print(Filter(scores, s => s >= 80));      // 92, 100
+Print(Filter(scores, s => s < 20));       // 13, 5
+Print(Filter(scores, s => s == 100));     // 100
+Print(Filter(scores, s => s % 2 == 0));   // 92, 78, 100
+
+static List<int> Filter(List<int> list, Func<int, bool> condition)
+{
+    List<int> result = new List<int>();
+
+    foreach (int s in list)
+        if (condition(s)) result.Add(s);
+
+    return result;
+}
+
+static void Print(List<int> list) => Console.WriteLine(string.Join(", ", list));
+```
+
+- `Func<int, bool> condition` — მეორე პარამეტრი **პირობაა**: იღებს რიცხვს, აბრუნებს true/false-ს.
+- `if (condition(s))` — `Filter`-მა არ იცის, რა პირობაა. რაც მოვიდა, იმას ამოწმებს.
+- ახალი პირობა → **ერთი ახალი ხაზი**, არა ახალი მეთოდი. ნაწილი 1-ის ორი მეთოდი ერთმა შეცვალა.
+  </aside>
+</section>
+<section class="slide" data-section="4 · პირობის გადაცემა">
+  <div class="kicker">ნაბიჯ-ნაბიჯ</div>
+  <h2><code class="i" style="font-size:.9em">Filter(scores, s =&gt; s &gt;= 80)</code> — <span class="grad">შიგნით</span></h2>
+  <div class="grid2" style="grid-template-columns:1.2fr 1fr;gap:36px;align-items:start;margin-top:10px">
+    <table class="trace">
+      <tr><th>s</th><th>condition(s)</th><th>შედეგი</th></tr>
+      <tr class="step"><td>45</td><td>45 &gt;= 80</td><td class="no">false · გამოტოვე</td></tr>
+      <tr class="step"><td>92</td><td>92 &gt;= 80</td><td class="yes">true · დაამატე ✓</td></tr>
+      <tr class="step"><td>13</td><td>13 &gt;= 80</td><td class="no">false · გამოტოვე</td></tr>
+      <tr class="step"><td>78</td><td>78 &gt;= 80</td><td class="no">false · გამოტოვე</td></tr>
+      <tr class="step"><td>100</td><td>100 &gt;= 80</td><td class="yes">true · დაამატე ✓</td></tr>
+      <tr class="step" data-with><td>5</td><td>5 &gt;= 80</td><td class="no">false</td></tr>
+      <tr class="step" data-with><td>67</td><td>67 &gt;= 80</td><td class="no">false</td></tr>
+    </table>
+    <div class="col" style="gap:16px">
+      <div class="callout step" style="--a:var(--net);font-size:21px">ლამბდა <b>ერთხელ</b> გადავეცით — <code class="i">Filter</code>-მა ის <b>7-ჯერ</b> გამოიძახა, ყოველ რიცხვზე</div>
+      <div class="box step" style="--a:var(--mvc)"><div class="l">result = [ 92, 100 ]</div></div>
+    </div>
+  </div>
+  <aside class="study">
+### როგორ მუშაობს Filter შიგნით
+
+`Filter(scores, s => s >= 80)` — სიის ყოველ რიცხვზე `Filter` იძახებს ჩვენს ლამბდას:
+
+| s | condition(s) | შედეგი |
+|---|---|---|
+| 45 | 45 >= 80 → false | გამოტოვე |
+| 92 | 92 >= 80 → true | **დაამატე** |
+| 13 | false | გამოტოვე |
+| 78 | false | გამოტოვე |
+| 100 | true | **დაამატე** |
+| 5 | false | გამოტოვე |
+| 67 | false | გამოტოვე |
+
+ლამბდა ერთხელ გადავეცით, `Filter`-მა კი 7-ჯერ გამოიძახა. შედეგი: `[92, 100]`.
+  </aside>
+</section>
+<section class="slide divider" data-section="შესვენება">
+  <div class="vcenter">
+    <div class="kicker in">შესვენება</div>
+    <h1 class="in" style="--d:.1s">10 <span class="grad">წუთი</span> ☕</h1>
+    <p class="lead mt in" style="--d:.3s">შემდეგ: ერთ მოვლენაზე ბევრი რეაქცია — და თამაში</p>
+  </div>
+  <div class="big-num">☕</div>
+</section>
+
+<!-- ============ 5 · += ============ -->
+<section class="slide divider" data-section="5 · ბევრი რეაქცია">
+  <div class="vcenter">
+    <div class="kicker in">ნაწილი 5</div>
+    <h1 class="in" style="--d:.1s">ერთი მოვლენა —<br><span class="grad">ბევრი რეაქცია</span></h1>
+    <p class="lead mt in" style="--d:.3s"><code class="i">+=</code> და <code class="i">?.Invoke()</code></p>
+  </div>
+  <div class="big-num">05</div>
+  <aside class="study">
+## ნაწილი 5 · ერთი მოვლენა — ბევრი რეაქცია
+  </aside>
+</section>
+<section class="slide" data-section="5 · ბევრი რეაქცია">
+  <div class="kicker c-mvc">⌨️ მე ვაჩვენებ</div>
+  <h2>ახალი დონე! <span class="grad">სამი რამ ერთად</span> 🎉</h2>
+  <div class="grid2" style="grid-template-columns:1.3fr 1fr;gap:28px;align-items:start">
+    <code-block id="lvl" lang="csharp" title="Program.cs">
+Action onLevelUp = null;
+
+onLevelUp += () => Console.WriteLine("🔊 ხმა: ტა-და!");
+onLevelUp += () => Console.WriteLine("✨ ეფექტი: ნაპერწკლები");
+onLevelUp += () => Console.WriteLine("💾 თამაში შენახულია");
+
+onLevelUp();
+    </code-block>
+    <div class="col" style="gap:14px">
+      <i class="codestep" data-for="lvl" data-lines="3-5"></i>
+      <div class="callout step" data-with style="--a:var(--mvc);font-size:20px"><code class="i">+=</code> <b>ამატებს</b> — ცვლადში ახლა სამი მეთოდია</div>
+      <i class="codestep" data-for="lvl" data-lines="7"></i>
+      <div class="term step" data-with><div class="bar"><i></i><i></i><i></i><span>Console</span></div><div class="body">🔊 ხმა: ტა-და!<br>✨ ეფექტი: ნაპერწკლები<br>💾 თამაში შენახულია</div></div>
+      <div class="callout step" style="--a:var(--net);font-size:20px">ერთი გამოძახება → <b>სამივე</b> სრულდება, დამატების რიგით</div>
+    </div>
+  </div>
+  <table class="t step mt" style="font-size:20px">
+    <tr><td class="mono b c-red" style="width:18%">=</td><td>ანაცვლებს — ძველი იკარგება</td></tr>
+    <tr><td class="mono b c-mvc">+=</td><td>ამატებს ბოლოში</td></tr>
+    <tr><td class="mono b c-asp">-=</td><td>აშორებს</td></tr>
+  </table>
+  <aside class="study">
+### ერთი მოვლენა — ბევრი რეაქცია
+
+```csharp Program.cs
+Action onLevelUp = null;
+
+onLevelUp += () => Console.WriteLine("🔊 ხმა: ტა-და!");
+onLevelUp += () => Console.WriteLine("✨ ეფექტი: ნაპერწკლები");
+onLevelUp += () => Console.WriteLine("💾 თამაში შენახულია");
+
+onLevelUp();   // სამივე შესრულდება
+```
+
+ერთ დელეგატში შეიძლება **რამდენიმე** მეთოდი ინახებოდეს. გამოძახებისას ყველა სრულდება, იმ რიგით, რა რიგითაც დაემატა.
+
+| | რას აკეთებს |
+|---|---|
+| `=` | ანაცვლებს — ძველი იკარგება |
+| `+=` | ამატებს ბოლოში |
+| `-=` | აშორებს |
+
+```warn
+`+=`-ის ნაცვლად `=` თუ დაწერე, წინა ყველა რეაქცია წაიშლება — და მხოლოდ ბოლო დარჩება.
+```
+  </aside>
+</section>
+<section class="slide" data-section="5 · ბევრი რეაქცია">
+  <div class="kicker">ხაფანგი</div>
+  <h2>თუ <span class="c-red">არავინ</span> გამოიწერა?</h2>
+  <div class="vs" style="margin-top:10px">
+    <div class="col" style="gap:14px">
+      <span class="lang" style="--a:var(--red)">❌ ასე</span>
+      <code-block lang="csharp" cls="big">
+Action onLevelUp = null;
+
+onLevelUp();
+      </code-block>
+      <div class="term step shake"><div class="bar"><i></i><i></i><i></i><span>Console</span></div><div class="body"><span class="r">Unhandled exception.<br>System.NullReferenceException:<br>Object reference not set to an instance of an object.</span></div></div>
+    </div>
+    <div class="col step" style="gap:14px">
+      <span class="lang" style="--a:var(--mvc)">✅ ასე</span>
+      <code-block lang="csharp" cls="big">
+Action onLevelUp = null;
+
+onLevelUp?.Invoke();
+      </code-block>
+      <div class="callout" style="--a:var(--mvc);font-size:21px"><code class="i">?.</code> — „თუ ცარიელი არ არის, გამოიძახე“. ცარიელზე უბრალოდ <b>არაფერი</b> ხდება</div>
+    </div>
+  </div>
+  <div class="callout step mt" style="--a:var(--net);font-size:22px;text-align:center">კლასის შიგნით მოვლენას <b>ყოველთვის</b> <code class="i">?.Invoke()</code>-ით ვიძახებთ — არ ვიცით, ვინმე გამოიწერს თუ არა</div>
+  <aside class="study">
+### ხაფანგი: თუ არავინ გამოიწერა?
+
+```csharp ❌ პროგრამა ვარდება
+Action onLevelUp = null;
+onLevelUp();   // NullReferenceException
+```
+
+```csharp ✅ უსაფრთხოდ
+Action onLevelUp = null;
+onLevelUp?.Invoke();   // არაფერი ხდება
+```
+
+ცარიელი დელეგატი `null`-ია. `null`-ის გამოძახება პროგრამას აგდებს.
+
+`?.Invoke()` ნიშნავს: „თუ ცარიელი არ არის — გამოიძახე, თუ ცარიელია — გამოტოვე“.
+
+```note
+კლასის შიგნით მოვლენას ყოველთვის `?.Invoke()`-ით იძახებ: კლასმა არ იცის, ვინმე გამოიწერს თუ არა.
+```
+  </aside>
+</section>
+
+<!-- ============ 6 · თამაში ============ -->
+<section class="slide divider" data-section="6 · თამაში">
+  <div class="vcenter">
+    <div class="kicker in">ნაწილი 6 · ვწერთ ერთად</div>
+    <h1 class="in" style="--d:.1s">შენ 🆚<br><span class="grad">ბოტი</span></h1>
+    <p class="lead mt in" style="--d:.3s">ოთხივე იარაღი — ერთ თამაშში</p>
+  </div>
+  <div class="big-num">06</div>
+  <aside class="study">
+## ნაწილი 6 · თამაში: შენ vs ბოტი
+  </aside>
+</section>
+<section class="slide" data-section="6 · თამაში">
+  <div class="kicker">გეგმა</div>
+  <h2>ოთხი <span class="grad">ეტაპი</span></h2>
+  <div class="grid4" style="margin-top:20px">
+    <div class="stage step" style="--a:var(--muted)"><div class="n">ეტაპი 1</div><h3>🥊 Fighter</h3><p class="small">სახელი, სიცოცხლე, დარტყმა, განკურნება</p><span class="tool">ჩვეულებრივი კლასი</span></div>
+    <div class="stage step" style="--a:var(--mvc)"><div class="n">ეტაპი 2</div><h3>📢 მოვლენები</h3><p class="small">„დამარტყეს“, „განვიკურნე“, „დავმარცხდი“</p><span class="tool">Action · += · ?.Invoke</span></div>
+    <div class="stage step" style="--a:var(--asp)"><div class="n">ეტაპი 3</div><h3>🧠 ტვინი</h3><p class="small">ვინ ირჩევს სვლას — შენ თუ ბოტი</p><span class="tool">Func&lt;int&gt;</span></div>
+    <div class="stage step" style="--a:var(--net)"><div class="n">ეტაპი 4</div><h3>⚔️ ბრძოლა</h3><p class="small">რაუნდები, სვლები, გამარჯვებული</p><span class="tool">ლამბდები ყველგან</span></div>
+  </div>
+  <div class="callout step mt2" style="--a:var(--api);font-size:22px;text-align:center">ახალი პროექტი: <b>BattleGame</b> · ორი ფაილი: <code class="i">Fighter.cs</code> და <code class="i">Program.cs</code></div>
+  <aside class="study">
+### გეგმა: ოთხი ეტაპი
+
+| ეტაპი | რას ვაკეთებთ | იარაღი |
+|---|---|---|
+| 1 · 🥊 Fighter | სახელი, სიცოცხლე, დარტყმა, განკურნება | ჩვეულებრივი კლასი |
+| 2 · 📢 მოვლენები | „დამარტყეს“, „განვიკურნე“, „დავმარცხდი“ | `Action`, `+=`, `?.Invoke()` |
+| 3 · 🧠 ტვინი | ვინ ირჩევს სვლას — შენ თუ ბოტი | `Func<int>` |
+| 4 · ⚔️ ბრძოლა | რაუნდები, სვლები, გამარჯვებული | ლამბდები |
+
+ახალი Console App პროექტი **BattleGame**, ორი ფაილით: `Fighter.cs` და `Program.cs`.
+  </aside>
+</section>
+<section class="slide" data-section="6 · თამაში">
+  <div class="stepper"><span class="on">1 · Fighter</span><span>2 · მოვლენები</span><span>3 · ტვინი</span><span>4 · ბრძოლა</span></div>
+  <div class="kicker c-mvc">⌨️ ვწერთ ერთად · ეტაპი 1</div>
+  <h2>🥊 Fighter — <span class="grad">ჯერ დელეგატების გარეშე</span></h2>
+  <div class="grid2" style="grid-template-columns:1.2fr 1fr;gap:30px;align-items:start">
+    <code-block id="f1" lang="csharp" title="Fighter.cs">
+public class Fighter
+{
+    public string Name;
+    public int Health = 100;
+
+    public void TakeDamage(int amount)
+    {
+        Health -= amount;
+        if (Health < 0) Health = 0;
+    }
+
+    public void Heal(int amount)
+    {
+        Health += amount;
+        if (Health > 100) Health = 100;
+    }
+}
+    </code-block>
+    <div class="col" style="gap:16px">
+      <i class="codestep" data-for="f1" data-lines="6-10"></i>
+      <div class="callout step" data-with style="--a:var(--red);font-size:20px">სიცოცხლე 0-ზე ქვემოთ <b>არ</b> ჩამოდის</div>
+      <i class="codestep" data-for="f1" data-lines="12-16"></i>
+      <div class="callout step" data-with style="--a:var(--mvc);font-size:20px">და 100-ს <b>არ</b> სცდება</div>
+      <div class="problem step shake" style="display:block;font-size:22px">დაზიანებისას ეკრანზე რამე უნდა დაიწეროს. <b>სად</b> ჩავწეროთ <code class="i">Console.WriteLine</code>?</div>
+      <div class="callout step" style="--a:var(--net);font-size:20px">კლასში თუ ჩავწერთ — მოთამაშეც და ბოტიც <b>ერთნაირად</b> „ილაპარაკებს“. ნაწილი 3-ის ღილაკი გახსოვთ? 😉</div>
+    </div>
+  </div>
+  <aside class="study">
+### ეტაპი 1 · Fighter — ჯერ დელეგატების გარეშე
+
+```csharp Fighter.cs
+public class Fighter
+{
+    public string Name;
+    public int Health = 100;
+
+    public void TakeDamage(int amount)
+    {
+        Health -= amount;
+        if (Health < 0) Health = 0;      // 0-ზე ქვემოთ არა
+    }
+
+    public void Heal(int amount)
+    {
+        Health += amount;
+        if (Health > 100) Health = 100;  // 100-ზე მეტი არა
+    }
+}
+```
+
+**კითხვა:** დაზიანებისას ეკრანზე რამე უნდა დაიწეროს. სად ჩავწეროთ `Console.WriteLine`?
+
+კლასში თუ ჩავწერთ, მოთამაშეც და ბოტიც ერთნაირ ტექსტს დაწერს, და Fighter-ს Console-ზე მიებმება. ეს ზუსტად ნაწილი 3-ის ღილაკის პრობლემაა → გადაწყვეტაც იგივეა: **დელეგატი**.
+  </aside>
+</section>
+<section class="slide" data-section="6 · თამაში">
+  <div class="stepper"><span class="done">1 · Fighter</span><span class="on">2 · მოვლენები</span><span>3 · ტვინი</span><span>4 · ბრძოლა</span></div>
+  <div class="kicker c-mvc">⌨️ ვწერთ ერთად · ეტაპი 2 + 3</div>
+  <h2>📢 მოვლენები და 🧠 <span class="grad">ტვინი</span></h2>
+  <div class="grid2" style="grid-template-columns:1.25fr 1fr;gap:28px;align-items:start">
+    <code-block id="f2" lang="csharp" cls="xs" title="Fighter.cs">
+public class Fighter
+{
+    public string Name;
+    public int Health = 100;
+
+    public Func<int> ChooseMove;     // ტვინი: რომელ სვლას ირჩევს
+    public Action<int> OnDamaged;    // დამარტყეს (რამდენი)
+    public Action<int> OnHealed;     // განიკურნა (რამდენი)
+    public Action OnDied;            // დამარცხდა
+
+    public void TakeDamage(int amount)
+    {
+        Health -= amount;
+        if (Health < 0) Health = 0;
+        OnDamaged?.Invoke(amount);
+
+        if (Health == 0)
+            OnDied?.Invoke();
+    }
+
+    public void Heal(int amount)
+    {
+        Health += amount;
+        if (Health > 100) Health = 100;
+        OnHealed?.Invoke(amount);
+    }
+}
+    </code-block>
+    <div class="col" style="gap:14px">
+      <i class="codestep" data-for="f2" data-lines="7-9"></i>
+      <div class="callout step" data-with style="--a:var(--mvc);font-size:19px"><b>ეტაპი 2:</b> სამი მოვლენა. Fighter მხოლოდ <b>ამბობს</b>, რა მოხდა</div>
+      <i class="codestep" data-for="f2" data-lines="15-18,25"></i>
+      <div class="callout step" data-with style="--a:var(--net);font-size:19px">ყველგან <code class="i">?.Invoke()</code> — შეიძლება არავინ უსმენდეს</div>
+      <i class="codestep" data-for="f2" data-lines="6"></i>
+      <div class="callout step" data-with style="--a:var(--asp);font-size:19px"><b>ეტაპი 3:</b> ტვინი — აბრუნებს სვლის ნომერს: <b>1</b> დარტყმა · <b>2</b> ძლიერი · <b>3</b> განკურნება</div>
+      <div class="solve step" style="display:block;font-size:19px">Fighter-ში <b>არცერთი</b> <code class="i">Console.WriteLine</code> არ არის</div>
+    </div>
+  </div>
+  <aside class="study">
+### ეტაპი 2 + 3 · მოვლენები და ტვინი — Fighter.cs საბოლოოდ
+
+```csharp Fighter.cs
+public class Fighter
+{
+    public string Name;
+    public int Health = 100;
+
+    public Func<int> ChooseMove;     // ტვინი: რომელ სვლას ირჩევს
+    public Action<int> OnDamaged;    // დამარტყეს (რამდენი)
+    public Action<int> OnHealed;     // განიკურნა (რამდენი)
+    public Action OnDied;            // დამარცხდა
+
+    public void TakeDamage(int amount)
+    {
+        Health -= amount;
+        if (Health < 0) Health = 0;
+
+        OnDamaged?.Invoke(amount);
+
+        if (Health == 0)
+            OnDied?.Invoke();
+    }
+
+    public void Heal(int amount)
+    {
+        Health += amount;
+        if (Health > 100) Health = 100;
+
+        OnHealed?.Invoke(amount);
+    }
+}
+```
+
+- **ეტაპი 2 — მოვლენები.** `OnDamaged`, `OnHealed`, `OnDied` — Fighter მხოლოდ ამბობს, რა მოხდა. როგორ ვუპასუხოთ, ამას `Program.cs` წყვეტს.
+- **ყველგან `?.Invoke()`** — შეიძლება ვინმე არ უსმენდეს.
+- **ეტაპი 3 — ტვინი.** `Func<int> ChooseMove` აბრუნებს სვლის ნომერს: 1 — დარტყმა, 2 — ძლიერი დარტყმა, 3 — განკურნება.
+
+Fighter-ში არცერთი `Console.WriteLine` არ არის.
+  </aside>
+</section>
+<section class="slide" data-section="6 · თამაში">
+  <div class="stepper"><span class="done">1 · Fighter</span><span class="done">2 · მოვლენები</span><span class="on">3 · ტვინი</span><span>4 · ბრძოლა</span></div>
+  <div class="kicker">ეტაპი 3 · მთავარი იდეა</div>
+  <h2>ერთი კლასი — <span class="grad">ორი სხვადასხვა ტვინი</span></h2>
+  <div class="brain" style="margin-top:20px">
+    <div class="box in" style="--a:var(--api);--d:.1s"><div class="e">⌨️</div><div class="l">კლავიატურა</div><div class="s">შენ წყვეტ</div></div>
+    <div class="arrow in" style="--a:var(--api);--d:.2s">→</div>
+    <div class="box in" style="--a:var(--net);--d:.3s"><div class="e">🧑</div><div class="l">player.ChooseMove</div><div class="s">Fighter</div></div>
+    <div class="arrow in" style="--a:var(--net);--d:.4s">→</div>
+    <div class="box in" style="--a:var(--mvc);--d:.5s"><div class="e">1 · 2 · 3</div><div class="l">სვლა</div></div>
+  </div>
+  <div class="brain step" style="margin-top:22px">
+    <div class="box" style="--a:var(--red)"><div class="e">🎲</div><div class="l">Random + წესები</div><div class="s">ბოტი წყვეტს</div></div>
+    <div class="arrow" style="--a:var(--red)">→</div>
+    <div class="box" style="--a:var(--net)"><div class="e">🤖</div><div class="l">bot.ChooseMove</div><div class="s">იგივე Fighter</div></div>
+    <div class="arrow" style="--a:var(--net)">→</div>
+    <div class="box" style="--a:var(--mvc)"><div class="e">1 · 2 · 3</div><div class="l">სვლა</div></div>
+  </div>
+  <div class="callout step mt2" style="--a:var(--asp);font-size:23px;text-align:center">ბრძოლის კოდს <b>არ აინტერესებს</b>, ვინ წყვეტს. ის უბრალოდ იძახებს <code class="i">ChooseMove()</code>-ს</div>
+  <aside class="study">
+### ერთი კლასი — ორი სხვადასხვა ტვინი
+
+მოთამაშე და ბოტი — **ერთი და იგივე** `Fighter` კლასია. განსხვავება მხოლოდ ისაა, რა ჩაიწერება `ChooseMove`-ში:
+
+| | ChooseMove-ში | ვინ წყვეტს |
+|---|---|---|
+| 🧑 მოთამაშე | ლამბდა, რომელიც კლავიატურიდან კითხულობს | შენ |
+| 🤖 ბოტი | ლამბდა `Random`-ით და წესებით | კომპიუტერი |
+
+ბრძოლის კოდს არ აინტერესებს, ვინ წყვეტს — ის უბრალოდ იძახებს `ChooseMove()`-ს და იღებს 1-ს, 2-ს ან 3-ს. ეს იგივეა, რაც ნაწილი 3-ის ღილაკი: **ქცევა გარედან მოდის**.
+  </aside>
+</section>
+<section class="slide" data-section="6 · თამაში">
+  <div class="stepper"><span class="done">1 · Fighter</span><span class="done">2 · მოვლენები</span><span class="on">3 · ტვინი</span><span>4 · ბრძოლა</span></div>
+  <div class="kicker c-mvc">⌨️ ვწერთ ერთად · Program.cs (1/3)</div>
+  <h2>🧠 ტვინები <span class="grad">ლამბდებით</span></h2>
+  <div class="grid2" style="grid-template-columns:1.3fr 1fr;gap:28px;align-items:start">
+    <code-block id="p1" lang="csharp" cls="sm" title="Program.cs">
+Console.OutputEncoding = System.Text.Encoding.UTF8;
+Console.InputEncoding = System.Text.Encoding.UTF8;
+
+Random random = new Random();
+
+Fighter player = new Fighter { Name = "შენ" };
+Fighter bot = new Fighter { Name = "ბოტი" };
+
+player.ChooseMove = () =>
+{
+    Console.Write("1 - დარტყმა | 2 - ძლიერი | 3 - განკურნება: ");
+    string input = Console.ReadLine();
+
+    if (input == "2") return 2;
+    if (input == "3") return 3;
+    return 1;
+};
+
+bot.ChooseMove = () =>
+{
+    if (bot.Health < 30) return 3;    // ცოტა სიცოცხლე → ვიკურნები
+    return random.Next(1, 3);         // სხვა დროს → 1 ან 2
+};
+    </code-block>
+    <div class="col" style="gap:14px">
+      <i class="codestep" data-for="p1" data-lines="9-17"></i>
+      <div class="callout step" data-with style="--a:var(--api);font-size:19px">🧑 <b>მოთამაშის ტვინი</b> — კითხულობს კლავიატურიდან. რამე სხვა თუ დაწერა → ჩვეულებრივი დარტყმა</div>
+      <i class="codestep" data-for="p1" data-lines="19-23"></i>
+      <div class="callout step" data-with style="--a:var(--red);font-size:19px">🤖 <b>ბოტის ტვინი</b> — 30-ზე ნაკლები HP → იკურნება, სხვა დროს შემთხვევით ურტყამს</div>
+      <div class="callout step" style="--a:var(--net);font-size:19px">ლამბდა <code class="i">{ }</code>-ით — როცა ერთი ხაზი არ გყოფნის. მაშინ <code class="i">return</code> აუცილებელია</div>
+    </div>
+  </div>
+  <aside class="study">
+### Program.cs (1/3) · ტვინები ლამბდებით
+
+```csharp Program.cs
+Console.OutputEncoding = System.Text.Encoding.UTF8;
+Console.InputEncoding = System.Text.Encoding.UTF8;
+
+Random random = new Random();
+
+Fighter player = new Fighter { Name = "შენ" };
+Fighter bot = new Fighter { Name = "ბოტი" };
+
+player.ChooseMove = () =>
+{
+    Console.Write("1 - დარტყმა | 2 - ძლიერი | 3 - განკურნება: ");
+    string input = Console.ReadLine();
+
+    if (input == "2") return 2;
+    if (input == "3") return 3;
+    return 1;
+};
+
+bot.ChooseMove = () =>
+{
+    if (bot.Health < 30) return 3;    // ცოტა სიცოცხლე → ვიკურნები
+    return random.Next(1, 3);         // სხვა დროს → 1 ან 2
+};
+```
+
+- **მოთამაშის ტვინი** კლავიატურიდან კითხულობს. თუ 2 ან 3 არ დაწერა — ჩვეულებრივი დარტყმა (1).
+- **ბოტის ტვინი**: 30 HP-ზე ნაკლები → განკურნება (3), სხვა დროს შემთხვევით 1 ან 2. `random.Next(1, 3)` → 1 ან 2 (3 არ შედის).
+- როცა ლამბდას ერთი ხაზი არ ჰყოფნის, ვწერთ `{ }`-ს და `return`-ს — ზუსტად როგორც ჩვეულებრივ მეთოდში.
+  </aside>
+</section>
+<section class="slide" data-section="6 · თამაში">
+  <div class="stepper"><span class="done">1 · Fighter</span><span class="done">2 · მოვლენები</span><span class="done">3 · ტვინი</span><span class="on">4 · ბრძოლა</span></div>
+  <div class="kicker c-mvc">⌨️ ვწერთ ერთად · Program.cs (2/3)</div>
+  <h2>📢 ვუსმენთ <span class="grad">მოვლენებს</span></h2>
+  <div class="grid2" style="grid-template-columns:1.4fr 1fr;gap:28px;align-items:start">
+    <code-block id="p2" lang="csharp" cls="sm" title="Program.cs">
+int totalDamage = 0;
+
+player.OnDamaged += dmg => Console.WriteLine($"   💥 შენ მიიღე {dmg} დაზიანება");
+bot.OnDamaged    += dmg => Console.WriteLine($"   💥 ბოტმა მიიღო {dmg} დაზიანება");
+bot.OnDamaged    += dmg => totalDamage += dmg;
+
+player.OnHealed += hp => Console.WriteLine($"   💚 შენ აღიდგინე {hp} HP");
+bot.OnHealed    += hp => Console.WriteLine($"   💚 ბოტმა აღიდგინა {hp} HP");
+
+player.OnDied += () => Console.WriteLine("\n☠️  წააგე!");
+bot.OnDied    += () => Console.WriteLine("\n🏆 მოიგე!");
+    </code-block>
+    <div class="col" style="gap:14px">
+      <i class="codestep" data-for="p2" data-lines="3-4"></i>
+      <div class="callout step" data-with style="--a:var(--net);font-size:19px">ერთი კლასი — <b>სხვადასხვა ტექსტი</b> მოთამაშისთვის და ბოტისთვის</div>
+      <i class="codestep" data-for="p2" data-lines="4-5"></i>
+      <div class="callout step" data-with style="--a:var(--mvc);font-size:19px"><code class="i">bot.OnDamaged</code>-ზე <b>ორი</b> რეაქცია: ტექსტი + დაზიანების მთვლელი</div>
+      <i class="codestep" data-for="p2" data-lines="10-11"></i>
+      <div class="callout step" data-with style="--a:var(--asp);font-size:19px">ბოლო სიტყვა — <b>შენს</b> ხელშია, არა Fighter-ის</div>
+    </div>
+  </div>
+  <aside class="study">
+### Program.cs (2/3) · ვუსმენთ მოვლენებს
+
+```csharp Program.cs
+int totalDamage = 0;
+
+player.OnDamaged += dmg => Console.WriteLine($"   💥 შენ მიიღე {dmg} დაზიანება");
+bot.OnDamaged    += dmg => Console.WriteLine($"   💥 ბოტმა მიიღო {dmg} დაზიანება");
+bot.OnDamaged    += dmg => totalDamage += dmg;
+
+player.OnHealed += hp => Console.WriteLine($"   💚 შენ აღიდგინე {hp} HP");
+bot.OnHealed    += hp => Console.WriteLine($"   💚 ბოტმა აღიდგინა {hp} HP");
+
+player.OnDied += () => Console.WriteLine("\n☠️  წააგე!");
+bot.OnDied    += () => Console.WriteLine("\n🏆 მოიგე!");
+```
+
+- ერთი კლასი, მაგრამ **სხვადასხვა ტექსტი** მოთამაშისთვის და ბოტისთვის.
+- `bot.OnDamaged`-ზე **ორი** რეაქციაა: ეკრანზე წერა და დაზიანების დათვლა. ახალი რეაქცია = ახალი `+=` ხაზი, Fighter-ს არ ვეხებით.
+- ლამბდა გარე ცვლადს (`totalDamage`) ხედავს და ცვლის.
+  </aside>
+</section>
+<section class="slide" data-section="6 · თამაში">
+  <div class="stepper"><span class="done">1 · Fighter</span><span class="done">2 · მოვლენები</span><span class="done">3 · ტვინი</span><span class="on">4 · ბრძოლა</span></div>
+  <div class="kicker c-mvc">⌨️ ვწერთ ერთად · Program.cs (3/3)</div>
+  <h2>⚔️ ბრძოლის <span class="grad">ციკლი</span></h2>
+  <div class="grid2" style="grid-template-columns:1.3fr 1fr;gap:28px;align-items:start">
+    <code-block id="p3" lang="csharp" cls="sm" title="Program.cs · ციკლი">
+int round = 1;
+
+while (player.Health > 0 && bot.Health > 0)
+{
+    Console.WriteLine($"\n──── რაუნდი {round} ──── " +
+        $"შენ: {player.Health} HP | ბოტი: {bot.Health} HP");
+
+    DoMove(player, bot, random);
+    if (bot.Health == 0) break;
+
+    Thread.Sleep(800);
+    DoMove(bot, player, random);
+
+    round++;
+}
+
+Console.WriteLine($"ბოტს მიაყენე {totalDamage} დაზიანება");
+    </code-block>
+    <div class="col" style="gap:14px">
+      <i class="codestep" data-for="p3" data-lines="3"></i>
+      <div class="callout step" data-with style="--a:var(--net);font-size:19px">სანამ <b>ორივე</b> ცოცხალია</div>
+      <i class="codestep" data-for="p3" data-lines="8-9"></i>
+      <div class="callout step" data-with style="--a:var(--api);font-size:19px">🧑 შენი სვლა. ბოტი დამარცხდა → <code class="i">break</code></div>
+      <i class="codestep" data-for="p3" data-lines="11-12"></i>
+      <div class="callout step" data-with style="--a:var(--red);font-size:19px">🤖 ბოტი „ფიქრობს“ 0.8 წამი და იძახებს <b>იმავე</b> <code class="i">DoMove</code>-ს</div>
+      <div class="problem step" style="display:block;font-size:19px"><code class="i">DoMove</code> ერთია, მოთამაშე — ორი. საიდან იცის, ვინ რას ირჩევს? →</div>
+    </div>
+  </div>
+  <aside class="study">
+### Program.cs (3/3) · ბრძოლის ციკლი
+
+```csharp Program.cs · ციკლი
+int round = 1;
+
+while (player.Health > 0 && bot.Health > 0)
+{
+    Console.WriteLine($"\n──── რაუნდი {round} ──── " +
+        $"შენ: {player.Health} HP | ბოტი: {bot.Health} HP");
+
+    DoMove(player, bot, random);
+    if (bot.Health == 0) break;
+
+    Thread.Sleep(800);              // ბოტი „ფიქრობს“
+    DoMove(bot, player, random);
+
+    round++;
+}
+
+Console.WriteLine($"ბოტს მიაყენე {totalDamage} დაზიანება");
+```
+
+- ციკლი გრძელდება, სანამ **ორივე** ცოცხალია.
+- ჯერ შენი სვლა. თუ ბოტი დამარცხდა — `break`, ბოტი აღარ ურტყამს.
+- `Thread.Sleep(800)` — 0.8 წამი პაუზა, რომ ბოტის სვლა თვალით დაინახო.
+- ორივე სვლისთვის **ერთი და იგივე** `DoMove` გამოიძახება.
+  </aside>
+</section>
+<section class="slide" data-section="6 · თამაში">
+  <div class="stepper"><span class="done">1 · Fighter</span><span class="done">2 · მოვლენები</span><span class="done">3 · ტვინი</span><span class="on">4 · ბრძოლა</span></div>
+  <div class="kicker c-mvc">⌨️ ვწერთ ერთად · Program.cs (3/3)</div>
+  <h2>⚔️ ერთი სვლა — <span class="grad">DoMove</span></h2>
+  <div class="grid2" style="grid-template-columns:1.3fr 1fr;gap:28px;align-items:start">
+    <code-block id="p4" lang="csharp" cls="xs" title="Program.cs · DoMove (ფაილის ბოლოს)">
+static void DoMove(Fighter attacker, Fighter target, Random random)
+{
+    int move = attacker.ChooseMove();
+
+    if (move == 1)
+    {
+        Console.WriteLine($"👊 {attacker.Name}: დარტყმა");
+        target.TakeDamage(random.Next(10, 21));
+    }
+    else if (move == 2)
+    {
+        Console.WriteLine($"🔥 {attacker.Name}: ძლიერი დარტყმა...");
+
+        if (random.Next(0, 2) == 0)
+            Console.WriteLine("   ❌ აცდა!");
+        else
+            target.TakeDamage(random.Next(25, 41));
+    }
+    else
+    {
+        Console.WriteLine($"🧪 {attacker.Name}: განკურნება");
+        attacker.Heal(random.Next(10, 26));
+    }
+}
+    </code-block>
+    <div class="col" style="gap:14px">
+      <i class="codestep" data-for="p4" data-lines="3"></i>
+      <div class="callout step" data-with style="--a:var(--asp);font-size:19px"><code class="i">attacker.ChooseMove()</code> — <code class="i">DoMove</code>-მა <b>არ იცის</b>, ვინ ირჩევს: ადამიანი თუ ბოტი</div>
+      <i class="codestep" data-for="p4" data-lines="5-22"></i>
+      <table class="t step" data-with style="font-size:17px">
+        <tr><td class="mono b">1</td><td>10–20, ყოველთვის</td></tr>
+        <tr><td class="mono b">2</td><td>25–40, მაგრამ 50% აცდება</td></tr>
+        <tr><td class="mono b">3</td><td>+10–25 HP</td></tr>
+      </table>
+      <i class="codestep" data-for="p4" data-lines="8,17,22"></i>
+      <div class="callout step" data-with style="--a:var(--mvc);font-size:19px"><code class="i">TakeDamage</code> / <code class="i">Heal</code> → შიგნით <code class="i">?.Invoke()</code> → ეკრანზე იწერება ის, რაც (2/3)-ში ჩავწერეთ</div>
+    </div>
+  </div>
+  <aside class="study">
+### ერთი სვლა — DoMove
+
+```csharp Program.cs · DoMove (ფაილის ბოლოს)
+static void DoMove(Fighter attacker, Fighter target, Random random)
+{
+    int move = attacker.ChooseMove();
+
+    if (move == 1)
+    {
+        Console.WriteLine($"👊 {attacker.Name}: დარტყმა");
+        target.TakeDamage(random.Next(10, 21));
+    }
+    else if (move == 2)
+    {
+        Console.WriteLine($"🔥 {attacker.Name}: ძლიერი დარტყმა...");
+
+        if (random.Next(0, 2) == 0)
+            Console.WriteLine("   ❌ აცდა!");
+        else
+            target.TakeDamage(random.Next(25, 41));
+    }
+    else
+    {
+        Console.WriteLine($"🧪 {attacker.Name}: განკურნება");
+        attacker.Heal(random.Next(10, 26));
+    }
+}
+```
+
+| სვლა | რა ხდება |
+|---|---|
+| 1 · დარტყმა | 10–20 დაზიანება, ყოველთვის |
+| 2 · ძლიერი | 25–40 დაზიანება, მაგრამ 50% შანსით აცდება |
+| 3 · განკურნება | +10–25 HP |
+
+- `attacker.ChooseMove()` — `DoMove`-მა არ იცის, ვინ ირჩევს. ერთი მეთოდი მოთამაშეზეც და ბოტზეც მუშაობს.
+- `TakeDamage` / `Heal` შიგნით `?.Invoke()`-ს იძახებს → ეკრანზე იწერება ის, რაც მოვლენებზე გამოვიწერეთ.
+
+```warn
+`DoMove` — `static` მეთოდია, ამიტომ ფაილის **ბოლოში** ჩაწერე, ყველა სხვა კოდის შემდეგ. `Fighter` კლასი კი ცალკე ფაილშია — თორემ შეცდომა CS8803 გამოვა.
+```
+
+```prompt თამაშის გაუმჯობესება
+დავწერე C#-ში კონსოლის თამაში: Fighter კლასი Func<int> ChooseMove-ით (ტვინი) და Action<int> OnDamaged / OnHealed, Action OnDied მოვლენებით. მინდა თამაში გავაუმჯობესო, მაგრამ თვითონ დავწერო.
+მომეცი 3 იდეა (მაგ. ახალი სვლა, ბოტის ჭკვიანი ტვინი, ახალი მოვლენა) და თითოეულისთვის მხოლოდ მინიშნება, მზა კოდის გარეშე. ქართულად, 15 წლის მოსწავლისთვის.
+```
+  </aside>
+</section>
+<section class="slide" data-section="6 · თამაში">
+  <div class="kicker">▶️ ვთამაშობთ · Ctrl+F5</div>
+  <h2>🧑 <span class="muted">vs</span> 🤖 <span class="grad">ცოცხლად</span></h2>
+  <div class="grid2" style="grid-template-columns:1.25fr 1fr;gap:30px;align-items:start">
+    <div class="term in" style="--d:.15s"><div class="bar"><i></i><i></i><i></i><span>Console</span></div>
+      <div class="body" style="font-size:16.5px">──── რაუნდი 1 ──── შენ: 100 HP | ბოტი: 100 HP<br>1 - დარტყმა | 2 - ძლიერი | 3 - განკურნება: <span class="usr">2⏎</span><br>🔥 შენ: ძლიერი დარტყმა...<br>&nbsp;&nbsp;&nbsp;❌ აცდა!<br>🔥 ბოტი: ძლიერი დარტყმა...<br>&nbsp;&nbsp;&nbsp;💥 შენ მიიღე 33 დაზიანება<br><br>──── რაუნდი 2 ──── შენ: 67 HP | ბოტი: 100 HP<br>1 - დარტყმა | 2 - ძლიერი | 3 - განკურნება: <span class="usr">2⏎</span><br>🔥 შენ: ძლიერი დარტყმა...<br>&nbsp;&nbsp;&nbsp;💥 ბოტმა მიიღო 38 დაზიანება<br>👊 ბოტი: დარტყმა<br>&nbsp;&nbsp;&nbsp;💥 შენ მიიღე 14 დაზიანება<br>…<br><span class="y">🏆 მოიგე!</span><br>ბოტს მიაყენე 124 დაზიანება</div></div>
+    <div class="col" style="gap:16px">
+      <div class="callout step" style="--a:var(--api);font-size:20px">ყველა თვითონ გაუშვით და <b>ითამაშეთ</b>. ვინ მოიგო? 🏆</div>
+      <div class="callout step" style="--a:var(--asp);font-size:20px">ბოტმა ერთხელაც არ განიკურნა? → ჯერ 30 HP-მდე ვერ ჩამოიყვანე 😉</div>
+      <div class="problem step" style="display:block;font-size:20px">როგორ მოვიგოთ ყოველთვის? <b>ჩატში დაწერეთ</b> სტრატეგია</div>
+    </div>
+  </div>
+  <aside class="study">
+### ვთამაშობთ!
+
+გაუშვი **Ctrl+F5**-ით და ითამაშე. ყოველ რაუნდში ირჩევ სვლას, ბოტი პასუხობს.
+
+სტრატეგიაზე დაფიქრდი: ძლიერი დარტყმა მეტს აკლებს, მაგრამ ხშირად აცდება. ბოტი 30 HP-ზე ქვემოთ იწყებს კურნებას — როგორ ისარგებლებ ამით?
+  </aside>
+</section>
+<section class="slide" data-section="6 · თამაში">
+  <div class="kicker">🤯 ერთი ხაზი</div>
+  <h2>ბოტი <span class="muted">vs</span> <span class="grad">ბოტი</span></h2>
+  <div class="grid2" style="grid-template-columns:1.1fr 1fr;gap:34px;align-items:start;margin-top:10px">
+    <div class="col" style="gap:16px">
+      <code-block lang="csharp" cls="big" title="Program.cs · ტვინების შემდეგ">
+player.ChooseMove = bot.ChooseMove;
+      </code-block>
+      <div class="callout step" style="--a:var(--mvc);font-size:22px">მოთამაშემ ბოტის ტვინი მიიღო → თამაში <b>თავისით</b> მიდის. <code class="i">Fighter</code> და <code class="i">DoMove</code> <b>არ</b> შეგვიცვლია</div>
+      <div class="callout step" style="--a:var(--net);font-size:22px">დელეგატის აზრი: <b>ქცევა გარედან შემოდის</b> — და ერთი ხაზით იცვლება</div>
+    </div>
+    <div class="col" style="gap:16px">
+      <div class="vsbig step"><div class="f" style="font-size:90px">🤖</div><div class="x">VS</div><div class="f" style="font-size:90px">🤖</div></div>
+      <div class="problem step shake" style="display:block;font-size:20px">მაგრამ რაღაც <b>უსამართლოა</b>... ბოტის ტვინი <code class="i">bot.Health</code>-ს ამოწმებს. მოთამაშეს 5 HP რომ დარჩეს — განიკურნება? 🤔</div>
+      <div class="solve step" style="display:block;font-size:20px">ამას საშინაო დავალებაში გამოვასწორებთ 🏠</div>
+    </div>
+  </div>
+  <aside class="study">
+### ერთი ხაზი: ბოტი vs ბოტი
+
+```csharp Program.cs · ტვინების შემდეგ
+player.ChooseMove = bot.ChooseMove;
+```
+
+მოთამაშემ ბოტის ტვინი მიიღო → თამაში თავისით მიდის. `Fighter` და `DoMove` არ შეგვიცვლია — მხოლოდ **ერთი ხაზი**. ესაა დელეგატის მთავარი აზრი: ქცევა გარედან შემოდის.
+
+```warn
+ეს უსამართლოა: ბოტის ტვინი `bot.Health`-ს ამოწმებს. მოთამაშეს 5 HP რომ დარჩეს, ის მაინც არ განიკურნება — რადგან ბოტის სიცოცხლეს უყურებს და არა საკუთარს. ამას საშინაო დავალებაში გამოასწორებ.
+```
+  </aside>
+</section>
+<lecture-classwork/>
+<section class="slide" data-section="შეჯამება">
+  <div class="kicker">📸 სურათი გადაუღეთ</div>
+  <h2>დელეგატები · <span class="grad">შპარგალკა</span></h2>
+  <table class="t" style="font-size:19px;margin-top:6px">
+    <tr><th style="width:36%">კოდი</th><th style="width:34%">რას ნიშნავს</th><th>თამაშში</th></tr>
+    <tr><td class="mono">Action a = SayHello;</td><td>მეთოდი ცვლადში (ფრჩხილების გარეშე)</td><td>—</td></tr>
+    <tr><td class="mono">x =&gt; x * 2</td><td>ლამბდა — მეთოდი სახელის გარეშე</td><td>ყველგან</td></tr>
+    <tr><td class="mono">Action&lt;int&gt;</td><td>იღებს int-ს, არაფერს აბრუნებს</td><td class="mono">OnDamaged</td></tr>
+    <tr><td class="mono">Func&lt;int&gt;</td><td>არაფერს იღებს, აბრუნებს int-ს</td><td class="mono">ChooseMove</td></tr>
+    <tr><td class="mono">Func&lt;int, bool&gt;</td><td>პირობა: int → true/false</td><td class="mono">Filter</td></tr>
+    <tr><td class="mono">+=  ·  -=</td><td>დაამატე · მოაშორე</td><td>ორი რეაქცია ერთზე</td></tr>
+    <tr><td class="mono">x?.Invoke()</td><td>გამოიძახე, თუ ცარიელი არ არის</td><td>Fighter-ის შიგნით</td></tr>
+  </table>
+  <aside class="study">
+### 📸 დელეგატები · შპარგალკა
+
+| კოდი | რას ნიშნავს | თამაშში |
+|---|---|---|
+| `Action a = SayHello;` | მეთოდი ცვლადში (ფრჩხილების გარეშე) | — |
+| `x => x * 2` | ლამბდა — მეთოდი სახელის გარეშე | ყველგან |
+| `Action<int>` | იღებს int-ს, არაფერს აბრუნებს | `OnDamaged` |
+| `Func<int>` | არაფერს იღებს, აბრუნებს int-ს | `ChooseMove` |
+| `Func<int, bool>` | პირობა: int → true/false | `Filter` |
+| `+=` · `-=` | დაამატე · მოაშორე | ორი რეაქცია ერთ მოვლენაზე |
+| `x?.Invoke()` | გამოიძახე, თუ ცარიელი არ არის | Fighter-ის შიგნით |
+  </aside>
+</section>
+<lecture-check/>
+<section class="slide" data-section="შეჯამება">
+  <div class="vcenter" style="max-width:1050px">
+    <div class="kicker in" style="color:var(--net)">დღეს</div>
+    <h1 class="in" style="--d:.1s;font-size:62px">მეთოდი ცვლადში —<br><span class="grad">და პირველი ბოტი</span></h1>
+    <div class="grid2 mt2">
+      <div class="card accent step" style="--a:var(--mvc)"><h3><span class="ico">🧠</span>დაიმახსოვრე</h3><ul class="clean small"><li><b>დელეგატი</b> — ცვლადი, რომელშიც მეთოდი ინახება</li><li><code class="i">Action</code> ასრულებს · <code class="i">Func</code> აბრუნებს</li><li>ქცევა <b>გარედან</b> → კლასი არ იცვლება</li></ul></div>
+      <div class="card accent step" style="--a:var(--net)"><h3><span class="ico">🏠</span>საშინაოში</h3><p class="small">ბოტების ტურნირი: სამი ტვინი ერთმანეთს ებრძვის. რომელი გაიმარჯვებს?</p></div>
+    </div>
+  </div>
+  <div class="abs in" style="--d:.4s;right:110px;top:120px;font-size:120px">🤖</div>
+  <aside class="study">
+## შეჯამება · მეთოდი ცვლადში — და პირველი ბოტი
+
+**დაიმახსოვრე:**
+
+1. **დელეგატი** — ცვლადი, რომელშიც მეთოდი ინახება. ლამბდა (`x => x * 2`) — ასეთი მეთოდის მოკლე ჩანაწერი.
+2. **`Action` ასრულებს, `Func` აბრუნებს.** `Func`-ში ბოლო ტიპი — დაბრუნების ტიპია.
+3. **ქცევა გარედან**: ღილაკი, Filter, Fighter — კლასი ერთია, ქცევას ის წყვეტს, ვინც იყენებს.
+4. **`+=`** — ერთ მოვლენაზე ბევრი რეაქცია. კლასის შიგნით — ყოველთვის `?.Invoke()`.
+  </aside>
+</section>
+<lecture-homework/>
