@@ -27,6 +27,7 @@ build.py                     აწყობს ყველაფერს → 
 | ASP.NET Core Web API | `courses/aspnet-api/` |
 | Entity Framework Core | `courses/efcore/` |
 | C# საფუძვლები | `courses/school-backend/` |
+| DevOps Crash Course | `courses/devops/` |
 
 ## ლექციაზე
 
@@ -76,7 +77,7 @@ build.py                     აწყობს ყველაფერს → 
 2. ახალი კურსისთვის — `courses/<კურსი>/course.json`.
 3. `python3 build.py`, შემდეგ commit + push `main`-ზე. ერთ წუთში საიტზე ახალი ქარდი გამოჩნდება.
 
-> `aspnet-api/`, `efcore/`, `school-backend/` და root-ის `index.html` ბილდის შედეგია — ხელით არ შეცვალო, შეცვალე `courses/` და გაუშვი ბილდი.
+> `aspnet-api/`, `efcore/`, `school-backend/`, `devops/` და root-ის `index.html` ბილდის შედეგია — ხელით არ შეცვალო, შეცვალე `courses/` და გაუშვი ბილდი.
 
 ## ლოკალურად
 
