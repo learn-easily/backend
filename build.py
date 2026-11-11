@@ -4,6 +4,7 @@
 #
 # ლექციის საქაღალდე courses/<კურსი>/<NN-slug>/:
 #   deck.html       სლაიდები. ყოველ სლაიდში შეიძლება <aside class="study">…markdown…</aside> — სტუდენტის ახსნა
+# courses/categories.json — კატეგორიები (C#, EF Core…) თანმიმდევრობით; course.json → {"title", "category", "order"}
 #   lecture.json    {"title", "why", "outcomes": [...], "review": [{"q", "a"}, ...], "starts_series": true?}
 #   classwork.md    კლასში დავალება            homework.md    საშინაო (+ "## ამოხსნა" — ჩანს მხოლოდ შემდეგ ლექციაზე)
 #   materials/      ფაილები ჩამოსატვირთად
@@ -398,11 +399,17 @@ def main(filters):
         for d in marker.read_text().split():
             if (OUT / d).is_dir() and d not in ('courses', 'engine', '.git', '.github'):
                 shutil.rmtree(OUT / d)
+    categories = json.loads((ROOT / 'courses' / 'categories.json').read_text())
+    cat_order = {c['slug']: i for i, c in enumerate(categories)}
     catalog, problems = [], []
     for cdir in sorted((ROOT / 'courses').iterdir()):
         if not (cdir / 'course.json').exists():
             continue
         course = json.loads((cdir / 'course.json').read_text())
+        if course.get('category') not in cat_order:
+            problems.append(f'{cdir.name}/course.json: "category" უნდა იყოს ერთ-ერთი — {", ".join(cat_order)}')
+            print(f'  {cdir.name}: ⚠ უცნობი category: {course.get("category")}')
+            continue
         lectures, prev = [], None
         for ldir in sorted(p for p in cdir.iterdir() if (p / 'deck.html').exists()):
             meta = json.loads((ldir / 'lecture.json').read_text())
@@ -415,10 +422,12 @@ def main(filters):
                 if info: lectures.append(info)
             prev = {'meta': meta, 'num': int(ldir.name.split('-', 1)[0]), 'homework': md_doc(ldir / 'homework.md'),
                     'href': f'../{ldir.name}/'}
-        catalog.append({'slug': cdir.name, 'title': course['title'], 'order': course.get('order', 99), 'lectures': lectures})
-    catalog.sort(key=lambda c: c['order'])
+        catalog.append({'slug': cdir.name, 'title': course['title'], 'category': course['category'],
+                        'order': course.get('order', 99), 'lectures': lectures})
+    catalog.sort(key=lambda c: (cat_order[c['category']], c['order']))
     if not filters:
         page = (ENGINE / 'index.html').read_text().replace('/*CATALOG*/[]', json.dumps(catalog, ensure_ascii=False))
+        page = page.replace('/*CATEGORIES*/[]', json.dumps(categories, ensure_ascii=False))
         (OUT / 'index.html').write_text(page)
         (OUT / '.nojekyll').write_text('')
         marker.write_text('\n'.join(c['slug'] for c in catalog) + '\n')

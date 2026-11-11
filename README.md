@@ -12,7 +12,8 @@ engine/                      ერთი ძრავი ყველა ლე
   index.html                 მთავარი გვერდის შაბლონი (ქარდები, ძებნა)
   study.html                 კონსპექტის გვერდის შაბლონი
 courses/
-  <კურსი>/course.json        {"title", "order"}
+  categories.json            კატეგორიები ჩანართებად: C#, EF Core, ASP.NET, SQL, DevOps
+  <კურსი>/course.json        {"title", "category", "order"}
   <კურსი>/<NN-slug>/
     deck.html                სლაიდები; ყოველ სლაიდში — <aside class="study"> (სტუდენტის ახსნა, markdown)
     lecture.json             {"title", "why", "outcomes", "review"}
@@ -74,7 +75,7 @@ build.py                     აწყობს ყველაფერს → 
 ## ახალი ლექცია
 
 1. `courses/<კურსი>/<NN-slug>/` — `deck.html`, `lecture.json`, `classwork.md`, `homework.md`.
-2. ახალი კურსისთვის — `courses/<კურსი>/course.json`.
+2. ახალი კურსისთვის — `courses/<კურსი>/course.json`, `category` — `categories.json`-იდან (მაგ. `"sql"`).
 3. `python3 build.py`, შემდეგ commit + push `main`-ზე. ერთ წუთში საიტზე ახალი ქარდი გამოჩნდება.
 
 > `aspnet-api/`, `efcore/`, `school-backend/`, `devops/` და root-ის `index.html` ბილდის შედეგია — ხელით არ შეცვალო, შეცვალე `courses/` და გაუშვი ბილდი.

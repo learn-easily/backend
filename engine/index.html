@@ -22,9 +22,20 @@ h1{font-size:34px;line-height:1.1;margin:0;font-weight:800;letter-spacing:-.01em
 .last .lbl{font:700 12px var(--mono);color:var(--accent);text-transform:uppercase;letter-spacing:.04em;white-space:nowrap}
 .last .t{font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .last .go{margin-left:auto;font:700 14px var(--mono);color:var(--accent);white-space:nowrap}
-.course{margin:0 0 34px}
-.course h2{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;font-size:22px;margin:0 0 12px}
-.course h2 small{font:500 13px var(--mono);color:var(--muted)}
+.tabs{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 28px;padding:6px;background:var(--card);border:1px solid var(--line);border-radius:14px}
+.tab{all:unset;cursor:pointer;display:flex;align-items:center;gap:8px;font:700 15px var(--sans);padding:9px 16px;border-radius:10px;color:var(--muted)}
+.tab:hover{color:var(--ink);background:var(--bg)}
+.tab.on{background:var(--c,var(--accent));color:#fff}
+.tab .n{font:600 12px var(--mono);padding:1px 7px;border-radius:999px;background:color-mix(in srgb,currentColor 14%,transparent)}
+.tab.none{opacity:.55}
+.cat{margin:0 0 46px}
+.cat>h2{display:flex;align-items:center;gap:12px;font-size:28px;margin:0 0 18px;font-weight:800}
+.cat>h2::before{content:"";width:6px;height:28px;border-radius:3px;background:var(--c)}
+.cat>h2 small{font:500 13px var(--mono);color:var(--muted)}
+.cat .soon{color:var(--muted);background:var(--card);border:1px dashed var(--line);border-radius:16px;padding:22px;text-align:center}
+.course{margin:0 0 26px}
+.course h3{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;font-size:19px;margin:0 0 12px;color:var(--ink)}
+.course h3 small{font:500 13px var(--mono);color:var(--muted)}
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px}
 .card{position:relative;display:flex;flex-direction:column;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px 18px 16px;
   transition:transform .15s,box-shadow .15s,border-color .15s;box-shadow:0 1px 2px rgba(30,33,50,.04)}
@@ -59,6 +70,7 @@ footer kbd{font:500 12px var(--mono);border:1px solid var(--line);border-radius:
     <input id="q" type="search" placeholder="ძებნა — თემა, კურსი…" autocomplete="off"><kbd>/</kbd></label>
 </header>
 <a class="last" id="last"><span class="lbl">ბოლოს გახსნილი</span><span class="t"></span><span class="go">გაგრძელება →</span></a>
+<nav class="tabs" id="tabs"></nav>
 <div id="courses"></div>
 <div class="empty" id="empty">ვერაფერი მოიძებნა</div>
 <footer>პრეზენტაციაში: <kbd>F</kbd> სრული ეკრანი · <kbd>←</kbd> <kbd>→</kbd> ნავიგაცია · <kbd>P</kbd> კონსპექტი სლაიდებთან ერთად · <kbd>O</kbd> ყველა სლაიდი</footer>
@@ -69,22 +81,47 @@ const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;',
 const total = CATALOG.reduce((n, c) => n + c.lectures.length, 0);
 document.getElementById('sub').textContent = `${CATALOG.length} კურსი · ${total} ლექცია`;
 
-const COLORS = ['#6d28d9', '#0d9488', '#d97706', '#2563eb', '#db2777'];
-document.getElementById('courses').innerHTML = CATALOG.map((c, ci) => `
-  <section class="course" data-course="${esc(c.slug)}" style="--c:${COLORS[ci % COLORS.length]}">
-    <h2>${esc(c.title)}<small>${c.lectures.length} ლექცია</small></h2>
-    <div class="grid">${c.lectures.map(l => {
-      const href = `${c.slug}/${l.slug}/`;
-      const name = `${esc(c.title)} · ${l.num} — ${esc(l.title)}`;
-      const mats = l.materials.length ? `<div class="meta"><details><summary>📎 მასალები · ${l.materials.length} ფაილი</summary>${l.materials.map(m => `<a href="${href}materials/${encodeURIComponent(m)}" download>${esc(m)}</a>`).join('')}</details></div>` : '';
-      return `<article class="card" data-text="${esc((c.title + ' ' + l.title + ' ' + l.materials.join(' ')).toLowerCase())}">
-        <div class="top"><span class="num">ლექცია ${l.num}</span><span class="slides">${l.slides} სლაიდი</span></div>
-        <a class="title" href="${href}" data-open="${name}">${esc(l.title)}</a>
-        ${mats}
-        <div class="acts"><a class="btn play" href="${href}" data-open="${name}">▶ პრეზენტაცია</a>${l.study ? `<a class="btn" href="${href}study.html">📖 კონსპექტი</a>` : ``}</div>
-      </article>`;
-    }).join('')}</div>
+const CATEGORIES = /*CATEGORIES*/[];
+const COLORS = ['#6d28d9', '#0d9488', '#2563eb', '#d97706', '#db2777'];
+const cats = CATEGORIES.map((k, i) => ({ ...k, color: COLORS[i % COLORS.length], courses: CATALOG.filter(c => c.category === k.slug) }))
+  .map(k => ({ ...k, count: k.courses.reduce((n, c) => n + c.lectures.length, 0) }));
+
+const card = c => l => {
+  const href = `${c.slug}/${l.slug}/`;
+  const name = `${esc(c.title)} · ${l.num} — ${esc(l.title)}`;
+  const mats = l.materials.length ? `<div class="meta"><details><summary>📎 მასალები · ${l.materials.length} ფაილი</summary>${l.materials.map(m => `<a href="${href}materials/${encodeURIComponent(m)}" download>${esc(m)}</a>`).join('')}</details></div>` : '';
+  return `<article class="card" data-text="${esc((c.title + ' ' + l.title + ' ' + l.materials.join(' ')).toLowerCase())}">
+    <div class="top"><span class="num">ლექცია ${l.num}</span><span class="slides">${l.slides} სლაიდი</span></div>
+    <a class="title" href="${href}" data-open="${name}">${esc(l.title)}</a>
+    ${mats}
+    <div class="acts"><a class="btn play" href="${href}" data-open="${name}">▶ პრეზენტაცია</a>${l.study ? `<a class="btn" href="${href}study.html">📖 კონსპექტი</a>` : ``}</div>
+  </article>`;
+};
+document.getElementById('courses').innerHTML = cats.map(k => `
+  <section class="cat" data-cat="${esc(k.slug)}" style="--c:${k.color}">
+    <h2>${esc(k.title)}<small>${k.count} ლექცია</small></h2>
+    ${k.courses.length ? k.courses.map(c => `
+      <div class="course" data-course="${esc(c.slug)}">
+        ${k.courses.length > 1 || c.title !== k.title ? `<h3>${esc(c.title)}<small>${c.lectures.length} ლექცია</small></h3>` : ''}
+        <div class="grid">${c.lectures.map(card(c)).join('')}</div>
+      </div>`).join('') : `<div class="soon">ლექციები მალე დაემატება</div>`}
   </section>`).join('');
+
+// category tabs — the choice lives in the URL (#devops), so a category can be linked directly
+const tabs = document.getElementById('tabs');
+tabs.innerHTML = [{ slug: '', title: 'ყველა', count: total, color: '' }, ...cats].map(k =>
+  `<button class="tab${k.count ? '' : ' none'}" data-cat="${k.slug}" style="${k.color ? `--c:${k.color}` : ''}">${esc(k.title)}<span class="n">${k.count}</span></button>`).join('');
+let cur = '';
+function showCat(slug) {
+  cur = cats.some(k => k.slug === slug) ? slug : '';
+  tabs.querySelectorAll('.tab').forEach(t => t.classList.toggle('on', t.dataset.cat === cur));
+  applyFilter();
+}
+tabs.addEventListener('click', e => {
+  const t = e.target.closest('.tab'); if (!t) return;
+  history.replaceState(null, '', t.dataset.cat ? '#' + t.dataset.cat : location.pathname);
+  showCat(t.dataset.cat);
+});
 
 // last opened (per-browser convenience only)
 const lastEl = document.getElementById('last');
@@ -97,19 +134,29 @@ document.addEventListener('click', e => {
   try { localStorage.setItem('lectures:last', JSON.stringify({ href: a.getAttribute('href'), title: a.dataset.open })); } catch (e) {}
 });
 
-// search
+// search + category filter
 const q = document.getElementById('q');
-q.addEventListener('input', () => {
+function applyFilter() {
   const words = q.value.toLowerCase().trim().split(/\s+/).filter(Boolean);
   let any = 0;
-  document.querySelectorAll('.course').forEach(sec => {
+  document.querySelectorAll('.cat').forEach(cat => {
+    const inCat = !cur || cat.dataset.cat === cur;
     let n = 0;
-    sec.querySelectorAll('.card').forEach(r => { const hit = words.every(w => r.dataset.text.includes(w)); r.classList.toggle('hidden', !hit); n += hit; });
-    sec.classList.toggle('hidden', !n); any += n;
+    cat.querySelectorAll('.course').forEach(sec => {
+      let m = 0;
+      sec.querySelectorAll('.card').forEach(r => { const hit = words.every(w => r.dataset.text.includes(w)); r.classList.toggle('hidden', !hit); m += hit; });
+      sec.classList.toggle('hidden', !m); n += m;
+    });
+    // empty categories show their "soon" note only when picked on their own
+    cat.classList.toggle('hidden', !inCat || (!n && (words.length || !!cat.querySelector('.course') || !cur)));
+    if (inCat) any += n || (cur && !words.length ? 1 : 0);
   });
   document.getElementById('empty').style.display = any ? 'none' : 'block';
   lastEl.classList.toggle('hidden', !!words.length);
-});
+}
+q.addEventListener('input', applyFilter);
+showCat(location.hash.slice(1));
+addEventListener('hashchange', () => showCat(location.hash.slice(1)));
 document.addEventListener('keydown', e => {
   if (e.key === '/' && document.activeElement !== q) { e.preventDefault(); q.focus(); }
   if (e.key === 'Escape' && document.activeElement === q) { q.value = ''; q.dispatchEvent(new Event('input')); q.blur(); }
