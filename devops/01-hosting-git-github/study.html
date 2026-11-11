@@ -1,0 +1,1051 @@
+<!doctype html>
+<html lang="ka"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>📖 ჰოსტინგის საფუძვლები და Git/GitHub — კონსპექტი</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Georgian:wght@400;600;700;800&family=JetBrains+Mono:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#fbf8f3;--card:#fff;--ink:#1e2132;--ink2:#3b3f54;--muted:#7b8096;--line:#e6dfd2;--accent:#6d28d9;--accent-soft:#f3effe;--teal:#0d9488;
+  --green:#15803d;--amber:#b45309;--mono:"JetBrains Mono",ui-monospace,monospace;--sans:"Noto Sans Georgian",system-ui,sans-serif}
+*{box-sizing:border-box}
+html{scroll-padding-top:76px}
+body{margin:0;background:var(--bg);color:var(--ink);font:17.5px/1.75 var(--sans);-webkit-font-smoothing:antialiased}
+a{color:var(--accent)}
+/* top bar */
+.top{position:sticky;top:0;z-index:10;display:flex;align-items:center;gap:14px;padding:10px 20px;background:rgba(251,248,243,.92);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.top .back{font:600 14px var(--mono);color:var(--muted);text-decoration:none;white-space:nowrap}
+.top .back:hover{color:var(--ink)}
+.top .ttl{flex:1;min-width:0;font-weight:700;font-size:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.top .ttl small{font:500 13px var(--mono);color:var(--muted);margin-right:8px}
+.btn{font:700 14px var(--sans);text-decoration:none;border-radius:10px;padding:7px 14px;white-space:nowrap;border:1px solid var(--line);color:var(--ink);background:var(--card);cursor:pointer}
+.btn.play{background:var(--accent);border-color:var(--accent);color:#fff}
+.live{display:none;align-items:center;gap:8px;font:600 13px var(--mono);color:var(--teal);background:#e6f6f4;border:1px solid #bfe7e2;border-radius:999px;padding:5px 12px;cursor:pointer}
+.live.on{display:flex}
+.live .dot{width:8px;height:8px;border-radius:50%;background:var(--teal);animation:pulse 1.6s infinite}
+.live.off{color:var(--muted);background:var(--card);border-color:var(--line)}.live.off .dot{background:var(--muted);animation:none}
+@keyframes pulse{50%{opacity:.3}}
+/* layout */
+.wrap{display:grid;grid-template-columns:230px minmax(0,1000px);gap:44px;justify-content:center;padding:32px 28px 120px}
+nav.toc{position:sticky;top:84px;align-self:start;font-size:14px;line-height:1.45}
+nav.toc .h{font:700 12px var(--mono);color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px}
+nav.toc a{display:block;color:var(--ink2);text-decoration:none;padding:6px 10px;border-left:2px solid var(--line)}
+nav.toc a:hover{color:var(--accent)}
+nav.toc a.cur{color:var(--accent);border-left-color:var(--accent);font-weight:700}
+nav.toc .mats{margin-top:22px;display:flex;flex-direction:column;gap:6px}
+nav.toc .mats a{border:0;padding:2px 0;font:500 13px var(--mono);color:var(--teal);word-break:break-all}
+header.hero{margin-bottom:8px}
+header.hero .k{font:600 14px var(--mono);color:var(--accent)}
+header.hero h1{font-size:38px;line-height:1.2;margin:6px 0 10px;letter-spacing:-.01em}
+header.hero p{color:var(--muted);margin:0;font-size:15.5px}
+header.hero kbd{font:500 12px var(--mono);border:1px solid var(--line);border-radius:5px;padding:0 5px;background:var(--card)}
+h2.sec{font-size:15px;font:700 13px var(--mono);color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin:48px 0 6px;padding-top:18px;border-top:1px solid var(--line)}
+/* blocks */
+.blk{position:relative;padding:14px 0 6px 22px;margin-left:-22px;border-left:3px solid transparent;transition:border-color .3s,background .3s;border-radius:0 12px 12px 0}
+.blk.cur{border-left-color:var(--accent);background:linear-gradient(90deg,var(--accent-soft),transparent 70%)}
+.anchor{position:absolute;top:0}
+.bh{display:flex;align-items:baseline;justify-content:space-between;gap:12px}
+.bh h3{font-size:22px;line-height:1.35;margin:4px 0 6px}
+.chip{flex:none;font:600 12px var(--mono);color:var(--muted);text-decoration:none;border:1px solid var(--line);border-radius:999px;padding:2px 10px;background:var(--card)}
+.chip:hover{color:var(--accent);border-color:var(--accent)}
+.blk h2{font-size:26px;line-height:1.3;margin:6px 0 10px}
+.blk h3:not(.bh h3){font-size:19px;margin:22px 0 6px}
+.blk h4{font-size:17px;margin:18px 0 4px}
+.blk p{margin:10px 0}
+.blk ul,.blk ol{padding-left:24px;margin:8px 0}
+.blk li{margin:4px 0}
+.blk strong{color:var(--ink)}
+.blk :not(pre)>code{font:600 .86em var(--mono);background:#f1ece3;border-radius:6px;padding:1px 6px;color:#5b21b6}
+.blk table{border-collapse:collapse;margin:14px 0;font-size:15.5px;width:100%;display:block;overflow-x:auto}
+.blk th,.blk td{border:1px solid var(--line);padding:8px 12px;text-align:left;vertical-align:top}
+.blk th{background:#f6f1e8}
+/* code */
+.codebox{margin:14px 0;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:#fffdf9}
+.codebox .ch,.prompt .ph{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:6px 8px 6px 14px;font:600 12.5px var(--mono);color:var(--muted);background:#f6f1e8;border-bottom:1px solid var(--line)}
+.copy{font:600 12px var(--mono);border:1px solid var(--line);background:var(--card);color:var(--ink2);border-radius:7px;padding:3px 10px;cursor:pointer}
+.copy:hover{border-color:var(--ink)}
+.copy.ok{color:var(--green);border-color:var(--green)}
+pre.code{margin:0;padding:12px 0;overflow-x:auto;font:14px/1.65 var(--mono)}
+pre.code .ln{display:block;padding:0 16px;white-space:pre}
+.code .ttl{background:var(--bg2);color:var(--muted)}
+.code .ln.hl{background:rgba(109,40,217,.07);box-shadow:inset 3px 0 0 var(--net)}
+.code .ln.dim{opacity:.42}
+.code .k,.code .kd,.code .kn,.code .kr,.code .kc{color:#7c3aed}
+.code .kt{color:#2563eb}
+.code .s,.code .s1,.code .s2,.code .sa,.code .se,.code .si,.code .sd{color:#15803d}
+.code .c,.code .c1,.code .cm,.code .cp,.code .ch{color:#8b8fa3}
+.code .m,.code .mi,.code .mf,.code .mh{color:#c2410c}
+.code .nf,.code .fm{color:#1d4ed8}
+.code .nc,.code .nn,.code .nt,.code .nd{color:#b45309}
+.code .na{color:#7c3aed} .code .nb{color:#0e7490}
+.code .o,.code .p{color:#64748b}
+.code .nv,.code .nx{color:var(--ink)}
+.code .go{color:#64748b}
+/* prompt */
+.prompt{margin:16px 0;border:1px solid #ddd2fb;border-radius:12px;overflow:hidden;background:var(--accent-soft)}
+.prompt .ph{background:#ebe3fd;border-color:#ddd2fb;color:var(--accent)}
+.prompt .pb{padding:12px 16px;white-space:pre-wrap;font-size:15.5px;line-height:1.6;color:var(--ink2)}
+/* self check */
+.selfcheck{margin:16px 0;border:1px solid #cfe9d6;border-radius:12px;background:#f3fbf5;padding:12px 16px}
+.selfcheck .sh{font-weight:700;color:var(--green);margin-bottom:6px}
+.selfcheck .sh small{font-weight:400;color:var(--muted);font-size:13.5px;margin-left:6px}
+.selfcheck details{border-top:1px solid #dcefe1;padding:8px 0}
+.selfcheck summary{cursor:pointer;font-weight:600;list-style:none;padding-left:26px;position:relative}
+.selfcheck summary::-webkit-details-marker{display:none}
+.selfcheck summary::before{content:"?";position:absolute;left:0;top:2px;width:18px;height:18px;border-radius:50%;background:var(--green);color:#fff;font:700 12px/18px var(--mono);text-align:center}
+.selfcheck details[open] summary::before{content:"✓"}
+.selfcheck .ans{padding:6px 0 2px 26px;color:var(--ink2)}
+/* terms */
+.terms{margin:16px 0;border:1px solid var(--line);border-radius:12px;background:var(--card);padding:12px 16px}
+.terms .th{font-weight:700;margin-bottom:6px}
+.terms dl{display:grid;grid-template-columns:max-content 1fr;gap:6px 18px;margin:0}
+.terms dt{font:600 14.5px var(--mono);color:var(--accent)}
+.terms dd{margin:0;color:var(--ink2)}
+/* callouts */
+.callout{display:flex;gap:12px;margin:14px 0;padding:12px 16px;border-radius:12px;border:1px solid var(--line);background:var(--card)}
+.callout .ci{font-size:20px;line-height:1.6}
+.callout>div>p:first-child{margin-top:0}.callout>div>p:last-child{margin-bottom:0}
+.callout.warn{background:#fff8eb;border-color:#f6dfb5}
+.callout.note{background:#eef5ff;border-color:#cfe0fb}
+@media (max-width:980px){
+  .wrap{grid-template-columns:minmax(0,1fr);gap:0;padding:20px 16px 100px}
+  nav.toc{position:static;margin-bottom:12px}
+  nav.toc details{border:1px solid var(--line);border-radius:12px;background:var(--card);padding:8px 12px}
+  nav.toc details>summary{cursor:pointer;font-weight:700}
+  nav.toc .h{display:none}
+  header.hero h1{font-size:30px}
+  .blk{padding-left:14px;margin-left:-14px}
+  .top .ttl small{display:none}
+  .terms dl{grid-template-columns:1fr}.terms dd{margin-bottom:8px}
+}
+@media (min-width:981px){nav.toc details>summary{display:none}}
+@media print{.top,nav.toc,.copy,.chip,.live{display:none}.wrap{display:block;padding:0}.selfcheck details{display:block}.blk.cur{background:none}}
+</style></head>
+<body>
+<div class="top">
+  <a class="back" href="../../">← ლექციები</a>
+  <div class="ttl"><small>DevOps Crash Course · 1</small>ჰოსტინგის საფუძვლები და Git/GitHub</div>
+  <button class="live" id="live" type="button" title="ჩართული: ტექსტი პრეზენტაციას მიჰყვება"><span class="dot"></span><span class="lt">მიჰყვება სლაიდებს</span></button>
+  <a class="btn play" href="index.html">▶ პრეზენტაცია</a>
+</div>
+<div class="wrap">
+  <nav class="toc"><details id="tocd"><summary>სარჩევი</summary><div class="h">სარჩევი</div><a href="#sec-1">დღის თემა</a><a href="#sec-2">შესავალი</a><a href="#sec-3"></a><a href="#sec-4">1 · ჰოსტინგი</a><a href="#sec-5">2 · ევოლუცია</a><a href="#sec-6">3 · Git</a><a href="#sec-7">4 · GitHub</a><a href="#sec-8">5 · .gitignore</a><a href="#sec-9">6 · პრაქტიკა</a><a href="#sec-10">პრაქტიკა</a><a href="#sec-11">შეჯამება</a><a href="#sec-12">საშინაო</a><div class="mats"></div></details></nav>
+  <main>
+    <header class="hero">
+      <div class="k">📖 კონსპექტი · DevOps Crash Course · ლექცია 1</div>
+      <h1>ჰოსტინგის საფუძვლები და Git/GitHub</h1>
+      <p>წაიკითხე ლექციის შემდეგ, ან პრეზენტაციასთან ერთად: პრეზენტაციაში დააჭირე <kbd>P</kbd> და ეს გვერდი სლაიდებს გაჰყვება. კოდი და AI-ს პრომპტები კოპირდება ერთი დაჭერით.</p>
+    </header>
+    <h2 class="sec" id="sec-1">დღის თემა</h2>
+<article class="blk" data-slides="1,2"><span class="anchor" id="s-1"></span><span class="anchor" id="s-2"></span><div class="bh"><h3>დღის თემა: ჰოსტინგის საფუძვლები და Git/GitHub</h3><a class="chip" href="index.html#/1" data-go="1" title="პრეზენტაციაში გახსნა">სლაიდი 1</a></div>
+<p>შენი საიტი ახლა მხოლოდ შენს ლეპტოპზე ცხოვრობს — <code>localhost</code>-ის ლინკს მეგობარი ვერ გახსნის. ამ კურსში ვისწავლით, როგორ მივიყვანოთ კოდი ლეპტოპიდან ყველა მომხმარებლამდე: GitHub → სერვერი → ინტერნეტი. დღეს ორ საფუძველს ვყრით: რა არის ჰოსტინგი და ვებ-სერვერი, და Git/GitHub — საიდანაც ყოველი თანამედროვე დეპლოიმენტი იწყება.</p>
+<p><strong>ლექციის ბოლოს შეძლებ:</strong></p>
+<ul>
+<li>ახსნა, რა ხდება მისამართის აკრეფიდან გვერდის გამოჩენამდე</li>
+<li>ჰოსტინგის ტიპების გარჩევა: Shared, VPS, PaaS, სტატიკური</li>
+<li>Git-ის ციკლი: <code>add</code> → <code>commit</code> → <code>branch</code> → <code>merge</code></li>
+<li>პროექტის ატვირთვა GitHub-ზე, <code>.gitignore</code>-ით</li>
+</ul></article>
+<h2 class="sec" id="sec-2">შესავალი</h2>
+<article class="blk" data-slides="3"><span class="anchor" id="s-3"></span><div class="bh"><h3>კურსის რუკა — 12 ლექცია, ერთი გზა</h3><a class="chip" href="index.html#/3" data-go="3" title="პრეზენტაციაში გახსნა">სლაიდი 3</a></div>
+<p>კურსის მიზანი: კოდი შენი ლეპტოპიდან მიიყვანო რეალურ სერვერამდე, რომელსაც ნებისმიერი მომხმარებელი ხსნის — და ეს პროცესი ავტომატური გახადო.</p>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>თემა</th>
+<th>რას ვაკეთებთ</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>Git/GitHub</td>
+<td>ვინახავთ კოდს და მის ისტორიას (<strong>დღეს</strong>)</td>
+</tr>
+<tr>
+<td>2</td>
+<td>GitHub Pages</td>
+<td>ვაქვეყნებთ სტატიკურ საიტს + Cloudflare დომენი</td>
+</tr>
+<tr>
+<td>3</td>
+<td>GitHub Actions</td>
+<td>ავტომატური ბილდი და ტესტი (CI/CD)</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Linux + SSH</td>
+<td>DigitalOcean და სერვერის მართვა ტერმინალიდან</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Droplet</td>
+<td>საკუთარი სერვერი: DNS, Firewall, Nginx</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Angular deploy</td>
+<td>Angular აპი სერვერზე + SSL</td>
+</tr>
+<tr>
+<td>7</td>
+<td>Spaces</td>
+<td>ფაილების შენახვა და CDN</td>
+</tr>
+<tr>
+<td>8</td>
+<td>Managed DB</td>
+<td>ბაზა, რომელსაც პროვაიდერი მართავს</td>
+</tr>
+<tr>
+<td>9</td>
+<td>ASP.NET</td>
+<td>Backend სერვერზე, როგორც სერვისი</td>
+</tr>
+<tr>
+<td>10</td>
+<td>სრული CI/CD</td>
+<td>Frontend და Backend ავტომატურად</td>
+</tr>
+<tr>
+<td>11</td>
+<td>სრული სტეკი</td>
+<td>ყველაფრის ერთად აწყობა</td>
+</tr>
+<tr>
+<td>12</td>
+<td>მონიტორინგი</td>
+<td>რა ხდება სერვერზე + საფინალო პროექტი</td>
+</tr>
+</tbody>
+</table>
+<p>ყოველი ლექცია წინაზე დგას — დღევანდელი Git/GitHub ყველა შემდეგი დეპლოიმენტის საწყისი წერტილია.</p></article>
+<h2 class="sec" id="sec-3"></h2>
+<article class="blk" data-slides="4"><span class="anchor" id="s-4"></span><div class="bh"><h3>ლექციის გეგმა — 6 გაჩერება</h3><a class="chip" href="index.html#/4" data-go="4" title="პრეზენტაციაში გახსნა">სლაიდი 4</a></div>
+<ol>
+<li>🌐 <strong>ჰოსტინგი</strong> — სად „ცხოვრობს“ საიტი და როგორ აღწევს ბრაუზერამდე.</li>
+<li>📜 <strong>ევოლუცია</strong> — ჰოსტინგის ტიპები: საკუთარი სერვერიდან <code>git push</code>-მდე.</li>
+<li>🌳 <strong>Git</strong> — commit, branch, merge: კოდის ისტორია.</li>
+<li>🐙 <strong>GitHub</strong> — ანგარიში, რეპოზიტორია და კოდის ატვირთვა.</li>
+<li>🙈 <strong>.gitignore</strong> — რა არ უნდა მოხვდეს GitHub-ზე.</li>
+<li>⌨️ <strong>პრაქტიკა</strong> — ვაწყობთ <code>my-portfolio</code> რეპოს. შემდეგ ლექციაზე ზუსტად ამ რეპოს გამოვაქვეყნებთ ინტერნეტში.</li>
+</ol></article>
+<h2 class="sec" id="sec-4">1 · ჰოსტინგი</h2>
+<article class="blk" data-slides="5"><span class="anchor" id="s-5"></span><div class="bh"><h3>ნაწილი 1 · სად „ცხოვრობს“ საიტი?</h3><a class="chip" href="index.html#/5" data-go="5" title="პრეზენტაციაში გახსნა">სლაიდი 5</a></div>
+<p>ჰოსტინგი, სერვერი და ვებ-სერვერი. სანამ წაიკითხავ — სცადე, საკუთარი სიტყვებით თქვა: სად არის ფიზიკურად ის საიტი, რომელსაც ახლა ხსნი?</p></article>
+<article class="blk" data-slides="6"><span class="anchor" id="s-6"></span><div class="bh"><h3>პრობლემა: „გახსენი, ჩემი საიტია!“</h3><a class="chip" href="index.html#/6" data-go="6" title="პრეზენტაციაში გახსნა">სლაიდი 6</a></div>
+<p>Angular-ის პროექტი გაუშვი (<code>ng serve</code>), ბრაუზერში <code>localhost:4200</code> ლამაზად იხსნება. ლინკი მეგობარს მესენჯერით გაუგზავნე — მასთან კი: <strong>This site can't be reached</strong>.</p>
+<p>რატომ? <strong><code>localhost</code> ნიშნავს „ეს კომპიუტერი“.</strong> შენთან ეს შენი ლეპტოპია, მეგობართან — მისი ტელეფონი. მისი ტელეფონი შენს საიტს საკუთარ თავში ეძებს, და, ბუნებრივია, ვერ პოულობს.</p>
+<div class="terms"><div class="th">📘 ტერმინები</div><dl><dt>localhost</dt><dd>მისამართი, რომელიც ყოველთვის იმავე მოწყობილობას ნიშნავს, რომელზეც ბრაუზერი მუშაობს (IP: 127.0.0.1)</dd></dl></div></article>
+<article class="blk" data-slides="7"><span class="anchor" id="s-7"></span><div class="bh"><h3>რა სჭირდება კომპიუტერს, რომ საიტი ყველამ გახსნას?</h3><a class="chip" href="index.html#/7" data-go="7" title="პრეზენტაციაში გახსნა">სლაიდი 7</a></div>
+<p>თეორიულად შენი ლეპტოპიც გამოდგება, პრაქტიკულად — არა:</p>
+<ul>
+<li>🔌 <strong>24/7 ჩართული</strong> — ლეპტოპს ღამით თიშავ, საიტიც ითიშება.</li>
+<li>🌍 <strong>საჯარო IP მისამართი</strong> — სახლის როუტერს ინტერნეტში ერთი IP აქვს, ის ხშირად იცვლება და შიგნით მყოფი მოწყობილობები გარედან პირდაპირ არ ჩანს.</li>
+<li>🚀 <strong>სწრაფი, სტაბილური ქსელი</strong> — ათასი სტუმარი ერთად სახლის ინტერნეტს გადატვირთავს.</li>
+<li>🛡️ <strong>დაცვა</strong> — ინტერნეტიდან ნებისმიერს შეუძლია შენს კომპიუტერზე „დააკაკუნოს“.</li>
+</ul>
+<p>ასეთ კომპიუტერს <strong>სერვერი</strong> ჰქვია. საკუთარს, როგორც წესი, არ ვყიდულობთ — <strong>ვქირაობთ</strong>. სწორედ ეს არის <strong>ჰოსტინგი</strong>.</p></article>
+<article class="blk" data-slides="8"><span class="anchor" id="s-8"></span><div class="bh"><h3>სერვერი · დატა-ცენტრი · ჰოსტინგი</h3><a class="chip" href="index.html#/8" data-go="8" title="პრეზენტაციაში გახსნა">სლაიდი 8</a></div>
+<ul>
+<li>🖥️ <strong>სერვერი</strong> — ჩვეულებრივი კომპიუტერი: პროცესორი, მეხსიერება, დისკი. ოღონდ ეკრანი და კლავიატურა არ აქვს, უფრო მძლავრია და არასოდეს ითიშება. სერვერების აბსოლუტური უმრავლესობა <strong>Linux</strong>-ზე მუშაობს — ამიტომ მე-4 ლექციაზე Linux-ს ვსწავლობთ.</li>
+<li>🏢 <strong>დატა-ცენტრი</strong> — შენობა ათასობით სერვერით: სარეზერვო ელექტროენერგია, გაგრილება, ძალიან სწრაფი ინტერნეტი, ფიზიკური დაცვა.</li>
+<li>🏠 <strong>ჰოსტინგი</strong> — სერვისი: კომპანია გაქირავებს სერვერს ან მის ნაწილს, სადაც შენი საიტი „იცხოვრებს“.</li>
+</ul>
+<p>ჰოსტინგის პროვაიდერები: <strong>DigitalOcean</strong> (ამ კურსის მთავარი), AWS, Azure, Google Cloud, Hetzner; სტატიკური საიტებისთვის — <strong>GitHub Pages</strong> (მე-2 ლექცია), Cloudflare.</p></article>
+<article class="blk" data-slides="9"><span class="anchor" id="s-9"></span><div class="bh"><h3>რა ხდება, როცა აკრეფ myportfolio.ge?</h3><a class="chip" href="index.html#/9" data-go="9" title="პრეზენტაციაში გახსნა">სლაიდი 9</a></div>
+<ol>
+<li><strong>DNS</strong> — ბრაუზერმა სახელი იცის, მაგრამ ინტერნეტში კომპიუტრები <strong>IP მისამართით</strong> პოულობენ ერთმანეთს. DNS „სატელეფონო წიგნია“: <code>myportfolio.ge</code> → <code>164.90.12.34</code>.</li>
+<li><strong>მოთხოვნა</strong> — ბრაუზერი ამ IP-ზე აგზავნის HTTP მოთხოვნას: <code>GET /</code>.</li>
+<li><strong>ვებ-სერვერი</strong> — სერვერზე მომუშავე პროგრამა (მაგ. Nginx) იღებს მოთხოვნას და პოულობს შესაბამის ფაილს.</li>
+<li><strong>პასუხი</strong> — <code>200 OK</code> და HTML-ის შიგთავსი.</li>
+<li><strong>დამატებითი მოთხოვნები</strong> — ბრაუზერი HTML-ში ხედავს <code>style.css</code>-ს, <code>app.js</code>-ს, სურათებს და თითოეულს ცალკე ითხოვს. ერთი გვერდი = ათობით მოთხოვნა.</li>
+</ol>
+<div class="callout note"><span class="ci">💡</span><div><p>DNS-ს და დომენებს მე-2 და მე-5 ლექციებზე დეტალურად გავივლით (Cloudflare), ვებ-სერვერ Nginx-ს — მე-5-ზე. დღეს მთავარია სურათი: <strong>სახელი → IP → სერვერი → ვებ-სერვერი → ფაილი → პასუხი</strong>.</p></div></div>
+<div class="terms"><div class="th">📘 ტერმინები</div><dl><dt>IP მისამართი</dt><dd>მოწყობილობის ნომერი ინტერნეტში, მაგ. 164.90.12.34</dd><dt>DNS</dt><dd>სისტემა, რომელიც დომენის სახელს IP მისამართად თარგმნის</dd></dl></div></article>
+<article class="blk" data-slides="10"><span class="anchor" id="s-10"></span><div class="bh"><h3>ვებ-სერვერი — პროგრამა, რომელიც კარზე დგას</h3><a class="chip" href="index.html#/10" data-go="10" title="პრეზენტაციაში გახსნა">სლაიდი 10</a></div>
+<p>ერთ სერვერზე ბევრი პროგრამა მუშაობს: ვებ-სერვერი, ბაზა, SSH... როგორ ხვდება მოთხოვნა სწორ პროგრამამდე?</p>
+<ul>
+<li><strong>IP = შენობის მისამართი</strong>, <strong>პორტი = ბინის ნომერი</strong>. ყოველი პროგრამა თავის პორტს „უსმენს“.</li>
+<li>სტანდარტული პორტები: <strong>80</strong> — HTTP, <strong>443</strong> — HTTPS, <strong>22</strong> — SSH (სერვერის მართვა, მე-4 ლექცია), <strong>5432</strong> — PostgreSQL.</li>
+</ul>
+<p><strong>ვებ-სერვერი</strong> არის პროგრამა, რომელიც 80/443 პორტს უსმენს, იღებს HTTP მოთხოვნას და პასუხს აბრუნებს. ორი მთავარი საქმე აქვს:</p>
+<ol>
+<li><strong>ფაილების გაცემა</strong> — <code>GET /about.html</code> → დისკზე პოულობს <code>/var/www/site/about.html</code>-ს და აბრუნებს.</li>
+<li><strong>მოთხოვნის გადაცემა აპლიკაციისთვის</strong> (reverse proxy) — <code>GET /api/products</code> → გადასცემს სერვერზე გაშვებულ ASP.NET აპს და მის პასუხს უკან აბრუნებს. ამას მე-9 ლექციაზე ავაწყობთ.</li>
+</ol>
+<p>პოპულარული ვებ-სერვერები: <strong>Nginx</strong> (ამ კურსში ვიყენებთ), Apache, IIS (Windows), Caddy.</p>
+<div class="terms"><div class="th">📘 ტერმინები</div><dl><dt>პორტი</dt><dd>ნომერი 0-დან 65535-მდე, რომლითაც ერთ კომპიუტერზე კონკრეტულ პროგრამას მივმართავთ</dd><dt>reverse proxy</dt><dd>სერვერი, რომელიც მოთხოვნას იღებს და შიგნით მყოფ აპლიკაციას გადასცემს</dd></dl></div></article>
+<article class="blk" data-slides="11"><span class="anchor" id="s-11"></span><div class="bh"><h3>სტატიკური vs დინამიური საიტი</h3><a class="chip" href="index.html#/11" data-go="11" title="პრეზენტაციაში გახსნა">სლაიდი 11</a></div>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>📄 სტატიკური</th>
+<th>⚙️ დინამიური</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>სერვერზე</td>
+<td>მზა ფაილები: HTML, CSS, JS, სურათები</td>
+<td>პროგრამა (Backend), ხშირად ბაზაც</td>
+</tr>
+<tr>
+<td>პასუხი</td>
+<td>ყველას ერთი და იგივე</td>
+<td>ყოველ ჯერზე ითვლება — ვინ ხარ, რა არის ბაზაში</td>
+</tr>
+<tr>
+<td>ფასი</td>
+<td>იაფი, ხშირად უფასო</td>
+<td>სერვერი ფულს ღირს</td>
+</tr>
+<tr>
+<td>მაგალითები</td>
+<td>პორტფოლიო, ლენდინგი, დოკუმენტაცია</td>
+<td>ინტერნეტ-ბანკი, მაღაზია, სოც. ქსელი</td>
+</tr>
+<tr>
+<td>ამ კურსში</td>
+<td>GitHub Pages (ლ.2), Spaces (ლ.7)</td>
+<td>Droplet (ლ.5–9)</td>
+</tr>
+</tbody>
+</table>
+<div class="callout tip"><span class="ci">👉</span><div><p><strong>Angular აპი <code>ng build</code>-ის შემდეგ სტატიკური ფაილებია</strong> (<code>dist/</code> საქაღალდე): HTML, JS, CSS. „დინამიური“ ის მხოლოდ ბრაუზერშია — მონაცემი API-დან მოდის. ამიტომ Frontend-ს და Backend-ს ხშირად სხვადასხვა ადგილას ვაქვეყნებთ.</p></div></div></article>
+<h2 class="sec" id="sec-5">2 · ევოლუცია</h2>
+<article class="blk" data-slides="12"><span class="anchor" id="s-12"></span><div class="bh"><h3>ნაწილი 2 · ჰოსტინგის ევოლუცია</h3><a class="chip" href="index.html#/12" data-go="12" title="პრეზენტაციაში გახსნა">სლაიდი 12</a></div>
+<p>საკუთარი სერვერიდან <code>git push</code>-მდე. ყოველი ახალი ეტაპი წინა ეტაპის რომელიღაც პრობლემას აგვარებდა — დააკვირდი, რომელს.</p></article>
+<article class="blk" data-slides="13"><span class="anchor" id="s-13"></span><div class="bh"><h3>ჰოსტინგის ევოლუცია — 30 წელი ერთ სლაიდზე</h3><a class="chip" href="index.html#/13" data-go="13" title="პრეზენტაციაში გახსნა">სლაიდი 13</a></div>
+<table>
+<thead>
+<tr>
+<th>ეპოქა</th>
+<th>მიდგომა</th>
+<th>როგორ მუშაობს</th>
+<th>პრობლემა, რომელიც დარჩა</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1990-იანები</td>
+<td>🏠 <strong>საკუთარი სერვერი</strong> (on-premise)</td>
+<td>სერვერს ყიდულობ, ოფისში დგამ, თვითონ უვლი</td>
+<td>ძვირია, ფუჭდება, დენი ითიშება</td>
+</tr>
+<tr>
+<td>2000-იანები</td>
+<td>🏘️ <strong>Shared hosting</strong></td>
+<td>ერთ სერვერზე ასობით საიტი; მართვა cPanel-ით, ფაილები FTP-ით</td>
+<td>არაფერს აკონტროლებ; „მეზობელი“ საიტი სერვერს ტვირთავს</td>
+</tr>
+<tr>
+<td>2006 →</td>
+<td>☁️ <strong>VPS / Cloud</strong> (AWS, DigitalOcean)</td>
+<td>ვირტუალური სერვერი წუთებში, სრული (root) წვდომა, საათობრივი გადახდა</td>
+<td>ყველაფერი — OS, განახლებები, ვებ-სერვერი — შენ უნდა გამართო</td>
+</tr>
+<tr>
+<td>2010-იანები</td>
+<td>🏨 <strong>PaaS</strong> (Heroku, App Platform)</td>
+<td>კოდს აწვდი, დანარჩენს პლატფორმა აკეთებს</td>
+<td>ძვირია და ნაკლებად მოქნილი</td>
+</tr>
+<tr>
+<td>დღეს</td>
+<td>⚡ <strong>Static/Edge + CI/CD</strong></td>
+<td>GitHub Pages, Cloudflare, კონტეინერები; <code>git push</code> ავტომატურად აქვეყნებს</td>
+<td>—</td>
+</tr>
+</tbody>
+</table>
+<p>ძველი მიდგომები არ გამქრალა: დღესაც არსებობს Shared hosting და საკუთარი სერვერებიც (ბანკებში, მაგალითად). უბრალოდ, ყოველ ამოცანას თავისი ინსტრუმენტი აქვს.</p>
+<div class="terms"><div class="th">📘 ტერმინები</div><dl><dt>VPS</dt><dd>Virtual Private Server: ფიზიკური სერვერის ვირტუალური „ნაჭერი“, რომელიც შენთვის ცალკე კომპიუტერივით მუშაობს</dd><dt>PaaS</dt><dd>Platform as a Service: პლატფორმა, რომელსაც მხოლოდ კოდს აწვდი</dd><dt>FTP</dt><dd>ფაილების გადაცემის ძველი პროტოკოლი; ასე „ტვირთავდნენ“ საიტს ხელით</dd></dl></div></article>
+<article class="blk" data-slides="14"><span class="anchor" id="s-14"></span><div class="bh"><h3>ანალოგია: ჰოსტინგი = სად ცხოვრობ</h3><a class="chip" href="index.html#/14" data-go="14" title="პრეზენტაციაში გახსნა">სლაიდი 14</a></div>
+<table>
+<thead>
+<tr>
+<th>საცხოვრებელი</th>
+<th>ჰოსტინგი</th>
+<th>რას აკეთებ შენ</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>🏠 საკუთარი სახლი</td>
+<td>On-premise</td>
+<td>ყველაფერს: აშენებ, აკეთებ, სახურავიც შენზეა</td>
+</tr>
+<tr>
+<td>🏘️ საერთო ბინა</td>
+<td>Shared hosting</td>
+<td>თითქმის არაფერს; იაფია, მაგრამ მეზობელი ხმაურობს</td>
+</tr>
+<tr>
+<td>🔑 ნაქირავები ბინა</td>
+<td>VPS / Droplet</td>
+<td>ავეჯი, დალაგება — შენზე; შენობა, წყალი, დენი — მეპატრონეზე</td>
+</tr>
+<tr>
+<td>🏨 სასტუმრო</td>
+<td>PaaS</td>
+<td>მხოლოდ ჩემოდანი (კოდი) მოგაქვს; წესები მათია</td>
+</tr>
+</tbody>
+</table>
+<p><strong>რაც მეტს მართავ — მით მეტი თავისუფლება და მით მეტი პასუხისმგებლობა.</strong></p></article>
+<article class="blk" data-slides="15"><span class="anchor" id="s-15"></span><div class="bh"><h3>ვინ რაზე აგებს პასუხს?</h3><a class="chip" href="index.html#/15" data-go="15" title="პრეზენტაციაში გახსნა">სლაიდი 15</a></div>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>🏠 On-premise</th>
+<th>🔑 VPS / Droplet</th>
+<th>🏨 PaaS</th>
+<th>📄 სტატიკური</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>შენობა, დენი, ქსელი</td>
+<td>შენ</td>
+<td>პროვაიდერი</td>
+<td>პროვაიდერი</td>
+<td>პროვაიდერი</td>
+</tr>
+<tr>
+<td>ფიზიკური სერვერი</td>
+<td>შენ</td>
+<td>პროვაიდერი</td>
+<td>პროვაიდერი</td>
+<td>პროვაიდერი</td>
+</tr>
+<tr>
+<td>OS + განახლებები</td>
+<td>შენ</td>
+<td><strong>შენ</strong></td>
+<td>პროვაიდერი</td>
+<td>პროვაიდერი</td>
+</tr>
+<tr>
+<td>Nginx, .NET, Node</td>
+<td>შენ</td>
+<td><strong>შენ</strong></td>
+<td>პროვაიდერი</td>
+<td>პროვაიდერი</td>
+</tr>
+<tr>
+<td>შენი აპლიკაცია</td>
+<td>შენ</td>
+<td><strong>შენ</strong></td>
+<td><strong>შენ</strong></td>
+<td><strong>შენ</strong> (მხოლოდ ფაილები)</td>
+</tr>
+</tbody>
+</table>
+<p>რატომ ვსწავლობთ ძირითადად <strong>VPS</strong>-ს, თუ PaaS უფრო მარტივია?</p>
+<ul>
+<li>VPS-ზე <strong>ხედავ, რა ხდება „ფარდის მიღმა“</strong>: OS, პორტები, ვებ-სერვერი, სერვისები. ვინც ეს იცის, PaaS-ს ერთ დღეში აითვისებს — პირიქით ასე არ ხდება.</li>
+<li>VPS ხშირად <strong>იაფია</strong> და <strong>მოქნილი</strong> — რაც გინდა, იმას დააყენებ.</li>
+<li>DevOps ინჟინრის სამუშაო სწორედ ეს „შენ“-ის ველებია.</li>
+</ul></article>
+<article class="blk" data-slides="16,17"><span class="anchor" id="s-16"></span><span class="anchor" id="s-17"></span><div class="bh"><h3>თანამედროვე მიდგომა: git push = deploy</h3><a class="chip" href="index.html#/16" data-go="16" title="პრეზენტაციაში გახსნა">სლაიდი 16</a></div>
+<p>დღეს კარგ გუნდში საიტს ხელით არავინ ტვირთავს. გზა ასეთია:</p>
+<ol>
+<li>💻 დეველოპერი კოდს წერს და <code>git push</code>-ით GitHub-ზე აგზავნის.</li>
+<li>🐙 GitHub ამას ამჩნევს და ავტომატურად უშვებს <strong>GitHub Actions</strong>-ს (მე-3 ლექცია).</li>
+<li>⚙️ Actions აწყობს (build) და ამოწმებს (ტესტები) პროექტს.</li>
+<li>☁️ წარმატების შემთხვევაში ახალი ვერსია სერვერზე ავტომატურად იდება (მე-5–6, მე-10 ლექციები).</li>
+<li>👥 მომხმარებელი ახალ ვერსიას ხედავს.</li>
+</ol>
+<p><strong>ძველად:</strong> ფაილებს ხელით ტვირთავდი FTP-ით. რომელი ვერსია დევს სერვერზე? ვინ ატვირთა? რა შეიცვალა? — არავინ იცოდა.</p>
+<p><strong>დღეს:</strong> კოდი Git-შია. ყოველი ცვლილება ჩანს, ავტომატურად ქვეყნდება და, თუ რამე გაფუჭდა, წინა ვერსიაზე დაბრუნება წამებია.</p>
+<p>ამ პროცესს <strong>CI/CD</strong> ჰქვია, და ის <strong>Git-ით იწყება</strong> — ამიტომ Git-ს ახლავე ვსწავლობთ.</p></article>
+<h2 class="sec" id="sec-6">3 · Git</h2>
+<article class="blk" data-slides="18"><span class="anchor" id="s-18"></span><div class="bh"><h3>ნაწილი 3 · Git — კოდის დროის მანქანა</h3><a class="chip" href="index.html#/18" data-go="18" title="პრეზენტაციაში გახსნა">სლაიდი 18</a></div>
+<p>რეპოზიტორია, commit, branch, merge — ოთხი ცნება, რომლებზეც მთელი Git დგას.</p></article>
+<article class="blk" data-slides="19"><span class="anchor" id="s-19"></span><div class="bh"><h3>პრობლემა: ნაცნობი საქაღალდეა?</h3><a class="chip" href="index.html#/19" data-go="19" title="პრეზენტაციაში გახსნა">სლაიდი 19</a></div>
+<div class="codebox"><div class="ch"><span>plain</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln">📁 Desktop</span><span class="ln"> ├ 🗜️ portfolio.zip</span><span class="ln"> ├ 🗜️ portfolio_final.zip</span><span class="ln"> ├ 🗜️ portfolio_final_v2.zip</span><span class="ln"> ├ 🗜️ portfolio_final_v2_REAL.zip</span><span class="ln"> └ 🗜️ portfolio_final_v2_REAL_nika_edits.zip</span></code></pre></div>
+<p>ასე ვერსიების შენახვა რეალურ პრობლემებს ქმნის:</p>
+<ul>
+<li>⚠ <strong>რა შეიცვალა</strong> ორ ვერსიას შორის? ხელით უნდა შეადარო.</li>
+<li>⚠ <strong>გუშინ მუშაობდა, დღეს — არა.</strong> რა შევცვალე? ვინ იცის.</li>
+<li>⚠ <strong>გუნდური მუშაობა:</strong> ორმა ადამიანმა ერთი ფაილი შეცვალა — ვისი დავტოვოთ? ფაილებს მესენჯერით ვუგზავნით ერთმანეთს?</li>
+<li>⚠ <strong>ლეპტოპი გაფუჭდა</strong> — პროექტი გაქრა.</li>
+</ul></article>
+<article class="blk" data-slides="20"><span class="anchor" id="s-20"></span><div class="bh"><h3>Git = Save Point-ები შენი პროექტისთვის</h3><a class="chip" href="index.html#/20" data-go="20" title="პრეზენტაციაში გახსნა">სლაიდი 20</a></div>
+<p>თამაშში „Save Point“ გახსოვს? სანამ ბოსს შეებრძოლები, ინახავ. თუ წააგე — იქიდან აგრძელებ, თავიდან არ იწყებ.</p>
+<p><strong>Git ზუსტად ამას აკეთებს კოდისთვის:</strong></p>
+<ul>
+<li>📸 შენს ბრძანებაზე ინახავს მთელი პროექტის „ფოტოს“ — და იმახსოვრებს, <strong>ვინ, როდის და რა</strong> შეცვალა.</li>
+<li>↩ თუ რაღაც გატეხე, ნებისმიერ წინა „ფოტოზე“ დაბრუნდები.</li>
+<li>💻 მუშაობს <strong>შენს კომპიუტერზე</strong>, ინტერნეტის გარეშეც.</li>
+<li>🐧 შექმნა <strong>ლინუს ტორვალდსმა</strong> 2005 წელს Linux-ის ბირთვის განვითარებისთვის. დღეს პრაქტიკულად ყველა პროექტი Git-ს იყენებს.</li>
+</ul>
+<div class="terms"><div class="th">📘 ტერმინები</div><dl><dt>Version Control System (VCS)</dt><dd>ვერსიების კონტროლის სისტემა: პროგრამა, რომელიც ფაილების ცვლილებების ისტორიას ინახავს</dd></dl></div></article>
+<article class="blk" data-slides="21"><span class="anchor" id="s-21"></span><div class="bh"><h3>Git ≠ GitHub</h3><a class="chip" href="index.html#/21" data-go="21" title="პრეზენტაციაში გახსნა">სლაიდი 21</a></div>
+<p>ეს ყველაზე ხშირი დაბნეულობაა:</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>📷 Git</th>
+<th>🖼️ GitHub</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>რა არის</td>
+<td>პროგრამა</td>
+<td>ვებ-სერვისი (საიტი)</td>
+</tr>
+<tr>
+<td>სად მუშაობს</td>
+<td>შენს კომპიუტერზე</td>
+<td>ინტერნეტში</td>
+</tr>
+<tr>
+<td>რას აკეთებს</td>
+<td>ინახავს ისტორიას</td>
+<td>ინახავს რეპოზიტორიებს ონლაინ, გუნდური მუშაობა</td>
+</tr>
+<tr>
+<td>ანალოგია</td>
+<td>ფოტოაპარატი</td>
+<td>ონლაინ ალბომი</td>
+</tr>
+</tbody>
+</table>
+<p>Git უამრავ სერვისთან მუშაობს: <strong>GitHub</strong>, GitLab, Bitbucket, Azure DevOps. ყველა ერთსა და იმავე Git-ს იყენებს.</p>
+<p><strong>GitHub არის კოდის ჰოსტინგი</strong> — ზუსტად ის, რაზეც პირველ ნაწილში ვისაუბრეთ, ოღონდ კოდისთვის. გარდა ამისა, მას აქვს <strong>GitHub Pages</strong> (საიტის ჰოსტინგი, ლ.2) და <strong>GitHub Actions</strong> (ავტომატიზაცია, ლ.3). ამიტომ ეს კურსი GitHub-ით იწყება.</p></article>
+<article class="blk" data-slides="22"><span class="anchor" id="s-22"></span><div class="bh"><h3>ცნება 1 · რეპოზიტორია</h3><a class="chip" href="index.html#/22" data-go="22" title="პრეზენტაციაში გახსნა">სლაიდი 22</a></div>
+<p><strong>რეპოზიტორია (repository, „რეპო“)</strong> — ჩვეულებრივი საქაღალდე, რომელშიც Git-მა ისტორიის შენახვა დაიწყო.</p>
+<div class="codebox"><div class="ch"><span>Git Bash</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="gp">$ </span>git<span class="w"> </span>init</span></code></pre></div>
+<p><code>git init</code> საქაღალდეში ქმნის დამალულ <code>.git</code> საქაღალდეს. მასში ინახება <strong>მთელი ისტორია</strong>: ყველა „ფოტო“, ყველა branch, პარამეტრები.</p>
+<div class="codebox"><div class="ch"><span>plain</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln">📁 my-portfolio</span><span class="ln"> ├ 📁 .git        ← ისტორია აქ ცხოვრობს</span><span class="ln"> ├ 📄 index.html</span><span class="ln"> └ 📄 style.css</span></code></pre></div>
+<div class="callout warn"><span class="ci">⚠️</span><div><p><code>.git</code> საქაღალდეს ხელით არ ვეხებით. თუ წაშლი — საქაღალდე ჩვეულებრივ საქაღალდედ იქცევა და მთელი ისტორია ქრება.</p></div></div></article>
+<article class="blk" data-slides="23"><span class="anchor" id="s-23"></span><div class="bh"><h3>ცნება 2 · სამი ზონა</h3><a class="chip" href="index.html#/23" data-go="23" title="პრეზენტაციაში გახსნა">სლაიდი 23</a></div>
+<p>Git-ში ფაილი სამ „ზონას“ გადის:</p>
+<table>
+<thead>
+<tr>
+<th>ზონა</th>
+<th>რა არის</th>
+<th>როგორ ხვდება აქ</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>📝 <strong>Working Directory</strong></td>
+<td>შენი საქაღალდე, სადაც ფაილებს არედაქტირებ</td>
+<td>უბრალოდ ცვლი ფაილს</td>
+</tr>
+<tr>
+<td>📦 <strong>Staging Area</strong></td>
+<td>„რა შევინახო ამჯერად“ — მომზადებული ცვლილებები</td>
+<td><code>git add</code></td>
+</tr>
+<tr>
+<td>🗃️ <strong>Repository</strong></td>
+<td>ისტორია <code>.git</code>-ში</td>
+<td><code>git commit</code></td>
+</tr>
+</tbody>
+</table>
+<p>რატომ გვჭირდება შუალედური ზონა? შეიძლება 5 ფაილი შეცვალე, მაგრამ ერთ „ფოტოში“ მხოლოდ 2 გინდა — ის, რაც ერთ ამოცანას ეხება. Staging-ით შენ წყვეტ, რა მოხვდეს შენახვაში.</p>
+<p>📮 <strong>ანალოგია — ამანათი:</strong> <code>git add</code> = ნივთს ყუთში დებ (ჯერ კიდევ შეგიძლია ამოიღო). <code>git commit</code> = ყუთს ლუქავ, აწერ წარწერას და აგზავნი — ის უკვე ისტორიაშია.</p>
+<div class="codebox"><div class="ch"><span>bash</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln">git<span class="w"> </span>add<span class="w"> </span>index.html<span class="w">   </span><span class="c1"># ერთი ფაილი staging-ში</span></span><span class="ln">git<span class="w"> </span>add<span class="w"> </span>.<span class="w">            </span><span class="c1"># ყველა შეცვლილი ფაილი</span></span><span class="ln">git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">"Add home page"</span></span></code></pre></div></article>
+<article class="blk" data-slides="24"><span class="anchor" id="s-24"></span><div class="bh"><h3>ცნება 3 · Commit — ისტორიის ერთი ფოტო</h3><a class="chip" href="index.html#/24" data-go="24" title="პრეზენტაციაში გახსნა">სლაიდი 24</a></div>
+<p><strong>Commit</strong> — პროექტის შენახული მდგომარეობა. ყოველ commit-ს აქვს:</p>
+<ul>
+<li><strong>hash</strong> — უნიკალური იდენტიფიკატორი, მაგ. <code>a3f9c21</code> (სრულად 40 სიმბოლოა, ჩვეულებრივ პირველ 7-ს ვიყენებთ);</li>
+<li><strong>ავტორი</strong> და <strong>თარიღი</strong>;</li>
+<li><strong>მესიჯი</strong> — რა გაკეთდა;</li>
+<li><strong>მშობელი</strong> — წინა commit-ის hash. ასე იქმნება ისტორიის ჯაჭვი.</li>
+</ul>
+<p><strong>კარგი მესიჯი</strong> მომავალი შენთვის იწერება — ექვსი თვის შემდეგ უნდა მიხვდე, რა გააკეთე:</p>
+<table>
+<thead>
+<tr>
+<th>✓ კარგი</th>
+<th>✗ ცუდი</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Add contact section</code></td>
+<td><code>fix</code></td>
+</tr>
+<tr>
+<td><code>Fix broken link on projects page</code></td>
+<td><code>asdfgh</code></td>
+</tr>
+<tr>
+<td><code>Update profile photo</code></td>
+<td><code>ცვლილებები</code></td>
+</tr>
+</tbody>
+</table>
+<p>წესი: <strong>რა გააკეთე</strong>, ბრძანებითი ფორმით, მოკლედ: „Add…“, „Fix…“, „Update…“, „Remove…“.</p>
+<div class="callout tip"><span class="ci">👉</span><div><p>ერთი commit = ერთი აზრი. „დავამატე კონტაქტები და შევცვალე ფერები და გავასწორე ბმული“ — ეს სამი commit-ია.</p></div></div></article>
+<article class="blk" data-slides="25"><span class="anchor" id="s-25"></span><div class="bh"><h3>ისტორია = commit-ების ჯაჭვი</h3><a class="chip" href="index.html#/25" data-go="25" title="პრეზენტაციაში გახსნა">სლაიდი 25</a></div>
+<p>ყოველი commit წინას „იცნობს“ (მშობლის hash-ით) — ასე იქმნება ჯაჭვი:</p>
+<div class="codebox"><div class="ch"><span>Git Bash</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="gp">$ </span>git<span class="w"> </span>log<span class="w"> </span>--oneline</span><span class="ln"><span class="go">a3f9c21 (HEAD -&gt; main) Add contact section</span></span><span class="ln"><span class="go">c41a8e0 Add styles</span></span></code></pre></div>
+<p>ზემოდან ქვემოთ — ახლიდან ძველისკენ.</p>
+<ul>
+<li><strong><code>main</code></strong> — მთავარი branch (შტო). ის უბრალოდ <strong>მიმთითებელია</strong> ბოლო commit-ზე და ახალ commit-თან ერთად წინ მიიწევს.</li>
+<li><strong><code>HEAD</code></strong> — „სად ვარ ახლა“: რომელ branch-ზე ან commit-ზე ვდგავართ.</li>
+</ul>
+<div class="callout note"><span class="ci">💡</span><div><p>ძველ პროექტებში მთავარ branch-ს <code>master</code> ჰქვია. დღეს სტანდარტია <code>main</code> — GitHub-იც ასე ქმნის.</p></div></div></article>
+<article class="blk" data-slides="26"><span class="anchor" id="s-26"></span><div class="bh"><h3>ცნება 4 · Branch (შტო)</h3><a class="chip" href="index.html#/26" data-go="26" title="პრეზენტაციაში გახსნა">სლაიდი 26</a></div>
+<p><strong>პრობლემა:</strong> საიტი მუშაობს და სერვერზე დევს. გინდა ახალი სექცია დაამატო, მაგრამ ამას 2 დღე სჭირდება — ამ ხნის განმავლობაში <code>main</code> ნახევრად დაწერილი კოდით უნდა იყოს? და თუ ამასობაში <code>main</code>-ზე სასწრაფო შესწორება დაგჭირდა?</p>
+<p><strong>Branch</strong> — ისტორიის პარალელური ხაზი. ის მიმდინარე commit-იდან იწყება და <code>main</code>-ს არ ეხება.</p>
+<ul>
+<li>🌿 <strong>იზოლაცია</strong> — <code>main</code> სტაბილური რჩება, ახალ ფიჩაზე branch-ში მუშაობ.</li>
+<li>🧪 <strong>ექსპერიმენტი</strong> — არ გამოვიდა? branch-ს წაშლი, <code>main</code>-ს არაფერი მოსვლია.</li>
+<li>👥 <strong>გუნდი</strong> — ყველა თავის branch-ზე მუშაობს და ერთმანეთს ხელს არ უშლის.</li>
+</ul>
+<div class="codebox"><div class="ch"><span>bash</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln">git<span class="w"> </span>branch<span class="w">                       </span><span class="c1"># რა branch-ები მაქვს</span></span><span class="ln">git<span class="w"> </span>switch<span class="w"> </span>-c<span class="w"> </span>feature/contacts<span class="w">   </span><span class="c1"># ახალი branch + გადასვლა</span></span><span class="ln">git<span class="w"> </span>switch<span class="w"> </span>main<span class="w">                  </span>#<span class="w"> </span>main-ზე<span class="w"> </span>დაბრუნება</span></code></pre></div>
+<div class="callout tip"><span class="ci">👉</span><div><p>სახელი — <code>feature/...</code> ახალი ფუნქციონალისთვის, <code>fix/...</code> შესწორებისთვის. ასე ერთი შეხედვით ჩანს, რას ეხება branch-ი.</p></div></div></article>
+<article class="blk" data-slides="27"><span class="anchor" id="s-27"></span><div class="bh"><h3>ცნება 5 · Merge (შერწყმა)</h3><a class="chip" href="index.html#/27" data-go="27" title="პრეზენტაციაში გახსნა">სლაიდი 27</a></div>
+<p>ფიჩა მზადაა — ახლა branch-ის ცვლილებები <code>main</code>-ში უნდა დაბრუნდეს:</p>
+<div class="codebox"><div class="ch"><span>Git Bash</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="gp">$ </span>git<span class="w"> </span>switch<span class="w"> </span>main</span><span class="ln"><span class="gp">$ </span>git<span class="w"> </span>merge<span class="w"> </span>feature/contacts</span><span class="ln"><span class="go">Merge made by the 'ort' strategy.</span></span><span class="ln"><span class="go"> index.html | 12 ++++++++++++</span></span></code></pre></div>
+<ol>
+<li><strong>გადადი იმ branch-ზე, რომელშიც უნდა შეერწყას</strong> — ჩვეულებრივ <code>main</code>.</li>
+<li><strong><code>git merge &lt;branch&gt;</code></strong> — მითითებული branch-ის ცვლილებები მიმდინარეში გადმოდის.</li>
+<li>branch აღარ გვჭირდება — <strong>ვშლით</strong> (<code>-d</code>). commit-ები არ იკარგება, ისინი უკვე <code>main</code>-შია.</li>
+</ol>
+<p><strong>ორი შემთხვევა:</strong></p>
+<ul>
+<li>თუ <code>main</code> branch-ის შექმნის შემდეგ <strong>არ შეცვლილა</strong>, Git უბრალოდ <code>main</code>-ს წინ გადაწევს — <strong>fast-forward</strong>. ახალი commit არ იქმნება.</li>
+<li>თუ <code>main</code>-ზეც იყო ცვლილებები (როგორც სურათზე), Git ქმნის <strong>merge commit</strong>-ს, რომელსაც ორი მშობელი ჰყავს.</li>
+</ul>
+<p>ორივე შემთხვევაში შედეგი ერთია: <code>main</code>-ში ორივე ხაზის ცვლილებებია.</p></article>
+<article class="blk" data-slides="28"><span class="anchor" id="s-28"></span><div class="bh"><h3>Conflict — ეს შეცდომა არ არის</h3><a class="chip" href="index.html#/28" data-go="28" title="პრეზენტაციაში გახსნა">სლაიდი 28</a></div>
+<p>როცა ორივე branch-ში <strong>ერთი და იგივე ხაზი</strong> სხვადასხვანაირად შეიცვალა, Git ვერ გამოიცნობს, რომელია სწორი, და გეკითხება:</p>
+<div class="codebox"><div class="ch"><span>index.html</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="err">&lt;</span><span class="err">&lt;</span><span class="err">&lt;</span><span class="err">&lt;</span><span class="err">&lt;</span><span class="err">&lt;</span><span class="p">&lt;</span> <span class="nt">HEAD</span></span><span class="ln"><span class="err">&lt;</span><span class="na">h1</span><span class="p">&gt;</span>გიორგის პორტფოლიო<span class="p">&lt;</span><span class="p">/</span><span class="nt">h1</span><span class="p">&gt;</span></span><span class="ln">=======</span><span class="ln"><span class="p">&lt;</span><span class="nt">h1</span><span class="p">&gt;</span>გიორგი ბერიძე — დეველოპერი<span class="p">&lt;</span><span class="p">/</span><span class="nt">h1</span><span class="p">&gt;</span></span><span class="ln">&gt;&gt;&gt;&gt;&gt;&gt;&gt; feature/title</span></code></pre></div>
+<ul>
+<li><code>&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD</code> … <code>=======</code> — რაც მიმდინარე branch-ზეა (<code>main</code>).</li>
+<li><code>=======</code> … <code>&gt;&gt;&gt;&gt;&gt;&gt;&gt; feature/title</code> — რაც შემოსულ branch-ზეა.</li>
+</ul>
+<p><strong>როგორ ვაგვარებთ:</strong></p>
+<ol>
+<li>ფაილში ვტოვებთ სწორ ვარიანტს (ან ორივეს ვაერთიანებთ).</li>
+<li>ვშლით სამივე ნიშანს: <code>&lt;&lt;&lt;&lt;&lt;&lt;&lt;</code>, <code>=======</code>, <code>&gt;&gt;&gt;&gt;&gt;&gt;&gt;</code>.</li>
+<li><code>git add index.html</code> → <code>git commit</code>.</li>
+</ol>
+<div class="callout tip"><span class="ci">👉</span><div><p>VS Code კონფლიქტს ფერებით აჩვენებს და ღილაკებს გთავაზობს: <strong>Accept Current</strong>, <strong>Accept Incoming</strong>, <strong>Accept Both</strong>.</p></div></div></article>
+<article class="blk" data-slides="29"><span class="anchor" id="s-29"></span><div class="bh"><h3>Git-ის ინსტალაცია და გაცნობა</h3><a class="chip" href="index.html#/29" data-go="29" title="პრეზენტაციაში გახსნა">სლაიდი 29</a></div>
+<p><strong>ინსტალაცია:</strong></p>
+<ul>
+<li>🪟 <strong>Windows</strong> — <a href="https://git-scm.com">git-scm.com</a> → Download → ინსტალერში ყველგან Next. ერთად დაყენდება <strong>Git Bash</strong> — ტერმინალი, რომელშიც Linux-ის ბრძანებები მუშაობს (მე-4 ლექციაზე გამოგვადგება).</li>
+<li>🍎 <strong>macOS</strong> — <code>brew install git</code> (ან ტერმინალში <code>git</code> აკრიფე და სისტემა თვითონ შემოგთავაზებს).</li>
+<li>🐧 <strong>Ubuntu</strong> — <code>sudo apt install git</code>. ამას სერვერზე მე-4–5 ლექციებზე გავაკეთებთ.</li>
+</ul>
+<p><strong>გაცნობა</strong> — ერთხელ, ყოველ ახალ კომპიუტერზე. Git ამ სახელს და email-ს ყოველ commit-ს მიაწერს:</p>
+<div class="codebox"><div class="ch"><span>Git Bash</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="gp">$ </span>git<span class="w"> </span>--version</span><span class="ln"><span class="go">git version 2.51.0</span></span><span class="ln"> </span><span class="ln"><span class="gp">$ </span>git<span class="w"> </span>config<span class="w"> </span>--global<span class="w"> </span>user.name<span class="w"> </span><span class="s2">"Giorgi Beridze"</span></span><span class="ln"><span class="gp">$ </span>git<span class="w"> </span>config<span class="w"> </span>--global<span class="w"> </span>user.email<span class="w"> </span><span class="s2">"giorgi@mail.ge"</span></span></code></pre></div>
+<ul>
+<li><code>--global</code> — პარამეტრი ამ კომპიუტერის ყველა პროექტისთვის.</li>
+<li><code>init.defaultBranch main</code> — ახალ რეპოებში მთავარ branch-ს <code>main</code> დაერქმევა.</li>
+</ul>
+<div class="callout warn"><span class="ci">⚠️</span><div><p>email იგივე უნდა იყოს, რაც GitHub-ის ანგარიშზე — მაშინ GitHub commit-ებს შენს პროფილს მიაბამს.</p></div></div></article>
+<h2 class="sec" id="sec-7">4 · GitHub</h2>
+<article class="blk" data-slides="30"><span class="anchor" id="s-30"></span><div class="bh"><h3>ნაწილი 4 · GitHub — კოდის ჰოსტინგი</h3><a class="chip" href="index.html#/30" data-go="30" title="პრეზენტაციაში გახსნა">სლაიდი 30</a></div>
+<p>ანგარიში, რეპოზიტორია, push და pull. Git ისტორიას შენს კომპიუტერზე ინახავს — ახლა ის ინტერნეტში გავიტანოთ.</p></article>
+<article class="blk" data-slides="31"><span class="anchor" id="s-31"></span><div class="bh"><h3>Local ↔ Remote: ერთი რეპო — რამდენიმე ასლი</h3><a class="chip" href="index.html#/31" data-go="31" title="პრეზენტაციაში გახსნა">სლაიდი 31</a></div>
+<ul>
+<li><strong>Local</strong> — რეპოზიტორია შენს კომპიუტერზე.</li>
+<li><strong>Remote</strong> — იგივე რეპოზიტორია GitHub-ზე. ჩვეულებრივ მას <strong><code>origin</code></strong> ჰქვია.</li>
+</ul>
+<p>ყოველ ასლს <strong>სრული ისტორია</strong> აქვს. GitHub „მთავარ“ ასლად გამოიყენება, რომლითაც ყველა სინქრონიზდება:</p>
+<table>
+<thead>
+<tr>
+<th>ბრძანება</th>
+<th>მიმართულება</th>
+<th>როდის</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>git push</code></td>
+<td>ჩემი commit-ები → GitHub</td>
+<td>როცა რამე დავასრულე და გაზიარება მინდა</td>
+</tr>
+<tr>
+<td><code>git pull</code></td>
+<td>GitHub-ის ახალი commit-ები → ჩემთან</td>
+<td>მუშაობის დაწყებამდე</td>
+</tr>
+<tr>
+<td><code>git clone &lt;url&gt;</code></td>
+<td>მთელი რეპო → ახალ კომპიუტერზე</td>
+<td>ერთხელ, პირველად</td>
+</tr>
+</tbody>
+</table>
+<div class="callout note"><span class="ci">💡</span><div><p>„ნიკას კომპიუტერი“ შეიძლება <strong>სერვერიც</strong> იყოს: მე-6 ლექციაზე სერვერი თვითონ ჩამოიტვირთავს კოდს GitHub-იდან. ასე მუშაობს დეპლოიმენტი.</p></div></div></article>
+<article class="blk" data-slides="32"><span class="anchor" id="s-32"></span><div class="bh"><h3>ნაბიჯი 1 · GitHub-ის ანგარიში</h3><a class="chip" href="index.html#/32" data-go="32" title="პრეზენტაციაში გახსნა">სლაიდი 32</a></div>
+<ol>
+<li><a href="https://github.com">github.com</a> → <strong>Sign up</strong>.</li>
+<li><strong>email</strong> — იგივე, რაც <code>git config user.email</code>-ში ჩაწერე.</li>
+<li><strong>username</strong> — ფრთხილად აირჩიე (იხ. ქვემოთ).</li>
+<li>email-ის დადასტურება.</li>
+<li><strong>2FA (ორფაქტორიანი ავტორიზაცია)</strong> — Settings → Password and authentication. გამოიყენე Authenticator აპი (Google Authenticator, Microsoft Authenticator). GitHub კოდის ატვირთვისთვის 2FA-ს მოითხოვს.</li>
+</ol>
+<div class="callout warn"><span class="ci">⚠️</span><div><p><strong>username ყველგან ჩანს:</strong> <code>github.com/giorgi-beridze</code> და, მე-2 ლექციიდან, შენი საიტის მისამართიც — <code>giorgi-beridze.github.io</code>. აირჩიე ნამდვილ სახელთან ახლოს: ✓ <code>giorgi-beridze</code>, ✗ <code>xXgamer2007Xx</code>.</p></div></div>
+<p>💼 <strong>GitHub შენი CV-ა.</strong> დამსაქმებლები უყურებენ: ფოტო, სახელი, პროექტები, რამდენად აქტიურად წერ კოდს. პროფილი მოწესრიგებული გქონდეს.</p></article>
+<article class="blk" data-slides="33"><span class="anchor" id="s-33"></span><div class="bh"><h3>ნაბიჯი 2 · ახალი რეპოზიტორია</h3><a class="chip" href="index.html#/33" data-go="33" title="პრეზენტაციაში გახსნა">სლაიდი 33</a></div>
+<p>GitHub-ზე: <strong>+</strong> → <strong>New repository</strong>:</p>
+<ul>
+<li><strong>Repository name</strong> — <code>my-portfolio</code> (პატარა ასოები, სიტყვებს შორის <code>-</code>).</li>
+<li><strong>Description</strong> — მოკლე აღწერა.</li>
+<li><strong>Public</strong> — ყველა ხედავს; პორტფოლიოსთვის სწორედ ეს გვინდა. <strong>Private</strong> — მხოლოდ შენ და ვისაც მოიწვევ.</li>
+<li><strong>Add a README file</strong>, <strong>.gitignore</strong>, <strong>License</strong> — <strong>ცარიელი დატოვე</strong>.</li>
+</ul>
+<div class="callout warn"><span class="ci">⚠️</span><div><p>ლოკალურ კომპიუტერზე პროექტი და მისი ისტორია <strong>უკვე გვაქვს</strong>. თუ GitHub-ზეც შექმნი README-ს, იქაც გაჩნდება საკუთარი პირველი commit — ორ ისტორიას საერთო არაფერი ექნება და <code>git push</code> უარს იტყვის. ამიტომ არსებული პროექტისთვის რეპო ყოველთვის <strong>ცარიელი</strong> იქმნება.</p></div></div>
+<p>შექმნის შემდეგ GitHub გაჩვენებს მზა ბრძანებებს — გვჭირდება ბლოკი <strong>„…or push an existing repository from the command line“</strong>.</p></article>
+<article class="blk" data-slides="34"><span class="anchor" id="s-34"></span><div class="bh"><h3>ნაბიჯი 3 · ლოკალური რეპო → GitHub</h3><a class="chip" href="index.html#/34" data-go="34" title="პრეზენტაციაში გახსნა">სლაიდი 34</a></div>
+<div class="codebox"><div class="ch"><span>Git Bash</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="gp">$ </span>git<span class="w"> </span>remote<span class="w"> </span>add<span class="w"> </span>origin<span class="w"> </span>https://github.com/giorgi-beridze/my-portfolio.git</span><span class="ln"><span class="gp">$ </span>git<span class="w"> </span>branch<span class="w"> </span>-M<span class="w"> </span>main</span></code></pre></div>
+<ul>
+<li><strong><code>git remote add origin &lt;url&gt;</code></strong> — ლოკალურ რეპოს ვეუბნებით: „GitHub-ზე შენი ასლი ამ მისამართზეა, და მას <code>origin</code> დავარქვათ“. ერთხელ კეთდება.</li>
+<li><strong><code>git branch -M main</code></strong> — მიმდინარე branch-ს <code>main</code> ერქმევა. თუ <code>init.defaultBranch main</code> დააყენე, უკვე ასეა და არაფერი იცვლება.</li>
+<li><strong><code>git push -u origin main</code></strong> — <code>main</code>-ის commit-ები GitHub-ზე მიდის. <code>-u</code> აკავშირებს ლოკალურ <code>main</code>-ს GitHub-ის <code>main</code>-თან, ამიტომ შემდეგ ჯერზე საკმარისია უბრალოდ <code>git push</code> და <code>git pull</code>.</li>
+</ul>
+<div class="callout note"><span class="ci">💡</span><div><p><strong>ავტორიზაცია:</strong> პირველ push-ზე გაიხსნება ფანჯარა → <strong>Sign in with your browser</strong> → ბრაუზერში დაადასტურე. Windows-ზე ამას Git-თან ერთად დაყენებული Git Credential Manager აკეთებს და ავტორიზაციას იმახსოვრებს. GitHub-ის პაროლი ტერმინალში აღარ მუშაობს. სხვა გზაა SSH გასაღებები — მე-5 ლექციაზე ვისწავლით.</p></div></div>
+<p>push-ის შემდეგ GitHub-ის გვერდი განაახლე — ფაილები და commit-ები იქ არის.</p></article>
+<article class="blk" data-slides="35"><span class="anchor" id="s-35"></span><div class="bh"><h3>რა არის GitHub-ის რეპოს გვერდზე?</h3><a class="chip" href="index.html#/35" data-go="35" title="პრეზენტაციაში გახსნა">სლაიდი 35</a></div>
+<ul>
+<li>📁 <strong>Code</strong> — ფაილები და branch-ები. თუ რეპოში <code>README.md</code> არის, GitHub მას ფაილების ქვემოთ ლამაზად აჩვენებს — ეს პროექტის „სავიზიტო ბარათია“.</li>
+<li>🕓 <strong>Commits</strong> — მთელი ისტორია. ყოველ commit-ზე დაჭერით ჩანს, რა შეიცვალა: წაშლილი ხაზები წითლად, დამატებული — მწვანედ.</li>
+<li>✏️ <strong>რედაქტირება</strong> — ფაილი შეგიძლია პირდაპირ ბრაუზერში შეცვალო (✏️ ხატულა). შენახვისას GitHub commit-ს ქმნის — ლოკალურად მის ჩამოსატანად <code>git pull</code> დაგჭირდება.</li>
+<li>🔀 <strong>Pull requests</strong> — „ჩემი branch გადახედეთ და <code>main</code>-ს შეურწყით“. ასე მუშაობს გუნდი: კოდს <code>main</code>-ში პირდაპირ არავინ წერს.</li>
+<li>⚙️ <strong>Actions</strong> — ავტომატიზაცია (build, ტესტი, დეპლოი) — <strong>მე-3 ლექცია</strong>.</li>
+<li>📄 <strong>Settings → Pages</strong> — რეპოს საიტად გადაქცევა — <strong>მე-2 ლექცია</strong>.</li>
+</ul></article>
+<article class="blk" data-slides="36"><span class="anchor" id="s-36"></span><div class="bh"><h3>ყოველდღიური ციკლი</h3><a class="chip" href="index.html#/36" data-go="36" title="პრეზენტაციაში გახსნა">სლაიდი 36</a></div>
+<ol>
+<li><strong><code>git pull</code></strong> — მუშაობის დაწყებამდე ჩამოიტანე, რაც სხვებმა (ან შენ, სხვა კომპიუტერიდან) ატვირთეს.</li>
+<li><strong>კოდის შეცვლა.</strong></li>
+<li><strong><code>git add .</code></strong> — ცვლილებები staging-ში.</li>
+<li><strong><code>git commit -m "…"</code></strong> — შენახვა ისტორიაში.</li>
+<li><strong><code>git push</code></strong> — GitHub-ზე გაგზავნა.</li>
+</ol>
+<p>3–4 ნაბიჯი დღეში ბევრჯერ მეორდება: <strong>ხშირი, პატარა commit-ები</strong> სჯობს ერთ უზარმაზარს — ადვილია გადახედვა და, საჭიროებისას, დაბრუნება.</p>
+<div class="callout tip"><span class="ci">👉</span><div><p>ნებისმიერ მომენტში, როცა არ იცი, რა ხდება — <code>git status</code>. ის გეტყვის, რომელ branch-ზე ხარ, რა შეიცვალა და რა დევს staging-ში.</p></div></div></article>
+<h2 class="sec" id="sec-8">5 · .gitignore</h2>
+<article class="blk" data-slides="37"><span class="anchor" id="s-37"></span><div class="bh"><h3>ნაწილი 5 · .gitignore</h3><a class="chip" href="index.html#/37" data-go="37" title="პრეზენტაციაში გახსნა">სლაიდი 37</a></div>
+<p>რა არ უნდა მოხვდეს GitHub-ზე — არასოდეს.</p></article>
+<article class="blk" data-slides="38"><span class="anchor" id="s-38"></span><div class="bh"><h3>პრობლემა: git add . — და ყველაფერი წავიდა</h3><a class="chip" href="index.html#/38" data-go="38" title="პრეზენტაციაში გახსნა">სლაიდი 38</a></div>
+<p><code>git add .</code> საქაღალდეში <strong>ყველაფერს</strong> იღებს. ორი რეალური ისტორია:</p>
+<p><strong>📦 node_modules.</strong> Angular პროექტში შენი კოდი შეიძლება 200 KB იყოს, <code>node_modules</code> კი — 300+ MB და ათიათასობით ფაილი. push დიდხანს გრძელდება, რეპო მძიმდება. ამასთან, ეს საქაღალდე <code>npm install</code>-ით ნებისმიერ დროს თავიდან იქმნება — მისი შენახვა აზრს მოკლებულია.</p>
+<p><strong>🔑 .env.</strong> ფაილი პაროლებით და API გასაღებებით public რეპოში მოხვდა. ბოტები GitHub-ს მუდმივად სკანავენ და ასეთ გასაღებებს <strong>წუთებში</strong> პოულობენ — შედეგი: მოპარული ბაზა ან უცნობი ხარჯები ღრუბლოვან ანგარიშზე.</p>
+<div class="callout warn"><span class="ci">⚠️</span><div><p>შემდეგ commit-ში ფაილის წაშლა <strong>არ შველის</strong> — ის ისტორიაში რჩება და ნებისმიერს შეუძლია ძველი commit-ის ნახვა. თუ საიდუმლო გაჟონა, <strong>გასაღები უნდა შეიცვალოს</strong> (ახალი პაროლი, ახალი API key). საიდუმლოების სწორად შენახვას — GitHub Secrets — მე-4 ლექციაზე ვისწავლით.</p></div></div></article>
+<article class="blk" data-slides="39"><span class="anchor" id="s-39"></span><div class="bh"><h3>.gitignore — „ამას ნუ ხედავ“</h3><a class="chip" href="index.html#/39" data-go="39" title="პრეზენტაციაში გახსნა">სლაიდი 39</a></div>
+<p><code>.gitignore</code> — ტექსტური ფაილი რეპოს root-ში. მასში ჩამოწერილ ფაილებს Git <strong>ვერ ხედავს</strong>: <code>git status</code> არ აჩვენებს, <code>git add .</code> არ იღებს.</p>
+<p><strong>წესი:</strong> ფაილი ავტომატურად <strong>იქმნება</strong> (npm install, build) ან <strong>საიდუმლოა</strong>? → <code>.gitignore</code>-ში.</p>
+<div class="codebox"><div class="ch"><span>.gitignore</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"># 📦 დამოკიდებულებები</span><span class="ln">node_modules/</span><span class="ln"> </span><span class="ln"># 🏗️ ბილდის შედეგი</span><span class="ln">dist/</span><span class="ln">bin/</span><span class="ln">obj/</span><span class="ln"> </span><span class="ln"># 🔑 საიდუმლოები</span><span class="ln">.env</span><span class="ln">*.pfx</span><span class="ln"> </span><span class="ln"># 🖥️ IDE და OS</span><span class="ln">.vscode/</span><span class="ln">.vs/</span><span class="ln">.idea/</span><span class="ln">.DS_Store</span></code></pre></div>
+<table>
+<thead>
+<tr>
+<th>ჩანაწერი</th>
+<th>რას ნიშნავს</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>dist/</code></td>
+<td>საქაღალდე <code>dist</code>, სადაც არ უნდა იყოს</td>
+</tr>
+<tr>
+<td><code>*.log</code></td>
+<td>ყველა <code>.log</code> ფაილი</td>
+</tr>
+<tr>
+<td><code>!keep.log</code></td>
+<td>გამონაკლისი — ეს ფაილი არ დაიმალოს</td>
+</tr>
+<tr>
+<td><code>/config.json</code></td>
+<td>მხოლოდ root-ში მყოფი <code>config.json</code></td>
+</tr>
+<tr>
+<td><code># …</code></td>
+<td>კომენტარი</td>
+</tr>
+</tbody>
+</table>
+<p><code>bin/</code> და <code>obj/</code> — .NET-ის ბილდის საქაღალდეებია, <code>dist/</code> — Angular-ის, <code>node_modules/</code> — npm-ის.</p></article>
+<article class="blk" data-slides="40"><span class="anchor" id="s-40"></span><div class="bh"><h3>მზა შაბლონები და „უკვე ავტვირთე“</h3><a class="chip" href="index.html#/40" data-go="40" title="პრეზენტაციაში გახსნა">სლაიდი 40</a></div>
+<p><strong><code>.gitignore</code> ხელით იშვიათად იწერება:</strong></p>
+<ul>
+<li><strong>Angular</strong> — <code>ng new</code> მას თვითონ ქმნის.</li>
+<li><strong>.NET</strong> — <code>dotnet new gitignore</code>, ან Visual Studio-ში Git → Create Git Repository.</li>
+<li><strong>სხვა ყველაფერი</strong> — <a href="https://github.com/github/gitignore">github.com/github/gitignore</a>: მზა შაბლონები თითქმის ყველა ენისა და ფრეიმვორკისთვის.</li>
+</ul>
+<p><strong>ფაილი უკვე commit-ში მოხვდა?</strong> <code>.gitignore</code>-ში ჩაწერა საკმარისი არ არის — Git უკვე „თვალს ადევნებს“ ამ ფაილს. ჯერ უნდა ამოიღო:</p>
+<div class="codebox"><div class="ch"><span>Git Bash</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="gp">$ </span><span class="nb">echo</span><span class="w"> </span><span class="s2">".env"</span><span class="w"> </span>&gt;&gt;<span class="w"> </span>.gitignore</span><span class="ln"><span class="gp">$ </span>git<span class="w"> </span>rm<span class="w"> </span>--cached<span class="w"> </span>.env</span><span class="ln"><span class="go">rm '.env'</span></span></code></pre></div>
+<p><code>--cached</code> — ფაილი Git-იდან ამოიღე, მაგრამ დისკზე <strong>დატოვე</strong>. მის გარეშე ფაილი კომპიუტერიდანაც წაიშლება.</p>
+<div class="callout warn"><span class="ci">⚠️</span><div><p>თუ ფაილი საიდუმლო იყო და უკვე GitHub-ზე ავიდა — ის ძველ commit-ში მაინც ჩანს. <strong>გასაღები/პაროლი შეცვალე.</strong></p></div></div></article>
+<h2 class="sec" id="sec-9">6 · პრაქტიკა</h2>
+<article class="blk" data-slides="41"><span class="anchor" id="s-41"></span><div class="bh"><h3>ნაწილი 6 · პრაქტიკა: my-portfolio</h3><a class="chip" href="index.html#/41" data-go="41" title="პრეზენტაციაში გახსნა">სლაიდი 41</a></div>
+<p>ცარიელი საქაღალდიდან GitHub-მდე. ეს რეპო მთელი კურსის განმავლობაში გამოგვადგება — შემდეგ ლექციაზე ზუსტად მას გამოვაქვეყნებთ ინტერნეტში.</p></article>
+<article class="blk" data-slides="42"><span class="anchor" id="s-42"></span><div class="bh"><h3>ნაბიჯი 1 · პროექტი + git init</h3><a class="chip" href="index.html#/42" data-go="42" title="პრეზენტაციაში გახსნა">სლაიდი 42</a></div>
+<div class="codebox"><div class="ch"><span>Git Bash</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="gp">$ </span>mkdir<span class="w"> </span>my-portfolio</span><span class="ln"><span class="gp">$ </span><span class="nb">cd</span><span class="w"> </span>my-portfolio</span></code></pre></div>
+<p><code>mkdir</code> — საქაღალდის შექმნა, <code>cd</code> — მასში შესვლა, <code>code .</code> — VS Code-ის გახსნა მიმდინარე საქაღალდეში. ტერმინალი VS Code-შიც გაქვს: <strong>Terminal → New Terminal</strong> → ⌄ ისარი → <strong>Git Bash</strong>.</p>
+<p>ორი ფაილი:</p>
+<div class="codebox"><div class="ch"><span>index.html</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="cp">&lt;!DOCTYPE html&gt;</span></span><span class="ln"><span class="p">&lt;</span><span class="nt">html</span> <span class="na">lang</span><span class="o">=</span><span class="s">"ka"</span><span class="p">&gt;</span></span><span class="ln"><span class="p">&lt;</span><span class="nt">head</span><span class="p">&gt;</span></span><span class="ln">  <span class="p">&lt;</span><span class="nt">meta</span> <span class="na">charset</span><span class="o">=</span><span class="s">"UTF-8"</span><span class="p">&gt;</span></span><span class="ln">  <span class="p">&lt;</span><span class="nt">title</span><span class="p">&gt;</span>გიორგი ბერიძე<span class="p">&lt;</span><span class="p">/</span><span class="nt">title</span><span class="p">&gt;</span></span><span class="ln">  <span class="p">&lt;</span><span class="nt">link</span> <span class="na">rel</span><span class="o">=</span><span class="s">"stylesheet"</span> <span class="na">href</span><span class="o">=</span><span class="s">"style.css"</span><span class="p">&gt;</span></span><span class="ln"><span class="p">&lt;</span><span class="p">/</span><span class="nt">head</span><span class="p">&gt;</span></span><span class="ln"><span class="p">&lt;</span><span class="nt">body</span><span class="p">&gt;</span></span><span class="ln">  <span class="p">&lt;</span><span class="nt">h1</span><span class="p">&gt;</span>გამარჯობა, მე გიორგი ვარ 👋<span class="p">&lt;</span><span class="p">/</span><span class="nt">h1</span><span class="p">&gt;</span></span><span class="ln">  <span class="p">&lt;</span><span class="nt">p</span><span class="p">&gt;</span>ვსწავლობ Full Stack დეველოპმენტს.<span class="p">&lt;</span><span class="p">/</span><span class="nt">p</span><span class="p">&gt;</span></span><span class="ln"><span class="p">&lt;</span><span class="p">/</span><span class="nt">body</span><span class="p">&gt;</span></span><span class="ln"><span class="p">&lt;</span><span class="p">/</span><span class="nt">html</span><span class="p">&gt;</span></span></code></pre></div>
+<div class="codebox"><div class="ch"><span>style.css</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="nt">body</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">font-family</span><span class="p">:</span><span class="w"> </span><span class="kc">sans-serif</span><span class="p">;</span><span class="w"> </span><span class="k">max-width</span><span class="p">:</span><span class="w"> </span><span class="mi">720</span><span class="kt">px</span><span class="p">;</span><span class="w"> </span><span class="k">margin</span><span class="p">:</span><span class="w"> </span><span class="mi">40</span><span class="kt">px</span><span class="w"> </span><span class="kc">auto</span><span class="p">;</span><span class="w"> </span><span class="p">}</span></span><span class="ln"><span class="nt">h1</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">color</span><span class="p">:</span><span class="w"> </span><span class="mh">#6d28d9</span><span class="p">;</span><span class="w"> </span><span class="p">}</span></span></code></pre></div>
+<p>და რეპოზიტორიის შექმნა:</p>
+<div class="codebox"><div class="ch"><span>Git Bash</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="gp">$ </span>git<span class="w"> </span>init</span></code></pre></div></article>
+<article class="blk" data-slides="43"><span class="anchor" id="s-43"></span><div class="bh"><h3>ნაბიჯი 2 · status → add → commit</h3><a class="chip" href="index.html#/43" data-go="43" title="პრეზენტაციაში გახსნა">სლაიდი 43</a></div>
+<div class="codebox"><div class="ch"><span>Git Bash</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="gp">$ </span>git<span class="w"> </span>status</span><span class="ln"><span class="go">On branch main</span></span><span class="ln"><span class="go">Untracked files:</span></span><span class="ln"><span class="go">        index.html</span></span><span class="ln"><span class="go">        style.css</span></span><span class="ln"> </span><span class="ln"><span class="gp">$ </span>git<span class="w"> </span>add<span class="w"> </span>.</span><span class="ln"><span class="gp">$ </span>git<span class="w"> </span>status</span><span class="ln"><span class="go">Changes to be committed:</span></span><span class="ln"><span class="go">        new file:   index.html</span></span><span class="ln"><span class="go">        new file:   style.css</span></span><span class="ln"> </span><span class="ln"><span class="gp">$ </span>git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">"Add home page"</span></span><span class="ln"><span class="go">[main (root-commit) 7b2e0d4] Add home page</span></span></code></pre></div>
+<p>აქ სამივე ზონა ჩანს:</p>
+<ol>
+<li><strong>Untracked files</strong> (ტერმინალში წითლად) — Git ფაილებს ხედავს, მაგრამ ჯერ არ ინახავს. 📝 Working Directory.</li>
+<li><strong>Changes to be committed</strong> (მწვანედ) — <code>git add</code>-ის შემდეგ ფაილები staging-შია. 📦 Staging Area.</li>
+<li><strong><code>[main (root-commit) 7b2e0d4]</code></strong> — პირველი commit ისტორიაშია. 🗃️ Repository.</li>
+</ol>
+<div class="callout tip"><span class="ci">👉</span><div><p>VS Code-ის მარცხენა პანელში <strong>Source Control</strong> (Ctrl+Shift+G) იგივეს ღილაკებით აკეთებს: <code>+</code> = add, ✓ = commit. ჯერ ბრძანებებით ისწავლე — მერე ღილაკებს ადვილად გაიგებ.</p></div></div></article>
+<article class="blk" data-slides="44"><span class="anchor" id="s-44"></span><div class="bh"><h3>ნაბიჯი 3 · საიდუმლო ფაილი და .gitignore</h3><a class="chip" href="index.html#/44" data-go="44" title="პრეზენტაციაში გახსნა">სლაიდი 44</a></div>
+<p>ვქმნით „საიდუმლო“ ფაილს და ვნახოთ, რას ფიქრობს Git:</p>
+<div class="codebox"><div class="ch"><span>Git Bash</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="gp">$ </span><span class="nb">echo</span><span class="w"> </span><span class="s2">"API_KEY=12345-secret"</span><span class="w"> </span>&gt;<span class="w"> </span>.env</span><span class="ln"><span class="gp">$ </span>git<span class="w"> </span>status</span><span class="ln"><span class="go">Untracked files:</span></span></code></pre></div>
+<p>Git <code>.env</code>-ს ხედავს — <code>git add .</code> მას წაიღებდა. ვამატებთ <code>.gitignore</code>-ს:</p>
+<div class="codebox"><div class="ch"><span>Git Bash</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="gp">$ </span><span class="nb">echo</span><span class="w"> </span><span class="s2">".env"</span><span class="w"> </span>&gt;<span class="w"> </span>.gitignore</span><span class="ln"><span class="gp">$ </span>git<span class="w"> </span>status</span><span class="ln"><span class="go">Untracked files:</span></span><span class="ln"><span class="go">        .gitignore</span></span><span class="ln"> </span><span class="ln"><span class="gp">$ </span>git<span class="w"> </span>add<span class="w"> </span>.</span></code></pre></div>
+<p><code>.env</code> სიიდან გაქრა. <code>.gitignore</code> კი <strong>თვითონ commit-დება</strong> — ის რეპოს ნაწილია, რომ ყველა, ვინც რეპოს ჩამოიტვირთავს, იმავე წესებს იყენებდეს.</p>
+<div class="callout note"><span class="ci">💡</span><div><p><code>echo "…" &gt; file</code> — ფაილში ტექსტის ჩაწერა (ფაილს თავიდან ქმნის). <code>&gt;&gt;</code> — ბოლოში მიწერა. Linux-ის ბრძანებებს მე-4 ლექციაზე დეტალურად ვნახავთ; ფაილი შეგიძლია VS Code-შიც შექმნა.</p></div></div></article>
+<article class="blk" data-slides="45"><span class="anchor" id="s-45"></span><div class="bh"><h3>ნაბიჯი 4 · branch → commit → merge</h3><a class="chip" href="index.html#/45" data-go="45" title="პრეზენტაციაში გახსნა">სლაიდი 45</a></div>
+<div class="codebox"><div class="ch"><span>Git Bash</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="gp">$ </span>git<span class="w"> </span>switch<span class="w"> </span>-c<span class="w"> </span>feature/contacts</span></code></pre></div>
+<p><code>index.html</code>-ში, <code>&lt;/body&gt;</code>-მდე, ვამატებთ:</p>
+<div class="codebox"><div class="ch"><span>index.html</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="p">&lt;</span><span class="nt">div</span> <span class="na">class</span><span class="o">=</span><span class="s">"contacts"</span><span class="p">&gt;</span></span><span class="ln">  <span class="p">&lt;</span><span class="nt">h2</span><span class="p">&gt;</span>კონტაქტი<span class="p">&lt;</span><span class="p">/</span><span class="nt">h2</span><span class="p">&gt;</span></span><span class="ln">  <span class="p">&lt;</span><span class="nt">p</span><span class="p">&gt;</span>📧 giorgi@mail.ge<span class="p">&lt;</span><span class="p">/</span><span class="nt">p</span><span class="p">&gt;</span></span><span class="ln">  <span class="p">&lt;</span><span class="nt">p</span><span class="p">&gt;</span>🐙 <span class="p">&lt;</span><span class="nt">a</span> <span class="na">href</span><span class="o">=</span><span class="s">"https://github.com/giorgi-beridze"</span><span class="p">&gt;</span>GitHub<span class="p">&lt;</span><span class="p">/</span><span class="nt">a</span><span class="p">&gt;</span><span class="p">&lt;</span><span class="p">/</span><span class="nt">p</span><span class="p">&gt;</span></span><span class="ln"><span class="p">&lt;</span><span class="p">/</span><span class="nt">div</span><span class="p">&gt;</span></span></code></pre></div>
+<div class="codebox"><div class="ch"><span>Git Bash</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="gp">$ </span>git<span class="w"> </span>add<span class="w"> </span>.</span><span class="ln"><span class="gp">$ </span>git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">"Add contact section"</span></span></code></pre></div>
+<p>🤯 <strong>დააკვირდი VS Code-ს:</strong> <code>main</code>-ზე დაბრუნებისას კონტაქტების ბლოკი ფაილიდან „გაქრა“. Git-მა საქაღალდე <code>main</code>-ის მდგომარეობაზე დააბრუნა — ცვლილება მხოლოდ branch-შია.</p>
+<div class="codebox"><div class="ch"><span>Git Bash</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="gp">$ </span>git<span class="w"> </span>merge<span class="w"> </span>feature/contacts</span><span class="ln"><span class="go">Fast-forward</span></span><span class="ln"><span class="gp">$ </span>git<span class="w"> </span>branch<span class="w"> </span>-d<span class="w"> </span>feature/contacts</span><span class="ln"><span class="gp">$ </span>git<span class="w"> </span>log<span class="w"> </span>--oneline<span class="w"> </span>--graph</span><span class="ln"><span class="go">* a3f9c21 (HEAD -&gt; main) Add contact section</span></span><span class="ln"><span class="go">* c41a8e0 Add .gitignore</span></span></code></pre></div>
+<p><strong>Fast-forward</strong> — branch-ის შექმნის შემდეგ <code>main</code>-ზე სხვა არაფერი შეცვლილა, ამიტომ Git-მა <code>main</code> უბრალოდ წინ გადაწია. merge commit არ შექმნილა და ისტორია სწორი ხაზია.</p></article>
+<article class="blk" data-slides="46"><span class="anchor" id="s-46"></span><div class="bh"><h3>ნაბიჯი 5 · GitHub-ზე ატვირთვა</h3><a class="chip" href="index.html#/46" data-go="46" title="პრეზენტაციაში გახსნა">სლაიდი 46</a></div>
+<ol>
+<li>GitHub → <strong>New repository</strong> → სახელი <code>my-portfolio</code>, Public, <strong>ცარიელი</strong> (README-ს გარეშე).</li>
+<li>ტერმინალში (USERNAME შენით შეცვალე):</li>
+</ol>
+<div class="codebox"><div class="ch"><span>Git Bash</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="gp">$ </span>git<span class="w"> </span>remote<span class="w"> </span>add<span class="w"> </span>origin<span class="w"> </span>https://github.com/USERNAME/my-portfolio.git</span></code></pre></div>
+<ol start="3">
+<li>GitHub-ის გვერდი განაახლე (<strong>F5</strong>):</li>
+</ol>
+<div class="codebox"><div class="ch"><span>plain</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln">🐙 USERNAME / my-portfolio      🕓 3 commits</span><span class="ln"> ├ 📄 .gitignore</span><span class="ln"> ├ 📄 index.html</span><span class="ln"> └ 📄 style.css</span></code></pre></div>
+<p><code>.env</code> იქ <strong>არ არის</strong> — <code>.gitignore</code> მუშაობს. შეამოწმე <strong>Commits</strong> გვერდიც: სამივე commit შენი სახელით ჩანს.</p></article>
+<article class="blk" data-slides="47"><span class="anchor" id="s-47"></span><div class="bh"><h3>ნაბიჯი 6 · GitHub → ლეპტოპი: git pull</h3><a class="chip" href="index.html#/47" data-go="47" title="პრეზენტაციაში გახსნა">სლაიდი 47</a></div>
+<ol>
+<li>GitHub-ზე რეპოს გვერდზე: <strong>Add a README</strong> → დაწერე ორი ხაზი → <strong>Commit changes</strong>. GitHub-მა ახალი commit შექმნა.</li>
+<li>ლეპტოპზე <code>README.md</code> <strong>ჯერ არ არის</strong> — ლოკალურმა რეპომ არ იცის, რომ GitHub-ზე რაღაც შეიცვალა.</li>
+<li>ჩამოვიტანოთ:</li>
+</ol>
+<div class="codebox"><div class="ch"><span>Git Bash</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="gp">$ </span>git<span class="w"> </span>pull</span><span class="ln"><span class="go">Updating a3f9c21..e81b0f2</span></span><span class="ln"><span class="go">Fast-forward</span></span><span class="ln"><span class="go"> README.md | 3 +++</span></span></code></pre></div>
+<p>ასე ჩამოდის ნებისმიერი ცვლილება — გუნდელისგან, შენივე სხვა კომპიუტერიდან თუ GitHub-ის საიტიდან.</p></article>
+<article class="blk" data-slides="48"><span class="anchor" id="s-48"></span><div class="bh"><h3>შპარგალკა: დღევანდელი ბრძანებები</h3><a class="chip" href="index.html#/48" data-go="48" title="პრეზენტაციაში გახსნა">სლაიდი 48</a></div>
+<p><strong>⚙️ ერთხელ</strong></p>
+<table>
+<thead>
+<tr>
+<th>ბრძანება</th>
+<th>რას აკეთებს</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>git config --global user.name "…"</code></td>
+<td>სახელი commit-ებისთვის</td>
+</tr>
+<tr>
+<td><code>git config --global user.email "…"</code></td>
+<td>email (იგივე, რაც GitHub-ზე)</td>
+</tr>
+<tr>
+<td><code>git init</code></td>
+<td>საქაღალდე → რეპოზიტორია</td>
+</tr>
+<tr>
+<td><code>git remote add origin &lt;url&gt;</code></td>
+<td>GitHub-ის რეპოს დაკავშირება</td>
+</tr>
+<tr>
+<td><code>git clone &lt;url&gt;</code></td>
+<td>GitHub-იდან რეპოს ჩამოტვირთვა</td>
+</tr>
+</tbody>
+</table>
+<p><strong>🔁 ყოველდღე</strong></p>
+<table>
+<thead>
+<tr>
+<th>ბრძანება</th>
+<th>რას აკეთებს</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>git status</code></td>
+<td>რა მდგომარეობაა — <strong>როცა ეჭვი გაქვს</strong></td>
+</tr>
+<tr>
+<td><code>git add .</code></td>
+<td>ყველა ცვლილება staging-ში</td>
+</tr>
+<tr>
+<td><code>git commit -m "…"</code></td>
+<td>შენახვა ისტორიაში</td>
+</tr>
+<tr>
+<td><code>git push</code></td>
+<td>ჩემი commit-ები → GitHub</td>
+</tr>
+<tr>
+<td><code>git pull</code></td>
+<td>GitHub-ის commit-ები → ჩემთან</td>
+</tr>
+<tr>
+<td><code>git log --oneline</code></td>
+<td>ისტორია მოკლედ</td>
+</tr>
+</tbody>
+</table>
+<p><strong>🌿 branch</strong></p>
+<table>
+<thead>
+<tr>
+<th>ბრძანება</th>
+<th>რას აკეთებს</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>git branch</code></td>
+<td>branch-ების სია</td>
+</tr>
+<tr>
+<td><code>git switch -c &lt;name&gt;</code></td>
+<td>ახალი branch + გადასვლა</td>
+</tr>
+<tr>
+<td><code>git switch main</code></td>
+<td>main-ზე დაბრუნება</td>
+</tr>
+<tr>
+<td><code>git merge &lt;name&gt;</code></td>
+<td>branch-ის შერწყმა მიმდინარეში</td>
+</tr>
+<tr>
+<td><code>git branch -d &lt;name&gt;</code></td>
+<td>branch-ის წაშლა</td>
+</tr>
+</tbody>
+</table></article>
+<h2 class="sec" id="sec-10">პრაქტიკა</h2>
+<article class="blk" data-slides="49"><span class="anchor" id="s-49"></span><div class="bh"><h3>კლასში დავალება: პირველი რეპოზიტორია — my-portfolio</h3><a class="chip" href="index.html#/49" data-go="49" title="პრეზენტაციაში გახსნა">სლაიდი 49</a></div>
+<p>დავალება · თქვენი პორტფოლიო GitHub-ზე</p>
+<h3>ნაბიჯები</h3>
+<ul>
+<li>საქაღალდე <code>my-portfolio</code>: <code>index.html</code> (სახელი + 2-3 წინადადება თქვენზე) და <code>style.css</code></li>
+<li><code>git init</code> და პირველი commit: <code>"Add home page"</code></li>
+<li><code>.env</code> ფაილი + <code>.gitignore</code> (<code>.env</code>, <code>node_modules/</code>, <code>.vscode/</code>) — <code>git status</code> <code>.env</code>-ს <strong>აღარ</strong> უნდა აჩვენებდეს</li>
+<li>branch <code>feature/contacts</code> → კონტაქტების ბლოკი → commit → merge <code>main</code>-ში</li>
+<li>GitHub-ზე <strong>ცარიელი</strong> რეპო <code>my-portfolio</code> → <code>git remote add origin …</code> → <code>git push -u origin main</code></li>
+</ul>
+<h3>✓ მზადაა, როცა</h3>
+<p>GitHub-ზე ჩანს <code>index.html</code>, <code>style.css</code>, <code>.gitignore</code> და მინიმუმ 3 commit — <code>.env</code> კი <strong>არ</strong> ჩანს</p>
+<h3>⭐ ბონუსი</h3>
+<ul>
+<li>GitHub-ის საიტზე შეცვალეთ ერთი ხაზი (✏️) → ლოკალურად <code>git pull</code></li>
+<li><code>git log --oneline --graph</code> — აუხსენით გვერდით მჯდომს, რას ხედავთ</li>
+</ul>
+<h3>💡 მინიშნება</h3>
+<div class="codebox"><div class="ch"><span>bash</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln">git<span class="w"> </span>switch<span class="w"> </span>-c<span class="w"> </span>feature/contacts<span class="w">   </span><span class="c1"># ახალი branch + გადასვლა</span></span><span class="ln">git<span class="w"> </span>switch<span class="w"> </span>main<span class="w">                  </span><span class="c1"># main-ზე დაბრუნება</span></span><span class="ln">git<span class="w"> </span>merge<span class="w"> </span>feature/contacts<span class="w">       </span>#<span class="w"> </span>branch-ის<span class="w"> </span>შერწყმა</span></code></pre></div>
+<p><code>git status</code> — ყველაზე ხშირი ბრძანება. როცა არ იცით, რა ხდება — ჯერ ის გაუშვით.</p></article>
+<h2 class="sec" id="sec-11">შეჯამება</h2>
+<article class="blk" data-slides="50"><span class="anchor" id="s-50"></span><div class="bh"><h3>შეამოწმე, რა დაგამახსოვრდა</h3><a class="chip" href="index.html#/50" data-go="50" title="პრეზენტაციაში გახსნა">სლაიდი 50</a></div>
+<p>ეს კითხვები შემდეგი ლექციის დასაწყისშიც დაისმება.</p>
+<div class="selfcheck"><div class="sh">✅ შეამოწმე თავი <small>დაფიქრდი, მერე გახსენი პასუხი</small></div><details><summary>რატომ ვერ ხსნის მეგობარი შენს <code>localhost:4200</code> ლინკს?</summary><div class="ans">localhost = „ეს კომპიუტერი“ — მეგობართან ის მის მოწყობილობას ნიშნავს. საიტს სჭირდება მუდამ ჩართული კომპიუტერი საჯარო IP-ით — სერვერი</div></details><details><summary>VPS და PaaS — რა განსხვავებაა?</summary><div class="ans">VPS-ზე OS-ს, Nginx-ს და აპს შენ მართავ; PaaS-ს მხოლოდ კოდს აწვდი, დანარჩენს პროვაიდერი მართავს</div></details><details><summary>Git და GitHub ერთი და იგივეა?</summary><div class="ans">არა: Git — ვერსიების კონტროლის პროგრამა შენს კომპიუტერზე; GitHub — სერვისი, სადაც რეპოზიტორიები ინახება (კოდის ჰოსტინგი)</div></details><details><summary><code>git add</code> და <code>git commit</code> — რა განსხვავებაა?</summary><div class="ans"><code>add</code> ცვლილებას staging-ში ამზადებს; <code>commit</code> მომზადებულს ისტორიაში ინახავს, მესიჯით</div></details><details><summary>რა იწერება <code>.gitignore</code>-ში?</summary><div class="ans">რაც ავტომატურად იქმნება ან საიდუმლოა: <code>node_modules/</code>, <code>dist/</code>, <code>bin/</code>, <code>obj/</code>, <code>.env</code></div></details></div></article>
+<article class="blk" data-slides="51"><span class="anchor" id="s-51"></span><div class="bh"><h3>შეჯამება · დღეს ვისწავლეთ</h3><a class="chip" href="index.html#/51" data-go="51" title="პრეზენტაციაში გახსნა">სლაიდი 51</a></div>
+<ul>
+<li>🌐 <strong>ჰოსტინგი</strong> — სერვერის (მუდამ ჩართული კომპიუტერის საჯარო IP-ით) ქირაობა. მოთხოვნის გზა: სახელი → DNS → IP → ვებ-სერვერი → ფაილი → პასუხი. საიტი შეიძლება იყოს სტატიკური ან დინამიური.</li>
+<li>📜 <strong>ევოლუცია</strong> — On-premise → Shared → VPS → PaaS → Static + CI/CD. რაც მეტს მართავ, მით მეტი თავისუფლება და პასუხისმგებლობა.</li>
+<li>🌳 <strong>Git</strong> — რეპოზიტორია, სამი ზონა (working → staging → repository), commit, branch, merge, conflict.</li>
+<li>🐙 <strong>GitHub</strong> — კოდის ჰოსტინგი: remote (<code>origin</code>), <code>push</code>, <code>pull</code>, <code>clone</code>.</li>
+<li>🙈 <strong>.gitignore</strong> — ავტომატურად შექმნილი და საიდუმლო ფაილები რეპოში არ შედის.</li>
+</ul>
+<p><strong>შემდეგ ლექციაზე:</strong> <code>my-portfolio</code> → ინტერნეტში GitHub Pages-ით, და დომენის დაკავშირება Cloudflare-ით.</p>
+<div class="prompt"><div class="ph"><span>🤖 გამოცდა პირველ ლექციაზე</span><button class="copy" type="button">კოპირება</button></div><div class="pb">ვსწავლობ DevOps-ს. პირველ ლექციაზე გავიარეთ: რა არის ჰოსტინგი, სერვერი და ვებ-სერვერი; რა ხდება მისამართის აკრეფიდან გვერდის გამოჩენამდე (DNS, IP, პორტი); სტატიკური და დინამიური საიტი; ჰოსტინგის ტიპები (On-premise, Shared, VPS, PaaS); Git (repository, working directory / staging / repository, commit, branch, merge, conflict), GitHub (remote, push, pull, clone) და .gitignore.
+დამისვი 8 კითხვა სათითაოდ, მარტივიდან რთულისკენ — ნაწილი პრაქტიკული სიტუაციები იყოს („რა ბრძანებას გაუშვებ, როცა…“). ყოველ პასუხზე შემიფასე და ამიხსენი. ბოლოს მითხარი, რა გავიმეორო. ქართულად.</div></div>
+<div class="prompt"><div class="ph"><span>🤖 Git-ის ბრძანება არ მესმის</span><button class="copy" type="button">კოპირება</button></div><div class="pb">ვსწავლობ Git-ს. ამიხსენი ეს ბრძანება მარტივად, ქართულად: რას აკეთებს, როდის ვიყენებ, და ერთი პატარა მაგალითი ტერმინალის გამოსავლით. ბრძანება: [აქ ჩასვი ბრძანება]</div></div></article>
+<h2 class="sec" id="sec-12">საშინაო</h2>
+<article class="blk" data-slides="52"><span class="anchor" id="s-52"></span><div class="bh"><h3>საშინაო დავალება: პროექტების გვერდი და README</h3><a class="chip" href="index.html#/52" data-go="52" title="პრეზენტაციაში გახსნა">სლაიდი 52</a></div>
+<p>my-portfolio — შემდეგ ლექციაზე ინტერნეტში გამოვაქვეყნებთ</p>
+<h3>მოთხოვნები</h3>
+<ul>
+<li>branch <code>feature/projects</code>: <code>projects.html</code> — 2-3 პროექტი (სახელი + მოკლე აღწერა) და ბმული მასზე <code>index.html</code>-დან</li>
+<li>მინიმუმ 2 commit გასაგები მესიჯებით → merge <code>main</code>-ში → <code>git push</code></li>
+<li><code>README.md</code>: რა პროექტია, ვინ ხართ, რა ტექნოლოგიებით არის აწყობილი</li>
+<li>README-ის ბოლოს: 3 საიტი, რომლითაც ხშირად სარგებლობთ — თქვენი აზრით, სტატიკურია თუ დინამიური, და რატომ</li>
+</ul>
+<h3>✓ მზადაა, როცა</h3>
+<p>GitHub-ზე <code>main</code>-ში ჩანს <code>projects.html</code> და <code>README.md</code>, ხოლო <code>git log --oneline --graph</code>-ში ჩანს branch-ი და merge</p>
+<h3>⭐ ბონუსი</h3>
+<ul>
+<li>ერთი და იგივე ხაზი შეცვალეთ სხვადასხვანაირად ორ branch-ზე → merge → თვითონ გადაჭერით კონფლიქტი</li>
+</ul>
+<h3>საიტები, რომლებითაც ვსარგებლობ</h3>
+<ul>
+<li><strong>Wikipedia</strong> — დინამიური: ყოველ გვერდს ბაზიდან აწყობს, მომხმარებლები არედაქტირებენ</li>
+<li><strong>ჩემი ბანკის აპი</strong> — დინამიური: ყველას თავისი ანგარიში და ბალანსი აქვს</li>
+<li><strong>ლენდინგი / პორტფოლიო</strong> — სტატიკური: ყველა ერთსა და იმავე ფაილებს ხედავს</li>
+</ul>
+<div class="codebox"><div class="ch"><span>plain</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln">```note</span><span class="ln">მთავარი კრიტერიუმი: **ყველა ერთსა და იმავეს ხედავს?** → სტატიკური. **პასუხი მომხმარებელზე ან მონაცემზეა დამოკიდებული?** → დინამიური, მას სერვერი და, ჩვეულებრივ, ბაზა სჭირდება.</span></code></pre></div></article>
+  </main>
+</div>
+<script>
+const DECK = "DevOps Crash Course · 1 — ჰოსტინგის საფუძვლები და Git/GitHub";
+if (matchMedia('(min-width:981px)').matches) document.getElementById('tocd').open = true;
+const blocks = [...document.querySelectorAll('.blk')];
+const tocLinks = [...document.querySelectorAll('nav.toc a[href^="#sec-"]')];
+const secOf = b => { let e = b; while (e && !(e.matches && e.matches('h2.sec'))) e = e.previousElementSibling; return e; };
+function mark(b, toc_only) {
+  if (!toc_only) blocks.forEach(x => x.classList.toggle('cur', x === b));
+  const s = b && secOf(b); tocLinks.forEach(a => a.classList.toggle('cur', s && a.getAttribute('href') === '#' + s.id));
+}
+const blockFor = n => blocks.find(b => b.dataset.slides.split(',').includes(String(n)));
+
+// copy buttons (code: one line per .ln)
+document.addEventListener('click', e => {
+  const btn = e.target.closest('.copy'); if (!btn) return;
+  const box = btn.closest('.codebox, .prompt');
+  const text = box.matches('.prompt') ? box.querySelector('.pb').textContent : [...box.querySelectorAll('.ln')].map(l => l.textContent).join('\n');
+  navigator.clipboard.writeText(text).then(() => { btn.textContent = '✓ დაკოპირდა'; btn.classList.add('ok'); setTimeout(() => { btn.textContent = 'კოპირება'; btn.classList.remove('ok'); }, 1600); });
+});
+
+// live mode: opened from the deck with P — follow the projector
+const live = new URLSearchParams(location.search).has('live');
+let follow = true, bc = null;
+const liveBtn = document.getElementById('live');
+if (live) {
+  try { bc = new BroadcastChannel('deck-' + DECK); } catch (e) {}
+  liveBtn.classList.add('on');
+  liveBtn.onclick = () => { follow = !follow; liveBtn.classList.toggle('off', !follow); liveBtn.querySelector('.lt').textContent = follow ? 'მიჰყვება სლაიდებს' : 'თავისუფლად ვკითხულობ'; };
+  if (bc) {
+    bc.onmessage = ({ data }) => {
+      if (data.t !== 'state' || !follow) return;
+      const b = blockFor(data.i + 1); if (!b || b.classList.contains('cur')) return;
+      mark(b); b.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    };
+    bc.postMessage({ t: 'hello' });
+  }
+  document.addEventListener('click', e => {   // slide chip → move the projector deck
+    const c = e.target.closest('.chip[data-go]'); if (!c || !bc) return;
+    e.preventDefault(); bc.postMessage({ t: 'go', n: +c.dataset.go - 1 });
+  });
+}
+// deep link #s-12
+const h = location.hash.match(/^#s-(\d+)$/);
+if (h) { const b = blockFor(+h[1]); if (b) { mark(b); setTimeout(() => b.scrollIntoView({ block: 'start' }), 50); } }
+// highlight section in the TOC while reading
+const io = new IntersectionObserver(es => es.forEach(x => { if (x.isIntersecting && !(live && follow)) mark(x.target, true); }), { rootMargin: '-30% 0px -60% 0px' });
+blocks.forEach(b => io.observe(b));
+</script>
+</body></html>
