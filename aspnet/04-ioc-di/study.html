@@ -1,0 +1,562 @@
+<!doctype html>
+<html lang="ka"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>📖 Inversion of Control და Dependency Injection — კონსპექტი</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Georgian:wght@400;600;700;800&family=JetBrains+Mono:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#fbf8f3;--card:#fff;--ink:#1e2132;--ink2:#3b3f54;--muted:#7b8096;--line:#e6dfd2;--accent:#6d28d9;--accent-soft:#f3effe;--teal:#0d9488;
+  --green:#15803d;--amber:#b45309;--mono:"JetBrains Mono",ui-monospace,monospace;--sans:"Noto Sans Georgian",system-ui,sans-serif}
+*{box-sizing:border-box}
+html{scroll-padding-top:76px}
+body{margin:0;background:var(--bg);color:var(--ink);font:17.5px/1.75 var(--sans);-webkit-font-smoothing:antialiased}
+a{color:var(--accent)}
+/* top bar */
+.top{position:sticky;top:0;z-index:10;display:flex;align-items:center;gap:14px;padding:10px 20px;background:rgba(251,248,243,.92);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.top .back{font:600 14px var(--mono);color:var(--muted);text-decoration:none;white-space:nowrap}
+.top .back:hover{color:var(--ink)}
+.top .ttl{flex:1;min-width:0;font-weight:700;font-size:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.top .ttl small{font:500 13px var(--mono);color:var(--muted);margin-right:8px}
+.btn{font:700 14px var(--sans);text-decoration:none;border-radius:10px;padding:7px 14px;white-space:nowrap;border:1px solid var(--line);color:var(--ink);background:var(--card);cursor:pointer}
+.btn.play{background:var(--accent);border-color:var(--accent);color:#fff}
+.live{display:none;align-items:center;gap:8px;font:600 13px var(--mono);color:var(--teal);background:#e6f6f4;border:1px solid #bfe7e2;border-radius:999px;padding:5px 12px;cursor:pointer}
+.live.on{display:flex}
+.live .dot{width:8px;height:8px;border-radius:50%;background:var(--teal);animation:pulse 1.6s infinite}
+.live.off{color:var(--muted);background:var(--card);border-color:var(--line)}.live.off .dot{background:var(--muted);animation:none}
+@keyframes pulse{50%{opacity:.3}}
+/* layout */
+.wrap{display:grid;grid-template-columns:230px minmax(0,1000px);gap:44px;justify-content:center;padding:32px 28px 120px}
+nav.toc{position:sticky;top:84px;align-self:start;font-size:14px;line-height:1.45}
+nav.toc .h{font:700 12px var(--mono);color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px}
+nav.toc a{display:block;color:var(--ink2);text-decoration:none;padding:6px 10px;border-left:2px solid var(--line)}
+nav.toc a:hover{color:var(--accent)}
+nav.toc a.cur{color:var(--accent);border-left-color:var(--accent);font-weight:700}
+nav.toc .mats{margin-top:22px;display:flex;flex-direction:column;gap:6px}
+nav.toc .mats a{border:0;padding:2px 0;font:500 13px var(--mono);color:var(--teal);word-break:break-all}
+header.hero{margin-bottom:8px}
+header.hero .k{font:600 14px var(--mono);color:var(--accent)}
+header.hero h1{font-size:38px;line-height:1.2;margin:6px 0 10px;letter-spacing:-.01em}
+header.hero p{color:var(--muted);margin:0;font-size:15.5px}
+header.hero kbd{font:500 12px var(--mono);border:1px solid var(--line);border-radius:5px;padding:0 5px;background:var(--card)}
+h2.sec{font-size:15px;font:700 13px var(--mono);color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin:48px 0 6px;padding-top:18px;border-top:1px solid var(--line)}
+/* blocks */
+.blk{position:relative;padding:14px 0 6px 22px;margin-left:-22px;border-left:3px solid transparent;transition:border-color .3s,background .3s;border-radius:0 12px 12px 0}
+.blk.cur{border-left-color:var(--accent);background:linear-gradient(90deg,var(--accent-soft),transparent 70%)}
+.anchor{position:absolute;top:0}
+.bh{display:flex;align-items:baseline;justify-content:space-between;gap:12px}
+.bh h3{font-size:22px;line-height:1.35;margin:4px 0 6px}
+.chip{flex:none;font:600 12px var(--mono);color:var(--muted);text-decoration:none;border:1px solid var(--line);border-radius:999px;padding:2px 10px;background:var(--card)}
+.chip:hover{color:var(--accent);border-color:var(--accent)}
+.blk h2{font-size:26px;line-height:1.3;margin:6px 0 10px}
+.blk h3:not(.bh h3){font-size:19px;margin:22px 0 6px}
+.blk h4{font-size:17px;margin:18px 0 4px}
+.blk p{margin:10px 0}
+.blk ul,.blk ol{padding-left:24px;margin:8px 0}
+.blk li{margin:4px 0}
+.blk strong{color:var(--ink)}
+.blk :not(pre)>code{font:600 .86em var(--mono);background:#f1ece3;border-radius:6px;padding:1px 6px;color:#5b21b6}
+.blk table{border-collapse:collapse;margin:14px 0;font-size:15.5px;width:100%;display:block;overflow-x:auto}
+.blk th,.blk td{border:1px solid var(--line);padding:8px 12px;text-align:left;vertical-align:top}
+.blk th{background:#f6f1e8}
+/* code */
+.codebox{margin:14px 0;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:#fffdf9}
+.codebox .ch,.prompt .ph{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:6px 8px 6px 14px;font:600 12.5px var(--mono);color:var(--muted);background:#f6f1e8;border-bottom:1px solid var(--line)}
+.copy{font:600 12px var(--mono);border:1px solid var(--line);background:var(--card);color:var(--ink2);border-radius:7px;padding:3px 10px;cursor:pointer}
+.copy:hover{border-color:var(--ink)}
+.copy.ok{color:var(--green);border-color:var(--green)}
+pre.code{margin:0;padding:12px 0;overflow-x:auto;font:14px/1.65 var(--mono)}
+pre.code .ln{display:block;padding:0 16px;white-space:pre}
+.code .ttl{background:var(--bg2);color:var(--muted)}
+.code .ln.hl{background:rgba(109,40,217,.07);box-shadow:inset 3px 0 0 var(--net)}
+.code .ln.dim{opacity:.42}
+.code .k,.code .kd,.code .kn,.code .kr,.code .kc{color:#7c3aed}
+.code .kt{color:#2563eb}
+.code .s,.code .s1,.code .s2,.code .sa,.code .se,.code .si,.code .sd{color:#15803d}
+.code .c,.code .c1,.code .cm,.code .cp,.code .ch{color:#8b8fa3}
+.code .m,.code .mi,.code .mf,.code .mh{color:#c2410c}
+.code .nf,.code .fm{color:#1d4ed8}
+.code .nc,.code .nn,.code .nt,.code .nd{color:#b45309}
+.code .na{color:#7c3aed} .code .nb{color:#0e7490}
+.code .o,.code .p{color:#64748b}
+.code .nv,.code .nx{color:var(--ink)}
+.code .go{color:#64748b}
+/* prompt */
+.prompt{margin:16px 0;border:1px solid #ddd2fb;border-radius:12px;overflow:hidden;background:var(--accent-soft)}
+.prompt .ph{background:#ebe3fd;border-color:#ddd2fb;color:var(--accent)}
+.prompt .pb{padding:12px 16px;white-space:pre-wrap;font-size:15.5px;line-height:1.6;color:var(--ink2)}
+/* self check */
+.selfcheck{margin:16px 0;border:1px solid #cfe9d6;border-radius:12px;background:#f3fbf5;padding:12px 16px}
+.selfcheck .sh{font-weight:700;color:var(--green);margin-bottom:6px}
+.selfcheck .sh small{font-weight:400;color:var(--muted);font-size:13.5px;margin-left:6px}
+.selfcheck details{border-top:1px solid #dcefe1;padding:8px 0}
+.selfcheck summary{cursor:pointer;font-weight:600;list-style:none;padding-left:26px;position:relative}
+.selfcheck summary::-webkit-details-marker{display:none}
+.selfcheck summary::before{content:"?";position:absolute;left:0;top:2px;width:18px;height:18px;border-radius:50%;background:var(--green);color:#fff;font:700 12px/18px var(--mono);text-align:center}
+.selfcheck details[open] summary::before{content:"✓"}
+.selfcheck .ans{padding:6px 0 2px 26px;color:var(--ink2)}
+/* terms */
+.terms{margin:16px 0;border:1px solid var(--line);border-radius:12px;background:var(--card);padding:12px 16px}
+.terms .th{font-weight:700;margin-bottom:6px}
+.terms dl{display:grid;grid-template-columns:max-content 1fr;gap:6px 18px;margin:0}
+.terms dt{font:600 14.5px var(--mono);color:var(--accent)}
+.terms dd{margin:0;color:var(--ink2)}
+/* callouts */
+.callout{display:flex;gap:12px;margin:14px 0;padding:12px 16px;border-radius:12px;border:1px solid var(--line);background:var(--card)}
+.callout .ci{font-size:20px;line-height:1.6}
+.callout>div>p:first-child{margin-top:0}.callout>div>p:last-child{margin-bottom:0}
+.callout.warn{background:#fff8eb;border-color:#f6dfb5}
+.callout.note{background:#eef5ff;border-color:#cfe0fb}
+@media (max-width:980px){
+  .wrap{grid-template-columns:minmax(0,1fr);gap:0;padding:20px 16px 100px}
+  nav.toc{position:static;margin-bottom:12px}
+  nav.toc details{border:1px solid var(--line);border-radius:12px;background:var(--card);padding:8px 12px}
+  nav.toc details>summary{cursor:pointer;font-weight:700}
+  nav.toc .h{display:none}
+  header.hero h1{font-size:30px}
+  .blk{padding-left:14px;margin-left:-14px}
+  .top .ttl small{display:none}
+  .terms dl{grid-template-columns:1fr}.terms dd{margin-bottom:8px}
+}
+@media (min-width:981px){nav.toc details>summary{display:none}}
+@media print{.top,nav.toc,.copy,.chip,.live{display:none}.wrap{display:block;padding:0}.selfcheck details{display:block}.blk.cur{background:none}}
+</style></head>
+<body>
+<div class="top">
+  <a class="back" href="../../">← ლექციები</a>
+  <div class="ttl"><small>ASP.NET · 4</small>Inversion of Control და Dependency Injection</div>
+  <button class="live" id="live" type="button" title="ჩართული: ტექსტი პრეზენტაციას მიჰყვება"><span class="dot"></span><span class="lt">მიჰყვება სლაიდებს</span></button>
+  <a class="btn play" href="index.html">▶ პრეზენტაცია</a>
+</div>
+<div class="wrap">
+  <nav class="toc"><details id="tocd"><summary>სარჩევი</summary><div class="h">სარჩევი</div><a href="#sec-1">გამეორება</a><a href="#sec-2">საშინაოს განხილვა</a><a href="#sec-3">დღის თემა</a><a href="#sec-4"></a><a href="#sec-5">დღის თემა</a><a href="#sec-6">1 · ახალი მოთხოვნა</a><a href="#sec-7">2 · ProductStore</a><a href="#sec-8">3 · Inversion of Control</a><a href="#sec-9">4 · Dependency Injection</a><a href="#sec-10">პრაქტიკა</a><a href="#sec-11">შეჯამება</a><a href="#sec-12">საშინაო</a><div class="mats"></div></details></nav>
+  <main>
+    <header class="hero">
+      <div class="k">📖 კონსპექტი · ASP.NET · ლექცია 4</div>
+      <h1>Inversion of Control და Dependency Injection</h1>
+      <p>წაიკითხე ლექციის შემდეგ, ან პრეზენტაციასთან ერთად: პრეზენტაციაში დააჭირე <kbd>P</kbd> და ეს გვერდი სლაიდებს გაჰყვება. კოდი და AI-ს პრომპტები კოპირდება ერთი დაჭერით.</p>
+    </header>
+    <h2 class="sec" id="sec-1">გამეორება</h2>
+<article class="blk" data-slides="1,2"><span class="anchor" id="s-1"></span><span class="anchor" id="s-2"></span><div class="bh"><h3>გავიხსენოთ წინა ლექცია</h3><a class="chip" href="index.html#/1" data-go="1" title="პრეზენტაციაში გახსნა">სლაიდი 1</a></div>
+<p>ლექცია 3 — <strong>DTO და Mapping</strong>. ახალ თემამდე ვამოწმებთ, რა დაგვამახსოვრდა. ჯერ თვითონ უპასუხე, მერე გახსენი პასუხი. თუ რომელიმე გაგიჭირდა, <a href="../03-dto-mapping/study.html">წინა ლექციის კონსპექტს</a> გადახედე.</p>
+<div class="selfcheck"><div class="sh">✅ შეამოწმე თავი <small>დაფიქრდი, მერე გახსენი პასუხი</small></div><details><summary>რა არის Entity და რატომ არ ვაბრუნებთ მას პირდაპირ?</summary><div class="ans">ბაზის ცხრილის აღწერა · შიდა ველები გაიპარება, კლიენტი სერვერის ველებს შეავსებს, ცხრილის ცვლილება კლიენტს გატეხავს</div></details><details><summary>რა განსხვავებაა Request DTO-სა და Response DTO-ს შორის?</summary><div class="ans">Request — რას ვიღებთ (Id-ს გარეშე) · Response — რას ვაჩვენებთ (შიდა ველების გარეშე)</div></details><details><summary>რა არის mapping და რატომ გავიტანეთ ცალკე Mapper-ში?</summary><div class="ans">ველების გადატანა ერთი ობიექტიდან მეორეში · რომ ერთი ცოდნა ერთ ადგილას იყოს და ახალი ველი ერთგან შეიცვალოს</div></details><details><summary>რას აკეთებს <code>this</code> mapper-ის მეთოდის პარამეტრში?</summary><div class="ans">extension method: <code>product.ToResponse()</code> — თითქოს მეთოდი Product-ს ეკუთვნის</div></details><details><summary>სად არის Mapperly-ს მეთოდის სხეული?</summary><div class="ans">კომპილაციისას თვითონ წერს · <code>ProductMapper.g.cs</code> — Dependencies → Analyzers</div></details></div></article>
+<h2 class="sec" id="sec-2">საშინაოს განხილვა</h2>
+<article class="blk" data-slides="3"><span class="anchor" id="s-3"></span><div class="bh"><h3>საშინაოს განხილვა</h3><a class="chip" href="index.html#/3" data-go="3" title="პრეზენტაციაში გახსნა">სლაიდი 3</a></div>
+<p>წინა ლექციის საშინაო: <strong>MembersController — პაროლი გარეთ არ გადის</strong>. ქვემოთ არის ერთ-ერთი სწორი ამოხსნა. შენი კოდი შეიძლება სხვანაირად იყოს დაწერილი — მთავარია, მოთხოვნები სრულდებოდეს.</p>
+<h3>მოთხოვნები</h3>
+<ul>
+<li><code>Models/Member</code>: <code>Id</code> (Guid), <code>FullName</code>, <code>Email</code>, <code>PasswordHash</code>, <code>JoinedAt</code></li>
+<li><code>Dtos/</code>: <strong>CreateMemberRequest</strong> (FullName, Email, Password), <strong>UpdateMemberRequest</strong> (FullName, Email), <strong>MemberResponse</strong> (Id, FullName, Email, JoinedAt)</li>
+<li><code>Mappers/MemberMapper</code> — პირდაპირ <strong>Mapperly</strong>-ით</li>
+<li><strong>MembersController</strong> — სრული CRUD, სწორი სტატუს კოდები</li>
+<li>Create-ში: <code>Id</code>, <code>JoinedAt</code> და <code>PasswordHash</code> სერვერი ავსებს</li>
+</ul>
+<h3>ამოხსნა</h3>
+<p>DTO-ები: <code>Password</code> მხოლოდ შემოდის, <code>PasswordHash</code> საერთოდ არსად გადის.</p>
+<div class="codebox"><div class="ch"><span>Dtos/MemberDtos.cs</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="k">public</span><span class="w"> </span><span class="k">record</span><span class="w"> </span><span class="nf">CreateMemberRequest</span><span class="p">(</span></span><span class="ln"><span class="w">    </span><span class="kt">string</span><span class="w"> </span><span class="n">FullName</span><span class="p">,</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="n">Email</span><span class="p">,</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="n">Password</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="k">public</span><span class="w"> </span><span class="k">record</span><span class="w"> </span><span class="nf">UpdateMemberRequest</span><span class="p">(</span><span class="kt">string</span><span class="w"> </span><span class="n">FullName</span><span class="p">,</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="n">Email</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="k">public</span><span class="w"> </span><span class="k">record</span><span class="w"> </span><span class="nf">MemberResponse</span><span class="p">(</span></span><span class="ln"><span class="w">    </span><span class="n">Guid</span><span class="w"> </span><span class="n">Id</span><span class="p">,</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="n">FullName</span><span class="p">,</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="n">Email</span><span class="p">,</span><span class="w"> </span><span class="n">DateTime</span><span class="w"> </span><span class="n">JoinedAt</span><span class="p">)</span><span class="p">;</span></span></code></pre></div>
+<p>Mapper: ყველა „განზრახ გამოტოვებული“ ველი ცხადად წერია.</p>
+<div class="codebox"><div class="ch"><span>Mappers/MemberMapper.cs</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="na">[Mapper]</span></span><span class="ln"><span class="k">public</span><span class="w"> </span><span class="k">static</span><span class="w"> </span><span class="k">partial</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">MemberMapper</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="na">[MapperIgnoreSource(nameof(Member.PasswordHash))]</span></span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="k">static</span><span class="w"> </span><span class="k">partial</span><span class="w"> </span><span class="n">MemberResponse</span><span class="w"> </span><span class="nf">ToResponse</span><span class="p">(</span><span class="k">this</span><span class="w"> </span><span class="n">Member</span><span class="w"> </span><span class="n">member</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="na">[MapperIgnoreSource(nameof(CreateMemberRequest.Password))]</span></span><span class="ln"><span class="w">    </span><span class="na">[MapperIgnoreTarget(nameof(Member.Id))]</span></span><span class="ln"><span class="w">    </span><span class="na">[MapperIgnoreTarget(nameof(Member.PasswordHash))]</span></span><span class="ln"><span class="w">    </span><span class="na">[MapperIgnoreTarget(nameof(Member.JoinedAt))]</span></span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="k">static</span><span class="w"> </span><span class="k">partial</span><span class="w"> </span><span class="n">Member</span><span class="w"> </span><span class="nf">ToEntity</span><span class="p">(</span><span class="k">this</span><span class="w"> </span><span class="n">CreateMemberRequest</span><span class="w"> </span><span class="n">request</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="na">[MapperIgnoreTarget(nameof(Member.Id))]</span></span><span class="ln"><span class="w">    </span><span class="na">[MapperIgnoreTarget(nameof(Member.PasswordHash))]</span></span><span class="ln"><span class="w">    </span><span class="na">[MapperIgnoreTarget(nameof(Member.JoinedAt))]</span></span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="k">static</span><span class="w"> </span><span class="k">partial</span><span class="w"> </span><span class="k">void</span><span class="w"> </span><span class="nf">UpdateFrom</span><span class="p">(</span></span><span class="ln"><span class="w">        </span><span class="na">[MappingTarget]</span><span class="w"> </span><span class="k">this</span><span class="w"> </span><span class="n">Member</span><span class="w"> </span><span class="n">member</span><span class="p">,</span><span class="w"> </span><span class="n">UpdateMemberRequest</span><span class="w"> </span><span class="n">request</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="p">}</span></span></code></pre></div>
+<p>Controller — Create, ბონუსით:</p>
+<div class="codebox"><div class="ch"><span>Controllers/MembersController.cs</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="na">[HttpPost]</span></span><span class="ln"><span class="k">public</span><span class="w"> </span><span class="n">IActionResult</span><span class="w"> </span><span class="nf">Create</span><span class="p">(</span><span class="n">CreateMemberRequest</span><span class="w"> </span><span class="n">request</span><span class="p">)</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">_members</span><span class="p">.</span><span class="n">Any</span><span class="p">(</span><span class="n">m</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">m</span><span class="p">.</span><span class="n">Email</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">request</span><span class="p">.</span><span class="n">Email</span><span class="p">)</span><span class="p">)</span></span><span class="ln"><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="nf">Conflict</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="kt">var</span><span class="w"> </span><span class="n">member</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">request</span><span class="p">.</span><span class="n">ToEntity</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="n">member</span><span class="p">.</span><span class="n">Id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Guid</span><span class="p">.</span><span class="n">NewGuid</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="n">member</span><span class="p">.</span><span class="n">JoinedAt</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">DateTime</span><span class="p">.</span><span class="n">UtcNow</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="n">member</span><span class="p">.</span><span class="n">PasswordHash</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Argon2</span><span class="p">.</span><span class="n">Hash</span><span class="p">(</span><span class="n">request</span><span class="p">.</span><span class="n">Password</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="n">_members</span><span class="p">.</span><span class="n">Add</span><span class="p">(</span><span class="n">member</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nf">CreatedAtAction</span><span class="p">(</span><span class="k">nameof</span><span class="p">(</span><span class="n">GetById</span><span class="p">)</span><span class="p">,</span></span><span class="ln"><span class="w">        </span><span class="k">new</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">member</span><span class="p">.</span><span class="n">Id</span><span class="w"> </span><span class="p">}</span><span class="p">,</span><span class="w"> </span><span class="n">member</span><span class="p">.</span><span class="n">ToResponse</span><span class="p">(</span><span class="p">)</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="p">}</span></span></code></pre></div>
+<div class="callout note"><span class="ci">💡</span><div><p><code>Argon2.Hash</code> აბრუნებს ერთ სტრიქონს, მაგალითად <code>$argon2id$v=19$m=…,t=…,p=…$…</code>. მასშივე წერია ალგორითმი, პარამეტრები და „მარილი“ (salt) — ამიტომ ერთი და იგივე პაროლი ორჯერ ერთნაირ hash-ს არ იძლევა, და ცალკე სვეტი salt-ისთვის არ გვჭირდება. პაროლის შემოწმებას (<code>Argon2.Verify</code>) ავტორიზაციის თემაში ვნახავთ.</p></div></div></article>
+<h2 class="sec" id="sec-3">დღის თემა</h2>
+<article class="blk" data-slides="4"><span class="anchor" id="s-4"></span><div class="bh"><h3>დღის თემა: Inversion of Control და Dependency Injection</h3><a class="chip" href="index.html#/4" data-go="4" title="პრეზენტაციაში გახსნა">სლაიდი 4</a></div>
+<p>ShopApi-ში პროდუქტები Controller-ის შიგნით, <code>static</code> სიაშია ჩაკეტილი. როგორც კი ისინი მეორე Controller-საც დასჭირდება, ეს გამოსავალი ინგრევა. დღეს ვპასუხობთ კითხვას: ვინ უნდა ქმნიდეს ობიექტებს? პასუხი ორი ტერმინია — Inversion of Control და Dependency Injection — რომლებსაც ყველა .NET გასაუბრებაზე გკითხავენ.</p>
+<p><strong>ლექციის ბოლოს შეძლებ:</strong></p>
+<ul>
+<li>მონაცემების Controller-იდან ცალკე კლასში (Store) გატანა</li>
+<li>ახსნა, რატომ არ მუშაობს <code>new</code> Controller-ის შიგნით</li>
+<li>IoC-ს და DI-ს განსხვავების ახსნა</li>
+<li>dependency-ს constructor-ით მოთხოვნა და <code>AddSingleton</code>-ით რეგისტრაცია</li>
+</ul></article>
+<h2 class="sec" id="sec-4"></h2>
+<article class="blk" data-slides="5"><span class="anchor" id="s-5"></span><div class="bh"><h3>ლექციის გეგმა</h3><a class="chip" href="index.html#/5" data-go="5" title="პრეზენტაციაში გახსნა">სლაიდი 5</a></div>
+<ol>
+<li><strong>ახალი მოთხოვნა</strong> — სტატისტიკა, რომელსაც პროდუქტები სჭირდება, და ჩვენი კოდი მისთვის მზად არ არის.</li>
+<li><strong>ProductStore</strong> — მონაცემებს Controller-იდან საკუთარ კლასში გავიტანთ და ახალ პრობლემას წავაწყდებით.</li>
+<li><strong>Inversion of Control</strong> — ვინ მართავს ჩვენს პროგრამას.</li>
+<li><strong>Dependency Injection</strong> — როგორ ხსნის ის პრობლემას ბოლომდე.</li>
+<li><strong>პრაქტიკა</strong> — იგივე ცვლილება LibraryApi-ში.</li>
+</ol></article>
+<h2 class="sec" id="sec-5">დღის თემა</h2>
+<article class="blk" data-slides="6"><span class="anchor" id="s-6"></span><div class="bh"><h3>სადაც შევჩერდით</h3><a class="chip" href="index.html#/6" data-go="6" title="პრეზენტაციაში გახსნა">სლაიდი 6</a></div>
+<p>ShopApi-ს ხუთი endpoint აქვს, სწორი სტატუს კოდებით და Swagger-ში გატესტილი. პროდუქტები ინახება <code>static</code> სიაში, Controller-ის შიგნით:</p>
+<div class="codebox"><div class="ch"><span>Controllers/ProductsController.cs</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="k">private</span><span class="w"> </span><span class="k">static</span><span class="w"> </span><span class="n">List</span><span class="o">&lt;</span><span class="n">Product</span><span class="o">&gt;</span><span class="w"> </span><span class="n">_products</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">List</span><span class="o">&lt;</span><span class="n">Product</span><span class="o">&gt;</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">.</span><span class="p">.</span><span class="p">.</span><span class="w"> </span><span class="p">}</span><span class="p">;</span></span></code></pre></div>
+<p>სია <code>static</code> იმიტომ არის, რომ <strong>Controller ყოველ მოთხოვნაზე თავიდან იქმნება</strong> — <code>static</code>-ის გარეშე ყოველ მოთხოვნას საკუთარი, ახალი სია ექნებოდა. თვითონვე ვთქვით, რომ ეს დროებითი გამოსავალია. დღეს ვნახავთ, რატომ და რით შევცვალოთ.</p>
+<div class="callout note"><span class="ci">💡</span><div><p>ამ ლექციის მაგალითებში Controller-ი <code>Product</code>-ს პირდაპირ იღებს და აბრუნებს — რომ ყურადღება მხოლოდ ProductStore-სა და DI-ზე იყოს. შენს პროექტში DTO-ები და Mapper წინა ლექციიდან ადგილზე რჩება: ProductStore <code>Product</code>-ებს ინახავს, Controller კი შემოსვლისას <code>ToEntity()</code>-ს და გასვლისას <code>ToResponse()</code>-ს იძახებს.</p></div></div></article>
+<h2 class="sec" id="sec-6">1 · ახალი მოთხოვნა</h2>
+<article class="blk" data-slides="7"><span class="anchor" id="s-7"></span><div class="bh"><h3>ნაწილი 1 · ახალი მოთხოვნა</h3><a class="chip" href="index.html#/7" data-go="7" title="პრეზენტაციაში გახსნა">სლაიდი 7</a></div>
+<p>რეალურ პროექტში მოთხოვნები მუდმივად ემატება. ვნახოთ, როგორ უმკლავდება ჩვენი კოდი პირველივე ახალ მოთხოვნას.</p></article>
+<article class="blk" data-slides="8"><span class="anchor" id="s-8"></span><div class="bh"><h3>მენეჯერს სტატისტიკა უნდა</h3><a class="chip" href="index.html#/8" data-go="8" title="პრეზენტაციაში გახსნა">სლაიდი 8</a></div>
+<p>„რამდენი პროდუქტი გვაქვს და რამდენი ღირს ყველა ერთად? ცალკე მისამართზე მინდა.“</p>
+<div class="codebox"><div class="ch"><span>http</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="err">G</span><span class="err">E</span><span class="err">T</span><span class="err"> </span><span class="err">/</span><span class="err">a</span><span class="err">p</span><span class="err">i</span><span class="err">/</span><span class="err">s</span><span class="err">t</span><span class="err">a</span><span class="err">t</span><span class="err">s</span></span><span class="ln"><span class="err">→</span><span class="err"> </span><span class="err">2</span><span class="err">0</span><span class="err">0</span><span class="err"> </span><span class="err">O</span><span class="err">K</span><span class="err"> </span><span class="err"> </span><span class="err">{</span><span class="err"> </span><span class="err">"</span><span class="err">c</span><span class="err">o</span><span class="err">u</span><span class="err">n</span><span class="err">t</span><span class="err">"</span><span class="err">:</span><span class="err"> </span><span class="err">3</span><span class="err">,</span><span class="err"> </span><span class="err">"</span><span class="err">t</span><span class="err">o</span><span class="err">t</span><span class="err">a</span><span class="err">l</span><span class="err">V</span><span class="err">a</span><span class="err">l</span><span class="err">u</span><span class="err">e</span><span class="err">"</span><span class="err">:</span><span class="err"> </span><span class="err">2</span><span class="err">5</span><span class="err">6</span><span class="err">5</span><span class="err"> </span><span class="err">}</span></span></code></pre></div>
+<p>REST-ის წესით <code>stats</code> ახალი რესურსია, ამიტომ ახალი Controller სჭირდება — <strong>StatsController</strong>. ამოცანა მარტივია: StatsController-მა პროდუქტები უნდა წაიკითხოს. მაგრამ… პროდუქტები სად არის? ProductsController-ის შიგნით.</p></article>
+<article class="blk" data-slides="9"><span class="anchor" id="s-9"></span><div class="bh"><h3>პრობლემა: სია ProductsController-შია ჩაკეტილი</h3><a class="chip" href="index.html#/9" data-go="9" title="პრეზენტაციაში გახსნა">სლაიდი 9</a></div>
+<p>როგორ წავიკითხოთ პროდუქტები StatsController-იდან? სამი „მარტივი“ იდეა — და სამივე ცუდია:</p>
+<ol>
+<li><strong>სიას StatsController-შიც გადავაკოპირებთ.</strong> მაშინ ორი სხვადასხვა სია გვექნება: POST-ით დამატებულ მონიტორს სტატისტიკა ვერ დაინახავს.</li>
+<li><strong>სიას <code>public static</code>-ად ვაქცევთ</strong> და <code>ProductsController._products</code>-ით მივწვდებით. იმუშავებს, მაგრამ ერთი Controller მეორის შიგნით იქექება, და სიას პროექტში ნებისმიერი კლასი შეცვლის — ვერასდროს გაიგებ, ვინ შეცვალა.</li>
+<li><strong>სტატისტიკასაც ProductsController-ში ჩავწერთ.</strong> შემდეგ შეკვეთები, კალათა, ფასდაკლებები… და ერთი Controller ყველაფერს აკეთებს.</li>
+</ol></article>
+<article class="blk" data-slides="10"><span class="anchor" id="s-10"></span><div class="bh"><h3>მიზეზი: ProductsController ორ საქმეს აკეთებს</h3><a class="chip" href="index.html#/10" data-go="10" title="პრეზენტაციაში გახსნა">სლაიდი 10</a></div>
+<p>ProductsController-ის შიგნით ორი სრულიად სხვადასხვა საქმეა:</p>
+<ul>
+<li>🌐 <strong>HTTP</strong> — მოთხოვნის მიღება, პასუხი, სტატუს კოდი.</li>
+<li>🗃️ <strong>მონაცემები</strong> — სია, Id-ის დათვლა, ძებნა, დამატება.</li>
+</ul>
+<p>Controller-ის ნამდვილი საქმე HTTP-ა: მიიღოს მოთხოვნა და დააბრუნოს სწორი პასუხი სწორი კოდით. <strong>მონაცემებს საკუთარი კლასი სჭირდება</strong> — და ყველა, ვისაც პროდუქტები სჭირდება, ერთსა და იმავე ობიექტს უნდა იყენებდეს.</p>
+<div class="callout note"><span class="ci">💡</span><div><p>ამ იდეას — „ერთ კლასს ერთი საქმე“ — Single Responsibility ჰქვია. ის SOLID-ის ერთ-ერთი პრინციპია, რომელსაც არქიტექტურის თემაში ვნახავთ.</p></div></div></article>
+<h2 class="sec" id="sec-7">2 · ProductStore</h2>
+<article class="blk" data-slides="11"><span class="anchor" id="s-11"></span><div class="bh"><h3>ნაწილი 2 · მონაცემებს — თავისი სახლი</h3><a class="chip" href="index.html#/11" data-go="11" title="პრეზენტაციაში გახსნა">სლაიდი 11</a></div>
+<p>მონაცემებს Controller-იდან ახალ კლასში, <code>ProductStore</code>-ში გავიტანთ.</p></article>
+<article class="blk" data-slides="12"><span class="anchor" id="s-12"></span><div class="bh"><h3>ProductStore — პროდუქტების საცავი</h3><a class="chip" href="index.html#/12" data-go="12" title="პრეზენტაციაში გახსნა">სლაიდი 12</a></div>
+<p>ვქმნით ფოლდერს <code>Services</code> და მასში კლასს <code>ProductStore</code>:</p>
+<div class="codebox"><div class="ch"><span>Services/ProductStore.cs</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="k">public</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">ProductStore</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="k">private</span><span class="w"> </span><span class="n">List</span><span class="o">&lt;</span><span class="n">Product</span><span class="o">&gt;</span><span class="w"> </span><span class="n">_products</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">List</span><span class="o">&lt;</span><span class="n">Product</span><span class="o">&gt;</span></span><span class="ln"><span class="w">    </span><span class="p">{</span></span><span class="ln"><span class="w">        </span><span class="k">new</span><span class="w"> </span><span class="n">Product</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">Id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Guid</span><span class="p">.</span><span class="n">NewGuid</span><span class="p">(</span><span class="p">)</span><span class="p">,</span><span class="w"> </span><span class="n">Name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"ლეპტოპი"</span><span class="p">,</span><span class="w"> </span><span class="n">Price</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">2400</span><span class="w"> </span><span class="p">}</span><span class="p">,</span></span><span class="ln"><span class="w">        </span><span class="k">new</span><span class="w"> </span><span class="n">Product</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">Id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Guid</span><span class="p">.</span><span class="n">NewGuid</span><span class="p">(</span><span class="p">)</span><span class="p">,</span><span class="w"> </span><span class="n">Name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"მაუსი"</span><span class="p">,</span><span class="w"> </span><span class="n">Price</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">45</span><span class="w"> </span><span class="p">}</span><span class="p">,</span></span><span class="ln"><span class="w">        </span><span class="k">new</span><span class="w"> </span><span class="n">Product</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">Id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Guid</span><span class="p">.</span><span class="n">NewGuid</span><span class="p">(</span><span class="p">)</span><span class="p">,</span><span class="w"> </span><span class="n">Name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"კლავიატურა"</span><span class="p">,</span><span class="w"> </span><span class="n">Price</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">120</span><span class="w"> </span><span class="p">}</span></span><span class="ln"><span class="w">    </span><span class="p">}</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="n">List</span><span class="o">&lt;</span><span class="n">Product</span><span class="o">&gt;</span><span class="w"> </span><span class="n">GetAll</span><span class="p">(</span><span class="p">)</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">_products</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="n">Product</span><span class="o">?</span><span class="w"> </span><span class="n">GetById</span><span class="p">(</span><span class="n">Guid</span><span class="w"> </span><span class="n">id</span><span class="p">)</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">_products</span><span class="p">.</span><span class="n">FirstOrDefault</span><span class="p">(</span><span class="n">p</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">Id</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">id</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="n">Product</span><span class="w"> </span><span class="nf">Add</span><span class="p">(</span><span class="n">Product</span><span class="w"> </span><span class="n">product</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="p">{</span></span><span class="ln"><span class="w">        </span><span class="n">product</span><span class="p">.</span><span class="n">Id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Guid</span><span class="p">.</span><span class="n">NewGuid</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">        </span><span class="n">_products</span><span class="p">.</span><span class="n">Add</span><span class="p">(</span><span class="n">product</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">product</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="p">}</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="nf">Update</span><span class="p">(</span><span class="n">Guid</span><span class="w"> </span><span class="n">id</span><span class="p">,</span><span class="w"> </span><span class="n">Product</span><span class="w"> </span><span class="n">updated</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="p">{</span></span><span class="ln"><span class="w">        </span><span class="kt">var</span><span class="w"> </span><span class="n">product</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">GetById</span><span class="p">(</span><span class="n">id</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">product</span><span class="w"> </span><span class="k">is</span><span class="w"> </span><span class="k">null</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="k">false</span><span class="p">;</span></span><span class="ln"><span class="w">        </span><span class="n">product</span><span class="p">.</span><span class="n">Name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">updated</span><span class="p">.</span><span class="n">Name</span><span class="p">;</span></span><span class="ln"><span class="w">        </span><span class="n">product</span><span class="p">.</span><span class="n">Price</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">updated</span><span class="p">.</span><span class="n">Price</span><span class="p">;</span></span><span class="ln"><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="k">true</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="p">}</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="nf">Delete</span><span class="p">(</span><span class="n">Guid</span><span class="w"> </span><span class="n">id</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="p">{</span></span><span class="ln"><span class="w">        </span><span class="kt">var</span><span class="w"> </span><span class="n">product</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">GetById</span><span class="p">(</span><span class="n">id</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">product</span><span class="w"> </span><span class="k">is</span><span class="w"> </span><span class="k">null</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="k">false</span><span class="p">;</span></span><span class="ln"><span class="w">        </span><span class="n">_products</span><span class="p">.</span><span class="n">Remove</span><span class="p">(</span><span class="n">product</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="k">true</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="p">}</span></span><span class="ln"><span class="p">}</span></span></code></pre></div>
+<ul>
+<li>სია Controller-იდან გადმოვიდა — და <strong><code>static</code> აღარ წერია</strong>. რატომ — ცოტა ხანში გამოჩნდება.</li>
+<li>მეთოდებში <strong>HTTP არ არის</strong>: არც <code>Ok</code>, არც <code>NotFound</code>. ProductStore მხოლოდ მონაცემებზე ზრუნავს.</li>
+<li><code>Product?</code> — კითხვის ნიშანი ნიშნავს, რომ შეიძლება <code>null</code> დაბრუნდეს (პროდუქტი ვერ მოიძებნა).</li>
+<li><code>Add</code> Id-ს თვითონ ანიჭებს და შექმნილ პროდუქტს აბრუნებს.</li>
+<li><code>Update</code> და <code>Delete</code> აბრუნებს <code>bool</code>-ს — „გამოვიდა თუ არა“. 404-ის დაბრუნებას Controller თვითონ გადაწყვეტს.</li>
+</ul></article>
+<article class="blk" data-slides="13"><span class="anchor" id="s-13"></span><div class="bh"><h3>პირველი ცდა: ორივე Controller-ში new ProductStore()</h3><a class="chip" href="index.html#/13" data-go="13" title="პრეზენტაციაში გახსნა">სლაიდი 13</a></div>
+<p>პირველი, რაც თავში მოგვდის:</p>
+<div class="codebox"><div class="ch"><span>Controllers/ProductsController.cs</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="k">private</span><span class="w"> </span><span class="n">ProductStore</span><span class="w"> </span><span class="n">_store</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">ProductStore</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="na">[HttpGet]</span></span><span class="ln"><span class="k">public</span><span class="w"> </span><span class="n">IActionResult</span><span class="w"> </span><span class="nf">GetAll</span><span class="p">(</span><span class="p">)</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">Ok</span><span class="p">(</span><span class="n">_store</span><span class="p">.</span><span class="n">GetAll</span><span class="p">(</span><span class="p">)</span><span class="p">)</span><span class="p">;</span></span></code></pre></div>
+<div class="codebox"><div class="ch"><span>Controllers/StatsController.cs</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="na">[ApiController]</span></span><span class="ln"><span class="na">[Route("api/[controller]</span><span class="s">")]</span></span><span class="ln"><span class="k">public</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">StatsController</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">ControllerBase</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="k">private</span><span class="w"> </span><span class="n">ProductStore</span><span class="w"> </span><span class="n">_store</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">ProductStore</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="na">[HttpGet]</span></span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="n">IActionResult</span><span class="w"> </span><span class="nf">Get</span><span class="p">(</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="p">{</span></span><span class="ln"><span class="w">        </span><span class="kt">var</span><span class="w"> </span><span class="n">products</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">_store</span><span class="p">.</span><span class="n">GetAll</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="nf">Ok</span><span class="p">(</span><span class="k">new</span></span><span class="ln"><span class="w">        </span><span class="p">{</span></span><span class="ln"><span class="w">            </span><span class="n">Count</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">products</span><span class="p">.</span><span class="n">Count</span><span class="p">,</span></span><span class="ln"><span class="w">            </span><span class="n">TotalValue</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">products</span><span class="p">.</span><span class="n">Sum</span><span class="p">(</span><span class="n">p</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">Price</span><span class="p">)</span></span><span class="ln"><span class="w">        </span><span class="p">}</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="p">}</span></span><span class="ln"><span class="p">}</span></span></code></pre></div>
+<p><code>new { ... }</code> <strong>ანონიმური ობიექტია</strong>: კლასის შექმნის გარეშე JSON-ის ფორმას ვაწყობთ. <code>Count</code> — რამდენი პროდუქტია, <code>Sum</code> — ფასების ჯამი.</p></article>
+<article class="blk" data-slides="14"><span class="anchor" id="s-14"></span><div class="bh"><h3>ვუშვებთ… და მონიტორი ისევ გაქრა</h3><a class="chip" href="index.html#/14" data-go="14" title="პრეზენტაციაში გახსნა">სლაიდი 14</a></div>
+<ol>
+<li><strong>POST</strong> „დაამატე მონიტორი“ → ASP.NET Core ქმნის ProductsController #1-ს → ის <code>new</code>-ით ქმნის ProductStore #1-ს → მონიტორი მის სიაში ემატება. პასუხი წავიდა — Controller და მისი ProductStore ქრება.</li>
+<li><strong>GET</strong> „მომეცი ყველა“ → ახალი ProductsController #2 → ახალი ProductStore #2 → ახალი სია, ისევ სამი პროდუქტით. 😱 მონიტორი სად არის?</li>
+<li><strong>GET /api/stats</strong> → StatsController ქმნის ProductStore #3-ს — კიდევ ერთ, საკუთარ სიას.</li>
+</ol>
+<p>ყოველი <code>new</code> = ახალი ProductStore = ახალი სია. თუნდაც მონაცემი არ ქრებოდეს, ორ Controller-ს მაინც სხვადასხვა სია ექნებოდა.</p></article>
+<article class="blk" data-slides="15"><span class="anchor" id="s-15"></span><div class="bh"><h3>მთავარი კითხვა: ვინ უნდა შექმნას ProductStore?</h3><a class="chip" href="index.html#/15" data-go="15" title="პრეზენტაციაში გახსნა">სლაიდი 15</a></div>
+<ul>
+<li>🙅 <strong>თავად Controller-ი</strong> — ყველა თავის ასლს ქმნის, და ვერავინ აკონტროლებს, რამდენი ასლი არსებობს.</li>
+<li>🤝 <strong>ვიღაც გარედან</strong> — შექმნის ერთხელ და მიაწვდის ყველა Controller-ს, ვისაც სჭირდება. Controller-ი მხოლოდ იტყვის: „მე ProductStore მჭირდება“.</li>
+</ul>
+<p>ვინ შეიძლება იყოს ეს „ვიღაც“? პასუხამდე ჯერ უფრო მარტივ კითხვას ვუპასუხოთ.</p></article>
+<h2 class="sec" id="sec-8">3 · Inversion of Control</h2>
+<article class="blk" data-slides="16"><span class="anchor" id="s-16"></span><div class="bh"><h3>ნაწილი 3 · Inversion of Control</h3><a class="chip" href="index.html#/16" data-go="16" title="პრეზენტაციაში გახსნა">სლაიდი 16</a></div>
+<p>ერთი წუთით ProductStore გვერდზე გადავდოთ და ჩვენს პროგრამას სხვა კუთხიდან შევხედოთ: ვინ მართავს მას?</p></article>
+<article class="blk" data-slides="17"><span class="anchor" id="s-17"></span><div class="bh"><h3>ექსპერიმენტი: ვინ იძახებს GetAll()-ს?</h3><a class="chip" href="index.html#/17" data-go="17" title="პრეზენტაციაში გახსნა">სლაიდი 17</a></div>
+<p>Visual Studio-ში <strong>Ctrl+Shift+F</strong> — ძებნა მთელ პროექტში:</p>
+<ul>
+<li><code>new ProductsController(</code> — <strong>0 შედეგი</strong>. პროექტში არსად წერია, რომ Controller-ს ვქმნით.</li>
+<li><code>.GetAll()</code> — მხოლოდ <code>_store.GetAll()</code>, Controller-ის შიგნით. Controller-ის <code>GetAll</code>-ს არავინ იძახებს.</li>
+</ul>
+<p>ჩვენ არასდროს შეგვიქმნია Controller და არასდროს გამოგვიძახებია მისი მეთოდი — და მაინც ყოველ მოთხოვნაზე მუშაობს. ვინ აკეთებს ამას? <strong>ASP.NET Core.</strong></p></article>
+<article class="blk" data-slides="18"><span class="anchor" id="s-18"></span><div class="bh"><h3>ორი სამყარო: ვინ წყვეტს, რა და როდის შესრულდეს?</h3><a class="chip" href="index.html#/18" data-go="18" title="პრეზენტაციაში გახსნა">სლაიდი 18</a></div>
+<p><strong>🖥️ Console აპლიკაციაში</strong> შენი კოდი მართავს ყველაფერს:</p>
+<div class="codebox"><div class="ch"><span>Program.cs</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="kt">var</span><span class="w"> </span><span class="n">store</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">ProductStore</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="kt">var</span><span class="w"> </span><span class="n">all</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">store</span><span class="p">.</span><span class="n">GetAll</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="k">foreach</span><span class="w"> </span><span class="p">(</span><span class="kt">var</span><span class="w"> </span><span class="n">p</span><span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="n">all</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="n">p</span><span class="p">.</span><span class="n">Name</span><span class="p">)</span><span class="p">;</span></span></code></pre></div>
+<p>შენ ქმნი ობიექტს, შენ იძახებ მეთოდს, შენ წყვეტ თანმიმდევრობას.</p>
+<p><strong>🌐 ASP.NET Core-ში</strong> — პირიქით:</p>
+<table>
+<thead>
+<tr>
+<th>ნაბიჯი</th>
+<th>ვინ აკეთებს</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>მოთხოვნა მოვიდა: <code>GET /api/products</code></td>
+<td>ASP.NET Core</td>
+</tr>
+<tr>
+<td>მისამართით პოულობს Controller-ს</td>
+<td>ASP.NET Core</td>
+</tr>
+<tr>
+<td>ქმნის <code>ProductsController</code>-ს</td>
+<td>ASP.NET Core</td>
+</tr>
+<tr>
+<td>იძახებს <code>GetAll()</code>-ს</td>
+<td>ASP.NET Core</td>
+</tr>
+<tr>
+<td><code>return Ok(...)</code></td>
+<td><strong>შენი კოდი</strong></td>
+</tr>
+<tr>
+<td>შედეგს JSON-ად აქცევს და აგზავნის</td>
+<td>ASP.NET Core</td>
+</tr>
+</tbody>
+</table>
+<p>ექვსი ნაბიჯიდან ჩვენი მხოლოდ ერთია. პროგრამას framework მართავს — ჩვენ მას ნაწილებს ვაწვდით.</p></article>
+<article class="blk" data-slides="19"><span class="anchor" id="s-19"></span><div class="bh"><h3>ჰოლივუდის პრინციპი: „ნუ დაგვირეკავთ — ჩვენ დაგირეკავთ“</h3><a class="chip" href="index.html#/19" data-go="19" title="პრეზენტაციაში გახსნა">სლაიდი 19</a></div>
+<p>ჰოლივუდში მსახიობს კასტინგის შემდეგ ეუბნებიან: ნუ დაგვირეკავთ, ჩვენ დაგირეკავთ. მსახიობი სტუდიას ყოველ წუთს არ ურეკავს — ნომერს ტოვებს და ელოდება.</p>
+<p>ჩვენი Controller ზუსტად ასე იქცევა:</p>
+<ul>
+<li><strong>„ნომერს ტოვებს“</strong> — <code>AddControllers()</code>-ით ვარეგისტრირებთ, <code>[Route]</code> და <code>[HttpGet]</code> ეუბნება, რომელ მისამართზე პასუხობს.</li>
+<li><strong>„სტუდია რეკავს“</strong> — ASP.NET Core თვითონ წყვეტს, როდის გამოიძახოს <code>GetAll()</code>: როცა შესაბამისი მოთხოვნა მოვა.</li>
+</ul></article>
+<article class="blk" data-slides="20,21"><span class="anchor" id="s-20"></span><span class="anchor" id="s-21"></span><div class="bh"><h3>Inversion of Control (IoC)</h3><a class="chip" href="index.html#/20" data-go="20" title="პრეზენტაციაში გახსნა">სლაიდი 20</a></div>
+<p><strong>IoC — პრინციპი: პროგრამის მართვას შენი კოდიდან გადასცემ framework-ს.</strong> შენ წერ ნაწილებს, framework წყვეტს, როდის და როგორ გამოიყენოს. ეს იდეაა, არა კონკრეტული კოდი.</p>
+<p>კონტროლს ორი მხარე აქვს:</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>ვინ აკეთებს</th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>📞 ვინ <strong>იძახებს</strong> მეთოდებს</td>
+<td>ASP.NET Core იძახებს <code>GetAll()</code>-ს</td>
+<td>✓ უკვე გადაბრუნებულია</td>
+</tr>
+<tr>
+<td>🏭 ვინ <strong>ქმნის</strong> ობიექტებს</td>
+<td>Controller თვითონ წერს <code>new ProductStore()</code></td>
+<td>✗ კონტროლი ჯერ ჩვენთანაა</td>
+</tr>
+</tbody>
+</table>
+<p>შესვენების შემდეგ მეორე მხარესაც გადავაბრუნებთ — და ProductStore-ის პრობლემაც გადაიჭრება.</p>
+<div class="terms"><div class="th">📘 ტერმინები</div><dl><dt>Inversion of Control (IoC)</dt><dd>პრინციპი: კონტროლი (ვინ ქმნის, ვინ იძახებს) შენი კოდიდან framework-ს გადაეცემა</dd></dl></div></article>
+<h2 class="sec" id="sec-9">4 · Dependency Injection</h2>
+<article class="blk" data-slides="22"><span class="anchor" id="s-22"></span><div class="bh"><h3>ნაწილი 4 · Dependency Injection</h3><a class="chip" href="index.html#/22" data-go="22" title="პრეზენტაციაში გახსნა">სლაიდი 22</a></div>
+<p><strong>ნუ შექმნი — მოითხოვე.</strong> ობიექტების შექმნაც framework-ს გადავცეთ.</p></article>
+<article class="blk" data-slides="23"><span class="anchor" id="s-23"></span><div class="bh"><h3>Dependency — დამოკიდებულება</h3><a class="chip" href="index.html#/23" data-go="23" title="პრეზენტაციაში გახსნა">სლაიდი 23</a></div>
+<p>ორივე Controller იყენებს ProductStore-ს. შეუძლია ProductsController-ს იმუშაოს ProductStore-ის გარეშე? არა — მონაცემები იქ არის. ესე იგი ის ProductStore-ზეა <strong>დამოკიდებული</strong>.</p>
+<p><strong>ProductStore არის ProductsController-ის dependency</strong> — ის, რაც მას სამუშაოდ სჭირდება. ერთ კლასს შეიძლება ბევრი dependency ჰქონდეს.</p>
+<div class="terms"><div class="th">📘 ტერმინები</div><dl><dt>Dependency</dt><dd>ობიექტი, რომელიც კლასს სამუშაოდ სჭირდება (ProductsController-ისთვის — ProductStore)</dd></dl></div></article>
+<article class="blk" data-slides="24"><span class="anchor" id="s-24"></span><div class="bh"><h3>Injection — მზარეული ბაზარში არ დადის</h3><a class="chip" href="index.html#/24" data-go="24" title="პრეზენტაციაში გახსნა">სლაიდი 24</a></div>
+<p>რესტორნის მაგალითი:</p>
+<ul>
+<li>🧑‍🍳 <strong>თვითონ ყიდულობს</strong> — ყოველ დილით ყველა მზარეული ბაზარში მიდის, ყველას სხვადასხვა პომიდორი აქვს. ეს არის <code>new ProductStore()</code> Controller-ში.</li>
+<li>🚚 <strong>მომწოდებელი მოაქვს</strong> — მზარეული მხოლოდ ამბობს „პომიდორი მჭირდება“, და მომწოდებელი სამზარეულოს კარამდე მიუტანს. ეს არის: Controller ითხოვს, ვიღაც აწვდის.</li>
+<li>📋 <strong>მენეჯერი წყვეტს</strong> — ვინ არის მომწოდებელი, რესტორნის მენეჯერი ერთხელ, ერთ ადგილას წყვეტს. ჩვენთან ეს ადგილი <code>Program.cs</code> იქნება.</li>
+</ul>
+<p><strong>Injection</strong> = შეყვანა, მიწოდება: კლასს dependency გარედან მიეწოდება.</p></article>
+<article class="blk" data-slides="25"><span class="anchor" id="s-25"></span><div class="bh"><h3>კოდში: Controller-ი ითხოვს constructor-ით</h3><a class="chip" href="index.html#/25" data-go="25" title="პრეზენტაციაში გახსნა">სლაიდი 25</a></div>
+<div class="codebox"><div class="ch"><span>Controllers/ProductsController.cs</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="k">public</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">ProductsController</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">ControllerBase</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="c1">// ადრე: = new ProductStore();</span></span><span class="ln"><span class="w">    </span><span class="k">private</span><span class="w"> </span><span class="k">readonly</span><span class="w"> </span><span class="n">ProductStore</span><span class="w"> </span><span class="n">_store</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="nf">ProductsController</span><span class="p">(</span><span class="n">ProductStore</span><span class="w"> </span><span class="n">store</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="p">{</span></span><span class="ln"><span class="w">        </span><span class="n">_store</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">store</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="p">}</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="na">[HttpGet]</span></span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="n">IActionResult</span><span class="w"> </span><span class="nf">GetAll</span><span class="p">(</span><span class="p">)</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">Ok</span><span class="p">(</span><span class="n">_store</span><span class="p">.</span><span class="n">GetAll</span><span class="p">(</span><span class="p">)</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="p">}</span></span></code></pre></div>
+<ol>
+<li><strong><code>new</code> წავშალეთ.</strong> ველი დარჩა ცარიელი. <code>readonly</code> — ერთხელ მიენიჭება (constructor-ში) და მერე ვეღარავინ შეცვლის.</li>
+<li><strong>constructor-ის პარამეტრი</strong> <code>ProductStore store</code> = მოთხოვნა: „ჩემს შესაქმნელად ProductStore აუცილებელია“. ვინც ProductsController-ს შექმნის, ProductStore-იც უნდა მოუტანოს.</li>
+<li><strong>მიღებულს ველში ვინახავთ</strong> — მეთოდები ისევ <code>_store</code>-ს იყენებენ, მათში არაფერი შეცვლილა.</li>
+</ol>
+<p>იგივე კეთდება StatsController-შიც.</p></article>
+<article class="blk" data-slides="26"><span class="anchor" id="s-26"></span><div class="bh"><h3>ვუშვებთ… 500 და ძალიან სასარგებლო შეცდომა</h3><a class="chip" href="index.html#/26" data-go="26" title="პრეზენტაციაში გახსნა">სლაიდი 26</a></div>
+<div class="codebox"><div class="ch"><span>System.InvalidOperationException</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln">Unable to resolve service for type 'ShopApi.Services.ProductStore'</span><span class="ln">while attempting to activate 'ShopApi.Controllers.ProductsController'.</span></code></pre></div>
+<p>ნუ შეგეშინდება — ეს ერთ-ერთი ყველაზე სასარგებლო შეცდომაა .NET-ში. ნაწილ-ნაწილ:</p>
+<ul>
+<li><strong>Unable to resolve service</strong> — „ვერ გავარკვიე, საიდან ავიღო…“</li>
+<li><strong>…ProductStore</strong> — „…ProductStore“</li>
+<li><strong>while attempting to activate ProductsController</strong> — „…როცა ProductsController-ს ვქმნიდი“</li>
+</ul>
+<p>ანუ ვიღაც ცდილობდა ProductsController-ის შექმნას, დაინახა, რომ ProductStore სჭირდება, და ვერ იპოვა. ვინ არის ეს „ვიღაც“?</p></article>
+<article class="blk" data-slides="27"><span class="anchor" id="s-27"></span><div class="bh"><h3>DI Container — ობიექტების ქარხანა</h3><a class="chip" href="index.html#/27" data-go="27" title="პრეზენტაციაში გახსნა">სლაიდი 27</a></div>
+<p>ASP.NET Core-ს აქვს ჩაშენებული <strong>DI Container</strong>: ის ქმნის ობიექტებს და აწვდის მათ, ვისაც სჭირდება. Controller-ებსაც ის ქმნის.</p>
+<p>ეს ხაზები <code>Program.cs</code>-ში პირველი ლექციიდან გვიწერია:</p>
+<div class="codebox"><div class="ch"><span>Program.cs</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="kt">var</span><span class="w"> </span><span class="n">builder</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">WebApplication</span><span class="p">.</span><span class="n">CreateBuilder</span><span class="p">(</span><span class="n">args</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="n">builder</span><span class="p">.</span><span class="n">Services</span><span class="p">.</span><span class="n">AddControllers</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="n">builder</span><span class="p">.</span><span class="n">Services</span><span class="p">.</span><span class="n">AddOpenApi</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="n">builder</span><span class="p">.</span><span class="n">Services</span><span class="p">.</span><span class="n">AddSwaggerGen</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span></code></pre></div>
+<p><strong><code>builder.Services</code> — სწორედ Container-ის სიაა.</strong> <code>AddControllers</code>, <code>AddOpenApi</code>, <code>AddSwaggerGen</code> — რეგისტრაციებია: Container-ს ვეუბნებით „ესენი იცოდე“. მასში ასობით სერვისია, მაგრამ <strong>ProductStore სიაში არ არის</strong> — ამიტომ Container ვერ ქმნის მას.</p>
+<div class="terms"><div class="th">📘 ტერმინები</div><dl><dt>DI Container</dt><dd>ASP.NET Core-ის ნაწილი, რომელიც ობიექტებს ქმნის და მათ, ვისაც სჭირდება, constructor-ით აწვდის</dd><dt>builder.Services</dt><dd>Container-ის სია: რა ტიპები იცის და როგორ შექმნას</dd></dl></div></article>
+<article class="blk" data-slides="28"><span class="anchor" id="s-28"></span><div class="bh"><h3>რეგისტრაცია: ერთი ხაზი</h3><a class="chip" href="index.html#/28" data-go="28" title="პრეზენტაციაში გახსნა">სლაიდი 28</a></div>
+<div class="codebox"><div class="ch"><span>Program.cs</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="n">builder</span><span class="p">.</span><span class="n">Services</span><span class="p">.</span><span class="n">AddControllers</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="n">builder</span><span class="p">.</span><span class="n">Services</span><span class="p">.</span><span class="n">AddOpenApi</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="n">builder</span><span class="p">.</span><span class="n">Services</span><span class="p">.</span><span class="n">AddSwaggerGen</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="n">builder</span><span class="p">.</span><span class="n">Services</span><span class="p">.</span><span class="n">AddSingleton</span><span class="o">&lt;</span><span class="n">ProductStore</span><span class="o">&gt;</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span></code></pre></div>
+<ul>
+<li><strong><code>Add…</code></strong> — „Container, ProductStore იცოდე · ვინც მოითხოვს, მიაწოდე“.</li>
+<li><strong><code>Singleton</code></strong> — ერთი ობიექტი მთელი აპლიკაციისთვის. პირველად რომ დასჭირდება ვინმეს, შექმნის, მერე ყველას — ყველა Controller-ს, ყველა მოთხოვნაზე — იმავეს აწვდის.</li>
+<li>ფაილის თავში — <code>using ShopApi.Services;</code>.</li>
+</ul>
+<p>სხვა ვარიანტებიც არსებობს — <code>AddScoped</code>, <code>AddTransient</code>. მათ ბაზასთან ერთად ვისწავლით: იქ ყველაზე კარგად ჩანს, რატომ გვჭირდება.</p>
+<div class="prompt"><div class="ph"><span>🤖 Singleton, Scoped, Transient</span><button class="copy" type="button">კოპირება</button></div><div class="pb">ASP.NET Core-ში ვსწავლობ Dependency Injection-ს. ვიცი AddSingleton. ამიხსენი მარტივად AddSingleton, AddScoped და AddTransient-ის განსხვავება:
+რამდენჯერ იქმნება ობიექტი თითოეულ შემთხვევაში და როდის რომელს იყენებენ? მაგალითისთვის გამოიყენე ProductStore და HTTP მოთხოვნები. ახსნა ქართულად, დამწყებისთვის.</div></div></article>
+<article class="blk" data-slides="29"><span class="anchor" id="s-29"></span><div class="bh"><h3>რა ხდება ახლა: Controller ახალია, ProductStore — ერთი</h3><a class="chip" href="index.html#/29" data-go="29" title="პრეზენტაციაში გახსნა">სლაიდი 29</a></div>
+<ul>
+<li><strong>GET</strong> მოდის → Container ქმნის ProductsController #1-ს → ხედავს constructor-ს: ProductStore სჭირდება → სიაში ეძებს, Singleton-ია → პირველად სჭირდებათ, ქმნის და constructor-ში აწვდის.</li>
+<li><strong>POST</strong> მოდის → ProductsController ისევ ახალია (#2) → მაგრამ <strong>ProductStore ახალი აღარ არის</strong>: Singleton-ია, Container იმავე ობიექტს აწვდის. მონიტორი იმავე სიაში ემატება.</li>
+<li><strong>stats</strong> → ახალი StatsController — და ისევ იგივე ProductStore.</li>
+</ul>
+<p>Controller-ები მოდიან და მიდიან, ProductStore — ერთია და რჩება. ამიტომ მას <code>static</code> აღარ სჭირდება.</p></article>
+<article class="blk" data-slides="30"><span class="anchor" id="s-30"></span><div class="bh"><h3>ვამოწმებთ Swagger-ში</h3><a class="chip" href="index.html#/30" data-go="30" title="პრეზენტაციაში გახსნა">სლაიდი 30</a></div>
+<ol>
+<li><code>POST /api/products</code> <code>{ "name": "მონიტორი", "price": 650 }</code> → <strong>201</strong></li>
+<li><code>GET /api/products</code> → ლეპტოპი, მაუსი, კლავიატურა, <strong>მონიტორი</strong> → 200</li>
+<li><code>GET /api/stats</code> → <code>{ "count": 4, "totalValue": 3215 }</code> → 200</li>
+</ol>
+<p>ორივე Controller ერთსა და იმავე ProductStore-ს ხედავს — და არცერთი მას არ ქმნის.</p></article>
+<article class="blk" data-slides="31"><span class="anchor" id="s-31"></span><div class="bh"><h3>ადრე და ახლა</h3><a class="chip" href="index.html#/31" data-go="31" title="პრეზენტაციაში გახსნა">სლაიდი 31</a></div>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>❌ ადრე — Controller ქმნის</th>
+<th>✓ ახლა — Controller ითხოვს</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>კოდი</td>
+<td><code>private ProductStore _store = new ProductStore();</code></td>
+<td><code>public ProductsController(ProductStore store)</code> + <code>AddSingleton&lt;ProductStore&gt;()</code></td>
+</tr>
+<tr>
+<td>ასლები</td>
+<td>ყველა Controller თავის ასლს ქმნის</td>
+<td>Container ქმნის და აწვდის</td>
+</tr>
+<tr>
+<td>ვინ წყვეტს, როგორ შეიქმნას</td>
+<td>ყოველი Controller</td>
+<td>ერთი ადგილი — <code>Program.cs</code></td>
+</tr>
+</tbody>
+</table>
+<p>თუ ProductStore-ის შექმნა ოდესმე შეიცვლება (მაგ. ბაზასთან კავშირი დასჭირდება), ახლა ერთ ადგილას შევცვლით და არა ყველა Controller-ში.</p></article>
+<article class="blk" data-slides="32"><span class="anchor" id="s-32"></span><div class="bh"><h3>საბოლოო ProductsController — მხოლოდ HTTP</h3><a class="chip" href="index.html#/32" data-go="32" title="პრეზენტაციაში გახსნა">სლაიდი 32</a></div>
+<div class="codebox"><div class="ch"><span>Controllers/ProductsController.cs</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="na">[ApiController]</span></span><span class="ln"><span class="na">[Route("api/[controller]</span><span class="s">")]</span></span><span class="ln"><span class="k">public</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">ProductsController</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">ControllerBase</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="k">private</span><span class="w"> </span><span class="k">readonly</span><span class="w"> </span><span class="n">ProductStore</span><span class="w"> </span><span class="n">_store</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="nf">ProductsController</span><span class="p">(</span><span class="n">ProductStore</span><span class="w"> </span><span class="n">store</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="p">{</span></span><span class="ln"><span class="w">        </span><span class="n">_store</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">store</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="p">}</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="na">[HttpGet]</span></span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="n">IActionResult</span><span class="w"> </span><span class="nf">GetAll</span><span class="p">(</span><span class="p">)</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">Ok</span><span class="p">(</span><span class="n">_store</span><span class="p">.</span><span class="n">GetAll</span><span class="p">(</span><span class="p">)</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="na">[HttpGet("{id:guid}")]</span></span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="n">IActionResult</span><span class="w"> </span><span class="nf">GetById</span><span class="p">(</span><span class="n">Guid</span><span class="w"> </span><span class="n">id</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="p">{</span></span><span class="ln"><span class="w">        </span><span class="kt">var</span><span class="w"> </span><span class="n">product</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">_store</span><span class="p">.</span><span class="n">GetById</span><span class="p">(</span><span class="n">id</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">product</span><span class="w"> </span><span class="k">is</span><span class="w"> </span><span class="k">null</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">NotFound</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="nf">Ok</span><span class="p">(</span><span class="n">product</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="p">}</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="na">[HttpPost]</span></span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="n">IActionResult</span><span class="w"> </span><span class="nf">Create</span><span class="p">(</span><span class="n">Product</span><span class="w"> </span><span class="n">product</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="p">{</span></span><span class="ln"><span class="w">        </span><span class="kt">var</span><span class="w"> </span><span class="n">created</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">_store</span><span class="p">.</span><span class="n">Add</span><span class="p">(</span><span class="n">product</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="nf">CreatedAtAction</span><span class="p">(</span><span class="k">nameof</span><span class="p">(</span><span class="n">GetById</span><span class="p">)</span><span class="p">,</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">created</span><span class="p">.</span><span class="n">Id</span><span class="w"> </span><span class="p">}</span><span class="p">,</span><span class="w"> </span><span class="n">created</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="p">}</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="na">[HttpPut("{id:guid}")]</span></span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="n">IActionResult</span><span class="w"> </span><span class="nf">Update</span><span class="p">(</span><span class="n">Guid</span><span class="w"> </span><span class="n">id</span><span class="p">,</span><span class="w"> </span><span class="n">Product</span><span class="w"> </span><span class="n">updated</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="p">{</span></span><span class="ln"><span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">_store</span><span class="p">.</span><span class="n">Update</span><span class="p">(</span><span class="n">id</span><span class="p">,</span><span class="w"> </span><span class="n">updated</span><span class="p">)</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">NotFound</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="nf">NoContent</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="p">}</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="na">[HttpDelete("{id:guid}")]</span></span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="n">IActionResult</span><span class="w"> </span><span class="nf">Delete</span><span class="p">(</span><span class="n">Guid</span><span class="w"> </span><span class="n">id</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="p">{</span></span><span class="ln"><span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">_store</span><span class="p">.</span><span class="n">Delete</span><span class="p">(</span><span class="n">id</span><span class="p">)</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">NotFound</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="nf">NoContent</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="p">}</span></span><span class="ln"><span class="p">}</span></span></code></pre></div>
+<p>Controller-ში აღარც სია წერია, აღარც Id-ის დათვლა. მონაცემებს ProductStore-ს ვთხოვთ, Controller-ი მხოლოდ სტატუს კოდს არჩევს: 200, 201, 204 ან 404. ზუსტად ის, რაც მისი საქმეა.</p></article>
+<article class="blk" data-slides="33"><span class="anchor" id="s-33"></span><div class="bh"><h3>სამი ტერმინი — ერთმანეთის შიგნით</h3><a class="chip" href="index.html#/33" data-go="33" title="პრეზენტაციაში გახსნა">სლაიდი 33</a></div>
+<ul>
+<li><strong>Inversion of Control</strong> — <em>პრინციპი</em>: კონტროლს framework-ს ვაძლევთ. ის ქმნის ობიექტებს და იძახებს ჩვენს კოდს.</li>
+<li><strong>Dependency Injection</strong> — <em>ტექნიკა</em>: IoC ობიექტების შექმნაზე. კლასი dependency-ს constructor-ში ითხოვს და თვითონ არ ქმნის.<ul>
+<li><strong>DI Container</strong> — <em>ინსტრუმენტი</em>: ის, ვინც ქმნის და აწვდის. ASP.NET Core-ში — <code>builder.Services</code>.</li>
+</ul>
+</li>
+</ul>
+<div class="callout note"><span class="ci">💡</span><div><p>გასაუბრებაზე თუ გკითხეს „რა განსხვავებაა IoC-სა და DI-ს შორის?“ — IoC პრინციპია, DI მისი ერთ-ერთი რეალიზაცია.</p></div></div>
+<div class="prompt"><div class="ph"><span>🤖 IoC და DI — გასაუბრებისთვის</span><button class="copy" type="button">კოპირება</button></div><div class="pb">ვემზადები .NET Junior გასაუბრებისთვის. დამისვი კითხვები Inversion of Control-ზე, Dependency Injection-ზე და DI Container-ზე (ASP.NET Core, builder.Services, AddSingleton, constructor injection).
+სათითაოდ დასვი, დაელოდე ჩემს პასუხს, შემიფასე და აუხსენი, რა გამომრჩა. 6 კითხვა. ქართულად.</div></div></article>
+<h2 class="sec" id="sec-10">პრაქტიკა</h2>
+<article class="blk" data-slides="34"><span class="anchor" id="s-34"></span><div class="bh"><h3>ნაწილი 5 · თქვენი ჯერია</h3><a class="chip" href="index.html#/34" data-go="34" title="პრეზენტაციაში გახსნა">სლაიდი 34</a></div>
+<p>იგივე გზა LibraryApi-ში, წიგნებზე.</p></article>
+<article class="blk" data-slides="35"><span class="anchor" id="s-35"></span><div class="bh"><h3>კლასში დავალება: LibraryApi → BookStore + DI</h3><a class="chip" href="index.html#/35" data-go="35" title="პრეზენტაციაში გახსნა">სლაიდი 35</a></div>
+<p>დავალება · LibraryApi</p>
+<h3>ნაბიჯები</h3>
+<ul>
+<li><code>Services/BookStore.cs</code> — სია და 5 მეთოდი (<code>static</code>-ის გარეშე)</li>
+<li>BooksController — <code>BookStore</code>-ს <strong>constructor-ში</strong> ითხოვს</li>
+<li><code>Program.cs</code>: <code>AddSingleton&lt;BookStore&gt;()</code></li>
+<li>Swagger: POST → GET — ახალი წიგნი ჩანს</li>
+</ul>
+<h3>✓ მზადაა, როცა</h3>
+<p>Ctrl+Shift+F → <code>new BookStore</code> — 0 შედეგი, და POST-ით დამატებული წიგნი GET-ში ჩანს</p>
+<h3>⭐ ბონუსი</h3>
+<ul>
+<li><code>StatsController</code>: <code>GET /api/stats</code> → წიგნების რაოდენობა, საშუალო ფასი, ყველაზე ძველი წიგნი</li>
+<li>ექსპერიმენტი: <code>AddSingleton</code> წაშალეთ და შეცდომა თვითონ წაიკითხეთ</li>
+</ul>
+<h3>💡 რჩევა</h3>
+<p>ზუსტად ის გზა გაიარეთ, რაც ShopApi-ში: ჯერ BookStore, მერე Controller constructor-ით, ბოლოს რეგისტრაცია. თუ BooksController DTO-ებს და BookMapper-ს იყენებს (წინა ლექციიდან) — ისინი უცვლელი რჩება: BookStore <code>Book</code>-ებს ინახავს, Controller კი ისევ შემოსვლისას <code>ToEntity()</code>-ს, გასვლისას <code>ToResponse()</code>-ს იძახებს.</p></article>
+<article class="blk" data-slides="36"><span class="anchor" id="s-36"></span><div class="bh"><h3>ხშირი შეცდომები</h3><a class="chip" href="index.html#/36" data-go="36" title="პრეზენტაციაში გახსნა">სლაიდი 36</a></div>
+<table>
+<thead>
+<tr>
+<th>რას ხედავ</th>
+<th>მიზეზი და გამოსწორება</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Unable to resolve service for type '…BookStore'</code></td>
+<td>Container-ს არ უთქვამს → <code>builder.Services.AddSingleton&lt;BookStore&gt;()</code></td>
+</tr>
+<tr>
+<td>POST-ის შემდეგ GET-ში ახალი არ ჩანს</td>
+<td>სადღაც ისევ <code>new BookStore()</code> წერია → Ctrl+Shift+F, წაშალე, constructor-ით ითხოვე</td>
+</tr>
+<tr>
+<td><code>The type or namespace 'BookStore' could not be found</code></td>
+<td><code>using</code> აკლია → <code>using LibraryApi.Services;</code></td>
+</tr>
+<tr>
+<td><code>A readonly field cannot be assigned to</code></td>
+<td><code>readonly</code> ველს მხოლოდ constructor-ში ანიჭებენ</td>
+</tr>
+<tr>
+<td><code>NullReferenceException</code></td>
+<td>constructor-მა მიიღო, მაგრამ ველს არ მიანიჭე → <code>_store = store;</code></td>
+</tr>
+</tbody>
+</table>
+<div class="prompt"><div class="ph"><span>🤖 როცა რამე არ მუშაობს</span><button class="copy" type="button">კოპირება</button></div><div class="pb">ASP.NET Core Web API-ში DI-ს ვიყენებ (constructor injection, AddSingleton). მაქვს პრობლემა: [აღწერე]
+შეცდომის ტექსტი: [ჩასვი]
+ჩემი Program.cs და Controller-ის constructor: [ჩასვი]
+ჯერ მითხარი, რას ნიშნავს შეცდომა და სად ვეძებო — მზა კოდი ნუ დამიწერე.</div></div></article>
+<h2 class="sec" id="sec-11">შეჯამება</h2>
+<article class="blk" data-slides="37"><span class="anchor" id="s-37"></span><div class="bh"><h3>შეამოწმე, რა დაგამახსოვრდა</h3><a class="chip" href="index.html#/37" data-go="37" title="პრეზენტაციაში გახსნა">სლაიდი 37</a></div>
+<p>ეს კითხვები შემდეგი ლექციის დასაწყისშიც დაისმება.</p>
+<div class="selfcheck"><div class="sh">✅ შეამოწმე თავი <small>დაფიქრდი, მერე გახსენი პასუხი</small></div><details><summary>რატომ გაქრა მონიტორი, როცა Controller-ში <code>new ProductStore()</code> ეწერა?</summary><div class="ans">Controller ყოველ მოთხოვნაზე ახალია → თავის ახალ ProductStore-ს ქმნის → ახალი სია</div></details><details><summary>რა არის Inversion of Control?</summary><div class="ans">პრინციპი: კონტროლს framework-ს ვაძლევთ — ის ქმნის ობიექტებს და იძახებს ჩვენს კოდს</div></details><details><summary>რა არის dependency და როგორ ითხოვს მას Controller?</summary><div class="ans">ის, რაც კლასს სამუშაოდ სჭირდება · constructor-ის პარამეტრით</div></details><details><summary>რას ნიშნავს „Unable to resolve service for type …“?</summary><div class="ans">Container-მა ეს ტიპი არ იცის — <code>builder.Services</code>-ში რეგისტრაცია აკლია</div></details><details><summary>რას აკეთებს <code>AddSingleton&lt;ProductStore&gt;()</code>?</summary><div class="ans">Container-ს ასწავლის ProductStore-ს · ერთ ობიექტს ქმნის და ყველას იმავეს აწვდის</div></details></div></article>
+<article class="blk" data-slides="38"><span class="anchor" id="s-38"></span><div class="bh"><h3>შეჯამება · ობიექტებს აღარ ვქმნით — ვითხოვთ</h3><a class="chip" href="index.html#/38" data-go="38" title="პრეზენტაციაში გახსნა">სლაიდი 38</a></div>
+<p><strong>დაიმახსოვრე:</strong></p>
+<ol>
+<li><code>new</code> Controller-ის შიგნით არ მუშაობს: Controller ყოველ მოთხოვნაზე ახალია, და მასთან ერთად — მისი ობიექტებიც.</li>
+<li><strong>IoC</strong> — ASP.NET Core მართავს პროგრამას: ქმნის Controller-ებს და იძახებს მეთოდებს.</li>
+<li><strong>DI</strong> — კლასი dependency-ს constructor-ით ითხოვს, <strong>Container</strong> აწვდის, <code>Program.cs</code>-ში ვარეგისტრირებთ.</li>
+</ol>
+<h3>⏭️ შემდეგ ლექციაზე</h3>
+<p>მაღაზიას შეკვეთები ემატება. OrdersController-ს OrderService სჭირდება, OrderService-ს კი — ProductStore და OrderStore. კლასს კლასი სჭირდება, იმას — კიდევ ორი. <strong>ვინ ააწყობს ამ ჯაჭვს?</strong></p></article>
+<h2 class="sec" id="sec-12">საშინაო</h2>
+<article class="blk" data-slides="39"><span class="anchor" id="s-39"></span><div class="bh"><h3>საშინაო დავალება: LibraryApi — წიგნის გატანა</h3><a class="chip" href="index.html#/39" data-go="39" title="პრეზენტაციაში გახსნა">სლაიდი 39</a></div>
+<p>LoansController სამ dependency-ს ითხოვს</p>
+<h3>მოთხოვნები</h3>
+<ul>
+<li><code>MemberStore</code> — წევრები MembersController-იდან ცალკე კლასში, <code>AddSingleton</code></li>
+<li><code>Models/Loan</code>: <code>Id</code>, <code>BookId</code>, <code>MemberId</code> (სამივე Guid), <code>LoanedAt</code> · <code>LoanStore</code> — სია და <code>Add</code>, <code>GetAll</code></li>
+<li><code>LoansController</code> — constructor-ში <strong>სამი</strong> dependency: <code>BookStore</code>, <code>MemberStore</code>, <code>LoanStore</code></li>
+<li><code>POST /api/loans</code> <code>{ bookId, memberId }</code> → 201, ან 404, თუ წიგნი ან წევრი არ არსებობს</li>
+<li><code>GET /api/loans</code> — ყველა გატანა</li>
+</ul>
+<h3>✓ მზადაა, როცა</h3>
+<p>Ctrl+Shift+F → <code>new …Store</code> — 0 შედეგი, და არარსებული წიგნის გატანა 404-ს აბრუნებს</p>
+<h3>⭐ ბონუსი</h3>
+<ul>
+<li>ერთი წიგნი ერთდროულად ორჯერ ვერ გავა → <code>Conflict()</code> (409)</li>
+</ul>
+<h3>💡 მინიშნება</h3>
+<p>DTO-ები — <code>record CreateLoanRequest(Guid BookId, Guid MemberId)</code> და <code>record LoanResponse(Guid Id, Guid BookId, Guid MemberId, DateTime LoanedAt)</code>. Entity გარეთ ისევ არ გადის. Controller-ს რამდენიც სჭირდება, იმდენ პარამეტრს წერს constructor-ში — Container ყველას მოუტანს, თუ სამივე დარეგისტრირებულია.</p></article>
+  </main>
+</div>
+<script>
+const DECK = "ASP.NET · 4 — Inversion of Control და Dependency Injection";
+if (matchMedia('(min-width:981px)').matches) document.getElementById('tocd').open = true;
+const blocks = [...document.querySelectorAll('.blk')];
+const tocLinks = [...document.querySelectorAll('nav.toc a[href^="#sec-"]')];
+const secOf = b => { let e = b; while (e && !(e.matches && e.matches('h2.sec'))) e = e.previousElementSibling; return e; };
+function mark(b, toc_only) {
+  if (!toc_only) blocks.forEach(x => x.classList.toggle('cur', x === b));
+  const s = b && secOf(b); tocLinks.forEach(a => a.classList.toggle('cur', s && a.getAttribute('href') === '#' + s.id));
+}
+const blockFor = n => blocks.find(b => b.dataset.slides.split(',').includes(String(n)));
+
+// copy buttons (code: one line per .ln)
+document.addEventListener('click', e => {
+  const btn = e.target.closest('.copy'); if (!btn) return;
+  const box = btn.closest('.codebox, .prompt');
+  const text = box.matches('.prompt') ? box.querySelector('.pb').textContent : [...box.querySelectorAll('.ln')].map(l => l.textContent).join('\n');
+  navigator.clipboard.writeText(text).then(() => { btn.textContent = '✓ დაკოპირდა'; btn.classList.add('ok'); setTimeout(() => { btn.textContent = 'კოპირება'; btn.classList.remove('ok'); }, 1600); });
+});
+
+// live mode: opened from the deck with P — follow the projector
+const live = new URLSearchParams(location.search).has('live');
+let follow = true, bc = null;
+const liveBtn = document.getElementById('live');
+if (live) {
+  try { bc = new BroadcastChannel('deck-' + DECK); } catch (e) {}
+  liveBtn.classList.add('on');
+  liveBtn.onclick = () => { follow = !follow; liveBtn.classList.toggle('off', !follow); liveBtn.querySelector('.lt').textContent = follow ? 'მიჰყვება სლაიდებს' : 'თავისუფლად ვკითხულობ'; };
+  if (bc) {
+    bc.onmessage = ({ data }) => {
+      if (data.t !== 'state' || !follow) return;
+      const b = blockFor(data.i + 1); if (!b || b.classList.contains('cur')) return;
+      mark(b); b.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    };
+    bc.postMessage({ t: 'hello' });
+  }
+  document.addEventListener('click', e => {   // slide chip → move the projector deck
+    const c = e.target.closest('.chip[data-go]'); if (!c || !bc) return;
+    e.preventDefault(); bc.postMessage({ t: 'go', n: +c.dataset.go - 1 });
+  });
+}
+// deep link #s-12
+const h = location.hash.match(/^#s-(\d+)$/);
+if (h) { const b = blockFor(+h[1]); if (b) { mark(b); setTimeout(() => b.scrollIntoView({ block: 'start' }), 50); } }
+// highlight section in the TOC while reading
+const io = new IntersectionObserver(es => es.forEach(x => { if (x.isIntersecting && !(live && follow)) mark(x.target, true); }), { rootMargin: '-30% 0px -60% 0px' });
+blocks.forEach(b => io.observe(b));
+</script>
+</body></html>

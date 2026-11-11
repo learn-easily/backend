@@ -1,0 +1,572 @@
+<!doctype html>
+<html lang="ka"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>📖 Database First პრაქტიკაში — კონსპექტი</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Georgian:wght@400;600;700;800&family=JetBrains+Mono:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#fbf8f3;--card:#fff;--ink:#1e2132;--ink2:#3b3f54;--muted:#7b8096;--line:#e6dfd2;--accent:#6d28d9;--accent-soft:#f3effe;--teal:#0d9488;
+  --green:#15803d;--amber:#b45309;--mono:"JetBrains Mono",ui-monospace,monospace;--sans:"Noto Sans Georgian",system-ui,sans-serif}
+*{box-sizing:border-box}
+html{scroll-padding-top:76px}
+body{margin:0;background:var(--bg);color:var(--ink);font:17.5px/1.75 var(--sans);-webkit-font-smoothing:antialiased}
+a{color:var(--accent)}
+/* top bar */
+.top{position:sticky;top:0;z-index:10;display:flex;align-items:center;gap:14px;padding:10px 20px;background:rgba(251,248,243,.92);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.top .back{font:600 14px var(--mono);color:var(--muted);text-decoration:none;white-space:nowrap}
+.top .back:hover{color:var(--ink)}
+.top .ttl{flex:1;min-width:0;font-weight:700;font-size:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.top .ttl small{font:500 13px var(--mono);color:var(--muted);margin-right:8px}
+.btn{font:700 14px var(--sans);text-decoration:none;border-radius:10px;padding:7px 14px;white-space:nowrap;border:1px solid var(--line);color:var(--ink);background:var(--card);cursor:pointer}
+.btn.play{background:var(--accent);border-color:var(--accent);color:#fff}
+.live{display:none;align-items:center;gap:8px;font:600 13px var(--mono);color:var(--teal);background:#e6f6f4;border:1px solid #bfe7e2;border-radius:999px;padding:5px 12px;cursor:pointer}
+.live.on{display:flex}
+.live .dot{width:8px;height:8px;border-radius:50%;background:var(--teal);animation:pulse 1.6s infinite}
+.live.off{color:var(--muted);background:var(--card);border-color:var(--line)}.live.off .dot{background:var(--muted);animation:none}
+@keyframes pulse{50%{opacity:.3}}
+/* layout */
+.wrap{display:grid;grid-template-columns:230px minmax(0,1000px);gap:44px;justify-content:center;padding:32px 28px 120px}
+nav.toc{position:sticky;top:84px;align-self:start;font-size:14px;line-height:1.45}
+nav.toc .h{font:700 12px var(--mono);color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px}
+nav.toc a{display:block;color:var(--ink2);text-decoration:none;padding:6px 10px;border-left:2px solid var(--line)}
+nav.toc a:hover{color:var(--accent)}
+nav.toc a.cur{color:var(--accent);border-left-color:var(--accent);font-weight:700}
+nav.toc .mats{margin-top:22px;display:flex;flex-direction:column;gap:6px}
+nav.toc .mats a{border:0;padding:2px 0;font:500 13px var(--mono);color:var(--teal);word-break:break-all}
+header.hero{margin-bottom:8px}
+header.hero .k{font:600 14px var(--mono);color:var(--accent)}
+header.hero h1{font-size:38px;line-height:1.2;margin:6px 0 10px;letter-spacing:-.01em}
+header.hero p{color:var(--muted);margin:0;font-size:15.5px}
+header.hero kbd{font:500 12px var(--mono);border:1px solid var(--line);border-radius:5px;padding:0 5px;background:var(--card)}
+h2.sec{font-size:15px;font:700 13px var(--mono);color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin:48px 0 6px;padding-top:18px;border-top:1px solid var(--line)}
+/* blocks */
+.blk{position:relative;padding:14px 0 6px 22px;margin-left:-22px;border-left:3px solid transparent;transition:border-color .3s,background .3s;border-radius:0 12px 12px 0}
+.blk.cur{border-left-color:var(--accent);background:linear-gradient(90deg,var(--accent-soft),transparent 70%)}
+.anchor{position:absolute;top:0}
+.bh{display:flex;align-items:baseline;justify-content:space-between;gap:12px}
+.bh h3{font-size:22px;line-height:1.35;margin:4px 0 6px}
+.chip{flex:none;font:600 12px var(--mono);color:var(--muted);text-decoration:none;border:1px solid var(--line);border-radius:999px;padding:2px 10px;background:var(--card)}
+.chip:hover{color:var(--accent);border-color:var(--accent)}
+.blk h2{font-size:26px;line-height:1.3;margin:6px 0 10px}
+.blk h3:not(.bh h3){font-size:19px;margin:22px 0 6px}
+.blk h4{font-size:17px;margin:18px 0 4px}
+.blk p{margin:10px 0}
+.blk ul,.blk ol{padding-left:24px;margin:8px 0}
+.blk li{margin:4px 0}
+.blk strong{color:var(--ink)}
+.blk :not(pre)>code{font:600 .86em var(--mono);background:#f1ece3;border-radius:6px;padding:1px 6px;color:#5b21b6}
+.blk table{border-collapse:collapse;margin:14px 0;font-size:15.5px;width:100%;display:block;overflow-x:auto}
+.blk th,.blk td{border:1px solid var(--line);padding:8px 12px;text-align:left;vertical-align:top}
+.blk th{background:#f6f1e8}
+/* code */
+.codebox{margin:14px 0;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:#fffdf9}
+.codebox .ch,.prompt .ph{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:6px 8px 6px 14px;font:600 12.5px var(--mono);color:var(--muted);background:#f6f1e8;border-bottom:1px solid var(--line)}
+.copy{font:600 12px var(--mono);border:1px solid var(--line);background:var(--card);color:var(--ink2);border-radius:7px;padding:3px 10px;cursor:pointer}
+.copy:hover{border-color:var(--ink)}
+.copy.ok{color:var(--green);border-color:var(--green)}
+pre.code{margin:0;padding:12px 0;overflow-x:auto;font:14px/1.65 var(--mono)}
+pre.code .ln{display:block;padding:0 16px;white-space:pre}
+.code .ttl{background:var(--bg2);color:var(--muted)}
+.code .ln.hl{background:rgba(109,40,217,.07);box-shadow:inset 3px 0 0 var(--net)}
+.code .ln.dim{opacity:.42}
+.code .k,.code .kd,.code .kn,.code .kr,.code .kc{color:#7c3aed}
+.code .kt{color:#2563eb}
+.code .s,.code .s1,.code .s2,.code .sa,.code .se,.code .si,.code .sd{color:#15803d}
+.code .c,.code .c1,.code .cm,.code .cp,.code .ch{color:#8b8fa3}
+.code .m,.code .mi,.code .mf,.code .mh{color:#c2410c}
+.code .nf,.code .fm{color:#1d4ed8}
+.code .nc,.code .nn,.code .nt,.code .nd{color:#b45309}
+.code .na{color:#7c3aed} .code .nb{color:#0e7490}
+.code .o,.code .p{color:#64748b}
+.code .nv,.code .nx{color:var(--ink)}
+.code .go{color:#64748b}
+/* prompt */
+.prompt{margin:16px 0;border:1px solid #ddd2fb;border-radius:12px;overflow:hidden;background:var(--accent-soft)}
+.prompt .ph{background:#ebe3fd;border-color:#ddd2fb;color:var(--accent)}
+.prompt .pb{padding:12px 16px;white-space:pre-wrap;font-size:15.5px;line-height:1.6;color:var(--ink2)}
+/* self check */
+.selfcheck{margin:16px 0;border:1px solid #cfe9d6;border-radius:12px;background:#f3fbf5;padding:12px 16px}
+.selfcheck .sh{font-weight:700;color:var(--green);margin-bottom:6px}
+.selfcheck .sh small{font-weight:400;color:var(--muted);font-size:13.5px;margin-left:6px}
+.selfcheck details{border-top:1px solid #dcefe1;padding:8px 0}
+.selfcheck summary{cursor:pointer;font-weight:600;list-style:none;padding-left:26px;position:relative}
+.selfcheck summary::-webkit-details-marker{display:none}
+.selfcheck summary::before{content:"?";position:absolute;left:0;top:2px;width:18px;height:18px;border-radius:50%;background:var(--green);color:#fff;font:700 12px/18px var(--mono);text-align:center}
+.selfcheck details[open] summary::before{content:"✓"}
+.selfcheck .ans{padding:6px 0 2px 26px;color:var(--ink2)}
+/* terms */
+.terms{margin:16px 0;border:1px solid var(--line);border-radius:12px;background:var(--card);padding:12px 16px}
+.terms .th{font-weight:700;margin-bottom:6px}
+.terms dl{display:grid;grid-template-columns:max-content 1fr;gap:6px 18px;margin:0}
+.terms dt{font:600 14.5px var(--mono);color:var(--accent)}
+.terms dd{margin:0;color:var(--ink2)}
+/* callouts */
+.callout{display:flex;gap:12px;margin:14px 0;padding:12px 16px;border-radius:12px;border:1px solid var(--line);background:var(--card)}
+.callout .ci{font-size:20px;line-height:1.6}
+.callout>div>p:first-child{margin-top:0}.callout>div>p:last-child{margin-bottom:0}
+.callout.warn{background:#fff8eb;border-color:#f6dfb5}
+.callout.note{background:#eef5ff;border-color:#cfe0fb}
+@media (max-width:980px){
+  .wrap{grid-template-columns:minmax(0,1fr);gap:0;padding:20px 16px 100px}
+  nav.toc{position:static;margin-bottom:12px}
+  nav.toc details{border:1px solid var(--line);border-radius:12px;background:var(--card);padding:8px 12px}
+  nav.toc details>summary{cursor:pointer;font-weight:700}
+  nav.toc .h{display:none}
+  header.hero h1{font-size:30px}
+  .blk{padding-left:14px;margin-left:-14px}
+  .top .ttl small{display:none}
+  .terms dl{grid-template-columns:1fr}.terms dd{margin-bottom:8px}
+}
+@media (min-width:981px){nav.toc details>summary{display:none}}
+@media print{.top,nav.toc,.copy,.chip,.live{display:none}.wrap{display:block;padding:0}.selfcheck details{display:block}.blk.cur{background:none}}
+</style></head>
+<body>
+<div class="top">
+  <a class="back" href="../../">← ლექციები</a>
+  <div class="ttl"><small>EF Core · 4</small>Database First პრაქტიკაში</div>
+  <button class="live" id="live" type="button" title="ჩართული: ტექსტი პრეზენტაციას მიჰყვება"><span class="dot"></span><span class="lt">მიჰყვება სლაიდებს</span></button>
+  <a class="btn play" href="index.html">▶ პრეზენტაცია</a>
+</div>
+<div class="wrap">
+  <nav class="toc"><details id="tocd"><summary>სარჩევი</summary><div class="h">სარჩევი</div><a href="#sec-1">გამეორება</a><a href="#sec-2">საშინაოს განხილვა</a><a href="#sec-3">დღის თემა</a><a href="#sec-4"></a><a href="#sec-5">1 · გავიხსენოთ</a><a href="#sec-6">2 · StoreDb · მე ვაჩვენებ</a><a href="#sec-7">3 · ბაზა შეიცვალა</a><a href="#sec-8">4 · პრაქტიკა</a><a href="#sec-9">პრაქტიკა</a><a href="#sec-10">შეჯამება</a><a href="#sec-11">საშინაო</a><div class="mats"><a href="materials/CinemaDb-change.sql" download>📎 CinemaDb-change.sql</a><a href="materials/CinemaDb.sql" download>📎 CinemaDb.sql</a><a href="materials/LibraryDb-change.sql" download>📎 LibraryDb-change.sql</a><a href="materials/LibraryDb.sql" download>📎 LibraryDb.sql</a><a href="materials/StoreDb-change.sql" download>📎 StoreDb-change.sql</a><a href="materials/StoreDb.sql" download>📎 StoreDb.sql</a></div></details></nav>
+  <main>
+    <header class="hero">
+      <div class="k">📖 კონსპექტი · EF Core · ლექცია 4</div>
+      <h1>Database First პრაქტიკაში</h1>
+      <p>წაიკითხე ლექციის შემდეგ, ან პრეზენტაციასთან ერთად: პრეზენტაციაში დააჭირე <kbd>P</kbd> და ეს გვერდი სლაიდებს გაჰყვება. კოდი და AI-ს პრომპტები კოპირდება ერთი დაჭერით.</p>
+    </header>
+    <h2 class="sec" id="sec-1">გამეორება</h2>
+<article class="blk" data-slides="1,2"><span class="anchor" id="s-1"></span><span class="anchor" id="s-2"></span><div class="bh"><h3>გავიხსენოთ წინა ლექცია</h3><a class="chip" href="index.html#/1" data-go="1" title="პრეზენტაციაში გახსნა">სლაიდი 1</a></div>
+<p>ლექცია 3 — <strong>Code First vs Database First</strong>. ახალ თემამდე ვამოწმებთ, რა დაგვამახსოვრდა. ჯერ თვითონ უპასუხე, მერე გახსენი პასუხი. თუ რომელიმე გაგიჭირდა, <a href="../03-code-first-vs-database-first/study.html">წინა ლექციის კონსპექტს</a> გადახედე.</p>
+<div class="selfcheck"><div class="sh">✅ შეამოწმე თავი <small>დაფიქრდი, მერე გახსენი პასუხი</small></div><details><summary>რა არის ჭეშმარიტების წყარო Code First-ში და Database First-ში?</summary><div class="ans">C# კლასები · ბაზა</div></details><details><summary>Database First-ის მთავარი ბრძანება?</summary><div class="ans"><code>Scaffold-DbContext</code> — ბაზიდან კლასებს და DbContext-ს აგენერირებს</div></details><details><summary>ბანკის 15 წლის ბაზა, რომელსაც 5 პროგრამა იყენებს — რომელს ავირჩევთ?</summary><div class="ans">Database First — ბაზა უკვე არსებობს და ჩვენი არ არის</div></details><details><summary>AddCategories რატომ ჩავარდა პირველად?</summary><div class="ans">ძველ პროდუქტებს <code>CategoryId = 0</code> ჩაეწერა, კატეგორია Id = 0 კი არ არსებობდა → <code>int?</code></div></details><details><summary><code>Remove-Migration</code> vs <code>Update-Database &lt;სახელი&gt;</code>?</summary><div class="ans">Remove — შლის გაუშვებელ ფაილს · Update-Database &lt;სახელი&gt; — ბაზას აბრუნებს</div></details></div></article>
+<h2 class="sec" id="sec-2">საშინაოს განხილვა</h2>
+<article class="blk" data-slides="3"><span class="anchor" id="s-3"></span><div class="bh"><h3>საშინაოს განხილვა</h3><a class="chip" href="index.html#/3" data-go="3" title="პრეზენტაციაში გახსნა">სლაიდი 3</a></div>
+<p>წინა ლექციის საშინაო: <strong>SchoolDemo — ისტორიაში მოგზაურობა</strong>. ქვემოთ არის ერთ-ერთი სწორი ამოხსნა. შენი კოდი შეიძლება სხვანაირად იყოს დაწერილი — მთავარია, მოთხოვნები სრულდებოდეს.</p>
+<h3>მოთხოვნები</h3>
+<ul>
+<li>SchoolDemo ბოლომდე: Group + 1-N კავშირი + დაბეჭდვა (თუ კლასში ვერ მორჩით)</li>
+<li><code>Student</code>-ს <code>Email</code> → <code>Add-Migration AddStudentEmail</code> → წაიკითხე → <code>Update-Database</code></li>
+<li><code>Update-Database &lt;Groups-ის მიგრაცია&gt;</code> — უკან; SSMS: Email გაქრა? მერე ისევ წინ</li>
+<li><code>Script-Migration</code> — შეინახე SQL, რომელიც EF-მა დაწერა</li>
+</ul>
+<h3>ამოხსნა</h3>
+<div class="codebox"><div class="ch"><span>Group.cs</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="k">public</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">Group</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">Id</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">get</span><span class="p">;</span><span class="w"> </span><span class="k">set</span><span class="p">;</span><span class="w"> </span><span class="p">}</span></span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="n">Name</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">get</span><span class="p">;</span><span class="w"> </span><span class="k">set</span><span class="p">;</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kt">string</span><span class="p">.</span><span class="n">Empty</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="n">List</span><span class="o">&lt;</span><span class="n">Student</span><span class="o">&gt;</span><span class="w"> </span><span class="n">Students</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">get</span><span class="p">;</span><span class="w"> </span><span class="k">set</span><span class="p">;</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">List</span><span class="o">&lt;</span><span class="n">Student</span><span class="o">&gt;</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="p">}</span></span></code></pre></div>
+<div class="codebox"><div class="ch"><span>Student.cs</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="k">public</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">Student</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">Id</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">get</span><span class="p">;</span><span class="w"> </span><span class="k">set</span><span class="p">;</span><span class="w"> </span><span class="p">}</span></span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="n">FirstName</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">get</span><span class="p">;</span><span class="w"> </span><span class="k">set</span><span class="p">;</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kt">string</span><span class="p">.</span><span class="n">Empty</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="n">LastName</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">get</span><span class="p">;</span><span class="w"> </span><span class="k">set</span><span class="p">;</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kt">string</span><span class="p">.</span><span class="n">Empty</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="kt">string?</span><span class="w"> </span><span class="n">Email</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">get</span><span class="p">;</span><span class="w"> </span><span class="k">set</span><span class="p">;</span><span class="w"> </span><span class="p">}</span><span class="w">        </span><span class="c1">// NULL ძველებისთვის</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="kt">int?</span><span class="w"> </span><span class="n">GroupId</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">get</span><span class="p">;</span><span class="w"> </span><span class="k">set</span><span class="p">;</span><span class="w"> </span><span class="p">}</span><span class="w">         </span><span class="c1">// ძველ სტუდენტებს ჯგუფი არ აქვთ</span></span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="n">Group</span><span class="o">?</span><span class="w"> </span><span class="n">Group</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">get</span><span class="p">;</span><span class="w"> </span><span class="k">set</span><span class="p">;</span><span class="w"> </span><span class="p">}</span></span><span class="ln"><span class="p">}</span></span></code></pre></div>
+<div class="codebox"><div class="ch"><span>Package Manager Console</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln">Add-Migration AddGroups</span><span class="ln">Update-Database</span><span class="ln">Add-Migration AddStudentEmail</span><span class="ln">Update-Database</span><span class="ln"> </span><span class="ln">Update-Database AddGroups   # უკან: Email სვეტი იშლება</span><span class="ln">Update-Database             # წინ: Email ბრუნდება — ცარიელი</span><span class="ln">Script-Migration            # ყველა მიგრაცია — SQL-ად</span></code></pre></div>
+<div class="callout warn"><span class="ci">⚠️</span><div><p>უკან დაბრუნებისას <code>Down()</code> სვეტს <strong>შლის</strong> — მასში ჩაწერილი Email-ები სამუდამოდ იკარგება. წინ რომ წახვალ, სვეტი ცარიელი დაბრუნდება. ამიტომაა წესი: გაშვებულ მიგრაციას რეალურ ბაზაზე ასე არ „ვატრიალებთ“ — ახალ მიგრაციას ვწერთ.</p></div></div></article>
+<h2 class="sec" id="sec-3">დღის თემა</h2>
+<article class="blk" data-slides="4"><span class="anchor" id="s-4"></span><div class="bh"><h3>დღის თემა: Database First პრაქტიკაში</h3><a class="chip" href="index.html#/4" data-go="4" title="პრეზენტაციაში გახსნა">სლაიდი 4</a></div>
+<p>სამსახურში ხშირად ბაზა უკვე არსებობს: წლების წინ შექმნილი, სხვისი, DBA-ს მიერ მართული — და ცხრილების შეცვლის უფლება არ გაქვს. კლასებს ხელით ხომ არ გადაწერ? დღეს Database First-ს პრაქტიკაში ვხედავთ: ერთი ბრძანებით ბაზიდან კოდი, და როგორ განვაახლოთ ის ისე, რომ ჩვენი კოდი არ დაიკარგოს.</p>
+<p><strong>ლექციის ბოლოს შეძლებ:</strong></p>
+<ul>
+<li>SQL სკრიპტით შექმნილი ბაზიდან კლასების გენერაცია: <code>Scaffold-DbContext</code></li>
+<li>გენერირებული Entity-ების და <code>OnModelCreating</code>-ის წაკითხვა</li>
+<li>ბაზის ცვლილების შემდეგ განახლება: <code>-Force</code></li>
+<li>საკუთარი კოდის დაცვა <code>partial</code> კლასებით</li>
+</ul></article>
+<h2 class="sec" id="sec-4"></h2>
+<article class="blk" data-slides="5"><span class="anchor" id="s-5"></span><div class="bh"><h3>ლექციის გეგმა</h3><a class="chip" href="index.html#/5" data-go="5" title="პრეზენტაციაში გახსნა">სლაიდი 5</a></div>
+<p>✓ <strong>Code First</strong> — გასულ შეხვედრაზე. დღეს:</p>
+<ol>
+<li><strong>გავიხსენოთ</strong> — 10 წუთში: რით განსხვავდება ორი მიდგომა.</li>
+<li>🗄️ <strong>StoreDb → კოდი</strong> — მზა ბაზიდან C#-ის კოდი ერთი ბრძანებით.</li>
+<li><strong>ბაზა შეიცვალა</strong> — <code>-Force</code> და <code>partial</code>.</li>
+<li>⌨️ <strong>პრაქტიკა</strong> — მე → თქვენ → საშინაო.</li>
+</ol></article>
+<h2 class="sec" id="sec-5">1 · გავიხსენოთ</h2>
+<article class="blk" data-slides="6"><span class="anchor" id="s-6"></span><div class="bh"><h3>ნაწილი 1 · გავიხსენოთ ორი მიდგომა</h3><a class="chip" href="index.html#/6" data-go="6" title="პრეზენტაციაში გახსნა">სლაიდი 6</a></div>
+<p>ვინ არის მთავარი — კოდი თუ ბაზა?</p></article>
+<article class="blk" data-slides="7"><span class="anchor" id="s-7"></span><div class="bh"><h3>ჭეშმარიტების წყარო: ვინ ვისი ასლია?</h3><a class="chip" href="index.html#/7" data-go="7" title="პრეზენტაციაში გახსნა">სლაიდი 7</a></div>
+<ul>
+<li>🟢 <strong>Code First</strong> (ლექცია 1) — 👑 <strong>C# კლასები</strong> → ბაზა. <code>კლასი → Add-Migration → Update-Database</code>.</li>
+<li>🟠 <strong>Database First</strong> (დღეს) — 👑 <strong>ბაზა</strong> → C# კლასები. <code>ბაზა (SQL) → Scaffold-DbContext → კლასები</code>.</li>
+</ul>
+<p>შედეგი ორივეგან ერთია: <strong>Entity კლასები + DbContext</strong>. მერე LINQ, <code>Add</code>, <code>SaveChanges</code> — ზუსტად ერთნაირად.</p></article>
+<article class="blk" data-slides="8"><span class="anchor" id="s-8"></span><div class="bh"><h3>დღევანდელი გეგმა: Database First — 5 ნაბიჯი</h3><a class="chip" href="index.html#/8" data-go="8" title="პრეზენტაციაში გახსნა">სლაიდი 8</a></div>
+<ol>
+<li><strong>ბაზა</strong> — SQL სკრიპტი SSMS-ში (დღეს ჩვენ ვთამაშობთ DBA-ს როლს; რეალურად ბაზა უკვე არსებობს).</li>
+<li><strong>პროექტი</strong> — Console App + იგივე 4 პაკეტი.</li>
+<li><strong>Scaffold</strong> — ბაზა → კლასები + DbContext.</li>
+<li><strong>გამოყენება</strong> — Program.cs: LINQ, <code>Add</code>, <code>SaveChanges</code>.</li>
+<li><strong>ცვლილება</strong> — <code>-Force</code> + <code>partial</code>.</li>
+</ol>
+<p><strong>რა არ იქნება დღეს:</strong> <code>Add-Migration</code>, <code>Update-Database</code> — ბაზას EF არ ქმნის და არ ცვლის.</p>
+<div class="terms"><div class="th">📘 ტერმინები</div><dl><dt>DBA</dt><dd>Database Administrator: ადამიანი ან გუნდი, რომელიც ბაზას მართავს — სქემას, უფლებებს, ბექაპებს</dd></dl></div></article>
+<h2 class="sec" id="sec-6">2 · StoreDb · მე ვაჩვენებ</h2>
+<article class="blk" data-slides="9"><span class="anchor" id="s-9"></span><div class="bh"><h3>ნაწილი 2 · ბაზიდან კოდამდე</h3><a class="chip" href="index.html#/9" data-go="9" title="პრეზენტაციაში გახსნა">სლაიდი 9</a></div>
+<p>StoreDb — მაღაზიის ბაზა, რომელიც „უკვე არსებობს“. ჯერ ლექტორი აჩვენებს, მერე — თქვენ.</p></article>
+<article class="blk" data-slides="10"><span class="anchor" id="s-10"></span><div class="bh"><h3>სცენარი: პირველი დღე ახალ სამსახურში 💼</h3><a class="chip" href="index.html#/10" data-go="10" title="პრეზენტაციაში გახსნა">სლაიდი 10</a></div>
+<p>DBA ლევანი გწერს: ბაზა <strong>StoreDb</strong> სერვერზე უკვე გაქვს — Categories, Products, Customers. ⚠ <strong>ცხრილებს ნუ შეცვლი</strong> — სქემის ცვლილებებს ის აკეთებს. დავალება: კონსოლის პროგრამა, რომელიც პროდუქტებს კატეგორიებით ბეჭდავს.</p>
+<p>Code First-ის ცოდნით კლასებს ხელით დავწერდით — სამ ცხრილზე ეს ჯერ კიდევ შესაძლებელია. 300 ცხრილზე? და ყოველ ცვლილებაზე ხელით გასწორება? ამისთვისაა Database First.</p></article>
+<article class="blk" data-slides="11"><span class="anchor" id="s-11"></span><div class="bh"><h3>ნაბიჯი 1 · ვთამაშობთ DBA-ს: ბაზა იქმნება SQL-ით</h3><a class="chip" href="index.html#/11" data-go="11" title="პრეზენტაციაში გახსნა">სლაიდი 11</a></div>
+<p>სკრიპტი მასალებშია (<code>StoreDb.sql</code>): SSMS → New Query → ჩასვი → F5.</p>
+<div class="codebox"><div class="ch"><span>sql/StoreDb.sql</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="k">CREATE</span><span class="w"> </span><span class="k">DATABASE</span><span class="w"> </span><span class="n">StoreDb</span><span class="p">;</span></span><span class="ln"><span class="k">GO</span></span><span class="ln"><span class="n">USE</span><span class="w"> </span><span class="n">StoreDb</span><span class="p">;</span></span><span class="ln"><span class="k">GO</span></span><span class="ln"><span class="k">CREATE</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="n">Categories</span><span class="w"> </span><span class="p">(</span></span><span class="ln"><span class="w">    </span><span class="n">Id</span><span class="w"> </span><span class="nb">INT</span><span class="w"> </span><span class="k">IDENTITY</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="k">PRIMARY</span><span class="w"> </span><span class="k">KEY</span><span class="p">,</span></span><span class="ln"><span class="w">    </span><span class="n">Name</span><span class="w"> </span><span class="n">NVARCHAR</span><span class="p">(</span><span class="mi">50</span><span class="p">)</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span></span><span class="ln"><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="k">CREATE</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="n">Products</span><span class="w"> </span><span class="p">(</span></span><span class="ln"><span class="w">    </span><span class="n">Id</span><span class="w"> </span><span class="nb">INT</span><span class="w"> </span><span class="k">IDENTITY</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="k">PRIMARY</span><span class="w"> </span><span class="k">KEY</span><span class="p">,</span></span><span class="ln"><span class="w">    </span><span class="n">Name</span><span class="w"> </span><span class="n">NVARCHAR</span><span class="p">(</span><span class="mi">100</span><span class="p">)</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="p">,</span></span><span class="ln"><span class="w">    </span><span class="n">Description</span><span class="w"> </span><span class="n">NVARCHAR</span><span class="p">(</span><span class="mi">500</span><span class="p">)</span><span class="w"> </span><span class="k">NULL</span><span class="p">,</span></span><span class="ln"><span class="w">    </span><span class="n">Price</span><span class="w"> </span><span class="nb">DECIMAL</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="p">,</span></span><span class="ln"><span class="w">    </span><span class="n">CreatedAt</span><span class="w"> </span><span class="n">DATETIME2</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="w"> </span><span class="k">DEFAULT</span><span class="w"> </span><span class="n">GETDATE</span><span class="p">(</span><span class="p">)</span><span class="p">,</span></span><span class="ln"><span class="w">    </span><span class="n">CategoryId</span><span class="w"> </span><span class="nb">INT</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="w"> </span><span class="k">FOREIGN</span><span class="w"> </span><span class="k">KEY</span><span class="w"> </span><span class="k">REFERENCES</span><span class="w"> </span><span class="n">Categories</span><span class="p">(</span><span class="n">Id</span><span class="p">)</span></span><span class="ln"><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="k">CREATE</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="n">Customers</span><span class="w"> </span><span class="p">(</span></span><span class="ln"><span class="w">    </span><span class="n">Id</span><span class="w"> </span><span class="nb">INT</span><span class="w"> </span><span class="k">IDENTITY</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="k">PRIMARY</span><span class="w"> </span><span class="k">KEY</span><span class="p">,</span></span><span class="ln"><span class="w">    </span><span class="n">FullName</span><span class="w"> </span><span class="n">NVARCHAR</span><span class="p">(</span><span class="mi">100</span><span class="p">)</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="p">,</span></span><span class="ln"><span class="w">    </span><span class="n">Email</span><span class="w"> </span><span class="n">NVARCHAR</span><span class="p">(</span><span class="mi">100</span><span class="p">)</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="w"> </span><span class="k">UNIQUE</span></span><span class="ln"><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="k">INSERT</span><span class="w"> </span><span class="k">INTO</span><span class="w"> </span><span class="n">Categories</span><span class="w"> </span><span class="p">(</span><span class="n">Name</span><span class="p">)</span><span class="w"> </span><span class="k">VALUES</span><span class="w"> </span><span class="p">(</span><span class="n">N</span><span class="s1">'ტექნიკა'</span><span class="p">)</span><span class="p">,</span><span class="w"> </span><span class="p">(</span><span class="n">N</span><span class="s1">'აქსესუარები'</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="k">INSERT</span><span class="w"> </span><span class="k">INTO</span><span class="w"> </span><span class="n">Products</span><span class="w"> </span><span class="p">(</span><span class="n">Name</span><span class="p">,</span><span class="w"> </span><span class="n">Price</span><span class="p">,</span><span class="w"> </span><span class="n">CategoryId</span><span class="p">)</span></span><span class="ln"><span class="k">VALUES</span><span class="w"> </span><span class="p">(</span><span class="n">N</span><span class="s1">'ლეპტოპი'</span><span class="p">,</span><span class="w"> </span><span class="mi">2400</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="p">,</span><span class="w"> </span><span class="p">(</span><span class="n">N</span><span class="s1">'მაუსი'</span><span class="p">,</span><span class="w"> </span><span class="mi">45</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="p">,</span><span class="w"> </span><span class="p">(</span><span class="n">N</span><span class="s1">'კლავიატურა'</span><span class="p">,</span><span class="w"> </span><span class="mi">120</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="k">INSERT</span><span class="w"> </span><span class="k">INTO</span><span class="w"> </span><span class="n">Customers</span><span class="w"> </span><span class="p">(</span><span class="n">FullName</span><span class="p">,</span><span class="w"> </span><span class="n">Email</span><span class="p">)</span></span><span class="ln"><span class="k">VALUES</span><span class="w"> </span><span class="p">(</span><span class="n">N</span><span class="s1">'გიორგი მაისურაძე'</span><span class="p">,</span><span class="w"> </span><span class="n">N</span><span class="s1">'giorgi@mail.ge'</span><span class="p">)</span><span class="p">;</span></span></code></pre></div>
+<ul>
+<li>3 ცხრილი — ჩვეულებრივი SQL. <strong>EF Core აქ არსად არის</strong>: არც C#, არც მიგრაცია.</li>
+<li><code>FOREIGN KEY</code> — Products → Categories (1 → N).</li>
+<li><code>NULL</code>, <code>DEFAULT</code>, <code>UNIQUE</code> — EF ამასაც წაიკითხავს.</li>
+</ul></article>
+<article class="blk" data-slides="12"><span class="anchor" id="s-12"></span><div class="bh"><h3>შედეგი: StoreDb უკვე არსებობს</h3><a class="chip" href="index.html#/12" data-go="12" title="პრეზენტაციაში გახსნა">სლაიდი 12</a></div>
+<p>SSMS → Databases → Refresh: <strong>StoreDb</strong> → Tables: <code>dbo.Categories</code>, <code>dbo.Customers</code>, <code>dbo.Products</code>.</p>
+<p><code>SELECT * FROM Products</code> — სამი პროდუქტი. <code>CreatedAt</code>-ში არაფერი ჩაგვიწერია — <code>DEFAULT GETDATE()</code>-მა შეავსო.</p>
+<p>რას ვერ ხედავ, რაც Code First-ში ყოველთვის იყო? <strong><code>__EFMigrationsHistory</code></strong> — ბაზა EF-ს არ შეუქმნია.</p></article>
+<article class="blk" data-slides="13"><span class="anchor" id="s-13"></span><div class="bh"><h3>ნაბიჯი 2 · Console App + იგივე 4 პაკეტი</h3><a class="chip" href="index.html#/13" data-go="13" title="პრეზენტაციაში გახსნა">სლაიდი 13</a></div>
+<p>Console App <strong>StoreDemo</strong>, .NET 10, და:</p>
+<ul>
+<li><code>Microsoft.EntityFrameworkCore</code> — ძრავი</li>
+<li><code>Microsoft.EntityFrameworkCore.SqlServer</code> — SQL Server</li>
+<li><code>Microsoft.EntityFrameworkCore.Tools</code> — <code>Scaffold-DbContext</code> ბრძანება</li>
+<li><code>Microsoft.EntityFrameworkCore.Design</code> — კოდის გენერაცია</li>
+</ul>
+<p>იგივე ოთხი, რაც Code First-ში. ერთი განსხვავება: <code>.Tools</code> და <code>.Design</code> აქ მიგრაციებისთვის კი არა, <strong>Scaffold</strong>-ისთვის გვჭირდება.</p></article>
+<article class="blk" data-slides="14"><span class="anchor" id="s-14"></span><div class="bh"><h3>ნაბიჯი 3 · მთავარი ბრძანება: Scaffold-DbContext — 4 ნაწილი</h3><a class="chip" href="index.html#/14" data-go="14" title="პრეზენტაციაში გახსნა">სლაიდი 14</a></div>
+<p>Package Manager Console (ზემოთ Default project: <strong>StoreDemo</strong>):</p>
+<div class="codebox"><div class="ch"><span>Package Manager Console</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln">Scaffold-DbContext "Server=localhost;Database=StoreDb;Trusted_Connection=True;TrustServerCertificate=True;" Microsoft.EntityFrameworkCore.SqlServer -OutputDir Models</span></code></pre></div>
+<ol>
+<li><strong><code>Scaffold-DbContext</code></strong> — ბრძანება (.Tools პაკეტიდან): „ბაზიდან ააშენე DbContext და კლასები“.</li>
+<li><strong><code>"Server=…;Database=StoreDb;…"</code></strong> — connection string: რომელ ბაზას წაიკითხოს. (შენთან სერვერი შეიძლება <code>(localdb)\MSSQLLocalDB</code> იყოს — აიღე VS-ის SQL Server Object Explorer-იდან.)</li>
+<li><strong><code>Microsoft.EntityFrameworkCore.SqlServer</code></strong> — პროვაიდერი: რა ტიპის ბაზაა.</li>
+<li><strong><code>-OutputDir Models</code></strong> — სად ჩაწეროს ფაილები.</li>
+</ol>
+<p>ტერმინალიდან: <code>dotnet ef dbcontext scaffold "…" Microsoft.EntityFrameworkCore.SqlServer -o Models</code>.</p></article>
+<article class="blk" data-slides="15"><span class="anchor" id="s-15"></span><div class="bh"><h3>რა გაჩნდა პროექტში?</h3><a class="chip" href="index.html#/15" data-go="15" title="პრეზენტაციაში გახსნა">სლაიდი 15</a></div>
+<div class="codebox"><div class="ch"><span>Solution Explorer</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln">📦 StoreDemo</span><span class="ln"> ├ 📁 Models          NEW</span><span class="ln"> │  ├ 📄 Category.cs</span><span class="ln"> │  ├ 📄 Customer.cs</span><span class="ln"> │  ├ 📄 Product.cs</span><span class="ln"> │  └ 🎛️ StoreDbContext.cs</span><span class="ln"> └ 📄 Program.cs</span></code></pre></div>
+<p>სამი Entity — თითო ცხრილზე — და <code>StoreDbContext</code>. ხელით ერთი ხაზიც არ დაგვიწერია.</p>
+<p>ფოლდერი <strong>Migrations — არ არის</strong>, და არც დაგვჭირდება: ბაზა EF-ს არ შეუქმნია, ცვლილებებიც ბაზაში ხდება.</p>
+<table>
+<thead>
+<tr>
+<th>ბაზაში</th>
+<th>C#-ში</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>ცხრილი <code>Products</code> (მრავლობითი)</td>
+<td><code>class Product</code> (მხოლობითი) · <code>DbSet&lt;Product&gt; Products</code></td>
+</tr>
+</tbody>
+</table></article>
+<article class="blk" data-slides="16"><span class="anchor" id="s-16"></span><div class="bh"><h3>გენერირებული Entity: Product.cs — ცხრილის ასლი</h3><a class="chip" href="index.html#/16" data-go="16" title="პრეზენტაციაში გახსნა">სლაიდი 16</a></div>
+<div class="codebox"><div class="ch"><span>Models/Product.cs · გენერირებული</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="k">public</span><span class="w"> </span><span class="k">partial</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">Product</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">Id</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">get</span><span class="p">;</span><span class="w"> </span><span class="k">set</span><span class="p">;</span><span class="w"> </span><span class="p">}</span></span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="n">Name</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">get</span><span class="p">;</span><span class="w"> </span><span class="k">set</span><span class="p">;</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">null</span><span class="o">!</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="kt">string?</span><span class="w"> </span><span class="n">Description</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">get</span><span class="p">;</span><span class="w"> </span><span class="k">set</span><span class="p">;</span><span class="w"> </span><span class="p">}</span></span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="kt">decimal</span><span class="w"> </span><span class="n">Price</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">get</span><span class="p">;</span><span class="w"> </span><span class="k">set</span><span class="p">;</span><span class="w"> </span><span class="p">}</span></span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="n">DateTime</span><span class="w"> </span><span class="n">CreatedAt</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">get</span><span class="p">;</span><span class="w"> </span><span class="k">set</span><span class="p">;</span><span class="w"> </span><span class="p">}</span></span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">CategoryId</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">get</span><span class="p">;</span><span class="w"> </span><span class="k">set</span><span class="p">;</span><span class="w"> </span><span class="p">}</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="k">virtual</span><span class="w"> </span><span class="n">Category</span><span class="w"> </span><span class="n">Category</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">get</span><span class="p">;</span><span class="w"> </span><span class="k">set</span><span class="p">;</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">null</span><span class="o">!</span><span class="p">;</span></span><span class="ln"><span class="p">}</span></span></code></pre></div>
+<ul>
+<li><strong><code>partial</code></strong> — კლასი შეიძლება რამდენიმე ფაილში გაგრძელდეს. ეს დღეს გადაგვარჩენს 😉</li>
+<li><code>NOT NULL</code> → <code>string … = null!</code> · <code>NULL</code> → <code>string?</code> (Description).</li>
+<li><code>DECIMAL</code> → <code>decimal</code> · <code>DATETIME2</code> → <code>DateTime</code>.</li>
+<li>FK <code>CategoryId</code> + ნავიგაცია <code>Category</code> — EF-მა კავშირიც წაიკითხა. <code>Category.cs</code>-ში კი <code>ICollection&lt;Product&gt; Products</code>.</li>
+</ul>
+<div class="terms"><div class="th">📘 ტერმინები</div><dl><dt>null!</dt><dd>„აქ null არ იქნება, დამიჯერე“: კომპილატორის გაფრთხილებას აჩუმებს; მნიშვნელობას EF ჩაწერს ბაზიდან</dd><dt>virtual</dt><dd>ნავიგაციას EF-ს „გადაფარვის“ უფლებას აძლევს (lazy loading-ისთვის); ჩვენთვის არაფერს ცვლის</dd></dl></div></article>
+<article class="blk" data-slides="17"><span class="anchor" id="s-17"></span><div class="bh"><h3>გენერირებული DbContext — ზედა ნაწილი</h3><a class="chip" href="index.html#/17" data-go="17" title="პრეზენტაციაში გახსნა">სლაიდი 17</a></div>
+<div class="codebox"><div class="ch"><span>Models/StoreDbContext.cs · გენერირებული</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="k">public</span><span class="w"> </span><span class="k">partial</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">StoreDbContext</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">DbContext</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="nf">StoreDbContext</span><span class="p">(</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="p">}</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="nf">StoreDbContext</span><span class="p">(</span><span class="n">DbContextOptions</span><span class="o">&lt;</span><span class="n">StoreDbContext</span><span class="o">&gt;</span><span class="w"> </span><span class="n">options</span><span class="p">)</span></span><span class="ln"><span class="w">        </span><span class="p">:</span><span class="w"> </span><span class="k">base</span><span class="p">(</span><span class="n">options</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="p">}</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="k">virtual</span><span class="w"> </span><span class="n">DbSet</span><span class="o">&lt;</span><span class="n">Category</span><span class="o">&gt;</span><span class="w"> </span><span class="n">Categories</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">get</span><span class="p">;</span><span class="w"> </span><span class="k">set</span><span class="p">;</span><span class="w"> </span><span class="p">}</span></span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="k">virtual</span><span class="w"> </span><span class="n">DbSet</span><span class="o">&lt;</span><span class="n">Customer</span><span class="o">&gt;</span><span class="w"> </span><span class="n">Customers</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">get</span><span class="p">;</span><span class="w"> </span><span class="k">set</span><span class="p">;</span><span class="w"> </span><span class="p">}</span></span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="k">virtual</span><span class="w"> </span><span class="n">DbSet</span><span class="o">&lt;</span><span class="n">Product</span><span class="o">&gt;</span><span class="w"> </span><span class="n">Products</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">get</span><span class="p">;</span><span class="w"> </span><span class="k">set</span><span class="p">;</span><span class="w"> </span><span class="p">}</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="k">protected</span><span class="w"> </span><span class="k">override</span><span class="w"> </span><span class="k">void</span><span class="w"> </span><span class="nf">OnConfiguring</span><span class="p">(</span><span class="n">DbContextOptionsBuilder</span><span class="w"> </span><span class="n">optionsBuilder</span><span class="p">)</span></span><span class="ln"><span class="cp">#</span><span class="cp">warning</span><span class="cp"> To protect potentially sensitive information in your connection string…</span></span><span class="ln"><span class="w">        </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">optionsBuilder</span><span class="p">.</span><span class="n">UseSqlServer</span><span class="p">(</span><span class="s">"Server=localhost;Database=StoreDb;…"</span><span class="p">)</span><span class="p">;</span></span></code></pre></div>
+<ul>
+<li><strong>DbSet-ები</strong> — თითო ცხრილზე. ზუსტად ის, რასაც Code First-ში ხელით ვწერდით.</li>
+<li><strong>ორი constructor</strong> — კონსოლში <code>new StoreDbContext()</code>-ს ვწერთ (პირველი). მეორე — Web API-სთვის, სადაც DbContext-ს DI აწვდის.</li>
+<li><strong><code>OnConfiguring</code></strong> — connection string, რომელიც ბრძანებაში მივეცით.</li>
+<li><strong><code>#warning</code></strong> — EF გაფრთხილებს: connection string კოდში არ უნდა ეწეროს (პაროლი შეიძლება იყოს). რეალურ პროექტში ის <code>appsettings.json</code>-ში ან secrets-შია.</li>
+</ul></article>
+<article class="blk" data-slides="18"><span class="anchor" id="s-18"></span><div class="bh"><h3>OnModelCreating: EF-მა ბაზიდან დეტალებიც წაიკითხა</h3><a class="chip" href="index.html#/18" data-go="18" title="პრეზენტაციაში გახსნა">სლაიდი 18</a></div>
+<div class="codebox"><div class="ch"><span>StoreDbContext.cs · OnModelCreating (ამონარიდი)</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="k">protected</span><span class="w"> </span><span class="k">override</span><span class="w"> </span><span class="k">void</span><span class="w"> </span><span class="nf">OnModelCreating</span><span class="p">(</span><span class="n">ModelBuilder</span><span class="w"> </span><span class="n">modelBuilder</span><span class="p">)</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="n">modelBuilder</span><span class="p">.</span><span class="n">Entity</span><span class="o">&lt;</span><span class="n">Customer</span><span class="o">&gt;</span><span class="p">(</span><span class="n">entity</span><span class="w"> </span><span class="o">=&gt;</span></span><span class="ln"><span class="w">    </span><span class="p">{</span></span><span class="ln"><span class="w">        </span><span class="n">entity</span><span class="p">.</span><span class="n">HasKey</span><span class="p">(</span><span class="n">e</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">e</span><span class="p">.</span><span class="n">Id</span><span class="p">)</span><span class="p">.</span><span class="n">HasName</span><span class="p">(</span><span class="s">"PK__Customer__3214EC07…"</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">        </span><span class="n">entity</span><span class="p">.</span><span class="n">HasIndex</span><span class="p">(</span><span class="n">e</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">e</span><span class="p">.</span><span class="n">Email</span><span class="p">,</span><span class="w"> </span><span class="s">"UQ__Customer__A9D10534…"</span><span class="p">)</span><span class="p">.</span><span class="n">IsUnique</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">        </span><span class="n">entity</span><span class="p">.</span><span class="n">Property</span><span class="p">(</span><span class="n">e</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">e</span><span class="p">.</span><span class="n">Email</span><span class="p">)</span><span class="p">.</span><span class="n">HasMaxLength</span><span class="p">(</span><span class="mi">100</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="p">}</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="n">modelBuilder</span><span class="p">.</span><span class="n">Entity</span><span class="o">&lt;</span><span class="n">Product</span><span class="o">&gt;</span><span class="p">(</span><span class="n">entity</span><span class="w"> </span><span class="o">=&gt;</span></span><span class="ln"><span class="w">    </span><span class="p">{</span></span><span class="ln"><span class="w">        </span><span class="n">entity</span><span class="p">.</span><span class="n">Property</span><span class="p">(</span><span class="n">e</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">e</span><span class="p">.</span><span class="n">Name</span><span class="p">)</span><span class="p">.</span><span class="n">HasMaxLength</span><span class="p">(</span><span class="mi">100</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">        </span><span class="n">entity</span><span class="p">.</span><span class="n">Property</span><span class="p">(</span><span class="n">e</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">e</span><span class="p">.</span><span class="n">Price</span><span class="p">)</span><span class="p">.</span><span class="n">HasColumnType</span><span class="p">(</span><span class="s">"decimal(10, 2)"</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">        </span><span class="n">entity</span><span class="p">.</span><span class="n">Property</span><span class="p">(</span><span class="n">e</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">e</span><span class="p">.</span><span class="n">CreatedAt</span><span class="p">)</span><span class="p">.</span><span class="n">HasDefaultValueSql</span><span class="p">(</span><span class="s">"(getdate())"</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="w">        </span><span class="n">entity</span><span class="p">.</span><span class="n">HasOne</span><span class="p">(</span><span class="n">d</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">d</span><span class="p">.</span><span class="n">Category</span><span class="p">)</span><span class="p">.</span><span class="n">WithMany</span><span class="p">(</span><span class="n">p</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">Products</span><span class="p">)</span></span><span class="ln"><span class="w">            </span><span class="p">.</span><span class="n">HasForeignKey</span><span class="p">(</span><span class="n">d</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">d</span><span class="p">.</span><span class="n">CategoryId</span><span class="p">)</span></span><span class="ln"><span class="w">            </span><span class="p">.</span><span class="n">OnDelete</span><span class="p">(</span><span class="n">DeleteBehavior</span><span class="p">.</span><span class="n">ClientSetNull</span><span class="p">)</span></span><span class="ln"><span class="w">            </span><span class="p">.</span><span class="n">HasConstraintName</span><span class="p">(</span><span class="s">"FK__Products__Catego__…"</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="p">}</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="n">OnModelCreatingPartial</span><span class="p">(</span><span class="n">modelBuilder</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="p">}</span></span></code></pre></div>
+<table>
+<thead>
+<tr>
+<th>SQL სკრიპტში</th>
+<th>OnModelCreating-ში</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>PRIMARY KEY</code> (სახელი SQL Server-მა დაარქვა)</td>
+<td><code>HasKey(...).HasName("PK__…")</code></td>
+</tr>
+<tr>
+<td><code>UNIQUE</code></td>
+<td><code>HasIndex(...).IsUnique()</code></td>
+</tr>
+<tr>
+<td><code>NVARCHAR(100)</code></td>
+<td><code>HasMaxLength(100)</code></td>
+</tr>
+<tr>
+<td><code>DECIMAL(10,2)</code></td>
+<td><code>HasColumnType("decimal(10, 2)")</code></td>
+</tr>
+<tr>
+<td><code>DEFAULT GETDATE()</code></td>
+<td><code>HasDefaultValueSql("(getdate())")</code></td>
+</tr>
+<tr>
+<td><code>FOREIGN KEY</code></td>
+<td><code>HasOne(...).WithMany(...).HasForeignKey(...)</code></td>
+</tr>
+</tbody>
+</table>
+<p><code>OnModelCreatingPartial</code> — კიდევ ერთი <code>partial</code>: საკუთარ კონფიგურაციას ცალკე ფაილში დაამატებ.</p></article>
+<article class="blk" data-slides="19"><span class="anchor" id="s-19"></span><div class="bh"><h3>ნაბიჯი 4 · ვიყენებთ — ზუსტად ისე, როგორც Code First-ში</h3><a class="chip" href="index.html#/19" data-go="19" title="პრეზენტაციაში გახსნა">სლაიდი 19</a></div>
+<div class="codebox"><div class="ch"><span>Program.cs</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="k">using</span><span class="w"> </span><span class="nn">Microsoft.EntityFrameworkCore</span><span class="p">;</span></span><span class="ln"><span class="k">using</span><span class="w"> </span><span class="nn">StoreDemo.Models</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="n">Console</span><span class="p">.</span><span class="n">OutputEncoding</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">System</span><span class="p">.</span><span class="n">Text</span><span class="p">.</span><span class="n">Encoding</span><span class="p">.</span><span class="n">UTF8</span><span class="p">;</span></span><span class="ln"><span class="k">using</span><span class="w"> </span><span class="nn">var</span><span class="w"> </span><span class="n">db</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">StoreDbContext</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="kt">var</span><span class="w"> </span><span class="n">products</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">db</span><span class="p">.</span><span class="n">Products</span><span class="p">.</span><span class="n">Include</span><span class="p">(</span><span class="n">p</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">Category</span><span class="p">)</span><span class="p">.</span><span class="n">ToList</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="k">foreach</span><span class="w"> </span><span class="p">(</span><span class="kt">var</span><span class="w"> </span><span class="n">p</span><span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="n">products</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="s">$"{p.Name} — {p.Price} ₾ · {p.Category.Name}"</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="n">db</span><span class="p">.</span><span class="n">Customers</span><span class="p">.</span><span class="n">Add</span><span class="p">(</span><span class="k">new</span><span class="w"> </span><span class="n">Customer</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">FullName</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"ნინო"</span><span class="p">,</span><span class="w"> </span><span class="n">Email</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"nino@mail.ge"</span><span class="w"> </span><span class="p">}</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="n">db</span><span class="p">.</span><span class="n">SaveChanges</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="s">$"მომხმარებლები: {db.Customers.Count()}"</span><span class="p">)</span><span class="p">;</span></span></code></pre></div>
+<ul>
+<li>კლასები <code>Models</code> namespace-შია → <code>using StoreDemo.Models</code>.</li>
+<li><code>new StoreDbContext()</code> — გენერირებული კონტექსტი.</li>
+<li>დანარჩენი — <code>Include</code>, <code>Add</code>, <code>SaveChanges</code> — უკვე იცი.</li>
+</ul>
+<div class="callout warn"><span class="ci">⚠️</span><div><p>პროგრამა მეორედ გაუშვი — <code>SaveChanges</code> ჩავარდება: <code>nino@mail.ge</code> უკვე არსებობს, და <code>Email</code> <code>UNIQUE</code>-ია. ბაზა წესს იცავს — ზუსტად ისე, როგორც DBA-მ დააწესა.</p></div></div></article>
+<h2 class="sec" id="sec-7">3 · ბაზა შეიცვალა</h2>
+<article class="blk" data-slides="20"><span class="anchor" id="s-20"></span><div class="bh"><h3>ნაწილი 3 · ბაზა შეიცვალა</h3><a class="chip" href="index.html#/20" data-go="20" title="პრეზენტაციაში გახსნა">სლაიდი 20</a></div>
+<p>ბაზა არასდროს რჩება უცვლელი. რა ხდება Database First-ში, როცა DBA ცხრილს ცვლის? აქ ერთი მახეა, რომელშიც თითქმის ყველა ერთხელ მაინც ვარდება.</p></article>
+<article class="blk" data-slides="21"><span class="anchor" id="s-21"></span><div class="bh"><h3>ორი რამ ერთდროულად: DBA ცვლის ბაზას, ჩვენ — კოდს</h3><a class="chip" href="index.html#/21" data-go="21" title="პრეზენტაციაში გახსნა">სლაიდი 21</a></div>
+<p>DBA: „მომხმარებლებს ტელეფონი დავუმატე 📱“</p>
+<div class="codebox"><div class="ch"><span>sql/StoreDb-change.sql</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="k">ALTER</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="n">Customers</span><span class="w"> </span><span class="k">ADD</span><span class="w"> </span><span class="n">Phone</span><span class="w"> </span><span class="n">NVARCHAR</span><span class="p">(</span><span class="mi">20</span><span class="p">)</span><span class="w"> </span><span class="k">NULL</span><span class="p">;</span></span></code></pre></div>
+<p>Database First-ში <strong>ცვლილება ბაზაში იწყება</strong>. ბაზაში <code>Phone</code> უკვე არის, <code>Customer.cs</code>-ში — არა: კოდმა ცვლილების შესახებ არ იცის.</p>
+<p>ამასობაში ჩვენ <code>Product.cs</code>-ში ხელით დავამატეთ:</p>
+<div class="codebox"><div class="ch"><span>Models/Product.cs · ✍️ ხელით</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="k">public</span><span class="w"> </span><span class="k">partial</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">Product</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="c1">// ... გენერირებული property-ები</span></span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="n">Label</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="s">$"{Name} — {Price} ₾"</span><span class="p">;</span></span><span class="ln"><span class="p">}</span></span></code></pre></div>
+<div class="codebox"><div class="ch"><span>Program.cs</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="k">foreach</span><span class="w"> </span><span class="p">(</span><span class="kt">var</span><span class="w"> </span><span class="n">p</span><span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="n">products</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="n">p</span><span class="p">.</span><span class="n">Label</span><span class="p">)</span><span class="p">;</span></span></code></pre></div></article>
+<article class="blk" data-slides="22"><span class="anchor" id="s-22"></span><div class="bh"><h3>Scaffold თავიდან — და… უარი</h3><a class="chip" href="index.html#/22" data-go="22" title="პრეზენტაციაში გახსნა">სლაიდი 22</a></div>
+<p>იგივე ბრძანება (PMC-ში ↑ ისარი აბრუნებს წინა ბრძანებას):</p>
+<div class="codebox"><div class="ch"><span>Package Manager Console</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln">The following file(s) already exist in directory …\Models: …</span><span class="ln">Specify the force flag to overwrite these files.</span></code></pre></div>
+<p>EF ჩვენს ფაილებს უნებართვოდ არ გადააწერს. ბოლოში ვამატებთ <strong><code>-Force</code></strong> — „ზედ გადააწერე“ → Build succeeded:</p>
+<div class="codebox"><div class="ch"><span>Models/Customer.cs · განახლდა</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="k">public</span><span class="w"> </span><span class="kt">string?</span><span class="w"> </span><span class="n">Phone</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">get</span><span class="p">;</span><span class="w"> </span><span class="k">set</span><span class="p">;</span><span class="w"> </span><span class="p">}</span></span></code></pre></div>
+<p><code>string?</code> — რადგან ბაზაში <code>NULL</code>-ია.</p></article>
+<article class="blk" data-slides="23"><span class="anchor" id="s-23"></span><div class="bh"><h3>მახე: ჩვენი Label გაქრა 💥</h3><a class="chip" href="index.html#/23" data-go="23" title="პრეზენტაციაში გახსნა">სლაიდი 23</a></div>
+<div class="codebox"><div class="ch"><span>Models/Product.cs · -Force-ის შემდეგ</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="k">public</span><span class="w"> </span><span class="k">partial</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">Product</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">Id</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">get</span><span class="p">;</span><span class="w"> </span><span class="k">set</span><span class="p">;</span><span class="w"> </span><span class="p">}</span></span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="n">Name</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">get</span><span class="p">;</span><span class="w"> </span><span class="k">set</span><span class="p">;</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">null</span><span class="o">!</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="c1">// ... დანარჩენი გენერირებული</span></span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="k">virtual</span><span class="w"> </span><span class="n">Category</span><span class="w"> </span><span class="n">Category</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">get</span><span class="p">;</span><span class="w"> </span><span class="k">set</span><span class="p">;</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">null</span><span class="o">!</span><span class="p">;</span></span><span class="ln"><span class="p">}</span></span></code></pre></div>
+<div class="codebox"><div class="ch"><span>Error List</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln">CS1061  'Product' does not contain a definition for 'Label'</span></code></pre></div>
+<p><strong><code>-Force</code> ყველა გენერირებულ ფაილს თავიდან წერს</strong> — ბაზიდან, ნულიდან. EF-მა არ იცის, რომ ჩვენ ამ ფაილში რამე დავწერეთ. ხელით დამატებული კოდი იკარგება.</p></article>
+<article class="blk" data-slides="24"><span class="anchor" id="s-24"></span><div class="bh"><h3>გამოსავალი: partial — ჩვენი კოდი ცალკე ფაილში</h3><a class="chip" href="index.html#/24" data-go="24" title="პრეზენტაციაში გახსნა">სლაიდი 24</a></div>
+<div class="codebox"><div class="ch"><span>Solution Explorer</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln">📦 StoreDemo</span><span class="ln"> ├ 📁 Models      🔁 Scaffold-ის</span><span class="ln"> │  ├ 📄 Category.cs</span><span class="ln"> │  ├ 📄 Customer.cs</span><span class="ln"> │  ├ 📄 Product.cs</span><span class="ln"> │  └ 🎛️ StoreDbContext.cs</span><span class="ln"> ├ 📁 Partials    ✍️ ჩვენი</span><span class="ln"> │  └ 📄 Product.cs</span><span class="ln"> └ 📄 Program.cs</span></code></pre></div>
+<div class="codebox"><div class="ch"><span>Partials/Product.cs</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="k">namespace</span><span class="w"> </span><span class="nn">StoreDemo.Models</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="k">public</span><span class="w"> </span><span class="k">partial</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">Product</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="n">Label</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="s">$"{Name} — {Price} ₾"</span><span class="p">;</span></span><span class="ln"><span class="p">}</span></span></code></pre></div>
+<ul>
+<li><code>partial class Product</code> — <strong>იგივე კლასის</strong> გაგრძელება. კომპილატორი ორივე ფაილს ერთ კლასად აწყობს.</li>
+<li><strong>იგივე namespace</strong> (<code>StoreDemo.Models</code>) — თორემ ორი სხვადასხვა კლასი გამოვა.</li>
+<li><code>-Force</code> მხოლოდ <code>Models</code>-ს ეხება — <code>Partials</code> უსაფრთხოა.</li>
+</ul>
+<div class="terms"><div class="th">📘 ტერმინები</div><dl><dt>partial class</dt><dd>კლასი, რომლის კოდი რამდენიმე ფაილშია გაყოფილი; კომპილატორი მათ ერთ კლასად აერთიანებს</dd></dl></div>
+<div class="prompt"><div class="ph"><span>🤖 partial კლასები</span><button class="copy" type="button">კოპირება</button></div><div class="pb">C#-ში ვსწავლობ partial class-ს EF Core Database First-თან ერთად. ამიხსენი მარტივად: რატომ აგენერირებს Scaffold-DbContext partial კლასებს, როგორ დავამატო საკუთარი property ცალკე ფაილში და რა მოხდება, თუ namespace არ დაემთხვევა. მომეცი პატარა მაგალითი. ქართულად.</div></div></article>
+<article class="blk" data-slides="25"><span class="anchor" id="s-25"></span><div class="bh"><h3>Database First-ის 4 ოქროს წესი</h3><a class="chip" href="index.html#/25" data-go="25" title="პრეზენტაციაში გახსნა">სლაიდი 25</a></div>
+<ol>
+<li><strong>ცვლილება — ჯერ ბაზაში.</strong> <code>ALTER</code> / <code>CREATE</code> — SQL-ით ან DBA-ს მიერ. მერე Scaffold.</li>
+<li><strong>Models-ს ხელით არ ვეხებით</strong> — შემდეგი <code>-Force</code> ყველაფერს წაშლის.</li>
+<li><strong>ჩვენი კოდი → <code>partial</code></strong>, ცალკე ფოლდერში, იგივე namespace-ით.</li>
+<li><strong>ბრძანება — შეინახე.</strong> გრძელია და ყოველ ცვლილებაზე დაგჭირდება: README-ში ან <code>.ps1</code>/<code>.sh</code> ფაილში.</li>
+</ol></article>
+<article class="blk" data-slides="26"><span class="anchor" id="s-26"></span><div class="bh"><h3>Scaffold-DbContext — სასარგებლო პარამეტრები</h3><a class="chip" href="index.html#/26" data-go="26" title="პრეზენტაციაში გახსნა">სლაიდი 26</a></div>
+<table>
+<thead>
+<tr>
+<th>PMC</th>
+<th><code>dotnet ef</code></th>
+<th>რას აკეთებს</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>-OutputDir Models</code></td>
+<td><code>-o Models</code></td>
+<td>Entity კლასების ფოლდერი</td>
+</tr>
+<tr>
+<td><code>-ContextDir Data</code></td>
+<td><code>--context-dir Data</code></td>
+<td>DbContext — ცალკე ფოლდერში</td>
+</tr>
+<tr>
+<td><code>-Context StoreContext</code></td>
+<td><code>-c StoreContext</code></td>
+<td>კონტექსტის სახელი</td>
+</tr>
+<tr>
+<td><code>-Tables Products,Categories</code></td>
+<td><code>-t Products -t Categories</code></td>
+<td>მხოლოდ ეს ცხრილები</td>
+</tr>
+<tr>
+<td><code>-DataAnnotations</code></td>
+<td><code>-d</code></td>
+<td>კონფიგურაცია ატრიბუტებით (<code>[MaxLength]</code>…) კლასებში, სადაც შესაძლებელია</td>
+</tr>
+<tr>
+<td><code>-Force</code></td>
+<td><code>-f</code></td>
+<td>არსებული ფაილების გადაწერა</td>
+</tr>
+</tbody>
+</table></article>
+<article class="blk" data-slides="27"><span class="anchor" id="s-27"></span><div class="bh"><h3>ორი ლექცია — ერთ სლაიდზე: ყოველდღიური ციკლი</h3><a class="chip" href="index.html#/27" data-go="27" title="პრეზენტაციაში გახსნა">სლაიდი 27</a></div>
+<ul>
+<li><strong>Code First</strong> ✍️ — კლასი იცვლება → <code>Add-Migration</code> → <code>Update-Database</code> → ✓ ბაზა განახლდა.</li>
+<li><strong>Database First</strong> 🗄️ — <code>ALTER TABLE</code> → <code>Scaffold … -Force</code> → partial-ები ადგილზეა → ✓ კლასები განახლდა.</li>
+</ul>
+<p>🏠 <strong>ბაზა შენია და ახლა იქმნება → Code First</strong> · 🏛️ <strong>არსებობს ან სხვისია → Database First</strong></p></article>
+<h2 class="sec" id="sec-8">4 · პრაქტიკა</h2>
+<article class="blk" data-slides="28"><span class="anchor" id="s-28"></span><div class="bh"><h3>ნაწილი 4 · თქვენი ჯერია</h3><a class="chip" href="index.html#/28" data-go="28" title="პრეზენტაციაში გახსნა">სლაიდი 28</a></div>
+<p>მზა ბაზა → Scaffold → კოდი → ცვლილება.</p></article>
+<article class="blk" data-slides="29"><span class="anchor" id="s-29"></span><div class="bh"><h3>სამი ეტაპი: მე → თქვენ → საშინაო</h3><a class="chip" href="index.html#/29" data-go="29" title="პრეზენტაციაში გახსნა">სლაიდი 29</a></div>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>რას ვაკეთებთ</th>
+<th>პროექტი</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>👨‍🏫 მე ვხსნი და ვაკეთებ</td>
+<td>StoreDb → Scaffold → partial</td>
+<td>StoreDemo · ✓ დასრულდა</td>
+</tr>
+<tr>
+<td>🧑‍💻 თქვენ აკეთებთ</td>
+<td>Authors · Books → Pages</td>
+<td>LibraryDemo · კლასში · ~30 წთ</td>
+</tr>
+<tr>
+<td>🏠 საშინაო</td>
+<td>Movies · Sessions → Halls</td>
+<td>CinemaDemo · სახლში</td>
+</tr>
+</tbody>
+</table>
+<p>SQL სკრიპტები — <strong>მასალებში</strong> (ამ გვერდის მარცხენა მხარეს, ან ქარდზე „📎 მასალები“): <code>LibraryDb.sql</code>, <code>LibraryDb-change.sql</code>, <code>CinemaDb.sql</code>, <code>CinemaDb-change.sql</code>.</p></article>
+<h2 class="sec" id="sec-9">პრაქტიკა</h2>
+<article class="blk" data-slides="30"><span class="anchor" id="s-30"></span><div class="bh"><h3>კლასში დავალება: LibraryDemo — ბიბლიოთეკა</h3><a class="chip" href="index.html#/30" data-go="30" title="პრეზენტაციაში გახსნა">სლაიდი 30</a></div>
+<p>კლასში · ~30 წთ · იგივე 5 ნაბიჯი</p>
+<h3>ნაბიჯები</h3>
+<ul>
+<li>① SSMS: გაუშვი <code>LibraryDb.sql</code> (მასალებში)</li>
+<li>② Console App <strong>LibraryDemo</strong> + 4 პაკეტი</li>
+<li>③ <code>Scaffold-DbContext … Database=LibraryDb … -OutputDir Models</code></li>
+<li>④ Program.cs: წიგნები ავტორებით (<code>Include</code>) + 1 ახალი წიგნი · <code>Partials/Book.cs</code>: <code>Info =&gt; $"{Title} ({Year})"</code></li>
+<li>⑤ <code>LibraryDb-change.sql</code> (Books + Pages) → Scaffold <code>-Force</code></li>
+</ul>
+<h3>✓ მზადაა, როცა</h3>
+<p><code>Book.cs</code>-ში ჩანს <code>Pages</code>, და <code>Info</code> ისევ მუშაობს</p>
+<h3>💡 რჩევა</h3>
+<p>გაჭედე? ჯერ StoreDemo-ს სლაიდები (ნაბიჯები 1–5), მერე გვერდით მჯდომი, მერე ლექტორი. ყველაზე ხშირი შეცდომები Scaffold-ზეა: connection string, <code>Database=LibraryDb</code>, პაკეტები — „ხშირი შეცდომების“ სლაიდი.</p></article>
+<article class="blk" data-slides="31"><span class="anchor" id="s-31"></span><div class="bh"><h3>Scaffold-ის ხშირი შეცდომები</h3><a class="chip" href="index.html#/31" data-go="31" title="პრეზენტაციაში გახსნა">სლაიდი 31</a></div>
+<table>
+<thead>
+<tr>
+<th>შეცდომა</th>
+<th>მიზეზი</th>
+<th>გამოსწორება</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>The term 'Scaffold-DbContext' is not recognized</code></td>
+<td>.Tools აკლია</td>
+<td>დააყენე .Tools</td>
+</tr>
+<tr>
+<td><code>Your startup project doesn't reference Microsoft.EntityFrameworkCore.Design</code></td>
+<td>.Design აკლია</td>
+<td>დააყენე .Design</td>
+</tr>
+<tr>
+<td><code>Build failed.</code></td>
+<td>Scaffold ჯერ პროექტს აბილდებს — კოდში შეცდომაა (ხშირად <code>-Force</code>-ის შემდეგ დაკარგული კოდის გამო)</td>
+<td>ჯერ შეცდომა გაასწორე, მერე Scaffold</td>
+</tr>
+<tr>
+<td><code>The following file(s) already exist</code></td>
+<td>ფაილები უკვე დაგენერირდა</td>
+<td><code>-Force</code> (ჯერ partial-ები!)</td>
+</tr>
+<tr>
+<td><code>Cannot open database "LibraryDb"</code> / login failed</td>
+<td>SQL სკრიპტი არ გაუშვი, ან სახელი არასწორია</td>
+<td>SSMS-ში შეამოწმე ბაზა; connection string-ში <code>Database=…</code></td>
+</tr>
+<tr>
+<td><code>The certificate chain was issued by an authority that is not trusted</code></td>
+<td>SSL სერტიფიკატი</td>
+<td><code>TrustServerCertificate=True;</code></td>
+</tr>
+</tbody>
+</table>
+<div class="prompt"><div class="ph"><span>🤖 Scaffold-ის შეცდომა</span><button class="copy" type="button">კოპირება</button></div><div class="pb">ვმუშაობ EF Core Database First-ით (.NET 10, SQL Server). Scaffold-DbContext-ზე მაქვს შეცდომა: [ჩასვი ტექსტი]
+ჩემი ბრძანება: [ჩასვი, პაროლი წაშალე]
+დაყენებული პაკეტები: [ჩამოთვალე]
+ამიხსენი, რას ნიშნავს და რა შევამოწმო ნაბიჯ-ნაბიჯ. ქართულად.</div></div></article>
+<h2 class="sec" id="sec-10">შეჯამება</h2>
+<article class="blk" data-slides="32"><span class="anchor" id="s-32"></span><div class="bh"><h3>შეამოწმე, რა დაგამახსოვრდა</h3><a class="chip" href="index.html#/32" data-go="32" title="პრეზენტაციაში გახსნა">სლაიდი 32</a></div>
+<p>ეს კითხვები შემდეგი ლექციის დასაწყისშიც დაისმება.</p>
+<div class="selfcheck"><div class="sh">✅ შეამოწმე თავი <small>დაფიქრდი, მერე გახსენი პასუხი</small></div><details><summary>რას აკეთებს <code>Scaffold-DbContext</code>?</summary><div class="ans">ბაზას კითხულობს და აგენერირებს Entity კლასებს + DbContext-ს</div></details><details><summary>ცხრილი Products — რა ჰქვია კლასს და DbSet-ს?</summary><div class="ans"><code>class Product</code> (მხოლობითი) · <code>DbSet Products</code></div></details><details><summary>DBA-მ სვეტი დაამატა. რას ვაკეთებთ?</summary><div class="ans">იგივე <code>Scaffold-DbContext</code> + <code>-Force</code></div></details><details><summary><code>-Force</code>-მა ჩვენი კოდი წაშალა. როგორ ავიცილოთ თავიდან?</summary><div class="ans"><code>partial</code> კლასი ცალკე ფოლდერში, იგივე namespace-ით</div></details><details><summary>Database First პროექტში Migrations ფოლდერი რატომ არ არის?</summary><div class="ans">ბაზას EF არ ქმნის — ის უკვე არსებობს; ცვლილებები ბაზაში ხდება</div></details></div></article>
+<article class="blk" data-slides="33"><span class="anchor" id="s-33"></span><div class="bh"><h3>შეჯამება · კოდი ქმნის ბაზას — ან ბაზა ქმნის კოდს</h3><a class="chip" href="index.html#/33" data-go="33" title="პრეზენტაციაში გახსნა">სლაიდი 33</a></div>
+<p><strong>დაიმახსოვრე:</strong></p>
+<ol>
+<li><strong>ბაზა შენია → Code First · არსებობს ან სხვისია → Database First.</strong></li>
+<li>Database First: <code>Scaffold-DbContext</code> → Entity-ები + DbContext; ბაზა შეიცვალა → <code>-Force</code>.</li>
+<li><strong>ჩვენი კოდი → <code>partial</code></strong>, ცალკე ფოლდერში — <code>-Force</code> მას ვერ შეეხება.</li>
+</ol>
+<div class="prompt"><div class="ph"><span>🤖 გამოცდა ორივე ლექციაზე</span><button class="copy" type="button">კოპირება</button></div><div class="pb">ვსწავლობ EF Core-ს. ორ ლექციაზე გავიარეთ: Code First (მიგრაციები, Add-Migration, Update-Database, Remove-Migration, FK და int?) და Database First (Scaffold-DbContext, OnModelCreating, -Force, partial კლასები, -Context, -Tables, -DataAnnotations).
+დამისვი 8 კითხვა სათითაოდ — ნახევარი სიტუაციაზე („რას გააკეთებ?“). შემიფასე და ამიხსენი. ბოლოს მითხარი, რა გავიმეორო. ქართულად.</div></div></article>
+<h2 class="sec" id="sec-11">საშინაო</h2>
+<article class="blk" data-slides="34"><span class="anchor" id="s-34"></span><div class="bh"><h3>საშინაო დავალება: CinemaDemo — კინოთეატრი</h3><a class="chip" href="index.html#/34" data-go="34" title="პრეზენტაციაში გახსნა">სლაიდი 34</a></div>
+<p>იგივე 5 ნაბიჯი + ორი ახალი რამ</p>
+<h3>მოთხოვნები</h3>
+<ul>
+<li>SSMS: <code>CinemaDb.sql</code> — Movies, Sessions (მასალებში)</li>
+<li>CinemaDemo → Scaffold, კონტექსტის სახელი: <code>-Context CinemaContext</code></li>
+<li>დაბეჭდე სეანსები დროის მიხედვით: „19:30 · ოპენჰაიმერი · 15.00 ₾“</li>
+<li><code>Partials/Session.cs</code>: <code>Time =&gt; StartsAt.ToString("HH:mm")</code></li>
+<li><code>CinemaDb-change.sql</code> (Halls + HallId) → <code>-Force</code> → დაბეჭდე დარბაზიც</li>
+</ul>
+<h3>✓ მზადაა, როცა</h3>
+<p>კონსოლი ბეჭდავს: დრო · ფილმი · ფასი · დარბაზი — და <code>Time</code> ისევ მუშაობს</p>
+<h3>⭐ ბონუსი</h3>
+<ul>
+<li><code>-Tables Movies -OutputDir OnlyMovies</code> — რა დაგენერირდა?</li>
+<li><code>-DataAnnotations</code> — Session.cs-ში რა ატრიბუტები გაჩნდა და რა დარჩა <code>OnModelCreating</code>-ში?</li>
+<li>დაამატე დარბაზი უკვე არსებული სახელით — რას იტყვის ბაზა?</li>
+</ul>
+<h3>💡 მინიშნება</h3>
+<div class="codebox"><div class="ch"><span>csharp</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="n">db</span><span class="p">.</span><span class="n">Sessions</span></span><span class="ln"><span class="w">    </span><span class="p">.</span><span class="n">Include</span><span class="p">(</span><span class="n">s</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">s</span><span class="p">.</span><span class="n">Movie</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="p">.</span><span class="n">Include</span><span class="p">(</span><span class="n">s</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">s</span><span class="p">.</span><span class="n">Hall</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="p">.</span><span class="n">OrderBy</span><span class="p">(</span><span class="n">s</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">s</span><span class="p">.</span><span class="n">StartsAt</span><span class="p">)</span></span></code></pre></div>
+<p>დარბაზი შეიძლება <code>null</code> იყოს (<code>HallId INT NULL</code>) → <code>s.Hall?.Name</code>. ბონუსის მესამე პუნქტზე გაიხსენე: <code>Halls.Name</code> — <code>UNIQUE</code>.</p></article>
+  </main>
+</div>
+<script>
+const DECK = "EF Core · 4 — Database First პრაქტიკაში";
+if (matchMedia('(min-width:981px)').matches) document.getElementById('tocd').open = true;
+const blocks = [...document.querySelectorAll('.blk')];
+const tocLinks = [...document.querySelectorAll('nav.toc a[href^="#sec-"]')];
+const secOf = b => { let e = b; while (e && !(e.matches && e.matches('h2.sec'))) e = e.previousElementSibling; return e; };
+function mark(b, toc_only) {
+  if (!toc_only) blocks.forEach(x => x.classList.toggle('cur', x === b));
+  const s = b && secOf(b); tocLinks.forEach(a => a.classList.toggle('cur', s && a.getAttribute('href') === '#' + s.id));
+}
+const blockFor = n => blocks.find(b => b.dataset.slides.split(',').includes(String(n)));
+
+// copy buttons (code: one line per .ln)
+document.addEventListener('click', e => {
+  const btn = e.target.closest('.copy'); if (!btn) return;
+  const box = btn.closest('.codebox, .prompt');
+  const text = box.matches('.prompt') ? box.querySelector('.pb').textContent : [...box.querySelectorAll('.ln')].map(l => l.textContent).join('\n');
+  navigator.clipboard.writeText(text).then(() => { btn.textContent = '✓ დაკოპირდა'; btn.classList.add('ok'); setTimeout(() => { btn.textContent = 'კოპირება'; btn.classList.remove('ok'); }, 1600); });
+});
+
+// live mode: opened from the deck with P — follow the projector
+const live = new URLSearchParams(location.search).has('live');
+let follow = true, bc = null;
+const liveBtn = document.getElementById('live');
+if (live) {
+  try { bc = new BroadcastChannel('deck-' + DECK); } catch (e) {}
+  liveBtn.classList.add('on');
+  liveBtn.onclick = () => { follow = !follow; liveBtn.classList.toggle('off', !follow); liveBtn.querySelector('.lt').textContent = follow ? 'მიჰყვება სლაიდებს' : 'თავისუფლად ვკითხულობ'; };
+  if (bc) {
+    bc.onmessage = ({ data }) => {
+      if (data.t !== 'state' || !follow) return;
+      const b = blockFor(data.i + 1); if (!b || b.classList.contains('cur')) return;
+      mark(b); b.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    };
+    bc.postMessage({ t: 'hello' });
+  }
+  document.addEventListener('click', e => {   // slide chip → move the projector deck
+    const c = e.target.closest('.chip[data-go]'); if (!c || !bc) return;
+    e.preventDefault(); bc.postMessage({ t: 'go', n: +c.dataset.go - 1 });
+  });
+}
+// deep link #s-12
+const h = location.hash.match(/^#s-(\d+)$/);
+if (h) { const b = blockFor(+h[1]); if (b) { mark(b); setTimeout(() => b.scrollIntoView({ block: 'start' }), 50); } }
+// highlight section in the TOC while reading
+const io = new IntersectionObserver(es => es.forEach(x => { if (x.isIntersecting && !(live && follow)) mark(x.target, true); }), { rootMargin: '-30% 0px -60% 0px' });
+blocks.forEach(b => io.observe(b));
+</script>
+</body></html>
