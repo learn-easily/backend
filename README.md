@@ -2,7 +2,7 @@
 
 ყველა ლექციის პრეზენტაცია და კონსპექტი ერთ ადგილას, ერთ ძრავზე.
 
-**საიტი:** https://learn-easily.github.io/lectures/
+**საიტი:** https://learn-easily.github.io/backend/
 
 ## სტრუქტურა
 
@@ -12,8 +12,7 @@ engine/                      ერთი ძრავი ყველა ლე
   index.html                 მთავარი გვერდის შაბლონი (ქარდები, ძებნა)
   study.html                 კონსპექტის გვერდის შაბლონი
 courses/
-  categories.json            კატეგორიები ჩანართებად: C#, EF Core, ASP.NET, SQL, DevOps
-  <კურსი>/course.json        {"title", "category", "order"}
+  <კურსი>/course.json        {"title", "order"} — ერთი კურსი = ერთი ჩანართი მთავარ გვერდზე
   <კურსი>/<NN-slug>/
     deck.html                სლაიდები; ყოველ სლაიდში — <aside class="study"> (სტუდენტის ახსნა, markdown)
     lecture.json             {"title", "why", "outcomes", "review"}
@@ -25,10 +24,11 @@ build.py                     აწყობს ყველაფერს → 
 
 | კურსი | საქაღალდე |
 |---|---|
-| ASP.NET Core Web API | `courses/aspnet-api/` |
-| Entity Framework Core | `courses/efcore/` |
-| C# საფუძვლები | `courses/school-backend/` |
-| DevOps Crash Course | `courses/devops/` |
+| C# | `courses/csharp/` |
+| EF Core | `courses/efcore/` |
+| ASP.NET | `courses/aspnet/` |
+| SQL | `courses/sql/` |
+| DevOps | `courses/devops/` |
 
 ## ლექციაზე
 
@@ -54,7 +54,7 @@ build.py                     აწყობს ყველაფერს → 
 | `<lecture-check/>` | შევამოწმოთ — ამ ლექციის კითხვები | `lecture.json` → `review` |
 | `<lecture-homework/>` | საშინაო (ამოხსნის გარეშე) | `homework.md` |
 
-თეორია და პრაქტიკული ჩვენება — ჩვეულებრივი სლაიდებია მათ შორის. ერთი და იგივე კითხვები ლექციის ბოლოს „შევამოწმოთ“-ში ჩანს და შემდეგი ლექციის დასაწყისში „გამეორებაში“ — ერთხელ იწერება. build შეჩერდება, თუ ახალი ფორმატის ლექციას რომელიმე ნაწილი აკლია. ნიმუში: `courses/aspnet-api/03-dto-mapping/`.
+თეორია და პრაქტიკული ჩვენება — ჩვეულებრივი სლაიდებია მათ შორის. ერთი და იგივე კითხვები ლექციის ბოლოს „შევამოწმოთ“-ში ჩანს და შემდეგი ლექციის დასაწყისში „გამეორებაში“ — ერთხელ იწერება. build შეჩერდება, თუ ახალი ფორმატის ლექციას რომელიმე ნაწილი აკლია. ნიმუში: `courses/aspnet/03-dto-mapping/`.
 
 `classwork.md` / `homework.md`: `# სათაური`, ქვესათაური, მერე `## მოთხოვნები` (ან `## ნაბიჯები`), `## ✓ მზადაა, როცა`, `## ⭐ ბონუსი`, `## 💡 …` (მხოლოდ კონსპექტში), `## ამოხსნა` (მხოლოდ homework-ში; ჩანს შემდეგ ლექციაზე).
 
@@ -75,16 +75,16 @@ build.py                     აწყობს ყველაფერს → 
 ## ახალი ლექცია
 
 1. `courses/<კურსი>/<NN-slug>/` — `deck.html`, `lecture.json`, `classwork.md`, `homework.md`.
-2. ახალი კურსისთვის — `courses/<კურსი>/course.json`, `category` — `categories.json`-იდან (მაგ. `"sql"`).
+2. ახალი კურსისთვის — `courses/<კურსი>/course.json`.
 3. `python3 build.py`, შემდეგ commit + push `main`-ზე. ერთ წუთში საიტზე ახალი ქარდი გამოჩნდება.
 
-> `aspnet-api/`, `efcore/`, `school-backend/`, `devops/` და root-ის `index.html` ბილდის შედეგია — ხელით არ შეცვალო, შეცვალე `courses/` და გაუშვი ბილდი.
+> `csharp/`, `efcore/`, `aspnet/`, `sql/`, `devops/` და root-ის `index.html` ბილდის შედეგია — ხელით არ შეცვალო, შეცვალე `courses/` და გაუშვი ბილდი.
 
 ## ლოკალურად
 
 ```bash
 python3 -m venv .venv && .venv/bin/pip install pygments markdown   # ერთხელ
 .venv/bin/python build.py                                          # ყველაფერი → root
-.venv/bin/python build.py aspnet-api/03                            # მხოლოდ ერთი ლექცია
+.venv/bin/python build.py aspnet/03                                # მხოლოდ ერთი ლექცია
 python3 -m http.server 8000                                        # http://localhost:8000
 ```

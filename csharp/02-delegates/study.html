@@ -1,0 +1,698 @@
+<!doctype html>
+<html lang="ka"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>📖 დელეგატები — მეთოდი, როგორც მნიშვნელობა — კონსპექტი</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Georgian:wght@400;600;700;800&family=JetBrains+Mono:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#fbf8f3;--card:#fff;--ink:#1e2132;--ink2:#3b3f54;--muted:#7b8096;--line:#e6dfd2;--accent:#6d28d9;--accent-soft:#f3effe;--teal:#0d9488;
+  --green:#15803d;--amber:#b45309;--mono:"JetBrains Mono",ui-monospace,monospace;--sans:"Noto Sans Georgian",system-ui,sans-serif}
+*{box-sizing:border-box}
+html{scroll-padding-top:76px}
+body{margin:0;background:var(--bg);color:var(--ink);font:17.5px/1.75 var(--sans);-webkit-font-smoothing:antialiased}
+a{color:var(--accent)}
+/* top bar */
+.top{position:sticky;top:0;z-index:10;display:flex;align-items:center;gap:14px;padding:10px 20px;background:rgba(251,248,243,.92);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.top .back{font:600 14px var(--mono);color:var(--muted);text-decoration:none;white-space:nowrap}
+.top .back:hover{color:var(--ink)}
+.top .ttl{flex:1;min-width:0;font-weight:700;font-size:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.top .ttl small{font:500 13px var(--mono);color:var(--muted);margin-right:8px}
+.btn{font:700 14px var(--sans);text-decoration:none;border-radius:10px;padding:7px 14px;white-space:nowrap;border:1px solid var(--line);color:var(--ink);background:var(--card);cursor:pointer}
+.btn.play{background:var(--accent);border-color:var(--accent);color:#fff}
+.live{display:none;align-items:center;gap:8px;font:600 13px var(--mono);color:var(--teal);background:#e6f6f4;border:1px solid #bfe7e2;border-radius:999px;padding:5px 12px;cursor:pointer}
+.live.on{display:flex}
+.live .dot{width:8px;height:8px;border-radius:50%;background:var(--teal);animation:pulse 1.6s infinite}
+.live.off{color:var(--muted);background:var(--card);border-color:var(--line)}.live.off .dot{background:var(--muted);animation:none}
+@keyframes pulse{50%{opacity:.3}}
+/* layout */
+.wrap{display:grid;grid-template-columns:230px minmax(0,1000px);gap:44px;justify-content:center;padding:32px 28px 120px}
+nav.toc{position:sticky;top:84px;align-self:start;font-size:14px;line-height:1.45}
+nav.toc .h{font:700 12px var(--mono);color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px}
+nav.toc a{display:block;color:var(--ink2);text-decoration:none;padding:6px 10px;border-left:2px solid var(--line)}
+nav.toc a:hover{color:var(--accent)}
+nav.toc a.cur{color:var(--accent);border-left-color:var(--accent);font-weight:700}
+nav.toc .mats{margin-top:22px;display:flex;flex-direction:column;gap:6px}
+nav.toc .mats a{border:0;padding:2px 0;font:500 13px var(--mono);color:var(--teal);word-break:break-all}
+header.hero{margin-bottom:8px}
+header.hero .k{font:600 14px var(--mono);color:var(--accent)}
+header.hero h1{font-size:38px;line-height:1.2;margin:6px 0 10px;letter-spacing:-.01em}
+header.hero p{color:var(--muted);margin:0;font-size:15.5px}
+header.hero kbd{font:500 12px var(--mono);border:1px solid var(--line);border-radius:5px;padding:0 5px;background:var(--card)}
+h2.sec{font-size:15px;font:700 13px var(--mono);color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin:48px 0 6px;padding-top:18px;border-top:1px solid var(--line)}
+/* blocks */
+.blk{position:relative;padding:14px 0 6px 22px;margin-left:-22px;border-left:3px solid transparent;transition:border-color .3s,background .3s;border-radius:0 12px 12px 0}
+.blk.cur{border-left-color:var(--accent);background:linear-gradient(90deg,var(--accent-soft),transparent 70%)}
+.anchor{position:absolute;top:0}
+.bh{display:flex;align-items:baseline;justify-content:space-between;gap:12px}
+.bh h3{font-size:22px;line-height:1.35;margin:4px 0 6px}
+.chip{flex:none;font:600 12px var(--mono);color:var(--muted);text-decoration:none;border:1px solid var(--line);border-radius:999px;padding:2px 10px;background:var(--card)}
+.chip:hover{color:var(--accent);border-color:var(--accent)}
+.blk h2{font-size:26px;line-height:1.3;margin:6px 0 10px}
+.blk h3:not(.bh h3){font-size:19px;margin:22px 0 6px}
+.blk h4{font-size:17px;margin:18px 0 4px}
+.blk p{margin:10px 0}
+.blk ul,.blk ol{padding-left:24px;margin:8px 0}
+.blk li{margin:4px 0}
+.blk strong{color:var(--ink)}
+.blk :not(pre)>code{font:600 .86em var(--mono);background:#f1ece3;border-radius:6px;padding:1px 6px;color:#5b21b6}
+.blk table{border-collapse:collapse;margin:14px 0;font-size:15.5px;width:100%;display:block;overflow-x:auto}
+.blk th,.blk td{border:1px solid var(--line);padding:8px 12px;text-align:left;vertical-align:top}
+.blk th{background:#f6f1e8}
+/* code */
+.codebox{margin:14px 0;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:#fffdf9}
+.codebox .ch,.prompt .ph{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:6px 8px 6px 14px;font:600 12.5px var(--mono);color:var(--muted);background:#f6f1e8;border-bottom:1px solid var(--line)}
+.copy{font:600 12px var(--mono);border:1px solid var(--line);background:var(--card);color:var(--ink2);border-radius:7px;padding:3px 10px;cursor:pointer}
+.copy:hover{border-color:var(--ink)}
+.copy.ok{color:var(--green);border-color:var(--green)}
+pre.code{margin:0;padding:12px 0;overflow-x:auto;font:14px/1.65 var(--mono)}
+pre.code .ln{display:block;padding:0 16px;white-space:pre}
+.code .ttl{background:var(--bg2);color:var(--muted)}
+.code .ln.hl{background:rgba(109,40,217,.07);box-shadow:inset 3px 0 0 var(--net)}
+.code .ln.dim{opacity:.42}
+.code .k,.code .kd,.code .kn,.code .kr,.code .kc{color:#7c3aed}
+.code .kt{color:#2563eb}
+.code .s,.code .s1,.code .s2,.code .sa,.code .se,.code .si,.code .sd{color:#15803d}
+.code .c,.code .c1,.code .cm,.code .cp,.code .ch{color:#8b8fa3}
+.code .m,.code .mi,.code .mf,.code .mh{color:#c2410c}
+.code .nf,.code .fm{color:#1d4ed8}
+.code .nc,.code .nn,.code .nt,.code .nd{color:#b45309}
+.code .na{color:#7c3aed} .code .nb{color:#0e7490}
+.code .o,.code .p{color:#64748b}
+.code .nv,.code .nx{color:var(--ink)}
+.code .go{color:#64748b}
+/* prompt */
+.prompt{margin:16px 0;border:1px solid #ddd2fb;border-radius:12px;overflow:hidden;background:var(--accent-soft)}
+.prompt .ph{background:#ebe3fd;border-color:#ddd2fb;color:var(--accent)}
+.prompt .pb{padding:12px 16px;white-space:pre-wrap;font-size:15.5px;line-height:1.6;color:var(--ink2)}
+/* self check */
+.selfcheck{margin:16px 0;border:1px solid #cfe9d6;border-radius:12px;background:#f3fbf5;padding:12px 16px}
+.selfcheck .sh{font-weight:700;color:var(--green);margin-bottom:6px}
+.selfcheck .sh small{font-weight:400;color:var(--muted);font-size:13.5px;margin-left:6px}
+.selfcheck details{border-top:1px solid #dcefe1;padding:8px 0}
+.selfcheck summary{cursor:pointer;font-weight:600;list-style:none;padding-left:26px;position:relative}
+.selfcheck summary::-webkit-details-marker{display:none}
+.selfcheck summary::before{content:"?";position:absolute;left:0;top:2px;width:18px;height:18px;border-radius:50%;background:var(--green);color:#fff;font:700 12px/18px var(--mono);text-align:center}
+.selfcheck details[open] summary::before{content:"✓"}
+.selfcheck .ans{padding:6px 0 2px 26px;color:var(--ink2)}
+/* terms */
+.terms{margin:16px 0;border:1px solid var(--line);border-radius:12px;background:var(--card);padding:12px 16px}
+.terms .th{font-weight:700;margin-bottom:6px}
+.terms dl{display:grid;grid-template-columns:max-content 1fr;gap:6px 18px;margin:0}
+.terms dt{font:600 14.5px var(--mono);color:var(--accent)}
+.terms dd{margin:0;color:var(--ink2)}
+/* callouts */
+.callout{display:flex;gap:12px;margin:14px 0;padding:12px 16px;border-radius:12px;border:1px solid var(--line);background:var(--card)}
+.callout .ci{font-size:20px;line-height:1.6}
+.callout>div>p:first-child{margin-top:0}.callout>div>p:last-child{margin-bottom:0}
+.callout.warn{background:#fff8eb;border-color:#f6dfb5}
+.callout.note{background:#eef5ff;border-color:#cfe0fb}
+@media (max-width:980px){
+  .wrap{grid-template-columns:minmax(0,1fr);gap:0;padding:20px 16px 100px}
+  nav.toc{position:static;margin-bottom:12px}
+  nav.toc details{border:1px solid var(--line);border-radius:12px;background:var(--card);padding:8px 12px}
+  nav.toc details>summary{cursor:pointer;font-weight:700}
+  nav.toc .h{display:none}
+  header.hero h1{font-size:30px}
+  .blk{padding-left:14px;margin-left:-14px}
+  .top .ttl small{display:none}
+  .terms dl{grid-template-columns:1fr}.terms dd{margin-bottom:8px}
+}
+@media (min-width:981px){nav.toc details>summary{display:none}}
+@media print{.top,nav.toc,.copy,.chip,.live{display:none}.wrap{display:block;padding:0}.selfcheck details{display:block}.blk.cur{background:none}}
+</style></head>
+<body>
+<div class="top">
+  <a class="back" href="../../">← ლექციები</a>
+  <div class="ttl"><small>C# · 2</small>დელეგატები — მეთოდი, როგორც მნიშვნელობა</div>
+  <button class="live" id="live" type="button" title="ჩართული: ტექსტი პრეზენტაციას მიჰყვება"><span class="dot"></span><span class="lt">მიჰყვება სლაიდებს</span></button>
+  <a class="btn play" href="index.html">▶ პრეზენტაცია</a>
+</div>
+<div class="wrap">
+  <nav class="toc"><details id="tocd"><summary>სარჩევი</summary><div class="h">სარჩევი</div><a href="#sec-1">შესავალი</a><a href="#sec-2">დღის თემა</a><a href="#sec-3">შესავალი</a><a href="#sec-4">1 · პრობლემა</a><a href="#sec-5">2 · Action და Func</a><a href="#sec-6">3 · ქცევა გარედან</a><a href="#sec-7">4 · პირობის გადაცემა</a><a href="#sec-8">5 · ბევრი რეაქცია</a><a href="#sec-9">6 · თამაში</a><a href="#sec-10">პრაქტიკა</a><a href="#sec-11">შეჯამება</a><a href="#sec-12">საშინაო</a><div class="mats"></div></details></nav>
+  <main>
+    <header class="hero">
+      <div class="k">📖 კონსპექტი · C# · ლექცია 2</div>
+      <h1>დელეგატები — მეთოდი, როგორც მნიშვნელობა</h1>
+      <p>წაიკითხე ლექციის შემდეგ, ან პრეზენტაციასთან ერთად: პრეზენტაციაში დააჭირე <kbd>P</kbd> და ეს გვერდი სლაიდებს გაჰყვება. კოდი და AI-ს პრომპტები კოპირდება ერთი დაჭერით.</p>
+    </header>
+    <h2 class="sec" id="sec-1">შესავალი</h2>
+<article class="blk" data-slides="1"><span class="anchor" id="s-1"></span><div class="bh"><h3>მეთოდი, როგორც მნიშვნელობა</h3><a class="chip" href="index.html#/1" data-go="1" title="პრეზენტაციაში გახსნა">სლაიდი 1</a></div><h1>დელეგატები — მეთოდი, როგორც მნიშვნელობა</h1>
+<p>ცვლადში რიცხვს და ტექსტს უკვე ინახავ. დღეს ვისწავლით ცვლადში <strong>მეთოდის</strong> შენახვას — და ბოლოს ამით ავაწყობთ თამაშს, სადაც ბოტს ებრძვი.</p></article>
+<h2 class="sec" id="sec-2">დღის თემა</h2>
+<article class="blk" data-slides="2"><span class="anchor" id="s-2"></span><div class="bh"><h3>დღის თემა: დელეგატები — მეთოდი, როგორც მნიშვნელობა</h3><a class="chip" href="index.html#/2" data-go="2" title="პრეზენტაციაში გახსნა">სლაიდი 2</a></div>
+<p>ცვლადში რიცხვს და ტექსტს უკვე ინახავთ. დღეს ვისწავლით ცვლადში <strong>მეთოდის</strong> შენახვას — რომ ერთმა მეთოდმა ბევრი სხვადასხვა რამ გააკეთოს, კლასს კი ქცევა გარედან მივცეთ. ლექციის ბოლოს ამ ცოდნით ავაწყობთ თამაშს: შენ ებრძვი ბოტს.</p>
+<p><strong>ლექციის ბოლოს შეძლებ:</strong></p>
+<ul>
+<li>მეთოდის შენახვა ცვლადში და ლამბდის დაწერა: <code>x =&gt; x * 2</code></li>
+<li><code>Action</code> და <code>Func</code> — რომელი როდის</li>
+<li>მეთოდისთვის პირობის გადაცემა: ერთი <code>Filter</code> ბევრი მეთოდის ნაცვლად</li>
+<li><code>+=</code> და <code>?.Invoke()</code> — ერთ მოვლენაზე რამდენიმე რეაქცია</li>
+<li>კონსოლის თამაში „შენ vs ბოტი“ დელეგატებით</li>
+</ul></article>
+<h2 class="sec" id="sec-3">შესავალი</h2>
+<article class="blk" data-slides="3"><span class="anchor" id="s-3"></span><div class="bh"><h3>ლექციის ბოლოს ამას შენ დაწერ</h3><a class="chip" href="index.html#/3" data-go="3" title="პრეზენტაციაში გახსნა">სლაიდი 3</a></div>
+<p>კონსოლის თამაში: <strong>შენ vs ბოტი</strong>. ყოველ რაუნდში ირჩევ სვლას — დარტყმა, ძლიერი დარტყმა ან განკურნება. ბოტი თავისით წყვეტს.</p>
+<p>ამისთვის ოთხი იარაღი გვჭირდება — ოთხივეს დღეს ვისწავლით:</p>
+<ol>
+<li><strong>Action · Func</strong> — მეთოდი ცვლადში</li>
+<li><strong>ქცევა გარედან</strong> — ერთი კლასი, ბევრი სხვადასხვა ქცევა</li>
+<li><strong>პირობის გადაცემა</strong> — ერთი მეთოდი, ბევრი წესი</li>
+<li><strong><code>+=</code></strong> — ერთ მოვლენაზე ბევრი რეაქცია</li>
+</ol></article>
+<h2 class="sec" id="sec-4">1 · პრობლემა</h2>
+<article class="blk" data-slides="4"><span class="anchor" id="s-4"></span><div class="bh"><h3>ნაწილი 1 · პრობლემა: ერთნაირი მეთოდები</h3><a class="chip" href="index.html#/4" data-go="4" title="პრეზენტაციაში გახსნა">სლაიდი 4</a></div></article>
+<article class="blk" data-slides="5"><span class="anchor" id="s-5"></span><div class="bh"><h3>პრობლემა: ერთნაირი მეთოდები</h3><a class="chip" href="index.html#/5" data-go="5" title="პრეზენტაციაში გახსნა">სლაიდი 5</a></div>
+<div class="codebox"><div class="ch"><span>მაღალი ქულები</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="k">static</span><span class="w"> </span><span class="n">List</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="w"> </span><span class="n">GetHighScores</span><span class="p">(</span><span class="n">List</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="w"> </span><span class="n">list</span><span class="p">)</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="n">List</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="w"> </span><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">List</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="k">foreach</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">s</span><span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="n">list</span><span class="p">)</span></span><span class="ln"><span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">s</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="mi">80</span><span class="p">)</span><span class="w"> </span><span class="n">result</span><span class="p">.</span><span class="n">Add</span><span class="p">(</span><span class="n">s</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">result</span><span class="p">;</span></span><span class="ln"><span class="p">}</span></span></code></pre></div>
+<div class="codebox"><div class="ch"><span>დაბალი ქულები</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="k">static</span><span class="w"> </span><span class="n">List</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="w"> </span><span class="n">GetLowScores</span><span class="p">(</span><span class="n">List</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="w"> </span><span class="n">list</span><span class="p">)</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="n">List</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="w"> </span><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">List</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="k">foreach</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">s</span><span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="n">list</span><span class="p">)</span></span><span class="ln"><span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">s</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">20</span><span class="p">)</span><span class="w"> </span><span class="n">result</span><span class="p">.</span><span class="n">Add</span><span class="p">(</span><span class="n">s</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">result</span><span class="p">;</span></span><span class="ln"><span class="p">}</span></span></code></pre></div>
+<p>ორი მეთოდი განსხვავდება <strong>მხოლოდ ერთი ხაზით</strong> — <code>if</code>-ის პირობით. დანარჩენი ზუსტი ასლია.</p>
+<p>ახალი პირობა („ზუსტად 100“, „ლუწი“) → ახალი მეთოდი → კიდევ ერთი ასლი. ასეთი კოდი სწრაფად იზრდება, და თუ ერთ ადგილას შეცდომას იპოვი, ყველა ასლში უნდა გაასწორო.</p></article>
+<article class="blk" data-slides="6"><span class="anchor" id="s-6"></span><div class="bh"><h3>იდეა: წესიც გადავცეთ მეთოდს</h3><a class="chip" href="index.html#/6" data-go="6" title="პრეზენტაციაში გახსნა">სლაიდი 6</a></div>
+<p>რიცხვს მეთოდს ყოველთვის ვაწვდით: <code>Filter(scores, 80)</code>. მაგრამ ეს მხოლოდ „80-ზე მეტზე“ იმუშავებს. „ლუწზე“ ან „ზუსტად 100-ზე“ — ვერა.</p>
+<p>რა იქნება, თუ მეთოდს მივაწვდით <strong>თვითონ წესს</strong> — „აი, ასე შეამოწმე“?</p>
+<table>
+<thead>
+<tr>
+<th>ცვლადი</th>
+<th>რა ინახება</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>int limit = 80;</code></td>
+<td><strong>რიცხვი</strong></td>
+</tr>
+<tr>
+<td><code>Func&lt;int, bool&gt; rule = s =&gt; s &gt;= 80;</code></td>
+<td><strong>მოქმედება</strong> — „შეამოწმე, 80-ზე მეტია თუ არა“</td>
+</tr>
+</tbody>
+</table>
+<div class="terms"><div class="th">📘 ტერმინები</div><dl><dt>დელეგატი</dt><dd>ცვლადი, რომელშიც მეთოდი ინახება. შეგიძლია შეინახო, გადასცე სხვა მეთოდს და მოგვიანებით გამოიძახო</dd></dl></div></article>
+<h2 class="sec" id="sec-5">2 · Action და Func</h2>
+<article class="blk" data-slides="7"><span class="anchor" id="s-7"></span><div class="bh"><h3>ნაწილი 2 · Action და Func</h3><a class="chip" href="index.html#/7" data-go="7" title="პრეზენტაციაში გახსნა">სლაიდი 7</a></div></article>
+<article class="blk" data-slides="8"><span class="anchor" id="s-8"></span><div class="bh"><h3>მეთოდი ცვლადში</h3><a class="chip" href="index.html#/8" data-go="8" title="პრეზენტაციაში გახსნა">სლაიდი 8</a></div>
+<div class="codebox"><div class="ch"><span>Program.cs</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="n">Action</span><span class="w"> </span><span class="n">greet</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">SayHello</span><span class="p">;</span></span><span class="ln"><span class="n">greet</span><span class="p">(</span><span class="p">)</span><span class="p">;</span><span class="w">          </span><span class="c1">// გამარჯობა!</span></span><span class="ln"> </span><span class="ln"><span class="n">greet</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">SayBye</span><span class="p">;</span></span><span class="ln"><span class="n">greet</span><span class="p">(</span><span class="p">)</span><span class="p">;</span><span class="w">          </span><span class="c1">// ნახვამდის!</span></span><span class="ln"> </span><span class="ln"><span class="k">static</span><span class="w"> </span><span class="k">void</span><span class="w"> </span><span class="nf">SayHello</span><span class="p">(</span><span class="p">)</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="s">"გამარჯობა!"</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="k">static</span><span class="w"> </span><span class="k">void</span><span class="w"> </span><span class="nf">SayBye</span><span class="p">(</span><span class="p">)</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="s">"ნახვამდის!"</span><span class="p">)</span><span class="p">;</span></span></code></pre></div>
+<table>
+<thead>
+<tr>
+<th>ჩანაწერი</th>
+<th>რას ნიშნავს</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>SayHello</code></td>
+<td>მეთოდი — <strong>ვინახავთ</strong> (ფრჩხილების გარეშე)</td>
+</tr>
+<tr>
+<td><code>SayHello()</code></td>
+<td><strong>ვიძახებთ</strong> ახლავე</td>
+</tr>
+</tbody>
+</table>
+<p><code>Action</code> — ტიპი, რომელშიც ინახება მეთოდი, რომელიც არაფერს იღებს და არაფერს აბრუნებს (<code>void</code>).</p></article>
+<article class="blk" data-slides="9"><span class="anchor" id="s-9"></span><div class="bh"><h3>ლამბდა — მეთოდი სახელის გარეშე</h3><a class="chip" href="index.html#/9" data-go="9" title="პრეზენტაციაში გახსნა">სლაიდი 9</a></div>
+<div class="codebox"><div class="ch"><span>ჩვეულებრივი მეთოდი</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="k">static</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="nf">Double</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">x</span><span class="p">)</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">2</span><span class="p">;</span></span><span class="ln"><span class="p">}</span></span></code></pre></div>
+<div class="codebox"><div class="ch"><span>იგივე — ლამბდით</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="n">x</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">2</span></span></code></pre></div>
+<table>
+<thead>
+<tr>
+<th>ნაწილი</th>
+<th>რას ნიშნავს</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>x</code></td>
+<td>რას იღებს (პარამეტრი)</td>
+</tr>
+<tr>
+<td><code>=&gt;</code></td>
+<td>„გადაიქცევა“</td>
+</tr>
+<tr>
+<td><code>x * 2</code></td>
+<td>რას აბრუნებს</td>
+</tr>
+</tbody>
+</table>
+<p>ტიპის წერა არ გჭირდება — C# ცვლადის ტიპიდან ხვდება. <code>return</code> და <code>{ }</code> ერთ ხაზიან ლამბდაში არ იწერება.</p>
+<table>
+<thead>
+<tr>
+<th>ლამბდა</th>
+<th>პარამეტრები</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>() =&gt; Console.WriteLine("hi")</code></td>
+<td>არცერთი</td>
+</tr>
+<tr>
+<td><code>name =&gt; Console.WriteLine(name)</code></td>
+<td>ერთი</td>
+</tr>
+<tr>
+<td><code>(a, b) =&gt; a + b</code></td>
+<td>ორი — ფრჩხილებით</td>
+</tr>
+</tbody>
+</table>
+<div class="terms"><div class="th">📘 ტერმინები</div><dl><dt>ლამბდა</dt><dd>მოკლედ ჩაწერილი მეთოდი სახელის გარეშე, პირდაპირ იქ, სადაც გჭირდება</dd></dl></div></article>
+<article class="blk" data-slides="10"><span class="anchor" id="s-10"></span><div class="bh"><h3>Action და Func — ორი მზა ტიპი</h3><a class="chip" href="index.html#/10" data-go="10" title="პრეზენტაციაში გახსნა">სლაიდი 10</a></div>
+<p><strong>Action ასრულებს · Func აბრუნებს.</strong></p>
+<table>
+<thead>
+<tr>
+<th>ტიპი</th>
+<th>იღებს</th>
+<th>აბრუნებს</th>
+<th>მაგალითი</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Action</code></td>
+<td>არაფერს</td>
+<td>—</td>
+<td><code>() =&gt; Console.WriteLine("hi")</code></td>
+</tr>
+<tr>
+<td><code>Action&lt;string&gt;</code></td>
+<td>string</td>
+<td>—</td>
+<td><code>name =&gt; Console.WriteLine(name)</code></td>
+</tr>
+<tr>
+<td><code>Func&lt;int&gt;</code></td>
+<td>არაფერს</td>
+<td>int</td>
+<td><code>() =&gt; 42</code></td>
+</tr>
+<tr>
+<td><code>Func&lt;int, bool&gt;</code></td>
+<td>int</td>
+<td>bool</td>
+<td><code>n =&gt; n % 2 == 0</code></td>
+</tr>
+<tr>
+<td><code>Func&lt;int, int, int&gt;</code></td>
+<td>int, int</td>
+<td>int</td>
+<td><code>(a, b) =&gt; a + b</code></td>
+</tr>
+</tbody>
+</table>
+<div class="callout note"><span class="ci">💡</span><div><p><code>Func</code>-ში <strong>ბოლო</strong> ტიპი ყოველთვის ის არის, რასაც აბრუნებს. <code>Func&lt;int, bool&gt;</code> — იღებს int-ს, აბრუნებს bool-ს.</p></div></div></article>
+<article class="blk" data-slides="11"><span class="anchor" id="s-11"></span><div class="bh"><h3>Action და Func მოქმედებაში</h3><a class="chip" href="index.html#/11" data-go="11" title="პრეზენტაციაში გახსნა">სლაიდი 11</a></div>
+<div class="codebox"><div class="ch"><span>Program.cs</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="n">Console</span><span class="p">.</span><span class="n">OutputEncoding</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">System</span><span class="p">.</span><span class="n">Text</span><span class="p">.</span><span class="n">Encoding</span><span class="p">.</span><span class="n">UTF8</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="n">Action</span><span class="o">&lt;</span><span class="kt">string</span><span class="o">&gt;</span><span class="w"> </span><span class="n">print</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">text</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="n">text</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="n">Func</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="o">&gt;</span><span class="w"> </span><span class="k">add</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">a</span><span class="p">,</span><span class="w"> </span><span class="n">b</span><span class="p">)</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">b</span><span class="p">;</span></span><span class="ln"><span class="n">Func</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">,</span><span class="w"> </span><span class="kt">bool</span><span class="o">&gt;</span><span class="w"> </span><span class="n">isEven</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="o">%</span><span class="w"> </span><span class="mi">2</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="n">print</span><span class="p">(</span><span class="s">"C# მაგარია"</span><span class="p">)</span><span class="p">;</span><span class="w">            </span><span class="c1">// C# მაგარია</span></span><span class="ln"><span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="k">add</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span><span class="w"> </span><span class="mi">4</span><span class="p">)</span><span class="p">)</span><span class="p">;</span><span class="w">    </span><span class="c1">// 7</span></span><span class="ln"><span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="n">isEven</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span><span class="p">)</span><span class="p">;</span><span class="w">   </span><span class="c1">// True</span></span><span class="ln"><span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="n">isEven</span><span class="p">(</span><span class="mi">7</span><span class="p">)</span><span class="p">)</span><span class="p">;</span><span class="w">    </span><span class="o">/</span><span class="o">/</span><span class="w"> </span><span class="n">False</span></span></code></pre></div>
+<p>სამი ცვლადი, თითოეულში — მეთოდი. ცვლადს ვიძახებთ ზუსტად ისე, როგორც ჩვეულებრივ მეთოდს: <code>add(3, 4)</code>.</p>
+<div class="prompt"><div class="ph"><span>🤖 Action და Func — ვარჯიში</span><button class="copy" type="button">კოპირება</button></div><div class="pb">ვსწავლობ C#-ში Action-ს და Func-ს. მომეცი 5 მარტივი ლამბდა (მაგ. x =&gt; x * 2) და მე ვეცდები ვთქვა, რა ტიპის ცვლადში ჩაიწერება თითოეული (Action, Action&lt;string&gt;, Func&lt;int, int&gt; ...). პასუხები მერე მაჩვენე, როცა ვუპასუხებ. ქართულად, 15 წლის მოსწავლისთვის.</div></div></article>
+<article class="blk" data-slides="12"><span class="anchor" id="s-12"></span><div class="bh"><h3>გამოიცანი: რომელ ცვლადში ჩაიწერება?</h3><a class="chip" href="index.html#/12" data-go="12" title="პრეზენტაციაში გახსნა">სლაიდი 12</a></div>
+<div class="selfcheck"><div class="sh">✅ შეამოწმე თავი <small>დაფიქრდი, მერე გახსენი პასუხი</small></div><details><summary><code>() =&gt; Console.WriteLine("ბიპ")</code></summary><div class="ans"><code>Action</code> — არაფერს იღებს, არაფერს აბრუნებს</div></details><details><summary><code>x =&gt; x * x</code> (x — int)</summary><div class="ans"><code>Func&lt;int, int&gt;</code> — იღებს int-ს, აბრუნებს int-ს</div></details><details><summary><code>s =&gt; s.Length</code> (s — string)</summary><div class="ans"><code>Func&lt;string, int&gt;</code> — იღებს ტექსტს, აბრუნებს მის სიგრძეს</div></details><details><summary><code>age =&gt; age &gt;= 18</code></summary><div class="ans"><code>Func&lt;int, bool&gt;</code> — შედარება ყოველთვის bool-ს აბრუნებს</div></details><details><summary><code>name =&gt; Console.WriteLine(name)</code></summary><div class="ans"><code>Action&lt;string&gt;</code> — იღებს, მაგრამ არაფერს აბრუნებს</div></details><details><summary><code>() =&gt; Random.Shared.Next(1, 7)</code></summary><div class="ans"><code>Func&lt;int&gt;</code> — არაფერს იღებს, აბრუნებს შემთხვევით რიცხვს (კამათელი 🎲)</div></details></div></article>
+<h2 class="sec" id="sec-6">3 · ქცევა გარედან</h2>
+<article class="blk" data-slides="13"><span class="anchor" id="s-13"></span><div class="bh"><h3>ნაწილი 3 · ქცევა გარედან</h3><a class="chip" href="index.html#/13" data-go="13" title="პრეზენტაციაში გახსნა">სლაიდი 13</a></div></article>
+<article class="blk" data-slides="14"><span class="anchor" id="s-14"></span><div class="bh"><h3>პრობლემა: ღილაკი, რომელმაც ყველაფერი იცის</h3><a class="chip" href="index.html#/14" data-go="14" title="პრეზენტაციაში გახსნა">სლაიდი 14</a></div>
+<div class="codebox"><div class="ch"><span>Button.cs</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="k">class</span><span class="w"> </span><span class="nc">Button</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="n">Text</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="k">void</span><span class="w"> </span><span class="nf">Click</span><span class="p">(</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="p">{</span></span><span class="ln"><span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">Text</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s">"Jump"</span><span class="p">)</span></span><span class="ln"><span class="w">            </span><span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="s">"🦘 მოთამაშე ხტება!"</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">        </span><span class="k">else</span><span class="w"> </span><span class="nf">if</span><span class="w"> </span><span class="p">(</span><span class="n">Text</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s">"Shoot"</span><span class="p">)</span></span><span class="ln"><span class="w">            </span><span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="s">"🔫 პიუ-პიუ!"</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">        </span><span class="k">else</span><span class="w"> </span><span class="nf">if</span><span class="w"> </span><span class="p">(</span><span class="n">Text</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s">"Pause"</span><span class="p">)</span></span><span class="ln"><span class="w">            </span><span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="s">"⏸ პაუზა"</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="p">}</span></span><span class="ln"><span class="p">}</span></span></code></pre></div>
+<p>ახალი ღილაკის დასამატებლად <strong>Button კლასი</strong> უნდა შეცვალო — კიდევ ერთი <code>else if</code>. 50 ღილაკი → 50 <code>else if</code> ერთ მეთოდში.</p>
+<p>ღილაკმა არ უნდა იცოდეს, რას აკეთებს. მისი საქმეა მხოლოდ თქვას: „დამაჭირეს!“ — დანარჩენი გარედან უნდა მოვიდეს.</p></article>
+<article class="blk" data-slides="15"><span class="anchor" id="s-15"></span><div class="bh"><h3>გადაწყვეტა: ღილაკი დელეგატით</h3><a class="chip" href="index.html#/15" data-go="15" title="პრეზენტაციაში გახსნა">სლაიდი 15</a></div>
+<div class="codebox"><div class="ch"><span>Button.cs</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="k">class</span><span class="w"> </span><span class="nc">Button</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="n">Text</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="n">Action</span><span class="w"> </span><span class="n">OnClick</span><span class="p">;</span><span class="w">     </span><span class="c1">// აქ ჩაიწერება მოქმედება</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="k">void</span><span class="w"> </span><span class="nf">Click</span><span class="p">(</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="p">{</span></span><span class="ln"><span class="w">        </span><span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="s">$"[{Text}] დაჭერილია"</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">        </span><span class="n">OnClick</span><span class="p">(</span><span class="p">)</span><span class="p">;</span><span class="w">             </span><span class="c1">// რაც ჩაწერეს — ის შესრულდება</span></span><span class="ln"><span class="w">    </span><span class="p">}</span></span><span class="ln"><span class="p">}</span></span></code></pre></div>
+<div class="codebox"><div class="ch"><span>Program.cs</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="n">Button</span><span class="w"> </span><span class="n">jump</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">Button</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">Text</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"Jump"</span><span class="w"> </span><span class="p">}</span><span class="p">;</span></span><span class="ln"><span class="n">Button</span><span class="w"> </span><span class="n">shoot</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">Button</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">Text</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"Shoot"</span><span class="w"> </span><span class="p">}</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="n">jump</span><span class="p">.</span><span class="n">OnClick</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="p">)</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="s">"🦘 მოთამაშე ხტება!"</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="n">shoot</span><span class="p">.</span><span class="n">OnClick</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="p">)</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="s">"🔫 პიუ-პიუ!"</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="n">jump</span><span class="p">.</span><span class="n">Click</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="n">shoot</span><span class="p">.</span><span class="n">Click</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span></code></pre></div>
+<p>Button-მა აღარ იცის, რას აკეთებს — ის უბრალოდ იძახებს <code>OnClick</code>-ს. <strong>რა</strong> მოხდეს, ამას ის წყვეტს, ვინც ღილაკს ქმნის. ახალი ღილაკი „Reload“ → Button კლასს არ ვეხებით, მხოლოდ ახალ ობიექტს ვქმნით.</p></article>
+<h2 class="sec" id="sec-7">4 · პირობის გადაცემა</h2>
+<article class="blk" data-slides="16"><span class="anchor" id="s-16"></span><div class="bh"><h3>ნაწილი 4 · პირობის გადაცემა</h3><a class="chip" href="index.html#/16" data-go="16" title="პრეზენტაციაში გახსნა">სლაიდი 16</a></div></article>
+<article class="blk" data-slides="17"><span class="anchor" id="s-17"></span><div class="bh"><h3>გადაწყვეტა: ერთი Filter ყველა პირობისთვის</h3><a class="chip" href="index.html#/17" data-go="17" title="პრეზენტაციაში გახსნა">სლაიდი 17</a></div>
+<div class="codebox"><div class="ch"><span>Program.cs</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="n">List</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="w"> </span><span class="n">scores</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">List</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="mi">45</span><span class="p">,</span><span class="w"> </span><span class="mi">92</span><span class="p">,</span><span class="w"> </span><span class="mi">13</span><span class="p">,</span><span class="w"> </span><span class="mi">78</span><span class="p">,</span><span class="w"> </span><span class="mi">100</span><span class="p">,</span><span class="w"> </span><span class="mi">5</span><span class="p">,</span><span class="w"> </span><span class="mi">67</span><span class="w"> </span><span class="p">}</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="n">Print</span><span class="p">(</span><span class="n">Filter</span><span class="p">(</span><span class="n">scores</span><span class="p">,</span><span class="w"> </span><span class="n">s</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">s</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="mi">80</span><span class="p">)</span><span class="p">)</span><span class="p">;</span><span class="w">      </span><span class="c1">// 92, 100</span></span><span class="ln"><span class="n">Print</span><span class="p">(</span><span class="n">Filter</span><span class="p">(</span><span class="n">scores</span><span class="p">,</span><span class="w"> </span><span class="n">s</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">s</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">20</span><span class="p">)</span><span class="p">)</span><span class="p">;</span><span class="w">       </span><span class="c1">// 13, 5</span></span><span class="ln"><span class="n">Print</span><span class="p">(</span><span class="n">Filter</span><span class="p">(</span><span class="n">scores</span><span class="p">,</span><span class="w"> </span><span class="n">s</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">s</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">100</span><span class="p">)</span><span class="p">)</span><span class="p">;</span><span class="w">     </span><span class="c1">// 100</span></span><span class="ln"><span class="n">Print</span><span class="p">(</span><span class="n">Filter</span><span class="p">(</span><span class="n">scores</span><span class="p">,</span><span class="w"> </span><span class="n">s</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">s</span><span class="w"> </span><span class="o">%</span><span class="w"> </span><span class="mi">2</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="p">)</span><span class="p">;</span><span class="w">   </span><span class="c1">// 92, 78, 100</span></span><span class="ln"> </span><span class="ln"><span class="k">static</span><span class="w"> </span><span class="n">List</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="w"> </span><span class="n">Filter</span><span class="p">(</span><span class="n">List</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="w"> </span><span class="n">list</span><span class="p">,</span><span class="w"> </span><span class="n">Func</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">,</span><span class="w"> </span><span class="kt">bool</span><span class="o">&gt;</span><span class="w"> </span><span class="n">condition</span><span class="p">)</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="n">List</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="w"> </span><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">List</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="k">foreach</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">s</span><span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="n">list</span><span class="p">)</span></span><span class="ln"><span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">condition</span><span class="p">(</span><span class="n">s</span><span class="p">)</span><span class="p">)</span><span class="w"> </span><span class="n">result</span><span class="p">.</span><span class="n">Add</span><span class="p">(</span><span class="n">s</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">result</span><span class="p">;</span></span><span class="ln"><span class="p">}</span></span><span class="ln"> </span><span class="ln"><span class="k">static</span><span class="w"> </span><span class="k">void</span><span class="w"> </span><span class="nf">Print</span><span class="p">(</span><span class="n">List</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="w"> </span><span class="n">list</span><span class="p">)</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="kt">string</span><span class="p">.</span><span class="n">Join</span><span class="p">(</span><span class="s">", "</span><span class="p">,</span><span class="w"> </span><span class="n">list</span><span class="p">)</span><span class="p">)</span><span class="p">;</span></span></code></pre></div>
+<ul>
+<li><code>Func&lt;int, bool&gt; condition</code> — მეორე პარამეტრი <strong>პირობაა</strong>: იღებს რიცხვს, აბრუნებს true/false-ს.</li>
+<li><code>if (condition(s))</code> — <code>Filter</code>-მა არ იცის, რა პირობაა. რაც მოვიდა, იმას ამოწმებს.</li>
+<li>ახალი პირობა → <strong>ერთი ახალი ხაზი</strong>, არა ახალი მეთოდი. ნაწილი 1-ის ორი მეთოდი ერთმა შეცვალა.</li>
+</ul></article>
+<article class="blk" data-slides="18,19"><span class="anchor" id="s-18"></span><span class="anchor" id="s-19"></span><div class="bh"><h3>როგორ მუშაობს Filter შიგნით</h3><a class="chip" href="index.html#/18" data-go="18" title="პრეზენტაციაში გახსნა">სლაიდი 18</a></div>
+<p><code>Filter(scores, s =&gt; s &gt;= 80)</code> — სიის ყოველ რიცხვზე <code>Filter</code> იძახებს ჩვენს ლამბდას:</p>
+<table>
+<thead>
+<tr>
+<th>s</th>
+<th>condition(s)</th>
+<th>შედეგი</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>45</td>
+<td>45 &gt;= 80 → false</td>
+<td>გამოტოვე</td>
+</tr>
+<tr>
+<td>92</td>
+<td>92 &gt;= 80 → true</td>
+<td><strong>დაამატე</strong></td>
+</tr>
+<tr>
+<td>13</td>
+<td>false</td>
+<td>გამოტოვე</td>
+</tr>
+<tr>
+<td>78</td>
+<td>false</td>
+<td>გამოტოვე</td>
+</tr>
+<tr>
+<td>100</td>
+<td>true</td>
+<td><strong>დაამატე</strong></td>
+</tr>
+<tr>
+<td>5</td>
+<td>false</td>
+<td>გამოტოვე</td>
+</tr>
+<tr>
+<td>67</td>
+<td>false</td>
+<td>გამოტოვე</td>
+</tr>
+</tbody>
+</table>
+<p>ლამბდა ერთხელ გადავეცით, <code>Filter</code>-მა კი 7-ჯერ გამოიძახა. შედეგი: <code>[92, 100]</code>.</p></article>
+<h2 class="sec" id="sec-8">5 · ბევრი რეაქცია</h2>
+<article class="blk" data-slides="20"><span class="anchor" id="s-20"></span><div class="bh"><h3>ნაწილი 5 · ერთი მოვლენა — ბევრი რეაქცია</h3><a class="chip" href="index.html#/20" data-go="20" title="პრეზენტაციაში გახსნა">სლაიდი 20</a></div></article>
+<article class="blk" data-slides="21"><span class="anchor" id="s-21"></span><div class="bh"><h3>ერთი მოვლენა — ბევრი რეაქცია</h3><a class="chip" href="index.html#/21" data-go="21" title="პრეზენტაციაში გახსნა">სლაიდი 21</a></div>
+<div class="codebox"><div class="ch"><span>Program.cs</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="n">Action</span><span class="w"> </span><span class="n">onLevelUp</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">null</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="n">onLevelUp</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="p">(</span><span class="p">)</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="s">"🔊 ხმა: ტა-და!"</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="n">onLevelUp</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="p">(</span><span class="p">)</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="s">"✨ ეფექტი: ნაპერწკლები"</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="n">onLevelUp</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="p">(</span><span class="p">)</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="s">"💾 თამაში შენახულია"</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="n">onLevelUp</span><span class="p">(</span><span class="p">)</span><span class="p">;</span><span class="w">   </span><span class="o">/</span><span class="o">/</span><span class="w"> </span><span class="n">სამივე</span><span class="w"> </span><span class="n">შესრულდება</span></span></code></pre></div>
+<p>ერთ დელეგატში შეიძლება <strong>რამდენიმე</strong> მეთოდი ინახებოდეს. გამოძახებისას ყველა სრულდება, იმ რიგით, რა რიგითაც დაემატა.</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>რას აკეთებს</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>=</code></td>
+<td>ანაცვლებს — ძველი იკარგება</td>
+</tr>
+<tr>
+<td><code>+=</code></td>
+<td>ამატებს ბოლოში</td>
+</tr>
+<tr>
+<td><code>-=</code></td>
+<td>აშორებს</td>
+</tr>
+</tbody>
+</table>
+<div class="callout warn"><span class="ci">⚠️</span><div><p><code>+=</code>-ის ნაცვლად <code>=</code> თუ დაწერე, წინა ყველა რეაქცია წაიშლება — და მხოლოდ ბოლო დარჩება.</p></div></div></article>
+<article class="blk" data-slides="22"><span class="anchor" id="s-22"></span><div class="bh"><h3>ხაფანგი: თუ არავინ გამოიწერა?</h3><a class="chip" href="index.html#/22" data-go="22" title="პრეზენტაციაში გახსნა">სლაიდი 22</a></div>
+<div class="codebox"><div class="ch"><span>❌ პროგრამა ვარდება</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="n">Action</span><span class="w"> </span><span class="n">onLevelUp</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">null</span><span class="p">;</span></span><span class="ln"><span class="n">onLevelUp</span><span class="p">(</span><span class="p">)</span><span class="p">;</span><span class="w">   </span><span class="o">/</span><span class="o">/</span><span class="w"> </span><span class="n">NullReferenceException</span></span></code></pre></div>
+<div class="codebox"><div class="ch"><span>✅ უსაფრთხოდ</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="n">Action</span><span class="w"> </span><span class="n">onLevelUp</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">null</span><span class="p">;</span></span><span class="ln"><span class="n">onLevelUp</span><span class="o">?.</span><span class="n">Invoke</span><span class="p">(</span><span class="p">)</span><span class="p">;</span><span class="w">   </span><span class="o">/</span><span class="o">/</span><span class="w"> </span><span class="n">არაფერი</span><span class="w"> </span><span class="n">ხდება</span></span></code></pre></div>
+<p>ცარიელი დელეგატი <code>null</code>-ია. <code>null</code>-ის გამოძახება პროგრამას აგდებს.</p>
+<p><code>?.Invoke()</code> ნიშნავს: „თუ ცარიელი არ არის — გამოიძახე, თუ ცარიელია — გამოტოვე“.</p>
+<div class="callout note"><span class="ci">💡</span><div><p>კლასის შიგნით მოვლენას ყოველთვის <code>?.Invoke()</code>-ით იძახებ: კლასმა არ იცის, ვინმე გამოიწერს თუ არა.</p></div></div></article>
+<h2 class="sec" id="sec-9">6 · თამაში</h2>
+<article class="blk" data-slides="23"><span class="anchor" id="s-23"></span><div class="bh"><h3>ნაწილი 6 · თამაში: შენ vs ბოტი</h3><a class="chip" href="index.html#/23" data-go="23" title="პრეზენტაციაში გახსნა">სლაიდი 23</a></div></article>
+<article class="blk" data-slides="24"><span class="anchor" id="s-24"></span><div class="bh"><h3>გეგმა: ოთხი ეტაპი</h3><a class="chip" href="index.html#/24" data-go="24" title="პრეზენტაციაში გახსნა">სლაიდი 24</a></div>
+<table>
+<thead>
+<tr>
+<th>ეტაპი</th>
+<th>რას ვაკეთებთ</th>
+<th>იარაღი</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1 · 🥊 Fighter</td>
+<td>სახელი, სიცოცხლე, დარტყმა, განკურნება</td>
+<td>ჩვეულებრივი კლასი</td>
+</tr>
+<tr>
+<td>2 · 📢 მოვლენები</td>
+<td>„დამარტყეს“, „განვიკურნე“, „დავმარცხდი“</td>
+<td><code>Action</code>, <code>+=</code>, <code>?.Invoke()</code></td>
+</tr>
+<tr>
+<td>3 · 🧠 ტვინი</td>
+<td>ვინ ირჩევს სვლას — შენ თუ ბოტი</td>
+<td><code>Func&lt;int&gt;</code></td>
+</tr>
+<tr>
+<td>4 · ⚔️ ბრძოლა</td>
+<td>რაუნდები, სვლები, გამარჯვებული</td>
+<td>ლამბდები</td>
+</tr>
+</tbody>
+</table>
+<p>ახალი Console App პროექტი <strong>BattleGame</strong>, ორი ფაილით: <code>Fighter.cs</code> და <code>Program.cs</code>.</p></article>
+<article class="blk" data-slides="25"><span class="anchor" id="s-25"></span><div class="bh"><h3>ეტაპი 1 · Fighter — ჯერ დელეგატების გარეშე</h3><a class="chip" href="index.html#/25" data-go="25" title="პრეზენტაციაში გახსნა">სლაიდი 25</a></div>
+<div class="codebox"><div class="ch"><span>Fighter.cs</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="k">public</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">Fighter</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="n">Name</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">Health</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">100</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="k">void</span><span class="w"> </span><span class="nf">TakeDamage</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">amount</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="p">{</span></span><span class="ln"><span class="w">        </span><span class="n">Health</span><span class="w"> </span><span class="o">-=</span><span class="w"> </span><span class="n">amount</span><span class="p">;</span></span><span class="ln"><span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">Health</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="n">Health</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w">      </span><span class="c1">// 0-ზე ქვემოთ არა</span></span><span class="ln"><span class="w">    </span><span class="p">}</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="k">void</span><span class="w"> </span><span class="nf">Heal</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">amount</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="p">{</span></span><span class="ln"><span class="w">        </span><span class="n">Health</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="n">amount</span><span class="p">;</span></span><span class="ln"><span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">Health</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">100</span><span class="p">)</span><span class="w"> </span><span class="n">Health</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">100</span><span class="p">;</span><span class="w">  </span><span class="c1">// 100-ზე მეტი არა</span></span><span class="ln"><span class="w">    </span><span class="p">}</span></span><span class="ln"><span class="p">}</span></span></code></pre></div>
+<p><strong>კითხვა:</strong> დაზიანებისას ეკრანზე რამე უნდა დაიწეროს. სად ჩავწეროთ <code>Console.WriteLine</code>?</p>
+<p>კლასში თუ ჩავწერთ, მოთამაშეც და ბოტიც ერთნაირ ტექსტს დაწერს, და Fighter-ს Console-ზე მიებმება. ეს ზუსტად ნაწილი 3-ის ღილაკის პრობლემაა → გადაწყვეტაც იგივეა: <strong>დელეგატი</strong>.</p></article>
+<article class="blk" data-slides="26"><span class="anchor" id="s-26"></span><div class="bh"><h3>ეტაპი 2 + 3 · მოვლენები და ტვინი — Fighter.cs საბოლოოდ</h3><a class="chip" href="index.html#/26" data-go="26" title="პრეზენტაციაში გახსნა">სლაიდი 26</a></div>
+<div class="codebox"><div class="ch"><span>Fighter.cs</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="k">public</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">Fighter</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="n">Name</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">Health</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">100</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="n">Func</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="w"> </span><span class="n">ChooseMove</span><span class="p">;</span><span class="w">     </span><span class="c1">// ტვინი: რომელ სვლას ირჩევს</span></span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="n">Action</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="w"> </span><span class="n">OnDamaged</span><span class="p">;</span><span class="w">    </span><span class="c1">// დამარტყეს (რამდენი)</span></span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="n">Action</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="w"> </span><span class="n">OnHealed</span><span class="p">;</span><span class="w">     </span><span class="c1">// განიკურნა (რამდენი)</span></span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="n">Action</span><span class="w"> </span><span class="n">OnDied</span><span class="p">;</span><span class="w">            </span><span class="c1">// დამარცხდა</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="k">void</span><span class="w"> </span><span class="nf">TakeDamage</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">amount</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="p">{</span></span><span class="ln"><span class="w">        </span><span class="n">Health</span><span class="w"> </span><span class="o">-=</span><span class="w"> </span><span class="n">amount</span><span class="p">;</span></span><span class="ln"><span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">Health</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="n">Health</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="w">        </span><span class="n">OnDamaged</span><span class="o">?.</span><span class="n">Invoke</span><span class="p">(</span><span class="n">amount</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">Health</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span></span><span class="ln"><span class="w">            </span><span class="n">OnDied</span><span class="o">?.</span><span class="n">Invoke</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="p">}</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="k">void</span><span class="w"> </span><span class="nf">Heal</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">amount</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="p">{</span></span><span class="ln"><span class="w">        </span><span class="n">Health</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="n">amount</span><span class="p">;</span></span><span class="ln"><span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">Health</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">100</span><span class="p">)</span><span class="w"> </span><span class="n">Health</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">100</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="w">        </span><span class="n">OnHealed</span><span class="o">?.</span><span class="n">Invoke</span><span class="p">(</span><span class="n">amount</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="p">}</span></span><span class="ln"><span class="p">}</span></span></code></pre></div>
+<ul>
+<li><strong>ეტაპი 2 — მოვლენები.</strong> <code>OnDamaged</code>, <code>OnHealed</code>, <code>OnDied</code> — Fighter მხოლოდ ამბობს, რა მოხდა. როგორ ვუპასუხოთ, ამას <code>Program.cs</code> წყვეტს.</li>
+<li><strong>ყველგან <code>?.Invoke()</code></strong> — შეიძლება ვინმე არ უსმენდეს.</li>
+<li><strong>ეტაპი 3 — ტვინი.</strong> <code>Func&lt;int&gt; ChooseMove</code> აბრუნებს სვლის ნომერს: 1 — დარტყმა, 2 — ძლიერი დარტყმა, 3 — განკურნება.</li>
+</ul>
+<p>Fighter-ში არცერთი <code>Console.WriteLine</code> არ არის.</p></article>
+<article class="blk" data-slides="27"><span class="anchor" id="s-27"></span><div class="bh"><h3>ერთი კლასი — ორი სხვადასხვა ტვინი</h3><a class="chip" href="index.html#/27" data-go="27" title="პრეზენტაციაში გახსნა">სლაიდი 27</a></div>
+<p>მოთამაშე და ბოტი — <strong>ერთი და იგივე</strong> <code>Fighter</code> კლასია. განსხვავება მხოლოდ ისაა, რა ჩაიწერება <code>ChooseMove</code>-ში:</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>ChooseMove-ში</th>
+<th>ვინ წყვეტს</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>🧑 მოთამაშე</td>
+<td>ლამბდა, რომელიც კლავიატურიდან კითხულობს</td>
+<td>შენ</td>
+</tr>
+<tr>
+<td>🤖 ბოტი</td>
+<td>ლამბდა <code>Random</code>-ით და წესებით</td>
+<td>კომპიუტერი</td>
+</tr>
+</tbody>
+</table>
+<p>ბრძოლის კოდს არ აინტერესებს, ვინ წყვეტს — ის უბრალოდ იძახებს <code>ChooseMove()</code>-ს და იღებს 1-ს, 2-ს ან 3-ს. ეს იგივეა, რაც ნაწილი 3-ის ღილაკი: <strong>ქცევა გარედან მოდის</strong>.</p></article>
+<article class="blk" data-slides="28"><span class="anchor" id="s-28"></span><div class="bh"><h3>Program.cs (1/3) · ტვინები ლამბდებით</h3><a class="chip" href="index.html#/28" data-go="28" title="პრეზენტაციაში გახსნა">სლაიდი 28</a></div>
+<div class="codebox"><div class="ch"><span>Program.cs</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="n">Console</span><span class="p">.</span><span class="n">OutputEncoding</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">System</span><span class="p">.</span><span class="n">Text</span><span class="p">.</span><span class="n">Encoding</span><span class="p">.</span><span class="n">UTF8</span><span class="p">;</span></span><span class="ln"><span class="n">Console</span><span class="p">.</span><span class="n">InputEncoding</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">System</span><span class="p">.</span><span class="n">Text</span><span class="p">.</span><span class="n">Encoding</span><span class="p">.</span><span class="n">UTF8</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="n">Random</span><span class="w"> </span><span class="n">random</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">Random</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="n">Fighter</span><span class="w"> </span><span class="n">player</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">Fighter</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">Name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"შენ"</span><span class="w"> </span><span class="p">}</span><span class="p">;</span></span><span class="ln"><span class="n">Fighter</span><span class="w"> </span><span class="n">bot</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">Fighter</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">Name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"ბოტი"</span><span class="w"> </span><span class="p">}</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="n">player</span><span class="p">.</span><span class="n">ChooseMove</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="p">)</span><span class="w"> </span><span class="o">=&gt;</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="n">Console</span><span class="p">.</span><span class="n">Write</span><span class="p">(</span><span class="s">"1 - დარტყმა | 2 - ძლიერი | 3 - განკურნება: "</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="kt">string</span><span class="w"> </span><span class="n">input</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Console</span><span class="p">.</span><span class="n">ReadLine</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">input</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s">"2"</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="mi">2</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">input</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s">"3"</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="mi">3</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span></span><span class="ln"><span class="p">}</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="n">bot</span><span class="p">.</span><span class="n">ChooseMove</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="p">)</span><span class="w"> </span><span class="o">=&gt;</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">bot</span><span class="p">.</span><span class="n">Health</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">30</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="mi">3</span><span class="p">;</span><span class="w">    </span><span class="c1">// ცოტა სიცოცხლე → ვიკურნები</span></span><span class="ln"><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">random</span><span class="p">.</span><span class="n">Next</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span><span class="p">)</span><span class="p">;</span><span class="w">         </span><span class="c1">// სხვა დროს → 1 ან 2</span></span><span class="ln"><span class="p">}</span><span class="p">;</span></span></code></pre></div>
+<ul>
+<li><strong>მოთამაშის ტვინი</strong> კლავიატურიდან კითხულობს. თუ 2 ან 3 არ დაწერა — ჩვეულებრივი დარტყმა (1).</li>
+<li><strong>ბოტის ტვინი</strong>: 30 HP-ზე ნაკლები → განკურნება (3), სხვა დროს შემთხვევით 1 ან 2. <code>random.Next(1, 3)</code> → 1 ან 2 (3 არ შედის).</li>
+<li>როცა ლამბდას ერთი ხაზი არ ჰყოფნის, ვწერთ <code>{ }</code>-ს და <code>return</code>-ს — ზუსტად როგორც ჩვეულებრივ მეთოდში.</li>
+</ul></article>
+<article class="blk" data-slides="29"><span class="anchor" id="s-29"></span><div class="bh"><h3>Program.cs (2/3) · ვუსმენთ მოვლენებს</h3><a class="chip" href="index.html#/29" data-go="29" title="პრეზენტაციაში გახსნა">სლაიდი 29</a></div>
+<div class="codebox"><div class="ch"><span>Program.cs</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="kt">int</span><span class="w"> </span><span class="n">totalDamage</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="n">player</span><span class="p">.</span><span class="n">OnDamaged</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="n">dmg</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="s">$"   💥 შენ მიიღე {dmg} დაზიანება"</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="n">bot</span><span class="p">.</span><span class="n">OnDamaged</span><span class="w">    </span><span class="o">+=</span><span class="w"> </span><span class="n">dmg</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="s">$"   💥 ბოტმა მიიღო {dmg} დაზიანება"</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="n">bot</span><span class="p">.</span><span class="n">OnDamaged</span><span class="w">    </span><span class="o">+=</span><span class="w"> </span><span class="n">dmg</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">totalDamage</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="n">dmg</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="n">player</span><span class="p">.</span><span class="n">OnHealed</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="n">hp</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="s">$"   💚 შენ აღიდგინე {hp} HP"</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="n">bot</span><span class="p">.</span><span class="n">OnHealed</span><span class="w">    </span><span class="o">+=</span><span class="w"> </span><span class="n">hp</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="s">$"   💚 ბოტმა აღიდგინა {hp} HP"</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="n">player</span><span class="p">.</span><span class="n">OnDied</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="p">(</span><span class="p">)</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="s">"\n☠️  წააგე!"</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="n">bot</span><span class="p">.</span><span class="n">OnDied</span><span class="w">    </span><span class="o">+=</span><span class="w"> </span><span class="p">(</span><span class="p">)</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="s">"\n🏆 მოიგე!"</span><span class="p">)</span><span class="p">;</span></span></code></pre></div>
+<ul>
+<li>ერთი კლასი, მაგრამ <strong>სხვადასხვა ტექსტი</strong> მოთამაშისთვის და ბოტისთვის.</li>
+<li><code>bot.OnDamaged</code>-ზე <strong>ორი</strong> რეაქციაა: ეკრანზე წერა და დაზიანების დათვლა. ახალი რეაქცია = ახალი <code>+=</code> ხაზი, Fighter-ს არ ვეხებით.</li>
+<li>ლამბდა გარე ცვლადს (<code>totalDamage</code>) ხედავს და ცვლის.</li>
+</ul></article>
+<article class="blk" data-slides="30"><span class="anchor" id="s-30"></span><div class="bh"><h3>Program.cs (3/3) · ბრძოლის ციკლი</h3><a class="chip" href="index.html#/30" data-go="30" title="პრეზენტაციაში გახსნა">სლაიდი 30</a></div>
+<div class="codebox"><div class="ch"><span>Program.cs · ციკლი</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="kt">int</span><span class="w"> </span><span class="n">round</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="n">player</span><span class="p">.</span><span class="n">Health</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">bot</span><span class="p">.</span><span class="n">Health</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="s">$"\n──── რაუნდი {round} ──── "</span><span class="w"> </span><span class="o">+</span></span><span class="ln"><span class="w">        </span><span class="s">$"შენ: {player.Health} HP | ბოტი: {bot.Health} HP"</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="n">DoMove</span><span class="p">(</span><span class="n">player</span><span class="p">,</span><span class="w"> </span><span class="n">bot</span><span class="p">,</span><span class="w"> </span><span class="n">random</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">bot</span><span class="p">.</span><span class="n">Health</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">break</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="n">Thread</span><span class="p">.</span><span class="n">Sleep</span><span class="p">(</span><span class="mi">800</span><span class="p">)</span><span class="p">;</span><span class="w">              </span><span class="c1">// ბოტი „ფიქრობს“</span></span><span class="ln"><span class="w">    </span><span class="n">DoMove</span><span class="p">(</span><span class="n">bot</span><span class="p">,</span><span class="w"> </span><span class="n">player</span><span class="p">,</span><span class="w"> </span><span class="n">random</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="n">round</span><span class="o">++</span><span class="p">;</span></span><span class="ln"><span class="p">}</span></span><span class="ln"> </span><span class="ln"><span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="s">$"ბოტს მიაყენე {totalDamage} დაზიანება"</span><span class="p">)</span><span class="p">;</span></span></code></pre></div>
+<ul>
+<li>ციკლი გრძელდება, სანამ <strong>ორივე</strong> ცოცხალია.</li>
+<li>ჯერ შენი სვლა. თუ ბოტი დამარცხდა — <code>break</code>, ბოტი აღარ ურტყამს.</li>
+<li><code>Thread.Sleep(800)</code> — 0.8 წამი პაუზა, რომ ბოტის სვლა თვალით დაინახო.</li>
+<li>ორივე სვლისთვის <strong>ერთი და იგივე</strong> <code>DoMove</code> გამოიძახება.</li>
+</ul></article>
+<article class="blk" data-slides="31"><span class="anchor" id="s-31"></span><div class="bh"><h3>ერთი სვლა — DoMove</h3><a class="chip" href="index.html#/31" data-go="31" title="პრეზენტაციაში გახსნა">სლაიდი 31</a></div>
+<div class="codebox"><div class="ch"><span>Program.cs · DoMove (ფაილის ბოლოს)</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="k">static</span><span class="w"> </span><span class="k">void</span><span class="w"> </span><span class="nf">DoMove</span><span class="p">(</span><span class="n">Fighter</span><span class="w"> </span><span class="n">attacker</span><span class="p">,</span><span class="w"> </span><span class="n">Fighter</span><span class="w"> </span><span class="n">target</span><span class="p">,</span><span class="w"> </span><span class="n">Random</span><span class="w"> </span><span class="n">random</span><span class="p">)</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">move</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">attacker</span><span class="p">.</span><span class="n">ChooseMove</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">move</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="p">{</span></span><span class="ln"><span class="w">        </span><span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="s">$"👊 {attacker.Name}: დარტყმა"</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">        </span><span class="n">target</span><span class="p">.</span><span class="n">TakeDamage</span><span class="p">(</span><span class="n">random</span><span class="p">.</span><span class="n">Next</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span><span class="w"> </span><span class="mi">21</span><span class="p">)</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="p">}</span></span><span class="ln"><span class="w">    </span><span class="k">else</span><span class="w"> </span><span class="nf">if</span><span class="w"> </span><span class="p">(</span><span class="n">move</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="p">{</span></span><span class="ln"><span class="w">        </span><span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="s">$"🔥 {attacker.Name}: ძლიერი დარტყმა..."</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">random</span><span class="p">.</span><span class="n">Next</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span></span><span class="ln"><span class="w">            </span><span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="s">"   ❌ აცდა!"</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">        </span><span class="k">else</span></span><span class="ln"><span class="w">            </span><span class="n">target</span><span class="p">.</span><span class="n">TakeDamage</span><span class="p">(</span><span class="n">random</span><span class="p">.</span><span class="n">Next</span><span class="p">(</span><span class="mi">25</span><span class="p">,</span><span class="w"> </span><span class="mi">41</span><span class="p">)</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="p">}</span></span><span class="ln"><span class="w">    </span><span class="k">else</span></span><span class="ln"><span class="w">    </span><span class="p">{</span></span><span class="ln"><span class="w">        </span><span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="s">$"🧪 {attacker.Name}: განკურნება"</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">        </span><span class="n">attacker</span><span class="p">.</span><span class="n">Heal</span><span class="p">(</span><span class="n">random</span><span class="p">.</span><span class="n">Next</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span><span class="w"> </span><span class="mi">26</span><span class="p">)</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="p">}</span></span><span class="ln"><span class="p">}</span></span></code></pre></div>
+<table>
+<thead>
+<tr>
+<th>სვლა</th>
+<th>რა ხდება</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1 · დარტყმა</td>
+<td>10–20 დაზიანება, ყოველთვის</td>
+</tr>
+<tr>
+<td>2 · ძლიერი</td>
+<td>25–40 დაზიანება, მაგრამ 50% შანსით აცდება</td>
+</tr>
+<tr>
+<td>3 · განკურნება</td>
+<td>+10–25 HP</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li><code>attacker.ChooseMove()</code> — <code>DoMove</code>-მა არ იცის, ვინ ირჩევს. ერთი მეთოდი მოთამაშეზეც და ბოტზეც მუშაობს.</li>
+<li><code>TakeDamage</code> / <code>Heal</code> შიგნით <code>?.Invoke()</code>-ს იძახებს → ეკრანზე იწერება ის, რაც მოვლენებზე გამოვიწერეთ.</li>
+</ul>
+<div class="callout warn"><span class="ci">⚠️</span><div><p><code>DoMove</code> — <code>static</code> მეთოდია, ამიტომ ფაილის <strong>ბოლოში</strong> ჩაწერე, ყველა სხვა კოდის შემდეგ. <code>Fighter</code> კლასი კი ცალკე ფაილშია — თორემ შეცდომა CS8803 გამოვა.</p></div></div>
+<div class="prompt"><div class="ph"><span>🤖 თამაშის გაუმჯობესება</span><button class="copy" type="button">კოპირება</button></div><div class="pb">დავწერე C#-ში კონსოლის თამაში: Fighter კლასი Func&lt;int&gt; ChooseMove-ით (ტვინი) და Action&lt;int&gt; OnDamaged / OnHealed, Action OnDied მოვლენებით. მინდა თამაში გავაუმჯობესო, მაგრამ თვითონ დავწერო.
+მომეცი 3 იდეა (მაგ. ახალი სვლა, ბოტის ჭკვიანი ტვინი, ახალი მოვლენა) და თითოეულისთვის მხოლოდ მინიშნება, მზა კოდის გარეშე. ქართულად, 15 წლის მოსწავლისთვის.</div></div></article>
+<article class="blk" data-slides="32"><span class="anchor" id="s-32"></span><div class="bh"><h3>ვთამაშობთ!</h3><a class="chip" href="index.html#/32" data-go="32" title="პრეზენტაციაში გახსნა">სლაიდი 32</a></div>
+<p>გაუშვი <strong>Ctrl+F5</strong>-ით და ითამაშე. ყოველ რაუნდში ირჩევ სვლას, ბოტი პასუხობს.</p>
+<p>სტრატეგიაზე დაფიქრდი: ძლიერი დარტყმა მეტს აკლებს, მაგრამ ხშირად აცდება. ბოტი 30 HP-ზე ქვემოთ იწყებს კურნებას — როგორ ისარგებლებ ამით?</p></article>
+<article class="blk" data-slides="33"><span class="anchor" id="s-33"></span><div class="bh"><h3>ერთი ხაზი: ბოტი vs ბოტი</h3><a class="chip" href="index.html#/33" data-go="33" title="პრეზენტაციაში გახსნა">სლაიდი 33</a></div>
+<div class="codebox"><div class="ch"><span>Program.cs · ტვინების შემდეგ</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="n">player</span><span class="p">.</span><span class="n">ChooseMove</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">bot</span><span class="p">.</span><span class="n">ChooseMove</span><span class="p">;</span></span></code></pre></div>
+<p>მოთამაშემ ბოტის ტვინი მიიღო → თამაში თავისით მიდის. <code>Fighter</code> და <code>DoMove</code> არ შეგვიცვლია — მხოლოდ <strong>ერთი ხაზი</strong>. ესაა დელეგატის მთავარი აზრი: ქცევა გარედან შემოდის.</p>
+<div class="callout warn"><span class="ci">⚠️</span><div><p>ეს უსამართლოა: ბოტის ტვინი <code>bot.Health</code>-ს ამოწმებს. მოთამაშეს 5 HP რომ დარჩეს, ის მაინც არ განიკურნება — რადგან ბოტის სიცოცხლეს უყურებს და არა საკუთარს. ამას საშინაო დავალებაში გამოასწორებ.</p></div></div></article>
+<h2 class="sec" id="sec-10">პრაქტიკა</h2>
+<article class="blk" data-slides="34"><span class="anchor" id="s-34"></span><div class="bh"><h3>კლასში დავალება: თამაშის გაფართოება — აირჩიე დონე</h3><a class="chip" href="index.html#/34" data-go="34" title="პრეზენტაციაში გახსნა">სლაიდი 34</a></div>
+<p>დაიწყე ⭐-დან და ზევით აიწიე. ყველა დავალება დღევანდელ თამაშს აფართოებს.</p>
+<h3>ნაბიჯები</h3>
+<ul>
+<li>⭐ <strong>ახალი რეაქციები</strong> — 35+ დაზიანებაზე „⚡ კრიტიკული დარტყმა!“ და ბოტის განკურნებების მთვლელი. მხოლოდ ახალი <code>+=</code> ხაზები</li>
+<li>⭐⭐ <strong>ახალი მოვლენა</strong> — <code>Action OnLowHealth</code>: ერთხელ, როცა HP პირველად ჩამოვა 25-ზე ქვემოთ → „⚠️ სიცოცხლე კრიტიკულია!“</li>
+<li>⭐⭐⭐ <strong>ბოტის სირთულე</strong> — დასაწყისში <code>ადვილი / რთული?</code> → ორი სხვადასხვა ტვინი <code>bot.ChooseMove</code>-ში</li>
+</ul>
+<h3>✓ მზადაა, როცა</h3>
+<p>თამაში ბოლომდე თამაშდება და ახალი შეტყობინებები სწორ მომენტში ჩნდება</p>
+<h3>⭐ ბონუსი</h3>
+<ul>
+<li>🏆 ახალი სვლა <strong>4 — ცეცხლის ბურთი</strong>: 30-50 დაზიანება, მაგრამ მხოლოდ ერთხელ თამაშში</li>
+</ul>
+<h3>💡 მინიშნება</h3>
+<p>⭐ — ორივე ერთი ხაზია: <code>bot.OnDamaged += dmg =&gt; { if (dmg &gt; 35) ... };</code> და <code>bot.OnHealed += hp =&gt; healCount++;</code></p>
+<p>⭐⭐ — <code>Fighter</code>-ს დასჭირდება <code>bool</code> ველი, რომელიც იმახსოვრებს, უკვე გამოიძახე თუ არა. შემოწმება <code>TakeDamage</code>-ის შიგნით ჩაწერე.</p>
+<p>⭐⭐⭐ — <strong>ადვილი:</strong> ბოტი შემთხვევით ურტყამს და არასდროს იკურნება. <strong>რთული:</strong> იკურნება 40 HP-ზე ქვემოთ, ხოლო თუ შენ 30 HP-ზე ნაკლები გაქვს — ძლიერ დარტყმას ირჩევს. ორი სხვადასხვა ლამბდა დაწერე და <code>if</code>-ით აირჩიე, რომელი ჩაიწეროს <code>bot.ChooseMove</code>-ში. <code>Fighter</code> და <code>DoMove</code> არ იცვლება.</p></article>
+<h2 class="sec" id="sec-11">შეჯამება</h2>
+<article class="blk" data-slides="35"><span class="anchor" id="s-35"></span><div class="bh"><h3>📸 დელეგატები · შპარგალკა</h3><a class="chip" href="index.html#/35" data-go="35" title="პრეზენტაციაში გახსნა">სლაიდი 35</a></div>
+<table>
+<thead>
+<tr>
+<th>კოდი</th>
+<th>რას ნიშნავს</th>
+<th>თამაშში</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Action a = SayHello;</code></td>
+<td>მეთოდი ცვლადში (ფრჩხილების გარეშე)</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>x =&gt; x * 2</code></td>
+<td>ლამბდა — მეთოდი სახელის გარეშე</td>
+<td>ყველგან</td>
+</tr>
+<tr>
+<td><code>Action&lt;int&gt;</code></td>
+<td>იღებს int-ს, არაფერს აბრუნებს</td>
+<td><code>OnDamaged</code></td>
+</tr>
+<tr>
+<td><code>Func&lt;int&gt;</code></td>
+<td>არაფერს იღებს, აბრუნებს int-ს</td>
+<td><code>ChooseMove</code></td>
+</tr>
+<tr>
+<td><code>Func&lt;int, bool&gt;</code></td>
+<td>პირობა: int → true/false</td>
+<td><code>Filter</code></td>
+</tr>
+<tr>
+<td><code>+=</code> · <code>-=</code></td>
+<td>დაამატე · მოაშორე</td>
+<td>ორი რეაქცია ერთ მოვლენაზე</td>
+</tr>
+<tr>
+<td><code>x?.Invoke()</code></td>
+<td>გამოიძახე, თუ ცარიელი არ არის</td>
+<td>Fighter-ის შიგნით</td>
+</tr>
+</tbody>
+</table></article>
+<article class="blk" data-slides="36"><span class="anchor" id="s-36"></span><div class="bh"><h3>შეამოწმე, რა დაგამახსოვრდა</h3><a class="chip" href="index.html#/36" data-go="36" title="პრეზენტაციაში გახსნა">სლაიდი 36</a></div>
+<p>ეს კითხვები შემდეგი ლექციის დასაწყისშიც დაისმება.</p>
+<div class="selfcheck"><div class="sh">✅ შეამოწმე თავი <small>დაფიქრდი, მერე გახსენი პასუხი</small></div><details><summary>რა არის დელეგატი?</summary><div class="ans">ცვლადი, რომელშიც მეთოდი ინახება</div></details><details><summary>რა განსხვავებაა <code>greet = SayHello;</code>-სა და <code>SayHello();</code>-ს შორის?</summary><div class="ans">პირველი მეთოდს ინახავს (ფრჩხილების გარეშე) · მეორე ახლავე იძახებს</div></details><details><summary><code>Action</code> თუ <code>Func</code> — რომელი აბრუნებს მნიშვნელობას?</summary><div class="ans"><code>Func</code> — ბოლო ტიპი არის ის, რასაც აბრუნებს · <code>Action</code> არაფერს აბრუნებს</div></details><details><summary><code>Func&lt;string, int&gt;</code> — რას იღებს და რას აბრუნებს?</summary><div class="ans">იღებს string-ს, აბრუნებს int-ს — მაგ. <code>s =&gt; s.Length</code></div></details><details><summary>დელეგატზე <code>=</code> და <code>+=</code> — რა განსხვავებაა?</summary><div class="ans"><code>=</code> ძველს ანაცვლებს · <code>+=</code> ამატებს, და გამოძახებისას ყველა შესრულდება</div></details><details><summary>რატომ ვწერთ <code>OnDied?.Invoke()</code> და არა <code>OnDied()</code>?</summary><div class="ans">თუ არავინ გამოიწერა, დელეგატი null-ია → <code>?</code> შეცდომას გვაცილებს</div></details></div></article>
+<article class="blk" data-slides="37"><span class="anchor" id="s-37"></span><div class="bh"><h3>შეჯამება · მეთოდი ცვლადში — და პირველი ბოტი</h3><a class="chip" href="index.html#/37" data-go="37" title="პრეზენტაციაში გახსნა">სლაიდი 37</a></div>
+<p><strong>დაიმახსოვრე:</strong></p>
+<ol>
+<li><strong>დელეგატი</strong> — ცვლადი, რომელშიც მეთოდი ინახება. ლამბდა (<code>x =&gt; x * 2</code>) — ასეთი მეთოდის მოკლე ჩანაწერი.</li>
+<li><strong><code>Action</code> ასრულებს, <code>Func</code> აბრუნებს.</strong> <code>Func</code>-ში ბოლო ტიპი — დაბრუნების ტიპია.</li>
+<li><strong>ქცევა გარედან</strong>: ღილაკი, Filter, Fighter — კლასი ერთია, ქცევას ის წყვეტს, ვინც იყენებს.</li>
+<li><strong><code>+=</code></strong> — ერთ მოვლენაზე ბევრი რეაქცია. კლასის შიგნით — ყოველთვის <code>?.Invoke()</code>.</li>
+</ol></article>
+<h2 class="sec" id="sec-12">საშინაო</h2>
+<article class="blk" data-slides="38"><span class="anchor" id="s-38"></span><div class="bh"><h3>საშინაო დავალება: ბოტების ტურნირი</h3><a class="chip" href="index.html#/38" data-go="38" title="პრეზენტაციაში გახსნა">სლაიდი 38</a></div>
+<p>სამი ტვინი, ერთი ჩემპიონი</p>
+<h3>მოთხოვნები</h3>
+<ul>
+<li><code>CreateBrain(type, me, random)</code> აბრუნებს <code>Func&lt;int&gt;</code>-ს — ტვინს, რომელიც <strong>საკუთარ</strong> სიცოცხლეს ამოწმებს</li>
+<li>სამი ტვინი: <strong>აგრესიული</strong>, <strong>ფრთხილი</strong>, <strong>შემთხვევითი</strong></li>
+<li><code>Fight(typeA, typeB, random)</code> — ორი ბოტის ბრძოლა, აბრუნებს გამარჯვებულს</li>
+<li>ყოველი წყვილი 10-ჯერ ებრძვის. ვინ მოიგო ყველაზე მეტჯერ?</li>
+</ul>
+<h3>✓ მზადაა, როცა</h3>
+<p>პროგრამა თავისით ატარებს 30 ბრძოლას და ბეჭდავს: <code>აგრესიული: 14 · ფრთხილი: 11 · შემთხვევითი: 5</code></p>
+<h3>⭐ ბონუსი</h3>
+<ul>
+<li>მოიფიქრე <strong>მეოთხე</strong> ტვინი, რომელიც სამივეს აჯობებს — მაგ. მოწინააღმდეგის სიცოცხლესაც უყურებს</li>
+</ul>
+<h3>💡 მინიშნება</h3>
+<ul>
+<li><strong>აგრესიული</strong> — სულ ძლიერი დარტყმა, იკურნება მხოლოდ 15 HP-ზე ქვემოთ</li>
+<li><strong>ფრთხილი</strong> — ჩვეულებრივი დარტყმა, იკურნება 50 HP-ზე ქვემოთ</li>
+<li><strong>შემთხვევითი</strong> — <code>random.Next(1, 4)</code></li>
+<li>100 რაუნდზე მეტი → ფრე, რომ ორი ფრთხილი ბოტი უსასრულოდ არ იკურნებოდეს</li>
+</ul>
+<p>მეთოდების სრული სიგნატურები: <code>static Func&lt;int&gt; CreateBrain(string type, Fighter me, Random random)</code> და <code>static string Fight(string typeA, string typeB, Random random)</code>.</p>
+<p>ტურნირში <code>DoMove</code> ბევრს ბეჭდავს — ბრძოლის დროს შეტყობინებები არ გჭირდება, ამიტომ <code>OnDamaged</code>-ს ტურნირში ნუ გამოიწერ. გამარჯვებულების დასათვლელად საკმარისია <code>int[] wins = new int[3];</code></p></article>
+  </main>
+</div>
+<script>
+const DECK = "C# · 2 — დელეგატები — მეთოდი, როგორც მნიშვნელობა";
+if (matchMedia('(min-width:981px)').matches) document.getElementById('tocd').open = true;
+const blocks = [...document.querySelectorAll('.blk')];
+const tocLinks = [...document.querySelectorAll('nav.toc a[href^="#sec-"]')];
+const secOf = b => { let e = b; while (e && !(e.matches && e.matches('h2.sec'))) e = e.previousElementSibling; return e; };
+function mark(b, toc_only) {
+  if (!toc_only) blocks.forEach(x => x.classList.toggle('cur', x === b));
+  const s = b && secOf(b); tocLinks.forEach(a => a.classList.toggle('cur', s && a.getAttribute('href') === '#' + s.id));
+}
+const blockFor = n => blocks.find(b => b.dataset.slides.split(',').includes(String(n)));
+
+// copy buttons (code: one line per .ln)
+document.addEventListener('click', e => {
+  const btn = e.target.closest('.copy'); if (!btn) return;
+  const box = btn.closest('.codebox, .prompt');
+  const text = box.matches('.prompt') ? box.querySelector('.pb').textContent : [...box.querySelectorAll('.ln')].map(l => l.textContent).join('\n');
+  navigator.clipboard.writeText(text).then(() => { btn.textContent = '✓ დაკოპირდა'; btn.classList.add('ok'); setTimeout(() => { btn.textContent = 'კოპირება'; btn.classList.remove('ok'); }, 1600); });
+});
+
+// live mode: opened from the deck with P — follow the projector
+const live = new URLSearchParams(location.search).has('live');
+let follow = true, bc = null;
+const liveBtn = document.getElementById('live');
+if (live) {
+  try { bc = new BroadcastChannel('deck-' + DECK); } catch (e) {}
+  liveBtn.classList.add('on');
+  liveBtn.onclick = () => { follow = !follow; liveBtn.classList.toggle('off', !follow); liveBtn.querySelector('.lt').textContent = follow ? 'მიჰყვება სლაიდებს' : 'თავისუფლად ვკითხულობ'; };
+  if (bc) {
+    bc.onmessage = ({ data }) => {
+      if (data.t !== 'state' || !follow) return;
+      const b = blockFor(data.i + 1); if (!b || b.classList.contains('cur')) return;
+      mark(b); b.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    };
+    bc.postMessage({ t: 'hello' });
+  }
+  document.addEventListener('click', e => {   // slide chip → move the projector deck
+    const c = e.target.closest('.chip[data-go]'); if (!c || !bc) return;
+    e.preventDefault(); bc.postMessage({ t: 'go', n: +c.dataset.go - 1 });
+  });
+}
+// deep link #s-12
+const h = location.hash.match(/^#s-(\d+)$/);
+if (h) { const b = blockFor(+h[1]); if (b) { mark(b); setTimeout(() => b.scrollIntoView({ block: 'start' }), 50); } }
+// highlight section in the TOC while reading
+const io = new IntersectionObserver(es => es.forEach(x => { if (x.isIntersecting && !(live && follow)) mark(x.target, true); }), { rootMargin: '-30% 0px -60% 0px' });
+blocks.forEach(b => io.observe(b));
+</script>
+</body></html>

@@ -1,0 +1,733 @@
+<!doctype html>
+<html lang="ka"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>📖 Backend, API, REST და პირველი Web API — კონსპექტი</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Georgian:wght@400;600;700;800&family=JetBrains+Mono:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#fbf8f3;--card:#fff;--ink:#1e2132;--ink2:#3b3f54;--muted:#7b8096;--line:#e6dfd2;--accent:#6d28d9;--accent-soft:#f3effe;--teal:#0d9488;
+  --green:#15803d;--amber:#b45309;--mono:"JetBrains Mono",ui-monospace,monospace;--sans:"Noto Sans Georgian",system-ui,sans-serif}
+*{box-sizing:border-box}
+html{scroll-padding-top:76px}
+body{margin:0;background:var(--bg);color:var(--ink);font:17.5px/1.75 var(--sans);-webkit-font-smoothing:antialiased}
+a{color:var(--accent)}
+/* top bar */
+.top{position:sticky;top:0;z-index:10;display:flex;align-items:center;gap:14px;padding:10px 20px;background:rgba(251,248,243,.92);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.top .back{font:600 14px var(--mono);color:var(--muted);text-decoration:none;white-space:nowrap}
+.top .back:hover{color:var(--ink)}
+.top .ttl{flex:1;min-width:0;font-weight:700;font-size:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.top .ttl small{font:500 13px var(--mono);color:var(--muted);margin-right:8px}
+.btn{font:700 14px var(--sans);text-decoration:none;border-radius:10px;padding:7px 14px;white-space:nowrap;border:1px solid var(--line);color:var(--ink);background:var(--card);cursor:pointer}
+.btn.play{background:var(--accent);border-color:var(--accent);color:#fff}
+.live{display:none;align-items:center;gap:8px;font:600 13px var(--mono);color:var(--teal);background:#e6f6f4;border:1px solid #bfe7e2;border-radius:999px;padding:5px 12px;cursor:pointer}
+.live.on{display:flex}
+.live .dot{width:8px;height:8px;border-radius:50%;background:var(--teal);animation:pulse 1.6s infinite}
+.live.off{color:var(--muted);background:var(--card);border-color:var(--line)}.live.off .dot{background:var(--muted);animation:none}
+@keyframes pulse{50%{opacity:.3}}
+/* layout */
+.wrap{display:grid;grid-template-columns:230px minmax(0,1000px);gap:44px;justify-content:center;padding:32px 28px 120px}
+nav.toc{position:sticky;top:84px;align-self:start;font-size:14px;line-height:1.45}
+nav.toc .h{font:700 12px var(--mono);color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px}
+nav.toc a{display:block;color:var(--ink2);text-decoration:none;padding:6px 10px;border-left:2px solid var(--line)}
+nav.toc a:hover{color:var(--accent)}
+nav.toc a.cur{color:var(--accent);border-left-color:var(--accent);font-weight:700}
+nav.toc .mats{margin-top:22px;display:flex;flex-direction:column;gap:6px}
+nav.toc .mats a{border:0;padding:2px 0;font:500 13px var(--mono);color:var(--teal);word-break:break-all}
+header.hero{margin-bottom:8px}
+header.hero .k{font:600 14px var(--mono);color:var(--accent)}
+header.hero h1{font-size:38px;line-height:1.2;margin:6px 0 10px;letter-spacing:-.01em}
+header.hero p{color:var(--muted);margin:0;font-size:15.5px}
+header.hero kbd{font:500 12px var(--mono);border:1px solid var(--line);border-radius:5px;padding:0 5px;background:var(--card)}
+h2.sec{font-size:15px;font:700 13px var(--mono);color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin:48px 0 6px;padding-top:18px;border-top:1px solid var(--line)}
+/* blocks */
+.blk{position:relative;padding:14px 0 6px 22px;margin-left:-22px;border-left:3px solid transparent;transition:border-color .3s,background .3s;border-radius:0 12px 12px 0}
+.blk.cur{border-left-color:var(--accent);background:linear-gradient(90deg,var(--accent-soft),transparent 70%)}
+.anchor{position:absolute;top:0}
+.bh{display:flex;align-items:baseline;justify-content:space-between;gap:12px}
+.bh h3{font-size:22px;line-height:1.35;margin:4px 0 6px}
+.chip{flex:none;font:600 12px var(--mono);color:var(--muted);text-decoration:none;border:1px solid var(--line);border-radius:999px;padding:2px 10px;background:var(--card)}
+.chip:hover{color:var(--accent);border-color:var(--accent)}
+.blk h2{font-size:26px;line-height:1.3;margin:6px 0 10px}
+.blk h3:not(.bh h3){font-size:19px;margin:22px 0 6px}
+.blk h4{font-size:17px;margin:18px 0 4px}
+.blk p{margin:10px 0}
+.blk ul,.blk ol{padding-left:24px;margin:8px 0}
+.blk li{margin:4px 0}
+.blk strong{color:var(--ink)}
+.blk :not(pre)>code{font:600 .86em var(--mono);background:#f1ece3;border-radius:6px;padding:1px 6px;color:#5b21b6}
+.blk table{border-collapse:collapse;margin:14px 0;font-size:15.5px;width:100%;display:block;overflow-x:auto}
+.blk th,.blk td{border:1px solid var(--line);padding:8px 12px;text-align:left;vertical-align:top}
+.blk th{background:#f6f1e8}
+/* code */
+.codebox{margin:14px 0;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:#fffdf9}
+.codebox .ch,.prompt .ph{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:6px 8px 6px 14px;font:600 12.5px var(--mono);color:var(--muted);background:#f6f1e8;border-bottom:1px solid var(--line)}
+.copy{font:600 12px var(--mono);border:1px solid var(--line);background:var(--card);color:var(--ink2);border-radius:7px;padding:3px 10px;cursor:pointer}
+.copy:hover{border-color:var(--ink)}
+.copy.ok{color:var(--green);border-color:var(--green)}
+pre.code{margin:0;padding:12px 0;overflow-x:auto;font:14px/1.65 var(--mono)}
+pre.code .ln{display:block;padding:0 16px;white-space:pre}
+.code .ttl{background:var(--bg2);color:var(--muted)}
+.code .ln.hl{background:rgba(109,40,217,.07);box-shadow:inset 3px 0 0 var(--net)}
+.code .ln.dim{opacity:.42}
+.code .k,.code .kd,.code .kn,.code .kr,.code .kc{color:#7c3aed}
+.code .kt{color:#2563eb}
+.code .s,.code .s1,.code .s2,.code .sa,.code .se,.code .si,.code .sd{color:#15803d}
+.code .c,.code .c1,.code .cm,.code .cp,.code .ch{color:#8b8fa3}
+.code .m,.code .mi,.code .mf,.code .mh{color:#c2410c}
+.code .nf,.code .fm{color:#1d4ed8}
+.code .nc,.code .nn,.code .nt,.code .nd{color:#b45309}
+.code .na{color:#7c3aed} .code .nb{color:#0e7490}
+.code .o,.code .p{color:#64748b}
+.code .nv,.code .nx{color:var(--ink)}
+.code .go{color:#64748b}
+/* prompt */
+.prompt{margin:16px 0;border:1px solid #ddd2fb;border-radius:12px;overflow:hidden;background:var(--accent-soft)}
+.prompt .ph{background:#ebe3fd;border-color:#ddd2fb;color:var(--accent)}
+.prompt .pb{padding:12px 16px;white-space:pre-wrap;font-size:15.5px;line-height:1.6;color:var(--ink2)}
+/* self check */
+.selfcheck{margin:16px 0;border:1px solid #cfe9d6;border-radius:12px;background:#f3fbf5;padding:12px 16px}
+.selfcheck .sh{font-weight:700;color:var(--green);margin-bottom:6px}
+.selfcheck .sh small{font-weight:400;color:var(--muted);font-size:13.5px;margin-left:6px}
+.selfcheck details{border-top:1px solid #dcefe1;padding:8px 0}
+.selfcheck summary{cursor:pointer;font-weight:600;list-style:none;padding-left:26px;position:relative}
+.selfcheck summary::-webkit-details-marker{display:none}
+.selfcheck summary::before{content:"?";position:absolute;left:0;top:2px;width:18px;height:18px;border-radius:50%;background:var(--green);color:#fff;font:700 12px/18px var(--mono);text-align:center}
+.selfcheck details[open] summary::before{content:"✓"}
+.selfcheck .ans{padding:6px 0 2px 26px;color:var(--ink2)}
+/* terms */
+.terms{margin:16px 0;border:1px solid var(--line);border-radius:12px;background:var(--card);padding:12px 16px}
+.terms .th{font-weight:700;margin-bottom:6px}
+.terms dl{display:grid;grid-template-columns:max-content 1fr;gap:6px 18px;margin:0}
+.terms dt{font:600 14.5px var(--mono);color:var(--accent)}
+.terms dd{margin:0;color:var(--ink2)}
+/* callouts */
+.callout{display:flex;gap:12px;margin:14px 0;padding:12px 16px;border-radius:12px;border:1px solid var(--line);background:var(--card)}
+.callout .ci{font-size:20px;line-height:1.6}
+.callout>div>p:first-child{margin-top:0}.callout>div>p:last-child{margin-bottom:0}
+.callout.warn{background:#fff8eb;border-color:#f6dfb5}
+.callout.note{background:#eef5ff;border-color:#cfe0fb}
+@media (max-width:980px){
+  .wrap{grid-template-columns:minmax(0,1fr);gap:0;padding:20px 16px 100px}
+  nav.toc{position:static;margin-bottom:12px}
+  nav.toc details{border:1px solid var(--line);border-radius:12px;background:var(--card);padding:8px 12px}
+  nav.toc details>summary{cursor:pointer;font-weight:700}
+  nav.toc .h{display:none}
+  header.hero h1{font-size:30px}
+  .blk{padding-left:14px;margin-left:-14px}
+  .top .ttl small{display:none}
+  .terms dl{grid-template-columns:1fr}.terms dd{margin-bottom:8px}
+}
+@media (min-width:981px){nav.toc details>summary{display:none}}
+@media print{.top,nav.toc,.copy,.chip,.live{display:none}.wrap{display:block;padding:0}.selfcheck details{display:block}.blk.cur{background:none}}
+</style></head>
+<body>
+<div class="top">
+  <a class="back" href="../../">← ლექციები</a>
+  <div class="ttl"><small>ASP.NET · 1</small>Backend, API, REST და პირველი Web API</div>
+  <button class="live" id="live" type="button" title="ჩართული: ტექსტი პრეზენტაციას მიჰყვება"><span class="dot"></span><span class="lt">მიჰყვება სლაიდებს</span></button>
+  <a class="btn play" href="index.html">▶ პრეზენტაცია</a>
+</div>
+<div class="wrap">
+  <nav class="toc"><details id="tocd"><summary>სარჩევი</summary><div class="h">სარჩევი</div><a href="#sec-1">დღის თემა</a><a href="#sec-2"></a><a href="#sec-3">1 · Backend</a><a href="#sec-4">2 · API</a><a href="#sec-5">3 · როგორ მუშაობს საიტი</a><a href="#sec-6">4 · REST</a><a href="#sec-7">5 · .NET</a><a href="#sec-8">6 · პრაქტიკა</a><a href="#sec-9">პრაქტიკა</a><a href="#sec-10">შეჯამება</a><a href="#sec-11">საშინაო</a><div class="mats"></div></details></nav>
+  <main>
+    <header class="hero">
+      <div class="k">📖 კონსპექტი · ASP.NET · ლექცია 1</div>
+      <h1>Backend, API, REST და პირველი Web API</h1>
+      <p>წაიკითხე ლექციის შემდეგ, ან პრეზენტაციასთან ერთად: პრეზენტაციაში დააჭირე <kbd>P</kbd> და ეს გვერდი სლაიდებს გაჰყვება. კოდი და AI-ს პრომპტები კოპირდება ერთი დაჭერით.</p>
+    </header>
+    <h2 class="sec" id="sec-1">დღის თემა</h2>
+<article class="blk" data-slides="1,2"><span class="anchor" id="s-1"></span><span class="anchor" id="s-2"></span><div class="bh"><h3>დღის თემა: Backend, API, REST და პირველი Web API</h3><a class="chip" href="index.html#/1" data-go="1" title="პრეზენტაციაში გახსნა">სლაიდი 1</a></div>
+<p>საიტზე ყოველი ღილაკის უკან სერვერია, რომელიც მონაცემებს ინახავს და წესებს იცავს — Backend. ამ კურსში ასეთ სერვერს C#-ზე დავწერთ. დღეს სრულ სურათს ვხედავთ: რატომ არსებობს Backend, რა არის API და REST, როგორ ელაპარაკება საიტი სერვერს — და ვწერთ პირველ endpoint-ს.</p>
+<p><strong>ლექციის ბოლოს შეძლებ:</strong></p>
+<ul>
+<li>ახსნა, რატომ ვერ იარსებებს მაღაზია Backend-ის გარეშე</li>
+<li>Request/Response-ის, JSON-ის და სტატუს კოდების წაკითხვა</li>
+<li>REST: რესურსი + 5 მეთოდი (GET, POST, PUT, PATCH, DELETE)</li>
+<li>ASP.NET Core Web API პროექტის შექმნა და პირველი <code>MapGet</code></li>
+</ul></article>
+<h2 class="sec" id="sec-2"></h2>
+<article class="blk" data-slides="3"><span class="anchor" id="s-3"></span><div class="bh"><h3>ლექციის გეგმა — 6 გაჩერება</h3><a class="chip" href="index.html#/3" data-go="3" title="პრეზენტაციაში გახსნა">სლაიდი 3</a></div>
+<p>თითოეული წინაზე დგას — ერთიც რომ გამოტოვო, შემდეგი გაგიჭირდება.</p>
+<ol>
+<li>⚙️ <strong>Backend</strong> — რა არის და რატომ ვერ გავძლებთ მის გარეშე.</li>
+<li><strong>API</strong> — როგორ ელაპარაკება საიტი Backend-ს.</li>
+<li><strong>როგორ მუშაობს საიტი</strong> — რა ხდება, როცა ღილაკს აჭერ.</li>
+<li><strong>REST</strong> — წესები, რომლითაც API-ს ვაპროექტებთ, და 5 მეთოდი.</li>
+<li><strong>.NET</strong> — რა პროექტის ტიპები გვაქვს და რომელს ვირჩევთ.</li>
+<li>⌨️ <strong>პრაქტიკა</strong> — Visual Studio-ში პირველი API.</li>
+</ol></article>
+<h2 class="sec" id="sec-3">1 · Backend</h2>
+<article class="blk" data-slides="4"><span class="anchor" id="s-4"></span><div class="bh"><h3>ნაწილი 1 · რა არის Backend?</h3><a class="chip" href="index.html#/4" data-go="4" title="პრეზენტაციაში გახსნა">სლაიდი 4</a></div>
+<p>და რატომ ვერ ავაწყობთ საიტს მის გარეშე. სანამ წაიკითხავ — სცადე, საკუთარი სიტყვებით თქვა, რა გგონია.</p></article>
+<article class="blk" data-slides="5"><span class="anchor" id="s-5"></span><div class="bh"><h3>აისბერგი: რასაც ხედავ — და რასაც ვერ ხედავ</h3><a class="chip" href="index.html#/5" data-go="5" title="პრეზენტაციაში გახსნა">სლაიდი 5</a></div>
+<p>საიტი აისბერგს ჰგავს:</p>
+<ul>
+<li><strong>ზემოთ, პატარა ნაწილი — Frontend</strong>: ღილაკები, ფერები, ტექსტი, ფორმები. ის, რასაც მომხმარებელი ხედავს.</li>
+<li><strong>წყლის ქვეშ, დიდი ნაწილი — Backend</strong>: მონაცემების შენახვა, წესები და ლოგიკა, ვინ ხარ და რა შეგიძლია, გადახდა, ფოსტა, SMS.</li>
+</ul>
+<p>რასაც ეკრანზე ხედავ, საიტის მხოლოდ პატარა ნაწილია.</p></article>
+<article class="blk" data-slides="6"><span class="anchor" id="s-6"></span><div class="bh"><h3>ექსპერიმენტი: ონლაინ მაღაზია Backend-ის გარეშე</h3><a class="chip" href="index.html#/6" data-go="6" title="პრეზენტაციაში გახსნა">სლაიდი 6</a></div>
+<p>❌ <strong>მხოლოდ ბრაუზერი.</strong> ანა და გიორგი, თითოეული საკუთარ კომპიუტერთან, ხედავენ: მარაგში 1 ლეპტოპია. ორივე ერთდროულად აჭერს „ვიყიდე“ — და ორივეს ეუბნება „წარმატებით!“. გაიყიდა 2 ლეპტოპი, მარაგში კი 1 იყო. რატომ? ბრაუზერის კოდი თითოეულის კომპიუტერზე მუშაობს: ანას ბრაუზერმა არ იცის, რა ხდება გიორგისთან.</p>
+<p>✅ <strong>Backend-ით.</strong> მარაგი ერთ საერთო ადგილას — სერვერზე — ინახება. ანა აგზავნის „ვყიდულობ“ → სერვერი ამოწმებს: მარაგი 1-ია, ყიდის, მარაგი ხდება 0. გიორგი იგივეს აგზავნის → მარაგი 0-ია → „ამოიწურა“.</p>
+<p><strong>Backend = ერთი საერთო ადგილი, სადაც მონაცემი და წესები ცხოვრობს.</strong></p>
+<div class="callout warn"><span class="ci">⚠️</span><div><p>ბრაუზერში კოდს ნებისმიერი შეცვლის DevTools-ით — ფასსაც კი. ამიტომ წესებს ბრაუზერს ვერ ვანდობთ.</p></div></div></article>
+<article class="blk" data-slides="7"><span class="anchor" id="s-7"></span><div class="bh"><h3>Backend-ის 4 მთავარი მოვალეობა</h3><a class="chip" href="index.html#/7" data-go="7" title="პრეზენტაციაში გახსნა">სლაიდი 7</a></div>
+<ul>
+<li>🗄️ <strong>ინახავს</strong> მონაცემებს — მომხმარებლები, პროდუქტები, შეკვეთები.</li>
+<li>📏 <strong>ამოწმებს</strong> წესებს — „მარაგი 0-ზე ნაკლები ვერ იქნება“.</li>
+<li>🔐 <strong>იცავს</strong> — ვინ ხარ? რის უფლება გაქვს? (მაგ. სხვისი შეკვეთა ვერ ნახო.)</li>
+<li>🔌 <strong>აკავშირებს</strong> — ბანკს, ფოსტას, SMS-ს, სხვა სერვისებს.</li>
+</ul>
+<p><strong>Backend = პროგრამა, რომელიც სერვერზე მუშაობს და ყველა მომხმარებელს ემსახურება.</strong></p></article>
+<article class="blk" data-slides="8"><span class="anchor" id="s-8"></span><div class="bh"><h3>ანალოგია: საიტი = რესტორანი 🍽️</h3><a class="chip" href="index.html#/8" data-go="8" title="პრეზენტაციაში გახსნა">სლაიდი 8</a></div>
+<p>ამ ანალოგიას მთელ ლექციაზე გამოვიყენებთ:</p>
+<table>
+<thead>
+<tr>
+<th>რესტორანში</th>
+<th>საიტში</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>დარბაზი — ლამაზი, სტუმარი აქ ზის</td>
+<td><strong>Frontend</strong></td>
+</tr>
+<tr>
+<td>მიმტანი</td>
+<td><strong>?</strong> — მალე გავიგებთ</td>
+</tr>
+<tr>
+<td>სამზარეულო — სტუმარი აქ ვერ შედის</td>
+<td><strong>Backend</strong></td>
+</tr>
+<tr>
+<td>საწყობი — პროდუქტები ინახება</td>
+<td><strong>Database</strong></td>
+</tr>
+</tbody>
+</table>
+<p>სტუმარი სამზარეულოში არ შედის. მაშ, როგორ აღწევს მისი შეკვეთა მზარეულამდე?</p></article>
+<h2 class="sec" id="sec-4">2 · API</h2>
+<article class="blk" data-slides="9"><span class="anchor" id="s-9"></span><div class="bh"><h3>ნაწილი 2 · რა არის API?</h3><a class="chip" href="index.html#/9" data-go="9" title="პრეზენტაციაში გახსნა">სლაიდი 9</a></div>
+<p>მიმტანი, რომელიც Frontend-სა და Backend-ს აკავშირებს — ეს არის <strong>API</strong>.</p></article>
+<article class="blk" data-slides="10"><span class="anchor" id="s-10"></span><div class="bh"><h3>API = მიმტანი</h3><a class="chip" href="index.html#/10" data-go="10" title="პრეზენტაციაში გახსნა">სლაიდი 10</a></div>
+<p>სტუმარს ხაჭაპური უნდა:</p>
+<ol>
+<li>სტუმარი მიმტანს ეუბნება, მიმტანი შეკვეთას სამზარეულოში მიაქვს — ეს <strong>მოთხოვნაა (Request)</strong>.</li>
+<li>სამზარეულო ამზადებს, მიმტანი კერძს უკან მოიტანს — ეს <strong>პასუხია (Response)</strong>.</li>
+</ol>
+<p>სტუმარმა არ იცის, როგორ მზადდება კერძი — და არც სჭირდება. სამზარეულო სტუმარს არ იცნობს — მხოლოდ შეკვეთას ხედავს.</p></article>
+<article class="blk" data-slides="11"><span class="anchor" id="s-11"></span><div class="bh"><h3>მიმტანმა იცის, ვის მიუტანოს</h3><a class="chip" href="index.html#/11" data-go="11" title="პრეზენტაციაში გახსნა">სლაიდი 11</a></div>
+<p>სამზარეულოში ყველაფერს ერთი მზარეული არ აკეთებს:</p>
+<ul>
+<li>„ხაჭაპური“ → თონე</li>
+<li>„სალათი“ → ცივი კერძები</li>
+<li>„ანგარიში“ → სალარო</li>
+</ul>
+<p>მიმტანი თვითონ არაფერს ამზადებს — მან იცის, რომელი თხოვნა სად წაიღოს. <strong>API-შიც ასეა: ყოველ მოთხოვნას თავისი ადგილი აქვს.</strong></p></article>
+<article class="blk" data-slides="12"><span class="anchor" id="s-12"></span><div class="bh"><h3>API შედგება Endpoint-ებისგან</h3><a class="chip" href="index.html#/12" data-go="12" title="პრეზენტაციაში გახსნა">სლაიდი 12</a></div>
+<p>API ერთი დიდი კარი არ არის — ეს ბევრი პატარა კარია. თითოეულს <strong>Endpoint</strong> ჰქვია:</p>
+<table>
+<thead>
+<tr>
+<th>Endpoint</th>
+<th>რას აკეთებს</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>GET /api/products</code></td>
+<td>პროდუქტების სია</td>
+</tr>
+<tr>
+<td><code>GET /api/products/5</code></td>
+<td>ერთი პროდუქტი</td>
+</tr>
+<tr>
+<td><code>POST /api/products</code></td>
+<td>ახალი პროდუქტი</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Endpoint = მეთოდი + მისამართი, ერთი კონკრეტული მიზნით.</strong> მოთხოვნა მოდის Endpoint-ზე → Endpoint Backend-ში შესაბამის ფუნქციას ააქტიურებს.</p>
+<div class="terms"><div class="th">📘 ტერმინები</div><dl><dt>Endpoint</dt><dd>მეთოდი (GET, POST…) + მისამართი (/api/products), რომელიც Backend-ში ერთ კონკრეტულ ფუნქციას იძახებს</dd></dl></div></article>
+<article class="blk" data-slides="13"><span class="anchor" id="s-13"></span><div class="bh"><h3>API — სიტყვა-სიტყვით</h3><a class="chip" href="index.html#/13" data-go="13" title="პრეზენტაციაში გახსნა">სლაიდი 13</a></div>
+<ul>
+<li><strong>A</strong>pplication — პროგრამა</li>
+<li><strong>P</strong>rogramming — პროგრამირების</li>
+<li><strong>I</strong>nterface — ინტერფეისი, „შეხების წერტილი“</li>
+</ul>
+<p><strong>API = წესები, რომლითაც ერთი პროგრამა ელაპარაკება მეორეს.</strong> ადამიანი პროგრამას ღილაკებით ელაპარაკება — ეს UI-ა. პროგრამა სხვა პროგრამას API-ით ელაპარაკება.</p>
+<div class="terms"><div class="th">📘 ტერმინები</div><dl><dt>API</dt><dd>Application Programming Interface: წესები, რომლითაც პროგრამები ერთმანეთს ელაპარაკებიან</dd><dt>UI</dt><dd>User Interface: ის, რითაც ადამიანი ელაპარაკება პროგრამას (ღილაკები, ფორმები)</dd></dl></div></article>
+<article class="blk" data-slides="14"><span class="anchor" id="s-14"></span><div class="bh"><h3>რატომ არსებობს API? ერთი Backend — ბევრი კლიენტი</h3><a class="chip" href="index.html#/14" data-go="14" title="პრეზენტაციაში გახსნა">სლაიდი 14</a></div>
+<p>ერთსა და იმავე API-ს იყენებს ვებ საიტიც, მობილური აპიც, სმარტ საათიც და სხვა კომპანიის სისტემაც. <strong>ლოგიკა იწერება ერთხელ — და ყველა კლიენტი ერთსა და იმავე API-ს იყენებს.</strong></p>
+<p>ამიტომაა შენი ბალანსი ბანკის საიტზეც და აპლიკაციაშიც ერთნაირი: ორივე ერთ API-ს ეკითხება.</p></article>
+<h2 class="sec" id="sec-5">3 · როგორ მუშაობს საიტი</h2>
+<article class="blk" data-slides="15"><span class="anchor" id="s-15"></span><div class="bh"><h3>ნაწილი 3 · როგორ მუშაობს საიტი?</h3><a class="chip" href="index.html#/15" data-go="15" title="პრეზენტაციაში გახსნა">სლაიდი 15</a></div>
+<p>სრული სურათი: Frontend ↔ Backend ↔ Database — ზუსტად რა ხდება, როცა საიტზე ღილაკს აჭერ.</p></article>
+<article class="blk" data-slides="16"><span class="anchor" id="s-16"></span><div class="bh"><h3>სამი ნაწილი</h3><a class="chip" href="index.html#/16" data-go="16" title="პრეზენტაციაში გახსნა">სლაიდი 16</a></div>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>სად ინახება / მუშაობს</th>
+<th>რას აკეთებს</th>
+<th>ტექნოლოგიები</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>💻 <strong>Frontend</strong></td>
+<td>ინახება სერვერზე, <strong>მუშაობს ბრაუზერში</strong></td>
+<td>აჩვენებს და იღებს კლიკებს</td>
+<td>HTML, CSS, JavaScript, Angular, React</td>
+</tr>
+<tr>
+<td>⚙️ <strong>Backend (API)</strong></td>
+<td>ინახება და მუშაობს სერვერზე</td>
+<td>წესები, ლოგიკა, უსაფრთხოება</td>
+<td>C#, ASP.NET Core</td>
+</tr>
+<tr>
+<td>🗄️ <strong>Database</strong></td>
+<td>ინახება და მუშაობს სერვერზე</td>
+<td>მონაცემს ინახავს მუდმივად</td>
+<td>SQL Server, PostgreSQL</td>
+</tr>
+</tbody>
+</table></article>
+<article class="blk" data-slides="17"><span class="anchor" id="s-17"></span><div class="bh"><h3>ერთი კლიკის მოგზაურობა</h3><a class="chip" href="index.html#/17" data-go="17" title="პრეზენტაციაში გახსნა">სლაიდი 17</a></div>
+<p>ანამ საიტზე დააჭირა „პროდუქტები“:</p>
+<ol>
+<li><strong>კლიკი</strong> — ჯერ არაფერი ჩანს.</li>
+<li><strong>Request</strong> — Frontend API-ს აგზავნის მოთხოვნას: <code>GET /api/products</code>.</li>
+<li><strong>SQL</strong> — Endpoint Backend-ში ფუნქციას იძახებს, ფუნქცია ბაზას ეკითხება: <code>SELECT * FROM Products</code>.</li>
+<li><strong>მონაცემი</strong> — ბაზა Backend-ს პროდუქტებს უბრუნებს.</li>
+<li><strong>Response</strong> — Backend Frontend-ს JSON-ს უგზავნის: <code>200 OK</code>.</li>
+<li><strong>ეკრანი</strong> — Frontend ამ მონაცემს ლამაზ ბარათებად ხატავს.</li>
+</ol>
+<p>ეს ყველაფერი წამის მეასედებში ხდება.</p></article>
+<article class="blk" data-slides="18"><span class="anchor" id="s-18"></span><div class="bh"><h3>HTTP — საერთო ენა</h3><a class="chip" href="index.html#/18" data-go="18" title="პრეზენტაციაში გახსნა">სლაიდი 18</a></div>
+<p>Frontend და Backend ერთმანეთს <strong>HTTP</strong>-ით ელაპარაკებიან — წარმოიდგინე წერილი და პასუხი.</p>
+<p>✉️ <strong>Request</strong> (რას ვითხოვთ):
+- <strong>მეთოდი</strong> — რა გვინდა? <code>GET</code>
+- <strong>მისამართი</strong> — რისი? <code>/api/products</code>
+- <strong>მონაცემი</strong> (თუ საჭიროა) — მაგ. ახალი პროდუქტი</p>
+<p>📬 <strong>Response</strong> (რა მივიღეთ):
+- <strong>სტატუსი</strong> — გამოვიდა? <code>200 OK</code>
+- <strong>მონაცემი</strong> — პროდუქტების სია (JSON)</p>
+<div class="codebox"><div class="ch"><span>http</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="nf">GET</span> <span class="nn">/api/products</span> <span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span></span><span class="ln"><span class="err">→</span> <span class="l">HTTP/1.1 200 OK</span></span><span class="ln">  <span class="l">[ { "id": 1, "name": "ლეპტოპი" } ]</span></span></code></pre></div></article>
+<article class="blk" data-slides="19"><span class="anchor" id="s-19"></span><div class="bh"><h3>JSON — მონაცემი, რომელიც ყველას ესმის</h3><a class="chip" href="index.html#/19" data-go="19" title="პრეზენტაციაში გახსნა">სლაიდი 19</a></div>
+<p>მომხმარებელი პროდუქტს ლამაზ ბარათად ხედავს. API-დან კი ის ასე მოდის:</p>
+<div class="codebox"><div class="ch"><span>json</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">  </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span></span><span class="ln"><span class="w">  </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ლეპტოპი"</span><span class="p">,</span></span><span class="ln"><span class="w">  </span><span class="nt">"price"</span><span class="p">:</span><span class="w"> </span><span class="mi">2400</span><span class="p">,</span></span><span class="ln"><span class="w">  </span><span class="nt">"inStock"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span></span><span class="ln"><span class="p">}</span></span></code></pre></div>
+<p><code>"გასაღები": მნიშვნელობა</code> — უბრალო ტექსტი. API ხატვაზე არ ზრუნავს, მხოლოდ მონაცემს აბრუნებს; როგორ გამოჩნდება — Frontend-ის საქმეა. ეს ფორმატი ყველა ენას ესმის: JavaScript-საც, C#-საც.</p>
+<div class="terms"><div class="th">📘 ტერმინები</div><dl><dt>JSON</dt><dd>JavaScript Object Notation: მონაცემის ტექსტური ფორმატი "გასაღები": მნიშვნელობა წყვილებით</dd></dl></div></article>
+<article class="blk" data-slides="20"><span class="anchor" id="s-20"></span><div class="bh"><h3>სტატუს კოდები — პასუხის „შუქნიშანი“ 🚦</h3><a class="chip" href="index.html#/20" data-go="20" title="პრეზენტაციაში გახსნა">სლაიდი 20</a></div>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>მნიშვნელობა</th>
+<th>მაგალითები</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>2xx</strong> ✓</td>
+<td>ყველაფერი კარგად</td>
+<td>200 OK · 201 Created · 204 No Content</td>
+</tr>
+<tr>
+<td><strong>4xx</strong> 🙋</td>
+<td><strong>შენ</strong> შეცდი (კლიენტი)</td>
+<td>400 Bad Request · 401 ვინ ხარ? · 404 Not Found</td>
+</tr>
+<tr>
+<td><strong>5xx</strong> ⚙️</td>
+<td><strong>სერვერი</strong> შეცდა</td>
+<td>500 Internal Server Error</td>
+</tr>
+</tbody>
+</table>
+<div class="selfcheck"><div class="sh">✅ შეამოწმე თავი <small>დაფიქრდი, მერე გახსენი პასუხი</small></div><details><summary>ბრაუზერში გახსენი საიტის არარსებული გვერდი. რომელი კოდი მოვა და რომელ ჯგუფს ეკუთვნის?</summary><div class="ans">404 Not Found — 4xx: კლიენტმა ისეთი რამ მოითხოვა, რაც არ არსებობს</div></details><details><summary>ახალი პროდუქტი წარმატებით დაემატა. რომელი კოდი ჯობია: 200 თუ 201?</summary><div class="ans">201 Created — „შეიქმნა“; 200 უფრო ზოგადი „OK“-ა</div></details></div></article>
+<h2 class="sec" id="sec-6">4 · REST</h2>
+<article class="blk" data-slides="21"><span class="anchor" id="s-21"></span><div class="bh"><h3>ნაწილი 4 · REST API და 5 მეთოდი</h3><a class="chip" href="index.html#/21" data-go="21" title="პრეზენტაციაში გახსნა">სლაიდი 21</a></div>
+<p>API ბევრი Endpoint-ისგან შედგება. როგორ დავარქვათ მათ სახელები და როგორ დავალაგოთ ისე, რომ ყველამ ერთნაირად გაიგოს? ამისთვის არსებობს <strong>REST</strong>.</p></article>
+<article class="blk" data-slides="22"><span class="anchor" id="s-22"></span><div class="bh"><h3>რატომ გვჭირდება წესები?</h3><a class="chip" href="index.html#/22" data-go="22" title="პრეზენტაციაში გახსნა">სლაიდი 22</a></div>
+<p>❌ <strong>წესების გარეშე</strong> ყველა თავისებურად წერს:</p>
+<div class="codebox"><div class="ch"><span>plain</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln">/getAllProducts</span><span class="ln">/product_list_new</span><span class="ln">/deleteProduct?id=5</span><span class="ln">/removeItemFromDb/5</span><span class="ln">/updateProductPriceFinal2</span></code></pre></div>
+<p>ყოველ პროექტში ყველაფერი თავიდან უნდა ისწავლო.</p>
+<p>✅ <strong>REST</strong>-ით:</p>
+<div class="codebox"><div class="ch"><span>http</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="err">G</span><span class="err">E</span><span class="err">T</span><span class="err"> </span><span class="err"> </span><span class="err"> </span><span class="err"> </span><span class="err">/</span><span class="err">p</span><span class="err">r</span><span class="err">o</span><span class="err">d</span><span class="err">u</span><span class="err">c</span><span class="err">t</span><span class="err">s</span></span><span class="ln"><span class="err">G</span><span class="err">E</span><span class="err">T</span><span class="err"> </span><span class="err"> </span><span class="err"> </span><span class="err"> </span><span class="err">/</span><span class="err">p</span><span class="err">r</span><span class="err">o</span><span class="err">d</span><span class="err">u</span><span class="err">c</span><span class="err">t</span><span class="err">s</span><span class="err">/</span><span class="err">5</span></span><span class="ln"><span class="err">P</span><span class="err">O</span><span class="err">S</span><span class="err">T</span><span class="err"> </span><span class="err"> </span><span class="err"> </span><span class="err">/</span><span class="err">p</span><span class="err">r</span><span class="err">o</span><span class="err">d</span><span class="err">u</span><span class="err">c</span><span class="err">t</span><span class="err">s</span></span><span class="ln"><span class="err">P</span><span class="err">U</span><span class="err">T</span><span class="err"> </span><span class="err"> </span><span class="err"> </span><span class="err"> </span><span class="err">/</span><span class="err">p</span><span class="err">r</span><span class="err">o</span><span class="err">d</span><span class="err">u</span><span class="err">c</span><span class="err">t</span><span class="err">s</span><span class="err">/</span><span class="err">5</span></span><span class="ln"><span class="err">D</span><span class="err">E</span><span class="err">L</span><span class="err">E</span><span class="err">T</span><span class="err">E</span><span class="err"> </span><span class="err">/</span><span class="err">p</span><span class="err">r</span><span class="err">o</span><span class="err">d</span><span class="err">u</span><span class="err">c</span><span class="err">t</span><span class="err">s</span><span class="err">/</span><span class="err">5</span></span></code></pre></div>
+<p>ერთხელ ისწავლი — ყველა API-ში იცი.</p></article>
+<article class="blk" data-slides="23"><span class="anchor" id="s-23"></span><div class="bh"><h3>REST-ის მთავარი იდეა: მეთოდი + რესურსი</h3><a class="chip" href="index.html#/23" data-go="23" title="პრეზენტაციაში გახსნა">სლაიდი 23</a></div>
+<p><code>GET</code> <code>/products/5</code> — <strong>მეთოდი</strong>: რა ვუყოთ? + <strong>რესურსი</strong>: რას?</p>
+<ul>
+<li><strong>რესურსი</strong> = „საგანი“, რომელსაც API მართავს: პროდუქტები, მომხმარებლები, შეკვეთები. მისამართში იწერება <strong>მხოლოდ რესურსის სახელი, მრავლობითში</strong>: <code>/products</code>.</li>
+<li><strong>HTTP მეთოდი</strong> = რა ვუყოთ ამ რესურსს. <strong>მოქმედება მისამართში არ იწერება</strong> — <code>/deleteProduct</code> არა, <code>DELETE /products/5</code> კი.</li>
+</ul>
+<div class="terms"><div class="th">📘 ტერმინები</div><dl><dt>REST</dt><dd>API-ს აწყობის წესები: რესურსი მისამართში, მოქმედება HTTP მეთოდით, შედეგი სტატუს კოდით</dd><dt>რესურსი</dt><dd>„საგანი“, რომელსაც API მართავს (products, users, orders)</dd></dl></div></article>
+<article class="blk" data-slides="24"><span class="anchor" id="s-24"></span><div class="bh"><h3>რატომ ზუსტად 5 მეთოდი? CRUD</h3><a class="chip" href="index.html#/24" data-go="24" title="პრეზენტაციაში გახსნა">სლაიდი 24</a></div>
+<p>ბაზების კურსიდან: მონაცემთან მხოლოდ 4 მოქმედებაა — <strong>CRUD</strong>:</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>მოქმედება</th>
+<th>HTTP მეთოდი</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>C</strong></td>
+<td>Create — შექმნა</td>
+<td><code>POST</code></td>
+</tr>
+<tr>
+<td><strong>R</strong></td>
+<td>Read — წაკითხვა</td>
+<td><code>GET</code></td>
+</tr>
+<tr>
+<td><strong>U</strong></td>
+<td>Update — შეცვლა</td>
+<td><code>PUT</code>, <code>PATCH</code></td>
+</tr>
+<tr>
+<td><strong>D</strong></td>
+<td>Delete — წაშლა</td>
+<td><code>DELETE</code></td>
+</tr>
+</tbody>
+</table>
+<p>4 მოქმედება → 5 მეთოდი, რადგან შეცვლა ორნაირია: მთლიანად (<code>PUT</code>) ან ნაწილობრივ (<code>PATCH</code>).</p></article>
+<article class="blk" data-slides="25"><span class="anchor" id="s-25"></span><div class="bh"><h3>GET — წაკითხვა 👀</h3><a class="chip" href="index.html#/25" data-go="25" title="პრეზენტაციაში გახსნა">სლაიდი 25</a></div>
+<p><code>GET /products/2</code> — „მაჩვენე პროდუქტი #2“:</p>
+<div class="codebox"><div class="ch"><span>Response · 200 OK</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="p">{</span><span class="w"> </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"მაუსი"</span><span class="p">,</span><span class="w"> </span><span class="nt">"price"</span><span class="p">:</span><span class="w"> </span><span class="mi">45</span><span class="w"> </span><span class="p">}</span></span></code></pre></div>
+<p><strong>GET არაფერს ცვლის</strong> — მხოლოდ კითხულობს. 100-ჯერ გამოიძახო, ცხრილი იგივე დარჩება. <code>GET /products</code> (id-ის გარეშე) — ყველა პროდუქტი, სიად. SQL-ში ეს <code>SELECT</code>-ია.</p></article>
+<article class="blk" data-slides="26"><span class="anchor" id="s-26"></span><div class="bh"><h3>POST — შექმნა ✨</h3><a class="chip" href="index.html#/26" data-go="26" title="პრეზენტაციაში გახსნა">სლაიდი 26</a></div>
+<p><code>POST /products</code> — „დაამატე ახალი პროდუქტი“. მისამართში id არ არის — ჯერ არ არსებობს!</p>
+<div class="codebox"><div class="ch"><span>Request body</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="p">{</span><span class="w"> </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ყურსასმენი"</span><span class="p">,</span><span class="w"> </span><span class="nt">"price"</span><span class="p">:</span><span class="w"> </span><span class="mi">180</span><span class="w"> </span><span class="p">}</span></span></code></pre></div>
+<p>ცხრილში ახალი ხაზი ჩნდება, #4. <strong>Id-ს სერვერი ანიჭებს, არა კლიენტი.</strong> პასუხი: <strong>201 Created</strong> + ახალი ჩანაწერი. SQL-ში — <code>INSERT</code>.</p>
+<div class="selfcheck"><div class="sh">✅ შეამოწმე თავი <small>დაფიქრდი, მერე გახსენი პასუხი</small></div><details><summary>ერთსა და იმავე POST-ს ორჯერ რომ გავგზავნოთ — რა მოხდება?</summary><div class="ans">ორი ახალი პროდუქტი შეიქმნება (#4 და #5) — POST ყოველ ჯერზე ახალს ქმნის</div></details></div></article>
+<article class="blk" data-slides="27"><span class="anchor" id="s-27"></span><div class="bh"><h3>PUT — მთლიანი ჩანაცვლება 🔄</h3><a class="chip" href="index.html#/27" data-go="27" title="პრეზენტაციაში გახსნა">სლაიდი 27</a></div>
+<p><code>PUT /products/2</code> — „პროდუქტი #2 შეცვალე ამით“:</p>
+<div class="codebox"><div class="ch"><span>Request body — სრული ობიექტი</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="p">{</span><span class="w"> </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"მაუსი Pro"</span><span class="p">,</span><span class="w"> </span><span class="nt">"price"</span><span class="p">:</span><span class="w"> </span><span class="mi">60</span><span class="w"> </span><span class="p">}</span></span></code></pre></div>
+<p>მეორე ხაზი მთლიანად ახლით იცვლება. <strong>PUT-ში ყველა ველს აგზავნი</strong>, თუნდაც ერთი იცვლებოდეს — როგორც ფორმის თავიდან შევსება. პასუხი: <strong>204 No Content</strong> („შევასრულე, დასაბრუნებელი არაფერი მაქვს“) ან 200. SQL-ში — <code>UPDATE</code>.</p></article>
+<article class="blk" data-slides="28"><span class="anchor" id="s-28"></span><div class="bh"><h3>PATCH — ნაწილობრივი შეცვლა ✏️</h3><a class="chip" href="index.html#/28" data-go="28" title="პრეზენტაციაში გახსნა">სლაიდი 28</a></div>
+<p><code>PATCH /products/2</code> — „პროდუქტ #2-ს მხოლოდ ფასი შეუცვალე“:</p>
+<div class="codebox"><div class="ch"><span>Request body — მხოლოდ ის, რაც იცვლება</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="p">{</span><span class="w"> </span><span class="nt">"price"</span><span class="p">:</span><span class="w"> </span><span class="mi">39</span><span class="w"> </span><span class="p">}</span></span></code></pre></div>
+<p>იცვლება მხოლოდ ერთი უჯრა, სახელი ხელუხლებელი რჩება. მოსახერხებელია, როცა ობიექტი დიდია და ერთი ველი იცვლება.</p>
+<p><strong>PUT</strong> — მთელი ფორმა თავიდან; <strong>PATCH</strong> — მხოლოდ ერთი ველის გასწორება. პროფილში მხოლოდ ფოტოს თუ ცვლი — PATCH.</p></article>
+<article class="blk" data-slides="29"><span class="anchor" id="s-29"></span><div class="bh"><h3>DELETE — წაშლა 🗑️</h3><a class="chip" href="index.html#/29" data-go="29" title="პრეზენტაციაში გახსნა">სლაიდი 29</a></div>
+<p><code>DELETE /products/3</code> — „წაშალე პროდუქტი #3“. <strong>Body არ სჭირდება</strong> — მისამართშივე ჩანს, რომელი. პასუხი: <strong>204 No Content</strong>. SQL-ში — <code>DELETE</code>.</p>
+<p>უკვე წაშლილს თუ ისევ წაშლი → <strong>404 Not Found</strong>.</p></article>
+<article class="blk" data-slides="30,31"><span class="anchor" id="s-30"></span><span class="anchor" id="s-31"></span><div class="bh"><h3>REST — 5 მეთოდი ერთ ცხრილში</h3><a class="chip" href="index.html#/30" data-go="30" title="პრეზენტაციაში გახსნა">სლაიდი 30</a></div>
+<table>
+<thead>
+<tr>
+<th>მეთოდი</th>
+<th>მაგალითი</th>
+<th>რას აკეთებს</th>
+<th>SQL-ში</th>
+<th>წარმატებისას</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>GET</td>
+<td><code>/products</code></td>
+<td>სია</td>
+<td><code>SELECT</code></td>
+<td>200</td>
+</tr>
+<tr>
+<td>GET</td>
+<td><code>/products/2</code></td>
+<td>ერთი</td>
+<td><code>SELECT … WHERE</code></td>
+<td>200 / 404</td>
+</tr>
+<tr>
+<td>POST</td>
+<td><code>/products</code></td>
+<td>შექმნა</td>
+<td><code>INSERT</code></td>
+<td>201</td>
+</tr>
+<tr>
+<td>PUT</td>
+<td><code>/products/2</code></td>
+<td>მთლიანად შეცვლა</td>
+<td><code>UPDATE</code> (ყველა ველი)</td>
+<td>204</td>
+</tr>
+<tr>
+<td>PATCH</td>
+<td><code>/products/2</code></td>
+<td>ნაწილობრივ შეცვლა</td>
+<td><code>UPDATE</code> (ერთი ველი)</td>
+<td>204</td>
+</tr>
+<tr>
+<td>DELETE</td>
+<td><code>/products/2</code></td>
+<td>წაშლა</td>
+<td><code>DELETE</code></td>
+<td>204 / 404</td>
+</tr>
+</tbody>
+</table>
+<p>ეს ცხრილი ჩაიწერე — მთელ კურსზე დაგჭირდება.</p>
+<div class="prompt"><div class="ph"><span>🤖 REST-ის ვარჯიში</span><button class="copy" type="button">კოპირება</button></div><div class="pb">ვსწავლობ REST API-ს. მომეცი 6 სიტუაცია ონლაინ ბიბლიოთეკიდან (მაგ. „წიგნის ფასის შეცვლა“, „ყველა ავტორის ნახვა“).
+თითოეულზე მე დავწერ HTTP მეთოდს, მისამართს და წარმატების სტატუს კოდს — შენ შემისწორე და ამიხსენი შეცდომები. სათითაოდ, ქართულად.</div></div></article>
+<h2 class="sec" id="sec-7">5 · .NET</h2>
+<article class="blk" data-slides="32"><span class="anchor" id="s-32"></span><div class="bh"><h3>ნაწილი 5 · API .NET-ში</h3><a class="chip" href="index.html#/32" data-go="32" title="პრეზენტაციაში გახსნა">სლაიდი 32</a></div>
+<p>თეორია დავასრულეთ. რა ხელსაწყოები გვაქვს, რომ ეს ყველაფერი C#-ში დავწეროთ?</p></article>
+<article class="blk" data-slides="33"><span class="anchor" id="s-33"></span><div class="bh"><h3>მოკლე ისტორია</h3><a class="chip" href="index.html#/33" data-go="33" title="პრეზენტაციაში გახსნა">სლაიდი 33</a></div>
+<table>
+<thead>
+<tr>
+<th>წელი</th>
+<th>ტექნოლოგია</th>
+<th>იდეა</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1996</td>
+<td>Classic ASP</td>
+<td>HTML და კოდი ერთად, არეულად</td>
+</tr>
+<tr>
+<td>2002</td>
+<td>ASP.NET Web Forms</td>
+<td>C#, „ვები როგორც Windows“ — ღილაკის გადმოთრევით</td>
+</tr>
+<tr>
+<td>2009</td>
+<td>ASP.NET MVC</td>
+<td>მოწესრიგებული კოდი, ნაწილებად დაყოფილი</td>
+</tr>
+<tr>
+<td>2012</td>
+<td>ASP.NET Web API</td>
+<td>JSON — სმარტფონებისთვის</td>
+</tr>
+<tr>
+<td>2016</td>
+<td><strong>ASP.NET Core</strong></td>
+<td>ახალი, სწრაფი, Windows-ზეც, Linux-ზეც, Mac-ზეც</td>
+</tr>
+</tbody>
+</table>
+<p>დღეს ვიყენებთ <strong>ASP.NET Core</strong>-ს, .NET 10-ზე.</p></article>
+<article class="blk" data-slides="34"><span class="anchor" id="s-34"></span><div class="bh"><h3>ASP.NET Core — პროექტის ტიპები</h3><a class="chip" href="index.html#/34" data-go="34" title="პრეზენტაციაში გახსნა">სლაიდი 34</a></div>
+<ul>
+<li>🔺 <strong>MVC</strong> — სერვერი აწყობს მთლიან HTML გვერდს; კოდი Model / View / Controller-ად იყოფა. აბრუნებს: HTML — მხოლოდ ბრაუზერისთვის.</li>
+<li>📄 <strong>Razor Pages</strong> — ყოველი გვერდი = ერთი ფაილი + მისი კოდი; მარტივი ფორმებისთვის. აბრუნებს: HTML.</li>
+<li>🔌 <strong>Web API</strong> — გვერდს საერთოდ არ ხატავს, აბრუნებს <strong>მხოლოდ მონაცემს — JSON-ს</strong>.</li>
+</ul></article>
+<article class="blk" data-slides="35"><span class="anchor" id="s-35"></span><div class="bh"><h3>ჩვენი არჩევანი: ASP.NET Core Web API</h3><a class="chip" href="index.html#/35" data-go="35" title="პრეზენტაციაში გახსნა">სლაიდი 35</a></div>
+<p>MVC და Razor Pages HTML-ს აბრუნებენ — ის მხოლოდ ბრაუზერს გამოადგება. Web API კი JSON-ს აბრუნებს, და მას იყენებს Angular/React საიტიც, მობილური აპიც, სხვა სისტემაც.</p>
+<p>რატომ Web API:</p>
+<ol>
+<li>ასე მუშაობს თანამედროვე კომპანიების უმეტესობა.</li>
+<li>Frontend-ს (Angular/React) ცალკე ააწყობ და ამ API-ს მიუერთებ.</li>
+<li>ვაკანსიებში „.NET Developer“ ძირითადად სწორედ ამას ნიშნავს.</li>
+</ol></article>
+<h2 class="sec" id="sec-8">6 · პრაქტიკა</h2>
+<article class="blk" data-slides="36"><span class="anchor" id="s-36"></span><div class="bh"><h3>ნაწილი 6 · პრაქტიკა: Visual Studio</h3><a class="chip" href="index.html#/36" data-go="36" title="პრეზენტაციაში გახსნა">სლაიდი 36</a></div>
+<p>ვქმნით პროექტს და ვწერთ პირველ endpoint-ს.</p></article>
+<article class="blk" data-slides="37"><span class="anchor" id="s-37"></span><div class="bh"><h3>ნაბიჯი 1 · ახალი პროექტი</h3><a class="chip" href="index.html#/37" data-go="37" title="პრეზენტაციაში გახსნა">სლაიდი 37</a></div>
+<ol>
+<li><strong>Create a new project</strong></li>
+<li>ძებნა: <strong>ASP.NET Core Web API</strong></li>
+<li>სახელი: <strong>ProductsApi</strong></li>
+<li>Framework: <strong>.NET 10</strong></li>
+<li><strong>Create</strong> → ▶ გაშვება (<strong>F5</strong>)</li>
+</ol>
+<p><strong>Additional information</strong> ფანჯარაში: Framework — .NET 10.0 (LTS), Authentication — None, ☑ Configure for HTTPS, ☑ Enable OpenAPI support.</p>
+<div class="callout warn"><span class="ci">⚠️</span><div><p>„Use controllers“ — <strong>მოხსნილი</strong> უნდა იყოს. დღეს Minimal API-ით ვწერთ (endpoint-ები პირდაპირ Program.cs-ში). Controller-ებს შემდეგ ლექციაზე ვნახავთ.</p></div></div></article>
+<article class="blk" data-slides="38"><span class="anchor" id="s-38"></span><div class="bh"><h3>ნაბიჯი 2 · რა შეიქმნა?</h3><a class="chip" href="index.html#/38" data-go="38" title="პრეზენტაციაში გახსნა">სლაიდი 38</a></div>
+<div class="codebox"><div class="ch"><span>plain</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln">📁 ProductsApi</span><span class="ln"> ├ 📁 Properties</span><span class="ln"> ├ 📄 appsettings.json</span><span class="ln"> ├ 📄 Program.cs ⭐</span><span class="ln"> └ 📄 ProductsApi.http</span></code></pre></div>
+<ul>
+<li><strong>Program.cs</strong> — აპლიკაციის „გული“. აქ ვწერთ endpoint-ებს. დღეს მხოლოდ ეს გვჭირდება.</li>
+<li><strong>appsettings.json</strong> — პარამეტრები (მაგ. ბაზასთან კავშირი — მოგვიანებით).</li>
+<li><strong>.http ფაილი</strong> — აქედან ვგზავნით მოთხოვნებს და ვამოწმებთ API-ს.</li>
+</ul></article>
+<article class="blk" data-slides="39"><span class="anchor" id="s-39"></span><div class="bh"><h3>ნაბიჯი 3 · პირველი endpoint</h3><a class="chip" href="index.html#/39" data-go="39" title="პრეზენტაციაში გახსნა">სლაიდი 39</a></div>
+<p>Program.cs-ის შიგთავსს ვშლით და ვწერთ:</p>
+<div class="codebox"><div class="ch"><span>Program.cs</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="kt">var</span><span class="w"> </span><span class="n">builder</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">WebApplication</span><span class="p">.</span><span class="n">CreateBuilder</span><span class="p">(</span><span class="n">args</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="kt">var</span><span class="w"> </span><span class="n">app</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">builder</span><span class="p">.</span><span class="n">Build</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="kt">var</span><span class="w"> </span><span class="n">products</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">List</span><span class="o">&lt;</span><span class="n">Product</span><span class="o">&gt;</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="k">new</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="s">"ლეპტოპი"</span><span class="p">,</span><span class="w"> </span><span class="mi">2400</span><span class="p">)</span><span class="p">,</span></span><span class="ln"><span class="w">    </span><span class="k">new</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="s">"მაუსი"</span><span class="p">,</span><span class="w"> </span><span class="mi">45</span><span class="p">)</span><span class="p">,</span></span><span class="ln"><span class="p">}</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="n">app</span><span class="p">.</span><span class="n">MapGet</span><span class="p">(</span><span class="s">"/api/products"</span><span class="p">,</span><span class="w"> </span><span class="p">(</span><span class="p">)</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">products</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="n">app</span><span class="p">.</span><span class="n">Run</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="k">record</span><span class="w"> </span><span class="nf">Product</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">Id</span><span class="p">,</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="n">Name</span><span class="p">,</span><span class="w"> </span><span class="kt">decimal</span><span class="w"> </span><span class="n">Price</span><span class="p">)</span><span class="p">;</span></span></code></pre></div>
+<ul>
+<li><strong>ხაზები 1–2</strong> — აპლიკაციის შექმნა. ასე ყოველთვის იწყება.</li>
+<li><strong>მონაცემი</strong> — ბაზა ჯერ არ გვაქვს, ამიტომ უბრალო სიას ვიყენებთ. <code>record Product</code> — მოკლე ჩანაწერი: Id, Name, Price.</li>
+<li><strong><code>app.MapGet</code></strong> — ჩვენი პირველი endpoint: GET მოთხოვნა ამ მისამართზე → დააბრუნე სია.</li>
+<li><strong><code>app.Run()</code></strong> — სერვერი იწყებს მოთხოვნების მიღებას.</li>
+</ul></article>
+<article class="blk" data-slides="40"><span class="anchor" id="s-40"></span><div class="bh"><h3>ერთი ხაზის ანატომია</h3><a class="chip" href="index.html#/40" data-go="40" title="პრეზენტაციაში გახსნა">სლაიდი 40</a></div>
+<div class="codebox"><div class="ch"><span>csharp</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="n">app</span><span class="p">.</span><span class="n">MapGet</span><span class="p">(</span><span class="s">"/api/products"</span><span class="p">,</span><span class="w"> </span><span class="p">(</span><span class="p">)</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">products</span><span class="p">)</span><span class="p">;</span></span></code></pre></div>
+<table>
+<thead>
+<tr>
+<th>ნაწილი</th>
+<th>მნიშვნელობა</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>MapGet</code></td>
+<td>REST მეთოდი: <strong>GET</strong> — „წაკითხვა“</td>
+</tr>
+<tr>
+<td><code>"/api/products"</code></td>
+<td>მისამართი — <strong>რესურსი</strong></td>
+</tr>
+<tr>
+<td><code>() =&gt; products</code></td>
+<td>რა გავაკეთოთ და რა დავაბრუნოთ — ფუნქცია, რომელსაც endpoint იძახებს</td>
+</tr>
+</tbody>
+</table>
+<p>REST-ის ცოდნა პირდაპირ კოდად იქცა: <strong>მეთოდი + რესურსი + პასუხი</strong>.</p>
+<div class="terms"><div class="th">📘 ტერმინები</div><dl><dt>() =&gt; products</dt><dd>lambda: მოკლე, უსახელო ფუნქცია; ფრჩხილებში პარამეტრები, =&gt; შემდეგ — რას აბრუნებს</dd></dl></div></article>
+<article class="blk" data-slides="41"><span class="anchor" id="s-41"></span><div class="bh"><h3>ნაბიჯი 4 · ვამოწმებთ 🎉</h3><a class="chip" href="index.html#/41" data-go="41" title="პრეზენტაციაში გახსნა">სლაიდი 41</a></div>
+<p><code>.http</code> ფაილში (პორტი ყველას თავისი აქვს — Visual Studio თვითონ ჩაწერს):</p>
+<div class="codebox"><div class="ch"><span>ProductsApi.http</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="err">G</span><span class="err">E</span><span class="err">T</span><span class="err"> </span><span class="err">h</span><span class="err">t</span><span class="err">t</span><span class="err">p</span><span class="err">s</span><span class="err">:</span><span class="err">/</span><span class="err">/</span><span class="err">l</span><span class="err">o</span><span class="err">c</span><span class="err">a</span><span class="err">l</span><span class="err">h</span><span class="err">o</span><span class="err">s</span><span class="err">t</span><span class="err">:</span><span class="err">7</span><span class="err">0</span><span class="err">0</span><span class="err">1</span><span class="err">/</span><span class="err">a</span><span class="err">p</span><span class="err">i</span><span class="err">/</span><span class="err">p</span><span class="err">r</span><span class="err">o</span><span class="err">d</span><span class="err">u</span><span class="err">c</span><span class="err">t</span><span class="err">s</span></span></code></pre></div>
+<p><strong>Send Request</strong> → პასუხი:</p>
+<div class="codebox"><div class="ch"><span>HTTP/1.1 200 OK</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="p">[</span></span><span class="ln"><span class="w">  </span><span class="p">{</span><span class="w"> </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ლეპტოპი"</span><span class="p">,</span><span class="w"> </span><span class="nt">"price"</span><span class="p">:</span><span class="w"> </span><span class="mi">2400</span><span class="w"> </span><span class="p">},</span></span><span class="ln"><span class="w">  </span><span class="p">{</span><span class="w"> </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"მაუსი"</span><span class="p">,</span><span class="w"> </span><span class="nt">"price"</span><span class="p">:</span><span class="w"> </span><span class="mi">45</span><span class="w"> </span><span class="p">}</span></span><span class="ln"><span class="p">]</span></span></code></pre></div>
+<p>ან უბრალოდ ბრაუზერში აკრიფე მისამართი — ესეც GET მოთხოვნაა!</p>
+<div class="callout note"><span class="ci">💡</span><div><p>C#-ში <code>Name</code> დიდი ასოთი დავწერეთ, JSON-ში კი <code>name</code> პატარით მოვიდა. ASP.NET Core JSON-ში სახელებს ავტომატურად ასე წერს (camelCase) — JavaScript-ში ასეა მიღებული.</p></div></div></article>
+<article class="blk" data-slides="42"><span class="anchor" id="s-42"></span><div class="bh"><h3>შემდეგი ნაბიჯები: 5 მეთოდი = 5 Map</h3><a class="chip" href="index.html#/42" data-go="42" title="პრეზენტაციაში გახსნა">სლაიდი 42</a></div>
+<table>
+<thead>
+<tr>
+<th>Map</th>
+<th>რას აკეთებს</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>MapGet("/api/products", …)</code></td>
+<td>წაკითხვა</td>
+</tr>
+<tr>
+<td><code>MapPost("/api/products", …)</code></td>
+<td>შექმნა</td>
+</tr>
+<tr>
+<td><code>MapPut("/api/products/{id}", …)</code></td>
+<td>მთლიანად შეცვლა</td>
+</tr>
+<tr>
+<td><code>MapPatch("/api/products/{id}", …)</code></td>
+<td>ნაწილობრივ შეცვლა</td>
+</tr>
+<tr>
+<td><code>MapDelete("/api/products/{id}", …)</code></td>
+<td>წაშლა</td>
+</tr>
+</tbody>
+</table>
+<p><code>{id}</code> მისამართში ნიშნავს: აქ კონკრეტული ნომერი ჩაჯდება. დანარჩენ ოთხს შემდეგ ლექციებზე დავწერთ.</p></article>
+<h2 class="sec" id="sec-9">პრაქტიკა</h2>
+<article class="blk" data-slides="43"><span class="anchor" id="s-43"></span><div class="bh"><h3>კლასში დავალება: ProductsApi — კიდევ ორი endpoint</h3><a class="chip" href="index.html#/43" data-go="43" title="პრეზენტაციაში გახსნა">სლაიდი 43</a></div>
+<p>დავალება · თქვენი ProductsApi</p>
+<h3>ნაბიჯები</h3>
+<ul>
+<li>ProductsApi შექმენით და გაუშვით, როგორც ლექციაზე (.NET 10, „Use controllers“ მოხსნილი)</li>
+<li>სიას დაამატეთ კიდევ 2 პროდუქტი</li>
+<li><code>GET /api/products/count</code> — რამდენი პროდუქტია</li>
+<li><code>GET /api/products/expensive</code> — მხოლოდ ის, რომელთა ფასი 100-ზე მეტია (LINQ <code>Where</code>)</li>
+<li>ყველა endpoint შეამოწმეთ <code>.http</code> ფაილით <strong>და</strong> ბრაუზერით</li>
+</ul>
+<h3>✓ მზადაა, როცა</h3>
+<p><code>.http</code> ფაილიდან სამივე მოთხოვნა 200-ს აბრუნებს, და ბრაუზერშიც იგივე JSON ჩანს</p>
+<h3>⭐ ბონუსი</h3>
+<ul>
+<li><code>GET /api/products/cheapest</code> — ყველაზე იაფი პროდუქტი (<code>OrderBy</code> + <code>First</code>)</li>
+<li><code>GET /api/products/total</code> — ყველა პროდუქტის ფასების ჯამი</li>
+</ul>
+<h3>💡 მინიშნება</h3>
+<div class="codebox"><div class="ch"><span>csharp</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="n">app</span><span class="p">.</span><span class="n">MapGet</span><span class="p">(</span><span class="s">"/api/products/count"</span><span class="p">,</span><span class="w"> </span><span class="p">(</span><span class="p">)</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">products</span><span class="p">.</span><span class="n">Count</span><span class="p">)</span><span class="p">;</span></span></code></pre></div>
+<p>ახალი endpoint <code>app.Run()</code>-ის <strong>ზემოთ</strong> უნდა დაწეროთ — მის ქვემოთ დაწერილი კოდი აღარ შესრულდება.</p></article>
+<h2 class="sec" id="sec-10">შეჯამება</h2>
+<article class="blk" data-slides="44"><span class="anchor" id="s-44"></span><div class="bh"><h3>შეამოწმე, რა დაგამახსოვრდა</h3><a class="chip" href="index.html#/44" data-go="44" title="პრეზენტაციაში გახსნა">სლაიდი 44</a></div>
+<p>ეს კითხვები შემდეგი ლექციის დასაწყისშიც დაისმება.</p>
+<div class="selfcheck"><div class="sh">✅ შეამოწმე თავი <small>დაფიქრდი, მერე გახსენი პასუხი</small></div><details><summary>რატომ ვერ იცხოვრებს ონლაინ მაღაზია მხოლოდ ბრაუზერში?</summary><div class="ans">მონაცემი და წესები ყველასთვის საერთო უნდა იყოს და დაცული — ეს Backend-ის საქმეა</div></details><details><summary>რა არის Endpoint?</summary><div class="ans">მეთოდი + მისამართი, რომელიც Backend-ში კონკრეტულ ფუნქციას იძახებს</div></details><details><summary>რომელი მეთოდით შევქმნით ახალ მომხმარებელს?</summary><div class="ans"><code>POST /users</code> → 201 Created</div></details><details><summary>PUT და PATCH — რა განსხვავებაა?</summary><div class="ans">PUT მთლიანად ცვლის, PATCH — მხოლოდ გაგზავნილ ველებს</div></details><details><summary>რას ნიშნავს 404?</summary><div class="ans">მოთხოვნილი რესურსი ვერ მოიძებნა (4xx = კლიენტის შეცდომა)</div></details></div></article>
+<article class="blk" data-slides="45"><span class="anchor" id="s-45"></span><div class="bh"><h3>შეჯამება · დღეს ვისწავლეთ</h3><a class="chip" href="index.html#/45" data-go="45" title="პრეზენტაციაში გახსნა">სლაიდი 45</a></div>
+<ul>
+<li>⚙️ <strong>Backend</strong> — საერთო ადგილი მონაცემისა და წესებისთვის.</li>
+<li>🤵 <strong>API</strong> — „მიმტანი“, რომელიც Endpoint-ებისგან შედგება.</li>
+<li>🌐 <strong>Request → Response</strong>, JSON და სტატუს კოდები.</li>
+<li>📮 <strong>REST</strong> — რესურსი + 5 მეთოდი: GET, POST, PUT, PATCH, DELETE.</li>
+<li>🔌 <strong>ASP.NET Core Web API</strong> — და ჩვენი პირველი <code>MapGet</code>.</li>
+</ul>
+<div class="prompt"><div class="ph"><span>🤖 გამოცდა პირველ ლექციაზე</span><button class="copy" type="button">კოპირება</button></div><div class="pb">ვსწავლობ Backend-ს ASP.NET Core-ზე. პირველ ლექციაზე გავიარეთ: რა არის Backend და Frontend, API და Endpoint, HTTP Request/Response, JSON, სტატუს კოდები (2xx/4xx/5xx), REST და 5 მეთოდი (GET, POST, PUT, PATCH, DELETE), Minimal API და MapGet.
+დამისვი 8 კითხვა სათითაოდ, მარტივიდან რთულისკენ. ყოველ პასუხზე შემიფასე და ამიხსენი. ბოლოს მითხარი, რა გავიმეორო. ქართულად.</div></div></article>
+<h2 class="sec" id="sec-11">საშინაო</h2>
+<article class="blk" data-slides="46"><span class="anchor" id="s-46"></span><div class="bh"><h3>საშინაო დავალება: კატეგორიები და REST ცხრილი</h3><a class="chip" href="index.html#/46" data-go="46" title="პრეზენტაციაში გახსნა">სლაიდი 46</a></div>
+<p>ProductsApi + ერთი თეორიული ცხრილი</p>
+<h3>მოთხოვნები</h3>
+<ul>
+<li><code>record Category(int Id, string Name)</code> და სია 3-4 კატეგორიით</li>
+<li><code>GET /api/categories</code> — კატეგორიების სია</li>
+<li>შეამოწმეთ <code>.http</code> ფაილით: 200 და JSON</li>
+<li>ცხრილი (რვეულში ან ფაილში): Category-ს 5 REST endpoint — მეთოდი, მისამართი, წარმატების სტატუს კოდი</li>
+</ul>
+<h3>✓ მზადაა, როცა</h3>
+<p><code>.http</code> ფაილიდან <code>GET /api/categories</code> 200-ს აბრუნებს, და ცხრილში ხუთივე ხაზი წერია</p>
+<h3>⭐ ბონუსი</h3>
+<ul>
+<li><code>GET /api/categories/count</code> — კატეგორიების რაოდენობა</li>
+</ul></article>
+  </main>
+</div>
+<script>
+const DECK = "ASP.NET · 1 — Backend, API, REST და პირველი Web API";
+if (matchMedia('(min-width:981px)').matches) document.getElementById('tocd').open = true;
+const blocks = [...document.querySelectorAll('.blk')];
+const tocLinks = [...document.querySelectorAll('nav.toc a[href^="#sec-"]')];
+const secOf = b => { let e = b; while (e && !(e.matches && e.matches('h2.sec'))) e = e.previousElementSibling; return e; };
+function mark(b, toc_only) {
+  if (!toc_only) blocks.forEach(x => x.classList.toggle('cur', x === b));
+  const s = b && secOf(b); tocLinks.forEach(a => a.classList.toggle('cur', s && a.getAttribute('href') === '#' + s.id));
+}
+const blockFor = n => blocks.find(b => b.dataset.slides.split(',').includes(String(n)));
+
+// copy buttons (code: one line per .ln)
+document.addEventListener('click', e => {
+  const btn = e.target.closest('.copy'); if (!btn) return;
+  const box = btn.closest('.codebox, .prompt');
+  const text = box.matches('.prompt') ? box.querySelector('.pb').textContent : [...box.querySelectorAll('.ln')].map(l => l.textContent).join('\n');
+  navigator.clipboard.writeText(text).then(() => { btn.textContent = '✓ დაკოპირდა'; btn.classList.add('ok'); setTimeout(() => { btn.textContent = 'კოპირება'; btn.classList.remove('ok'); }, 1600); });
+});
+
+// live mode: opened from the deck with P — follow the projector
+const live = new URLSearchParams(location.search).has('live');
+let follow = true, bc = null;
+const liveBtn = document.getElementById('live');
+if (live) {
+  try { bc = new BroadcastChannel('deck-' + DECK); } catch (e) {}
+  liveBtn.classList.add('on');
+  liveBtn.onclick = () => { follow = !follow; liveBtn.classList.toggle('off', !follow); liveBtn.querySelector('.lt').textContent = follow ? 'მიჰყვება სლაიდებს' : 'თავისუფლად ვკითხულობ'; };
+  if (bc) {
+    bc.onmessage = ({ data }) => {
+      if (data.t !== 'state' || !follow) return;
+      const b = blockFor(data.i + 1); if (!b || b.classList.contains('cur')) return;
+      mark(b); b.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    };
+    bc.postMessage({ t: 'hello' });
+  }
+  document.addEventListener('click', e => {   // slide chip → move the projector deck
+    const c = e.target.closest('.chip[data-go]'); if (!c || !bc) return;
+    e.preventDefault(); bc.postMessage({ t: 'go', n: +c.dataset.go - 1 });
+  });
+}
+// deep link #s-12
+const h = location.hash.match(/^#s-(\d+)$/);
+if (h) { const b = blockFor(+h[1]); if (b) { mark(b); setTimeout(() => b.scrollIntoView({ block: 'start' }), 50); } }
+// highlight section in the TOC while reading
+const io = new IntersectionObserver(es => es.forEach(x => { if (x.isIntersecting && !(live && follow)) mark(x.target, true); }), { rootMargin: '-30% 0px -60% 0px' });
+blocks.forEach(b => io.observe(b));
+</script>
+</body></html>

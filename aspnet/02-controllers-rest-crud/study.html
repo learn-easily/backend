@@ -1,0 +1,783 @@
+<!doctype html>
+<html lang="ka"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>📖 Minimal API vs Controller, REST, CRUD და Swagger — კონსპექტი</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Georgian:wght@400;600;700;800&family=JetBrains+Mono:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#fbf8f3;--card:#fff;--ink:#1e2132;--ink2:#3b3f54;--muted:#7b8096;--line:#e6dfd2;--accent:#6d28d9;--accent-soft:#f3effe;--teal:#0d9488;
+  --green:#15803d;--amber:#b45309;--mono:"JetBrains Mono",ui-monospace,monospace;--sans:"Noto Sans Georgian",system-ui,sans-serif}
+*{box-sizing:border-box}
+html{scroll-padding-top:76px}
+body{margin:0;background:var(--bg);color:var(--ink);font:17.5px/1.75 var(--sans);-webkit-font-smoothing:antialiased}
+a{color:var(--accent)}
+/* top bar */
+.top{position:sticky;top:0;z-index:10;display:flex;align-items:center;gap:14px;padding:10px 20px;background:rgba(251,248,243,.92);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.top .back{font:600 14px var(--mono);color:var(--muted);text-decoration:none;white-space:nowrap}
+.top .back:hover{color:var(--ink)}
+.top .ttl{flex:1;min-width:0;font-weight:700;font-size:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.top .ttl small{font:500 13px var(--mono);color:var(--muted);margin-right:8px}
+.btn{font:700 14px var(--sans);text-decoration:none;border-radius:10px;padding:7px 14px;white-space:nowrap;border:1px solid var(--line);color:var(--ink);background:var(--card);cursor:pointer}
+.btn.play{background:var(--accent);border-color:var(--accent);color:#fff}
+.live{display:none;align-items:center;gap:8px;font:600 13px var(--mono);color:var(--teal);background:#e6f6f4;border:1px solid #bfe7e2;border-radius:999px;padding:5px 12px;cursor:pointer}
+.live.on{display:flex}
+.live .dot{width:8px;height:8px;border-radius:50%;background:var(--teal);animation:pulse 1.6s infinite}
+.live.off{color:var(--muted);background:var(--card);border-color:var(--line)}.live.off .dot{background:var(--muted);animation:none}
+@keyframes pulse{50%{opacity:.3}}
+/* layout */
+.wrap{display:grid;grid-template-columns:230px minmax(0,1000px);gap:44px;justify-content:center;padding:32px 28px 120px}
+nav.toc{position:sticky;top:84px;align-self:start;font-size:14px;line-height:1.45}
+nav.toc .h{font:700 12px var(--mono);color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px}
+nav.toc a{display:block;color:var(--ink2);text-decoration:none;padding:6px 10px;border-left:2px solid var(--line)}
+nav.toc a:hover{color:var(--accent)}
+nav.toc a.cur{color:var(--accent);border-left-color:var(--accent);font-weight:700}
+nav.toc .mats{margin-top:22px;display:flex;flex-direction:column;gap:6px}
+nav.toc .mats a{border:0;padding:2px 0;font:500 13px var(--mono);color:var(--teal);word-break:break-all}
+header.hero{margin-bottom:8px}
+header.hero .k{font:600 14px var(--mono);color:var(--accent)}
+header.hero h1{font-size:38px;line-height:1.2;margin:6px 0 10px;letter-spacing:-.01em}
+header.hero p{color:var(--muted);margin:0;font-size:15.5px}
+header.hero kbd{font:500 12px var(--mono);border:1px solid var(--line);border-radius:5px;padding:0 5px;background:var(--card)}
+h2.sec{font-size:15px;font:700 13px var(--mono);color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin:48px 0 6px;padding-top:18px;border-top:1px solid var(--line)}
+/* blocks */
+.blk{position:relative;padding:14px 0 6px 22px;margin-left:-22px;border-left:3px solid transparent;transition:border-color .3s,background .3s;border-radius:0 12px 12px 0}
+.blk.cur{border-left-color:var(--accent);background:linear-gradient(90deg,var(--accent-soft),transparent 70%)}
+.anchor{position:absolute;top:0}
+.bh{display:flex;align-items:baseline;justify-content:space-between;gap:12px}
+.bh h3{font-size:22px;line-height:1.35;margin:4px 0 6px}
+.chip{flex:none;font:600 12px var(--mono);color:var(--muted);text-decoration:none;border:1px solid var(--line);border-radius:999px;padding:2px 10px;background:var(--card)}
+.chip:hover{color:var(--accent);border-color:var(--accent)}
+.blk h2{font-size:26px;line-height:1.3;margin:6px 0 10px}
+.blk h3:not(.bh h3){font-size:19px;margin:22px 0 6px}
+.blk h4{font-size:17px;margin:18px 0 4px}
+.blk p{margin:10px 0}
+.blk ul,.blk ol{padding-left:24px;margin:8px 0}
+.blk li{margin:4px 0}
+.blk strong{color:var(--ink)}
+.blk :not(pre)>code{font:600 .86em var(--mono);background:#f1ece3;border-radius:6px;padding:1px 6px;color:#5b21b6}
+.blk table{border-collapse:collapse;margin:14px 0;font-size:15.5px;width:100%;display:block;overflow-x:auto}
+.blk th,.blk td{border:1px solid var(--line);padding:8px 12px;text-align:left;vertical-align:top}
+.blk th{background:#f6f1e8}
+/* code */
+.codebox{margin:14px 0;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:#fffdf9}
+.codebox .ch,.prompt .ph{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:6px 8px 6px 14px;font:600 12.5px var(--mono);color:var(--muted);background:#f6f1e8;border-bottom:1px solid var(--line)}
+.copy{font:600 12px var(--mono);border:1px solid var(--line);background:var(--card);color:var(--ink2);border-radius:7px;padding:3px 10px;cursor:pointer}
+.copy:hover{border-color:var(--ink)}
+.copy.ok{color:var(--green);border-color:var(--green)}
+pre.code{margin:0;padding:12px 0;overflow-x:auto;font:14px/1.65 var(--mono)}
+pre.code .ln{display:block;padding:0 16px;white-space:pre}
+.code .ttl{background:var(--bg2);color:var(--muted)}
+.code .ln.hl{background:rgba(109,40,217,.07);box-shadow:inset 3px 0 0 var(--net)}
+.code .ln.dim{opacity:.42}
+.code .k,.code .kd,.code .kn,.code .kr,.code .kc{color:#7c3aed}
+.code .kt{color:#2563eb}
+.code .s,.code .s1,.code .s2,.code .sa,.code .se,.code .si,.code .sd{color:#15803d}
+.code .c,.code .c1,.code .cm,.code .cp,.code .ch{color:#8b8fa3}
+.code .m,.code .mi,.code .mf,.code .mh{color:#c2410c}
+.code .nf,.code .fm{color:#1d4ed8}
+.code .nc,.code .nn,.code .nt,.code .nd{color:#b45309}
+.code .na{color:#7c3aed} .code .nb{color:#0e7490}
+.code .o,.code .p{color:#64748b}
+.code .nv,.code .nx{color:var(--ink)}
+.code .go{color:#64748b}
+/* prompt */
+.prompt{margin:16px 0;border:1px solid #ddd2fb;border-radius:12px;overflow:hidden;background:var(--accent-soft)}
+.prompt .ph{background:#ebe3fd;border-color:#ddd2fb;color:var(--accent)}
+.prompt .pb{padding:12px 16px;white-space:pre-wrap;font-size:15.5px;line-height:1.6;color:var(--ink2)}
+/* self check */
+.selfcheck{margin:16px 0;border:1px solid #cfe9d6;border-radius:12px;background:#f3fbf5;padding:12px 16px}
+.selfcheck .sh{font-weight:700;color:var(--green);margin-bottom:6px}
+.selfcheck .sh small{font-weight:400;color:var(--muted);font-size:13.5px;margin-left:6px}
+.selfcheck details{border-top:1px solid #dcefe1;padding:8px 0}
+.selfcheck summary{cursor:pointer;font-weight:600;list-style:none;padding-left:26px;position:relative}
+.selfcheck summary::-webkit-details-marker{display:none}
+.selfcheck summary::before{content:"?";position:absolute;left:0;top:2px;width:18px;height:18px;border-radius:50%;background:var(--green);color:#fff;font:700 12px/18px var(--mono);text-align:center}
+.selfcheck details[open] summary::before{content:"✓"}
+.selfcheck .ans{padding:6px 0 2px 26px;color:var(--ink2)}
+/* terms */
+.terms{margin:16px 0;border:1px solid var(--line);border-radius:12px;background:var(--card);padding:12px 16px}
+.terms .th{font-weight:700;margin-bottom:6px}
+.terms dl{display:grid;grid-template-columns:max-content 1fr;gap:6px 18px;margin:0}
+.terms dt{font:600 14.5px var(--mono);color:var(--accent)}
+.terms dd{margin:0;color:var(--ink2)}
+/* callouts */
+.callout{display:flex;gap:12px;margin:14px 0;padding:12px 16px;border-radius:12px;border:1px solid var(--line);background:var(--card)}
+.callout .ci{font-size:20px;line-height:1.6}
+.callout>div>p:first-child{margin-top:0}.callout>div>p:last-child{margin-bottom:0}
+.callout.warn{background:#fff8eb;border-color:#f6dfb5}
+.callout.note{background:#eef5ff;border-color:#cfe0fb}
+@media (max-width:980px){
+  .wrap{grid-template-columns:minmax(0,1fr);gap:0;padding:20px 16px 100px}
+  nav.toc{position:static;margin-bottom:12px}
+  nav.toc details{border:1px solid var(--line);border-radius:12px;background:var(--card);padding:8px 12px}
+  nav.toc details>summary{cursor:pointer;font-weight:700}
+  nav.toc .h{display:none}
+  header.hero h1{font-size:30px}
+  .blk{padding-left:14px;margin-left:-14px}
+  .top .ttl small{display:none}
+  .terms dl{grid-template-columns:1fr}.terms dd{margin-bottom:8px}
+}
+@media (min-width:981px){nav.toc details>summary{display:none}}
+@media print{.top,nav.toc,.copy,.chip,.live{display:none}.wrap{display:block;padding:0}.selfcheck details{display:block}.blk.cur{background:none}}
+</style></head>
+<body>
+<div class="top">
+  <a class="back" href="../../">← ლექციები</a>
+  <div class="ttl"><small>ASP.NET · 2</small>Minimal API vs Controller, REST, CRUD და Swagger</div>
+  <button class="live" id="live" type="button" title="ჩართული: ტექსტი პრეზენტაციას მიჰყვება"><span class="dot"></span><span class="lt">მიჰყვება სლაიდებს</span></button>
+  <a class="btn play" href="index.html">▶ პრეზენტაცია</a>
+</div>
+<div class="wrap">
+  <nav class="toc"><details id="tocd"><summary>სარჩევი</summary><div class="h">სარჩევი</div><a href="#sec-1">გამეორება</a><a href="#sec-2">საშინაოს განხილვა</a><a href="#sec-3">დღის თემა</a><a href="#sec-4"></a><a href="#sec-5">1 · ორი გზა</a><a href="#sec-6">2 · REST</a><a href="#sec-7">3 · CRUD</a><a href="#sec-8">4 · Swagger</a><a href="#sec-9">5 · სრული CRUD</a><a href="#sec-10">პრაქტიკა</a><a href="#sec-11">შეჯამება</a><a href="#sec-12">საშინაო</a><div class="mats"></div></details></nav>
+  <main>
+    <header class="hero">
+      <div class="k">📖 კონსპექტი · ASP.NET · ლექცია 2</div>
+      <h1>Minimal API vs Controller, REST, CRUD და Swagger</h1>
+      <p>წაიკითხე ლექციის შემდეგ, ან პრეზენტაციასთან ერთად: პრეზენტაციაში დააჭირე <kbd>P</kbd> და ეს გვერდი სლაიდებს გაჰყვება. კოდი და AI-ს პრომპტები კოპირდება ერთი დაჭერით.</p>
+    </header>
+    <h2 class="sec" id="sec-1">გამეორება</h2>
+<article class="blk" data-slides="1,2"><span class="anchor" id="s-1"></span><span class="anchor" id="s-2"></span><div class="bh"><h3>გავიხსენოთ წინა ლექცია</h3><a class="chip" href="index.html#/1" data-go="1" title="პრეზენტაციაში გახსნა">სლაიდი 1</a></div>
+<p>ლექცია 1 — <strong>Backend, API, REST და პირველი Web API</strong>. ახალ თემამდე ვამოწმებთ, რა დაგვამახსოვრდა. ჯერ თვითონ უპასუხე, მერე გახსენი პასუხი. თუ რომელიმე გაგიჭირდა, <a href="../01-backend-rest-intro/study.html">წინა ლექციის კონსპექტს</a> გადახედე.</p>
+<div class="selfcheck"><div class="sh">✅ შეამოწმე თავი <small>დაფიქრდი, მერე გახსენი პასუხი</small></div><details><summary>რატომ ვერ იცხოვრებს ონლაინ მაღაზია მხოლოდ ბრაუზერში?</summary><div class="ans">მონაცემი და წესები ყველასთვის საერთო უნდა იყოს და დაცული — ეს Backend-ის საქმეა</div></details><details><summary>რა არის Endpoint?</summary><div class="ans">მეთოდი + მისამართი, რომელიც Backend-ში კონკრეტულ ფუნქციას იძახებს</div></details><details><summary>რომელი მეთოდით შევქმნით ახალ მომხმარებელს?</summary><div class="ans"><code>POST /users</code> → 201 Created</div></details><details><summary>PUT და PATCH — რა განსხვავებაა?</summary><div class="ans">PUT მთლიანად ცვლის, PATCH — მხოლოდ გაგზავნილ ველებს</div></details><details><summary>რას ნიშნავს 404?</summary><div class="ans">მოთხოვნილი რესურსი ვერ მოიძებნა (4xx = კლიენტის შეცდომა)</div></details></div></article>
+<h2 class="sec" id="sec-2">საშინაოს განხილვა</h2>
+<article class="blk" data-slides="3"><span class="anchor" id="s-3"></span><div class="bh"><h3>საშინაოს განხილვა</h3><a class="chip" href="index.html#/3" data-go="3" title="პრეზენტაციაში გახსნა">სლაიდი 3</a></div>
+<p>წინა ლექციის საშინაო: <strong>კატეგორიები და REST ცხრილი</strong>. ქვემოთ არის ერთ-ერთი სწორი ამოხსნა. შენი კოდი შეიძლება სხვანაირად იყოს დაწერილი — მთავარია, მოთხოვნები სრულდებოდეს.</p>
+<h3>მოთხოვნები</h3>
+<ul>
+<li><code>record Category(int Id, string Name)</code> და სია 3-4 კატეგორიით</li>
+<li><code>GET /api/categories</code> — კატეგორიების სია</li>
+<li>შეამოწმეთ <code>.http</code> ფაილით: 200 და JSON</li>
+<li>ცხრილი (რვეულში ან ფაილში): Category-ს 5 REST endpoint — მეთოდი, მისამართი, წარმატების სტატუს კოდი</li>
+</ul>
+<h3>ამოხსნა</h3>
+<div class="codebox"><div class="ch"><span>Program.cs</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="kt">var</span><span class="w"> </span><span class="n">categories</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">List</span><span class="o">&lt;</span><span class="n">Category</span><span class="o">&gt;</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="k">new</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="s">"ლეპტოპები"</span><span class="p">)</span><span class="p">,</span></span><span class="ln"><span class="w">    </span><span class="k">new</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="s">"აქსესუარები"</span><span class="p">)</span><span class="p">,</span></span><span class="ln"><span class="w">    </span><span class="k">new</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span><span class="w"> </span><span class="s">"მონიტორები"</span><span class="p">)</span><span class="p">,</span></span><span class="ln"><span class="p">}</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="n">app</span><span class="p">.</span><span class="n">MapGet</span><span class="p">(</span><span class="s">"/api/categories"</span><span class="p">,</span><span class="w"> </span><span class="p">(</span><span class="p">)</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">categories</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="n">app</span><span class="p">.</span><span class="n">MapGet</span><span class="p">(</span><span class="s">"/api/categories/count"</span><span class="p">,</span><span class="w"> </span><span class="p">(</span><span class="p">)</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">categories</span><span class="p">.</span><span class="n">Count</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="n">app</span><span class="p">.</span><span class="n">Run</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="k">record</span><span class="w"> </span><span class="nf">Category</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">Id</span><span class="p">,</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="n">Name</span><span class="p">)</span><span class="p">;</span></span></code></pre></div>
+<div class="codebox"><div class="ch"><span>ProductsApi.http</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="err">G</span><span class="err">E</span><span class="err">T</span><span class="err"> </span><span class="err">h</span><span class="err">t</span><span class="err">t</span><span class="err">p</span><span class="err">s</span><span class="err">:</span><span class="err">/</span><span class="err">/</span><span class="err">l</span><span class="err">o</span><span class="err">c</span><span class="err">a</span><span class="err">l</span><span class="err">h</span><span class="err">o</span><span class="err">s</span><span class="err">t</span><span class="err">:</span><span class="err">7</span><span class="err">0</span><span class="err">0</span><span class="err">1</span><span class="err">/</span><span class="err">a</span><span class="err">p</span><span class="err">i</span><span class="err">/</span><span class="err">c</span><span class="err">a</span><span class="err">t</span><span class="err">e</span><span class="err">g</span><span class="err">o</span><span class="err">r</span><span class="err">i</span><span class="err">e</span><span class="err">s</span></span></code></pre></div>
+<p>REST ცხრილი:</p>
+<table>
+<thead>
+<tr>
+<th>მეთოდი</th>
+<th>მისამართი</th>
+<th>რას აკეთებს</th>
+<th>წარმატებისას</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>GET</td>
+<td><code>/api/categories</code></td>
+<td>სია</td>
+<td>200</td>
+</tr>
+<tr>
+<td>GET</td>
+<td><code>/api/categories/3</code></td>
+<td>ერთი</td>
+<td>200 (ან 404)</td>
+</tr>
+<tr>
+<td>POST</td>
+<td><code>/api/categories</code></td>
+<td>შექმნა</td>
+<td>201</td>
+</tr>
+<tr>
+<td>PUT</td>
+<td><code>/api/categories/3</code></td>
+<td>მთლიანად შეცვლა</td>
+<td>204</td>
+</tr>
+<tr>
+<td>DELETE</td>
+<td><code>/api/categories/3</code></td>
+<td>წაშლა</td>
+<td>204 (ან 404)</td>
+</tr>
+</tbody>
+</table>
+<div class="callout note"><span class="ci">💡</span><div><p><code>record Category</code> ფაილის <strong>ბოლოში</strong> უნდა იყოს, <code>app.Run()</code>-ის შემდეგ — Program.cs-ში ტიპების გამოცხადება ზედა დონის კოდის შემდეგ იწერება. პორტი (<code>7001</code>) თქვენთან სხვა იქნება.</p></div></div></article>
+<h2 class="sec" id="sec-3">დღის თემა</h2>
+<article class="blk" data-slides="4"><span class="anchor" id="s-4"></span><div class="bh"><h3>დღის თემა: Minimal API vs Controller, REST, CRUD და Swagger</h3><a class="chip" href="index.html#/4" data-go="4" title="პრეზენტაციაში გახსნა">სლაიდი 4</a></div>
+<p>წინა ლექციაზე ერთი endpoint Program.cs-ში დავწერეთ. რეალურ API-ს ათეულობით endpoint აქვს — ერთ ფაილში ყველაფერი აირევა, და ბრაუზერით მხოლოდ GET-ის შემოწმება შეიძლება. დღეს ვნახავთ API-ის აწყობის ორ გზას, REST-ის წესებს, Swagger-ს — და ვწერთ პროდუქტების სრულ CRUD-ს.</p>
+<p><strong>ლექციის ბოლოს შეძლებ:</strong></p>
+<ul>
+<li>Minimal API-სა და Controller-ის განსხვავება, Controller-ის ანატომია</li>
+<li>REST-ის 4 წესი და სწორი სტატუს კოდი ყოველ მეთოდზე</li>
+<li>Swagger-ის დაყენება და endpoint-ების ტესტირება</li>
+<li>სრული CRUD: GetAll, GetById, Create, Update, Delete</li>
+</ul></article>
+<h2 class="sec" id="sec-4"></h2>
+<article class="blk" data-slides="5"><span class="anchor" id="s-5"></span><div class="bh"><h3>ლექციის გეგმა</h3><a class="chip" href="index.html#/5" data-go="5" title="პრეზენტაციაში გახსნა">სლაიდი 5</a></div>
+<ol>
+<li><strong>ორი გზა</strong> — Minimal API და Controller: რით განსხვავდებიან და რატომ ვიწყებთ Controller-ით.</li>
+<li><strong>REST</strong> — რატომ არსებობს და რა წესებს გვაძლევს.</li>
+<li><strong>პირველი GET</strong> — ProductsController.</li>
+<li><strong>Swagger</strong> — გარემო ტესტირებისთვის.</li>
+<li>🛠️ <strong>სრული CRUD</strong> — ვწერთ → მაშინვე ვტესტავთ.</li>
+<li><strong>პრაქტიკა</strong> — BooksController.</li>
+</ol></article>
+<h2 class="sec" id="sec-5">1 · ორი გზა</h2>
+<article class="blk" data-slides="6"><span class="anchor" id="s-6"></span><div class="bh"><h3>ნაწილი 1 · ორი გზა, ერთი მიზანი</h3><a class="chip" href="index.html#/6" data-go="6" title="პრეზენტაციაში გახსნა">სლაიდი 6</a></div>
+<p>მიზანი ერთია — API, რომელიც მოთხოვნას იღებს და JSON-ს აბრუნებს. ASP.NET Core-ში მას ორი გზით ვაწყობთ.</p></article>
+<article class="blk" data-slides="7"><span class="anchor" id="s-7"></span><div class="bh"><h3>წინა ლექციაზე: Minimal API</h3><a class="chip" href="index.html#/7" data-go="7" title="პრეზენტაციაში გახსნა">სლაიდი 7</a></div>
+<p>წინა ლექციაზე endpoint პირდაპირ <code>Program.cs</code>-ში დავწერეთ:</p>
+<div class="codebox"><div class="ch"><span>Program.cs</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="kt">var</span><span class="w"> </span><span class="n">builder</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">WebApplication</span><span class="p">.</span><span class="n">CreateBuilder</span><span class="p">(</span><span class="n">args</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="kt">var</span><span class="w"> </span><span class="n">app</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">builder</span><span class="p">.</span><span class="n">Build</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="n">app</span><span class="p">.</span><span class="n">MapGet</span><span class="p">(</span><span class="s">"/hello"</span><span class="p">,</span><span class="w"> </span><span class="p">(</span><span class="p">)</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="s">"გამარჯობა!"</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="n">app</span><span class="p">.</span><span class="n">Run</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span></code></pre></div>
+<p>ერთი ხაზი = ერთი endpoint: მისამართი + რა დავაბრუნოთ. (შენ შეიძლება სხვა მისამართი დაწერე, მაგ. <code>/api/products</code> — იდეა იგივეა.) ამ სტილს <strong>Minimal API</strong> ჰქვია: ყველაფერი Program.cs-ში, მინიმალური კოდით.</p></article>
+<article class="blk" data-slides="8"><span class="anchor" id="s-8"></span><div class="bh"><h3>გზას ერთი checkbox ირჩევს</h3><a class="chip" href="index.html#/8" data-go="8" title="პრეზენტაციაში გახსნა">სლაიდი 8</a></div>
+<p>Visual Studio → ASP.NET Core Web API → <strong>Additional information</strong>: Framework .NET 10, ☑ Configure for HTTPS, ☑ Enable OpenAPI support და — <strong>Use controllers</strong>:</p>
+<ul>
+<li>☐ <strong>მოხსნილია</strong> → Minimal API: endpoint-ები Program.cs-ში.</li>
+<li>☑ <strong>მონიშნულია</strong> → Controllers: endpoint-ები ცალკე კლასებში, <code>Controllers/</code> ფოლდერში.</li>
+</ul></article>
+<article class="blk" data-slides="9"><span class="anchor" id="s-9"></span><div class="bh"><h3>სხვა გზებიც არსებობს?</h3><a class="chip" href="index.html#/9" data-go="9" title="პრეზენტაციაში გახსნა">სლაიდი 9</a></div>
+<p>ძირში დგას <strong>ASP.NET Core</strong> — იღებს HTTP მოთხოვნას, პოულობს, ვინ უნდა უპასუხოს, და JSON-ს აბრუნებს. მასზე <strong>ორი ჩაშენებული</strong> გზაა — Minimal API და Controllers; სწორედ ამ ორს გვთავაზობს შაბლონი და არაფრის დაყენება არ სჭირდება.</p>
+<p>არსებობს სხვა გზებიც — მაგ. <strong>FastEndpoints</strong>, <strong>Carter</strong>. ეს საზოგადოების მიერ დაწერილი NuGet პაკეტებია, იგივე საძირკველზე. ჩვენ ჩაშენებულ ორს ვსწავლობთ.</p></article>
+<article class="blk" data-slides="10"><span class="anchor" id="s-10"></span><div class="bh"><h3>ერთი და იგივე endpoint — ორი გზით</h3><a class="chip" href="index.html#/10" data-go="10" title="პრეზენტაციაში გახსნა">სლაიდი 10</a></div>
+<div class="codebox"><div class="ch"><span>Minimal API · Program.cs</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="n">app</span><span class="p">.</span><span class="n">MapGet</span><span class="p">(</span><span class="s">"/api/products"</span><span class="p">,</span><span class="w"> </span><span class="p">(</span><span class="p">)</span><span class="w"> </span><span class="o">=&gt;</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="k">new</span><span class="p">[</span><span class="p">]</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="s">"ლეპტოპი"</span><span class="p">,</span><span class="w"> </span><span class="s">"მაუსი"</span><span class="w"> </span><span class="p">}</span><span class="p">;</span></span><span class="ln"><span class="p">}</span><span class="p">)</span><span class="p">;</span></span></code></pre></div>
+<div class="codebox"><div class="ch"><span>Controller · Controllers/ProductsController.cs</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="na">[ApiController]</span></span><span class="ln"><span class="na">[Route("api/products")]</span></span><span class="ln"><span class="k">public</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">ProductsController</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">ControllerBase</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="na">[HttpGet]</span></span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="n">IActionResult</span><span class="w"> </span><span class="nf">GetAll</span><span class="p">(</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="p">{</span></span><span class="ln"><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="nf">Ok</span><span class="p">(</span><span class="k">new</span><span class="p">[</span><span class="p">]</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="s">"ლეპტოპი"</span><span class="p">,</span><span class="w"> </span><span class="s">"მაუსი"</span><span class="w"> </span><span class="p">}</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="p">}</span></span><span class="ln"><span class="p">}</span></span></code></pre></div>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>Minimal API</th>
+<th>Controller</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>მისამართი + მეთოდი</td>
+<td><code>MapGet("/api/products")</code> — ერთ ხაზში</td>
+<td><code>[Route]</code> + <code>[HttpGet]</code></td>
+</tr>
+<tr>
+<td>რას ვაბრუნებთ</td>
+<td>ფუნქცია (lambda)</td>
+<td>კლასის მეთოდი + <code>Ok(...)</code></td>
+</tr>
+</tbody>
+</table>
+<p>Controller-ში მეტი კოდია — ვნახოთ, რატომ.</p></article>
+<article class="blk" data-slides="11"><span class="anchor" id="s-11"></span><div class="bh"><h3>Controller — ნაწილ-ნაწილ</h3><a class="chip" href="index.html#/11" data-go="11" title="პრეზენტაციაში გახსნა">სლაიდი 11</a></div>
+<div class="codebox"><div class="ch"><span>Controllers/ProductsController.cs</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="na">[ApiController]</span></span><span class="ln"><span class="na">[Route("api/[controller]</span><span class="s">")]</span></span><span class="ln"><span class="k">public</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">ProductsController</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">ControllerBase</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="na">[HttpGet]</span></span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="n">IActionResult</span><span class="w"> </span><span class="nf">GetAll</span><span class="p">(</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="p">{</span></span><span class="ln"><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="nf">Ok</span><span class="p">(</span><span class="k">new</span><span class="p">[</span><span class="p">]</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="s">"ლეპტოპი"</span><span class="p">,</span><span class="w"> </span><span class="s">"მაუსი"</span><span class="w"> </span><span class="p">}</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="p">}</span></span><span class="ln"><span class="p">}</span></span></code></pre></div>
+<ol>
+<li><strong><code>[ApiController]</code></strong> — ატრიბუტი: „ეს კლასი API-ს ემსახურება“. რთავს API-სთვის საჭირო ქცევას — მაგ. არასწორ მონაცემზე თვითონ აბრუნებს 400-ს.</li>
+<li><strong><code>[Route("api/[controller]")]</code></strong> — მისამართი. <code>[controller]</code> = კლასის სახელი „Controller“-ის გარეშე: <code>ProductsController</code> → <code>api/products</code>.</li>
+<li><strong><code>: ControllerBase</code></strong> — მზა მეთოდებს გვაძლევს: <code>Ok()</code>, <code>NotFound()</code>, <code>NoContent()</code>…</li>
+<li><strong><code>[HttpGet]</code></strong> — HTTP მეთოდი.</li>
+<li><strong><code>IActionResult</code></strong> — „HTTP პასუხი“: სტატუს კოდი + მონაცემი.</li>
+</ol>
+<div class="terms"><div class="th">📘 ტერმინები</div><dl><dt>ატრიბუტი</dt><dd>[კვადრატულ ფრჩხილებში] დაწერილი „ნიშანი“ კლასზე ან მეთოდზე, რომელსაც framework კითხულობს</dd><dt>IActionResult</dt><dd>მეთოდის დასაბრუნებელი ტიპი: სტატუს კოდი + (არასავალდებულო) მონაცემი</dd></dl></div></article>
+<article class="blk" data-slides="12"><span class="anchor" id="s-12"></span><div class="bh"><h3>Controller-ებს Program.cs-ში ორი ხაზი სჭირდება</h3><a class="chip" href="index.html#/12" data-go="12" title="პრეზენტაციაში გახსნა">სლაიდი 12</a></div>
+<div class="codebox"><div class="ch"><span>Program.cs</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="kt">var</span><span class="w"> </span><span class="n">builder</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">WebApplication</span><span class="p">.</span><span class="n">CreateBuilder</span><span class="p">(</span><span class="n">args</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="n">builder</span><span class="p">.</span><span class="n">Services</span><span class="p">.</span><span class="n">AddControllers</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="kt">var</span><span class="w"> </span><span class="n">app</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">builder</span><span class="p">.</span><span class="n">Build</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="n">app</span><span class="p">.</span><span class="n">MapControllers</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="n">app</span><span class="p">.</span><span class="n">Run</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span></code></pre></div>
+<ol>
+<li><strong><code>AddControllers()</code></strong> — „ჩემს პროექტში Controller-ები იქნება“ (რეგისტრაცია).</li>
+<li><strong><code>MapControllers()</code></strong> — „იპოვე ყველა Controller და მათი მისამართები მიაბი“: ProductsController → <code>api/products</code>, CategoriesController → <code>api/categories</code>…</li>
+</ol>
+<p>დანარჩენი კოდი ცალკე ფაილებშია.</p></article>
+<article class="blk" data-slides="13"><span class="anchor" id="s-13"></span><div class="bh"><h3>რა ხდება, როცა endpoint-ი 30 გახდება?</h3><a class="chip" href="index.html#/13" data-go="13" title="პრეზენტაციაში გახსნა">სლაიდი 13</a></div>
+<ul>
+<li>📄 <strong>Minimal API, ყველაფერი ერთად</strong> — Program.cs 400+ ხაზი: პროდუქტები, კატეგორიები, შეკვეთები ერთმანეთში აირევა.</li>
+<li>📁 <strong>Controllers</strong> — ყოველ თემას თავისი ფაილი აქვს: პროდუქტებზე სამუშაოდ ProductsController-ს ხსნი და მეტს არაფერს.</li>
+</ul>
+<p>(Minimal API-საც შეიძლება ფაილებად დაყოფა — ოღონდ ეს სტრუქტურა შენ თვითონ უნდა მოიფიქრო.)</p></article>
+<article class="blk" data-slides="14"><span class="anchor" id="s-14"></span><div class="bh"><h3>Minimal API vs Controller</h3><a class="chip" href="index.html#/14" data-go="14" title="პრეზენტაციაში გახსნა">სლაიდი 14</a></div>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>Minimal API</th>
+<th>Controller</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>სად წერია</td>
+<td>Program.cs-ში (ან ჩვენ მიერ შექმნილ ფაილებში)</td>
+<td>ცალკე კლასებში, <code>Controllers/</code> ფოლდერში</td>
+</tr>
+<tr>
+<td>როგორ იწერება</td>
+<td>ფუნქცია: <code>app.MapGet(...)</code></td>
+<td>კლასი + მეთოდები + <code>[HttpGet]</code></td>
+</tr>
+<tr>
+<td>სტრუქტურა</td>
+<td>შენ წყვეტ</td>
+<td>მზა წესი — ყველა ერთნაირად წერს</td>
+</tr>
+<tr>
+<td>კოდის რაოდენობა</td>
+<td>ნაკლები</td>
+<td>მეტი</td>
+</tr>
+</tbody>
+</table>
+<p>მთავარი განსხვავება სტრუქტურაშია: Controller-ს მზა წესი აქვს.</p></article>
+<article class="blk" data-slides="15"><span class="anchor" id="s-15"></span><div class="bh"><h3>რატომ ვიწყებთ Controller-ებით</h3><a class="chip" href="index.html#/15" data-go="15" title="პრეზენტაციაში გახსნა">სლაიდი 15</a></div>
+<p>🏗️ ახლა: <strong>Controllers</strong> (CRUD, REST, მომდევნო ლექციები) → 📐 <strong>არქიტექტურა</strong> (როგორ დავალაგოთ პროექტი) → ⚡ <strong>Minimal API</strong> — უკვე სწორი სტრუქტურით.</p>
+<ul>
+<li>🧭 <strong>სტრუქტურა მზადაა</strong> — ვფიქრობთ API-ზე და არა იმაზე, რომელ ფაილში რა ჩავწეროთ.</li>
+<li>🏢 <strong>სამსახურში შეხვდები</strong> — არსებული პროექტების დიდი ნაწილი Controller-ებითაა დაწერილი.</li>
+</ul></article>
+<h2 class="sec" id="sec-6">2 · REST</h2>
+<article class="blk" data-slides="16"><span class="anchor" id="s-16"></span><div class="bh"><h3>ნაწილი 2 · REST — წესები ყველასთვის</h3><a class="chip" href="index.html#/16" data-go="16" title="პრეზენტაციაში გახსნა">სლაიდი 16</a></div>
+<p>REST წინა ლექციაზე თეორიულად ვახსენეთ. დღეს ვნახავთ, რატომ არსებობს და რა მოხდებოდა მის გარეშე.</p></article>
+<article class="blk" data-slides="17"><span class="anchor" id="s-17"></span><div class="bh"><h3>REST რომ არ არსებობდეს…</h3><a class="chip" href="index.html#/17" data-go="17" title="პრეზენტაციაში გახსნა">სლაიდი 17</a></div>
+<p>სამ დეველოპერს ერთი დავალება აქვს — პროდუქტების API:</p>
+<ul>
+<li>👩‍💻 <strong>A</strong> ყველაფერს POST-ით აკეთებს, მოქმედებას მისამართში წერს: <code>POST /getAllProducts</code>, <code>POST /addNewProduct</code>, <code>POST /removeProduct?id=5</code>.</li>
+<li>🧑‍💻 <strong>B</strong> ყველაფერს GET-ით, წაშლასაც კი: <code>GET /products_list</code>, <code>GET /product/create?name=…</code>, <code>GET /delete-product/5</code>.</li>
+<li>👨‍💻 <strong>C</strong>-ს ერთი მისამართი აქვს, და რა ქნას — JSON-ში წერს.</li>
+</ul>
+<p>სამივე მუშაობს — მაგრამ Frontend დეველოპერმა ყოველ API-ზე თავიდან უნდა ისწავლოს ყველაფერი.</p></article>
+<article class="blk" data-slides="18"><span class="anchor" id="s-18"></span><div class="bh"><h3>REST-ით: ერთი მისამართი + HTTP მეთოდი = მოქმედება</h3><a class="chip" href="index.html#/18" data-go="18" title="პრეზენტაციაში გახსნა">სლაიდი 18</a></div>
+<table>
+<thead>
+<tr>
+<th>მოთხოვნა</th>
+<th>მოქმედება</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>GET /api/products</code></td>
+<td>ყველა პროდუქტი</td>
+</tr>
+<tr>
+<td><code>GET /api/products/5</code></td>
+<td>ერთი პროდუქტი (Id = 5)</td>
+</tr>
+<tr>
+<td><code>POST /api/products</code></td>
+<td>ახალი პროდუქტის დამატება</td>
+</tr>
+<tr>
+<td><code>PUT /api/products/5</code></td>
+<td>პროდუქტი 5-ის განახლება</td>
+</tr>
+<tr>
+<td><code>DELETE /api/products/5</code></td>
+<td>პროდუქტი 5-ის წაშლა</td>
+</tr>
+</tbody>
+</table>
+<p><strong>მისამართი = რას, მეთოდი = რა ვუყოთ.</strong> შენიშნე: POST-ის მისამართი იგივეა, რაც ყველას წაკითხვისას — განსხვავება მხოლოდ მეთოდშია.</p></article>
+<article class="blk" data-slides="19"><span class="anchor" id="s-19"></span><div class="bh"><h3>REST-ის 4 მთავარი წესი</h3><a class="chip" href="index.html#/19" data-go="19" title="პრეზენტაციაში გახსნა">სლაიდი 19</a></div>
+<ol>
+<li><strong>რესურსი</strong> — მისამართი არსებითი სახელია, მრავლობითში: ✓ <code>/api/products</code> ✗ <code>/getProducts</code>.</li>
+<li><strong>მოქმედება</strong> — ვირჩევთ HTTP მეთოდით: GET · POST · PUT · DELETE.</li>
+<li><strong>შედეგი</strong> — ვაცნობებთ სტატუს კოდით: 200 · 201 · 204 · 404. აღარავითარი <code>{ "success": false }</code> 200-იან პასუხში.</li>
+<li><strong>ფორმატი</strong> — მონაცემი მიდის და მოდის JSON-ით: <code>{ "name": "მაუსი", "price": 45 }</code>.</li>
+</ol></article>
+<article class="blk" data-slides="20"><span class="anchor" id="s-20"></span><div class="bh"><h3>რომელ კოდს რომელი მეთოდი აბრუნებს</h3><a class="chip" href="index.html#/20" data-go="20" title="პრეზენტაციაში გახსნა">სლაიდი 20</a></div>
+<ul>
+<li><strong>2xx</strong> — წარმატება ✓ · <strong>4xx</strong> — კლიენტის შეცდომა (შენ გაგზავნე რაღაც არასწორად) · <strong>5xx</strong> — სერვერის შეცდომა (ჩვენ დაგვიშავდა)</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>კოდი</th>
+<th>Controller-ში</th>
+<th>როდის</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>200 OK</td>
+<td><code>Ok(data)</code></td>
+<td>მონაცემს ვაბრუნებთ</td>
+</tr>
+<tr>
+<td>201 Created</td>
+<td><code>CreatedAtAction(...)</code></td>
+<td>ახალი რამ შეიქმნა</td>
+</tr>
+<tr>
+<td>204 No Content</td>
+<td><code>NoContent()</code></td>
+<td>შესრულდა, დასაბრუნებელი არაფერია</td>
+</tr>
+<tr>
+<td>400 Bad Request</td>
+<td><code>BadRequest()</code></td>
+<td>არასწორი მოთხოვნა</td>
+</tr>
+<tr>
+<td>404 Not Found</td>
+<td><code>NotFound()</code></td>
+<td>ვერ ვიპოვე</td>
+</tr>
+</tbody>
+</table>
+<p>თითოეული კოდისთვის <code>ControllerBase</code>-ს მზა მეთოდი აქვს.</p></article>
+<article class="blk" data-slides="21"><span class="anchor" id="s-21"></span><div class="bh"><h3>ჩვენი გეგმა: ProductsController — 5 endpoint</h3><a class="chip" href="index.html#/21" data-go="21" title="პრეზენტაციაში გახსნა">სლაიდი 21</a></div>
+<p>CRUD — <strong>C</strong>reate, <strong>R</strong>ead, <strong>U</strong>pdate, <strong>D</strong>elete:</p>
+<table>
+<thead>
+<tr>
+<th>მეთოდი</th>
+<th>მისამართი</th>
+<th>რას აკეთებს</th>
+<th>C# მეთოდი</th>
+<th>პასუხი</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>GET</td>
+<td><code>/api/products</code></td>
+<td>ყველა პროდუქტი</td>
+<td><code>GetAll()</code></td>
+<td>200</td>
+</tr>
+<tr>
+<td>GET</td>
+<td><code>/api/products/{id}</code></td>
+<td>ერთი პროდუქტი</td>
+<td><code>GetById(id)</code></td>
+<td>200 · 404</td>
+</tr>
+<tr>
+<td>POST</td>
+<td><code>/api/products</code></td>
+<td>დამატება</td>
+<td><code>Create(product)</code></td>
+<td>201</td>
+</tr>
+<tr>
+<td>PUT</td>
+<td><code>/api/products/{id}</code></td>
+<td>განახლება</td>
+<td><code>Update(id, …)</code></td>
+<td>204 · 404</td>
+</tr>
+<tr>
+<td>DELETE</td>
+<td><code>/api/products/{id}</code></td>
+<td>წაშლა</td>
+<td><code>Delete(id)</code></td>
+<td>204 · 404</td>
+</tr>
+</tbody>
+</table>
+<p>ამ ცხრილს ლექციის ბოლომდე მივყვებით.</p></article>
+<h2 class="sec" id="sec-7">3 · CRUD</h2>
+<article class="blk" data-slides="22"><span class="anchor" id="s-22"></span><div class="bh"><h3>ნაწილი 3 · პირველი endpoint</h3><a class="chip" href="index.html#/22" data-go="22" title="პრეზენტაციაში გახსნა">სლაიდი 22</a></div>
+<p>ლაივ კოდინგი: ლექტორი წერს, შენ თვალს ადევნებ და კითხვებს სვამ. ჯერ პროექტს ვამზადებთ.</p></article>
+<article class="blk" data-slides="23"><span class="anchor" id="s-23"></span><div class="bh"><h3>ნაბიჯი 0 · პროექტის მომზადება</h3><a class="chip" href="index.html#/23" data-go="23" title="პრეზენტაციაში გახსნა">სლაიდი 23</a></div>
+<ol>
+<li>New Project → <strong>ASP.NET Core Web API</strong> · სახელი: <strong>ShopApi</strong></li>
+<li>.NET 10 · ☑ <strong>Use controllers</strong> · ☑ Enable OpenAPI support</li>
+<li>წაშალე შაბლონის მაგალითი: <code>WeatherForecast.cs</code> და <code>Controllers/WeatherForecastController.cs</code></li>
+<li>შექმენი ფოლდერი <strong>Models</strong></li>
+</ol></article>
+<article class="blk" data-slides="24"><span class="anchor" id="s-24"></span><div class="bh"><h3>ნაბიჯი 1 · Product — რას ვინახავთ</h3><a class="chip" href="index.html#/24" data-go="24" title="პრეზენტაციაში გახსნა">სლაიდი 24</a></div>
+<div class="codebox"><div class="ch"><span>Models/Product.cs</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="k">namespace</span><span class="w"> </span><span class="nn">ShopApi.Models</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="k">public</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">Product</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">Id</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">get</span><span class="p">;</span><span class="w"> </span><span class="k">set</span><span class="p">;</span><span class="w"> </span><span class="p">}</span></span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="n">Name</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">get</span><span class="p">;</span><span class="w"> </span><span class="k">set</span><span class="p">;</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kt">string</span><span class="p">.</span><span class="n">Empty</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="kt">decimal</span><span class="w"> </span><span class="n">Price</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">get</span><span class="p">;</span><span class="w"> </span><span class="k">set</span><span class="p">;</span><span class="w"> </span><span class="p">}</span></span><span class="ln"><span class="p">}</span></span></code></pre></div>
+<ul>
+<li><strong>Id</strong> — პროდუქტის „პირადი ნომერი“. სწორედ ის ჩაჯდება მისამართში: <code>/api/products/2</code>.</li>
+<li>ეს კლასი ამავდროულად <strong>JSON-ის ფორმაა</strong>: <code>{ "id": 2, "name": "მაუსი", "price": 45 }</code>. C#-ის <code>Name</code> → JSON-ის <code>name</code> — ASP.NET Core თვითონ გარდაქმნის, ორივე მიმართულებით.</li>
+</ul></article>
+<article class="blk" data-slides="25"><span class="anchor" id="s-25"></span><div class="bh"><h3>ნაბიჯი 2 · ბაზა ჯერ არ გვაქვს — სად შევინახოთ?</h3><a class="chip" href="index.html#/25" data-go="25" title="პრეზენტაციაში გახსნა">სლაიდი 25</a></div>
+<p>პასუხი: <code>List&lt;Product&gt;</code> პირდაპირ Controller-ში. მაგრამ ერთი ხაფანგია: <strong>ASP.NET Core ყოველ მოთხოვნაზე Controller-ის ახალ ობიექტს ქმნის.</strong></p>
+<ol>
+<li><strong>POST</strong> „დაამატე მონიტორი“ → 🆕 ProductsController #1 → სია: ლეპტოპი, მაუსი, + მონიტორი → 🗑️ პასუხის შემდეგ ქრება.</li>
+<li><strong>GET</strong> „მომეცი ყველა“ → 🆕 ProductsController #2 → ახალი სია: ლეპტოპი, მაუსი. მონიტორი სად არის?</li>
+</ol>
+<p><strong>გამოსავალი: <code>static</code>.</strong> <code>static</code> ველი ობიექტს კი არა, <strong>კლასს</strong> ეკუთვნის — ყველა ობიექტს, ყველა მოთხოვნას ერთი სია აქვს.</p>
+<div class="terms"><div class="th">📘 ტერმინები</div><dl><dt>static</dt><dd>ველი ან მეთოდი, რომელიც კლასს ეკუთვნის და არა მის ცალკეულ ობიექტს; ერთია ყველასთვის</dd></dl></div></article>
+<article class="blk" data-slides="26"><span class="anchor" id="s-26"></span><div class="bh"><h3>ნაბიჯი 3 · ProductsController და საწყისი მონაცემები</h3><a class="chip" href="index.html#/26" data-go="26" title="პრეზენტაციაში გახსნა">სლაიდი 26</a></div>
+<div class="codebox"><div class="ch"><span>Controllers/ProductsController.cs</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="k">using</span><span class="w"> </span><span class="nn">Microsoft.AspNetCore.Mvc</span><span class="p">;</span></span><span class="ln"><span class="k">using</span><span class="w"> </span><span class="nn">ShopApi.Models</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="k">namespace</span><span class="w"> </span><span class="nn">ShopApi.Controllers</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="na">[ApiController]</span></span><span class="ln"><span class="na">[Route("api/[controller]</span><span class="s">")]</span></span><span class="ln"><span class="k">public</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">ProductsController</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">ControllerBase</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="k">private</span><span class="w"> </span><span class="k">static</span><span class="w"> </span><span class="n">List</span><span class="o">&lt;</span><span class="n">Product</span><span class="o">&gt;</span><span class="w"> </span><span class="n">_products</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">List</span><span class="o">&lt;</span><span class="n">Product</span><span class="o">&gt;</span></span><span class="ln"><span class="w">    </span><span class="p">{</span></span><span class="ln"><span class="w">        </span><span class="k">new</span><span class="w"> </span><span class="n">Product</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">Id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">Name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"ლეპტოპი"</span><span class="p">,</span><span class="w"> </span><span class="n">Price</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">2400</span><span class="w"> </span><span class="p">}</span><span class="p">,</span></span><span class="ln"><span class="w">        </span><span class="k">new</span><span class="w"> </span><span class="n">Product</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">Id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="n">Name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"მაუსი"</span><span class="p">,</span><span class="w"> </span><span class="n">Price</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">45</span><span class="w"> </span><span class="p">}</span><span class="p">,</span></span><span class="ln"><span class="w">        </span><span class="k">new</span><span class="w"> </span><span class="n">Product</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">Id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span><span class="w"> </span><span class="n">Name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"კლავიატურა"</span><span class="p">,</span><span class="w"> </span><span class="n">Price</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">120</span><span class="w"> </span><span class="p">}</span></span><span class="ln"><span class="w">    </span><span class="p">}</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="k">private</span><span class="w"> </span><span class="k">static</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">_nextId</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">4</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="c1">// აქ დავწერთ 5 endpoint-ს</span></span><span class="ln"><span class="p">}</span></span></code></pre></div>
+<ul>
+<li>ნაცნობი ანატომია: <code>[ApiController]</code>, <code>[Route]</code>, <code>ControllerBase</code>.</li>
+<li><strong><code>static</code> სია</strong> — ჩვენი დროებითი „ბაზა“, 3 პროდუქტით, რომ ცარიელი არ იყოს.</li>
+<li><strong><code>_nextId</code></strong> — შემდეგი პროდუქტის Id. ბაზა ამას თვითონ გააკეთებდა, აქ ხელით ვითვლით.</li>
+</ul></article>
+<article class="blk" data-slides="27"><span class="anchor" id="s-27"></span><div class="bh"><h3>Read · GET ყველა პროდუქტი</h3><a class="chip" href="index.html#/27" data-go="27" title="პრეზენტაციაში გახსნა">სლაიდი 27</a></div>
+<div class="codebox"><div class="ch"><span>ProductsController.cs</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="c1">// GET /api/products</span></span><span class="ln"><span class="na">[HttpGet]</span></span><span class="ln"><span class="k">public</span><span class="w"> </span><span class="n">IActionResult</span><span class="w"> </span><span class="nf">GetAll</span><span class="p">(</span><span class="p">)</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nf">Ok</span><span class="p">(</span><span class="n">_products</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="p">}</span></span></code></pre></div>
+<ul>
+<li><code>[HttpGet]</code> მისამართის გარეშე → მხოლოდ <code>[Route]</code>-ის მისამართი: <code>/api/products</code>.</li>
+<li><code>Ok</code> — სიას 200 კოდით ვაბრუნებთ; ASP.NET Core მას JSON მასივად აქცევს.</li>
+</ul>
+<p>გაუშვი (F5) და ბრაუზერში გახსენი <code>/api/products</code> — სამი პროდუქტი JSON-ად.</p></article>
+<h2 class="sec" id="sec-8">4 · Swagger</h2>
+<article class="blk" data-slides="28"><span class="anchor" id="s-28"></span><div class="bh"><h3>ნაწილი 4 · Swagger — API-ის მენიუ</h3><a class="chip" href="index.html#/28" data-go="28" title="პრეზენტაციაში გახსნა">სლაიდი 28</a></div>
+<p>დანარჩენი endpoint-ების დაწერამდე გვჭირდება გარემო, სადაც მათ გავტესტავთ. Swagger ორ პრობლემას ერთად წყვეტს: დოკუმენტაციას და ტესტირებას.</p></article>
+<article class="blk" data-slides="29"><span class="anchor" id="s-29"></span><div class="bh"><h3>ბრაუზერი მხოლოდ GET-ს აგზავნის</h3><a class="chip" href="index.html#/29" data-go="29" title="პრეზენტაციაში გახსნა">სლაიდი 29</a></div>
+<p>მისამართის ზოლი ყოველთვის GET მოთხოვნას აგზავნის:</p>
+<ul>
+<li><strong>GET</strong> GetAll — მუშაობს ✓</li>
+<li><strong>POST</strong> — სად დავწერო JSON? ✗</li>
+<li><strong>PUT</strong>, <strong>DELETE</strong> — მისამართის ზოლიდან შეუძლებელია ✗</li>
+</ul>
+<p>და Frontend დეველოპერი გეკითხება: რა endpoint-ები გაქვს და რა JSON უნდა გამოგიგზავნო? ასე ტესტვაც რთულია და ახსნაც.</p></article>
+<article class="blk" data-slides="30"><span class="anchor" id="s-30"></span><div class="bh"><h3>რა არის Swagger: კოდი → აღწერა → გვერდი</h3><a class="chip" href="index.html#/30" data-go="30" title="პრეზენტაციაში გახსნა">სლაიდი 30</a></div>
+<ol>
+<li>🧩 <strong>ჩვენი Controller-ები</strong> (<code>[HttpGet]</code>, <code>[HttpPost]</code>, <code>Product</code>) → Swagger <strong>კითხულობს</strong></li>
+<li>📄 <strong>swagger.json</strong> — API-ის აღწერა. ამ აღწერის სტანდარტს <strong>OpenAPI</strong> ჰქვია → Swagger <strong>ხატავს</strong></li>
+<li>🖥️ <strong>Swagger UI</strong> — ვებგვერდი ღილაკებით</li>
+</ol>
+<p>ორი სარგებელი:</p>
+<ul>
+<li>📖 <strong>დოკუმენტაცია</strong> — ყველა endpoint, პარამეტრი და JSON-ის ფორმა, კოდიდან ავტომატურად. კოდი იცვლება → დოკუმენტაციაც.</li>
+<li>🧪 <strong>ტესტირება</strong> — ნებისმიერი მოთხოვნა (POST, PUT, DELETE) ბრაუზერიდან.</li>
+</ul>
+<div class="terms"><div class="th">📘 ტერმინები</div><dl><dt>OpenAPI</dt><dd>API-ის აღწერის სტანდარტი (JSON ფაილი: რა endpoint-ებია და რა მონაცემს იღებენ/აბრუნებენ)</dd><dt>Swagger UI</dt><dd>ვებგვერდი, რომელიც OpenAPI აღწერიდან ღილაკებიან დოკუმენტაციას ხატავს</dd></dl></div></article>
+<article class="blk" data-slides="31"><span class="anchor" id="s-31"></span><div class="bh"><h3>დაყენება: 1 პაკეტი + 3 ხაზი</h3><a class="chip" href="index.html#/31" data-go="31" title="პრეზენტაციაში გახსნა">სლაიდი 31</a></div>
+<p>.NET 9-დან შაბლონი Swagger-ის გვერდს აღარ შეიცავს — მხოლოდ OpenAPI აღწერას (<code>AddOpenApi</code>, <code>MapOpenApi</code>). გვერდისთვის NuGet-იდან ვაყენებთ <strong>Swashbuckle.AspNetCore</strong>-ს:</p>
+<div class="codebox"><div class="ch"><span>bash</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln">dotnet<span class="w"> </span>add<span class="w"> </span>package<span class="w"> </span>Swashbuckle.AspNetCore</span></code></pre></div>
+<div class="codebox"><div class="ch"><span>Program.cs</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="kt">var</span><span class="w"> </span><span class="n">builder</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">WebApplication</span><span class="p">.</span><span class="n">CreateBuilder</span><span class="p">(</span><span class="n">args</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="n">builder</span><span class="p">.</span><span class="n">Services</span><span class="p">.</span><span class="n">AddControllers</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="n">builder</span><span class="p">.</span><span class="n">Services</span><span class="p">.</span><span class="n">AddOpenApi</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="n">builder</span><span class="p">.</span><span class="n">Services</span><span class="p">.</span><span class="n">AddSwaggerGen</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="kt">var</span><span class="w"> </span><span class="n">app</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">builder</span><span class="p">.</span><span class="n">Build</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">app</span><span class="p">.</span><span class="n">Environment</span><span class="p">.</span><span class="n">IsDevelopment</span><span class="p">(</span><span class="p">)</span><span class="p">)</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="n">app</span><span class="p">.</span><span class="n">MapOpenApi</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="n">app</span><span class="p">.</span><span class="n">UseSwagger</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="n">app</span><span class="p">.</span><span class="n">UseSwaggerUI</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="p">}</span></span><span class="ln"> </span><span class="ln"><span class="n">app</span><span class="p">.</span><span class="n">UseHttpsRedirection</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="n">app</span><span class="p">.</span><span class="n">UseAuthorization</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="n">app</span><span class="p">.</span><span class="n">MapControllers</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="n">app</span><span class="p">.</span><span class="n">Run</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span></code></pre></div>
+<ol>
+<li><strong><code>AddSwaggerGen</code></strong> — Controller-ებიდან აღწერას ქმნის.</li>
+<li><strong><code>UseSwagger</code></strong> — აღწერას გასცემს: <code>/swagger/v1/swagger.json</code>.</li>
+<li><strong><code>UseSwaggerUI</code></strong> — გვერდს ხატავს: <code>/swagger</code>.</li>
+</ol>
+<p>🔒 მხოლოდ <strong>Development</strong>-ში — რეალურ სერვერზე API-ს რუკას ყველას არ ვაჩვენებთ.</p></article>
+<article class="blk" data-slides="32"><span class="anchor" id="s-32"></span><div class="bh"><h3>Swagger UI — ჩვენი API ერთ გვერდზე</h3><a class="chip" href="index.html#/32" data-go="32" title="პრეზენტაციაში გახსნა">სლაიდი 32</a></div>
+<p>გახსენი <code>https://localhost:&lt;პორტი&gt;/swagger</code>:</p>
+<ul>
+<li><strong>Products</strong> ჯგუფში ჩანს <code>GET /api/Products</code> — სახელი Controller-ის კლასიდან აიღო.</li>
+<li>ქვემოთ <strong>Schemas</strong> — <code>Product</code> { id, name, price } და მათი ტიპები.</li>
+</ul>
+<p>დოკუმენტაციის არცერთი ხაზი არ დაგვიწერია. ყოველი ახალი endpoint აქ <strong>თვითონ გამოჩნდება</strong>.</p></article>
+<article class="blk" data-slides="33"><span class="anchor" id="s-33"></span><div class="bh"><h3>Try it out — ნებისმიერი მოთხოვნა 4 დაჭერით</h3><a class="chip" href="index.html#/33" data-go="33" title="პრეზენტაციაში გახსნა">სლაიდი 33</a></div>
+<ol>
+<li><strong>გახსენი</strong> — დააჭირე endpoint-ს, ჩამოიშლება.</li>
+<li><strong>Try it out</strong> — ველები რედაქტირებადი ხდება.</li>
+<li><strong>შეავსე</strong> — id ველში, JSON — Request body-ში.</li>
+<li><strong>Execute</strong> — ქვემოთ: სტატუს კოდი + Response body.</li>
+</ol></article>
+<h2 class="sec" id="sec-9">5 · სრული CRUD</h2>
+<article class="blk" data-slides="34"><span class="anchor" id="s-34"></span><div class="bh"><h3>ნაწილი 5 · CRUD — ბოლომდე</h3><a class="chip" href="index.html#/34" data-go="34" title="პრეზენტაციაში გახსნა">სლაიდი 34</a></div>
+<p>დანარჩენ ოთხ endpoint-ს ერთი რიტმით ვწერთ: <strong>ვწერ → ვუშვებ → Swagger-ში ვცდი → ვნახულობთ შედეგს</strong>.</p></article>
+<article class="blk" data-slides="35"><span class="anchor" id="s-35"></span><div class="bh"><h3>Read · GET ერთი პროდუქტი Id-ით</h3><a class="chip" href="index.html#/35" data-go="35" title="პრეზენტაციაში გახსნა">სლაიდი 35</a></div>
+<div class="codebox"><div class="ch"><span>ProductsController.cs</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="c1">// GET /api/products/2</span></span><span class="ln"><span class="na">[HttpGet("{id}")]</span></span><span class="ln"><span class="k">public</span><span class="w"> </span><span class="n">IActionResult</span><span class="w"> </span><span class="nf">GetById</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">id</span><span class="p">)</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="kt">var</span><span class="w"> </span><span class="n">product</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">_products</span><span class="p">.</span><span class="n">FirstOrDefault</span><span class="p">(</span><span class="n">p</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">Id</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">id</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">product</span><span class="w"> </span><span class="k">is</span><span class="w"> </span><span class="k">null</span><span class="p">)</span></span><span class="ln"><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="nf">NotFound</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nf">Ok</span><span class="p">(</span><span class="n">product</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="p">}</span></span></code></pre></div>
+<ul>
+<li><strong><code>{id}</code></strong> — მისამართის ეს ნაწილი ცვლადია და იმავე სახელის პარამეტრში ჯდება: <code>/api/products/2</code> → <code>int id = 2</code>. სახელები ერთნაირი უნდა იყოს.</li>
+<li><strong><code>FirstOrDefault</code></strong> (LINQ) — იპოვე პირველი, რომლის <code>Id == id</code>. ვერ იპოვა → <code>null</code>.</li>
+<li><code>null</code> → <strong>404</strong>, იპოვა → <strong>200</strong> და პროდუქტი.</li>
+</ul>
+<p><code>GET /api/products/99</code> → 404 · <code>GET /api/products/2</code> → 200 <code>{ "id": 2, "name": "მაუსი", "price": 45 }</code></p></article>
+<article class="blk" data-slides="36"><span class="anchor" id="s-36"></span><div class="bh"><h3>Create · POST ახალი პროდუქტი</h3><a class="chip" href="index.html#/36" data-go="36" title="პრეზენტაციაში გახსნა">სლაიდი 36</a></div>
+<div class="codebox"><div class="ch"><span>ProductsController.cs</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="c1">// POST /api/products</span></span><span class="ln"><span class="na">[HttpPost]</span></span><span class="ln"><span class="k">public</span><span class="w"> </span><span class="n">IActionResult</span><span class="w"> </span><span class="nf">Create</span><span class="p">(</span><span class="n">Product</span><span class="w"> </span><span class="n">product</span><span class="p">)</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="n">product</span><span class="p">.</span><span class="n">Id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">_nextId</span><span class="o">++</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="n">_products</span><span class="p">.</span><span class="n">Add</span><span class="p">(</span><span class="n">product</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nf">CreatedAtAction</span><span class="p">(</span></span><span class="ln"><span class="w">        </span><span class="k">nameof</span><span class="p">(</span><span class="n">GetById</span><span class="p">)</span><span class="p">,</span><span class="w">           </span><span class="c1">// სად იპოვო</span></span><span class="ln"><span class="w">        </span><span class="k">new</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">product</span><span class="p">.</span><span class="n">Id</span><span class="w"> </span><span class="p">}</span><span class="p">,</span><span class="w">   </span><span class="c1">// რომელი</span></span><span class="ln"><span class="w">        </span><span class="n">product</span><span class="p">)</span><span class="p">;</span><span class="w">                  </span><span class="c1">// რა შეიქმნა</span></span><span class="ln"><span class="p">}</span></span></code></pre></div>
+<ul>
+<li>მონაცემი მისამართში კი არა, <strong>Body-ში</strong> მოდის, JSON-ად: <code>{ "name": "მონიტორი", "price": 650 }</code>. ASP.NET Core მას თვითონ აქცევს <code>Product</code> ობიექტად.</li>
+<li>JSON-ში <code>id</code> არ გამოგვიგზავნია, ამიტომ <code>product.Id</code> 0-ია. <strong>Id-ს ჩვენ ვაძლევთ</strong>: 4, მერე 5, 6… (<code>_nextId++</code> — ჯერ მიანიჭე, მერე გაზარდე).</li>
+<li>სიაში ვამატებთ — ახლა GET-იც დაინახავს.</li>
+<li><strong><code>CreatedAtAction</code></strong> → <strong>201 Created</strong>, header-ში <code>Location: /api/products/4</code> (სად ვიპოვო ახალი პროდუქტი) და body-ში — შექმნილი პროდუქტი.</li>
+</ul></article>
+<article class="blk" data-slides="37"><span class="anchor" id="s-37"></span><div class="bh"><h3>Update · PUT პროდუქტის განახლება</h3><a class="chip" href="index.html#/37" data-go="37" title="პრეზენტაციაში გახსნა">სლაიდი 37</a></div>
+<div class="codebox"><div class="ch"><span>ProductsController.cs</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="c1">// PUT /api/products/2</span></span><span class="ln"><span class="na">[HttpPut("{id}")]</span></span><span class="ln"><span class="k">public</span><span class="w"> </span><span class="n">IActionResult</span><span class="w"> </span><span class="nf">Update</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">id</span><span class="p">,</span><span class="w"> </span><span class="n">Product</span><span class="w"> </span><span class="n">updated</span><span class="p">)</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="kt">var</span><span class="w"> </span><span class="n">product</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">_products</span><span class="p">.</span><span class="n">FirstOrDefault</span><span class="p">(</span><span class="n">p</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">Id</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">id</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">product</span><span class="w"> </span><span class="k">is</span><span class="w"> </span><span class="k">null</span><span class="p">)</span></span><span class="ln"><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="nf">NotFound</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="n">product</span><span class="p">.</span><span class="n">Name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">updated</span><span class="p">.</span><span class="n">Name</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="n">product</span><span class="p">.</span><span class="n">Price</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">updated</span><span class="p">.</span><span class="n">Price</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nf">NoContent</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="p">}</span></span></code></pre></div>
+<ul>
+<li>მონაცემი <strong>ორი წყაროდან</strong>: <code>id</code> — მისამართიდან, <code>updated</code> — Body-დან. ASP.NET Core ორივეს თვითონ ავსებს.</li>
+<li>იპოვე → არ არის? <strong>404</strong> — იგივე, რაც GetById-ში.</li>
+<li>ძველ პროდუქტს ახალ მნიშვნელობებს ვანიჭებთ. <strong>Id-ს არ ვცვლით.</strong></li>
+<li><strong>204 No Content</strong> — განახლდა, დასაბრუნებელი არაფერია.</li>
+</ul></article>
+<article class="blk" data-slides="38"><span class="anchor" id="s-38"></span><div class="bh"><h3>Delete · DELETE პროდუქტის წაშლა</h3><a class="chip" href="index.html#/38" data-go="38" title="პრეზენტაციაში გახსნა">სლაიდი 38</a></div>
+<div class="codebox"><div class="ch"><span>ProductsController.cs</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="c1">// DELETE /api/products/2</span></span><span class="ln"><span class="na">[HttpDelete("{id}")]</span></span><span class="ln"><span class="k">public</span><span class="w"> </span><span class="n">IActionResult</span><span class="w"> </span><span class="nf">Delete</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">id</span><span class="p">)</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="kt">var</span><span class="w"> </span><span class="n">product</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">_products</span><span class="p">.</span><span class="n">FirstOrDefault</span><span class="p">(</span><span class="n">p</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">Id</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">id</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">product</span><span class="w"> </span><span class="k">is</span><span class="w"> </span><span class="k">null</span><span class="p">)</span></span><span class="ln"><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="nf">NotFound</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="n">_products</span><span class="p">.</span><span class="n">Remove</span><span class="p">(</span><span class="n">product</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nf">NoContent</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="p">}</span></span></code></pre></div>
+<p>მესამედ იგივე ნიმუში: იპოვე → არ არის? 404 → <code>Remove</code> → <strong>204</strong>. Swagger-ში: <code>DELETE 2</code> → 204, მერე <code>GET 2</code> → 404.</p></article>
+<article class="blk" data-slides="39"><span class="anchor" id="s-39"></span><div class="bh"><h3>სრული CRUD — 5 endpoint ✓</h3><a class="chip" href="index.html#/39" data-go="39" title="პრეზენტაციაში გახსნა">სლაიდი 39</a></div>
+<table>
+<thead>
+<tr>
+<th>მეთოდი</th>
+<th>მისამართი</th>
+<th>რას აკეთებს</th>
+<th>C# მეთოდი</th>
+<th>პასუხი</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>GET</td>
+<td><code>/api/products</code></td>
+<td>ყველა</td>
+<td><code>GetAll()</code></td>
+<td>200</td>
+</tr>
+<tr>
+<td>GET</td>
+<td><code>/api/products/{id}</code></td>
+<td>ერთი</td>
+<td><code>GetById(id)</code></td>
+<td>200 · 404</td>
+</tr>
+<tr>
+<td>POST</td>
+<td><code>/api/products</code></td>
+<td>დამატება</td>
+<td><code>Create(product)</code></td>
+<td>201</td>
+</tr>
+<tr>
+<td>PUT</td>
+<td><code>/api/products/{id}</code></td>
+<td>განახლება</td>
+<td><code>Update(id, …)</code></td>
+<td>204 · 404</td>
+</tr>
+<tr>
+<td>DELETE</td>
+<td><code>/api/products/{id}</code></td>
+<td>წაშლა</td>
+<td><code>Delete(id)</code></td>
+<td>204 · 404</td>
+</tr>
+</tbody>
+</table>
+<p>დაიმახსოვრე ნიმუში: <strong>იპოვე → არ არის? 404 → გააკეთე → უპასუხე.</strong></p></article>
+<article class="blk" data-slides="40"><span class="anchor" id="s-40"></span><div class="bh"><h3>სრული სცენარი — თავიდან ბოლომდე</h3><a class="chip" href="index.html#/40" data-go="40" title="პრეზენტაციაში გახსნა">სლაიდი 40</a></div>
+<ol>
+<li>POST მონიტორი, 650 → <strong>201</strong>, id = 4</li>
+<li>GET ყველა → <strong>4 პროდუქტი</strong> (<code>static</code> მუშაობს: POST და GET სხვადასხვა Controller იყო, სია კი ერთი)</li>
+<li>PUT /4 → ფასი 599 → <strong>204</strong></li>
+<li>GET /4 → ფასი უკვე 599</li>
+<li>DELETE /4 → <strong>204</strong></li>
+<li>GET /4 → <strong>404</strong> ✓ ასეც უნდა იყოს</li>
+</ol>
+<div class="callout warn"><span class="ci">⚠️</span><div><p>ექსპერიმენტი: POST კიდევ ერთი → გააჩერე პროგრამა → გაუშვი თავიდან → GET ყველა. ახალი პროდუქტი გაქრა: <code>static</code> სია მეხსიერებაშია და პროგრამასთან ერთად ქრება. მუდმივად შენახვისთვის ბაზა გვჭირდება — ის მოგვიანებით მოვა.</p></div></div></article>
+<h2 class="sec" id="sec-10">პრაქტიკა</h2>
+<article class="blk" data-slides="41"><span class="anchor" id="s-41"></span><div class="bh"><h3>ნაწილი 6 · ახლა თქვენი ჯერია</h3><a class="chip" href="index.html#/41" data-go="41" title="პრეზენტაციაში გახსნა">სლაიდი 41</a></div>
+<p>ProductsController ლექტორმა დაწერა, შენ უყურე. ახლა — იგივე, დამოუკიდებლად, წიგნებზე.</p></article>
+<article class="blk" data-slides="42"><span class="anchor" id="s-42"></span><div class="bh"><h3>კლასში დავალება: BooksController — სრული CRUD</h3><a class="chip" href="index.html#/42" data-go="42" title="პრეზენტაციაში გახსნა">სლაიდი 42</a></div>
+<p>დავალება · ახალი პროექტი LibraryApi</p>
+<h3>ნაბიჯები</h3>
+<ul>
+<li>ახალი პროექტი <strong>LibraryApi</strong>: ☑ Use controllers, Swagger — 1 პაკეტი + 3 ხაზი</li>
+<li><code>Models/Book.cs</code>: <code>Id</code>, <code>Title</code>, <code>Author</code>, <code>Year</code>, <code>Price</code></li>
+<li><code>BooksController</code> · <code>static</code> სია 3 წიგნით</li>
+<li>5 endpoint: GetAll, GetById, Create, Update, Delete — სწორი კოდებით: 200 · 201 · 204 · 404</li>
+<li>ყოველი endpoint დაწერისთანავე Swagger-ში გატესტეთ</li>
+</ul>
+<h3>✓ მზადაა, როცა</h3>
+<p>Swagger-ში Books ჯგუფი ჩანს და სრული სცენარი გადის: POST → GET → PUT → GET → DELETE → GET (404)</p>
+<h3>💡 რჩევა</h3>
+<p>ProductsController თქვენი ნიმუშია — მაგრამ ნუ გადააკოპირებთ: ყოველი endpoint თავიდან დაწერეთ და ხმამაღლა თქვით, რას აკეთებს ყოველი ხაზი. ჯერ ცდი თვითონ → გვერდით მჯდომს ჰკითხე → მერე ლექტორს. ვინც ვერ მორჩება, სახლში დაასრულებს — საშინაოში ორი ბონუსიც ემატება.</p></article>
+<article class="blk" data-slides="43"><span class="anchor" id="s-43"></span><div class="bh"><h3>ხშირი შეცდომები</h3><a class="chip" href="index.html#/43" data-go="43" title="პრეზენტაციაში გახსნა">სლაიდი 43</a></div>
+<table>
+<thead>
+<tr>
+<th>რას ხედავ</th>
+<th>მიზეზი</th>
+<th>გამოსწორება</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>POST-ის შემდეგ GET-ში ახალი არ ჩანს</td>
+<td>სიას <code>static</code> აკლია</td>
+<td><code>private static List&lt;…&gt;</code></td>
+</tr>
+<tr>
+<td>Swagger: Failed to load API definition</td>
+<td>public მეთოდს <code>[Http…]</code> ატრიბუტი აკლია</td>
+<td>დაამატე <code>[HttpGet]</code> / <code>[HttpPost]</code> …</td>
+</tr>
+<tr>
+<td><code>AmbiguousMatchException: matched multiple endpoints</code></td>
+<td>ორ მეთოდს ერთი მისამართი აქვს</td>
+<td>შეამოწმე <code>"{id}"</code> — ხომ არ დაგავიწყდა</td>
+</tr>
+<tr>
+<td><code>'AddSwaggerGen' does not exist</code></td>
+<td>პაკეტი არ არის დაყენებული</td>
+<td>NuGet: Swashbuckle.AspNetCore</td>
+</tr>
+<tr>
+<td><code>/swagger</code> → 404</td>
+<td><code>UseSwaggerUI()</code> აკლია</td>
+<td>3 ხაზი — Program.cs-ში</td>
+</tr>
+<tr>
+<td>Controller Swagger-ში არ ჩანს</td>
+<td>კლასი არ არის public, ან ControllerBase-ს არ აშენებს</td>
+<td><code>public class …Controller : ControllerBase</code></td>
+</tr>
+<tr>
+<td>400 — The Title field is required</td>
+<td>JSON-ში title არ გაგზავნე</td>
+<td>შეავსე Request body სრულად</td>
+</tr>
+</tbody>
+</table>
+<div class="prompt"><div class="ph"><span>🤖 როცა რამე არ მუშაობს</span><button class="copy" type="button">კოპირება</button></div><div class="pb">ვწერ ASP.NET Core Web API-ს Controller-ებით (BooksController, static List, CRUD). მაქვს პრობლემა: [აღწერე, რას ხედავ]
+შეცდომა: [ჩასვი ტექსტი]
+კოდი: [ჩასვი Controller-ის შესაბამისი ნაწილი]
+ჯერ მითხარი, სად არის პრობლემა და რატომ — მზა კოდი ნუ დამიწერე.</div></div></article>
+<h2 class="sec" id="sec-11">შეჯამება</h2>
+<article class="blk" data-slides="44"><span class="anchor" id="s-44"></span><div class="bh"><h3>შეამოწმე, რა დაგამახსოვრდა</h3><a class="chip" href="index.html#/44" data-go="44" title="პრეზენტაციაში გახსნა">სლაიდი 44</a></div>
+<p>ეს კითხვები შემდეგი ლექციის დასაწყისშიც დაისმება.</p>
+<div class="selfcheck"><div class="sh">✅ შეამოწმე თავი <small>დაფიქრდი, მერე გახსენი პასუხი</small></div><details><summary>API-ის აწყობის რომელ ორ გზას გვთავაზობს .NET და რით ვირჩევთ?</summary><div class="ans">Minimal API და Controllers · „Use controllers“ checkbox პროექტის შექმნისას</div></details><details><summary>რატომ არსებობს REST?</summary><div class="ans">საერთო წესები: რესურსი — URL-ში, მოქმედება — HTTP მეთოდით, შედეგი — სტატუს კოდით. ყველა ერთნაირად წერს და კითხულობს</div></details><details><summary>პროდუქტი 7-ის წაშლა: რომელი მეთოდი, რომელი მისამართი, რა პასუხი?</summary><div class="ans"><code>DELETE /api/products/7</code> → 204, ან 404, თუ არ არსებობს</div></details><details><summary>რატომ არის სია <code>static</code>?</summary><div class="ans">Controller ყოველ მოთხოვნაზე თავიდან იქმნება · <code>static</code> სია კლასს ეკუთვნის — ყველა მოთხოვნას ერთი აქვს</div></details><details><summary>რისთვის გვჭირდება Swagger?</summary><div class="ans">ავტომატური დოკუმენტაცია + ტესტირება ბრაუზერიდან (Try it out)</div></details></div></article>
+<article class="blk" data-slides="45"><span class="anchor" id="s-45"></span><div class="bh"><h3>შეჯამება · პირველი სრული REST API 🚀</h3><a class="chip" href="index.html#/45" data-go="45" title="პრეზენტაციაში გახსნა">სლაიდი 45</a></div>
+<p><strong>დაიმახსოვრე:</strong></p>
+<ol>
+<li><strong>ორი გზა</strong> — Minimal API და Controller; ვიწყებთ Controller-ით, რადგან სტრუქტურა მზადაა.</li>
+<li><strong>REST</strong> — რესურსი მისამართში, მოქმედება მეთოდით, შედეგი სტატუს კოდით.</li>
+<li><strong>Swagger</strong> — დოკუმენტაცია და ტესტირება, კოდიდან ავტომატურად.</li>
+<li><strong>CRUD</strong> — იპოვე → არ არის? 404 → გააკეთე → უპასუხე.</li>
+</ol>
+<p>ეს უკვე ნამდვილი REST API-ია — ზუსტად ასე გამოიყურება API რეალურ პროექტებშიც, უბრალოდ იქ მონაცემი ბაზაშია.</p>
+<div class="prompt"><div class="ph"><span>🤖 გამოცდა ლექციაზე</span><button class="copy" type="button">კოპირება</button></div><div class="pb">ვსწავლობ ASP.NET Core Web API-ს. გავიარეთ: Minimal API vs Controller, [ApiController], [Route], ControllerBase, IActionResult, REST-ის წესები, სტატუს კოდები (200, 201, 204, 400, 404), Swagger, static სია და სრული CRUD.
+დამისვი 8 კითხვა სათითაოდ — ზოგი კოდის ნაწყვეტზე („რას დააბრუნებს?“). ყოველ პასუხზე შემიფასე და ამიხსენი. ბოლოს მითხარი, რა გავიმეორო. ქართულად.</div></div></article>
+<h2 class="sec" id="sec-12">საშინაო</h2>
+<article class="blk" data-slides="46"><span class="anchor" id="s-46"></span><div class="bh"><h3>საშინაო დავალება: LibraryApi — BooksController სრულად</h3><a class="chip" href="index.html#/46" data-go="46" title="პრეზენტაციაში გახსნა">სლაიდი 46</a></div>
+<p>ლექციაზე დაწყებული LibraryApi დაასრულეთ: ხუთივე endpoint და ორივე ბონუსი.</p>
+<h3>მოთხოვნები</h3>
+<ul>
+<li><code>Book</code>: <code>Id</code>, <code>Title</code>, <code>Author</code>, <code>Year</code>, <code>Price</code></li>
+<li><code>BooksController</code> — <code>static</code> სია 3 წიგნით, 5 endpoint</li>
+<li>სწორი სტატუს კოდები: 200 · 201 · 204 · 404</li>
+<li>POST-ში ცარიელი <code>Title</code> → <code>BadRequest()</code> (400)</li>
+<li><code>GET /api/books/cheap</code> — წიგნები, რომელთა ფასი 20-ზე ნაკლებია</li>
+</ul>
+<h3>✓ მზადაა, როცა</h3>
+<p>Swagger-ში Books ჯგუფი ჩანს და ყველა endpoint, ორივე ბონუსის ჩათვლით, გატესტილია.</p></article>
+  </main>
+</div>
+<script>
+const DECK = "ASP.NET · 2 — Minimal API vs Controller, REST, CRUD და Swagger";
+if (matchMedia('(min-width:981px)').matches) document.getElementById('tocd').open = true;
+const blocks = [...document.querySelectorAll('.blk')];
+const tocLinks = [...document.querySelectorAll('nav.toc a[href^="#sec-"]')];
+const secOf = b => { let e = b; while (e && !(e.matches && e.matches('h2.sec'))) e = e.previousElementSibling; return e; };
+function mark(b, toc_only) {
+  if (!toc_only) blocks.forEach(x => x.classList.toggle('cur', x === b));
+  const s = b && secOf(b); tocLinks.forEach(a => a.classList.toggle('cur', s && a.getAttribute('href') === '#' + s.id));
+}
+const blockFor = n => blocks.find(b => b.dataset.slides.split(',').includes(String(n)));
+
+// copy buttons (code: one line per .ln)
+document.addEventListener('click', e => {
+  const btn = e.target.closest('.copy'); if (!btn) return;
+  const box = btn.closest('.codebox, .prompt');
+  const text = box.matches('.prompt') ? box.querySelector('.pb').textContent : [...box.querySelectorAll('.ln')].map(l => l.textContent).join('\n');
+  navigator.clipboard.writeText(text).then(() => { btn.textContent = '✓ დაკოპირდა'; btn.classList.add('ok'); setTimeout(() => { btn.textContent = 'კოპირება'; btn.classList.remove('ok'); }, 1600); });
+});
+
+// live mode: opened from the deck with P — follow the projector
+const live = new URLSearchParams(location.search).has('live');
+let follow = true, bc = null;
+const liveBtn = document.getElementById('live');
+if (live) {
+  try { bc = new BroadcastChannel('deck-' + DECK); } catch (e) {}
+  liveBtn.classList.add('on');
+  liveBtn.onclick = () => { follow = !follow; liveBtn.classList.toggle('off', !follow); liveBtn.querySelector('.lt').textContent = follow ? 'მიჰყვება სლაიდებს' : 'თავისუფლად ვკითხულობ'; };
+  if (bc) {
+    bc.onmessage = ({ data }) => {
+      if (data.t !== 'state' || !follow) return;
+      const b = blockFor(data.i + 1); if (!b || b.classList.contains('cur')) return;
+      mark(b); b.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    };
+    bc.postMessage({ t: 'hello' });
+  }
+  document.addEventListener('click', e => {   // slide chip → move the projector deck
+    const c = e.target.closest('.chip[data-go]'); if (!c || !bc) return;
+    e.preventDefault(); bc.postMessage({ t: 'go', n: +c.dataset.go - 1 });
+  });
+}
+// deep link #s-12
+const h = location.hash.match(/^#s-(\d+)$/);
+if (h) { const b = blockFor(+h[1]); if (b) { mark(b); setTimeout(() => b.scrollIntoView({ block: 'start' }), 50); } }
+// highlight section in the TOC while reading
+const io = new IntersectionObserver(es => es.forEach(x => { if (x.isIntersecting && !(live && follow)) mark(x.target, true); }), { rootMargin: '-30% 0px -60% 0px' });
+blocks.forEach(b => io.observe(b));
+</script>
+</body></html>
