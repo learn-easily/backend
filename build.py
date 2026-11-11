@@ -9,6 +9,8 @@
 #   classwork.md    კლასში დავალება            homework.md    საშინაო (+ "## ამოხსნა" — ჩანს მხოლოდ შემდეგ ლექციაზე)
 #   materials/      ფაილები ჩამოსატვირთად
 #
+# ყველა HTML გვერდი იშიფრება კოდით (.access-code ან LECTURES_CODE) — engine/gate.html კოდს ერთხელ ითხოვს.
+#
 # deck.html-ში ლექციის ნაწილები ცხადად იწერება (build მათ სლაიდებად აქცევს):
 #   <lecture-review/>            გამეორება — წინა ლექციის review კითხვები
 #   <lecture-homework-review/>   წინა ლექციის საშინაო + ამოხსნა
@@ -16,10 +18,13 @@
 #   <lecture-classwork/>         კლასში დავალება (classwork.md)
 #   <lecture-check/>             შევამოწმოთ — ამ ლექციის review კითხვები
 #   <lecture-homework/>          საშინაო (homework.md, ამოხსნის გარეშე)
-import html, json, pathlib, re, shutil, sys
+import base64, html, json, os, pathlib, re, shutil, sys
 import markdown
 from pygments.lexers import get_lexer_by_name
 from pygments.token import STANDARD_TYPES
+from cryptography.hazmat.primitives import hashes
+from cryptography.hazmat.primitives.ciphers.aead import AESGCM
+from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 
 ROOT = pathlib.Path(__file__).parent
 ENGINE = ROOT / 'engine'
@@ -32,6 +37,31 @@ FONTS = ('<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="
          '<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Georgian:wght@400;600;700;800'
          '&family=JetBrains+Mono:wght@400;600;700;800&display=swap" rel="stylesheet">')
 esc = html.escape
+
+# ---------- access code ----------
+# Every published HTML page is AES-GCM encrypted with a key derived from the access code; engine/gate.html asks for
+# the code once, remembers it in the browser and decrypts the page. The code lives in .access-code (not in git).
+CODE_FILE = ROOT / '.access-code'
+PBKDF2_ITERATIONS = 200_000
+_key = None
+
+def access_key():
+    global _key
+    if _key is None:
+        code = os.environ.get('LECTURES_CODE') or (CODE_FILE.read_text().strip() if CODE_FILE.exists() else '')
+        if not code:
+            sys.exit('⚠ კოდი არ არის: შექმენი .access-code ფაილი (ერთი ხაზი — კოდი) ან LECTURES_CODE ცვლადი')
+        salt = os.urandom(16)
+        kdf = PBKDF2HMAC(algorithm=hashes.SHA256(), length=32, salt=salt, iterations=PBKDF2_ITERATIONS)
+        _key = (salt, kdf.derive(code.encode()))
+    return _key
+
+def write_page(path, page):
+    salt, key = access_key()
+    iv = os.urandom(12)
+    b = lambda x: base64.b64encode(x).decode()
+    payload = {'s': b(salt), 'i': b(iv), 'n': PBKDF2_ITERATIONS, 'c': b(AESGCM(key).encrypt(iv, page.encode(), None))}
+    path.write_text((ENGINE / 'gate.html').read_text().replace('/*PAYLOAD*/{}', json.dumps(payload)))
 
 # ---------- code highlighting ----------
 def _short(tt):
@@ -330,7 +360,7 @@ def build_lecture(course, cdir, ldir, meta, prev):
     has_study = any(s['html'] for s in study)
 
     out.mkdir(parents=True, exist_ok=True)
-    (out / 'index.html').write_text(f'''<!doctype html>
+    write_page(out / 'index.html', f'''<!doctype html>
 <html lang="ka"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>{esc(title)}</title>
 {FONTS}
@@ -390,7 +420,7 @@ def write_study(out, course, meta, num, deck_title, study, materials):
                  '{{DECK_TITLE_JSON}}': json.dumps(deck_title, ensure_ascii=False), '{{TOC}}': ''.join(toc),
                  '{{BODY}}': '\n'.join(body), '{{MATERIALS}}': mats, '{{TOKEN_CSS}}': TOKEN_CSS, '{{FONTS}}': FONTS}.items():
         page = page.replace(k, v)
-    (out / 'study.html').write_text(page)
+    write_page(out / 'study.html', page)
 
 # ---------- everything ----------
 def main(filters):
@@ -420,7 +450,7 @@ def main(filters):
     catalog.sort(key=lambda c: c['order'])
     if not filters:
         page = (ENGINE / 'index.html').read_text().replace('/*CATALOG*/[]', json.dumps(catalog, ensure_ascii=False))
-        (OUT / 'index.html').write_text(page)
+        write_page(OUT / 'index.html', page)
         (OUT / '.nojekyll').write_text('')
         marker.write_text('\n'.join(c['slug'] for c in catalog) + '\n')
         print(f'index: {sum(len(c["lectures"]) for c in catalog)} lectures in {len(catalog)} courses')

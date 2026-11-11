@@ -80,10 +80,17 @@ build.py                     აწყობს ყველაფერს → 
 
 > `csharp/`, `efcore/`, `aspnet/`, `sql/`, `devops/` და root-ის `index.html` ბილდის შედეგია — ხელით არ შეცვალო, შეცვალე `courses/` და გაუშვი ბილდი.
 
+## კოდი
+
+საიტი კოდით იხსნება. ყველა HTML გვერდი ბილდისას იშიფრება (AES-GCM, გასაღები კოდიდან) — კოდის გარეშე გვერდზე არაფერია, მხოლოდ კოდის ველი. ერთხელ შეყვანილ კოდს ბრაუზერი იმახსოვრებს.
+
+- კოდი ინახება `.access-code` ფაილში (ერთი ხაზი) — ის **git-ში არ შედის**. ან: `LECTURES_CODE=... python3 build.py`.
+- კოდის შესაცვლელად — შეცვალე ფაილი და გაუშვი ბილდი. ძველი კოდი ავტომატურად აღარ იმუშავებს.
+
 ## ლოკალურად
 
 ```bash
-python3 -m venv .venv && .venv/bin/pip install pygments markdown   # ერთხელ
+python3 -m venv .venv && .venv/bin/pip install pygments markdown cryptography   # ერთხელ
 .venv/bin/python build.py                                          # ყველაფერი → root
 .venv/bin/python build.py aspnet/03                                # მხოლოდ ერთი ლექცია
 python3 -m http.server 8000                                        # http://localhost:8000
