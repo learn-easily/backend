@@ -28,7 +28,8 @@ from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 
 ROOT = pathlib.Path(__file__).parent
 ENGINE = ROOT / 'engine'
-OUT = ROOT   # GitHub Pages serves main/root: built pages live next to the sources
+# LECTURES_OUT=dist → separate output folder (Vercel); default: repo root (GitHub Pages serves main/root)
+OUT = (ROOT / os.environ['LECTURES_OUT']).resolve() if os.environ.get('LECTURES_OUT') else ROOT
 GENERATED = '.generated'   # list of folders build.py created — only these are ever deleted
 CSS = (ENGINE / 'engine.css').read_text() + '\n' + (ENGINE / 'theme-light.css').read_text()
 JS = (ENGINE / 'engine.js').read_text()
@@ -424,6 +425,7 @@ def write_study(out, course, meta, num, deck_title, study, materials):
 
 # ---------- everything ----------
 def main(filters):
+    OUT.mkdir(parents=True, exist_ok=True)
     marker = OUT / GENERATED
     if not filters and marker.exists():
         for d in marker.read_text().split():

@@ -84,8 +84,16 @@ build.py                     აწყობს ყველაფერს → 
 
 საიტი კოდით იხსნება. ყველა HTML გვერდი ბილდისას იშიფრება (AES-GCM, გასაღები კოდიდან) — კოდის გარეშე გვერდზე არაფერია, მხოლოდ კოდის ველი. ერთხელ შეყვანილ კოდს ბრაუზერი იმახსოვრებს.
 
-- კოდი ინახება `.access-code` ფაილში (ერთი ხაზი) — ის **git-ში არ შედის**. ან: `LECTURES_CODE=... python3 build.py`.
+- კოდი: გარემოს ცვლადი **`LECTURES_CODE`** (Vercel-ზე — Project Settings → Environment Variables). ლოკალურად — ან ცვლადი, ან `.access-code` ფაილი (ერთი ხაზი, git-ში არ შედის).
 - კოდის შესაცვლელად — შეცვალე ფაილი და გაუშვი ბილდი. ძველი კოდი ავტომატურად აღარ იმუშავებს.
+
+## Vercel
+
+`vercel.json` უკვე მზადაა: Vercel აყენებს `requirements.txt`-ს, უშვებს `LECTURES_OUT=dist python3 build.py`-ს და აქვეყნებს **მხოლოდ** `dist/`-ს (`courses/`, `build.py` საიტზე არ ხვდება).
+
+1. vercel.com → Add New → Project → `learn-easily/backend`.
+2. Environment Variables: `LECTURES_CODE` = კოდი.
+3. Deploy. კოდის შეცვლა: ცვლადი შეცვალე → Redeploy.
 
 ## ლოკალურად
 
