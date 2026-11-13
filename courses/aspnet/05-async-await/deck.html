@@ -1,0 +1,1612 @@
+<style>
+i.codestep{display:none}
+.mono{font-family:var(--mono)}
+.term .ok{color:#4ade80}
+.term .body{font-size:18px;line-height:1.65}
+.flowv{display:flex;flex-direction:column;gap:10px}
+.fstep{display:flex;align-items:center;gap:14px;border-radius:12px;padding:10px 16px;border:2px solid var(--a);background:color-mix(in srgb,var(--a) 7%,#fff);font-size:19px;color:var(--ink)}
+.fstep .n{font:800 18px var(--mono);color:var(--a);min-width:26px}
+.fstep .who{margin-left:auto;font:700 14px var(--mono);color:#fff;background:var(--a);border-radius:8px;padding:3px 10px;white-space:nowrap}
+.opt{display:flex;gap:16px;align-items:flex-start;background:#fff;border:1px solid var(--line);border-left:6px solid var(--a);border-radius:12px;padding:16px 20px;box-shadow:var(--shadow)}
+.opt .n{font:800 30px var(--mono);color:var(--a);line-height:1}
+.opt h3{font-size:22px;margin-bottom:6px}
+.opt p{font-size:18px}
+.opt .v{margin-left:auto;font-size:30px;flex:none}
+.node{display:inline-flex;align-items:center;gap:8px;border:2px solid var(--a);background:color-mix(in srgb,var(--a) 8%,#fff);border-radius:12px;padding:8px 14px;font:700 18px var(--font);color:var(--ink)}
+.chain{display:flex;align-items:center;gap:14px;flex-wrap:nowrap}
+.chain .ar{font:800 26px var(--mono);color:var(--muted)}
+.chain.big .node{flex-direction:column;font-size:24px;padding:16px 24px;text-align:center}
+.chain.big .node small{font:600 15px var(--mono);color:var(--muted)}
+.big-n{font:800 110px/1 var(--mono)}
+.qbig{font-size:54px;font-weight:800;line-height:1.2;color:var(--ink)}
+.errbox{background:#fff;border:2px solid var(--red);border-radius:14px;box-shadow:var(--shadow);overflow:hidden}
+.errbox .eh{background:#fef2f2;color:#991b1b;font:700 16px var(--mono);padding:9px 16px;border-bottom:1px solid #fca5a5}
+.errbox .eb{padding:12px 16px;font:600 16px/1.55 var(--mono);color:var(--ink2)}
+/* request anatomy bar */
+.anat{display:flex;height:120px;border-radius:14px;overflow:hidden;box-shadow:var(--shadow);border:1px solid var(--line)}
+.anat>div{display:flex;flex-direction:column;justify-content:center;align-items:center;font:700 17px var(--mono);color:#fff;text-align:center;line-height:1.3}
+.anat small{font:600 13px var(--mono);opacity:.85}
+.anat .c{background:var(--net)}
+.anat .w{background:repeating-linear-gradient(45deg,#fef5e4 0 14px,#fde7c3 14px 28px);color:#92400e}
+/* thread pool */
+.pool{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;border:3px dashed var(--line2);border-radius:20px;padding:22px;position:relative;background:#fff}
+.pool .lbl{position:absolute;top:-16px;left:24px;background:var(--bg);padding:0 10px;font:700 16px var(--mono);color:var(--net)}
+.wkr{border-radius:16px;padding:20px 14px;text-align:center;border:2px solid var(--a,var(--net));background:color-mix(in srgb,var(--a,var(--net)) 8%,#fff)}
+.wkr .e{font-size:54px;line-height:1.2}
+.wkr .t{font:800 18px var(--mono);color:var(--a,var(--net))}
+.wkr .s{font-size:17px;color:var(--ink2);margin-top:4px}
+.wkr.blk{--a:var(--red);background:repeating-linear-gradient(45deg,#fff 0 12px,#fef2f2 12px 24px)}
+.door{display:flex;gap:8px;flex-wrap:wrap}
+.door span{font:700 17px var(--mono);padding:6px 11px;border-radius:8px;background:#eaf2fe;color:#1d4ed8}
+.door span.old{background:#fef2f2;color:#b91c1c}
+/* pager */
+.pager{display:flex;align-items:center;gap:18px;background:#fff;border:2px solid var(--core);border-radius:18px;padding:18px 22px;box-shadow:var(--shadow)}
+.pager .e{font-size:58px;line-height:1}
+.pager h3{margin:0 0 4px;font-size:24px}
+.pager p{font-size:18px}
+/* signature table */
+.sig{display:grid;grid-template-columns:1fr 60px 1fr;gap:12px 10px;align-items:center}
+.sig .a,.sig .b{font:600 19px var(--mono);background:#fff;border:1px solid var(--line);border-radius:10px;padding:10px 14px;box-shadow:var(--shadow);color:var(--ink)}
+.sig .b{border-color:color-mix(in srgb,var(--core) 45%,#fff);background:#f0fbf9}
+.sig .ar{text-align:center;font:800 24px var(--mono);color:var(--core)}
+.sig .h{font:700 14px var(--mono);color:var(--muted);letter-spacing:.06em;text-transform:uppercase}
+.sig em{font-style:normal;color:var(--core);font-weight:800}
+/* timeline svg */
+.tlx .bk{transform-box:fill-box;transform-origin:left center;transform:scaleX(0)}
+.tlx .shown .bk{animation:tlGrow .35s var(--ease) forwards;animation-delay:var(--d)}
+@keyframes tlGrow{to{transform:none}}
+/* io vs cpu */
+.kind{border-radius:18px;padding:20px 22px;border:2px solid var(--a);background:color-mix(in srgb,var(--a) 6%,#fff)}
+.kind h3{font-size:26px;color:var(--a);margin-bottom:4px}
+.kind .q{font-size:20px;color:var(--ink);font-weight:700;margin-bottom:10px}
+.kind ul li{font-size:21px;margin:10px 0}
+.verdict{font:800 20px var(--mono);color:#fff;background:var(--a);border-radius:10px;padding:8px 14px;display:inline-block;margin-top:10px}
+/* decision */
+.dq{border-radius:18px;padding:18px 24px;border:3px solid var(--net);background:#f6f2ff;font-size:26px;font-weight:800;color:var(--ink);text-align:center}
+.dbr{border-radius:16px;padding:16px 20px;border:2px solid var(--a);background:color-mix(in srgb,var(--a) 7%,#fff)}
+.dbr h3{font-size:22px;color:var(--a);margin-bottom:6px}
+.dbr p{font-size:20px}
+/* simulator */
+.sim{display:flex;flex-direction:column;gap:14px}
+.sim-ctl{display:flex;gap:16px;align-items:center}
+.seg{display:flex;align-items:center;gap:4px;background:#fff;border:1px solid var(--line);border-radius:12px;padding:5px;box-shadow:var(--shadow)}
+.seg span{font:600 14px var(--mono);color:var(--muted);padding:0 8px}
+.seg button,.sim .run{all:unset;cursor:pointer;font:700 17px var(--font);padding:8px 16px;border-radius:9px;color:var(--ink2)}
+.seg button.on{background:var(--net);color:#fff}
+.seg[data-k="mode"] button[data-v="sync"].on{background:var(--red)}
+.seg[data-k="mode"] button[data-v="async"].on{background:var(--mvc)}
+.sim .run{background:var(--ink);color:#fff;padding:10px 22px;border-radius:12px}
+.sim .run.again{background:var(--muted)}
+.sim .clock{margin-left:auto;font:700 17px var(--mono);color:var(--muted)}
+.sim-main{display:grid;grid-template-columns:270px 1fr 360px;gap:16px}
+.pane{background:#fff;border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow);padding:12px 16px;height:390px;overflow:hidden}
+.pane h4{font:700 14px var(--mono);color:var(--muted);letter-spacing:.06em;margin-bottom:8px;text-transform:uppercase;display:flex;justify-content:space-between}
+.pane h4 b{color:var(--ink)}
+.qchips{display:flex;flex-wrap:wrap;gap:6px;align-content:flex-start}
+.qchips span{font:700 14px var(--mono);padding:4px 8px;border-radius:7px;background:#eaf2fe;color:#1d4ed8}
+.qchips span.old{background:#fef2f2;color:#b91c1c}
+.qchips .more{background:none;color:var(--muted)}
+.lane{display:grid;grid-template-columns:96px 1fr;align-items:center;gap:10px;height:66px;border-radius:12px;padding:0 10px;margin:8px 0;border:2px solid var(--line);background:var(--bg)}
+.lane b{font:800 15px var(--mono);color:var(--ink2)}
+.lane .job{position:relative;height:44px;border-radius:9px;display:flex;align-items:center;padding:0 12px;font:700 16px var(--mono);overflow:hidden;white-space:nowrap}
+.lane.free .job{color:var(--muted);border:2px dashed var(--line2);font-weight:600}
+.lane.cpu{border-color:var(--net)} .lane.cpu .job{background:var(--net);color:#fff}
+.lane.io{border-color:var(--red)} .lane.io .job{background:repeating-linear-gradient(45deg,#fef5e4 0 10px,#fde7c3 10px 20px);color:#92400e}
+.job i{position:absolute;left:0;bottom:0;height:5px;background:currentColor;opacity:.45}
+.dbl{display:flex;flex-direction:column;gap:6px}
+.dbl .it{position:relative;display:flex;justify-content:space-between;font:700 14px var(--mono);padding:5px 10px;border-radius:8px;background:#fef5e4;color:#92400e;overflow:hidden}
+.dbl .it.lk{background:#fef2f2;color:#b91c1c}
+.dbl .it.rd{background:#eaf8ef;color:#166534}
+.dbl .it i{position:absolute;left:0;bottom:0;height:3px;background:currentColor;opacity:.5}
+.dbl .more{font:600 14px var(--mono);color:var(--muted)}
+.sim-stats{display:grid;grid-template-columns:repeat(5,1fr);gap:14px}
+.tile{background:#fff;border:1px solid var(--line);border-left:6px solid var(--a);border-radius:12px;padding:8px 14px;box-shadow:var(--shadow)}
+.tile .v{font:800 30px var(--mono);color:var(--a);line-height:1.2}
+.tile .l{font-size:14px;color:var(--muted)}
+@keyframes rw-s{0.00%{transform:translateX(310px)} 5.77%{transform:translateX(600px)} 8.65%{transform:translateX(600px)} 14.42%{transform:translateX(310px)} 38.46%{transform:translateX(310px)} 44.23%{transform:translateX(600px)} 47.12%{transform:translateX(600px)} 52.88%{transform:translateX(310px)} 60.58%{transform:translateX(880px)} 63.46%{transform:translateX(880px)} 71.15%{transform:translateX(310px)} 100.00%{transform:translateX(310px)}}
+@keyframes rw-a{0.00%{transform:translateX(310px)} 5.77%{transform:translateX(600px)} 8.65%{transform:translateX(600px)} 14.42%{transform:translateX(310px)} 22.12%{transform:translateX(880px)} 25.00%{transform:translateX(880px)} 32.69%{transform:translateX(310px)} 42.31%{transform:translateX(1160px)} 45.19%{transform:translateX(1160px)} 54.81%{transform:translateX(310px)} 60.58%{transform:translateX(600px)} 63.46%{transform:translateX(600px)} 69.23%{transform:translateX(310px)} 76.92%{transform:translateX(880px)} 79.81%{transform:translateX(880px)} 87.50%{transform:translateX(310px)} 97.12%{transform:translateX(1160px)} 100.00%{transform:translateX(1160px)}}
+.rest .wk{transform:translateX(310px)}
+.rest .shown .wk.s{animation:rw-s 10.4s linear forwards}
+.rest .shown .wk.a{animation:rw-a 10.4s linear forwards}
+.rest .st0{opacity:1}.rest .stx{opacity:0}
+@keyframes rv1{0%{opacity:0} 0.00%{opacity:0} 0.00%{opacity:1} 8.56%{opacity:1} 8.65%{opacity:0} 100%{opacity:0}}
+.rest .shown .rv1{animation:rv1 10.4s linear forwards}
+@keyframes rv2{0%{opacity:0} 8.56%{opacity:0} 8.65%{opacity:1} 47.02%{opacity:1} 47.12%{opacity:0} 100%{opacity:0}}
+.rest .shown .rv2{animation:rv2 10.4s linear forwards}
+@keyframes rv3{0%{opacity:0} 47.02%{opacity:0} 47.12%{opacity:1} 100%{opacity:1}}
+.rest .shown .rv3{animation:rv3 10.4s linear forwards}
+@keyframes rv4{0%{opacity:0} 0.00%{opacity:0} 0.00%{opacity:1} 33.56%{opacity:1} 33.65%{opacity:0} 100%{opacity:0}}
+.rest .shown .rv4{animation:rv4 10.4s linear forwards}
+@keyframes rv5{0%{opacity:0} 33.56%{opacity:0} 33.65%{opacity:1} 100%{opacity:1}}
+.rest .shown .rv5{animation:rv5 10.4s linear forwards}
+@keyframes rv6{0%{opacity:0} 0.00%{opacity:0} 0.00%{opacity:1} 43.17%{opacity:1} 43.27%{opacity:0} 100%{opacity:0}}
+.rest .shown .rv6{animation:rv6 10.4s linear forwards}
+@keyframes rv7{0%{opacity:0} 43.17%{opacity:0} 43.27%{opacity:1} 100%{opacity:1}}
+.rest .shown .rv7{animation:rv7 10.4s linear forwards}
+@keyframes rv8{0%{opacity:0} 14.33%{opacity:0} 14.42%{opacity:1} 38.37%{opacity:1} 38.46%{opacity:0} 71.06%{opacity:0} 71.15%{opacity:1} 100%{opacity:1}}
+.rest .shown .rv8{animation:rv8 10.4s linear forwards}
+@keyframes rv9{0%{opacity:0} 99.42%{opacity:0} 99.52%{opacity:1} 100%{opacity:1}}
+.rest .shown .rv9{animation:rv9 10.4s linear forwards}
+@keyframes rv10{0%{opacity:0} 0.00%{opacity:0} 0.00%{opacity:1} 8.56%{opacity:1} 8.65%{opacity:0} 100%{opacity:0}}
+.rest .shown .rv10{animation:rv10 10.4s linear forwards}
+@keyframes rv11{0%{opacity:0} 8.56%{opacity:0} 8.65%{opacity:1} 63.37%{opacity:1} 63.46%{opacity:0} 100%{opacity:0}}
+.rest .shown .rv11{animation:rv11 10.4s linear forwards}
+@keyframes rv12{0%{opacity:0} 63.37%{opacity:0} 63.46%{opacity:1} 100%{opacity:1}}
+.rest .shown .rv12{animation:rv12 10.4s linear forwards}
+@keyframes rv13{0%{opacity:0} 0.00%{opacity:0} 0.00%{opacity:1} 24.90%{opacity:1} 25.00%{opacity:0} 100%{opacity:0}}
+.rest .shown .rv13{animation:rv13 10.4s linear forwards}
+@keyframes rv14{0%{opacity:0} 24.90%{opacity:0} 25.00%{opacity:1} 79.71%{opacity:1} 79.81%{opacity:0} 100%{opacity:0}}
+.rest .shown .rv14{animation:rv14 10.4s linear forwards}
+@keyframes rv15{0%{opacity:0} 79.71%{opacity:0} 79.81%{opacity:1} 100%{opacity:1}}
+.rest .shown .rv15{animation:rv15 10.4s linear forwards}
+@keyframes rv16{0%{opacity:0} 0.00%{opacity:0} 0.00%{opacity:1} 45.10%{opacity:1} 45.19%{opacity:0} 100%{opacity:0}}
+.rest .shown .rv16{animation:rv16 10.4s linear forwards}
+@keyframes rv17{0%{opacity:0} 45.10%{opacity:0} 45.19%{opacity:1} 97.02%{opacity:1} 97.12%{opacity:0} 100%{opacity:0}}
+.rest .shown .rv17{animation:rv17 10.4s linear forwards}
+@keyframes rv18{0%{opacity:0} 97.02%{opacity:0} 97.12%{opacity:1} 100%{opacity:1}}
+.rest .shown .rv18{animation:rv18 10.4s linear forwards}
+@keyframes rv19{0%{opacity:0} 38.37%{opacity:0} 38.46%{opacity:1} 47.02%{opacity:1} 47.12%{opacity:0} 100%{opacity:0}}
+.rest .shown .rv19{animation:rv19 10.4s linear forwards}
+@keyframes rv20{0%{opacity:0} 56.63%{opacity:0} 56.73%{opacity:1} 65.29%{opacity:1} 65.38%{opacity:0} 100%{opacity:0}}
+.rest .shown .rv20{animation:rv20 10.4s linear forwards}
+@keyframes rv21{0%{opacity:0} 78.75%{opacity:0} 78.85%{opacity:1} 87.40%{opacity:1} 87.50%{opacity:0} 100%{opacity:0}}
+.rest .shown .rv21{animation:rv21 10.4s linear forwards}
+@keyframes rv22{0%{opacity:0} 99.42%{opacity:0} 99.52%{opacity:1} 100%{opacity:1}}
+.rest .shown .rv22{animation:rv22 10.4s linear forwards}
+</style>
+<!-- =========================================================
+     ლექცია 5 — Async / Await API-ში
+     ფერები:
+       Thread (ნაკადი) / კოდი მუშაობს = იისფერი · ბაზის ლოდინი = ქარვისფერი (დაშტრიხული)
+       Task / await = ზღვისფერი (teal) · მოთხოვნა = ლურჯი
+       სინქრონული (ცუდი შედეგი) = წითელი · ასინქრონული (კარგი შედეგი) = მწვანე
+     ========================================================= -->
+
+<!-- 1. TITLE -->
+<section class="slide" data-section="შესავალი">
+  <div class="vcenter" style="max-width:800px">
+    <div class="kicker in" style="color:var(--core)">ASP.NET Core Web API · ლექცია 5</div>
+    <h1 class="in" style="--d:.15s">ნუ დგახარ —<br><span class="grad">გააგრძელე</span></h1>
+    <p class="lead in mt" style="--d:.35s"><b>async / await</b> — ShopApi ბაზას ისე ელოდება, რომ სერვერი არ ჩერდება</p>
+  </div>
+  <div class="abs" style="right:80px;top:200px">
+    <svg viewBox="0 0 620 480" width="620" height="480">
+      <g class="in" style="--d:.4s"><rect x="0" y="40" width="200" height="96" rx="20" fill="#f3effe" stroke="#6d28d9" stroke-width="3"/><text x="100" y="82" text-anchor="middle" font-size="30">🧵</text><text x="100" y="118" text-anchor="middle" class="tn b" font-size="18">Thread</text></g>
+      <g class="in" style="--d:.6s"><rect x="420" y="40" width="200" height="96" rx="20" fill="#fef5e4" stroke="#d97706" stroke-width="3"/><text x="520" y="82" text-anchor="middle" font-size="30">🗄️</text><text x="520" y="118" text-anchor="middle" class="to b" font-size="18">ბაზა</text></g>
+      <path class="autodraw" style="--d:.8s" d="M200 70 C 290 30, 330 30, 420 70" stroke="#0d9488" stroke-width="4" fill="none"/>
+      <g class="in fade" style="--d:1.2s"><text x="310" y="34" text-anchor="middle" class="tp b mono" font-size="22">await</text></g>
+      <path class="autodraw" style="--d:1.4s" d="M100 136 C 100 230, 160 260, 210 300" stroke="#6d28d9" stroke-width="4" fill="none" stroke-dasharray="8 8"/>
+      <g class="in" style="--d:1.8s"><rect x="190" y="290" width="240" height="90" rx="20" fill="#eaf8ef" stroke="#16a34a" stroke-width="3"/><text x="310" y="330" text-anchor="middle" font-size="28">🙋 🙋 🙋</text><text x="310" y="364" text-anchor="middle" class="tg b" font-size="17">სხვა მოთხოვნები</text></g>
+      <g class="in fade" style="--d:2.2s"><text x="310" y="440" text-anchor="middle" class="tm" font-size="19">„სანამ ბაზა პასუხობს — სხვებს ვემსახურები“</text></g>
+    </svg>
+  </div>
+</section>
+<lecture-review/>
+<lecture-homework-review/>
+<lecture-intro/>
+<section class="slide">
+  <div class="kicker">დღის გზა</div>
+  <h2>სადამდე მოვედით და სად მივდივართ</h2>
+  <svg viewBox="0 0 1420 470" width="1420" height="470">
+    <path class="autodraw" style="--d:.2s" d="M70 230 C170 90 250 380 340 230 S520 90 590 230 S760 380 830 230 S1000 90 1080 230 S1250 380 1350 230" stroke="#cfc6b6" stroke-width="4" fill="none" stroke-dasharray="10 10"/>
+    <g class="in zoom" style="--d:.3s;transform-origin:70px 230px"><circle cx="70" cy="230" r="42" fill="#fef5e4" stroke="#d97706" stroke-width="3"/><text x="70" y="245" text-anchor="middle" font-size="32">💉</text><text x="70" y="306" text-anchor="middle" class="tw b" font-size="19">DI + ბაზა</text><text x="70" y="332" text-anchor="middle" class="tg b" font-size="15">✓ წინა ლექცია</text><circle cx="101" cy="199" r="14" fill="#16a34a"/><text x="101" y="205" text-anchor="middle" font-size="16" style="fill:#fff" class="b">✓</text></g>
+    <g class="step zoom" style="transform-origin:280px 165px"><circle cx="280" cy="165" r="44" fill="#fef2f2" stroke="#dc2626" stroke-width="3"/><text x="280" y="180" text-anchor="middle" font-size="34">⏳</text><text x="280" y="90" text-anchor="middle" class="tw b" font-size="19">ლოდინის პრობლემა</text><text x="280" y="66" text-anchor="middle" class="tm" font-size="15">Thread · Thread Pool</text></g>
+    <g class="step zoom" style="transform-origin:530px 250px"><circle cx="530" cy="250" r="44" fill="#e6f6f4" stroke="#0d9488" stroke-width="3"/><text x="530" y="265" text-anchor="middle" font-size="34">🎫</text><text x="530" y="326" text-anchor="middle" class="tw b" font-size="19">Task და await</text><text x="530" y="352" text-anchor="middle" class="tm" font-size="15">async · Task&lt;T&gt; · await</text></g>
+    <g class="step zoom" style="transform-origin:800px 170px"><circle cx="800" cy="170" r="44" fill="#f3effe" stroke="#6d28d9" stroke-width="3"/><text x="800" y="185" text-anchor="middle" font-size="34">⚡</text><text x="800" y="96" text-anchor="middle" class="tw b" font-size="19">ShopApi → async</text><text x="800" y="72" text-anchor="middle" class="tm" font-size="15">ToListAsync · SaveChangesAsync</text></g>
+    <g class="step zoom" style="transform-origin:1070px 250px"><circle cx="1070" cy="250" r="44" fill="#eaf2fe" stroke="#2563eb" stroke-width="3"/><text x="1070" y="265" text-anchor="middle" font-size="34">🤔</text><text x="1070" y="326" text-anchor="middle" class="tw b" font-size="19">როდის — და როდის არა</text><text x="1070" y="352" text-anchor="middle" class="tm" font-size="15">I/O · გამოთვლა · შეცდომები</text></g>
+    <g class="step zoom" style="transform-origin:1350px 230px"><circle cx="1350" cy="230" r="48" fill="#eaf8ef" stroke="#16a34a" stroke-width="4" class="pulse"/><text x="1350" y="246" text-anchor="middle" font-size="38">⌨️</text><text x="1350" y="314" text-anchor="middle" class="tg b" font-size="19">პრაქტიკა</text><text x="1350" y="340" text-anchor="middle" class="tm" font-size="15">LibraryApi</text></g>
+  </svg>
+  <aside class="study">
+### ლექციის გეგმა
+
+1. **ლოდინის პრობლემა** — რას აკეთებს სერვერი, სანამ ბაზა პასუხობს, და რატომ „იჭედება“ საიტი, როცა პროცესორი თითქმის ცარიელია.
+2. **Task და await** — როგორ ელოდება პროგრამა ისე, რომ ნაკადი (thread) არ გააჩეროს.
+3. **ShopApi → async** — Controller-ების გადაყვანა `ToListAsync`, `FindAsync`, `SaveChangesAsync`-ზე.
+4. **როდის — და როდის არა** — სად გვჭირდება async, სად არაფერს გვაძლევს, და ხშირი შეცდომები.
+5. **პრაქტიკა** — იგივე ცვლილება LibraryApi-ში.
+  </aside>
+</section>
+<section class="slide" data-section="დღის თემა">
+  <div class="kicker">გავიხსენოთ</div>
+  <h2>ShopApi — სადაც შევჩერდით</h2>
+  <div class="grid2" style="grid-template-columns:1.25fr 1fr;align-items:start">
+    <code-block id="rc" lang="csharp" cls="sm" title="Controllers/ProductsController.cs">
+[HttpGet]
+public IActionResult GetAll()
+{
+    return Ok(_db.Products.ToList());
+}
+
+[HttpGet("{id:guid}")]
+public IActionResult GetById(Guid id)
+{
+    var product = _db.Products.Find(id);
+    if (product is null) return NotFound();
+    return Ok(product);
+}
+
+[HttpPost]
+public IActionResult Create(Product product)
+{
+    _db.Products.Add(product);
+    _db.SaveChanges();
+    return CreatedAtAction(nameof(GetById), new { id = product.Id }, product);
+}
+    </code-block>
+    <div class="col" style="gap:16px">
+      <div class="solve step">DataContext — <b>constructor-ით</b>, Scoped · მონაცემი <b>ბაზაშია</b></div>
+      <i class="codestep" data-for="rc" data-lines="4,10,19"></i>
+      <div class="col step" data-with style="gap:12px">
+        <div class="callout" style="--a:var(--asp)">ეს სამი ხაზი <b>ბაზაში მიდის</b> — SQL Server-მა უნდა უპასუხოს</div>
+        <div class="qbig" style="font-size:36px">რას აკეთებს პროგრამა, <span class="c-asp">სანამ ბაზა პასუხობს?</span></div>
+      </div>
+    </div>
+  </div>
+  <aside class="study">
+### სადაც შევჩერდით
+
+ShopApi ნამდვილ ბაზასთან მუშაობს: DataContext-ს Controller-ი constructor-ით ითხოვს, Container მას Scoped-ად ქმნის, პროდუქტები SQL Server-ში ინახება.
+
+```csharp Controllers/ProductsController.cs
+[HttpGet]
+public IActionResult GetAll()
+{
+    return Ok(_db.Products.ToList());
+}
+
+[HttpGet("{id:guid}")]
+public IActionResult GetById(Guid id)
+{
+    var product = _db.Products.Find(id);
+    if (product is null) return NotFound();
+    return Ok(product);
+}
+```
+
+`ToList()`, `Find()` და `SaveChanges()` — სამივე ბაზაში მიდის: EF Core SQL-ს აწყობს, SQL Server-ს უგზავნის და **პასუხს ელოდება**. დღევანდელი ლექცია სწორედ ამ ლოდინზეა: რას აკეთებს ჩვენი პროგრამა, სანამ ბაზა პასუხობს?
+
+```note
+სლაიდებზე Controller-ი `Product`-ს პირდაპირ იღებს და აბრუნებს — რომ ყურადღება მხოლოდ async-ზე იყოს. შენს პროექტში DTO-ები და Mapper ადგილზე რჩება, async-ზე გადასვლა მათ არ ეხება.
+```
+  </aside>
+</section>
+
+<!-- ================= PART 1 ================= -->
+<section class="slide divider" data-section="1 · ლოდინის პრობლემა">
+  <div class="vcenter">
+    <div class="kicker in">ნაწილი 1</div>
+    <h1 class="in" style="--d:.1s">ლოდინის <span class="grad">პრობლემა</span></h1>
+    <p class="lead mt in" style="--d:.3s">სერვერი ცარიელია — საიტი კი გაჭედილი</p>
+  </div>
+  <div class="big-num">01</div>
+  <aside class="study">
+## ნაწილი 1 · ლოდინის პრობლემა
+
+ჯერ ვნახავთ პრობლემას — ისეთს, რომელსაც ერთ მომხმარებელზე ტესტირებისას ვერასდროს შეამჩნევ, მაგრამ ნამდვილ საიტზე დატვირთვისას აუცილებლად გამოჩნდება.
+  </aside>
+</section>
+<section class="slide" data-section="1 · ლოდინის პრობლემა">
+  <div class="kicker">მენეჯერი წერს</div>
+  <h2>„ფასდაკლების დღეს საიტი <span class="c-red">გაიჭედა</span>“</h2>
+  <div class="grid2" style="grid-template-columns:1fr 1.1fr;align-items:center;gap:50px">
+    <div class="card in" style="--d:.2s">
+      <p style="font-size:23px">💬 „Black Friday-ზე ერთდროულად ბევრი ხალხი შემოვიდა. გვერდი 30 წამს იტვირთებოდა, ზოგს შეცდომა ამოუვიდა. ადმინი ამბობს, რომ სერვერის <b>პროცესორი 10%-ზე მეტად არ დატვირთულა</b>. მაშინ რა მოხდა?“</p>
+      <p class="tiny" style="margin-top:14px">— მენეჯერი, ფასდაკლების მეორე დღეს</p>
+    </div>
+    <div class="col" style="gap:16px">
+      <div class="opt step left" style="--a:var(--red)"><span class="n">1</span><div><h3>მომხმარებლები <b>ელოდებიან</b></h3><p>გვერდი 30 წამი · timeout · შეცდომა</p></div><span class="v">😠</span></div>
+      <div class="opt step left" style="--a:var(--mvc)"><span class="n">2</span><div><h3>პროცესორი <b>ისვენებს</b></h3><p>CPU ≈ 10% — სერვერი თითქოს არაფერს აკეთებს</p></div><span class="v">😴</span></div>
+      <div class="callout step" style="--a:var(--net)">ერთდროულად ორივე როგორ? პასუხი — <b>ლოდინში</b>: სერვერი ბევრს ელოდება და ცოტას აკეთებს</div>
+    </div>
+  </div>
+  <aside class="study">
+### მენეჯერი წერს: „ფასდაკლების დღეს საიტი გაიჭედა“
+
+„Black Friday-ზე ერთდროულად ბევრი ხალხი შემოვიდა. გვერდი 30 წამს იტვირთებოდა, ზოგს შეცდომა ამოუვიდა. ადმინი ამბობს, რომ სერვერის პროცესორი 10%-ზე მეტად არ დატვირთულა. მაშინ რა მოხდა?“
+
+ერთი შეხედვით ეს ორი ფაქტი ერთმანეთს ეწინააღმდეგება:
+
+1. **მომხმარებლები ელოდებიან** — გვერდი ნელა იტვირთება, ზოგს timeout-ის შეცდომა ამოუდის.
+2. **პროცესორი ისვენებს** — სერვერი თითქოს არაფერს აკეთებს.
+
+თუ სერვერი დაკავებული არ არის, რატომ არ ემსახურება მომხმარებლებს? პასუხი **ლოდინშია** — და ამას ახლა ნაბიჯ-ნაბიჯ ვნახავთ.
+  </aside>
+</section>
+<section class="slide" data-section="1 · ლოდინის პრობლემა">
+  <div class="kicker">ერთი მოთხოვნის ანატომია</div>
+  <h2><code class="i" style="font-size:.8em">GET /api/products</code> — სად <span class="c-asp">მიდის დრო?</span></h2>
+  <div class="anat in" style="--d:.2s">
+    <div class="c" style="flex:3">C#<small>~1 ms</small></div>
+    <div class="w" style="flex:88">⏳ SQL Server-ის პასუხს ელოდება<small>ქსელი · ბაზა ეძებს · მონაცემი ბრუნდება — ~40 ms</small></div>
+    <div class="c" style="flex:4">JSON<small>~1 ms</small></div>
+  </div>
+  <div class="grid3 mt2" style="gap:24px">
+    <div class="card accent step" style="--a:var(--net)"><h3><span class="ico">⚙️</span>კოდი მუშაობს</h3><p class="small">Controller, EF Core-ის SQL, JSON — <b>მილიწამები</b></p></div>
+    <div class="card accent step" style="--a:var(--asp)"><h3><span class="ico">⏳</span>ლოდინი</h3><p class="small">ბაზა სხვა პროგრამაა, ხშირად <b>სხვა კომპიუტერზე</b>. პასუხს ქსელით ელოდები — დროის <b>უდიდესი ნაწილი</b></p></div>
+    <div class="card accent step" style="--a:var(--red)"><h3><span class="ico">🧵</span>და ამ დროს…</h3><p class="small">ის, ვინც ჩვენს კოდს ასრულებს — <b>Thread</b> — სინქრონულ კოდში უბრალოდ <b>დგას</b></p></div>
+  </div>
+  <p class="tiny mt">რიცხვები პირობითია — რეალური დრო ბაზასა და ქსელზეა დამოკიდებული, მაგრამ სურათი ყოველთვის ასეთია: ლოდინი ≫ მუშაობა</p>
+  <aside class="study">
+### ერთი მოთხოვნის ანატომია: სად მიდის დრო?
+
+ავიღოთ `GET /api/products` და გავყოთ ნაწილებად:
+
+| ნაწილი | ვინ აკეთებს | დრო (პირობითად) |
+|---|---|---|
+| Controller-ის კოდი, EF Core SQL-ს აწყობს | ჩვენი პროგრამა | ~1 ms |
+| SQL ქსელით მიდის, SQL Server ეძებს, მონაცემი ბრუნდება | **ბაზა** — სხვა პროგრამა, ხშირად სხვა კომპიუტერზე | ~40 ms |
+| სია JSON-ად იქცევა და პასუხი იგზავნება | ჩვენი პროგრამა | ~1 ms |
+
+რიცხვები პირობითია — რეალური დრო ბაზაზე, ქსელზე და მონაცემის რაოდენობაზეა დამოკიდებული. მაგრამ პროპორცია თითქმის ყოველთვის ასეთია: **ლოდინი ბევრად მეტია, ვიდრე მუშაობა**.
+
+და ამ ლოდინის დროს ის, ვინც ჩვენს კოდს ასრულებს — **Thread** (ნაკადი) — სინქრონულ კოდში არაფერს აკეთებს. უბრალოდ დგას და ელოდება.
+
+```terms
+I/O (Input/Output) — ყველაფერი, რაც პროგრამის გარეთ მიდის და პასუხს ელოდება: ბაზა, ქსელი, ფაილი
+```
+  </aside>
+</section>
+<section class="slide" data-section="1 · ლოდინის პრობლემა">
+  <div class="kicker">ვინ ასრულებს ჩვენს კოდს?</div>
+  <h2><span class="c-net">Thread</span> და <span class="c-net">Thread Pool</span></h2>
+  <div class="grid2" style="grid-template-columns:1.2fr 1fr;align-items:center;gap:40px">
+    <div class="col" style="gap:26px">
+      <div class="pool in" style="--d:.2s">
+        <span class="lbl">Thread Pool · ნაკადების აუზი</span>
+        <div class="wkr"><div class="e">🧑‍🔧</div><div class="t">Thread 1</div><div class="s">GET /products</div></div>
+        <div class="wkr"><div class="e">🧑‍🔧</div><div class="t">Thread 2</div><div class="s">POST /products</div></div>
+        <div class="wkr"><div class="e">🧑‍🔧</div><div class="t">Thread 3</div><div class="s">GET /stats</div></div>
+        <div class="wkr" style="--a:var(--muted)"><div class="e">💤</div><div class="t">Thread 4</div><div class="s">თავისუფალი</div></div>
+      </div>
+      <div class="door step"><span>🙋 მოთხოვნა 5</span><span>🙋 6</span><span>🙋 7</span><span class="tiny" style="background:none">→ ელოდებიან თავისუფალ ნაკადს</span></div>
+    </div>
+    <div class="col" style="gap:16px">
+      <div class="callout step" style="--a:var(--net)"><b>Thread</b> (ნაკადი) — მუშა, რომელიც კოდს ხაზ-ხაზ ასრულებს</div>
+      <div class="callout step" style="--a:var(--net)">ASP.NET Core ყოველ მოთხოვნას <b>Thread Pool</b>-იდან ერთ თავისუფალ ნაკადს აძლევს</div>
+      <div class="problem step" style="font-size:19px">ნაკადები <b>შეზღუდულია</b>: თითოს მეხსიერება სჭირდება, ახლის დამატებას — დრო</div>
+    </div>
+  </div>
+  <aside class="study">
+### Thread და Thread Pool
+
+**Thread (ნაკადი)** — „მუშა“, რომელიც კოდს ხაზ-ხაზ ასრულებს. აქამდე ჩვენს კონსოლის პროგრამებს ერთი ნაკადი ასრულებდა: `Main`-იდან დაიწყებდა და ბოლომდე მივიდოდა.
+
+სერვერზე სხვა სურათია: ერთდროულად ბევრი მოთხოვნა მოდის. ASP.NET Core-ს აქვს **Thread Pool** — მზა ნაკადების „აუზი“. მოთხოვნა მოვიდა → აუზიდან თავისუფალი ნაკადი იღებს და ჩვენს Controller-ის მეთოდს ასრულებს → მოთხოვნა დასრულდა → ნაკადი აუზში ბრუნდება და შემდეგ მოთხოვნას ელოდება.
+
+თუ ყველა ნაკადი დაკავებულია, ახალი მოთხოვნა **რიგში დგება**.
+
+რატომ არ ვქმნით ათასობით ნაკადს? იმიტომ, რომ ნაკადი ძვირია:
+
+- თითოეულს საკუთარი მეხსიერება სჭირდება (სტეკისთვის — დაახლოებით 1 MB);
+- ოპერაციულ სისტემას მათ შორის გადართვა უწევს;
+- Thread Pool ახალ ნაკადებს **ნელ-ნელა** ამატებს — უეცარ დატვირთვაზე ვერ ასწრებს.
+
+```terms
+Thread (ნაკადი) — „მუშა“, რომელიც კოდს ასრულებს
+Thread Pool — მზა ნაკადების აუზი; ASP.NET Core ყოველ მოთხოვნას იქიდან აძლევს ნაკადს
+```
+  </aside>
+</section>
+<section class="slide" data-section="1 · ლოდინის პრობლემა">
+  <div class="kicker">რესტორანი · 10 წამი</div>
+  <h2>ერთი მიმტანი — <span class="c-red">ორი</span> სტილი</h2>
+  <svg class="rest" viewBox="0 -20 1420 500" width="1420" height="500">
+<g class="step">
+<text x="0" y="10" class="tw b" font-size="22">🧱 სინქრონული მიმტანი — შეკვეთას სამზარეულოსთან <tspan class="tr">ელოდება</tspan></text>
+<line x1="0" y1="162" x2="1420" y2="162" stroke="#e6dfd2" stroke-width="2"/>
+<rect x="60" y="64" width="180" height="92" rx="16" fill="#fef5e4" stroke="#d97706" stroke-width="3"/>
+<text x="150" y="104" text-anchor="middle" font-size="34">👨‍🍳</text>
+<text x="150" y="140" text-anchor="middle" class="to b" font-size="17">სამზარეულო</text>
+<rect x="530" y="118" width="140" height="38" rx="10" fill="#fff" stroke="#cfc6b6" stroke-width="2"/>
+<text x="600" y="144" text-anchor="middle" class="tm b" font-size="16">მაგიდა 1</text>
+<text x="600" y="96" text-anchor="middle" font-size="40" class="rv1 st0">🙋</text>
+<text x="600" y="96" text-anchor="middle" font-size="40" class="rv2 stx">⏳</text>
+<text x="600" y="96" text-anchor="middle" font-size="40" class="rv3 stx">😋</text>
+<rect x="810" y="118" width="140" height="38" rx="10" fill="#fff" stroke="#cfc6b6" stroke-width="2"/>
+<text x="880" y="144" text-anchor="middle" class="tm b" font-size="16">მაგიდა 2</text>
+<text x="880" y="96" text-anchor="middle" font-size="40" class="rv4 st0">🙋</text>
+<text x="880" y="96" text-anchor="middle" font-size="40" class="rv5 stx">😠</text>
+<rect x="1090" y="118" width="140" height="38" rx="10" fill="#fff" stroke="#cfc6b6" stroke-width="2"/>
+<text x="1160" y="144" text-anchor="middle" class="tm b" font-size="16">მაგიდა 3</text>
+<text x="1160" y="96" text-anchor="middle" font-size="40" class="rv6 st0">🙋</text>
+<text x="1160" y="96" text-anchor="middle" font-size="40" class="rv7 stx">😠</text>
+<g class="rv8 stx"><rect x="205" y="26" width="210" height="38" rx="19" fill="#fef2f2" stroke="#dc2626" stroke-width="2"/><text x="310" y="52" text-anchor="middle" class="tr b" font-size="17">⏳ დგას და ელოდება</text></g>
+<g class="wk s"><circle cx="0" cy="112" r="30" fill="#dc2626" opacity=".14"/><text x="0" y="126" text-anchor="middle" font-size="40">🏃</text></g>
+<g class="rv9 stx"><rect x="1250" y="20" width="170" height="44" rx="22" fill="#dc2626"/><text x="1335" y="49" text-anchor="middle" font-size="18" class="b" style="fill:#fff">1 მაგიდა ✓</text></g>
+</g>
+<g class="step">
+<text x="0" y="280" class="tw b" font-size="22">⚡ ასინქრონული მიმტანი — შეკვეთას აბარებს და <tspan class="tg">სხვა მაგიდასთან მიდის</tspan></text>
+<line x1="0" y1="432" x2="1420" y2="432" stroke="#e6dfd2" stroke-width="2"/>
+<rect x="60" y="334" width="180" height="92" rx="16" fill="#fef5e4" stroke="#d97706" stroke-width="3"/>
+<text x="150" y="374" text-anchor="middle" font-size="34">👨‍🍳</text>
+<text x="150" y="410" text-anchor="middle" class="to b" font-size="17">სამზარეულო</text>
+<rect x="530" y="388" width="140" height="38" rx="10" fill="#fff" stroke="#cfc6b6" stroke-width="2"/>
+<text x="600" y="414" text-anchor="middle" class="tm b" font-size="16">მაგიდა 1</text>
+<text x="600" y="366" text-anchor="middle" font-size="40" class="rv10 st0">🙋</text>
+<text x="600" y="366" text-anchor="middle" font-size="40" class="rv11 stx">⏳</text>
+<text x="600" y="366" text-anchor="middle" font-size="40" class="rv12 stx">😋</text>
+<rect x="810" y="388" width="140" height="38" rx="10" fill="#fff" stroke="#cfc6b6" stroke-width="2"/>
+<text x="880" y="414" text-anchor="middle" class="tm b" font-size="16">მაგიდა 2</text>
+<text x="880" y="366" text-anchor="middle" font-size="40" class="rv13 st0">🙋</text>
+<text x="880" y="366" text-anchor="middle" font-size="40" class="rv14 stx">⏳</text>
+<text x="880" y="366" text-anchor="middle" font-size="40" class="rv15 stx">😋</text>
+<rect x="1090" y="388" width="140" height="38" rx="10" fill="#fff" stroke="#cfc6b6" stroke-width="2"/>
+<text x="1160" y="414" text-anchor="middle" class="tm b" font-size="16">მაგიდა 3</text>
+<text x="1160" y="366" text-anchor="middle" font-size="40" class="rv16 st0">🙋</text>
+<text x="1160" y="366" text-anchor="middle" font-size="40" class="rv17 stx">⏳</text>
+<text x="1160" y="366" text-anchor="middle" font-size="40" class="rv18 stx">😋</text>
+<text x="222" y="340" font-size="30" class="rv19 stx">🔔</text>
+<text x="222" y="340" font-size="30" class="rv20 stx">🔔</text>
+<text x="222" y="340" font-size="30" class="rv21 stx">🔔</text>
+<g class="wk a"><circle cx="0" cy="382" r="30" fill="#16a34a" opacity=".14"/><text x="0" y="396" text-anchor="middle" font-size="40">🏃</text></g>
+<g class="rv22 stx"><rect x="1250" y="290" width="170" height="44" rx="22" fill="#16a34a"/><text x="1335" y="319" text-anchor="middle" font-size="18" class="b" style="fill:#fff">3 მაგიდა ✓</text></g>
+</g>
+</svg>
+  <aside class="study">
+### რესტორანი: ერთი მიმტანი — ორი სტილი
+
+წარმოიდგინე რესტორანი: **მიმტანი** — ნაკადია, **მაგიდები** — მოთხოვნები, **სამზარეულო** — ბაზა. კერძს მომზადება სჭირდება, ისევე როგორც ბაზას — პასუხი.
+
+**🧱 სინქრონული მიმტანი** შეკვეთას იღებს, სამზარეულოს აბარებს და იქვე **დგას**, სანამ კერძი არ მომზადდება. ამ დროს მეორე და მესამე მაგიდა ელოდება — და ბრაზდება. 10 წამში ის ერთ მაგიდას ემსახურება.
+
+**⚡ ასინქრონული მიმტანი** შეკვეთას სამზარეულოს აბარებს და **მაშინვე** შემდეგ მაგიდასთან მიდის. როცა სამზარეულო 🔔 რეკავს, კერძს იღებს და მიაქვს. იგივე 10 წამში — სამივე მაგიდა.
+
+მთავარი: ასინქრონული მიმტანი **უფრო სწრაფად არ დადის** და სამზარეულოც უფრო სწრაფად არ ამზადებს. ის უბრალოდ **ლოდინის დროს არ კარგავს**.
+
+```note
+ნამდვილ რესტორანში ჩვეულებრივ ასინქრონული მიმტანი გვხვდება — სინქრონულს დიდხანს არავინ დაიტოვებდა. სერვერზე კი სინქრონული კოდი ზუსტად ასე იქცევა.
+```
+  </aside>
+</section>
+<section class="slide" data-section="1 · ლოდინის პრობლემა">
+  <div class="kicker">Black Friday-ს გახსნილი საიდუმლო</div>
+  <h2>ყველა ნაკადი <span class="c-red">დგას და ელოდება</span></h2>
+  <div class="grid2" style="grid-template-columns:1.2fr 1fr;align-items:center;gap:40px">
+    <div class="col" style="gap:26px">
+      <div class="pool">
+        <span class="lbl" style="color:var(--red)">Thread Pool · ყველა დაკავებულია</span>
+        <div class="wkr blk"><div class="e">🧍</div><div class="t">Thread 1</div><div class="s">⏳ ბაზას ელოდება</div></div>
+        <div class="wkr blk"><div class="e">🧍</div><div class="t">Thread 2</div><div class="s">⏳ ბაზას ელოდება</div></div>
+        <div class="wkr blk"><div class="e">🧍</div><div class="t">Thread 3</div><div class="s">⏳ ბაზას ელოდება</div></div>
+        <div class="wkr blk"><div class="e">🧍</div><div class="t">Thread 4</div><div class="s">⏳ ბაზას ელოდება</div></div>
+      </div>
+      <div class="door step"><span>🙋 5</span><span>🙋 6</span><span>🙋 7</span><span>🙋 8</span><span class="old">😠 9</span><span class="old">😠 10</span><span class="old">😠 11</span><span class="old">😠 12</span><span class="old">⏱ timeout</span></div>
+    </div>
+    <div class="col" style="gap:16px">
+      <div class="opt step right" style="--a:var(--red)"><span class="n">1</span><div><h3>ნაკადი <b>დაკავებულია</b></h3><p>მაგრამ არაფერს აკეთებს — ბაზის პასუხს ელოდება</p></div></div>
+      <div class="opt step right" style="--a:var(--mvc)"><span class="n">2</span><div><h3>პროცესორი <b>ისვენებს</b></h3><p>ლოდინს პროცესორი არ სჭირდება — აქედანაა „CPU 10%“</p></div></div>
+      <div class="solve step">ნაკადი რომ ლოდინის დროს <b>აუზში დაბრუნდეს</b> — იგივე 4 ნაკადი ბევრად მეტ მოთხოვნას მოემსახურება</div>
+    </div>
+  </div>
+  <aside class="study">
+### Black Friday-ს საიდუმლო: ყველა ნაკადი დგას და ელოდება
+
+ახლა მენეჯერის ამოცანა იხსნება. სინქრონულ კოდში `ToList()`-ის ხაზზე ნაკადი **ჩერდება** და ბაზის პასუხამდე იქ რჩება. დატვირთვისას ასე ხდება:
+
+1. ბევრი მოთხოვნა მოდის, აუზის ყველა ნაკადს თითო მოთხოვნა უჭირავს.
+2. ყველა ნაკადი **ბაზას ელოდება** — დაკავებულია, მაგრამ არაფერს აკეთებს.
+3. ახალ მოთხოვნებს თავისუფალი ნაკადი აღარ ხვდებათ — **რიგში დგებიან**. რიგი იზრდება, ზოგი timeout-ით მთავრდება.
+4. პროცესორი კი ისვენებს: ლოდინს პროცესორი არ სჭირდება. აქედანაა „CPU 10%“.
+
+ამ მდგომარეობას ჰქვია **Thread Pool Starvation** — ნაკადების „შიმშილი“: ნაკადები გვაქვს, მაგრამ ყველა ლოდინშია გაჭედილი.
+
+გამოსავალი ნაკადების გამრავლება კი არა — **ლოდინის დროს ნაკადის გათავისუფლებაა**: მან შეკვეთა ჩააბაროს და სხვა მაგიდასთან წავიდეს. ზუსტად ამას აკეთებს **async/await**.
+
+```terms
+Blocking (ბლოკირება) — ნაკადი ჩერდება და ელოდება, სხვა საქმეს ვეღარ აკეთებს
+Thread Pool Starvation — ყველა ნაკადი ლოდინშია, ახალ მოთხოვნებს ნაკადი აღარ რჩება
+```
+  </aside>
+</section>
+
+<!-- ================= PART 2 ================= -->
+<section class="slide divider" data-section="2 · Task და await">
+  <div class="vcenter">
+    <div class="kicker in">ნაწილი 2</div>
+    <h1 class="in" style="--d:.1s"><span class="grad">Task</span> და await</h1>
+    <p class="lead mt in" style="--d:.3s">დაელოდე ისე, რომ ნაკადი არ გააჩერო</p>
+  </div>
+  <div class="big-num">02</div>
+  <aside class="study">
+## ნაწილი 2 · Task და await
+
+C#-ში ასინქრონული ლოდინისთვის სამი რამ გვჭირდება: **Task** — „ქვითარი“ მომავალ შედეგზე, **async** — მეთოდის ნიშანი და **await** — „დაელოდე, ოღონდ ნაკადი გაათავისუფლე“.
+  </aside>
+</section>
+<section class="slide" data-section="2 · Task და await">
+  <div class="kicker">ფუდ-კორტი</div>
+  <h2><span class="c-core">Task</span> — პეიჯერი, რომელიც <span class="c-core">დარეკავს</span></h2>
+  <div class="grid2" style="grid-template-columns:1fr 1fr;align-items:start;gap:40px">
+    <div class="col" style="gap:16px">
+      <div class="pager step left"><span class="e">🍔</span><div><h3>შეუკვეთე ბურგერი</h3><p>კერძი ჯერ არ არის — მომზადება სჭირდება</p></div></div>
+      <div class="pager step left"><span class="e">📟</span><div><h3>პეიჯერი მოგცეს</h3><p><b>დაპირება:</b> „კერძი იქნება — როცა მზად იქნება, დარეკავს“</p></div></div>
+      <div class="pager step left"><span class="e">🪑</span><div><h3>დაჯექი, ესაუბრე მეგობრებს</h3><p>რიგში <b>არ დგახარ</b> — სხვა საქმეს აკეთებ</p></div></div>
+      <div class="pager step left" style="border-color:var(--mvc)"><span class="e">🔔</span><div><h3>დარეკა → აიღე კერძი</h3><p>იქიდან <b>გააგრძელე</b>, სადაც გაჩერდი</p></div></div>
+    </div>
+    <div class="col" style="gap:16px">
+      <div class="card accent step" style="--a:var(--core)"><h3><span class="ico">🎫</span>Task</h3><p class="small">დაპირება: ოპერაცია <b>დაიწყო</b> და ოდესმე დასრულდება · შედეგის გარეშე — როგორც <code class="i">void</code></p></div>
+      <div class="card accent step" data-with style="--a:var(--core)"><h3><span class="ico">📦</span>Task&lt;T&gt;</h3><p class="small">დაპირება <b>T ტიპის შედეგზე</b>: <code class="i">Task&lt;List&lt;Product&gt;&gt;</code> — „სია იქნება“</p></div>
+      <div class="card accent step" style="--a:var(--net)"><h3><span class="ico">⏸️</span>await</h3><p class="small">„დაელოდე დაპირებას“ — მაგრამ ნაკადი <b>აუზში ბრუნდება</b>. შედეგი მოვიდა → მეთოდი <b>გრძელდება</b></p></div>
+    </div>
+  </div>
+  <aside class="study">
+### Task — პეიჯერი, რომელიც დარეკავს
+
+ფუდ-კორტში ბურგერს შეუკვეთავ. კერძი ჯერ არ არის — მას მომზადება სჭირდება. გაძლევენ **პეიჯერს** — პატარა მოწყობილობას, რომელიც კერძის მზადყოფნისას დარეკავს. რიგში აღარ დგახარ: სხედხარ, მეგობრებს ესაუბრები. დარეკა → მიდიხარ და კერძს იღებ.
+
+C#-ში ეს პეიჯერი არის **Task**:
+
+| ცნება | რას ნიშნავს | ფუდ-კორტში |
+|---|---|---|
+| `Task` | დაპირება: ოპერაცია დაიწყო და ოდესმე დასრულდება. შედეგს არ აბრუნებს — როგორც `void` | „შენი შეკვეთა მიღებულია“ |
+| `Task<T>` | დაპირება **T ტიპის შედეგზე**. `Task<List<Product>>` — „სია იქნება“ | პეიჯერი, რომელსაც ბოლოს კერძი მოჰყვება |
+| `await` | „დაელოდე ამ დაპირებას“. ლოდინის დროს ნაკადი თავისუფლდება; შედეგი რომ მოვა, მეთოდი იქიდან გრძელდება, სადაც გაჩერდა | სხედხარ და ელოდები ზარს — რიგში არ დგახარ |
+
+```terms
+Task — დაპირება: ოპერაცია მიმდინარეობს და ოდესმე დასრულდება
+Task<T> — დაპირება T ტიპის შედეგზე
+await — დაელოდე Task-ს ნაკადის დაბლოკვის გარეშე; შედეგის შემდეგ მეთოდი გრძელდება
+```
+  </aside>
+</section>
+<section class="slide" data-section="2 · Task და await">
+  <div class="kicker">მეთოდის ხელმოწერა</div>
+  <h2>სინქრონული → <span class="c-core">ასინქრონული</span> ვერსია</h2>
+  <div class="sig">
+    <div class="h">სინქრონული · შედეგი ახლავე</div><div></div><div class="h">ასინქრონული · დაპირება შედეგზე</div>
+    <div class="a step left">List&lt;Product&gt; ToList()</div><div class="ar step" data-with>→</div><div class="b step right" data-with><em>Task&lt;</em>List&lt;Product&gt;<em>&gt;</em> ToList<em>Async</em>()</div>
+    <div class="a step left">Product? Find(id)</div><div class="ar step" data-with>→</div><div class="b step right" data-with><em>ValueTask&lt;</em>Product?<em>&gt;</em> Find<em>Async</em>(id)</div>
+    <div class="a step left">int Count()</div><div class="ar step" data-with>→</div><div class="b step right" data-with><em>Task&lt;</em>int<em>&gt;</em> Count<em>Async</em>()</div>
+    <div class="a step left">int SaveChanges()</div><div class="ar step" data-with>→</div><div class="b step right" data-with><em>Task&lt;</em>int<em>&gt;</em> SaveChanges<em>Async</em>()</div>
+    <div class="a step left">void Send()</div><div class="ar step" data-with>→</div><div class="b step right" data-with><em>Task</em> Send<em>Async</em>()</div>
+  </div>
+  <div class="grid3 mt" style="gap:20px">
+    <div class="callout step" style="--a:var(--core)">დასაბრუნებელი ტიპი — <b>Task&lt;…&gt;</b>-ში „შეფუთული“</div>
+    <div class="callout step" data-with style="--a:var(--core)"><code class="i">void</code> → უბრალოდ <b>Task</b></div>
+    <div class="callout step" data-with style="--a:var(--core)">სახელის ბოლოს — <b>Async</b> (შეთანხმება)</div>
+  </div>
+  <aside class="study">
+### სინქრონული → ასინქრონული ვერსია
+
+EF Core-ს (და .NET-ის თითქმის ყველა ბიბლიოთეკას, რომელიც ბაზას, ქსელს ან ფაილს ეხება) ყოველი ასეთი მეთოდის **ორი ვერსია** აქვს:
+
+| სინქრონული — შედეგი ახლავე | ასინქრონული — დაპირება შედეგზე |
+|---|---|
+| `List<Product> ToList()` | `Task<List<Product>> ToListAsync()` |
+| `Product? Find(id)` | `ValueTask<Product?> FindAsync(id)` |
+| `int Count()` | `Task<int> CountAsync()` |
+| `int SaveChanges()` | `Task<int> SaveChangesAsync()` |
+| `void Send()` | `Task SendAsync()` |
+
+სამი წესი:
+
+1. დასაბრუნებელი ტიპი **Task-ში „ეფუთება“**: `int` → `Task<int>`.
+2. `void` → უბრალოდ **`Task`** (შედეგი არ არის, მაგრამ დასრულებას ხომ უნდა დაველოდოთ).
+3. სახელის ბოლოს — **`Async`**. ეს კომპილატორის წესი არ არის, შეთანხმებაა — მაგრამ მას ყველა იცავს, ასე რომ სახელიდანვე ჩანს, რომ მეთოდს `await` სჭირდება.
+
+```note
+`FindAsync` `ValueTask`-ს აბრუნებს — ეს Task-ის „მსუბუქი“ ვერსიაა იმ შემთხვევებისთვის, როცა შედეგი ხშირად მაშინვე მზადაა (`Find` ჯერ Change Tracker-ში ეძებს). ჩვენთვის განსხვავება არ არის: მასაც ზუსტად ისე ვაწერთ `await`-ს.
+```
+  </aside>
+</section>
+<section class="slide" data-section="2 · Task და await">
+  <div class="kicker">სამი ცვლილება</div>
+  <h2><code class="i" style="font-size:.8em">async</code> · <code class="i" style="font-size:.8em">Task&lt;…&gt;</code> · <code class="i" style="font-size:.8em">await</code></h2>
+  <div class="grid2" style="gap:30px;align-items:start">
+    <div class="col" style="gap:10px">
+      <div class="tiny" style="font:700 15px var(--mono);color:var(--red)">🧱 სინქრონული</div>
+      <code-block id="s1" lang="csharp" title="ადრე">
+[HttpGet]
+public IActionResult GetAll()
+{
+    var products = _db.Products.ToList();
+    return Ok(products);
+}
+      </code-block>
+      <div class="problem step" style="font-size:18px">მე-4 ხაზზე ნაკადი <b>დგას</b>, სანამ ბაზა არ უპასუხებს</div>
+    </div>
+    <div class="col" style="gap:10px">
+      <div class="tiny" style="font:700 15px var(--mono);color:var(--mvc)">⚡ ასინქრონული</div>
+      <code-block id="a1" lang="csharp" title="ახლა">
+[HttpGet]
+public async Task<IActionResult> GetAll()
+{
+    var products = await _db.Products.ToListAsync();
+    return Ok(products);
+}
+      </code-block>
+      <i class="codestep" data-for="a1" data-lines="2"></i>
+      <div class="callout step" data-with style="--a:var(--core);font-size:19px"><b>async</b> — „ამ მეთოდში await იქნება“ · <b>Task&lt;IActionResult&gt;</b> — Controller-იც დაპირებას აბრუნებს</div>
+      <i class="codestep" data-for="a1" data-lines="4"></i>
+      <div class="callout step" data-with style="--a:var(--net);font-size:19px"><b>await</b> + <b>ToListAsync</b> — „ბაზას ვკითხე; სანამ პასუხობს, ნაკადი თავისუფალია“</div>
+      <i class="codestep" data-for="a1" data-lines="5"></i>
+      <div class="solve step" data-with style="font-size:18px"><code class="i">products</code> — უკვე <b>სიაა</b>, არა Task: await-მა დაპირება „გახსნა“</div>
+    </div>
+  </div>
+  <aside class="study">
+### სამი ცვლილება: async · Task&lt;…&gt; · await
+
+```csharp ადრე — სინქრონული
+[HttpGet]
+public IActionResult GetAll()
+{
+    var products = _db.Products.ToList();
+    return Ok(products);
+}
+```
+
+```csharp ახლა — ასინქრონული
+[HttpGet]
+public async Task<IActionResult> GetAll()
+{
+    var products = await _db.Products.ToListAsync();
+    return Ok(products);
+}
+```
+
+1. **`async`** — მეთოდის ნიშანი: „ამ მეთოდში `await` იქნება“. მის გარეშე `await`-ის დაწერა არ შეიძლება.
+2. **`Task<IActionResult>`** — async მეთოდი თვითონაც დაპირებას აბრუნებს. Controller-ის მეთოდიც ლოდინს შეიცავს, ესე იგი ისიც მაშინვე შედეგს ვერ აბრუნებს. ASP.NET Core ამ Task-ს თვითონ ელოდება და პასუხს მერე აგზავნის.
+3. **`await _db.Products.ToListAsync()`** — `ToListAsync` მოთხოვნას ბაზაში აგზავნის და მაშინვე `Task<List<Product>>`-ს აბრუნებს. `await` ამბობს: „დაველოდოთ შედეგს“ — და ამ დროს ნაკადი თავისუფლდება.
+
+`await`-ის შემდეგ `products` უკვე **`List<Product>`**-ია, არა Task: `await` დაპირებას „ხსნის“ და შიგნით არსებულ შედეგს გვაძლევს. ამიტომ დანარჩენი კოდი (`Ok(products)`) არ იცვლება.
+
+```tip
+async მეთოდი თავიდან ბოლომდე ჩვეულებრივ კოდს ჰგავს — ზემოდან ქვემოთ იკითხება. ეს არის async/await-ის მთავარი ღირსება: ასინქრონულ კოდს ვწერთ ისე, თითქოს სინქრონული იყოს.
+```
+  </aside>
+</section>
+<section class="slide" data-section="2 · Task და await">
+  <div class="kicker">ნაბიჯ-ნაბიჯ</div>
+  <h2>რა ხდება <code class="i" style="font-size:.8em">await</code>-ზე?</h2>
+  <div class="grid2" style="grid-template-columns:1fr 1.15fr;gap:34px;align-items:start">
+    <code-block id="aw" lang="csharp" title="Controllers/ProductsController.cs">
+[HttpGet]
+public async Task<IActionResult> GetAll()
+{
+    var products = await _db.Products.ToListAsync();
+    return Ok(products);
+}
+    </code-block>
+    <div class="flowv">
+      <i class="codestep" data-for="aw" data-lines="2-3"></i>
+      <div class="fstep step" data-with style="--a:var(--api)"><span class="n">1</span><span>მოთხოვნა მოვიდა → მეთოდს იწყებს</span><span class="who">Thread 7</span></div>
+      <i class="codestep" data-for="aw" data-lines="4"></i>
+      <div class="fstep step" data-with style="--a:var(--asp)"><span class="n">2</span><span>SQL ბაზაში გაიგზავნა → Task დაბრუნდა</span><span class="who">Thread 7</span></div>
+      <div class="fstep step" style="--a:var(--core)"><span class="n">3</span><span><b>await</b>: მეთოდი „პაუზაზეა“ — ნაკადი <b>აუზში ბრუნდება</b></span><span class="who">Thread 7 → 🏊</span></div>
+      <div class="fstep step" style="--a:var(--mvc)"><span class="n">4</span><span>ბაზა ეძებს · ნაკადი <b>სხვა მოთხოვნებს</b> ემსახურება</span><span class="who">0 ნაკადი ელოდება</span></div>
+      <div class="fstep step" style="--a:var(--asp)"><span class="n">5</span><span>🔔 ბაზამ უპასუხა → აუზიდან თავისუფალი ნაკადი</span><span class="who">Thread 12</span></div>
+      <i class="codestep" data-for="aw" data-lines="5"></i>
+      <div class="fstep step" data-with style="--a:var(--api)"><span class="n">6</span><span>მეთოდი <b>გრძელდება</b> მე-5 ხაზიდან → პასუხი</span><span class="who">Thread 12</span></div>
+    </div>
+  </div>
+  <aside class="study">
+### რა ხდება await-ზე — ნაბიჯ-ნაბიჯ
+
+| # | რა ხდება | ნაკადი |
+|---|---|---|
+| 1 | მოთხოვნა მოვიდა, ASP.NET Core აუზიდან ნაკადს იღებს და `GetAll()`-ს იწყებს | Thread 7 |
+| 2 | `ToListAsync()` SQL-ს ბაზაში აგზავნის და მაშინვე Task-ს („პეიჯერს“) აბრუნებს | Thread 7 |
+| 3 | `await`: შედეგი ჯერ არ არის → მეთოდი „პაუზაზე“ დგება, ნაკადი **აუზში ბრუნდება** | Thread 7 თავისუფალია |
+| 4 | ბაზა მუშაობს. ამ დროს **არცერთი ნაკადი არ ელოდება** — Thread 7 უკვე სხვა მოთხოვნას ემსახურება | — |
+| 5 | ბაზამ უპასუხა → აუზიდან **ნებისმიერი** თავისუფალი ნაკადი იღებს მეთოდის გაგრძელებას | Thread 12 |
+| 6 | მეთოდი იქიდან გრძელდება, სადაც გაჩერდა (`return Ok(products)`), და პასუხი იგზავნება | Thread 12 |
+
+ყურადღება მიაქციე მე-5 ნაბიჯს: მეთოდი შეიძლება **სხვა ნაკადზე** გაგრძელდეს. ჩვენთვის ეს შეუმჩნეველია — ლოკალური ცვლადები (`products`) და ველები (`_db`) ადგილზე რჩება. C#-ის კომპილატორი async მეთოდს ისე გარდაქმნის, რომ მან „დაიმახსოვროს“, სად გაჩერდა.
+
+```check
+? await-ის დროს ნაკადი ელოდება?
+= არა — ნაკადი აუზში ბრუნდება და სხვა მოთხოვნებს ემსახურება. ელოდება მხოლოდ მეთოდი („პაუზაზეა“)
+? აუცილებლად იგივე ნაკადი აგრძელებს მეთოდს?
+= არა — აუზიდან ნებისმიერი თავისუფალი ნაკადი
+```
+  </aside>
+</section>
+<section class="slide" data-section="2 · Task და await">
+  <div class="kicker">ერთი ნაკადი · სამი მოთხოვნა</div>
+  <h2>იგივე ნაკადი — <span class="c-mvc">ორჯერ მეტი</span> საქმე</h2>
+  <svg class="tlx" viewBox="0 0 1420 470" width="1420" height="470">
+<defs><pattern id="h1" width="10" height="10" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="10" height="10" fill="#fff"/><line x1="0" y1="0" x2="0" y2="10" stroke="#2563eb" stroke-width="4" opacity=".35"/></pattern><pattern id="h2" width="10" height="10" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="10" height="10" fill="#fff"/><line x1="0" y1="0" x2="0" y2="10" stroke="#db2777" stroke-width="4" opacity=".35"/></pattern><pattern id="h3" width="10" height="10" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="10" height="10" fill="#fff"/><line x1="0" y1="0" x2="0" y2="10" stroke="#0d9488" stroke-width="4" opacity=".35"/></pattern></defs>
+<g class="in fade">
+<line x1="220.0" y1="30" x2="220.0" y2="440" stroke="#e6dfd2" stroke-width="1.5" stroke-dasharray="4 6"/><text x="220.0" y="462" text-anchor="middle" class="tm mono" font-size="14">0 ms</text>
+<line x1="410.0" y1="30" x2="410.0" y2="440" stroke="#e6dfd2" stroke-width="1.5" stroke-dasharray="4 6"/><text x="410.0" y="462" text-anchor="middle" class="tm mono" font-size="14">100 ms</text>
+<line x1="600.0" y1="30" x2="600.0" y2="440" stroke="#e6dfd2" stroke-width="1.5" stroke-dasharray="4 6"/><text x="600.0" y="462" text-anchor="middle" class="tm mono" font-size="14">200 ms</text>
+<line x1="790.0" y1="30" x2="790.0" y2="440" stroke="#e6dfd2" stroke-width="1.5" stroke-dasharray="4 6"/><text x="790.0" y="462" text-anchor="middle" class="tm mono" font-size="14">300 ms</text>
+<line x1="980.0" y1="30" x2="980.0" y2="440" stroke="#e6dfd2" stroke-width="1.5" stroke-dasharray="4 6"/><text x="980.0" y="462" text-anchor="middle" class="tm mono" font-size="14">400 ms</text>
+<line x1="1170.0" y1="30" x2="1170.0" y2="440" stroke="#e6dfd2" stroke-width="1.5" stroke-dasharray="4 6"/><text x="1170.0" y="462" text-anchor="middle" class="tm mono" font-size="14">500 ms</text>
+<line x1="1360.0" y1="30" x2="1360.0" y2="440" stroke="#e6dfd2" stroke-width="1.5" stroke-dasharray="4 6"/><text x="1360.0" y="462" text-anchor="middle" class="tm mono" font-size="14">600 ms</text>
+</g>
+<g class="step">
+<text x="0" y="80" class="tw b" font-size="20">🧱 სინქრონული</text><text x="0" y="104" class="tm" font-size="15">Thread 1</text>
+<g class="bk" style="--d:0.00s"><rect x="220.0" y="60" width="38.0" height="46" rx="6" fill="#2563eb"/><text x="239.0" y="90.0" text-anchor="middle" font-size="18" class="b" style="fill:#fff">1</text></g>
+<g class="bk" style="--d:0.09s"><rect x="258.0" y="60" width="304.0" height="46" rx="6" fill="url(#h1)" stroke="#2563eb" stroke-width="2"/><text x="272.0" y="89.0" font-size="16" class="b" style="fill:#2563eb">1 — ელოდება ბაზას</text></g>
+<g class="bk" style="--d:0.78s"><rect x="562.0" y="60" width="38.0" height="46" rx="6" fill="#2563eb"/><text x="581.0" y="90.0" text-anchor="middle" font-size="18" class="b" style="fill:#fff">1</text></g>
+<g class="bk" style="--d:0.87s"><rect x="600.0" y="60" width="38.0" height="46" rx="6" fill="#db2777"/><text x="619.0" y="90.0" text-anchor="middle" font-size="18" class="b" style="fill:#fff">2</text></g>
+<g class="bk" style="--d:0.95s"><rect x="638.0" y="60" width="304.0" height="46" rx="6" fill="url(#h2)" stroke="#db2777" stroke-width="2"/><text x="652.0" y="89.0" font-size="16" class="b" style="fill:#db2777">⏳</text></g>
+<g class="bk" style="--d:1.65s"><rect x="942.0" y="60" width="38.0" height="46" rx="6" fill="#db2777"/><text x="961.0" y="90.0" text-anchor="middle" font-size="18" class="b" style="fill:#fff">2</text></g>
+<g class="bk" style="--d:1.73s"><rect x="980.0" y="60" width="38.0" height="46" rx="6" fill="#0d9488"/><text x="999.0" y="90.0" text-anchor="middle" font-size="18" class="b" style="fill:#fff">3</text></g>
+<g class="bk" style="--d:1.82s"><rect x="1018.0" y="60" width="304.0" height="46" rx="6" fill="url(#h3)" stroke="#0d9488" stroke-width="2"/><text x="1032.0" y="89.0" font-size="16" class="b" style="fill:#0d9488">⏳</text></g>
+<g class="bk" style="--d:2.51s"><rect x="1322.0" y="60" width="38.0" height="46" rx="6" fill="#0d9488"/><text x="1341.0" y="90.0" text-anchor="middle" font-size="18" class="b" style="fill:#fff">3</text></g>
+<g class="bk" style="--d:2.60s"><rect x="1240.0" y="114" width="120" height="30" rx="15" fill="#dc2626"/><text x="1300.0" y="135" text-anchor="middle" font-size="16" class="b" style="fill:#fff">600 ms</text></g>
+</g>
+<g class="step">
+<text x="0" y="230" class="tw b" font-size="20">⚡ ასინქრონული</text><text x="0" y="254" class="tm" font-size="15">Thread 1</text>
+<g class="bk" style="--d:0.00s"><rect x="220.0" y="210" width="38.0" height="46" rx="6" fill="#2563eb"/><text x="239.0" y="240.0" text-anchor="middle" font-size="18" class="b" style="fill:#fff">1</text></g>
+<g class="bk" style="--d:0.09s"><rect x="258.0" y="210" width="38.0" height="46" rx="6" fill="#db2777"/><text x="277.0" y="240.0" text-anchor="middle" font-size="18" class="b" style="fill:#fff">2</text></g>
+<g class="bk" style="--d:0.17s"><rect x="296.0" y="210" width="38.0" height="46" rx="6" fill="#0d9488"/><text x="315.0" y="240.0" text-anchor="middle" font-size="18" class="b" style="fill:#fff">3</text></g>
+<g class="bk" style="--d:0.26s"><rect x="334.0" y="210" width="228.0" height="46" rx="6" fill="#fff" stroke="#cfc6b6" stroke-width="2" stroke-dasharray="6 6"/><text x="448.0" y="239" text-anchor="middle" class="tg b" font-size="16">თავისუფალია ✓</text></g>
+<g class="bk" style="--d:0.78s"><rect x="562.0" y="210" width="38.0" height="46" rx="6" fill="#2563eb"/><text x="581.0" y="240.0" text-anchor="middle" font-size="18" class="b" style="fill:#fff">1</text></g>
+<g class="bk" style="--d:0.87s"><rect x="600.0" y="210" width="38.0" height="46" rx="6" fill="#db2777"/><text x="619.0" y="240.0" text-anchor="middle" font-size="18" class="b" style="fill:#fff">2</text></g>
+<g class="bk" style="--d:0.95s"><rect x="638.0" y="210" width="38.0" height="46" rx="6" fill="#0d9488"/><text x="657.0" y="240.0" text-anchor="middle" font-size="18" class="b" style="fill:#fff">3</text></g>
+<text x="0" y="328" class="to b" font-size="20">🗄️ ბაზა</text><text x="0" y="352" class="tm" font-size="15">ნაკადის გარეშე</text>
+<g class="bk" style="--d:0.09s"><rect x="258.0" y="290" width="304.0" height="26" rx="6" fill="url(#h1)" stroke="#2563eb" stroke-width="2"/><text x="272.0" y="309.0" font-size="16" class="b" style="fill:#2563eb">1</text></g>
+<g class="bk" style="--d:0.17s"><rect x="296.0" y="324" width="304.0" height="26" rx="6" fill="url(#h2)" stroke="#db2777" stroke-width="2"/><text x="310.0" y="343.0" font-size="16" class="b" style="fill:#db2777">2</text></g>
+<g class="bk" style="--d:0.26s"><rect x="334.0" y="358" width="304.0" height="26" rx="6" fill="url(#h3)" stroke="#0d9488" stroke-width="2"/><text x="348.0" y="377.0" font-size="16" class="b" style="fill:#0d9488">3</text></g>
+<g class="bk" style="--d:1.04s"><rect x="686.0" y="218" width="120" height="30" rx="15" fill="#16a34a"/><text x="746.0" y="239" text-anchor="middle" font-size="16" class="b" style="fill:#fff">240 ms</text></g>
+</g>
+</svg>
+  <aside class="study">
+### ერთი ნაკადი, სამი მოთხოვნა
+
+წარმოიდგინე, რომ სერვერს **ერთი** ნაკადი აქვს და ერთდროულად სამი მოთხოვნა მოვიდა (1, 2, 3). თითოეულს სჭირდება: ცოტა კოდი → ბაზის ლოდინი → ცოტა კოდი.
+
+**🧱 სინქრონულად** ნაკადი მოთხოვნა 1-ს იღებს და ბაზის ლოდინის დროს მასთან **დგას** (დაშტრიხული ზოლი). მხოლოდ მისი დასრულების შემდეგ იწყებს მოთხოვნა 2-ს, მერე 3-ს. მესამე მომხმარებელი პასუხს 600 ms-ზე იღებს.
+
+**⚡ ასინქრონულად** ნაკადი სამივეს იწყებს: 1-ს ბაზაში აგზავნის → `await` → თავისუფალია → 2-ს იწყებს → 3-ს იწყებს. სამივე მოთხოვნა ბაზაში **ერთდროულად** მუშავდება — და ამ დროს ნაკადი თავისუფალია (სხვა მოთხოვნებისთვის). ბაზის პასუხები მოდის → ნაკადი სამივეს ასრულებს. ყველაფერი 240 ms-ში.
+
+```note
+რიცხვები პირობითია — სქემაა. მთავარია ფორმა: სინქრონულად ნაკადის დრო ლოდინში იკარგება, ასინქრონულად ლოდინი ბაზაშია და ნაკადი არ იხარჯება.
+```
+  </aside>
+</section>
+<section class="slide" data-section="2 · Task და await">
+  <div class="kicker">ლაივ დემო · ვამოწმებთ</div>
+  <h2>await-მდე და await-ის შემდეგ — <span class="c-net">რომელი ნაკადი?</span></h2>
+  <div class="grid2" style="grid-template-columns:1.25fr 1fr;align-items:start;gap:30px">
+    <code-block id="tid" lang="csharp" title="Controllers/ProductsController.cs · დროებით">
+[HttpGet]
+public async Task<IActionResult> GetAll()
+{
+    var before = Environment.CurrentManagedThreadId;
+    var products = await _db.Products.ToListAsync();
+    var after = Environment.CurrentManagedThreadId;
+
+    Console.WriteLine($"Thread {before} → {after}");
+    return Ok(products);
+}
+    </code-block>
+    <div class="col" style="gap:14px">
+      <i class="codestep" data-for="tid" data-lines="4,6"></i>
+      <div class="callout step" data-with style="--a:var(--net)"><code class="i">Environment.CurrentManagedThreadId</code> — იმ ნაკადის ნომერი, რომელიც ამ ხაზს ასრულებს</div>
+      <div class="term step">
+        <div class="bar"><i></i><i></i><i></i><span>ShopApi · Console · Swagger-ში 3-ჯერ Execute</span></div>
+        <div class="body" style="font-size:16px">
+          <div class="out">Thread 9 → <span class="ok">14</span></div>
+          <div class="out">Thread 14 → <span class="ok">6</span></div>
+          <div class="out">Thread 6 → <span class="ok">6</span></div>
+        </div>
+      </div>
+      <div class="solve step">ხშირად <b>სხვა ნომერია</b> — ნაკადი await-ზე აუზში დაბრუნდა</div>
+    </div>
+  </div>
+  <aside class="study">
+### ლაივ დემო: რომელი ნაკადი ასრულებს კოდს?
+
+დავამტკიცოთ, რომ `await`-ზე ნაკადი ნამდვილად თავისუფლდება. `Environment.CurrentManagedThreadId` გვეუბნება, რომელი ნაკადი ასრულებს მიმდინარე ხაზს. ნომერს `await`-მდე და `await`-ის შემდეგ ვიმახსოვრებთ და ერთად ვბეჭდავთ:
+
+```csharp Controllers/ProductsController.cs · დროებით
+[HttpGet]
+public async Task<IActionResult> GetAll()
+{
+    var before = Environment.CurrentManagedThreadId;
+    var products = await _db.Products.ToListAsync();
+    var after = Environment.CurrentManagedThreadId;
+
+    Console.WriteLine($"Thread {before} → {after}");
+    return Ok(products);
+}
+```
+
+Swagger-ში რამდენჯერმე ვაჭერთ Execute-ს და აპლიკაციის console-ს ვუყურებთ. ნომრები შენთან სხვა იქნება, მაგრამ ხშირად `await`-ის შემდეგ **სხვა ნომერი** ჩანს: მეთოდი აუზის სხვა ნაკადმა გააგრძელა.
+
+```note
+ზოგჯერ ნომერი ემთხვევა — ეს ნორმალურია: აუზმა გაგრძელება შემთხვევით იმავე ნაკადს მისცა. მთავარი ის არის, რომ ლოდინის დროს ეს ნაკადი თავისუფალი იყო. ექსპერიმენტის შემდეგ ეს სამი ხაზი წაშალე.
+```
+  </aside>
+</section>
+<section class="slide" data-section="2 · Task და await">
+  <div class="kicker">სიმულაცია · 4 ნაკადი · ყოველ მოთხოვნას 1.4 წმ ბაზის ლოდინი</div>
+  <h2 style="margin-bottom:18px">ჩართე და <span class="c-net">შეადარე</span></h2>
+  <div id="sim" class="sim">
+    <div class="sim-ctl">
+      <div class="seg" data-k="mode"><button type="button" data-v="sync" class="on">🧱 სინქრონული</button><button type="button" data-v="async">⚡ ასინქრონული</button></div>
+      <div class="seg" data-k="rate"><span>მოთხოვნა / წმ</span><button type="button" data-v="2">2</button><button type="button" data-v="4" class="on">4</button><button type="button" data-v="8">8</button></div>
+      <button type="button" class="run">▶ დაწყება</button>
+      <span class="clock">0.0 წმ</span>
+    </div>
+    <div class="sim-main">
+      <div class="pane"><h4><span>🚪 რიგი</span><b class="qn">0</b></h4><div class="qchips"></div></div>
+      <div class="pane"><h4><span>🧵 Thread Pool</span><b class="tn">4 თავისუფალი</b></h4><div class="lanes"></div></div>
+      <div class="pane"><h4><span>🗄️ ბაზასთან</span><b class="dn">0</b></h4><div class="dbl"></div></div>
+    </div>
+    <div class="sim-stats">
+      <div class="tile" style="--a:var(--mvc)"><div class="v s-done">0</div><div class="l">✓ დასრულდა</div></div>
+      <div class="tile" style="--a:var(--red)"><div class="v s-fail">0</div><div class="l">✗ timeout (4 წმ რიგში)</div></div>
+      <div class="tile" style="--a:var(--api)"><div class="v s-q">0</div><div class="l">🚪 რიგში ელოდება</div></div>
+      <div class="tile" style="--a:var(--asp)"><div class="v s-rt">—</div><div class="l">⏱ საშ. პასუხის დრო</div></div>
+      <div class="tile" style="--a:var(--net)"><div class="v s-cpu">0%</div><div class="l">⚙️ CPU — ნაკადები კოდს ასრულებს</div></div>
+    </div>
+  </div>
+  <aside class="study">
+### სიმულაცია: 4 ნაკადი, სინქრონული vs ასინქრონული
+
+სლაიდზე ცოცხალი სიმულაციაა. პირობები:
+
+- აუზში **4 ნაკადია**;
+- ყოველ მოთხოვნას სჭირდება: **0.2 წმ კოდი → 1.4 წმ ბაზის ლოდინი → 0.2 წმ კოდი**;
+- მოთხოვნა, რომელიც რიგში 4 წამზე მეტს ელოდება, **timeout**-ით მთავრდება.
+
+სცადე სამი ექსპერიმენტი:
+
+1. **სინქრონული, 2 მოთხოვნა/წმ** — თითქმის მუშაობს, თუმცა ნაკადები უმეტესად ლოდინში დგანან (დაშტრიხული ზოლი).
+2. **სინქრონული, 4 მოთხოვნა/წმ** — რიგი იზრდება, timeout-ები ჩნდება, **CPU კი დაბალია** — ეს არის Black Friday.
+3. **ასინქრონული, 4 და 8 მოთხოვნა/წმ** — იგივე 4 ნაკადი ყველაფერს ასწრებს: ლოდინის დროს მოთხოვნა „ბაზასთანაა“ ნაკადის გარეშე, ნაკადი კი შემდეგ მოთხოვნას იღებს.
+
+რატომ? სინქრონულად ნაკადს ერთი მოთხოვნა 1.8 წამით უჭირავს — 4 ნაკადი წამში ~2 მოთხოვნას ასწრებს. ასინქრონულად ნაკადს მოთხოვნა მხოლოდ 0.4 წამით (კოდის ნაწილი) უჭირავს — იგივე 4 ნაკადი წამში ~10-ს ასწრებს.
+
+```note
+ეს გამარტივებული მოდელია — ნამდვილ სერვერზე ნაკადი მეტია და დრო სხვაა. მაგრამ პროპორცია ზუსტად ასე მუშაობს: რაც მეტია ლოდინი, მით მეტს იგებს async.
+```
+  </aside>
+</section>
+<section class="slide" data-section="შესვენება">
+  <div class="center">
+    <div class="big-emoji in" style="font-size:120px">☕</div>
+    <h1 class="in" style="--d:.15s">10 წუთი</h1>
+    <p class="lead in" style="--d:.3s">შემდეგ: ShopApi <b class="c-net">ასინქრონულ</b> ბაზასთან</p>
+  </div>
+</section>
+
+<!-- ================= PART 3 ================= -->
+<section class="slide divider" data-section="3 · ShopApi → async">
+  <div class="vcenter">
+    <div class="kicker in">ნაწილი 3</div>
+    <h1 class="in" style="--d:.1s">ShopApi → <span class="grad">async</span></h1>
+    <p class="lead mt in" style="--d:.3s">ყველა Controller, ყველა endpoint</p>
+  </div>
+  <div class="big-num">03</div>
+  <aside class="study">
+## ნაწილი 3 · ShopApi → async
+
+ახლა ShopApi-ის ორივე Controller-ს ასინქრონულზე გადავიყვანთ. ლოგიკა არ იცვლება — მხოლოდ ბაზასთან მიმართვა.
+  </aside>
+</section>
+<section class="slide" data-section="3 · ShopApi → async">
+  <div class="kicker">EF Core · რა იცვლება</div>
+  <h2>ბაზაში მიდის? → <span class="c-core">…Async</span> + <span class="c-core">await</span></h2>
+  <div class="grid2" style="grid-template-columns:1.3fr 1fr;gap:34px;align-items:start">
+    <table class="t" style="font-size:18px">
+      <tr><th style="width:42%">ადრე</th><th>ახლა</th></tr>
+      <tr class="step fade"><td class="mono">_db.Products.ToList()</td><td><code class="i">await _db.Products.ToListAsync()</code></td></tr>
+      <tr class="step fade"><td class="mono">_db.Products.Find(id)</td><td><code class="i">await _db.Products.FindAsync(id)</code></td></tr>
+      <tr class="step fade"><td class="mono">_db.SaveChanges()</td><td><code class="i">await _db.SaveChangesAsync()</code></td></tr>
+      <tr class="step fade"><td class="mono">.Count() · .Sum(…) · .Any(…)</td><td><code class="i">await .CountAsync()</code> · <code class="i">SumAsync</code> · <code class="i">AnyAsync</code></td></tr>
+      <tr class="step fade"><td class="mono">.FirstOrDefault(…)</td><td><code class="i">await .FirstOrDefaultAsync(…)</code></td></tr>
+    </table>
+    <div class="col" style="gap:16px">
+      <div class="card accent step" style="--a:var(--muted)"><h3><span class="ico">🟰</span>რჩება როგორც იყო</h3><p class="small"><code class="i">Add</code> · <code class="i">Remove</code> · <code class="i">Where</code> · <code class="i">OrderBy</code> · <code class="i">Select</code> — ბაზაში <b>არ მიდიან</b>: Change Tracker-ში ინიშნება ან SQL-ის „რეცეპტს“ აწყობს</p></div>
+      <div class="callout step" style="--a:var(--asp)"><code class="i">using Microsoft.EntityFrameworkCore;</code> — <b>ToListAsync</b> და სხვები აქედან მოდის</div>
+    </div>
+  </div>
+  <aside class="study">
+### ბაზაში მიდის? → …Async + await
+
+წესი მარტივია: **ის მეთოდი, რომელიც ბაზაში მიდის, Async ვერსიით იცვლება და მას `await` ეწერება.**
+
+| ადრე | ახლა |
+|---|---|
+| `_db.Products.ToList()` | `await _db.Products.ToListAsync()` |
+| `_db.Products.Find(id)` | `await _db.Products.FindAsync(id)` |
+| `_db.SaveChanges()` | `await _db.SaveChangesAsync()` |
+| `.Count()` · `.Sum(…)` · `.Any(…)` | `await .CountAsync()` · `await .SumAsync(…)` · `await .AnyAsync(…)` |
+| `.FirstOrDefault(…)` | `await .FirstOrDefaultAsync(…)` |
+
+**რჩება როგორც იყო:**
+
+- `Add` და `Remove` — ბაზაში არ მიდიან, მხოლოდ Change Tracker-ში ნიშნავენ „დასამატებელია“ / „წასაშლელია“. ბაზაში ყველაფერი `SaveChangesAsync`-ზე მიდის.
+- `Where`, `OrderBy`, `Select` — SQL-ის „რეცეპტს“ აწყობენ, ბაზაში ჯერ არაფერი იგზავნება. მოთხოვნა ბოლო მეთოდზე სრულდება — მაგ. `await _db.Products.Where(p => p.Price > 100).ToListAsync()`.
+
+```warn
+`ToListAsync`, `CountAsync` და სხვები `Microsoft.EntityFrameworkCore` namespace-ის extension მეთოდებია. თუ Controller-ში `using Microsoft.EntityFrameworkCore;` არ წერია, კომპილატორი იტყვის: „'DbSet<Product>' does not contain a definition for 'ToListAsync'“.
+```
+
+```note
+EF Core-ს `AddAsync`-იც აქვს, მაგრამ ჩვეულებრივ შემთხვევაში ის არ გვჭირდება — `Add` ბაზაში არ მიდის. `AddAsync` მხოლოდ სპეციალური Id-გენერატორებისთვისაა.
+```
+  </aside>
+</section>
+<section class="slide" data-section="3 · ShopApi → async">
+  <div class="kicker">ლაივ კოდი · ProductsController · 1/2</div>
+  <h2>GetAll · GetById · Create</h2>
+  <div class="grid2" style="grid-template-columns:1.35fr 1fr;align-items:start;gap:30px">
+    <code-block id="p1" lang="csharp" cls="sm" title="Controllers/ProductsController.cs">
+[HttpGet]
+public async Task<IActionResult> GetAll()
+{
+    var products = await _db.Products.ToListAsync();
+    return Ok(products);
+}
+
+[HttpGet("{id:guid}")]
+public async Task<IActionResult> GetById(Guid id)
+{
+    var product = await _db.Products.FindAsync(id);
+    if (product is null) return NotFound();
+    return Ok(product);
+}
+
+[HttpPost]
+public async Task<IActionResult> Create(Product product)
+{
+    _db.Products.Add(product);
+    await _db.SaveChangesAsync();
+    return CreatedAtAction(nameof(GetById), new { id = product.Id }, product);
+}
+    </code-block>
+    <div class="col" style="gap:14px">
+      <i class="codestep" data-for="p1" data-lines="2,9,17"></i>
+      <div class="callout step" data-with style="--a:var(--core)">ყველა მეთოდი: <b>async Task&lt;IActionResult&gt;</b></div>
+      <i class="codestep" data-for="p1" data-lines="4,11"></i>
+      <div class="callout step" data-with style="--a:var(--net)">წაკითხვა — <b>await</b> + <code class="i">ToListAsync</code> / <code class="i">FindAsync</code></div>
+      <i class="codestep" data-for="p1" data-lines="19-20"></i>
+      <div class="callout step" data-with style="--a:var(--asp)"><code class="i">Add</code> — <b>უცვლელი</b> · ბაზაში მხოლოდ <code class="i">SaveChangesAsync</code> მიდის</div>
+      <i class="codestep" data-for="p1" data-lines="12-13,21"></i>
+      <div class="solve step" data-with>NotFound, Ok, CreatedAtAction — <b>არაფერი შეცვლილა</b></div>
+    </div>
+  </div>
+  <aside class="study">
+### ProductsController: GetAll · GetById · Create
+
+```csharp Controllers/ProductsController.cs
+[HttpGet]
+public async Task<IActionResult> GetAll()
+{
+    var products = await _db.Products.ToListAsync();
+    return Ok(products);
+}
+
+[HttpGet("{id:guid}")]
+public async Task<IActionResult> GetById(Guid id)
+{
+    var product = await _db.Products.FindAsync(id);
+    if (product is null) return NotFound();
+    return Ok(product);
+}
+
+[HttpPost]
+public async Task<IActionResult> Create(Product product)
+{
+    _db.Products.Add(product);
+    await _db.SaveChangesAsync();
+    return CreatedAtAction(nameof(GetById), new { id = product.Id }, product);
+}
+```
+
+- ყველა მეთოდი ხდება `async Task<IActionResult>`.
+- ბაზიდან წაკითხვა — `await` + `ToListAsync` / `FindAsync`.
+- `Add` უცვლელია; ბაზაში მხოლოდ `await _db.SaveChangesAsync()` მიდის.
+- `NotFound()`, `Ok()`, `CreatedAtAction()` — ისევ ისე. ლოგიკა და სტატუს კოდები არ იცვლება.
+
+```warn
+Controller-ის მეთოდებს (action-ებს) სახელის ბოლოს **Async არ ვუწერთ**: `GetById`, არა `GetByIdAsync`. ASP.NET Core action-ის სახელიდან „Async“-ს თვითონ აცილებს, და `CreatedAtAction(nameof(GetByIdAsync), …)` შეცდომას იძლევა: „No route matches the supplied values“. Async სუფიქსი ჩვენს სხვა მეთოდებს ეწერება, Controller-ის action-ებს — არა.
+```
+  </aside>
+</section>
+<section class="slide" data-section="3 · ShopApi → async">
+  <div class="kicker">ლაივ კოდი · 2/2</div>
+  <h2>Update · Delete · StatsController</h2>
+  <div class="grid2" style="gap:26px;align-items:start">
+    <code-block id="p2" lang="csharp" cls="xs" title="Controllers/ProductsController.cs">
+[HttpPut("{id:guid}")]
+public async Task<IActionResult> Update(Guid id, Product updated)
+{
+    var product = await _db.Products.FindAsync(id);
+    if (product is null) return NotFound();
+    product.Name = updated.Name;
+    product.Price = updated.Price;
+    await _db.SaveChangesAsync();
+    return NoContent();
+}
+
+[HttpDelete("{id:guid}")]
+public async Task<IActionResult> Delete(Guid id)
+{
+    var product = await _db.Products.FindAsync(id);
+    if (product is null) return NotFound();
+    _db.Products.Remove(product);
+    await _db.SaveChangesAsync();
+    return NoContent();
+}
+    </code-block>
+    <div class="col" style="gap:16px">
+      <code-block id="p3" lang="csharp" cls="sm" title="Controllers/StatsController.cs">
+[HttpGet]
+public async Task<IActionResult> Get()
+{
+    var count = await _db.Products.CountAsync();
+    var totalValue = await _db.Products.SumAsync(p => p.Price);
+    return Ok(new { Count = count, TotalValue = totalValue });
+}
+      </code-block>
+      <i class="codestep" data-for="p2" data-lines="4,8,15,18"></i>
+      <div class="callout step" data-with style="--a:var(--net)">ყველგან ერთი ნიმუში: <b>FindAsync → ცვლილება → SaveChangesAsync</b></div>
+      <i class="codestep" data-for="p3" data-lines="4-5"></i>
+      <div class="callout step" data-with style="--a:var(--asp)">ორი მოთხოვნა ბაზაში — <b>რიგრიგობით</b>, თითოს თავისი <code class="i">await</code></div>
+      <div class="solve step">Swagger-ში ყველაფერი <b>ისევე</b> მუშაობს — განსხვავება მხოლოდ დატვირთვისას ჩანს</div>
+    </div>
+  </div>
+  <aside class="study">
+### Update · Delete · StatsController
+
+```csharp Controllers/ProductsController.cs
+[HttpPut("{id:guid}")]
+public async Task<IActionResult> Update(Guid id, Product updated)
+{
+    var product = await _db.Products.FindAsync(id);
+    if (product is null) return NotFound();
+    product.Name = updated.Name;
+    product.Price = updated.Price;
+    await _db.SaveChangesAsync();
+    return NoContent();
+}
+
+[HttpDelete("{id:guid}")]
+public async Task<IActionResult> Delete(Guid id)
+{
+    var product = await _db.Products.FindAsync(id);
+    if (product is null) return NotFound();
+    _db.Products.Remove(product);
+    await _db.SaveChangesAsync();
+    return NoContent();
+}
+```
+
+```csharp Controllers/StatsController.cs
+[HttpGet]
+public async Task<IActionResult> Get()
+{
+    var count = await _db.Products.CountAsync();
+    var totalValue = await _db.Products.SumAsync(p => p.Price);
+    return Ok(new { Count = count, TotalValue = totalValue });
+}
+```
+
+StatsController-ში ბაზაში **ორი** მოთხოვნა მიდის — თითოს თავისი `await`. ისინი რიგრიგობით სრულდება: ჯერ რაოდენობა, მერე ჯამი. ეს სწორია — ერთ DataContext-ზე ერთდროულად მხოლოდ ერთი ოპერაცია შეიძლება (ამას „ხშირ შეცდომებში“ დავუბრუნდებით).
+
+Swagger-ში ყველაფერი ისევე მუშაობს: იგივე JSON, იგივე სტატუს კოდები. კლიენტისთვის არაფერი შეცვლილა — განსხვავება სერვერის შიგნითაა და დატვირთვისას ჩანს.
+  </aside>
+</section>
+<section class="slide" data-section="3 · ShopApi → async">
+  <div class="kicker">„Async all the way“</div>
+  <h2>async <span class="c-core">გადამდებია</span> — ბოლომდე</h2>
+  <div class="chain big step" style="justify-content:center;margin:30px 0 14px">
+    <span class="node" style="--a:var(--api)">🌐 ASP.NET Core</span><span class="ar">⇄</span>
+    <span class="node" style="--a:var(--net)">Controller<small>async Task&lt;IActionResult&gt;</small></span><span class="ar">⇄</span>
+    <span class="node" style="--a:var(--core)">EF Core<small>ToListAsync()</small></span><span class="ar">⇄</span>
+    <span class="node" style="--a:var(--asp)">🗄️ SQL Server</span>
+  </div>
+  <p class="tiny step" data-with style="text-align:center">ვინც await-ს იყენებს, თვითონაც Task-ს აბრუნებს — ვინც მას იძახებს, ისიც await-ს წერს… ASP.NET Core-მდე</p>
+  <div class="grid2 mt2" style="gap:26px">
+    <div class="card accent step" style="--a:var(--mvc)"><h3><span class="ico">✓</span>ასე</h3><p class="small">თუ ქვემოთ ერთი მეთოდი async გახდა, <b>ზემოთ ყველა</b> async-ია და await-ს წერს</p></div>
+    <div class="card accent step" style="--a:var(--red)"><h3><span class="ico">✗</span>ასე არა</h3><p class="small">შუაში <code class="i">.Result</code> ან <code class="i">.Wait()</code> — ნაკადი იქ <b>ისევ დგება</b>, და async-ის მთელი აზრი იკარგება</p></div>
+  </div>
+  <aside class="study">
+### async გადამდებია — „async all the way“
+
+როცა მეთოდი `await`-ს იყენებს, ის თვითონაც `async` ხდება და Task-ს აბრუნებს. ვინც მას იძახებს, ისიც `await`-ს წერს — და თვითონაც async ხდება. ასე ზემოთ, ბოლომდე:
+
+**SQL Server** ← **EF Core** (`ToListAsync`) ← **Controller** (`async Task<IActionResult>`) ← **ASP.NET Core** (Task-ს თვითონ ელოდება)
+
+ჩვენთან ჯაჭვი მოკლეა — Controller პირდაპირ EF Core-ს იძახებს. როცა პროექტს სტრუქტურას მივცემთ და შუაში ჩვენი კლასები ჩადგება, ისინიც async იქნება.
+
+```warn
+ჯაჭვის შუაში არ „გაწყვიტო“ `.Result`-ით ან `.Wait()`-ით: `_db.Products.ToListAsync().Result` კომპილირდება, მაგრამ ნაკადი იქ **ისევ დგება** და ელოდება — ზუსტად ისე, როგორც სინქრონულ კოდში. უარეს შემთხვევაში პროგრამა სამუდამოდ „იჭედება“ (deadlock). წესი: Task-ს ყოველთვის `await` ვუწერთ.
+```
+  </aside>
+</section>
+<section class="slide" data-section="3 · ShopApi → async">
+  <div class="kicker">ერთი ნაბიჯი წინ · გაუქმება</div>
+  <h2>მომხმარებელმა ჩანართი დახურა — <span class="c-asp">ბაზა ისევ ეძებს?</span></h2>
+  <div class="grid2" style="grid-template-columns:1.2fr 1fr;gap:34px;align-items:start">
+    <code-block id="ct" lang="csharp" title="Controllers/ProductsController.cs">
+[HttpGet]
+public async Task<IActionResult> GetAll(
+    CancellationToken cancellationToken)
+{
+    var products = await _db.Products
+        .ToListAsync(cancellationToken);
+    return Ok(products);
+}
+    </code-block>
+    <div class="col" style="gap:14px">
+      <i class="codestep" data-for="ct" data-lines="2-3"></i>
+      <div class="callout step" data-with style="--a:var(--asp)"><b>CancellationToken</b> — ASP.NET Core თვითონ აწვდის: „ეს მოთხოვნა ჯერ კიდევ ვინმეს სჭირდება?“</div>
+      <i class="codestep" data-for="ct" data-lines="5-6"></i>
+      <div class="callout step" data-with style="--a:var(--core)">EF Core-ს გადავცემთ → კავშირი გაწყდა → SQL მოთხოვნა <b>უქმდება</b></div>
+      <div class="solve step">ნელი ძებნა, ფილტრი, რეპორტი — სერვერი <b>არავისთვის</b> აღარ მუშაობს</div>
+      <p class="tiny step">სავალდებულო არ არის — ყველა Async მეთოდი იღებს, როგორც ბოლო პარამეტრს</p>
+    </div>
+  </div>
+  <aside class="study">
+### CancellationToken: მომხმარებელმა ჩანართი დახურა
+
+ასინქრონულ მეთოდებს კიდევ ერთი საჩუქარი მოაქვს — **გაუქმება**. წარმოიდგინე ნელი ძებნა: მომხმარებელმა ლოდინი მოიწყინა და ჩანართი დახურა. სინქრონულ კოდში სერვერი ძებნას მაინც ბოლომდე მიიყვანს — პასუხი კი აღარავის სჭირდება.
+
+```csharp Controllers/ProductsController.cs
+[HttpGet]
+public async Task<IActionResult> GetAll(
+    CancellationToken cancellationToken)
+{
+    var products = await _db.Products
+        .ToListAsync(cancellationToken);
+    return Ok(products);
+}
+```
+
+- **`CancellationToken`** action-ის პარამეტრია, მაგრამ კლიენტი მას არ აგზავნის — ASP.NET Core თვითონ აწვდის. ის „იცის“, ჯერ კიდევ ცოცხალია თუ არა კავშირი კლიენტთან.
+- EF Core-ს გადავცემთ → კავშირი გაწყდა → EF Core SQL მოთხოვნას **აუქმებს**.
+
+ეს სავალდებულო არ არის: EF Core-ის ყველა Async მეთოდი `CancellationToken`-ს არასავალდებულო ბოლო პარამეტრად იღებს. ჩვეულებრივ CRUD-ში ბევრს არ ცვლის, ნელ მოთხოვნებზე (ძებნა, რეპორტები) კი სასარგებლოა.
+
+```terms
+CancellationToken — სიგნალი „შეწყვიტე, ეს აღარ სჭირდება“; ASP.NET Core მოთხოვნის გაუქმებისას რთავს
+```
+  </aside>
+</section>
+
+<!-- ================= PART 4 ================= -->
+<section class="slide divider" data-section="4 · როდის — და როდის არა">
+  <div class="vcenter">
+    <div class="kicker in">ნაწილი 4</div>
+    <h1 class="in" style="--d:.1s">როდის — და <span class="grad">როდის არა</span></h1>
+    <p class="lead mt in" style="--d:.3s">async ყველაფრის წამალი არ არის</p>
+  </div>
+  <div class="big-num">04</div>
+  <aside class="study">
+## ნაწილი 4 · როდის — და როდის არა
+
+async ძლიერი ხელსაწყოა, მაგრამ ყველაფრის წამალი არ არის. ვნახავთ, რას გვაძლევს და რას — არა, სად გვჭირდება, სად არაფერს გვიშველის და რა შეცდომებს უშვებენ ყველაზე ხშირად.
+  </aside>
+</section>
+<section class="slide" data-section="4 · როდის — და როდის არა">
+  <div class="kicker">ყველაზე ხშირი მცდარი წარმოდგენა</div>
+  <h2>async ერთ მოთხოვნას <span class="c-red">არ აჩქარებს</span></h2>
+  <div class="grid2" style="gap:40px;align-items:start">
+    <div class="col" style="gap:14px">
+      <div class="tiny" style="font:700 15px var(--mono)">ერთი მომხმარებელი · GET /api/products</div>
+      <div class="col step" style="gap:10px">
+        <div class="anat" style="height:56px"><div class="c" style="flex:3">🧱</div><div class="w" style="flex:88">⏳ ბაზა — 40 ms</div><div class="c" style="flex:4"></div></div>
+        <div class="anat" style="height:56px"><div class="c" style="flex:3;background:var(--mvc)">⚡</div><div class="w" style="flex:88">⏳ ბაზა — 40 ms</div><div class="c" style="flex:4;background:var(--mvc)"></div></div>
+      </div>
+      <div class="problem step" style="font-size:19px">ბაზა ისევ 40 ms-ს ფიქრობს — <b>ის ხომ არ შეცვლილა</b></div>
+    </div>
+    <div class="col" style="gap:14px">
+      <div class="tiny" style="font:700 15px var(--mono)">ბევრი მომხმარებელი ერთად · იგივე სერვერი</div>
+      <div class="card accent step" style="--a:var(--red);padding:16px 20px"><h3 style="font-size:22px">🧱 სინქრონული</h3><p class="small">ნაკადები ლოდინში დგანან → რიგი → <b>ნელდება ყველა</b></p></div>
+      <div class="card accent step" style="--a:var(--mvc);padding:16px 20px"><h3 style="font-size:22px">⚡ ასინქრონული</h3><p class="small">ნაკადები თავისუფლდებიან → <b>მეტი მომხმარებელი</b> იგივე სერვერზე, ყველას ისევ 40 ms</p></div>
+      <div class="solve step">async-ის მოგება — <b>მასშტაბი</b> (scalability), არა სიჩქარე</div>
+    </div>
+  </div>
+  <aside class="study">
+### async ერთ მოთხოვნას არ აჩქარებს
+
+ეს ყველაზე ხშირი მცდარი წარმოდგენაა — და გასაუბრებაზეც ხშირად ამოწმებენ.
+
+**ერთ მომხმარებელზე** სინქრონულიც და ასინქრონულიც ერთნაირ დროს ხარჯავს: ბაზა ისევ 40 ms-ს ფიქრობს, ქსელიც იგივეა. async-ს ცოტა დამატებითი სამუშაოც აქვს (კომპილატორის მიერ აგებული „მდგომარეობის მანქანა“), მაგრამ ის მიკროწამებია — შეუმჩნეველი.
+
+**ბევრ მომხმარებელზე** კი სურათი იცვლება:
+
+- სინქრონულად ნაკადები ლოდინში დგანან → ახალი მოთხოვნები რიგში → **ყველასთვის ნელდება**, ზოგს timeout.
+- ასინქრონულად ნაკადები ლოდინის დროს თავისუფლდებიან → იგივე სერვერი **ბევრად მეტ** ერთდროულ მომხმარებელს ემსახურება, და თითოეული ისევ ~40 ms-ში იღებს პასუხს.
+
+async-ის მოგება **მასშტაბია** (scalability) — რამდენ მომხმარებელს გაუძლებს სერვერი, და არა ერთი მოთხოვნის სიჩქარე.
+
+```terms
+Scalability (მასშტაბირება) — რამდენ დატვირთვას უძლებს სისტემა ისე, რომ არ ნელდება
+```
+  </aside>
+</section>
+<section class="slide" data-section="4 · როდის — და როდის არა">
+  <div class="kicker">ორი სახის სამუშაო</div>
+  <h2><span class="c-asp">ლოდინი</span> თუ <span class="c-net">გამოთვლა?</span></h2>
+  <div class="grid2" style="gap:30px;align-items:stretch">
+    <div class="kind step left" style="--a:var(--asp)">
+      <h3>⏳ I/O-bound — ლოდინი</h3>
+      <div class="q">პროგრამა პასუხს ელოდება <b>გარედან</b></div>
+      <ul class="clean">
+        <li>🗄️ ბაზა — EF Core-ის ყველა მოთხოვნა</li>
+        <li>💳 გადახდის API — ბანკთან HTTP მოთხოვნა</li>
+        <li>🤖 AI მოდელის API — პასუხს <b>წამები</b> სჭირდება</li>
+        <li>📧 email-ის გაგზავნა · ☁️ ფაილის ატვირთვა</li>
+      </ul>
+      <span class="verdict">async + await ✓</span>
+    </div>
+    <div class="kind step right" style="--a:var(--net)">
+      <h3>⚙️ CPU-bound — გამოთვლა</h3>
+      <div class="q">პროცესორი <b>თვითონ მუშაობს</b> — ლოდინი არ არის</div>
+      <ul class="clean">
+        <li>🏷️ ფასდაკლების დათვლა · დღგ</li>
+        <li>📨 DTO mapping — <code class="i">ToResponse()</code></li>
+        <li>✅ ვალიდაცია · სიის დალაგება მეხსიერებაში</li>
+        <li>🔐 პაროლის ჰეში — Argon2 · 🖼️ სურათის დამუშავება</li>
+      </ul>
+      <span class="verdict">async არაფერს აძლევს ✗</span>
+    </div>
+  </div>
+  <aside class="study">
+### ორი სახის სამუშაო: ლოდინი თუ გამოთვლა?
+
+async ეხმარება მხოლოდ მაშინ, როცა **სალოდინო** რამე არის.
+
+#### ⏳ I/O-bound — ლოდინი → async + await
+
+პროგრამა პასუხს გარედან ელოდება, და ამ დროს ნაკადი შეიძლება გათავისუფლდეს:
+
+- 🗄️ **ბაზა** — EF Core-ის ყველა მოთხოვნა;
+- 💳 **გადახდის API** — ბანკის სერვერთან HTTP მოთხოვნა (`HttpClient`-ის მეთოდებიც async-ია);
+- 🤖 **AI მოდელის API** — პასუხს ხშირად რამდენიმე წამი სჭირდება. სინქრონულად ნაკადი მთელ ამ დროს დაკავებული იქნებოდა;
+- 📧 **email-ის გაგზავნა**, ☁️ **ფაილის ატვირთვა**, ფაილის წაკითხვა დისკიდან.
+
+#### ⚙️ CPU-bound — გამოთვლა → async არაფერს აძლევს
+
+პროცესორი თვითონ მუშაობს — ლოდინი არ არის, ნაკადი ნამდვილად დაკავებულია:
+
+- ფასდაკლების და დღგ-ს დათვლა;
+- DTO mapping (`ToResponse()`), ვალიდაცია, სიის დალაგება მეხსიერებაში;
+- პაროლის ჰეშირება (Argon2 სპეციალურად ნელია და პროცესორს ტვირთავს), სურათის ზომის შეცვლა.
+
+ასეთი მეთოდები **ჩვეულებრივი** რჩება — `async`-ის, `Task`-ის და `await`-ის გარეშე.
+
+```terms
+I/O-bound — სამუშაო, სადაც დრო გარე პასუხის ლოდინში მიდის (ბაზა, ქსელი, ფაილი)
+CPU-bound — სამუშაო, სადაც დრო პროცესორის გამოთვლაში მიდის
+```
+  </aside>
+</section>
+<section class="slide" data-section="4 · როდის — და როდის არა">
+  <div class="kicker">გადაწყვეტილება</div>
+  <h2>ერთი კითხვა <span class="c-net">ყოველ მეთოდზე</span></h2>
+  <div class="dq in" style="--d:.1s">მეთოდი რამეს ელოდება <span class="c-asp">პროგრამის გარეთ?</span> <span class="tiny" style="font-size:18px">(ბაზა · ქსელი · ფაილი)</span></div>
+  <div class="grid2 mt" style="gap:30px;align-items:start">
+    <div class="col" style="gap:14px">
+      <div class="dbr step left" style="--a:var(--mvc)"><h3>✓ კი → async</h3><p><code class="i">async Task&lt;…&gt;</code> · Async მეთოდები · <b>await ყველგან</b>, ზემოთ ბოლომდე</p></div>
+      <div class="dbr step left" style="--a:var(--mvc)"><h3>მაგ.</h3><p class="mono" style="font-size:16px">GetAll · Create · Stats · ChargeCard · AskAi</p></div>
+    </div>
+    <div class="col" style="gap:14px">
+      <div class="dbr step right" style="--a:var(--muted)"><h3>✗ არა → ჩვეულებრივი მეთოდი</h3><p><code class="i">decimal</code>, <code class="i">bool</code>, <code class="i">ProductResponse</code> — <b>Task-ის გარეშე</b></p></div>
+      <div class="dbr step right" style="--a:var(--red)"><h3>⚠ გამოთვლა ნელია? <code class="i">Task.Run</code> — არა</h3><p>API-ში მხოლოდ ერთი ნაკადიდან <b>მეორეზე გადააქვს</b> — თავისუფალი ნაკადი არ ემატება, მოგება 0</p></div>
+    </div>
+  </div>
+  <aside class="study">
+### ერთი კითხვა ყოველ მეთოდზე
+
+**მეთოდი რამეს ელოდება პროგრამის გარეთ — ბაზას, ქსელს, ფაილს?**
+
+- **კი → async.** `async Task<…>`, Async მეთოდები, `await` ყველგან — და ზემოთ, ვინც მას იძახებს, ბოლომდე. მაგალითები: `GetAll`, `Create`, `StatsController.Get`, ბანკში გადახდა, AI-სთვის კითხვის გაგზავნა.
+- **არა → ჩვეულებრივი მეთოდი.** აბრუნებს `decimal`-ს, `bool`-ს, `ProductResponse`-ს — Task-ის გარეშე. მაგალითები: ფასდაკლების დათვლა, mapper, ვალიდაცია.
+
+```warn
+ზოგი ნელ გამოთვლას `Task.Run(() => …)`-ში ახვევს და `await`-ს უწერს, რომ „async გახდეს“. API-ში ეს არაფერს იძლევა: `Task.Run` სამუშაოს **იმავე Thread Pool-ის** სხვა ნაკადზე გადაიტანს — ერთი ნაკადი თავისუფლდება, მეორე იკავებს. თავისუფალი ნაკადი არ ემატება, ზედმეტი გადართვა კი ემატება. async ლოდინისთვისაა, გამოთვლისთვის — არა.
+```
+
+```prompt async თუ არა — შემამოწმე
+ვსწავლობ C#-ში async/await-ს ASP.NET Core Web API-ში. მომეცი 8 მოკლე მეთოდის აღწერა რეალური პროექტებიდან (ონლაინ მაღაზია, რესტორნის დაჯავშნა, ბანკი) — მაგალითად „ფასდაკლების დათვლა“, „შეკვეთის შენახვა ბაზაში“, „SMS-ის გაგზავნა“.
+თითოეულზე მკითხე: უნდა იყოს async თუ არა და რატომ (I/O-bound თუ CPU-bound)? ჩემს პასუხს დაელოდე და შემიფასე. ქართულად.
+```
+  </aside>
+</section>
+<section class="slide" data-section="4 · როდის — და როდის არა">
+  <div class="kicker">შევაჯამოთ</div>
+  <h2>პლუსები და <span class="c-red">ფასი</span></h2>
+  <div class="grid2" style="gap:30px;align-items:start">
+    <div class="card accent" style="--a:var(--mvc)">
+      <h3><span class="ico">👍</span>რას გვაძლევს</h3>
+      <ul class="clean small pro">
+        <li class="step">იგივე სერვერი — <b>ბევრად მეტი</b> ერთდროული მომხმარებელი</li>
+        <li class="step">დატვირთვისას <b>არ „იჭედება“</b> — Thread Pool Starvation-ის გარეშე</li>
+        <li class="step">ნაკლები ნაკადი → <b>ნაკლები მეხსიერება</b>, იაფი სერვერი</li>
+        <li class="step"><b>გაუქმება</b> — CancellationToken</li>
+        <li class="step"><b>სტანდარტი</b>: EF Core, HttpClient, ფაილები, AI SDK — ყველაფერი async-ია</li>
+      </ul>
+    </div>
+    <div class="card accent" style="--a:var(--red)">
+      <h3><span class="ico">💸</span>რა ღირს</h3>
+      <ul class="clean small con">
+        <li class="step">ერთ მოთხოვნას <b>არ აჩქარებს</b> (მცირე overhead-იც აქვს)</li>
+        <li class="step"><b>გადამდებია</b> — ზემოთ ყველა მეთოდი async ხდება</li>
+        <li class="step"><b>ახალი შეცდომები</b>: დავიწყებული await, <code class="i">.Result</code>, <code class="i">async void</code></li>
+        <li class="step">debugging და შეცდომის stack trace <b>უფრო რთული</b> წასაკითხია</li>
+        <li class="step">გამოთვლას (CPU) <b>არ შველის</b></li>
+      </ul>
+    </div>
+  </div>
+  <div class="solve step mt">ვებ API-ში ბაზასთან ან ქსელთან მუშაობა — <b>ყოველთვის async</b>. ეს .NET-ში ნაგულისხმევი სტანდარტია</div>
+  <aside class="study">
+### პლუსები და ფასი
+
+| 👍 რას გვაძლევს | 💸 რა ღირს |
+|---|---|
+| იგივე სერვერი ბევრად მეტ ერთდროულ მომხმარებელს ემსახურება | ერთ მოთხოვნას არ აჩქარებს (მცირე დამატებითი სამუშაოც აქვს) |
+| დატვირთვისას არ „იჭედება“ — Thread Pool Starvation არ ხდება | გადამდებია — ზემოთ ყველა მეთოდი async ხდება |
+| ნაკლები ნაკადი → ნაკლები მეხსიერება → იაფი სერვერი | ახალი სახის შეცდომები: დავიწყებული `await`, `.Result`, `async void` |
+| გაუქმება — `CancellationToken` | debugging და stack trace უფრო რთული წასაკითხია |
+| სტანდარტია: EF Core, `HttpClient`, ფაილები, AI SDK-ები — ყველაფერი async API-ს გვაძლევს | გამოთვლას (CPU-bound) არ შველის |
+
+**დასკვნა:** ვებ API-ში ბაზასთან, ქსელთან ან ფაილებთან მუშაობა **ყოველთვის async-ია**. ეს .NET-ის სამყაროში ნაგულისხმევი სტანდარტია — ნებისმიერ თანამედროვე პროექტში ასე დაგხვდება, და გასაუბრებაზე აუცილებლად გკითხავენ.
+  </aside>
+</section>
+<section class="slide" data-section="4 · როდის — და როდის არა">
+  <div class="kicker">ასე არა</div>
+  <h2>ხუთი <span class="c-red">ხშირი</span> შეცდომა</h2>
+  <div class="grid3" style="gap:18px;align-items:start;grid-template-columns:1fr 1fr 1fr">
+    <div class="col step" style="gap:8px">
+      <div class="errbox"><div class="eh">1 · დავიწყებული await</div><div class="eb">var products = _db.Products<br>&nbsp;&nbsp;.ToListAsync();<br>return Ok(products);</div></div>
+      <p class="small">სია კი არა — <b>Task</b>. კლიენტს სიის ნაცვლად Task-ის ველები მიდის</p>
+    </div>
+    <div class="col step" style="gap:8px">
+      <div class="errbox"><div class="eh">2 · .Result / .Wait()</div><div class="eb">var products = _db.Products<br>&nbsp;&nbsp;.ToListAsync()<b>.Result</b>;</div></div>
+      <p class="small">ნაკადი <b>ისევ დგას</b> — უარეს შემთხვევაში deadlock</p>
+    </div>
+    <div class="col step" style="gap:8px">
+      <div class="errbox"><div class="eh">3 · ორი Task ერთ DataContext-ზე</div><div class="eb">var c = _db.Products.CountAsync();<br>var s = _db.Products.SumAsync(…);</div></div>
+      <p class="small">💥 <b>„A second operation was started…“</b> — თითოს თავისი await</p>
+    </div>
+    <div class="col step" style="gap:8px">
+      <div class="errbox"><div class="eh">4 · async void</div><div class="eb">public async <b>void</b> Delete(…)</div></div>
+      <p class="small">ASP.NET Core <b>ვერ დაელოდება</b> — DataContext იხურება შუა სამუშაოში. ყოველთვის <code class="i">Task</code></p>
+    </div>
+    <div class="col step" style="gap:8px">
+      <div class="errbox"><div class="eh">5 · async, მაგრამ შიგნით sync</div><div class="eb">public async Task&lt;…&gt; GetAll()<br>&nbsp;&nbsp;=&gt; Ok(_db.Products.<b>ToList()</b>);</div></div>
+      <p class="small">⚠ CS1998: <i>„lacks 'await' operators“</i> — ნაკადი ისევ იბლოკება</p>
+    </div>
+    <div class="col step" style="gap:8px">
+      <div class="errbox" style="border-color:var(--mvc)"><div class="eh" style="background:#f0fdf4;color:#166534;border-color:#86efac">✓ წესი</div><div class="eb">Task → <b>await</b><br>ბაზა → <b>…Async</b><br>void → <b>Task</b></div></div>
+      <p class="small">კომპილატორის <b>warning</b>-ებს ნუ უგულებელყოფ</p>
+    </div>
+  </div>
+  <aside class="study">
+### ხუთი ხშირი შეცდომა
+
+**1. დავიწყებული `await`**
+
+```csharp ❌
+var products = _db.Products.ToListAsync();   // Task<List<Product>>, არა სია!
+return Ok(products);
+```
+
+`products` სია კი არა — **Task**-ია (პეიჯერი, არა ბურგერი). კოდი კომპილირდება, მაგრამ კლიენტს სიის ნაცვლად Task-ის ობიექტი მიდის. სწორი: `var products = await _db.Products.ToListAsync();`
+
+**2. `.Result` ან `.Wait()`**
+
+```csharp ❌
+var products = _db.Products.ToListAsync().Result;
+```
+
+`.Result` Task-ს **ბლოკავს**: ნაკადი დგება და ელოდება — ზუსტად სინქრონულივით, ოღონდ უფრო რთული კოდით. ზოგ გარემოში პროგრამა სამუდამოდ „იჭედება“ (deadlock). სწორი: `await`.
+
+**3. ორი Task ერთ DataContext-ზე ერთდროულად**
+
+```csharp ❌
+var countTask = _db.Products.CountAsync();
+var sumTask = _db.Products.SumAsync(p => p.Price);   // 💥
+```
+
+`await`-ის გარეშე მეორე მოთხოვნა მაშინ იწყება, როცა პირველი ჯერ არ დასრულებულა. წინა ლექციიდან ვიცით: DataContext ერთ ჯერზე მხოლოდ ერთ ოპერაციას აკეთებს → `A second operation was started on this context instance before a previous operation completed`. სწორი: თითოს თავისი `await`, რიგრიგობით.
+
+**4. `async void`**
+
+```csharp ❌
+public async void Delete(Guid id) { ... }
+```
+
+`void` Task-ს არ აბრუნებს — ASP.NET Core-ს **დასალოდებელი არაფერი აქვს**. ის პასუხს მაშინვე აგზავნის და მოთხოვნას ხურავს, DataContext-იც (Scoped!) იხურება — მეთოდი კი ჯერ კიდევ მუშაობს → `ObjectDisposedException`. async მეთოდი ყოველთვის `Task` ან `Task<T>`-ს აბრუნებს.
+
+**5. async მეთოდი, მაგრამ შიგნით სინქრონული გამოძახება**
+
+```csharp ❌
+public async Task<IActionResult> GetAll() => Ok(_db.Products.ToList());
+```
+
+`async` წერია, მაგრამ `await` არსად — კომპილატორი გაფრთხილებს: **CS1998** „This async method lacks 'await' operators and will run synchronously“. `ToList()` ნაკადს ისევ ბლოკავს.
+
+```tip
+წესი სამ ხაზად: **Task-ს → await** · **ბაზაში მიდის → …Async** · **void → Task**. და კომპილატორის warning-ებს (ყვითელი ტალღოვანი ხაზი) ნუ უგულებელყოფ — async-ის შეცდომების ნახევარს ისინი გეუბნებიან.
+```
+  </aside>
+</section>
+
+<!-- ================= PRACTICE ================= -->
+<section class="slide divider" data-section="პრაქტიკა">
+  <div class="vcenter">
+    <div class="kicker in">ნაწილი 5</div>
+    <h1 class="in" style="--d:.1s">ახლა <span class="grad">თქვენი ჯერია</span></h1>
+    <p class="lead mt in" style="--d:.3s">LibraryApi → async</p>
+  </div>
+  <div class="big-num">05</div>
+  <aside class="study">
+## ნაწილი 5 · თქვენი ჯერია
+
+იგივე გზა LibraryApi-ში: ყველა endpoint, რომელიც ბაზაში მიდის, async ხდება.
+  </aside>
+</section>
+<lecture-classwork/>
+<section class="slide" data-section="პრაქტიკა">
+  <div class="kicker">გაჭედე?</div>
+  <h2>ხშირი შეცდომები</h2>
+  <table class="t" style="font-size:16px">
+    <tr><th style="width:40%">რას ხედავ</th><th style="width:28%">მიზეზი</th><th>გამოსწორება</th></tr>
+    <tr class="step fade"><td class="mono" style="font-size:14px">'DbSet&lt;Book&gt;' does not contain a definition for 'ToListAsync'</td><td>using აკლია</td><td><code class="i">using Microsoft.EntityFrameworkCore;</code></td></tr>
+    <tr class="step fade"><td class="mono" style="font-size:14px">The 'await' operator can only be used within an async method</td><td>მეთოდს <code class="i">async</code> აკლია</td><td><code class="i">public async Task&lt;IActionResult&gt; …</code></td></tr>
+    <tr class="step fade"><td class="mono" style="font-size:14px">Cannot implicitly convert type 'Task&lt;List&lt;Book&gt;&gt;' to 'List&lt;Book&gt;'</td><td><code class="i">await</code> დაგავიწყდა</td><td><code class="i">await _db.Books.ToListAsync()</code></td></tr>
+    <tr class="step fade"><td class="mono" style="font-size:14px">⚠ CS1998: This async method lacks 'await' operators</td><td>შიგნით ისევ <code class="i">ToList()</code> / <code class="i">SaveChanges()</code></td><td>Async ვერსია + <code class="i">await</code></td></tr>
+    <tr class="step fade"><td class="mono" style="font-size:14px">No route matches the supplied values</td><td>action-ს <code class="i">GetByIdAsync</code> დაარქვი</td><td>სახელი — <code class="i">GetById</code>, Async-ის გარეშე</td></tr>
+  </table>
+  <aside class="study">
+### ხშირი შეცდომები
+
+| რას ხედავ | მიზეზი და გამოსწორება |
+|---|---|
+| `'DbSet<Book>' does not contain a definition for 'ToListAsync'` | `using Microsoft.EntityFrameworkCore;` აკლია Controller-ის თავში |
+| `The 'await' operator can only be used within an async method` | მეთოდს `async` აკლია → `public async Task<IActionResult> …` |
+| `Cannot implicitly convert type 'Task<List<Book>>' to 'List<Book>'` | `await` დაგავიწყდა → `await _db.Books.ToListAsync()` |
+| ⚠ `CS1998: This async method lacks 'await' operators…` | `async` წერია, მაგრამ შიგნით ისევ `ToList()` / `SaveChanges()` → Async ვერსია + `await` |
+| `No route matches the supplied values` (POST-ზე, 500) | action-ს `GetByIdAsync` დაარქვი, `CreatedAtAction(nameof(GetByIdAsync), …)` კი მას ვერ პოულობს → სახელი `GetById` |
+
+```prompt როცა რამე არ მუშაობს
+ASP.NET Core Web API-ში Controller-ებს async/await-ზე გადავიყვანე (EF Core: ToListAsync, FindAsync, SaveChangesAsync). მაქვს პრობლემა: [აღწერე]
+შეცდომის ან warning-ის ტექსტი: [ჩასვი]
+ჩემი Controller-ის მეთოდი: [ჩასვი]
+ჯერ მითხარი, რას ნიშნავს შეცდომა და სად ვეძებო — მზა კოდი ნუ დამიწერე.
+```
+  </aside>
+</section>
+<lecture-check/>
+<section class="slide" data-section="შეჯამება">
+  <div class="kicker in" style="color:var(--core)">დღეს</div>
+  <h2 class="in" style="--d:.1s">ლოდინის დროს <span class="grad">ნაკადი არ დგას</span></h2>
+  <div class="grid2" style="grid-template-columns:1fr 1.1fr;gap:40px;align-items:start">
+    <div class="col" style="gap:18px">
+      <div class="card accent step" style="--a:var(--mvc)"><h3><span class="ico">🧠</span>დაიმახსოვრე</h3><ul class="clean small"><li><b>სინქრონული</b> — ნაკადი ბაზას ელოდება და დგას</li><li><b>await</b> — ნაკადი აუზში ბრუნდება, შედეგის შემდეგ მეთოდი გრძელდება</li><li><b>Task&lt;T&gt;</b> — დაპირება შედეგზე · async ბოლომდე</li><li>ლოდინი (I/O) → <b>async</b> · გამოთვლა → ჩვეულებრივი</li></ul></div>
+      <div class="card accent step" style="--a:var(--pink)"><h3><span class="ico">🏠</span>საშინაოზე</h3><p class="small">LibraryApi-ს <b>წევრები და გატანები</b> async ხდება — LoansController-ის სამი შემოწმებაც</p></div>
+    </div>
+    <div class="col step" data-with style="gap:14px">
+      <code-block lang="csharp" cls="sm" title="დღევანდელი შედეგი">
+[HttpGet]
+public async Task<IActionResult> GetAll()
+{
+    var products = await _db.Products.ToListAsync();
+    return Ok(products);
+}
+      </code-block>
+      <div class="chain" style="justify-content:center"><span class="node" style="--a:var(--net)">🧵 Thread</span><span class="ar">→</span><span class="node" style="--a:var(--core)">await</span><span class="ar">→</span><span class="node" style="--a:var(--mvc)">🙋 სხვა მოთხოვნები</span></div>
+    </div>
+  </div>
+  <aside class="study">
+## შეჯამება · ლოდინის დროს ნაკადი არ დგას
+
+**დაიმახსოვრე:**
+
+1. ASP.NET Core ყოველ მოთხოვნას **Thread Pool**-იდან ნაკადს აძლევს. ნაკადები შეზღუდულია.
+2. **სინქრონულ** კოდში ნაკადი ბაზის პასუხს ელოდება და ამ დროს **დგას** — დატვირთვისას ნაკადები მთავრდება (Thread Pool Starvation), პროცესორი კი ისვენებს.
+3. **`Task<T>`** — დაპირება შედეგზე. **`await`** — დაელოდე, ოღონდ ნაკადი გაათავისუფლე; შედეგის შემდეგ მეთოდი გრძელდება (შეიძლება სხვა ნაკადზე). **`async`** — მეთოდის ნიშანი; async მეთოდი `Task`-ს აბრუნებს.
+4. EF Core: ბაზაში მიდის → `…Async` + `await` (`ToListAsync`, `FindAsync`, `SaveChangesAsync`, `CountAsync`…). `Add`/`Remove` უცვლელია.
+5. async ერთ მოთხოვნას **არ აჩქარებს** — სერვერს **მეტი მომხმარებლის** ატანას აძლევს.
+6. **I/O-bound** (ბაზა, ქსელი, ფაილი) → async. **CPU-bound** (გამოთვლა) → ჩვეულებრივი მეთოდი.
+7. არა: დავიწყებული `await`, `.Result`/`.Wait()`, `async void`, ორი Task ერთ DataContext-ზე.
+
+```csharp დღევანდელი შედეგი
+[HttpGet]
+public async Task<IActionResult> GetAll()
+{
+    var products = await _db.Products.ToListAsync();
+    return Ok(products);
+}
+```
+
+```prompt async/await — გასაუბრებისთვის
+ვემზადები .NET Junior გასაუბრებისთვის. დამისვი კითხვები async/await-ზე ASP.NET Core Web API-ში: Thread, Thread Pool, Thread Pool Starvation, Task და Task<T>, რას აკეთებს await, I/O-bound vs CPU-bound, რატომ არ აჩქარებს async ერთ მოთხოვნას, .Result და async void-ის პრობლემები, EF Core-ის Async მეთოდები, CancellationToken.
+სათითაოდ დასვი, დაელოდე ჩემს პასუხს, შემიფასე და აუხსენი, რა გამომრჩა. 8 კითხვა. ქართულად.
+```
+  </aside>
+</section>
+<lecture-homework/>
+
+<script>
+(() => {
+  const root = document.getElementById('sim'); if (!root) return;
+  const slide = root.closest('.slide');
+  const N = 4, CPU = 0.2, IO = 1.4, TIMEOUT = 4;
+  const $ = s => root.querySelector(s);
+  let mode = 'sync', rate = 4, running = false, t, acc, seq, queue, db, ready, threads, done, failed, times, cpu;
+
+  function reset() {
+    t = 0; acc = .999; seq = 0; queue = []; db = []; ready = []; done = 0; failed = 0; times = []; cpu = 0;
+    threads = Array.from({ length: N }, () => null);
+    draw();
+  }
+  function tick(dt) {
+    t += dt;
+    acc += dt * rate;
+    while (acc >= 1) { acc -= 1; queue.push({ id: ++seq, born: t }); }
+    queue = queue.filter(r => (t - r.born > TIMEOUT ? (failed++, false) : true));
+    threads.forEach((r, i) => {
+      if (!r) return;
+      r.left -= dt;
+      if (r.left > 0) return;
+      if (r.phase === 'cpu1') {
+        r.phase = 'io'; r.left = IO; r.ioStart = t;
+        if (mode === 'async') { threads[i] = null; db.push(r); }   // await: the thread goes back to the pool
+      } else if (r.phase === 'io') {                               // sync: the thread was standing and waiting
+        r.phase = 'cpu2'; r.left = CPU;
+      } else {
+        done++; times.push(t - r.born); if (times.length > 25) times.shift(); threads[i] = null;
+      }
+    });
+    db = db.filter(r => { r.left -= dt; if (r.left <= 0) { ready.push(r); return false; } return true; });
+    threads.forEach((r, i) => {
+      if (r) return;
+      let n = ready.shift();
+      if (n) { n.phase = 'cpu2'; n.left = CPU; n.th = i; threads[i] = n; return; }
+      n = queue.shift();
+      if (n) { n.phase = 'cpu1'; n.left = CPU; n.th0 = n.th = i; threads[i] = n; }
+    });
+    const busy = threads.filter(r => r && r.phase !== 'io').length / N;
+    cpu += (busy - cpu) * Math.min(1, dt * 1.5);
+  }
+  function draw() {
+    const q = queue.slice(0, 22).map(r => `<span class="${t - r.born > 2 ? 'old' : ''}">#${r.id}</span>`).join('')
+      + (queue.length > 22 ? `<span class="more">+${queue.length - 22}</span>` : '');
+    $('.qchips').innerHTML = q; $('.qn').textContent = queue.length;
+    $('.lanes').innerHTML = threads.map((r, i) => {
+      if (!r) return `<div class="lane free"><b>Thread ${i + 1}</b><div class="job">💤 თავისუფალი</div></div>`;
+      if (r.phase === 'io') return `<div class="lane io"><b>Thread ${i + 1}</b><div class="job">#${r.id} ⏳ დგას — ბაზას ელოდება<i style="width:${(1 - r.left / IO) * 100}%"></i></div></div>`;
+      const moved = r.phase === 'cpu2' && r.th0 !== r.th ? ` ↩ (დაიწყო Thread ${r.th0 + 1}-ზე)` : r.phase === 'cpu2' ? ' ↩' : '';
+      return `<div class="lane cpu"><b>Thread ${i + 1}</b><div class="job">#${r.id} ⚙️ ${r.phase === 'cpu1' ? 'კოდი → SQL' : 'JSON'}${moved}<i style="width:${(1 - r.left / CPU) * 100}%"></i></div></div>`;
+    }).join('');
+    const free = threads.filter(r => !r).length;
+    $('.tn').textContent = `${free} თავისუფალი`;
+    const atDb = mode === 'async' ? db : threads.filter(r => r && r.phase === 'io');
+    const items = atDb.slice(0, 9).map(r => `<div class="it ${mode === 'sync' ? 'lk' : ''}"><span>#${r.id}</span><span>${mode === 'sync' ? `🔒 Thread ${r.th + 1} დგას` : '🎫 ნაკადის გარეშე'}</span><i style="width:${(1 - r.left / IO) * 100}%"></i></div>`).join('')
+      + (atDb.length > 9 ? `<div class="more">+${atDb.length - 9}</div>` : '')
+      + ready.slice(0, 3).map(r => `<div class="it rd"><span>#${r.id}</span><span>🔔 მზადაა — ნაკადს ელოდება</span></div>`).join('');
+    $('.dbl').innerHTML = items || '<div class="more">—</div>';
+    $('.dn').textContent = atDb.length;
+    $('.s-done').textContent = done; $('.s-fail').textContent = failed; $('.s-q').textContent = queue.length;
+    $('.s-rt').textContent = times.length ? (times.reduce((a, b) => a + b, 0) / times.length).toFixed(1) + ' წმ' : '—';
+    $('.s-cpu').textContent = Math.round(cpu * 100) + '%';
+    $('.clock').textContent = t.toFixed(1) + ' წმ';
+  }
+  root.addEventListener('click', e => {
+    const b = e.target.closest('button'); if (!b) return;
+    b.blur();
+    if (b.classList.contains('run')) {
+      reset();
+      if (!running) { running = true; b.textContent = '↺ თავიდან'; b.classList.add('again'); }
+      return;
+    }
+    const seg = b.closest('.seg');
+    seg.querySelectorAll('button').forEach(x => x.classList.toggle('on', x === b));
+    if (seg.dataset.k === 'mode') mode = b.dataset.v; else rate = +b.dataset.v;
+    reset();
+  });
+  let last = performance.now();
+  function loop(now) {
+    let dt = Math.min(.1, (now - last) / 1000); last = now;
+    if (running && slide.classList.contains('active')) {
+      while (dt > 0) { const s = Math.min(.02, dt); tick(s); dt -= s; }
+      draw();
+    }
+    requestAnimationFrame(loop);
+  }
+  reset(); requestAnimationFrame(loop);
+})();
+</script>
