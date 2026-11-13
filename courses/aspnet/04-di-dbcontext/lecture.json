@@ -1,0 +1,33 @@
+{
+  "title": "Dependency Injection და DbContext",
+  "repo": "aspnet-api-04-di-dbcontext",
+  "why": "ShopApi-ის პროდუქტები ჯერ კიდევ Controller-ის `static` სიაშია: სერვერის გადატვირთვაზე ყველაფერი ქრება, მეორე Controller კი მათ ვერ წვდება. დღეს API-ს ნამდვილ ბაზას ვუერთებთ — EF Core-ს, რომელიც კონსოლში ვისწავლეთ — და ამ გზაზე ვპასუხობთ კითხვას, რომელსაც ყველა .NET გასაუბრებაზე გკითხავენ: ვინ ქმნის ობიექტებს? პასუხი — Inversion of Control და Dependency Injection — და სამი გზა, რამდენ ხანს იცოცხლოს ობიექტმა: Singleton, Scoped, Transient.",
+  "outcomes": [
+    "EF Core-ის მიერთება Web API-ზე: DataContext, მიგრაცია, ProductService",
+    "ახსნა, რატომ არ ვწერთ `new DataContext()`-ს API-ში და რა არის IoC და DI",
+    "dependency-ს constructor-ით მოთხოვნა, `AddDbContext` და `AddScoped` რეგისტრაცია, connection string — `appsettings.json`-ში",
+    "Singleton, Scoped და Transient-ის განსხვავება და სწორი lifetime-ის არჩევა"
+  ],
+  "review": [
+    {
+      "q": "რატომ არ ვწერთ API-ში `new DataContext()`-ს სერვისის შიგნით?",
+      "a": "connection string კოდშია · DataContext-ს არავინ ხურავს · შექმნის წესი ყველა კლასშია მიმოფანტული"
+    },
+    {
+      "q": "რა არის Inversion of Control და Dependency Injection?",
+      "a": "IoC — კონტროლს framework-ს ვაძლევთ · DI — კლასი dependency-ს constructor-ით ითხოვს, Container აწვდის"
+    },
+    {
+      "q": "რას ნიშნავს „Unable to resolve service for type …“?",
+      "a": "Container-მა ეს ტიპი არ იცის — `builder.Services`-ში რეგისტრაცია აკლია"
+    },
+    {
+      "q": "Singleton, Scoped, Transient — როდის იქმნება ახალი ობიექტი?",
+      "a": "მხოლოდ ერთხელ, მთელ აპზე · ყოველ მოთხოვნაზე ერთი · ყოველ ჯერზე, როცა ვინმე ითხოვს"
+    },
+    {
+      "q": "რატომ არის DataContext Scoped და რატომ ვერ იქნება ProductService Singleton?",
+      "a": "ერთ მოთხოვნაში ყველა ერთ DataContext-ს იყენებს და ბოლოს იხურება · Singleton მას სამუდამოდ დაიჭერდა — „Cannot consume scoped service … from singleton“"
+    }
+  ]
+}
