@@ -1,5 +1,5 @@
 <!-- =========================================================
-     ლექცია 1 — ჰოსტინგი · ევოლუცია · Git · GitHub · .gitignore · პრაქტიკა
+     ლექცია 1 — DevOps · ჰოსტინგი · DNS · ევოლუცია · Git · GitHub · .gitignore · პრაქტიკა
      ========================================================= -->
 
 <!-- 1. TITLE -->
@@ -19,7 +19,130 @@
     </svg>
   </div>
 </section>
-<lecture-intro/>
+
+<!-- ================= DEVOPS: WHAT & WHY ================= -->
+<section class="slide" data-section="რა არის DevOps">
+  <div class="kicker">რატომ არსებობს DevOps</div>
+  <h2>კოდი დაწერე — <span class="c-red">მომხმარებელმა ვერ ნახა</span></h2>
+  <svg viewBox="0 0 1420 400" width="1420" height="400">
+    <g class="in left" style="--d:.2s"><rect x="20" y="150" width="380" height="200" rx="20" fill="#123321" stroke="#22c55e" stroke-width="3"/><text x="210" y="235" text-anchor="middle" font-size="64">👩‍💻</text><text x="210" y="285" text-anchor="middle" class="tg b" font-size="24">Dev — დეველოპერი</text><text x="210" y="320" text-anchor="middle" class="tm" font-size="18">წერს კოდს</text>
+      <rect x="40" y="50" width="340" height="62" rx="31" class="box"/><text x="210" y="90" text-anchor="middle" class="tw" font-size="21">„ჩემთან მუშაობს!“ 🤷</text></g>
+    <g class="in fade" style="--d:.5s"><text x="710" y="190" text-anchor="middle" font-size="58">🧱</text><text x="710" y="250" text-anchor="middle" font-size="58">🧱</text><text x="710" y="310" text-anchor="middle" font-size="58">🧱</text><text x="710" y="370" text-anchor="middle" font-size="58">🧱</text></g>
+    <g class="in fade" style="--d:.8s"><path d="M400 175 C520 10 900 10 1020 175" stroke="#f5a524" stroke-width="3" fill="none" class="flow"/><text x="710" y="62" text-anchor="middle" font-size="40">📦</text><text x="710" y="110" text-anchor="middle" class="to b" font-size="18">კოდი „კედელს იქით“</text></g>
+    <g class="in" style="--d:1.1s"><rect x="1020" y="150" width="380" height="200" rx="20" fill="#0e2a33" stroke="#22d3ee" stroke-width="3"/><text x="1210" y="235" text-anchor="middle" font-size="64">🛠️</text><text x="1210" y="285" text-anchor="middle" class="ta b" font-size="24">Ops — ადმინისტრატორი</text><text x="1210" y="320" text-anchor="middle" class="tm" font-size="18">მართავს სერვერებს</text>
+      <rect x="1030" y="50" width="360" height="62" rx="31" class="box"/><text x="1210" y="90" text-anchor="middle" class="tw" font-size="21">„სერვერზე არ მუშაობს!“ 😤</text></g>
+  </svg>
+  <div class="grid3">
+    <div class="problem in" style="--d:1.4s">🐢 ახალი ვერსია — თვეში ერთხელ, ხელით</div>
+    <div class="problem in" style="--d:1.55s">🔥 რაღაც გაფუჭდა — ვინ არის დამნაშავე?</div>
+    <div class="problem in" style="--d:1.7s">🌙 სერვერი ღამით ჩავარდა — არავინ იცის</div>
+  </div>
+  <div class="callout step mt" style="--a:var(--mvc);font-size:25px"><b>DevOps</b> = <b>Dev</b> + <b>Ops</b>: კედელი ქრება — კოდი ლეპტოპიდან მომხმარებლამდე <b>ერთი, ავტომატური გზით</b> მიდის.</div>
+  <aside class="study">
+## რა არის DevOps?
+
+### რატომ არსებობს DevOps
+
+წარმოიდგინე ორი გუნდი:
+
+- 👩‍💻 **Dev (Development)** — დეველოპერები. წერენ კოდს და მათ ლეპტოპზე ყველაფერი მუშაობს.
+- 🛠️ **Ops (Operations)** — ადმინისტრატორები. მართავენ სერვერებს, სადაც საიტი რეალურად ცხოვრობს.
+
+ძველად მათ შორის **კედელი** იდგა: დეველოპერი კოდს „კედელს იქით გადააგდებდა“, ადმინისტრატორი კი ცდილობდა, ის სერვერზე როგორმე გაეშვა. შედეგი:
+
+- 🐢 ახალი ვერსია თვეში ერთხელ გამოდიოდა — ხელით და შიშით.
+- 🔥 რამე თუ გაფუჭდა, იწყებოდა: „ჩემთან მუშაობს!“ — „სერვერზე არ მუშაობს!“
+- 🌙 სერვერი ღამით ჩავარდებოდა და დილამდე ამას ვერავინ ამჩნევდა.
+
+**DevOps = Dev + Ops.** კედელი ქრება: კოდი დეველოპერის ლეპტოპიდან მომხმარებლამდე **ერთი, ავტომატური გზით** მიდის, და ამ გზას ერთი გუნდი აკონტროლებს.
+  </aside>
+</section>
+
+<section class="slide" data-section="რა არის DevOps">
+  <div class="kicker">DevOps ციკლი</div>
+  <h2>DevOps = კოდის <span class="c-api">უწყვეტი გზა</span> ♾️</h2>
+  <svg viewBox="0 0 1420 430" width="1420" height="430">
+    <path class="autodraw" style="--d:.1s" d="M710 215 C600 65 260 65 260 215 C260 365 600 365 710 215 C820 65 1160 65 1160 215 C1160 365 820 365 710 215" stroke="#353b6b" stroke-width="5" fill="none"/>
+    <text x="440" y="228" text-anchor="middle" class="tg b" font-size="40">DEV</text>
+    <text x="980" y="228" text-anchor="middle" class="ta b" font-size="40">OPS</text>
+    <g class="in zoom" style="--d:.3s;transform-origin:593px 131px"><circle cx="593" cy="131" r="38" fill="#123321" stroke="#22c55e" stroke-width="3"/><text x="593" y="145" text-anchor="middle" font-size="34">📝</text><text x="593" y="62" text-anchor="middle" class="tw b" font-size="19">Plan · გეგმა</text><text x="593" y="84" text-anchor="middle" class="tm" font-size="14">რას ვაკეთებთ</text></g>
+    <g class="in zoom" style="--d:.5s;transform-origin:315px 131px"><circle cx="315" cy="131" r="38" fill="#123321" stroke="#22c55e" stroke-width="3"/><text x="315" y="145" text-anchor="middle" font-size="34">💻</text><text x="315" y="62" text-anchor="middle" class="tw b" font-size="19">Code · კოდი</text><text x="315" y="84" text-anchor="middle" class="tg" font-size="14">Git/GitHub · ლ.1</text></g>
+    <g class="in zoom" style="--d:.7s;transform-origin:315px 299px"><circle cx="315" cy="299" r="38" fill="#123321" stroke="#22c55e" stroke-width="3"/><text x="315" y="313" text-anchor="middle" font-size="34">⚙️</text><text x="315" y="370" text-anchor="middle" class="tw b" font-size="19">Build · აწყობა</text><text x="315" y="392" text-anchor="middle" class="tg" font-size="14">GitHub Actions · ლ.3</text></g>
+    <g class="in zoom" style="--d:.9s;transform-origin:593px 299px"><circle cx="593" cy="299" r="38" fill="#123321" stroke="#22c55e" stroke-width="3"/><text x="593" y="313" text-anchor="middle" font-size="34">🧪</text><text x="593" y="370" text-anchor="middle" class="tw b" font-size="19">Test · ტესტი</text><text x="593" y="392" text-anchor="middle" class="tg" font-size="14">GitHub Actions · ლ.3</text></g>
+    <g class="in zoom" style="--d:1.1s;transform-origin:827px 131px"><circle cx="827" cy="131" r="38" fill="#0e2a33" stroke="#22d3ee" stroke-width="3"/><text x="827" y="145" text-anchor="middle" font-size="34">📦</text><text x="827" y="62" text-anchor="middle" class="tw b" font-size="19">Release · ვერსია</text><text x="827" y="84" text-anchor="middle" class="ta" font-size="14">CI/CD · ლ.10</text></g>
+    <g class="in zoom" style="--d:1.3s;transform-origin:1105px 131px"><circle cx="1105" cy="131" r="38" fill="#0e2a33" stroke="#22d3ee" stroke-width="3"/><text x="1105" y="145" text-anchor="middle" font-size="34">🚀</text><text x="1105" y="62" text-anchor="middle" class="tw b" font-size="19">Deploy · გაშვება</text><text x="1105" y="84" text-anchor="middle" class="ta" font-size="14">Pages, Droplet · ლ.2, 5–11</text></g>
+    <g class="in zoom" style="--d:1.5s;transform-origin:1105px 299px"><circle cx="1105" cy="299" r="38" fill="#0e2a33" stroke="#22d3ee" stroke-width="3"/><text x="1105" y="313" text-anchor="middle" font-size="34">🖥️</text><text x="1105" y="370" text-anchor="middle" class="tw b" font-size="19">Operate · მართვა</text><text x="1105" y="392" text-anchor="middle" class="ta" font-size="14">Linux, SSH · ლ.4</text></g>
+    <g class="in zoom" style="--d:1.7s;transform-origin:827px 299px"><circle cx="827" cy="299" r="38" fill="#0e2a33" stroke="#22d3ee" stroke-width="3"/><text x="827" y="313" text-anchor="middle" font-size="34">📈</text><text x="827" y="370" text-anchor="middle" class="tw b" font-size="19">Monitor · კონტროლი</text><text x="827" y="392" text-anchor="middle" class="ta" font-size="14">მონიტორინგი · ლ.12</text></g>
+  </svg>
+  <div class="callout in" style="--d:2s;--a:var(--api);font-size:24px">DevOps — ერთი პროგრამა კი არა, <b>მიდგომაა</b>: ყველაფერი, რაც კოდს მომხმარებლამდე მიიყვანს, <b>ავტომატური</b>, სწრაფი და კონტროლირებადია. და ციკლი <b>არ მთავრდება</b>.</div>
+  <aside class="study">
+### DevOps ციკლი — კოდის უწყვეტი გზა ♾️
+
+DevOps ხშირად უსასრულობის ნიშნით (♾️) იხატება: მარცხენა ნახევარი **Dev**-ია, მარჯვენა — **Ops**. ციკლი არასოდეს მთავრდება — მონიტორინგში დანახული პრობლემა შემდეგი გეგმის ნაწილი ხდება.
+
+| ეტაპი | რა ხდება | ამ კურსში |
+|---|---|---|
+| 📝 Plan | ვწყვეტთ, რას ვაკეთებთ | — |
+| 💻 Code | ვწერთ კოდს და ვინახავთ Git-ში | Git/GitHub — **ლ.1, დღეს** |
+| ⚙️ Build | კოდიდან გასაშვებ ვერსიას ვაწყობთ | GitHub Actions — ლ.3 |
+| 🧪 Test | ავტომატურად ვამოწმებთ, ხომ არაფერი გატყდა | GitHub Actions — ლ.3 |
+| 📦 Release | ვამზადებთ ვერსიას გასაშვებად | სრული CI/CD — ლ.10 |
+| 🚀 Deploy | ვერსია სერვერზე მიდის | GitHub Pages, Droplet — ლ.2, 5–11 |
+| 🖥️ Operate | სერვერი მუშაობს და ვუვლით | Linux + SSH — ლ.4 |
+| 📈 Monitor | ვაკვირდებით: სწრაფია? ჩავარდა? | მონიტორინგი — ლ.12 |
+
+**DevOps ერთი პროგრამა არ არის** — ეს მიდგომაა: ყველაფერი, რაც კოდს მომხმარებლამდე მიიყვანს, ავტომატური, სწრაფი და კონტროლირებადი უნდა იყოს. Git, GitHub Actions, Linux, Nginx, Docker — ეს ის ინსტრუმენტებია, რომლითაც ამას ვაკეთებთ.
+
+```terms
+DevOps — Development + Operations: მიდგომა, რომლითაც კოდი დეველოპერიდან მომხმარებლამდე სწრაფად, ავტომატურად და კონტროლირებადად მიდის
+Deploy (დეპლოი) — ახალი ვერსიის სერვერზე გაშვება, რომ მომხმარებელმა დაინახოს
+CI/CD — ავტომატური აწყობა, ტესტი და დეპლოი ყოველ ცვლილებაზე
+```
+  </aside>
+</section>
+
+<section class="slide" data-section="რა არის DevOps">
+  <div class="kicker">კურსის ბოლოს</div>
+  <h2>ვინ <span class="c-mvc">იქნებით</span> და რას <span class="c-api">შეძლებთ</span></h2>
+  <div class="grid2" style="grid-template-columns:1fr 1.15fr;gap:36px;margin-top:0">
+    <div class="col" style="gap:16px">
+      <h3>🧑‍🚀 ვინ იქნებით</h3>
+      <div class="card accent in left" style="padding:18px 26px;--d:.2s;--a:var(--mvc)"><h3 style="font-size:24px">💻 დეველოპერი, რომელიც აქვეყნებს</h3><p>„ჩემთან მუშაობს“ კი არა — <b>შენი აპი ინტერნეტშია</b></p></div>
+      <div class="card accent in left" style="padding:18px 26px;--d:.4s;--a:var(--api)"><h3 style="font-size:24px">⚙️ Junior DevOps / Cloud ინჟინერი</h3><p>სერვერები, ავტომატიზაცია და დეპლოი — <b>გუნდისთვის</b></p></div>
+      <div class="card accent in left" style="padding:18px 26px;--d:.6s;--a:var(--asp)"><h3 style="font-size:24px">🚀 სოლო დეველოპერი / ფრილანსერი</h3><p>პროექტს თავიდან ბოლომდე <b>მარტო აწყობ და უშვებ</b></p></div>
+    </div>
+    <div class="col" style="gap:12px">
+      <h3>✅ რას შეძლებთ</h3>
+      <div class="method-card in" style="--d:.9s;--a:var(--net)"><span class="m" style="min-width:50px">🐙</span><span class="t">კოდის შენახვა <b>Git/GitHub</b>-ზე და გუნდში მუშაობა</span></div>
+      <div class="method-card in" style="--d:1.05s;--a:var(--mvc)"><span class="m" style="min-width:50px">🌐</span><span class="t">საიტის გამოქვეყნება <b>საკუთარ დომენზე</b></span></div>
+      <div class="method-card in" style="--d:1.2s;--a:var(--asp)"><span class="m" style="min-width:50px">🐧</span><span class="t"><b>Linux სერვერის</b> აწყობა და მართვა</span></div>
+      <div class="method-card in" style="--d:1.35s;--a:var(--api)"><span class="m" style="min-width:50px">🔒</span><span class="t"><b>Angular + ASP.NET + ბაზა</b> სერვერზე, HTTPS-ით</span></div>
+      <div class="method-card in" style="--d:1.5s;--a:var(--mvc)"><span class="m" style="min-width:50px">🔁</span><span class="t">ავტომატური დეპლოი: <code class="i">git push</code> → საიტი განახლდა</span></div>
+      <div class="method-card in" style="--d:1.65s;--a:var(--red)"><span class="m" style="min-width:50px">📈</span><span class="t"><b>მონიტორინგი</b> — რა ხდება სერვერზე და რა გაფუჭდა</span></div>
+    </div>
+  </div>
+  <div class="callout in" style="margin-top:22px;--d:2s;--a:var(--mvc);font-size:23px">🏁 საფინალო: <b>შენი სრული აპი — ინტერნეტში</b>, საკუთარ დომენზე, ავტომატური დეპლოით.</div>
+  <aside class="study">
+### ვინ იქნებით და რას შეძლებთ
+
+**ვინ იქნებით კურსის ბოლოს:**
+
+- 💻 **დეველოპერი, რომელიც თვითონ აქვეყნებს** — „ჩემთან მუშაობს“ აღარ არის საკმარისი: შენი აპი ინტერნეტშია და ნებისმიერს შეუძლია გახსნას. დამსაქმებლისთვის ეს დიდი პლუსია.
+- ⚙️ **Junior DevOps / Cloud ინჟინერი** — ადამიანი, რომელიც გუნდისთვის სერვერებს, ავტომატიზაციას და დეპლოის აწყობს.
+- 🚀 **სოლო დეველოპერი / ფრილანსერი** — კლიენტის პროექტს თავიდან ბოლომდე მარტო აწყობ და უშვებ.
+
+**რას შეძლებთ:**
+
+1. 🐙 კოდის შენახვა Git/GitHub-ზე და გუნდში მუშაობა.
+2. 🌐 საიტის გამოქვეყნება საკუთარ დომენზე.
+3. 🐧 Linux სერვერის აწყობა და მართვა.
+4. 🔒 Angular + ASP.NET + ბაზის გაშვება სერვერზე, HTTPS-ით.
+5. 🔁 ავტომატური დეპლოი: `git push` → საიტი თვითონ განახლდა.
+6. 📈 მონიტორინგი: რა ხდება სერვერზე და რა გაფუჭდა.
+
+🏁 **საფინალო:** შენი სრული აპი — ინტერნეტში, საკუთარ დომენზე, ავტომატური დეპლოით.
+  </aside>
+</section>
 
 <!-- COURSE MAP -->
 <section class="slide" data-section="შესავალი">
@@ -40,7 +163,7 @@
     <g class="in" style="--d:1.25s"><circle cx="330" cy="430" r="44" class="box"/><text x="330" y="445" text-anchor="middle" font-size="36">🧩</text><text x="330" y="512" text-anchor="middle" class="tw b" font-size="19">11 · სრული სტეკი</text><text x="330" y="536" text-anchor="middle" class="tm" font-size="15">ინტეგრაცია</text></g>
     <g class="in zoom" style="--d:1.35s;transform-origin:90px 430px"><circle cx="90" cy="430" r="50" fill="#123321" stroke="#22c55e" stroke-width="4"/><text x="90" y="446" text-anchor="middle" font-size="40">🏁</text><text x="90" y="512" text-anchor="middle" class="tg b" font-size="19">12 · მონიტორინგი</text><text x="90" y="536" text-anchor="middle" class="tm" font-size="15">+ საფინალო</text></g>
   </svg>
-  <div class="callout step" style="--a:var(--api);font-size:23px;margin-top:-10px">ყოველი ლექცია წინაზე დგას: დღევანდელი Git/GitHub — <b>ყველა შემდეგი დეპლოიმენტის საწყისი წერტილია</b>.</div>
+  <div class="callout in" style="--d:1.60s;--a:var(--api);font-size:23px;margin-top:-10px">ყოველი ლექცია წინაზე დგას: დღევანდელი Git/GitHub — <b>ყველა შემდეგი დეპლოიმენტის საწყისი წერტილია</b>.</div>
   <aside class="study">
 ### კურსის რუკა — 12 ლექცია, ერთი გზა
 
@@ -65,30 +188,7 @@
   </aside>
 </section>
 
-<!-- ROUTE -->
-<section class="slide">
-  <div class="kicker">დღის გზა</div>
-  <h2>6 გაჩერება</h2>
-  <svg viewBox="0 0 1420 420" width="1420" height="420">
-    <path class="autodraw" style="--d:.2s" d="M80 210 C250 60 380 360 560 210 S880 60 1000 210 S1260 360 1360 210" stroke="#353b6b" stroke-width="4" fill="none" stroke-dasharray="10 10"/>
-    <g class="step zoom" style="transform-origin:80px 210px"><circle cx="80" cy="210" r="44" fill="#0e2a33" stroke="#22d3ee" stroke-width="3"/><text x="80" y="226" text-anchor="middle" font-size="40">🌐</text><text x="80" y="300" text-anchor="middle" class="tw b" font-size="21">ჰოსტინგი</text><text x="80" y="326" text-anchor="middle" class="tm" font-size="16">სად ცხოვრობს საიტი</text></g>
-    <g class="step zoom" style="transform-origin:330px 200px"><circle cx="330" cy="200" r="44" fill="#33240b" stroke="#f5a524" stroke-width="3"/><text x="330" y="216" text-anchor="middle" font-size="40">📜</text><text x="330" y="120" text-anchor="middle" class="tw b" font-size="21">ევოლუცია</text><text x="330" y="94" text-anchor="middle" class="tm" font-size="16">ჰოსტინგის ტიპები</text></g>
-    <g class="step zoom" style="transform-origin:560px 210px"><circle cx="560" cy="210" r="44" fill="#123321" stroke="#22c55e" stroke-width="3"/><text x="560" y="226" text-anchor="middle" font-size="40">🌳</text><text x="560" y="300" text-anchor="middle" class="tw b" font-size="21">Git</text><text x="560" y="326" text-anchor="middle" class="tm" font-size="16">commit, branch, merge</text></g>
-    <g class="step zoom" style="transform-origin:790px 150px"><circle cx="790" cy="140" r="44" fill="#1d1640" stroke="#8b6cff" stroke-width="3"/><text x="790" y="156" text-anchor="middle" font-size="40">🐙</text><text x="790" y="60" text-anchor="middle" class="tw b" font-size="21">GitHub</text><text x="790" y="36" text-anchor="middle" class="tm" font-size="16">ანგარიში, რეპო, push</text></g>
-    <g class="step zoom" style="transform-origin:1000px 210px"><circle cx="1000" cy="210" r="44" fill="#2a1d4d" stroke="#f43f5e" stroke-width="3"/><text x="1000" y="226" text-anchor="middle" font-size="40">🙈</text><text x="1000" y="300" text-anchor="middle" class="tw b" font-size="21">.gitignore</text><text x="1000" y="326" text-anchor="middle" class="tm" font-size="16">რა არ ავტვირთოთ</text></g>
-    <g class="step zoom" style="transform-origin:1360px 210px"><circle cx="1360" cy="210" r="50" fill="#0e2a33" stroke="#22d3ee" stroke-width="4" class="pulse"/><text x="1360" y="228" text-anchor="middle" font-size="44">⌨️</text><text x="1360" y="300" text-anchor="middle" class="ta b" font-size="21">პრაქტიკა</text><text x="1360" y="326" text-anchor="middle" class="tm" font-size="16">my-portfolio</text></g>
-  </svg>
-  <aside class="study">
-### ლექციის გეგმა — 6 გაჩერება
-
-1. 🌐 **ჰოსტინგი** — სად „ცხოვრობს“ საიტი და როგორ აღწევს ბრაუზერამდე.
-2. 📜 **ევოლუცია** — ჰოსტინგის ტიპები: საკუთარი სერვერიდან `git push`-მდე.
-3. 🌳 **Git** — commit, branch, merge: კოდის ისტორია.
-4. 🐙 **GitHub** — ანგარიში, რეპოზიტორია და კოდის ატვირთვა.
-5. 🙈 **.gitignore** — რა არ უნდა მოხვდეს GitHub-ზე.
-6. ⌨️ **პრაქტიკა** — ვაწყობთ `my-portfolio` რეპოს. შემდეგ ლექციაზე ზუსტად ამ რეპოს გამოვაქვეყნებთ ინტერნეტში.
-  </aside>
-</section>
+<lecture-intro/>
 
 <!-- ================= PART 1: HOSTING ================= -->
 <section class="slide divider" data-section="1 · ჰოსტინგი">
@@ -113,14 +213,14 @@
       <rect x="20" y="40" width="520" height="50" rx="20" fill="#1b1f3d"/><rect x="60" y="54" width="440" height="24" rx="12" fill="#0a0c16"/><text x="80" y="72" class="mono tg" font-size="16">localhost:4200</text>
       <text x="280" y="190" text-anchor="middle" class="tw b" font-size="34">გიორგის პორტფოლიო</text><text x="280" y="240" text-anchor="middle" class="tm" font-size="20">✨ მუშაობს!</text>
       <text x="280" y="430" text-anchor="middle" class="tw b" font-size="22">💻 შენი ლეპტოპი</text></g>
-    <g class="step fade"><path d="M560 200 H860" stroke="#22d3ee" stroke-width="3" class="flow"/>
+    <g class="in fade" style="--d:0.30s"><path d="M560 200 H860" stroke="#22d3ee" stroke-width="3" class="flow"/>
       <rect x="590" y="130" width="240" height="46" rx="23" fill="#22d3ee"/><text x="710" y="160" text-anchor="middle" class="td mono" font-size="16">localhost:4200</text>
       <text x="710" y="240" text-anchor="middle" class="ta" font-size="18">💬 მესენჯერით</text></g>
     <g class="step fade"><rect x="900" y="20" width="250" height="400" rx="34" class="box"/><rect x="915" y="70" width="220" height="300" rx="8" fill="#0a0c16"/>
       <text x="1025" y="170" text-anchor="middle" font-size="54">😵</text><text x="1025" y="235" text-anchor="middle" class="tr b" font-size="18">This site can't</text><text x="1025" y="260" text-anchor="middle" class="tr b" font-size="18">be reached</text>
       <text x="1025" y="305" text-anchor="middle" class="tm mono" font-size="13">ERR_CONNECTION_REFUSED</text>
       <text x="1025" y="460" text-anchor="middle" class="tw b" font-size="22">📱 მეგობრის ტელეფონი</text></g>
-    <g class="step fade"><text x="1200" y="150" class="tw" font-size="22">❓ რატომ?</text></g>
+    <g class="step fade" data-with><text x="1200" y="150" class="tw" font-size="22">❓ რატომ?</text></g>
     <g class="step fade"><rect x="140" y="480" width="1140" height="64" rx="14" fill="#33240b" stroke="#f5a524" stroke-width="2"/><text x="710" y="522" text-anchor="middle" class="tw" font-size="23"><tspan class="to b">localhost</tspan> = „ეს კომპიუტერი“. მეგობრის ტელეფონი საიტს <tspan class="to b">საკუთარ თავში</tspan> ეძებს</text></g>
   </svg>
   <aside class="study">
@@ -140,10 +240,10 @@ localhost — მისამართი, რომელიც ყოველ
   <div class="kicker">მაშ, ჩემი ლეპტოპი ინტერნეტს მივაწოდო?</div>
   <h2>რა სჭირდება კომპიუტერს, რომ <span class="c-api">საიტი ყველამ გახსნას</span></h2>
   <div class="grid4" style="margin-top:30px">
-    <div class="card accent step zoom" style="--a:var(--asp);text-align:center"><div class="big-emoji">🔌</div><h3 class="mt" style="justify-content:center">24/7 ჩართული</h3><p>ლეპტოპს ღამით თიშავ — საიტიც ითიშება</p></div>
-    <div class="card accent step zoom" style="--a:var(--api);text-align:center"><div class="big-emoji">🌍</div><h3 class="mt" style="justify-content:center">საჯარო IP</h3><p>სახლის როუტერს ერთი IP აქვს და ის ხშირად იცვლება</p></div>
-    <div class="card accent step zoom" style="--a:var(--mvc);text-align:center"><div class="big-emoji">🚀</div><h3 class="mt" style="justify-content:center">სწრაფი ქსელი</h3><p>1000 სტუმარი ერთად — სახლის ინტერნეტი ვერ გაუძლებს</p></div>
-    <div class="card accent step zoom" style="--a:var(--red);text-align:center"><div class="big-emoji">🛡️</div><h3 class="mt" style="justify-content:center">დაცვა</h3><p>შენს პირად ლეპტოპზე ინტერნეტიდან შემოსვლა?</p></div>
+    <div class="card accent in zoom" style="--d:0.20s;--a:var(--asp);text-align:center"><div class="big-emoji">🔌</div><h3 class="mt" style="justify-content:center">24/7 ჩართული</h3><p>ლეპტოპს ღამით თიშავ — საიტიც ითიშება</p></div>
+    <div class="card accent in zoom" style="--d:0.35s;--a:var(--api);text-align:center"><div class="big-emoji">🌍</div><h3 class="mt" style="justify-content:center">საჯარო IP</h3><p>სახლის როუტერს ერთი IP აქვს და ის ხშირად იცვლება</p></div>
+    <div class="card accent in zoom" style="--d:0.50s;--a:var(--mvc);text-align:center"><div class="big-emoji">🚀</div><h3 class="mt" style="justify-content:center">სწრაფი ქსელი</h3><p>1000 სტუმარი ერთად — სახლის ინტერნეტი ვერ გაუძლებს</p></div>
+    <div class="card accent in zoom" style="--d:0.65s;--a:var(--red);text-align:center"><div class="big-emoji">🛡️</div><h3 class="mt" style="justify-content:center">დაცვა</h3><p>შენს პირად ლეპტოპზე ინტერნეტიდან შემოსვლა?</p></div>
   </div>
   <div class="callout step mt2" style="--a:var(--net);font-size:26px">ასეთ კომპიუტერს <b>სერვერი</b> ჰქვია. საკუთარს არ ვყიდულობთ — <b>ვქირაობთ</b>. ეს არის <b>ჰოსტინგი</b>.</div>
   <aside class="study">
@@ -164,11 +264,11 @@ localhost — მისამართი, რომელიც ყოველ
   <div class="kicker">სამი სიტყვა</div>
   <h2>სერვერი · დატა-ცენტრი · <span class="c-asp">ჰოსტინგი</span></h2>
   <div class="grid3" style="margin-top:30px">
-    <div class="card accent step" style="--a:var(--api)"><div class="big-emoji">🖥️</div><h3 class="mt">სერვერი</h3><p>ჩვეულებრივი კომპიუტერი — ოღონდ ეკრანის გარეშე, მძლავრი და მუდამ ჩართული. თითქმის ყოველთვის <b>Linux</b>-ზე.</p></div>
-    <div class="card accent step" style="--a:var(--net)"><div class="big-emoji">🏢</div><h3 class="mt">დატა-ცენტრი</h3><p>შენობა ათასობით სერვერით: სარეზერვო დენი, გაგრილება, სწრაფი ინტერნეტი, დაცვა.</p></div>
-    <div class="card accent step" style="--a:var(--asp)"><div class="big-emoji">🏠</div><h3 class="mt">ჰოსტინგი</h3><p>სერვისი: კომპანია გაქირავებს სერვერს (ან მის ნაწილს), სადაც შენი საიტი იცხოვრებს.</p></div>
+    <div class="card accent in" style="--d:0.20s;--a:var(--api)"><div class="big-emoji">🖥️</div><h3 class="mt">სერვერი</h3><p>ჩვეულებრივი კომპიუტერი — ოღონდ ეკრანის გარეშე, მძლავრი და მუდამ ჩართული. თითქმის ყოველთვის <b>Linux</b>-ზე.</p></div>
+    <div class="card accent in" style="--d:0.40s;--a:var(--net)"><div class="big-emoji">🏢</div><h3 class="mt">დატა-ცენტრი</h3><p>შენობა ათასობით სერვერით: სარეზერვო დენი, გაგრილება, სწრაფი ინტერნეტი, დაცვა.</p></div>
+    <div class="card accent in" style="--d:0.60s;--a:var(--asp)"><div class="big-emoji">🏠</div><h3 class="mt">ჰოსტინგი</h3><p>სერვისი: კომპანია გაქირავებს სერვერს (ან მის ნაწილს), სადაც შენი საიტი იცხოვრებს.</p></div>
   </div>
-  <div class="row step mt2" style="gap:14px;justify-content:center;flex-wrap:wrap">
+  <div class="row in mt2" style="--d:0.80s;gap:14px;justify-content:center;flex-wrap:wrap">
     <span class="pill on" style="--a:var(--api)">DigitalOcean</span><span class="pill">AWS</span><span class="pill">Azure</span><span class="pill">Google Cloud</span><span class="pill">Hetzner</span><span class="pill on" style="--a:var(--net)">GitHub Pages</span><span class="pill">Cloudflare</span>
   </div>
   <aside class="study">
@@ -183,19 +283,74 @@ localhost — მისამართი, რომელიც ყოველ
 </section>
 
 <section class="slide" data-section="1 · ჰოსტინგი">
-  <div class="kicker">მოთხოვნის გზა</div>
+  <div class="kicker">DNS</div>
+  <h2>DNS — სახელების და <span class="c-asp">მისამართების საცავი</span> 📒</h2>
+  <svg viewBox="0 0 1420 500" width="1420" height="500">
+    <g class="in" style="--d:.1s"><rect x="330" y="10" width="760" height="300" rx="22" fill="#33240b" stroke="#f5a524" stroke-width="3"/>
+      <text x="710" y="54" text-anchor="middle" class="to b" font-size="24">🗄️ DNS — ინტერნეტის „კონტაქტების წიგნი“</text>
+      <text x="390" y="102" class="tm b" font-size="18">სახელი (დომენი)</text><text x="780" y="102" class="tm b" font-size="18">მისამართი (IP)</text>
+      <path d="M360 116 H1060" stroke="#f5a524" stroke-width="2" opacity=".6"/>
+      <text x="390" y="160" class="tw mono" font-size="23">google.com</text><text x="780" y="160" class="tw mono" font-size="23">142.250.185.78</text>
+      <text x="390" y="210" class="tw mono" font-size="23">facebook.com</text><text x="780" y="210" class="tw mono" font-size="23">157.240.1.35</text>
+      <text x="390" y="260" class="tw mono b" font-size="23">myportfolio.ge</text><text x="780" y="260" class="to mono b" font-size="23">164.90.12.34</text>
+      <text x="710" y="295" text-anchor="middle" class="tm" font-size="15">… და მილიონობით სხვა ჩანაწერი</text></g>
+    <g class="in left" style="--d:.3s"><rect x="20" y="350" width="300" height="140" rx="18" class="box"/><text x="72" y="436" text-anchor="middle" font-size="46">🌐</text><text x="210" y="400" text-anchor="middle" class="tw b" font-size="21">ბრაუზერი</text>
+      <rect x="118" y="422" width="186" height="36" rx="18" fill="#0a0c16"/><text x="211" y="446" text-anchor="middle" class="tg mono" font-size="16">myportfolio.ge</text></g>
+    <g class="in" style="--d:.5s"><rect x="1100" y="350" width="300" height="140" rx="18" fill="#0e2a33" stroke="#22d3ee" stroke-width="3"/><text x="1152" y="436" text-anchor="middle" font-size="46">☁️</text><text x="1280" y="400" text-anchor="middle" class="ta b" font-size="21">სერვერი</text><text x="1280" y="445" text-anchor="middle" class="tw mono" font-size="17">164.90.12.34</text></g>
+    <g class="step fade"><rect x="350" y="232" width="720" height="42" rx="10" fill="#f5a524" fill-opacity=".22" stroke="#f5a524" stroke-width="2"/>
+      <path d="M120 350 C120 250 200 200 330 200" stroke="#f5a524" stroke-width="3" fill="none" class="flow"/>
+      <text x="168" y="292" class="to b" font-size="18">① სად არის</text><text x="168" y="318" class="to mono b" font-size="16">myportfolio.ge?</text></g>
+    <g class="step fade"><path d="M520 310 C520 360 420 382 322 392" stroke="#22c55e" stroke-width="3" fill="none" class="flow"/><text x="540" y="350" class="tg mono b" font-size="19">② 164.90.12.34</text>
+      <path d="M322 460 H1100" stroke="#22d3ee" stroke-width="3" class="flow"/><text x="710" y="448" text-anchor="middle" class="ta b" font-size="19">③ ბრაუზერი ამ მისამართზე მიდის</text></g>
+  </svg>
+  <div class="callout in" style="--d:.8s;--a:var(--asp);font-size:22px">📱 როგორც ტელეფონში: კონტაქტებში <b>„დედა“</b>-ს ეძებ, ტელეფონი კი <b>ნომერზე</b> რეკავს. ბრაუზერიც: შენ წერ <b>სახელს</b>, ის <b>IP-ზე</b> მიდის.</div>
+  <aside class="study">
+### DNS — სახელების და მისამართების საცავი
+
+ინტერნეტში კომპიუტერები ერთმანეთს **IP მისამართით** პოულობენ — მაგალითად `164.90.12.34`. ადამიანისთვის ციფრების დამახსოვრება რთულია, ამიტომ გვაქვს **დომენის სახელები**: `google.com`, `myportfolio.ge`.
+
+**DNS (Domain Name System)** — ინტერნეტის „კონტაქტების წიგნი“: საცავი, სადაც ყოველ **სახელს** მისი სერვერის **მისამართი** (IP) უწერია.
+
+| სახელი (დომენი) | მისამართი (IP) |
+|---|---|
+| `google.com` | `142.250.185.78` |
+| `facebook.com` | `157.240.1.35` |
+| `myportfolio.ge` | `164.90.12.34` |
+
+**როგორ მუშაობს:**
+
+1. ① ბრაუზერი DNS-ს ეკითხება: „`myportfolio.ge` სად არის?“
+2. ② DNS წიგნში პოულობს და პასუხობს: „`164.90.12.34`“.
+3. ③ ბრაუზერი ამ მისამართზე მიდის — სერვერთან.
+
+📱 **ანალოგია — ტელეფონის კონტაქტები:** შენ ეძებ „დედა“-ს, ტელეფონი კი ნომერზე რეკავს. სახელს იმახსოვრებ შენ, ნომერს — ტელეფონი.
+
+```note
+ეს „წიგნი“ თვითონ არ ივსება: როცა დომენს იყიდი, DNS-ში შენ ჩაწერ, რომ `myportfolio.ge` → შენი სერვერის IP. დომენს მე-2 ლექციაზე დავაკავშირებთ, DNS ჩანაწერებს — მე-5-ზე. (ცხრილის IP-ები მაგალითისთვისაა.)
+```
+
+```terms
+დომენი — საიტის სახელი, რომელსაც ადამიანი კრეფს: myportfolio.ge
+IP მისამართი — სერვერის ნომერი ინტერნეტში: 164.90.12.34
+DNS — საცავი, სადაც დომენის სახელს მისი სერვერის IP უწერია
+```
+  </aside>
+</section>
+
+<section class="slide" data-section="1 · ჰოსტინგი">
+  <div class="kicker">მოთხოვნის გზა — სრულად</div>
   <h2>რა ხდება, როცა აკრეფ <span class="c-api mono">myportfolio.ge</span>?</h2>
   <svg viewBox="0 0 1420 560" width="1420" height="560">
     <g class="in"><rect x="10" y="190" width="230" height="160" rx="18" class="box"/><text x="125" y="260" text-anchor="middle" font-size="50">🌐</text><text x="125" y="320" text-anchor="middle" class="tw b" font-size="21">ბრაუზერი</text></g>
-    <g class="step fade"><rect x="340" y="10" width="300" height="140" rx="18" fill="#33240b" stroke="#f5a524" stroke-width="3"/><text x="490" y="60" text-anchor="middle" class="to b" font-size="22">📒 DNS</text><text x="490" y="98" text-anchor="middle" class="tw mono" font-size="17">myportfolio.ge</text><text x="490" y="126" text-anchor="middle" class="to mono b" font-size="17">= 164.90.12.34</text>
+    <g class="in fade" style="--d:0.30s"><rect x="340" y="10" width="300" height="140" rx="18" fill="#33240b" stroke="#f5a524" stroke-width="3"/><text x="490" y="60" text-anchor="middle" class="to b" font-size="22">📒 DNS</text><text x="490" y="98" text-anchor="middle" class="tw mono" font-size="17">myportfolio.ge</text><text x="490" y="126" text-anchor="middle" class="to mono b" font-size="17">= 164.90.12.34</text>
       <path d="M200 190 C220 110 280 80 340 80" stroke="#f5a524" stroke-width="3" fill="none" class="flow"/><text x="150" y="150" class="to" font-size="17">① სად არის?</text></g>
     <g class="step fade"><path d="M240 250 H760" stroke="#22d3ee" stroke-width="3" class="flow"/><text x="500" y="235" text-anchor="middle" class="ta" font-size="18">② GET /  → 164.90.12.34:443</text></g>
-    <g class="step fade"><rect x="760" y="140" width="640" height="300" rx="20" fill="#0e2a33" stroke="#22d3ee" stroke-width="3"/><text x="790" y="180" class="ta b" font-size="20">☁️ სერვერი · 164.90.12.34</text>
+    <g class="step fade" data-with><rect x="760" y="140" width="640" height="300" rx="20" fill="#0e2a33" stroke="#22d3ee" stroke-width="3"/><text x="790" y="180" class="ta b" font-size="20">☁️ სერვერი · 164.90.12.34</text>
       <rect x="790" y="200" width="270" height="110" rx="14" fill="#1d1640" stroke="#8b6cff" stroke-width="2"/><text x="925" y="245" text-anchor="middle" class="tn b" font-size="20">⚙️ ვებ-სერვერი</text><text x="925" y="280" text-anchor="middle" class="tm" font-size="16">Nginx · პორტი 443</text>
       <rect x="1100" y="200" width="270" height="110" rx="14" class="box"/><text x="1235" y="245" text-anchor="middle" class="tw b" font-size="20">📁 ფაილები</text><text x="1235" y="280" text-anchor="middle" class="tm mono" font-size="15">index.html · style.css</text>
       <path d="M1060 255 H1100" stroke="#8b6cff" stroke-width="3" class="flow"/><text x="1080" y="350" text-anchor="middle" class="tn" font-size="17">③ პოულობს ფაილს</text></g>
     <g class="step fade"><path d="M760 340 H240" stroke="#22c55e" stroke-width="3" class="flow"/><text x="500" y="370" text-anchor="middle" class="tg" font-size="18">④ 200 OK + HTML</text></g>
-    <g class="step fade"><rect x="10" y="420" width="700" height="110" rx="16" fill="#123321" stroke="#22c55e" stroke-width="2"/><text x="40" y="465" class="tg b" font-size="21">⑤ ბრაუზერი კითხულობს HTML-ს</text><text x="40" y="505" class="tw" font-size="18">ხედავს style.css, app.js, სურათებს → თითოეულზე ახალი მოთხოვნა</text></g>
+    <g class="step fade" data-with><rect x="10" y="420" width="700" height="110" rx="16" fill="#123321" stroke="#22c55e" stroke-width="2"/><text x="40" y="465" class="tg b" font-size="21">⑤ ბრაუზერი კითხულობს HTML-ს</text><text x="40" y="505" class="tw" font-size="18">ხედავს style.css, app.js, სურათებს → თითოეულზე ახალი მოთხოვნა</text></g>
   </svg>
   <aside class="study">
 ### რა ხდება, როცა აკრეფ `myportfolio.ge`?
@@ -222,15 +377,15 @@ DNS — სისტემა, რომელიც დომენის ს�
   <h2>პროგრამა, რომელიც <span class="c-net">კარზე დგას</span> 🚪</h2>
   <div class="grid2" style="grid-template-columns:1fr 1fr;gap:40px">
     <div class="col">
-      <div class="card step left"><h3>🏢 IP = შენობის მისამართი</h3><p>სერვერზე ბევრი პროგრამა მუშაობს. რომელს მივაკითხოთ?</p></div>
-      <div class="card step left"><h3>🚪 პორტი = ბინის ნომერი</h3>
+      <div class="card in left" style="--d:0.20s"><h3>🏢 IP = შენობის მისამართი</h3><p>სერვერზე ბევრი პროგრამა მუშაობს. რომელს მივაკითხოთ?</p></div>
+      <div class="card in left" style="--d:0.40s"><h3>🚪 პორტი = ბინის ნომერი</h3>
         <div class="row" style="gap:10px;flex-wrap:wrap;margin-top:6px"><span class="pill on" style="--a:var(--mvc)">80 · HTTP</span><span class="pill on" style="--a:var(--mvc)">443 · HTTPS</span><span class="pill on" style="--a:var(--asp)">22 · SSH</span><span class="pill on" style="--a:var(--api)">5432 · PostgreSQL</span></div></div>
-      <div class="callout step" style="--a:var(--net)">ვებ-სერვერი <b>უსმენს</b> 80/443 პორტს, იღებს HTTP მოთხოვნას და <b>პასუხს აბრუნებს</b>.</div>
+      <div class="callout in" style="--d:0.60s;--a:var(--net)">ვებ-სერვერი <b>უსმენს</b> 80/443 პორტს, იღებს HTTP მოთხოვნას და <b>პასუხს აბრუნებს</b>.</div>
     </div>
     <div class="col">
       <div class="card accent step right" style="--a:var(--mvc)"><h3>📄 1. ფაილების გაცემა</h3><p class="mono" style="font-size:18px">GET /about.html<br>→ /var/www/site/about.html</p></div>
-      <div class="card accent step right" style="--a:var(--api)"><h3>🔀 2. მოთხოვნის გადაცემა აპისთვის</h3><p class="mono" style="font-size:18px">GET /api/products<br>→ ASP.NET აპი (localhost:5000)</p></div>
-      <div class="row step" style="gap:10px;flex-wrap:wrap"><span class="pill on" style="--a:var(--mvc)">Nginx</span><span class="pill">Apache</span><span class="pill">IIS</span><span class="pill">Caddy</span></div>
+      <div class="card accent step right" style="--a:var(--api)" data-with><h3>🔀 2. მოთხოვნის გადაცემა აპისთვის</h3><p class="mono" style="font-size:18px">GET /api/products<br>→ ASP.NET აპი (localhost:5000)</p></div>
+      <div class="row step" style="gap:10px;flex-wrap:wrap" data-with><span class="pill on" style="--a:var(--mvc)">Nginx</span><span class="pill">Apache</span><span class="pill">IIS</span><span class="pill">Caddy</span></div>
     </div>
   </div>
   <aside class="study">
@@ -259,18 +414,18 @@ reverse proxy — სერვერი, რომელიც მოთხო�
   <div class="kicker">ორი სახის საიტი</div>
   <h2><span class="c-mvc">სტატიკური</span> vs <span class="c-asp">დინამიური</span></h2>
   <div class="grid2">
-    <div class="card accent step left" style="--a:var(--mvc)"><h3>📄 სტატიკური</h3>
+    <div class="card accent in left" style="padding:18px 26px;--d:0.20s;--a:var(--mvc)"><h3>📄 სტატიკური</h3>
       <ul class="clean"><li>სერვერზე <b>მზა ფაილებია</b>: HTML, CSS, JS, სურათები</li><li>ყველა სტუმარი <b>ერთსა და იმავეს</b> იღებს</li><li>სწრაფი, იაფი, ხშირად <b>უფასო</b></li></ul>
       <p class="tiny mt">მაგ.: პორტფოლიო, ლენდინგი, დოკუმენტაცია, <b>Angular-ის build</b></p></div>
-    <div class="card accent step right" style="--a:var(--asp)"><h3>⚙️ დინამიური</h3>
+    <div class="card accent in right" style="--d:0.40s;--a:var(--asp)"><h3>⚙️ დინამიური</h3>
       <ul class="clean"><li>პასუხს სერვერი <b>ყოველ ჯერზე ითვლის</b></li><li>პასუხი დამოკიდებულია <b>ვინ ხარ</b> და რა არის ბაზაში</li><li>სჭირდება Backend, ხშირად ბაზაც</li></ul>
       <p class="tiny mt">მაგ.: ინტერნეტ-ბანკი, მაღაზია, სოციალური ქსელი</p></div>
   </div>
   <div class="grid2 mt">
     <div class="callout step" style="--a:var(--mvc)">→ <b>GitHub Pages</b> (ლ.2), <b>Spaces</b> (ლ.7)</div>
-    <div class="callout step" data-with style="--a:var(--asp)">→ <b>VPS / Droplet</b> (ლ.5–9), <b>PaaS</b></div>
+    <div class="callout step" style="--a:var(--asp)" data-with>→ <b>VPS / Droplet</b> (ლ.5–9), <b>PaaS</b></div>
   </div>
-  <div class="callout step mt" style="--a:var(--api);font-size:22px">🅰️ Angular აპი <code class="i">ng build</code>-ის შემდეგ <b>სტატიკური ფაილებია</b> — მონაცემი API-დან მოდის.</div>
+  <div class="callout step mt" style="--a:var(--api);font-size:22px" data-with>🅰️ Angular აპი <code class="i">ng build</code>-ის შემდეგ <b>სტატიკური ფაილებია</b> — მონაცემი API-დან მოდის.</div>
   <aside class="study">
 ### სტატიკური vs დინამიური საიტი
 
@@ -307,16 +462,16 @@ reverse proxy — სერვერი, რომელიც მოთხო�
   <div class="kicker">30 წელი ერთ სლაიდზე</div>
   <h2>ყოველი ეტაპი — <span class="c-asp">წინას პრობლემის</span> გადაწყვეტა</h2>
   <div class="grid4" style="grid-template-columns:repeat(5,1fr);gap:16px;margin-top:20px">
-    <div class="era step" style="--a:var(--red)"><div class="y">1990-იანები</div><div class="n">🏠 საკუთარი სერვერი</div><div class="d">ოფისის კუთხეში. ყიდულობ, აწყობ, აკეთებ — ყველაფერი შენზეა</div></div>
-    <div class="era step" style="--a:var(--asp)"><div class="y">2000-იანები</div><div class="n">🏘️ Shared</div><div class="d">ერთ სერვერზე ასობით საიტი. cPanel + FTP. იაფია, მაგრამ მეზობელი გიშლის ხელს</div></div>
-    <div class="era step" style="--a:var(--api)"><div class="y">2006 →</div><div class="n">☁️ VPS / Cloud</div><div class="d">ვირტუალური სერვერი წუთებში. root წვდომა, საათობრივი გადახდა</div></div>
-    <div class="era step" style="--a:var(--net)"><div class="y">2010-იანები</div><div class="n">🏨 PaaS</div><div class="d">მხოლოდ კოდს აწვდი — სერვერზე საერთოდ არ ფიქრობ</div></div>
-    <div class="era step" style="--a:var(--mvc)"><div class="y">დღეს</div><div class="n">⚡ Static + CI/CD</div><div class="d">GitHub Pages, Cloudflare, კონტეინერები. <b>git push = deploy</b></div></div>
+    <div class="era in" style="--d:0.20s;--a:var(--red)"><div class="y">1990-იანები</div><div class="n">🏠 საკუთარი სერვერი</div><div class="d">ოფისის კუთხეში. ყიდულობ, აწყობ, აკეთებ — ყველაფერი შენზეა</div></div>
+    <div class="era in" style="--d:0.40s;--a:var(--asp)"><div class="y">2000-იანები</div><div class="n">🏘️ Shared</div><div class="d">ერთ სერვერზე ასობით საიტი. cPanel + FTP. იაფია, მაგრამ მეზობელი გიშლის ხელს</div></div>
+    <div class="era in" style="--d:0.60s;--a:var(--api)"><div class="y">2006 →</div><div class="n">☁️ VPS / Cloud</div><div class="d">ვირტუალური სერვერი წუთებში. root წვდომა, საათობრივი გადახდა</div></div>
+    <div class="era in" style="--d:0.80s;--a:var(--net)"><div class="y">2010-იანები</div><div class="n">🏨 PaaS</div><div class="d">მხოლოდ კოდს აწვდი — სერვერზე საერთოდ არ ფიქრობ</div></div>
+    <div class="era in" style="--d:1.00s;--a:var(--mvc)"><div class="y">დღეს</div><div class="n">⚡ Static + CI/CD</div><div class="d">GitHub Pages, Cloudflare, კონტეინერები. <b>git push = deploy</b></div></div>
   </div>
   <div class="grid3 mt2">
-    <div class="problem step">საკუთარი სერვერი ძვირია და ფუჭდება</div>
-    <div class="problem step">Shared-ზე არაფერს აკონტროლებ</div>
-    <div class="problem step">VPS-ზე ყველაფერი თვითონ უნდა გამართო</div>
+    <div class="problem in" style="--d:1.20s">საკუთარი სერვერი ძვირია და ფუჭდება</div>
+    <div class="problem in" style="--d:1.40s">Shared-ზე არაფერს აკონტროლებ</div>
+    <div class="problem in" style="--d:1.60s">VPS-ზე ყველაფერი თვითონ უნდა გამართო</div>
   </div>
   <aside class="study">
 ### ჰოსტინგის ევოლუცია — 30 წელი ერთ სლაიდზე
@@ -343,10 +498,10 @@ FTP — ფაილების გადაცემის ძველი პ
   <div class="kicker">ანალოგია</div>
   <h2>ჰოსტინგი = <span class="c-asp">სად ცხოვრობ</span> 🏡</h2>
   <div class="grid4" style="margin-top:20px">
-    <div class="card accent step zoom" style="--a:var(--red);text-align:center"><div class="big-emoji">🏠</div><h3 class="mt" style="justify-content:center">საკუთარი სახლი</h3><p>ააშენე, შეაკეთე, სახურავი ჩამოგივიდა — შენი პრობლემაა</p><p class="tiny mt">= On-premise</p></div>
-    <div class="card accent step zoom" style="--a:var(--asp);text-align:center"><div class="big-emoji">🏘️</div><h3 class="mt" style="justify-content:center">საერთო ბინა</h3><p>იაფია, მაგრამ სამზარეულო საერთოა და მეზობელი ხმაურობს</p><p class="tiny mt">= Shared hosting</p></div>
-    <div class="card accent step zoom" style="--a:var(--api);text-align:center"><div class="big-emoji">🔑</div><h3 class="mt" style="justify-content:center">ნაქირავები ბინა</h3><p>გასაღები შენია, ავეჯიც შენ შემოგაქვს. შენობას მეპატრონე უვლის</p><p class="tiny mt">= VPS / Droplet</p></div>
-    <div class="card accent step zoom" style="--a:var(--net);text-align:center"><div class="big-emoji">🏨</div><h3 class="mt" style="justify-content:center">სასტუმრო</h3><p>მოდიხარ ჩემოდნით — დანარჩენს გემსახურებიან. ოღონდ წესებიც მათია</p><p class="tiny mt">= PaaS</p></div>
+    <div class="card accent in zoom" style="--d:0.20s;--a:var(--red);text-align:center"><div class="big-emoji">🏠</div><h3 class="mt" style="justify-content:center">საკუთარი სახლი</h3><p>ააშენე, შეაკეთე, სახურავი ჩამოგივიდა — შენი პრობლემაა</p><p class="tiny mt">= On-premise</p></div>
+    <div class="card accent in zoom" style="--d:0.40s;--a:var(--asp);text-align:center"><div class="big-emoji">🏘️</div><h3 class="mt" style="justify-content:center">საერთო ბინა</h3><p>იაფია, მაგრამ სამზარეულო საერთოა და მეზობელი ხმაურობს</p><p class="tiny mt">= Shared hosting</p></div>
+    <div class="card accent in zoom" style="--d:0.60s;--a:var(--api);text-align:center"><div class="big-emoji">🔑</div><h3 class="mt" style="justify-content:center">ნაქირავები ბინა</h3><p>გასაღები შენია, ავეჯიც შენ შემოგაქვს. შენობას მეპატრონე უვლის</p><p class="tiny mt">= VPS / Droplet</p></div>
+    <div class="card accent in zoom" style="--d:0.80s;--a:var(--net);text-align:center"><div class="big-emoji">🏨</div><h3 class="mt" style="justify-content:center">სასტუმრო</h3><p>მოდიხარ ჩემოდნით — დანარჩენს გემსახურებიან. ოღონდ წესებიც მათია</p><p class="tiny mt">= PaaS</p></div>
   </div>
   <div class="callout step mt2" style="--a:var(--api);font-size:24px">რაც მეტს მართავ — მით მეტი <b>თავისუფლება</b>. და მით მეტი <b>პასუხისმგებლობა</b>.</div>
   <aside class="study">
@@ -368,13 +523,13 @@ FTP — ფაილების გადაცემის ძველი პ
   <h2>🧑 შენ თუ ☁️ <span class="c-api">პროვაიდერი</span>?</h2>
   <table class="t" style="font-size:21px;margin-top:10px">
     <tr><th></th><th>🏠 On-premise</th><th>🔑 VPS / Droplet</th><th>🏨 PaaS</th><th>📄 სტატიკური (Pages)</th></tr>
-    <tr class="step"><td>💡 შენობა, დენი, ქსელი</td><td>🧑 შენ</td><td class="c-api">☁️ პროვაიდერი</td><td class="c-api">☁️ პროვაიდერი</td><td class="c-api">☁️ პროვაიდერი</td></tr>
-    <tr class="step"><td>🖥️ ფიზიკური სერვერი</td><td>🧑 შენ</td><td class="c-api">☁️ პროვაიდერი</td><td class="c-api">☁️ პროვაიდერი</td><td class="c-api">☁️ პროვაიდერი</td></tr>
-    <tr class="step"><td>🐧 OS + განახლებები</td><td>🧑 შენ</td><td><b>🧑 შენ</b></td><td class="c-api">☁️ პროვაიდერი</td><td class="c-api">☁️ პროვაიდერი</td></tr>
-    <tr class="step"><td>⚙️ Nginx, .NET, Node</td><td>🧑 შენ</td><td><b>🧑 შენ</b></td><td class="c-api">☁️ პროვაიდერი</td><td class="c-api">☁️ პროვაიდერი</td></tr>
-    <tr class="step"><td>📦 შენი აპლიკაცია</td><td>🧑 შენ</td><td><b>🧑 შენ</b></td><td><b>🧑 შენ</b></td><td><b>🧑 შენ</b> (მხოლოდ ფაილები)</td></tr>
+    <tr class="in" style="--d:0.20s"><td>💡 შენობა, დენი, ქსელი</td><td>🧑 შენ</td><td class="c-api">☁️ პროვაიდერი</td><td class="c-api">☁️ პროვაიდერი</td><td class="c-api">☁️ პროვაიდერი</td></tr>
+    <tr class="in" style="--d:0.40s"><td>🖥️ ფიზიკური სერვერი</td><td>🧑 შენ</td><td class="c-api">☁️ პროვაიდერი</td><td class="c-api">☁️ პროვაიდერი</td><td class="c-api">☁️ პროვაიდერი</td></tr>
+    <tr class="in" style="--d:0.60s"><td>🐧 OS + განახლებები</td><td>🧑 შენ</td><td><b>🧑 შენ</b></td><td class="c-api">☁️ პროვაიდერი</td><td class="c-api">☁️ პროვაიდერი</td></tr>
+    <tr class="in" style="--d:0.80s"><td>⚙️ Nginx, .NET, Node</td><td>🧑 შენ</td><td><b>🧑 შენ</b></td><td class="c-api">☁️ პროვაიდერი</td><td class="c-api">☁️ პროვაიდერი</td></tr>
+    <tr class="in" style="--d:1.00s"><td>📦 შენი აპლიკაცია</td><td>🧑 შენ</td><td><b>🧑 შენ</b></td><td><b>🧑 შენ</b></td><td><b>🧑 შენ</b> (მხოლოდ ფაილები)</td></tr>
   </table>
-  <div class="callout step mt" style="--a:var(--asp);font-size:22px">ამ კურსში ძირითადად <b>VPS</b>-ზე ვმუშაობთ — რომ დაინახო, რა ხდება „ფარდის მიღმა“. PaaS-ს მერე ადვილად აითვისებ, პირიქით — ვერა.</div>
+  <div class="callout in mt" style="--d:1.20s;--a:var(--asp);font-size:22px">ამ კურსში ძირითადად <b>VPS</b>-ზე ვმუშაობთ — რომ დაინახო, რა ხდება „ფარდის მიღმა“. PaaS-ს მერე ადვილად აითვისებ, პირიქით — ვერა.</div>
   <aside class="study">
 ### ვინ რაზე აგებს პასუხს?
 
@@ -412,9 +567,9 @@ FTP — ფაილების გადაცემის ძველი პ
   </svg>
   <div class="grid2">
     <div class="problem step" style="display:block">ძველად: ფაილებს ხელით აგზავნიდი FTP-ით. რომელი ვერსია დევს სერვერზე? ვინ ატვირთა? 🤷</div>
-    <div class="solve step" style="display:block">დღეს: <b>კოდი Git-შია</b>. ყოველი ცვლილება ჩანს, ავტომატურად ქვეყნდება და დაბრუნებაც შეიძლება</div>
+    <div class="solve step" style="display:block" data-with>დღეს: <b>კოდი Git-შია</b>. ყოველი ცვლილება ჩანს, ავტომატურად ქვეყნდება და დაბრუნებაც შეიძლება</div>
   </div>
-  <div class="callout step mt" style="--a:var(--mvc);font-size:24px">ყველაფერი <b>Git-ით იწყება</b>. ამიტომ მას ახლავე ვსწავლობთ →</div>
+  <div class="callout step mt" style="--a:var(--mvc);font-size:24px" data-with>ყველაფერი <b>Git-ით იწყება</b>. ამიტომ მას ახლავე ვსწავლობთ →</div>
   <aside class="study">
 ### თანამედროვე მიდგომა: `git push` = deploy
 
@@ -463,17 +618,17 @@ FTP — ფაილების გადაცემის ძველი პ
   <div class="grid2" style="grid-template-columns:1fr 1fr;align-items:center">
     <div class="card" style="font:22px/2.1 var(--mono)">
       📁 <b>Desktop</b><br>
-      <span class="step fade">&nbsp;├ 🗜️ portfolio.zip</span><br>
-      <span class="step fade">&nbsp;├ 🗜️ portfolio_final.zip</span><br>
-      <span class="step fade">&nbsp;├ 🗜️ portfolio_final_v2.zip</span><br>
-      <span class="step fade">&nbsp;├ 🗜️ portfolio_final_v2_REAL.zip</span><br>
-      <span class="step fade">&nbsp;└ 🗜️ <span class="c-red">portfolio_final_v2_REAL_nika_edits.zip</span></span>
+      <span class="in fade" style="--d:0.20s">&nbsp;├ 🗜️ portfolio.zip</span><br>
+      <span class="in fade" style="--d:0.45s">&nbsp;├ 🗜️ portfolio_final.zip</span><br>
+      <span class="in fade" style="--d:0.70s">&nbsp;├ 🗜️ portfolio_final_v2.zip</span><br>
+      <span class="in fade" style="--d:0.95s">&nbsp;├ 🗜️ portfolio_final_v2_REAL.zip</span><br>
+      <span class="in fade" style="--d:1.20s">&nbsp;└ 🗜️ <span class="c-red">portfolio_final_v2_REAL_nika_edits.zip</span></span>
     </div>
     <div class="col" style="gap:16px">
       <div class="problem step">რა შეიცვალა v2-სა და REAL-ს შორის?</div>
-      <div class="problem step">გუშინ მუშაობდა, დღეს — არა. რა შევცვალე?</div>
-      <div class="problem step">ნიკამ და მე ერთი ფაილი ერთად შევცვალეთ — რომელი დავტოვოთ?</div>
-      <div class="problem step">ლეპტოპი გაფუჭდა — პროექტი გაქრა</div>
+      <div class="problem step" data-with>გუშინ მუშაობდა, დღეს — არა. რა შევცვალე?</div>
+      <div class="problem step" data-with>ნიკამ და მე ერთი ფაილი ერთად შევცვალეთ — რომელი დავტოვოთ?</div>
+      <div class="problem step" data-with>ლეპტოპი გაფუჭდა — პროექტი გაქრა</div>
     </div>
   </div>
   <aside class="study">
@@ -502,16 +657,16 @@ FTP — ფაილების გადაცემის ძველი პ
   <h2>Git = <span class="c-mvc">Save Point</span>-ები შენი პროექტისთვის 🎮</h2>
   <svg viewBox="0 0 1420 260" width="1420" height="260">
     <path class="autodraw" d="M80 120 H1340" stroke="#353b6b" stroke-width="4"/>
-    <g class="step zoom" style="transform-origin:120px 120px"><circle cx="120" cy="120" r="34" fill="#123321" stroke="#22c55e" stroke-width="3"/><text x="120" y="130" text-anchor="middle" font-size="28">💾</text><text x="120" y="195" text-anchor="middle" class="tw" font-size="18">„მთავარი გვერდი“</text></g>
-    <g class="step zoom" style="transform-origin:440px 120px"><circle cx="440" cy="120" r="34" fill="#123321" stroke="#22c55e" stroke-width="3"/><text x="440" y="130" text-anchor="middle" font-size="28">💾</text><text x="440" y="195" text-anchor="middle" class="tw" font-size="18">„სტილები“</text></g>
-    <g class="step zoom" style="transform-origin:760px 120px"><circle cx="760" cy="120" r="34" fill="#123321" stroke="#22c55e" stroke-width="3"/><text x="760" y="130" text-anchor="middle" font-size="28">💾</text><text x="760" y="195" text-anchor="middle" class="tw" font-size="18">„კონტაქტები“</text></g>
-    <g class="step zoom" style="transform-origin:1080px 120px"><circle cx="1080" cy="120" r="34" fill="#2a1d4d" stroke="#f43f5e" stroke-width="3"/><text x="1080" y="130" text-anchor="middle" font-size="28">💥</text><text x="1080" y="195" text-anchor="middle" class="tr" font-size="18">რაღაც გავტეხე</text></g>
+    <g class="in zoom" style="--d:0.30s;transform-origin:120px 120px"><circle cx="120" cy="120" r="34" fill="#123321" stroke="#22c55e" stroke-width="3"/><text x="120" y="130" text-anchor="middle" font-size="28">💾</text><text x="120" y="195" text-anchor="middle" class="tw" font-size="18">„მთავარი გვერდი“</text></g>
+    <g class="in zoom" style="--d:0.60s;transform-origin:440px 120px"><circle cx="440" cy="120" r="34" fill="#123321" stroke="#22c55e" stroke-width="3"/><text x="440" y="130" text-anchor="middle" font-size="28">💾</text><text x="440" y="195" text-anchor="middle" class="tw" font-size="18">„სტილები“</text></g>
+    <g class="in zoom" style="--d:0.90s;transform-origin:760px 120px"><circle cx="760" cy="120" r="34" fill="#123321" stroke="#22c55e" stroke-width="3"/><text x="760" y="130" text-anchor="middle" font-size="28">💾</text><text x="760" y="195" text-anchor="middle" class="tw" font-size="18">„კონტაქტები“</text></g>
+    <g class="in zoom" style="--d:1.20s;transform-origin:1080px 120px"><circle cx="1080" cy="120" r="34" fill="#2a1d4d" stroke="#f43f5e" stroke-width="3"/><text x="1080" y="130" text-anchor="middle" font-size="28">💥</text><text x="1080" y="195" text-anchor="middle" class="tr" font-size="18">რაღაც გავტეხე</text></g>
     <g class="step fade"><path d="M1060 80 C960 10 860 10 780 80" stroke="#22d3ee" stroke-width="3" fill="none" class="flow"/><text x="920" y="30" text-anchor="middle" class="ta b" font-size="18">↩ დაბრუნება</text></g>
   </svg>
   <div class="grid3">
-    <div class="card step"><h3>📸 ფოტოები</h3><p>Git ინახავს პროექტის <b>„ფოტოს“</b> ყოველ შენახვაზე — ვინ, როდის, რა შეცვალა</p></div>
-    <div class="card step"><h3>💻 ლოკალური</h3><p>Git <b>შენს კომპიუტერზე</b> მუშაობს — ინტერნეტი არ სჭირდება</p></div>
-    <div class="card step"><h3>🐧 2005 წლიდან</h3><p>შექმნა <b>ლინუს ტორვალდსმა</b> Linux-ის ბირთვისთვის. დღეს — სტანდარტი</p></div>
+    <div class="card step" data-with><h3>📸 ფოტოები</h3><p>Git ინახავს პროექტის <b>„ფოტოს“</b> ყოველ შენახვაზე — ვინ, როდის, რა შეცვალა</p></div>
+    <div class="card step" data-with><h3>💻 ლოკალური</h3><p>Git <b>შენს კომპიუტერზე</b> მუშაობს — ინტერნეტი არ სჭირდება</p></div>
+    <div class="card step" data-with><h3>🐧 2005 წლიდან</h3><p>შექმნა <b>ლინუს ტორვალდსმა</b> Linux-ის ბირთვისთვის. დღეს — სტანდარტი</p></div>
   </div>
   <aside class="study">
 ### Git = Save Point-ები შენი პროექტისთვის
@@ -535,11 +690,11 @@ Version Control System (VCS) — ვერსიების კონტრო�
   <div class="kicker">ყველაზე ხშირი დაბნეულობა</div>
   <h2><span class="c-mvc">Git</span> ≠ <span class="c-net">GitHub</span></h2>
   <div class="grid2" style="margin-top:20px">
-    <div class="card accent step left" style="--a:var(--mvc);text-align:center"><div class="big-emoji">📷</div><h3 class="mt" style="justify-content:center">Git</h3><p><b>პროგრამა</b> შენს კომპიუტერზე. ინახავს ისტორიას. ინტერნეტი არ სჭირდება.</p><p class="tiny mt">= ფოტოაპარატი</p></div>
-    <div class="card accent step right" style="--a:var(--net);text-align:center"><div class="big-emoji">🖼️</div><h3 class="mt" style="justify-content:center">GitHub</h3><p><b>ვებ-სერვისი</b>, სადაც Git-ის რეპოზიტორიები ონლაინ ინახება + გუნდური მუშაობა.</p><p class="tiny mt">= ონლაინ ალბომი</p></div>
+    <div class="card accent in left" style="padding:18px 26px;--d:0.20s;--a:var(--mvc);text-align:center"><div class="big-emoji">📷</div><h3 class="mt" style="justify-content:center">Git</h3><p><b>პროგრამა</b> შენს კომპიუტერზე. ინახავს ისტორიას. ინტერნეტი არ სჭირდება.</p><p class="tiny mt">= ფოტოაპარატი</p></div>
+    <div class="card accent in right" style="--d:0.40s;--a:var(--net);text-align:center"><div class="big-emoji">🖼️</div><h3 class="mt" style="justify-content:center">GitHub</h3><p><b>ვებ-სერვისი</b>, სადაც Git-ის რეპოზიტორიები ონლაინ ინახება + გუნდური მუშაობა.</p><p class="tiny mt">= ონლაინ ალბომი</p></div>
   </div>
   <div class="row step mt" style="gap:12px;justify-content:center;flex-wrap:wrap"><span class="pill on" style="--a:var(--net)">GitHub</span><span class="pill">GitLab</span><span class="pill">Bitbucket</span><span class="pill">Azure DevOps</span></div>
-  <div class="callout step mt" style="--a:var(--asp);font-size:24px">GitHub = <b>კოდის ჰოსტინგი</b>. თან Actions (ლ.3) და Pages (ლ.2) — ამიტომ კურსი მისით იწყება.</div>
+  <div class="callout step mt" style="--a:var(--asp);font-size:24px" data-with>GitHub = <b>კოდის ჰოსტინგი</b>. თან Actions (ლ.3) და Pages (ლ.2) — ამიტომ კურსი მისით იწყება.</div>
   <aside class="study">
 ### Git ≠ GitHub
 
@@ -569,12 +724,12 @@ Git უამრავ სერვისთან მუშაობს: **GitH
       &nbsp;└ 📄 style.css
     </div>
     <div class="col" style="gap:16px">
-      <code-block lang="console" cls="big step" title="Git Bash">
+      <code-block lang="console" cls="big step" title="Git Bash" data-with>
 $ git init
 Initialized empty Git repository in ~/my-portfolio/.git/
       </code-block>
-      <div class="callout step" style="--a:var(--asp)"><b>.git</b> დამალული საქაღალდეა. მას <b>ხელით არ ვეხებით</b> — წაშლი და ისტორია გაქრება.</div>
-      <div class="callout step" style="--a:var(--api)">ერთი პროექტი = ერთი რეპოზიტორია (ხშირად „რეპო“)</div>
+      <div class="callout step" style="--a:var(--asp)" data-with><b>.git</b> დამალული საქაღალდეა. მას <b>ხელით არ ვეხებით</b> — წაშლი და ისტორია გაქრება.</div>
+      <div class="callout step" style="--a:var(--api)" data-with>ერთი პროექტი = ერთი რეპოზიტორია (ხშირად „რეპო“)</div>
     </div>
   </div>
   <aside class="study">
@@ -609,13 +764,13 @@ Initialized empty Git repository in ~/my-portfolio/.git/
     <g class="in"><rect x="10" y="40" width="380" height="270" rx="20" fill="#0e2a33" stroke="#22d3ee" stroke-width="3"/><text x="200" y="100" text-anchor="middle" font-size="48">📝</text><text x="200" y="150" text-anchor="middle" class="ta b" font-size="24">Working Directory</text><text x="200" y="185" text-anchor="middle" class="tm" font-size="18">აქ ფაილებს არედაქტირებ</text></g>
     <g class="in" style="--d:.15s"><rect x="520" y="40" width="380" height="270" rx="20" fill="#33240b" stroke="#f5a524" stroke-width="3"/><text x="710" y="100" text-anchor="middle" font-size="48">📦</text><text x="710" y="150" text-anchor="middle" class="to b" font-size="24">Staging Area</text><text x="710" y="185" text-anchor="middle" class="tm" font-size="18">„რა შევინახო ამჯერად“</text></g>
     <g class="in" style="--d:.3s"><rect x="1030" y="40" width="380" height="270" rx="20" fill="#123321" stroke="#22c55e" stroke-width="3"/><text x="1220" y="100" text-anchor="middle" font-size="48">🗃️</text><text x="1220" y="150" text-anchor="middle" class="tg b" font-size="24">Repository</text><text x="1220" y="185" text-anchor="middle" class="tm" font-size="18">ისტორია (.git)</text></g>
-    <g class="step fade"><rect x="60" y="215" width="130" height="40" rx="8" class="box"/><text x="125" y="242" text-anchor="middle" class="tw mono" font-size="16">index.html</text><rect x="210" y="215" width="130" height="40" rx="8" class="box"/><text x="275" y="242" text-anchor="middle" class="tw mono" font-size="16">style.css</text></g>
+    <g class="in fade" style="--d:0.40s"><rect x="60" y="215" width="130" height="40" rx="8" class="box"/><text x="125" y="242" text-anchor="middle" class="tw mono" font-size="16">index.html</text><rect x="210" y="215" width="130" height="40" rx="8" class="box"/><text x="275" y="242" text-anchor="middle" class="tw mono" font-size="16">style.css</text></g>
     <g class="step fade"><path d="M390 175 H520" stroke="#f5a524" stroke-width="4" class="flow"/><text x="455" y="350" text-anchor="middle" class="to mono b" font-size="22">git add</text>
       <rect x="645" y="215" width="130" height="40" rx="8" fill="#f5a524"/><text x="710" y="242" text-anchor="middle" class="td mono" font-size="16">index.html</text></g>
     <g class="step fade"><path d="M900 175 H1030" stroke="#22c55e" stroke-width="4" class="flow"/><text x="965" y="350" text-anchor="middle" class="tg mono b" font-size="22">git commit</text>
       <circle cx="1220" cy="240" r="26" fill="#22c55e"/><text x="1220" y="248" text-anchor="middle" class="td" font-size="20">💾</text></g>
   </svg>
-  <div class="callout step" style="--a:var(--asp);font-size:23px">📮 ანალოგია: <b>add</b> = ნივთს ყუთში დებ. <b>commit</b> = ყუთს ლუქავ, აწერ წარწერას და აგზავნი.</div>
+  <div class="callout step" style="--a:var(--asp);font-size:23px" data-with>📮 ანალოგია: <b>add</b> = ნივთს ყუთში დებ. <b>commit</b> = ყუთს ლუქავ, აწერ წარწერას და აგზავნი.</div>
   <aside class="study">
 ### ცნება 2 · სამი ზონა
 
@@ -643,7 +798,7 @@ git commit -m "Add home page"
   <div class="kicker">ცნება 3</div>
   <h2>Commit — ისტორიის <span class="c-mvc">ერთი ფოტო</span></h2>
   <div class="grid2" style="grid-template-columns:1fr 1fr;gap:40px">
-    <div class="card accent step left" style="--a:var(--mvc);font-size:22px;line-height:2">
+    <div class="card accent in left" style="padding:18px 26px;--d:0.20s;--a:var(--mvc);font-size:22px;line-height:2">
       <div><span class="tag">hash</span> <span class="mono c-asp">a3f9c21</span></div>
       <div><span class="tag" style="--a:var(--api)">ავტორი</span> გიორგი &lt;giorgi@mail.ge&gt;</div>
       <div><span class="tag" style="--a:var(--api)">თარიღი</span> 11 ნოე, 14:32</div>
@@ -653,9 +808,9 @@ git commit -m "Add home page"
     </div>
     <div class="col">
       <h3>მესიჯი — ვისთვის? <span class="muted">მომავალი შენთვის</span></h3>
-      <div class="card step right" style="border-color:rgba(34,197,94,.5)"><p class="mono c-mvc" style="font-size:20px">✓ Add contact section<br>✓ Fix broken link on projects page<br>✓ Update profile photo</p></div>
-      <div class="card step right" style="border-color:rgba(244,63,94,.5)"><p class="mono c-red" style="font-size:20px">✗ fix<br>✗ asdfgh<br>✗ ცვლილებები</p></div>
-      <p class="tiny step">წესი: <b>რა გააკეთე</b>, ბრძანებით, მოკლედ — „Add…“, „Fix…“, „Update…“</p>
+      <div class="card in right" style="--d:0.40s;border-color:rgba(34,197,94,.5)"><p class="mono c-mvc" style="font-size:20px">✓ Add contact section<br>✓ Fix broken link on projects page<br>✓ Update profile photo</p></div>
+      <div class="card in right" style="--d:0.60s;border-color:rgba(244,63,94,.5)"><p class="mono c-red" style="font-size:20px">✗ fix<br>✗ asdfgh<br>✗ ცვლილებები</p></div>
+      <p class="tiny in" style="--d:0.80s">წესი: <b>რა გააკეთე</b>, ბრძანებით, მოკლედ — „Add…“, „Fix…“, „Update…“</p>
     </div>
   </div>
   <aside class="study">
@@ -688,22 +843,22 @@ git commit -m "Add home page"
   <div class="kicker">ისტორია</div>
   <h2>commit-ები = <span class="c-api">ჯაჭვი</span></h2>
   <svg viewBox="0 0 1420 250" width="1420" height="250">
-    <g class="step fade"><circle cx="160" cy="120" r="40" fill="#123321" stroke="#22c55e" stroke-width="3"/><text x="160" y="128" text-anchor="middle" class="tg mono b" font-size="18">7b2e</text><text x="160" y="200" text-anchor="middle" class="tm" font-size="17">Add home page</text></g>
-    <g class="step fade"><path d="M440 120 H200" stroke="#353b6b" stroke-width="4"/><circle cx="480" cy="120" r="40" fill="#123321" stroke="#22c55e" stroke-width="3"/><text x="480" y="128" text-anchor="middle" class="tg mono b" font-size="18">c41a</text><text x="480" y="200" text-anchor="middle" class="tm" font-size="17">Add styles</text></g>
-    <g class="step fade"><path d="M760 120 H520" stroke="#353b6b" stroke-width="4"/><circle cx="800" cy="120" r="40" fill="#123321" stroke="#22c55e" stroke-width="3"/><text x="800" y="128" text-anchor="middle" class="tg mono b" font-size="18">a3f9</text><text x="800" y="200" text-anchor="middle" class="tm" font-size="17">Add contact section</text></g>
+    <g class="in fade" style="--d:0.20s"><circle cx="160" cy="120" r="40" fill="#123321" stroke="#22c55e" stroke-width="3"/><text x="160" y="128" text-anchor="middle" class="tg mono b" font-size="18">7b2e</text><text x="160" y="200" text-anchor="middle" class="tm" font-size="17">Add home page</text></g>
+    <g class="in fade" style="--d:0.45s"><path d="M440 120 H200" stroke="#353b6b" stroke-width="4"/><circle cx="480" cy="120" r="40" fill="#123321" stroke="#22c55e" stroke-width="3"/><text x="480" y="128" text-anchor="middle" class="tg mono b" font-size="18">c41a</text><text x="480" y="200" text-anchor="middle" class="tm" font-size="17">Add styles</text></g>
+    <g class="in fade" style="--d:0.70s"><path d="M760 120 H520" stroke="#353b6b" stroke-width="4"/><circle cx="800" cy="120" r="40" fill="#123321" stroke="#22c55e" stroke-width="3"/><text x="800" y="128" text-anchor="middle" class="tg mono b" font-size="18">a3f9</text><text x="800" y="200" text-anchor="middle" class="tm" font-size="17">Add contact section</text></g>
     <g class="step fade"><rect x="1000" y="95" width="120" height="50" rx="12" fill="#2a1d4d" stroke="#8b6cff" stroke-width="3"/><text x="1060" y="128" text-anchor="middle" class="tn mono b" font-size="20">main</text><path d="M1000 120 H845" stroke="#8b6cff" stroke-width="3"/>
       <rect x="1220" y="95" width="120" height="50" rx="12" fill="#33240b" stroke="#f5a524" stroke-width="3"/><text x="1280" y="128" text-anchor="middle" class="to mono b" font-size="20">HEAD</text><path d="M1220 120 H1120" stroke="#f5a524" stroke-width="3"/></g>
   </svg>
   <div class="grid2">
-    <code-block lang="console" cls="big step" title="Git Bash">
+    <code-block lang="console" cls="big in" title="Git Bash" style="--d:0.95s">
 $ git log --oneline
 a3f9c21 (HEAD -> main) Add contact section
 c41a8e0 Add styles
 7b2e0d4 Add home page
     </code-block>
     <div class="col">
-      <div class="callout step" style="--a:var(--net)"><b>main</b> — მთავარი branch, მიუთითებს ბოლო commit-ზე</div>
-      <div class="callout step" style="--a:var(--asp)"><b>HEAD</b> — „სად ვარ ახლა“</div>
+      <div class="callout step" style="--a:var(--net)" data-with><b>main</b> — მთავარი branch, მიუთითებს ბოლო commit-ზე</div>
+      <div class="callout step" style="--a:var(--asp)" data-with><b>HEAD</b> — „სად ვარ ახლა“</div>
     </div>
   </div>
   <aside class="study">
@@ -737,12 +892,12 @@ c41a8e0 Add styles
     <g><circle cx="140" cy="110" r="30" fill="#2a1d4d" stroke="#8b6cff" stroke-width="3"/><circle cx="380" cy="110" r="30" fill="#2a1d4d" stroke="#8b6cff" stroke-width="3"/><circle cx="620" cy="110" r="30" fill="#2a1d4d" stroke="#8b6cff" stroke-width="3"/><text x="40" y="118" class="tn mono b" font-size="20">main</text></g>
     <g class="step fade"><path d="M620 110 C700 110 700 250 780 250 H1180" stroke="#22c55e" stroke-width="4" fill="none"/><circle cx="820" cy="250" r="30" fill="#123321" stroke="#22c55e" stroke-width="3"/><circle cx="1000" cy="250" r="30" fill="#123321" stroke="#22c55e" stroke-width="3"/><circle cx="1180" cy="250" r="30" fill="#123321" stroke="#22c55e" stroke-width="3"/>
       <text x="1000" y="318" text-anchor="middle" class="tg mono b" font-size="20">feature/contacts</text></g>
-    <g class="step fade"><circle cx="900" cy="110" r="30" fill="#2a1d4d" stroke="#8b6cff" stroke-width="3"/><text x="900" y="60" text-anchor="middle" class="tn" font-size="17">სასწრაფო fix main-ზე</text></g>
+    <g class="step fade" data-with><circle cx="900" cy="110" r="30" fill="#2a1d4d" stroke="#8b6cff" stroke-width="3"/><text x="900" y="60" text-anchor="middle" class="tn" font-size="17">სასწრაფო fix main-ზე</text></g>
   </svg>
   <div class="grid3">
-    <div class="card step"><h3>🌿 Branch</h3><p>ისტორიის <b>პარალელური ხაზი</b>. main ხელუხლებელი რჩება</p></div>
-    <div class="card step"><h3>🧪 ექსპერიმენტი</h3><p>არ გამოვიდა? branch-ს წაშლი — main-ს არაფერი მოსვლია</p></div>
-    <div class="card step"><h3>👥 გუნდი</h3><p>ყველა თავის branch-ზე მუშაობს და ერთმანეთს არ უშლის</p></div>
+    <div class="card step" data-with><h3>🌿 Branch</h3><p>ისტორიის <b>პარალელური ხაზი</b>. main ხელუხლებელი რჩება</p></div>
+    <div class="card step" data-with><h3>🧪 ექსპერიმენტი</h3><p>არ გამოვიდა? branch-ს წაშლი — main-ს არაფერი მოსვლია</p></div>
+    <div class="card step" data-with><h3>👥 გუნდი</h3><p>ყველა თავის branch-ზე მუშაობს და ერთმანეთს არ უშლის</p></div>
   </div>
   <aside class="study">
 ### ცნება 4 · Branch (შტო)
@@ -777,7 +932,7 @@ git switch main                  # main-ზე დაბრუნება
     <g class="step fade"><path d="M868 230 C960 230 960 100 1040 100" stroke="#22c55e" stroke-width="4" fill="none" class="draw"/><circle cx="1060" cy="100" r="36" fill="#22c55e" stroke="#22c55e" stroke-width="3"/><text x="1060" y="108" text-anchor="middle" class="td b" font-size="20">M</text><text x="1060" y="40" text-anchor="middle" class="tg b" font-size="18">merge commit</text></g>
   </svg>
   <div class="grid2">
-    <code-block lang="console" cls="big step" title="Git Bash">
+    <code-block lang="console" cls="big step" title="Git Bash" data-with>
 $ git switch main
 $ git merge feature/contacts
 Merge made by the 'ort' strategy.
@@ -785,9 +940,9 @@ Merge made by the 'ort' strategy.
 $ git branch -d feature/contacts
     </code-block>
     <div class="col">
-      <div class="callout step" style="--a:var(--mvc)">① <b>გადადი იქ</b>, სადაც უნდა შეერწყას (main)</div>
-      <div class="callout step" style="--a:var(--mvc)">② <b>merge</b> — branch-ის ცვლილებები main-ში გადმოდის</div>
-      <div class="callout step" style="--a:var(--muted)">③ branch აღარ გვჭირდება — <b>ვშლით</b></div>
+      <div class="callout step" style="--a:var(--mvc)" data-with>① <b>გადადი იქ</b>, სადაც უნდა შეერწყას (main)</div>
+      <div class="callout step" style="--a:var(--mvc)" data-with>② <b>merge</b> — branch-ის ცვლილებები main-ში გადმოდის</div>
+      <div class="callout step" style="--a:var(--muted)" data-with>③ branch აღარ გვჭირდება — <b>ვშლით</b></div>
     </div>
   </div>
   <aside class="study">
@@ -829,14 +984,14 @@ $ git branch -d feature/contacts
     </code-block>
     <div class="col">
       <i class="codestep" data-for="cf" data-lines="1-2"></i>
-      <div class="callout step" data-with style="--a:var(--net)"><b>HEAD</b> — რაც main-ზე წერია</div>
+      <div class="callout step" style="--a:var(--net)" data-with><b>HEAD</b> — რაც main-ზე წერია</div>
       <i class="codestep" data-for="cf" data-lines="4-5"></i>
-      <div class="callout step" data-with style="--a:var(--mvc)"><b>feature/title</b> — რაც branch-ზე წერია</div>
+      <div class="callout step" style="--a:var(--mvc)" data-with><b>feature/title</b> — რაც branch-ზე წერია</div>
       <i class="codestep" data-for="cf" data-lines="1-5"></i>
-      <div class="callout step" data-with style="--a:var(--asp)">შენ წყვეტ: დატოვე სწორი ვარიანტი, <b>წაშალე ნიშნები</b> → <code class="i">add</code> → <code class="i">commit</code></div>
+      <div class="callout step" style="--a:var(--asp)" data-with>შენ წყვეტ: დატოვე სწორი ვარიანტი, <b>წაშალე ნიშნები</b> → <code class="i">add</code> → <code class="i">commit</code></div>
     </div>
   </div>
-  <p class="lead step mt" style="text-align:center">ორივე შტოში <b>ერთი და იგივე ხაზი</b> შეიცვალა → Git გეკითხება: „რომელი დავტოვო?“</p>
+  <p class="lead step mt" style="text-align:center" data-with>ორივე შტოში <b>ერთი და იგივე ხაზი</b> შეიცვალა → Git გეკითხება: „რომელი დავტოვო?“</p>
   <aside class="study">
 ### Conflict — ეს შეცდომა არ არის
 
@@ -870,12 +1025,12 @@ VS Code კონფლიქტს ფერებით აჩვენებ�
   <h2>Git-ის ინსტალაცია და <span class="c-api">გაცნობა</span></h2>
   <div class="grid2" style="grid-template-columns:1fr 1.25fr">
     <div class="col">
-      <div class="card step left"><h3>🪟 Windows</h3><p><b>git-scm.com</b> → Download → Next, Next… <br>ერთად დაყენდება <b>Git Bash</b></p></div>
-      <div class="card step left"><h3>🍎 macOS</h3><p class="mono" style="font-size:19px">brew install git</p></div>
-      <div class="card step left"><h3>🐧 Ubuntu</h3><p class="mono" style="font-size:19px">sudo apt install git</p><p class="tiny">ამას სერვერზე ლ.4–5-ში გავაკეთებთ</p></div>
+      <div class="card in left" style="--d:0.20s"><h3>🪟 Windows</h3><p><b>git-scm.com</b> → Download → Next, Next… <br>ერთად დაყენდება <b>Git Bash</b></p></div>
+      <div class="card in left" style="--d:0.35s"><h3>🍎 macOS</h3><p class="mono" style="font-size:19px">brew install git</p></div>
+      <div class="card in left" style="--d:0.50s"><h3>🐧 Ubuntu</h3><p class="mono" style="font-size:19px">sudo apt install git</p><p class="tiny">ამას სერვერზე ლ.4–5-ში გავაკეთებთ</p></div>
     </div>
     <div class="col">
-      <code-block id="cfg" lang="console" cls="step" title="Git Bash">
+      <code-block id="cfg" lang="console" cls="in" title="Git Bash" style="--d:0.65s">
 $ git --version
 git version 2.51.0
 
@@ -883,7 +1038,7 @@ $ git config --global user.name "Giorgi Beridze"
 $ git config --global user.email "giorgi@mail.ge"
 $ git config --global init.defaultBranch main
       </code-block>
-      <div class="callout step" style="--a:var(--asp)">email — <b>იგივე, რაც GitHub-ზე</b>. ასე commit-ები შენს პროფილს მიებმება.</div>
+      <div class="callout in" style="--d:0.80s;--a:var(--asp)">email — <b>იგივე, რაც GitHub-ზე</b>. ასე commit-ები შენს პროფილს მიებმება.</div>
     </div>
   </div>
   <aside class="study">
@@ -937,14 +1092,14 @@ email იგივე უნდა იყოს, რაც GitHub-ის ან�
     <g class="in"><rect x="510" y="10" width="400" height="160" rx="22" fill="#1d1640" stroke="#8b6cff" stroke-width="3"/><text x="710" y="80" text-anchor="middle" font-size="50">🐙</text><text x="710" y="130" text-anchor="middle" class="tn b" font-size="24">GitHub · origin</text><text x="710" y="158" text-anchor="middle" class="tm mono" font-size="15">github.com/giorgi/my-portfolio</text></g>
     <g class="in" style="--d:.15s"><rect x="60" y="300" width="380" height="150" rx="20" class="box"/><text x="250" y="365" text-anchor="middle" font-size="46">💻</text><text x="250" y="420" text-anchor="middle" class="tw b" font-size="21">შენი ლეპტოპი</text></g>
     <g class="in" style="--d:.3s"><rect x="980" y="300" width="380" height="150" rx="20" class="box"/><text x="1170" y="365" text-anchor="middle" font-size="46">🖥️</text><text x="1170" y="420" text-anchor="middle" class="tw b" font-size="21">ნიკას კომპიუტერი / სერვერი</text></g>
-    <g class="step fade"><path d="M300 300 C320 230 450 160 510 120" stroke="#22c55e" stroke-width="4" fill="none" class="flow"/><text x="300" y="215" class="tg mono b" font-size="22">push ↑</text></g>
-    <g class="step fade"><path d="M510 150 C430 200 380 260 390 300" stroke="#22d3ee" stroke-width="4" fill="none" class="flow"/><text x="470" y="270" class="ta mono b" font-size="22">pull ↓</text></g>
-    <g class="step fade"><path d="M910 120 C1020 160 1120 230 1130 300" stroke="#f5a524" stroke-width="4" fill="none" class="flow"/><text x="1080" y="215" class="to mono b" font-size="22">clone ↓</text></g>
+    <g class="in fade" style="--d:0.40s"><path d="M300 300 C320 230 450 160 510 120" stroke="#22c55e" stroke-width="4" fill="none" class="flow"/><text x="300" y="215" class="tg mono b" font-size="22">push ↑</text></g>
+    <g class="in fade" style="--d:0.65s"><path d="M510 150 C430 200 380 260 390 300" stroke="#22d3ee" stroke-width="4" fill="none" class="flow"/><text x="470" y="270" class="ta mono b" font-size="22">pull ↓</text></g>
+    <g class="in fade" style="--d:0.90s"><path d="M910 120 C1020 160 1120 230 1130 300" stroke="#f5a524" stroke-width="4" fill="none" class="flow"/><text x="1080" y="215" class="to mono b" font-size="22">clone ↓</text></g>
   </svg>
   <div class="grid3">
-    <div class="callout step" style="--a:var(--mvc)"><b>push</b> — ჩემი commit-ები → GitHub</div>
-    <div class="callout step" data-with style="--a:var(--api)"><b>pull</b> — GitHub-ის ახალი commit-ები → ჩემთან</div>
-    <div class="callout step" data-with style="--a:var(--asp)"><b>clone</b> — მთელი რეპოს პირველი ჩამოტვირთვა</div>
+    <div class="callout in" style="--d:1.15s;--a:var(--mvc)"><b>push</b> — ჩემი commit-ები → GitHub</div>
+    <div class="callout in" style="--d:1.40s;--a:var(--api)"><b>pull</b> — GitHub-ის ახალი commit-ები → ჩემთან</div>
+    <div class="callout in" style="--d:1.65s;--a:var(--asp)"><b>clone</b> — მთელი რეპოს პირველი ჩამოტვირთვა</div>
   </div>
   <aside class="study">
 ### Local ↔ Remote: ერთი რეპო — რამდენიმე ასლი
@@ -971,17 +1126,17 @@ email იგივე უნდა იყოს, რაც GitHub-ის ან�
   <h2>GitHub-ის ანგარიში</h2>
   <div class="grid2" style="grid-template-columns:1fr 1fr">
     <div class="col" style="gap:14px">
-      <div class="method-card step left" style="--a:var(--net)"><span class="m" style="min-width:50px">1</span><span class="t"><b>github.com</b> → Sign up</span></div>
-      <div class="method-card step left" style="--a:var(--net)"><span class="m" style="min-width:50px">2</span><span class="t">email — <b>იგივე</b>, რაც <code class="i">git config</code>-ში</span></div>
-      <div class="method-card step left" style="--a:var(--asp)"><span class="m" style="min-width:50px">3</span><span class="t"><b>username</b> — ფრთხილად აირჩიე ⚠</span></div>
-      <div class="method-card step left" style="--a:var(--net)"><span class="m" style="min-width:50px">4</span><span class="t">email-ის დადასტურება</span></div>
-      <div class="method-card step left" style="--a:var(--red)"><span class="m" style="min-width:50px">5</span><span class="t"><b>2FA</b> — Authenticator აპით</span></div>
+      <div class="method-card in left" style="--d:0.20s;--a:var(--net)"><span class="m" style="min-width:50px">1</span><span class="t"><b>github.com</b> → Sign up</span></div>
+      <div class="method-card in left" style="--d:0.32s;--a:var(--net)"><span class="m" style="min-width:50px">2</span><span class="t">email — <b>იგივე</b>, რაც <code class="i">git config</code>-ში</span></div>
+      <div class="method-card in left" style="--d:0.44s;--a:var(--asp)"><span class="m" style="min-width:50px">3</span><span class="t"><b>username</b> — ფრთხილად აირჩიე ⚠</span></div>
+      <div class="method-card in left" style="--d:0.56s;--a:var(--net)"><span class="m" style="min-width:50px">4</span><span class="t">email-ის დადასტურება</span></div>
+      <div class="method-card in left" style="--d:0.68s;--a:var(--red)"><span class="m" style="min-width:50px">5</span><span class="t"><b>2FA</b> — Authenticator აპით</span></div>
     </div>
     <div class="col">
-      <div class="card accent step right" style="--a:var(--asp)"><h3>⚠ username ყველგან ჩანს</h3>
+      <div class="card accent in right" style="--d:0.80s;--a:var(--asp)"><h3>⚠ username ყველგან ჩანს</h3>
         <p class="mono" style="font-size:19px">github.com/<b class="c-asp">giorgi-beridze</b><br><b class="c-asp">giorgi-beridze</b>.github.io <span class="tiny">← ლ.2</span></p>
         <p class="tiny mt">✓ giorgi-beridze &nbsp; ✗ xXgamer2007Xx</p></div>
-      <div class="card accent step right" style="--a:var(--mvc)"><h3>💼 ეს შენი CV-ა</h3><p>დამსაქმებელი GitHub-ს უყურებს: ფოტო, სახელი, პროექტები, აქტივობა</p></div>
+      <div class="card accent in right" style="--d:0.92s;--a:var(--mvc)"><h3>💼 ეს შენი CV-ა</h3><p>დამსაქმებელი GitHub-ს უყურებს: ფოტო, სახელი, პროექტები, აქტივობა</p></div>
     </div>
   </div>
   <aside class="study">
@@ -1005,7 +1160,7 @@ email იგივე უნდა იყოს, რაც GitHub-ის ან�
   <div class="kicker">ნაბიჯი 2</div>
   <h2>ახალი რეპოზიტორია: <span class="c-net">New repository</span></h2>
   <div class="grid2" style="grid-template-columns:1.1fr 1fr">
-    <div class="card step fade" style="padding:0;overflow:hidden">
+    <div class="card in fade" style="--d:0.20s;padding:0;overflow:hidden">
       <div style="background:#1b1f3d;padding:12px 20px;font-size:16px;color:var(--muted)">Create a new repository</div>
       <div style="padding:22px 26px;font-size:19px;line-height:2.1;color:var(--ink2)">
         <div>Owner / Repository name &nbsp;<span class="chip">giorgi-beridze / <b>my-portfolio</b></span></div>
@@ -1017,9 +1172,9 @@ email იგივე უნდა იყოს, რაც GitHub-ის ან�
       </div>
     </div>
     <div class="col">
-      <div class="callout step" style="--a:var(--mvc)"><b>Public</b> — ყველა ხედავს (პორტფოლიოსთვის სწორედ ეს გვინდა). <b>Private</b> — მხოლოდ შენ და მოწვეულები.</div>
-      <div class="callout step" style="--a:var(--asp)">ლოკალური პროექტი <b>უკვე გვაქვს</b> → რეპო <b>ცარიელი</b> უნდა იყოს: README, .gitignore — არაფერი ☐</div>
-      <div class="callout step" style="--a:var(--api)">შექმნის შემდეგ GitHub გაჩვენებს მზა ბრძანებებს — <b>„…or push an existing repository“</b></div>
+      <div class="callout in" style="--d:0.40s;--a:var(--mvc)"><b>Public</b> — ყველა ხედავს (პორტფოლიოსთვის სწორედ ეს გვინდა). <b>Private</b> — მხოლოდ შენ და მოწვეულები.</div>
+      <div class="callout in" style="--d:0.60s;--a:var(--asp)">ლოკალური პროექტი <b>უკვე გვაქვს</b> → რეპო <b>ცარიელი</b> უნდა იყოს: README, .gitignore — არაფერი ☐</div>
+      <div class="callout in" style="--d:0.80s;--a:var(--api)">შექმნის შემდეგ GitHub გაჩვენებს მზა ბრძანებებს — <b>„…or push an existing repository“</b></div>
     </div>
   </div>
   <aside class="study">
@@ -1054,14 +1209,14 @@ To https://github.com/giorgi-beridze/my-portfolio.git
     </code-block>
     <div class="col">
       <i class="codestep" data-for="push" data-lines="1"></i>
-      <div class="callout step" data-with style="--a:var(--net)"><b>remote add</b> — „GitHub-ის ამ მისამართს <b>origin</b> დავარქვათ“</div>
+      <div class="callout step" style="--a:var(--net)" data-with><b>remote add</b> — „GitHub-ის ამ მისამართს <b>origin</b> დავარქვათ“</div>
       <i class="codestep" data-for="push" data-lines="2"></i>
-      <div class="callout step" data-with style="--a:var(--muted)">branch-ს <b>main</b> ერქმევა (თუ უკვე ასეა — არაფერს ცვლის)</div>
+      <div class="callout step" style="--a:var(--muted)" data-with>branch-ს <b>main</b> ერქმევა (თუ უკვე ასეა — არაფერს ცვლის)</div>
       <i class="codestep" data-for="push" data-lines="3-6"></i>
-      <div class="callout step" data-with style="--a:var(--mvc)"><b>push</b> — commit-ები მიდის. <b>-u</b> — დაიმახსოვრე; შემდეგ უბრალოდ <code class="i">git push</code></div>
+      <div class="callout step" style="--a:var(--mvc)" data-with><b>push</b> — commit-ები მიდის. <b>-u</b> — დაიმახსოვრე; შემდეგ უბრალოდ <code class="i">git push</code></div>
     </div>
   </div>
-  <div class="callout step mt" style="--a:var(--asp);font-size:21px">🔐 პირველ push-ზე გაიხსნება ბრაუზერი → <b>Sign in with your browser</b>. GitHub-ის პაროლი ტერმინალში აღარ მუშაობს. SSH გასაღებებს ლ.5-ზე ვისწავლით.</div>
+  <div class="callout step mt" style="--a:var(--asp);font-size:21px" data-with>🔐 პირველ push-ზე გაიხსნება ბრაუზერი → <b>Sign in with your browser</b>. GitHub-ის პაროლი ტერმინალში აღარ მუშაობს. SSH გასაღებებს ლ.5-ზე ვისწავლით.</div>
   <aside class="study">
 ### ნაბიჯი 3 · ლოკალური რეპო → GitHub
 
@@ -1087,12 +1242,12 @@ push-ის შემდეგ GitHub-ის გვერდი განაა�
   <div class="kicker">რეპოს გვერდი</div>
   <h2>რა არის GitHub-ის <span class="c-net">რეპოს გვერდზე</span>?</h2>
   <div class="grid3" style="margin-top:10px">
-    <div class="card step"><h3>📁 Code</h3><p>ფაილები, branch-ები, <b>README.md</b> — ქვემოთ ლამაზად ჩანს</p></div>
-    <div class="card step"><h3>🕓 Commits</h3><p>მთელი ისტორია: ვინ, როდის, რა. ყოველ commit-ზე — ცვლილებები ფერებით</p></div>
-    <div class="card step"><h3>✏️ რედაქტირება</h3><p>ფაილის შეცვლა პირდაპირ ბრაუზერიდან — ესეც commit-ია</p></div>
-    <div class="card step"><h3>🔀 Pull requests</h3><p>„ჩემი branch გადახედეთ და შეურწყით“ — გუნდური მუშაობის გული</p></div>
-    <div class="card accent step" style="--a:var(--asp)"><h3>⚙️ Actions</h3><p>ავტომატიზაცია: build, ტესტი, დეპლოი <b>— ლ.3</b></p></div>
-    <div class="card accent step" style="--a:var(--mvc)"><h3>📄 Settings → Pages</h3><p>რეპო → საიტი ინტერნეტში <b>— ლ.2</b></p></div>
+    <div class="card in" style="--d:0.20s"><h3>📁 Code</h3><p>ფაილები, branch-ები, <b>README.md</b> — ქვემოთ ლამაზად ჩანს</p></div>
+    <div class="card in" style="--d:0.32s"><h3>🕓 Commits</h3><p>მთელი ისტორია: ვინ, როდის, რა. ყოველ commit-ზე — ცვლილებები ფერებით</p></div>
+    <div class="card in" style="--d:0.44s"><h3>✏️ რედაქტირება</h3><p>ფაილის შეცვლა პირდაპირ ბრაუზერიდან — ესეც commit-ია</p></div>
+    <div class="card in" style="--d:0.56s"><h3>🔀 Pull requests</h3><p>„ჩემი branch გადახედეთ და შეურწყით“ — გუნდური მუშაობის გული</p></div>
+    <div class="card accent in" style="--d:0.68s;--a:var(--asp)"><h3>⚙️ Actions</h3><p>ავტომატიზაცია: build, ტესტი, დეპლოი <b>— ლ.3</b></p></div>
+    <div class="card accent in" style="--d:0.80s;--a:var(--mvc)"><h3>📄 Settings → Pages</h3><p>რეპო → საიტი ინტერნეტში <b>— ლ.2</b></p></div>
   </div>
   <aside class="study">
 ### რა არის GitHub-ის რეპოს გვერდზე?
@@ -1112,13 +1267,13 @@ push-ის შემდეგ GitHub-ის გვერდი განაა�
   <svg viewBox="0 0 1420 420" width="1420" height="420">
     <circle cx="710" cy="210" r="150" stroke="#353b6b" stroke-width="4" fill="none" stroke-dasharray="10 10" class="spin" style="animation-duration:30s"/>
     <text x="710" y="200" text-anchor="middle" font-size="44">💻</text><text x="710" y="245" text-anchor="middle" class="tm" font-size="18">ყოველდღე</text>
-    <g class="step zoom" style="transform-origin:710px 50px"><rect x="590" y="20" width="240" height="64" rx="16" fill="#0e2a33" stroke="#22d3ee" stroke-width="3"/><text x="710" y="62" text-anchor="middle" class="ta mono b" font-size="22">① git pull</text></g>
-    <g class="step zoom" style="transform-origin:960px 150px"><rect x="890" y="120" width="300" height="64" rx="16" class="box"/><text x="1040" y="162" text-anchor="middle" class="tw b" font-size="22">② კოდის შეცვლა ✍️</text></g>
-    <g class="step zoom" style="transform-origin:960px 300px"><rect x="890" y="270" width="300" height="64" rx="16" fill="#33240b" stroke="#f5a524" stroke-width="3"/><text x="1040" y="312" text-anchor="middle" class="to mono b" font-size="22">③ git add .</text></g>
-    <g class="step zoom" style="transform-origin:710px 380px"><rect x="530" y="345" width="360" height="64" rx="16" fill="#123321" stroke="#22c55e" stroke-width="3"/><text x="710" y="387" text-anchor="middle" class="tg mono b" font-size="22">④ git commit -m "…"</text></g>
-    <g class="step zoom" style="transform-origin:460px 210px"><rect x="230" y="178" width="260" height="64" rx="16" fill="#1d1640" stroke="#8b6cff" stroke-width="3"/><text x="360" y="220" text-anchor="middle" class="tn mono b" font-size="22">⑤ git push</text></g>
+    <g class="in zoom" style="--d:0.30s;transform-origin:710px 50px"><rect x="590" y="20" width="240" height="64" rx="16" fill="#0e2a33" stroke="#22d3ee" stroke-width="3"/><text x="710" y="62" text-anchor="middle" class="ta mono b" font-size="22">① git pull</text></g>
+    <g class="in zoom" style="--d:0.60s;transform-origin:960px 150px"><rect x="890" y="120" width="300" height="64" rx="16" class="box"/><text x="1040" y="162" text-anchor="middle" class="tw b" font-size="22">② კოდის შეცვლა ✍️</text></g>
+    <g class="in zoom" style="--d:0.90s;transform-origin:960px 300px"><rect x="890" y="270" width="300" height="64" rx="16" fill="#33240b" stroke="#f5a524" stroke-width="3"/><text x="1040" y="312" text-anchor="middle" class="to mono b" font-size="22">③ git add .</text></g>
+    <g class="in zoom" style="--d:1.20s;transform-origin:710px 380px"><rect x="530" y="345" width="360" height="64" rx="16" fill="#123321" stroke="#22c55e" stroke-width="3"/><text x="710" y="387" text-anchor="middle" class="tg mono b" font-size="22">④ git commit -m "…"</text></g>
+    <g class="in zoom" style="--d:1.50s;transform-origin:460px 210px"><rect x="230" y="178" width="260" height="64" rx="16" fill="#1d1640" stroke="#8b6cff" stroke-width="3"/><text x="360" y="220" text-anchor="middle" class="tn mono b" font-size="22">⑤ git push</text></g>
   </svg>
-  <div class="callout step" style="--a:var(--api);font-size:23px">მუშაობის დაწყებამდე — <b>pull</b>. დასრულების შემდეგ — <b>push</b>. შუაში — ხშირი, პატარა <b>commit</b>-ები.</div>
+  <div class="callout in" style="--d:1.80s;--a:var(--api);font-size:23px">მუშაობის დაწყებამდე — <b>pull</b>. დასრულების შემდეგ — <b>push</b>. შუაში — ხშირი, პატარა <b>commit</b>-ები.</div>
   <aside class="study">
 ### ყოველდღიური ციკლი
 
@@ -1155,10 +1310,10 @@ push-ის შემდეგ GitHub-ის გვერდი განაა�
   <div class="kicker">პრობლემა · ორი რეალური ისტორია</div>
   <h2><code class="i" style="font-size:.8em">git add .</code> — და <span class="c-red">ყველაფერი წავიდა</span></h2>
   <div class="grid2">
-    <div class="card accent step left" style="--a:var(--asp)"><h3>📦 node_modules</h3>
+    <div class="card accent in left" style="padding:18px 26px;--d:0.20s;--a:var(--asp)"><h3>📦 node_modules</h3>
       <p>Angular პროექტი: შენი კოდი — <b>200 KB</b>. <code class="i">node_modules</code> — <b class="c-asp">300+ MB, 40 000 ფაილი</b>.</p>
       <p class="tiny mt">push 10 წუთი გრძელდება, რეპო მძიმდება. თან ეს ყველაფერი <code class="i">npm install</code>-ით თავიდან იქმნება</p></div>
-    <div class="card accent step right" style="--a:var(--red)"><h3>🔑 .env</h3>
+    <div class="card accent in right" style="--d:0.40s;--a:var(--red)"><h3>🔑 .env</h3>
       <p class="mono" style="font-size:18px">DB_PASSWORD=Sup3rS3cret<br>PAYMENT_API_KEY=sk_live_51H…</p>
       <p class="tiny mt">public რეპოში. ბოტები GitHub-ს <b>წუთებში</b> სკანავენ და გასაღებს იპარავენ</p></div>
   </div>
@@ -1202,8 +1357,8 @@ obj/
 .DS_Store
     </code-block>
     <div class="col">
-      <div class="card step right"><h3>❓ წესი</h3><p>ავტომატურად <b>იქმნება</b>? ან <b>საიდუმლოა</b>? → <code class="i">.gitignore</code></p></div>
-      <table class="t step" style="font-size:19px">
+      <div class="card in right" style="--d:0.20s"><h3>❓ წესი</h3><p>ავტომატურად <b>იქმნება</b>? ან <b>საიდუმლოა</b>? → <code class="i">.gitignore</code></p></div>
+      <table class="t in" style="--d:0.40s;font-size:19px">
         <tr><th>ჩანაწერი</th><th>რას ნიშნავს</th></tr>
         <tr><td class="mono">dist/</td><td>საქაღალდე, სადაც არ უნდა იყოს</td></tr>
         <tr><td class="mono">*.log</td><td>ყველა .log ფაილი</td></tr>
@@ -1258,20 +1413,20 @@ obj/
   <div class="grid2">
     <div class="col">
       <h3>✅ მზა .gitignore</h3>
-      <div class="card step left"><p><b>Angular:</b> <code class="i">ng new</code> თვითონ ქმნის</p></div>
-      <div class="card step left"><p><b>.NET:</b> <code class="i">dotnet new gitignore</code> / Visual Studio-ში — Git → Create repository</p></div>
-      <div class="card step left"><p><b>სხვა:</b> <b>github.com/github/gitignore</b> — შაბლონები ყველა ენისთვის</p></div>
+      <div class="card in left" style="--d:0.20s"><p><b>Angular:</b> <code class="i">ng new</code> თვითონ ქმნის</p></div>
+      <div class="card in left" style="--d:0.35s"><p><b>.NET:</b> <code class="i">dotnet new gitignore</code> / Visual Studio-ში — Git → Create repository</p></div>
+      <div class="card in left" style="--d:0.50s"><p><b>სხვა:</b> <b>github.com/github/gitignore</b> — შაბლონები ყველა ენისთვის</p></div>
     </div>
     <div class="col">
       <h3>🚑 ფაილი უკვე commit-ში მოხვდა?</h3>
-      <code-block lang="console" cls="step" title="Git Bash">
+      <code-block lang="console" cls="in" title="Git Bash" style="--d:0.65s">
 $ echo ".env" >> .gitignore
 $ git rm --cached .env
 rm '.env'
 $ git commit -m "Stop tracking .env"
       </code-block>
-      <div class="callout step" style="--a:var(--asp)"><b>--cached</b> — Git-იდან ამოიღე, დისკზე <b>დატოვე</b></div>
-      <div class="callout step" style="--a:var(--red)">საიდუმლო იყო? <b>გასაღები შეცვალე</b> — ისტორიაში მაინც ჩანს</div>
+      <div class="callout in" style="--d:0.80s;--a:var(--asp)"><b>--cached</b> — Git-იდან ამოიღე, დისკზე <b>დატოვე</b></div>
+      <div class="callout in" style="--d:0.95s;--a:var(--red)">საიდუმლო იყო? <b>გასაღები შეცვალე</b> — ისტორიაში მაინც ჩანს</div>
     </div>
   </div>
   <aside class="study">
@@ -1320,12 +1475,12 @@ $ git commit -m "Stop tracking .env"
   <h2>პროექტი + <span class="mono c-asp">git init</span></h2>
   <div class="grid2" style="grid-template-columns:1fr 1.1fr">
     <div class="col">
-      <code-block lang="console" cls="step" title="Git Bash">
+      <code-block lang="console" cls="in" title="Git Bash" style="--d:0.20s">
 $ mkdir my-portfolio
 $ cd my-portfolio
 $ code .
       </code-block>
-      <code-block lang="html" cls="sm step" title="index.html">
+      <code-block lang="html" cls="sm in" title="index.html" style="--d:0.40s">
 <!DOCTYPE html>
 <html lang="ka">
 <head>
@@ -1341,15 +1496,15 @@ $ code .
       </code-block>
     </div>
     <div class="col">
-      <code-block lang="css" cls="sm step" title="style.css">
+      <code-block lang="css" cls="sm in" title="style.css" style="--d:0.60s">
 body { font-family: sans-serif; max-width: 720px; margin: 40px auto; }
 h1 { color: #6d28d9; }
       </code-block>
-      <code-block lang="console" cls="big step" title="Git Bash">
+      <code-block lang="console" cls="big in" title="Git Bash" style="--d:0.80s">
 $ git init
 Initialized empty Git repository in ~/my-portfolio/.git/
       </code-block>
-      <div class="callout step" style="--a:var(--api)">VS Code-ში: <b>Terminal → New Terminal</b> → ⌄ → <b>Git Bash</b></div>
+      <div class="callout in" style="--d:1.00s;--a:var(--api)">VS Code-ში: <b>Terminal → New Terminal</b> → ⌄ → <b>Git Bash</b></div>
     </div>
   </div>
   <aside class="study">
@@ -1417,11 +1572,11 @@ $ git commit -m "Add home page"
     </code-block>
     <div class="col">
       <i class="codestep" data-for="st" data-lines="1-5"></i>
-      <div class="callout step" data-with style="--a:var(--red)"><b>Untracked</b> — Git ფაილებს ხედავს, მაგრამ ჯერ არ ინახავს (📝 ზონა)</div>
+      <div class="callout step" style="--a:var(--red)" data-with><b>Untracked</b> — Git ფაილებს ხედავს, მაგრამ ჯერ არ ინახავს (📝 ზონა)</div>
       <i class="codestep" data-for="st" data-lines="7-11"></i>
-      <div class="callout step" data-with style="--a:var(--asp)"><b>to be committed</b> — staging-შია (📦 ზონა)</div>
+      <div class="callout step" style="--a:var(--asp)" data-with><b>to be committed</b> — staging-შია (📦 ზონა)</div>
       <i class="codestep" data-for="st" data-lines="13-15"></i>
-      <div class="callout step" data-with style="--a:var(--mvc)">პირველი commit ✓ — <b>7b2e0d4</b> ისტორიაშია (🗃️ ზონა)</div>
+      <div class="callout step" style="--a:var(--mvc)" data-with>პირველი commit ✓ — <b>7b2e0d4</b> ისტორიაშია (🗃️ ზონა)</div>
     </div>
   </div>
   <aside class="study">
@@ -1461,7 +1616,7 @@ VS Code-ის მარცხენა პანელში **Source Control**
   <div class="kicker">ნაბიჯი 3</div>
   <h2>საიდუმლო ფაილი და <span class="c-asp">.gitignore</span></h2>
   <div class="grid2">
-    <code-block lang="console" cls="sm step" title="Git Bash · .env შევქმენით">
+    <code-block lang="console" cls="sm in" title="Git Bash · .env შევქმენით" style="--d:0.20s">
 $ echo "API_KEY=12345-secret" > .env
 $ git status
 Untracked files:
@@ -1478,8 +1633,8 @@ $ git commit -m "Add .gitignore"
     </code-block>
   </div>
   <div class="grid2 mt">
-    <div class="problem step" style="display:block">.gitignore-მდე: <b>.env</b> მზადაა, რომ <code class="i">git add .</code>-მა წაიღოს</div>
-    <div class="solve step" style="display:block">.gitignore-ის შემდეგ: Git <b>.env</b>-ს ვეღარ ხედავს — თვითონ <b>.gitignore</b> კი commit-დება</div>
+    <div class="problem in" style="--d:0.40s;display:block">.gitignore-მდე: <b>.env</b> მზადაა, რომ <code class="i">git add .</code>-მა წაიღოს</div>
+    <div class="solve step" style="display:block" data-with>.gitignore-ის შემდეგ: Git <b>.env</b>-ს ვეღარ ხედავს — თვითონ <b>.gitignore</b> კი commit-დება</div>
   </div>
   <aside class="study">
 ### ნაბიჯი 3 · საიდუმლო ფაილი და .gitignore
@@ -1537,11 +1692,11 @@ $ git log --oneline --graph
     </code-block>
     <div class="col">
       <i class="codestep" data-for="br" data-lines="1-5"></i>
-      <div class="callout step" data-with style="--a:var(--mvc)">ახალ branch-ზე ვმუშაობთ — <b>main ხელუხლებელია</b></div>
+      <div class="callout step" style="--a:var(--mvc)" data-with>ახალ branch-ზე ვმუშაობთ — <b>main ხელუხლებელია</b></div>
       <i class="codestep" data-for="br" data-lines="7-8"></i>
-      <div class="callout step" data-with style="--a:var(--asp)">🤯 main-ზე დაბრუნდი — VS Code-ში ფაილი <b>ძველ მდგომარეობაშია</b></div>
+      <div class="callout step" style="--a:var(--asp)" data-with>🤯 main-ზე დაბრუნდი — VS Code-ში ფაილი <b>ძველ მდგომარეობაშია</b></div>
       <i class="codestep" data-for="br" data-lines="10-16"></i>
-      <div class="callout step" data-with style="--a:var(--net)">merge — კონტაქტები main-ში. <b>Fast-forward</b>: main-ზე სხვა არაფერი შეცვლილა</div>
+      <div class="callout step" style="--a:var(--net)" data-with>merge — კონტაქტები main-ში. <b>Fast-forward</b>: main-ზე სხვა არაფერი შეცვლილა</div>
     </div>
   </div>
   <aside class="study">
@@ -1590,14 +1745,14 @@ $ git log --oneline --graph
   <h2>GitHub-ზე ატვირთვა 🚀</h2>
   <div class="grid2" style="grid-template-columns:1.3fr 1fr">
     <div class="col">
-      <div class="method-card step left" style="--a:var(--net)"><span class="m" style="min-width:50px">1</span><span class="t">GitHub → <b>New repository</b> → <b>my-portfolio</b>, ცარიელი</span></div>
-      <code-block lang="console" cls="sm step" title="Git Bash">
+      <div class="method-card in left" style="--d:0.20s;--a:var(--net)"><span class="m" style="min-width:50px">1</span><span class="t">GitHub → <b>New repository</b> → <b>my-portfolio</b>, ცარიელი</span></div>
+      <code-block lang="console" cls="sm in" title="Git Bash" style="--d:0.45s">
 $ git remote add origin https://github.com/giorgi-beridze/my-portfolio.git
 $ git push -u origin main
       </code-block>
-      <div class="method-card step left" style="--a:var(--mvc)"><span class="m" style="min-width:50px">3</span><span class="t">GitHub-ის გვერდი → <b>F5</b> 🎉</span></div>
+      <div class="method-card in left" style="--d:0.70s;--a:var(--mvc)"><span class="m" style="min-width:50px">3</span><span class="t">GitHub-ის გვერდი → <b>F5</b> 🎉</span></div>
     </div>
-    <div class="card step fade" style="font:21px/2 var(--mono)">
+    <div class="card in fade" style="--d:0.95s;font:21px/2 var(--mono)">
       🐙 <b>giorgi-beridze / my-portfolio</b><br>
       <span class="tiny">🕓 3 commits</span><br>
       &nbsp;📄 .gitignore<br>
@@ -1635,11 +1790,11 @@ $ git push -u origin main
   <h2>GitHub → ლეპტოპი: <span class="c-api mono">git pull</span></h2>
   <div class="grid2" style="grid-template-columns:1fr 1.2fr">
     <div class="col">
-      <div class="method-card step left" style="--a:var(--net)"><span class="m" style="min-width:50px">1</span><span class="t">GitHub: <b>Add a README</b> → ტექსტი → <b>Commit changes</b></span></div>
-      <div class="method-card step left" style="--a:var(--asp)"><span class="m" style="min-width:50px">2</span><span class="t">ლეპტოპზე README <b>ჯერ არ არის</b></span></div>
-      <div class="method-card step left" style="--a:var(--api)"><span class="m" style="min-width:50px">3</span><span class="t"><code class="i">git pull</code> → ჩამოვიდა ✓</span></div>
+      <div class="method-card in left" style="--d:0.20s;--a:var(--net)"><span class="m" style="min-width:50px">1</span><span class="t">GitHub: <b>Add a README</b> → ტექსტი → <b>Commit changes</b></span></div>
+      <div class="method-card in left" style="--d:0.40s;--a:var(--asp)"><span class="m" style="min-width:50px">2</span><span class="t">ლეპტოპზე README <b>ჯერ არ არის</b></span></div>
+      <div class="method-card in left" style="--d:0.60s;--a:var(--api)"><span class="m" style="min-width:50px">3</span><span class="t"><code class="i">git pull</code> → ჩამოვიდა ✓</span></div>
     </div>
-    <code-block lang="console" cls="big step" title="Git Bash">
+    <code-block lang="console" cls="big in" title="Git Bash" style="--d:0.80s">
 $ git pull
 Updating a3f9c21..e81b0f2
 Fast-forward
@@ -1647,7 +1802,7 @@ Fast-forward
  1 file changed, 3 insertions(+)
     </code-block>
   </div>
-  <div class="callout step mt2" style="--a:var(--api);font-size:23px">ასე ჩამოდის ნებისმიერი ცვლილება — <b>გუნდელისგან</b>, <b>სხვა კომპიუტერიდან</b> თუ <b>GitHub-ის საიტიდან</b>.</div>
+  <div class="callout in mt2" style="--d:1.00s;--a:var(--api);font-size:23px">ასე ჩამოდის ნებისმიერი ცვლილება — <b>გუნდელისგან</b>, <b>სხვა კომპიუტერიდან</b> თუ <b>GitHub-ის საიტიდან</b>.</div>
   <aside class="study">
 ### ნაბიჯი 6 · GitHub → ლეპტოპი: git pull
 
@@ -1671,9 +1826,9 @@ Fast-forward
   <div class="kicker">შპარგალკა 📌</div>
   <h2>დღევანდელი <span class="c-api">ბრძანებები</span></h2>
   <div class="grid3" style="gap:20px">
-    <div class="card accent step" style="--a:var(--api)"><h3>⚙️ ერთხელ</h3><p class="mono" style="font-size:17px;line-height:1.9">git config --global user.name "…"<br>git config --global user.email "…"<br>git init<br>git remote add origin &lt;url&gt;<br>git clone &lt;url&gt;</p></div>
-    <div class="card accent step" style="--a:var(--mvc)"><h3>🔁 ყოველდღე</h3><p class="mono" style="font-size:17px;line-height:1.9">git status<br>git add .<br>git commit -m "…"<br>git push<br>git pull<br>git log --oneline</p></div>
-    <div class="card accent step" style="--a:var(--net)"><h3>🌿 branch</h3><p class="mono" style="font-size:17px;line-height:1.9">git branch<br>git switch -c &lt;name&gt;<br>git switch main<br>git merge &lt;name&gt;<br>git branch -d &lt;name&gt;</p></div>
+    <div class="card accent in" style="--d:0.20s;--a:var(--api)"><h3>⚙️ ერთხელ</h3><p class="mono" style="font-size:17px;line-height:1.9">git config --global user.name "…"<br>git config --global user.email "…"<br>git init<br>git remote add origin &lt;url&gt;<br>git clone &lt;url&gt;</p></div>
+    <div class="card accent in" style="--d:0.40s;--a:var(--mvc)"><h3>🔁 ყოველდღე</h3><p class="mono" style="font-size:17px;line-height:1.9">git status<br>git add .<br>git commit -m "…"<br>git push<br>git pull<br>git log --oneline</p></div>
+    <div class="card accent in" style="--d:0.60s;--a:var(--net)"><h3>🌿 branch</h3><p class="mono" style="font-size:17px;line-height:1.9">git branch<br>git switch -c &lt;name&gt;<br>git switch main<br>git merge &lt;name&gt;<br>git branch -d &lt;name&gt;</p></div>
   </div>
   <aside class="study">
 ### შპარგალკა: დღევანდელი ბრძანებები
@@ -1716,13 +1871,13 @@ Fast-forward
   <div class="kicker">შეჯამება</div>
   <h2>დღეს ვისწავლეთ</h2>
   <div class="col" style="gap:30px;margin-top:30px">
-    <div class="row step left" style="gap:20px;align-items:center"><span class="big-emoji" style="font-size:44px">🌐</span><span style="font-size:29px"><b>ჰოსტინგი</b> — სერვერის ქირაობა; სახელი → DNS → IP → ვებ-სერვერი → ფაილი</span></div>
-    <div class="row step left" style="gap:20px;align-items:center"><span class="big-emoji" style="font-size:44px">📜</span><span style="font-size:29px"><b>ევოლუცია</b> — On-premise → Shared → VPS → PaaS → <code class="i">git push</code> = deploy</span></div>
-    <div class="row step left" style="gap:20px;align-items:center"><span class="big-emoji" style="font-size:44px">🌳</span><span style="font-size:29px"><b>Git</b> — repo, 3 ზონა, commit, branch, merge, conflict</span></div>
-    <div class="row step left" style="gap:20px;align-items:center"><span class="big-emoji" style="font-size:44px">🐙</span><span style="font-size:29px"><b>GitHub</b> — კოდის ჰოსტინგი: remote, push, pull, clone</span></div>
-    <div class="row step left" style="gap:20px;align-items:center"><span class="big-emoji" style="font-size:44px">🙈</span><span style="font-size:29px"><b>.gitignore</b> — ავტომატური და საიდუმლო ფაილები რეპოში არ შედის</span></div>
+    <div class="row in left" style="--d:0.20s;gap:20px;align-items:center"><span class="big-emoji" style="font-size:44px">🌐</span><span style="font-size:29px"><b>ჰოსტინგი</b> — სერვერის ქირაობა; სახელი → DNS → IP → ვებ-სერვერი → ფაილი</span></div>
+    <div class="row in left" style="--d:0.35s;gap:20px;align-items:center"><span class="big-emoji" style="font-size:44px">📜</span><span style="font-size:29px"><b>ევოლუცია</b> — On-premise → Shared → VPS → PaaS → <code class="i">git push</code> = deploy</span></div>
+    <div class="row in left" style="--d:0.50s;gap:20px;align-items:center"><span class="big-emoji" style="font-size:44px">🌳</span><span style="font-size:29px"><b>Git</b> — repo, 3 ზონა, commit, branch, merge, conflict</span></div>
+    <div class="row in left" style="--d:0.65s;gap:20px;align-items:center"><span class="big-emoji" style="font-size:44px">🐙</span><span style="font-size:29px"><b>GitHub</b> — კოდის ჰოსტინგი: remote, push, pull, clone</span></div>
+    <div class="row in left" style="--d:0.80s;gap:20px;align-items:center"><span class="big-emoji" style="font-size:44px">🙈</span><span style="font-size:29px"><b>.gitignore</b> — ავტომატური და საიდუმლო ფაილები რეპოში არ შედის</span></div>
   </div>
-  <p class="lead step mt" style="text-align:center">შემდეგ ლექციაზე: <b>my-portfolio → ინტერნეტში</b> GitHub Pages-ით 📄</p>
+  <p class="lead in mt" style="--d:0.95s;text-align:center">შემდეგ ლექციაზე: <b>my-portfolio → ინტერნეტში</b> GitHub Pages-ით 📄</p>
   <aside class="study">
 ## შეჯამება · დღეს ვისწავლეთ
 
