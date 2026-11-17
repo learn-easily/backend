@@ -1,22 +1,22 @@
 # დავალებები — აირჩიე დონე
 
-ყოველი კლასი — ცალკე ფაილში
+ჯერ Program.cs-ში, მერე — ცალკე ფაილში
 
 ## ნაბიჯები
 
 - ⭐ **წიგნი** — `Book` კლასი: `Title`, `Author`, `Pages`, კონსტრუქტორი და `void PrintInfo()`. შექმენი 3 წიგნი და დაბეჭდე
-- ⭐⭐ **საბანკო ანგარიში** — `BankAccount`: `Owner { get; }`, `Balance { get; private set; }`, `void Deposit(decimal amount)` (მხოლოდ დადებითი თანხა), `bool Withdraw(decimal amount)` (თანხა არ ჰყოფნის → `false`, ბალანსი არ იცვლება)
-- ⭐⭐ **ბიბლიოთეკა** — `Book[]` 4 წიგნით → იპოვე და დაბეჭდე ყველაზე გრძელი წიგნი და ჯამური გვერდები
+- ⭐⭐ **სამი კონსტრუქტორი** — `Book`-ს დაუმატე: `Book()` → სათაური „უსათაურო“, `Book(string title)` და `Book(string title, string author, int pages)`. სამივე გზით შექმენი წიგნი
+- ⭐⭐ **ბიბლიოთეკა** — `Book`-ი ცალკე ფაილში (**Book.cs**). `Book[]` 4 წიგნით → იპოვე და დაბეჭდე ყველაზე გრძელი წიგნი და ჯამური გვერდები
 
 ## ✓ მზადაა, როცა
 
-`account.Balance = 1000;` წითელ ხაზს აჩენს; `Withdraw(500)` 100-ლარიან ანგარიშზე `false`-ს აბრუნებს და ბალანსი 100 რჩება
+სამივე კონსტრუქტორი მუშაობს; `new Book(300)` წითელ ხაზს აჩენს; Book.cs ცალკე ფაილშია და Main-ში უცვლელად მუშაობს
 
 ## ⭐ ბონუსი
 
-- ⭐⭐⭐ **ტამაგოჩი** — `Pet`: `Name`, `Hunger` და `Happiness` (0–10, `private set`), `Feed()`, `Play()` (თამაში შიმშილს ზრდის!), `PrintStatus()`. მნიშვნელობა 10-ს ვერ გადააჭარბებს და 0-ზე ქვემოთ ვერ ჩავა
-- 🏆 ტამაგოჩის `do-while` მენიუ: 1 — აჭამე, 2 — ეთამაშე, 3 — სტატუსი, 0 — გასვლა
+- ⭐⭐⭐ **საბანკო ანგარიში** — `BankAccount`: `Owner`, `Balance`, ორი კონსტრუქტორი (`BankAccount(string owner)` → ბალანსი 0, და `BankAccount(string owner, decimal balance)`), `void Deposit(decimal amount)`, `bool Withdraw(decimal amount)` — თანხა არ ჰყოფნის → `false`, ბალანსი არ იცვლება
+- 🏆 **ტამაგოჩი** — `Pet`: `Name`, `Hunger`, `Happiness` (0–10), `Feed()`, `Play()`, `PrintStatus()` და `do-while` მენიუ
 
 ## 💡 მინიშნება
 
-`Withdraw`-ში ჯერ შეამოწმე, მერე შეცვალე: `if (amount > Balance) return false;` — `return` მეთოდს მაშინვე ამთავრებს. ყველაზე გრძელი წიგნი — ზუსტად როგორც `best` მოსწავლე სლაიდზე: `Book longest = books[0];` და `foreach`.
+ყველაზე გრძელი წიგნი — ზუსტად როგორც `best` მოსწავლე სლაიდზე: `Book longest = books[0];` და `foreach`. `Withdraw`-ში ჯერ შეამოწმე, მერე შეცვალე: `if (amount > Balance) return false;`. ცარიელ კონსტრუქტორში `Title = "უსათაურო";`.
