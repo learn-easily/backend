@@ -1,55 +1,58 @@
-# საკუთარი „გამოიცანი რიცხვი“
+# ჯიბის კალკულატორი
 
-ინსტალაცია + თამაში + ბიპ-ბუპ
+ინსტალაცია + კალკულატორი + ასაკი დღეებში
 
 ## მოთხოვნები
 
 - **Visual Studio 2026** Community დააინსტალირე: ☑ .NET desktop development, ☑ ASP.NET and web development
-- „გამოიცანი რიცხვი“ **შენ თვითონ** დაწერე — სლაიდში ჩაუხედავად
-- თამაშს დაამატე: მაქსიმუმ **7 ცდა**, მერე „Game Over“ და სწორი პასუხი
-- კლასის დავალებები, რაც ვერ მოასწარი — ⭐ → ⭐⭐⭐ (ბიპ-ბუპის ჩათვლით)
+- ახალი Console App: **PocketCalculator**
+- ჰკითხე ორი მთელი რიცხვი და დაბეჭდე: ჯამი, სხვაობა, ნამრავლი, განაყოფი **ათწილადით** (`7 / 2` → `3.5`) და ნაშთი
+- ყოველი პასუხი სხვა ფერით (`Console.ForegroundColor`)
+- მეორე ნაწილი: ჰკითხე ასაკი წლებში → დაბეჭდე, დაახლოებით რამდენი დღის, საათის და წუთის ხარ
+- კლასის დავალებები, რაც ვერ მოასწარი — ⭐ → ⭐⭐⭐
 
 ## ✓ მზადაა, როცა
 
-თამაში სწორ რიცხვზე „🎉 გამოიცანი“-ს წერს, 7 არასწორ ცდაზე კი — „Game Over“-ს და ჩაფიქრებულ რიცხვს
+`7` და `2`-ზე პროგრამა ბეჭდავს: `9`, `5`, `14`, `3.5`, `1` — ხოლო ასაკ `15`-ზე ≈ `5475` დღეს
 
 ## ⭐ ბონუსი
 
-- თამაშის ბოლოს: „კიდევ ითამაშებ? (კი/არა)“ — და „კი“-ზე თავიდან დაიწყოს
+- კალკულატორმა ათწილადებიც მიიღოს (`double.Parse`) — `2.5` და `4`
 
 ## ამოხსნა
 
-```csharp Program.cs · 7 ცდა !
-int secret = Random.Shared.Next(1, 101);
-int guess = 0;
-int tries = 0;
+```csharp Program.cs !
+Console.OutputEncoding = System.Text.Encoding.UTF8;
 
-while (guess != secret && tries < 7)
-{
-    Console.Write($"ცდა {tries + 1}/7: ");
-    guess = int.Parse(Console.ReadLine());
-    tries++;
+Console.Write("პირველი რიცხვი: ");
+int a = int.Parse(Console.ReadLine());
+Console.Write("მეორე რიცხვი: ");
+int b = int.Parse(Console.ReadLine());
 
-    if (guess < secret) Console.WriteLine("მეტია ⬆");
-    else if (guess > secret) Console.WriteLine("ნაკლებია ⬇");
-}
-
-if (guess == secret)
-    Console.WriteLine($"🎉 გამოიცანი {tries} ცდაში!");
-else
-    Console.WriteLine($"Game Over! ჩაფიქრებული იყო {secret}");
+Console.ForegroundColor = ConsoleColor.Green;
+Console.WriteLine($"{a} + {b} = {a + b}");
+Console.ForegroundColor = ConsoleColor.Cyan;
+Console.WriteLine($"{a} - {b} = {a - b}");
+Console.ForegroundColor = ConsoleColor.Yellow;
+Console.WriteLine($"{a} * {b} = {a * b}");
+Console.ForegroundColor = ConsoleColor.Magenta;
+Console.WriteLine($"{a} / {b} = {a * 1.0 / b}");
+Console.ForegroundColor = ConsoleColor.Red;
+Console.WriteLine($"{a} % {b} = {a % b}");
+Console.ResetColor();
 ```
 
-```csharp ბიპ-ბუპ
-for (int i = 1; i <= 50; i++)
-{
-    if (i % 3 == 0 && i % 5 == 0) Console.WriteLine("ბიპბუპ");
-    else if (i % 3 == 0) Console.WriteLine("ბიპ");
-    else if (i % 5 == 0) Console.WriteLine("ბუპ");
-    else Console.WriteLine(i);
-}
+```csharp ასაკი დღეებში
+Console.Write("რამდენი წლის ხარ? ");
+int years = int.Parse(Console.ReadLine());
+
+int days = years * 365;
+int hours = days * 24;
+int minutes = hours * 60;
+
+Console.WriteLine($"≈ {days} დღე, {hours} საათი, {minutes} წუთი");
 ```
 
 ```note
-ბიპ-ბუპში რიგს აქვს მნიშვნელობა: „ორივეზე იყოფა“ **პირველი** უნდა შემოწმდეს. თუ ჯერ `i % 3 == 0`-ს შეამოწმებ, 15-ზე „ბიპ“ დაიბეჭდება და `else if`-ები აღარ შემოწმდება — გახსოვს, `if` პირველ სწორ პირობაზე ჩერდება.
+`a * 1.0 / b` — `1.0`-ზე გამრავლება `a`-ს ათწილადად აქცევს **გაყოფამდე**, ამიტომ `int / int` აღარაა და `3.5` გამოდის. ზუსტად ის ხრიკია, რაც ლექციაზე ნახე: `7.0 / 2`. თუ `a / b * 1.0` დაწერ, ჯერ გაიყოფა (`3`) და მერე გამრავლდება — `3`.
 ```

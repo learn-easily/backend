@@ -1,0 +1,866 @@
+<style>
+.stepper{position:absolute;right:90px;top:calc(72px + (var(--h,900px) - 900px) / 2);display:flex;gap:8px;z-index:3}
+.stepper span{font:600 14px var(--mono);padding:6px 13px;border-radius:99px;border:1px solid var(--line2);color:var(--muted);background:#fff}
+.stepper span.done{color:var(--mvc);border-color:color-mix(in srgb,var(--mvc) 45%,#fff)}
+.stepper span.on{background:var(--core);border-color:var(--core);color:#fff;box-shadow:0 6px 16px -8px var(--core)}
+i.codestep{display:none}
+.mono{font-family:var(--mono)}
+.late{opacity:0}
+.shown .late,.shown.late{animation:inFade .6s var(--ease) var(--ld,.9s) forwards}
+.term .pm::before{content:"PM> ";color:var(--core)}
+.term .ok{color:#4ade80}
+.term .warn{color:#fbbf24}
+.term .err{color:#f87171}
+.term .body{font-size:18px;line-height:1.65}
+.tree{font:19px/1.9 var(--mono);color:var(--ink2)}
+.tree .n{display:block;white-space:nowrap}
+.tree .n i{font-style:normal;margin-right:8px}
+.tree .lvl1{padding-left:30px}.tree .lvl2{padding-left:60px}.tree .lvl3{padding-left:90px}.tree .lvl4{padding-left:120px}
+.tree .hi{color:var(--ink);font-weight:700}
+.flowrow{display:flex;align-items:center;gap:18px}
+.fbox{flex:1;border-radius:16px;padding:18px 20px;border:2px solid var(--a);background:color-mix(in srgb,var(--a) 8%,#fff);text-align:center}
+.fbox .e{font-size:38px;line-height:1.2}
+.fbox .l{font-size:21px;font-weight:700;color:var(--ink)}
+.fbox .s{font:15px var(--mono);color:var(--muted)}
+.farrow{font:700 17px var(--mono);color:var(--a);text-align:center;min-width:190px}
+.farrow .ar{display:block;font-size:40px;line-height:1}
+.check li{list-style:none;position:relative;padding-left:44px;margin:11px 0;font-size:21px}
+.check li::before{content:"";position:absolute;left:0;top:.2em;width:26px;height:26px;border-radius:8px;border:2px solid var(--line2);background:#fff}
+.check li.shown::before{content:"✓";color:#fff;background:var(--mvc);border-color:var(--mvc);font:800 18px/26px var(--font);text-align:center}
+.mock{background:#fff;border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);overflow:hidden}
+.mock .mh{background:var(--bg2);padding:10px 16px;font:600 14px var(--mono);color:var(--muted);border-bottom:1px solid var(--line)}
+.mock .mb{padding:18px 20px}
+.phase{text-align:center}
+.phase .em{font-size:72px;line-height:1.1}
+.phase .tt{font:700 15px var(--mono);color:var(--a)}
+/* lecture 2 */
+.crown{font-size:44px;line-height:1}
+.who{display:flex;align-items:center;justify-content:center;gap:26px;margin:26px 0 22px}
+.who .bx{border-radius:16px;padding:20px 26px;border:2px solid var(--a);background:color-mix(in srgb,var(--a) 8%,#fff);text-align:center;min-width:200px}
+.who .bx .e{font-size:52px;line-height:1.2}
+.who .bx .l{font-size:20px;font-weight:700;color:var(--ink)}
+.who .bx.copy{border-style:dashed;opacity:.75}
+.who .ar{font:700 34px var(--mono);color:var(--a)}
+.lane{display:flex;align-items:center;gap:12px;padding:26px 22px;border-radius:16px;border:2px solid color-mix(in srgb,var(--a) 40%,#fff);background:color-mix(in srgb,var(--a) 6%,#fff)}
+.lane .lh{font:800 19px var(--mono);color:var(--a);min-width:180px}
+.lane .lc{font:600 17.5px var(--mono);background:#fff;border:1px solid var(--line2);border-radius:10px;padding:10px 12px;color:var(--ink);white-space:nowrap}
+.lane .la{font:700 22px var(--mono);color:var(--a)}
+.lane .lc.ok{border-color:var(--mvc);color:var(--mvc)}
+.lane .lc.bad{border-color:var(--red);color:var(--red);background:#fef2f2}
+.myth{display:grid;grid-template-columns:1fr 1.35fr;gap:18px;align-items:stretch;margin-bottom:20px}
+.myth .m,.myth .f{border-radius:12px;padding:18px 20px 18px 54px;font-size:21px;line-height:1.45;position:relative}
+.myth .m{background:#fef2f2;border:1px solid #fca5a5;color:#991b1b}
+.myth .f{background:#f0fdf4;border:1px solid #86efac;color:#166534}
+.myth .m::before,.myth .f::before{position:absolute;left:18px;top:19px;font-size:19px}
+.myth .m::before{content:"❌"} .myth .f::before{content:"✅"}
+.scn{display:flex;flex-direction:column;gap:12px}
+.scn{padding:30px 30px!important}
+.scn .e{font-size:56px;line-height:1}
+.card.scn p{font-size:23px;color:var(--ink2);line-height:1.5}
+.ans{align-self:flex-start;font:800 18px var(--mono);padding:8px 16px;border-radius:99px;color:#fff;background:var(--a)}
+.card .rule{font-size:34px;line-height:1.5;text-align:center;color:var(--ink)}
+.data{border-collapse:collapse;font:17px var(--mono);background:#fff;box-shadow:var(--shadow);border-radius:12px;overflow:hidden;width:100%}
+.data caption{caption-side:top;text-align:left;font:700 17px var(--mono);color:var(--a,var(--asp));padding:0 0 8px}
+.data th{background:var(--bg2);color:var(--ink2);font-weight:700;padding:9px 14px;text-align:left;border-bottom:1px solid var(--line)}
+.data td{padding:9px 14px;border-bottom:1px solid var(--line);color:var(--ink)}
+.data tr:last-child td{border-bottom:0}
+.data .fk{background:color-mix(in srgb,var(--api) 10%,#fff);color:var(--api);font-weight:700}
+.data .bad{background:#fef2f2;color:var(--red);font-weight:800}
+.data .new{background:color-mix(in srgb,var(--mvc) 10%,#fff);color:var(--mvc);font-weight:700}
+.data .empty{color:var(--muted);font-style:italic;text-align:center}
+.tlx{position:relative}
+.dot{width:26px;height:26px;border-radius:50%;background:var(--a);border:4px solid #fff;box-shadow:0 0 0 2px var(--a)}
+.gold{display:flex;gap:16px;align-items:flex-start}
+.gold .verb{font-size:46px;line-height:1}
+</style>
+<!-- =========================================================
+     C# · ლექცია 5 — კლასები და ობიექტები: პრობლემა → class/new → მეთოდები, კონსტრუქტორი, private → ობიექტების მასივი → ბრძოლა
+     აუდიტორია: სკოლის მოსწავლეები, Frontend (JS/TS/Angular) უკვე გავლილი
+     ფერები: Frontend / JS = ვარდისფერი · Backend / C# = იისფერი · ბაზა = ქარვისფერი
+             Unity / თამაშები = ზღვისფერი (teal) · წარმატება = მწვანე · შეცდომა = წითელი
+     ========================================================= -->
+<style>
+#deck,#deck *{font-variant-ligatures:none}
+.vs{display:grid;grid-template-columns:1fr 1fr;gap:28px;align-items:start}
+.lang{display:inline-block;font:800 15px var(--mono);padding:5px 14px;border-radius:99px;color:#fff;background:var(--a);margin-bottom:10px;letter-spacing:.04em}
+.same,.diff{display:inline-block;font:800 15px var(--mono);padding:5px 12px;border-radius:99px;white-space:nowrap}
+.same{background:#dcfce7;color:#166534}
+.diff{background:#fef3c7;color:#92400e}
+.chips{display:flex;gap:12px;flex-wrap:wrap;align-items:stretch}
+.chip2{font:700 22px var(--mono);padding:10px 18px;border-radius:12px;border:2px solid var(--a);background:color-mix(in srgb,var(--a) 8%,#fff);color:var(--a);text-align:center}
+.chip2 small{display:block;font:600 15px var(--font);color:var(--muted);margin-top:2px}
+.grid5{display:grid;grid-template-columns:repeat(5,1fr);gap:16px}
+.term .usr{color:#fbbf24}
+.term .g{color:#4ade80}
+.term .cy{color:#22d3ee}
+.term .r{color:#f87171}
+.term .body{font-size:19px;line-height:1.6}
+.stars{color:#ca8a04;font-size:20px;letter-spacing:2px}
+.big{font-size:30px}
+table.t code.i{font-size:.95em}
+table.t td.mono,table.t th.mono{font-family:var(--mono)}
+.answer{font:800 44px var(--mono);color:var(--red)}
+.vsline{display:grid;grid-template-columns:1fr 60px 1fr;align-items:center;gap:10px;margin:10px 0}
+.vsline .js,.vsline .cs{font:600 21px var(--mono);padding:12px 16px;border-radius:12px;background:#fff;border:1px solid var(--line)}
+.vsline .js{border-left:5px solid var(--pink)} .vsline .cs{border-left:5px solid var(--net)}
+.vsline .ar{text-align:center;font:800 26px var(--mono);color:var(--muted)}
+</style>
+<!-- TITLE -->
+<section class="slide" data-section="შესავალი">
+  <div class="vcenter" style="max-width:860px">
+    <div class="kicker in" style="color:var(--net)">C# · ლექცია 5</div>
+    <h1 class="in" style="--d:.15s">კლასები და<br><span class="grad">ობიექტები</span></h1>
+    <p class="lead in mt" style="--d:.35s">მონაცემები და მეთოდები — ერთ „ყუთში“. ბოლოს რაინდი დრაკონს შეებრძოლება ⚔️🐉</p>
+  </div>
+  <div class="abs" style="right:110px;top:250px">
+    <div class="who" style="flex-direction:column;gap:14px">
+      <div class="bx in" style="--a:var(--net);--d:.4s"><div class="e">📐</div><div class="l">class Hero</div></div>
+      <div style="display:flex;gap:16px">
+        <div class="bx in" style="--a:var(--mvc);--d:.7s;min-width:150px"><div class="e">🛡️</div><div class="l">რაინდი</div></div>
+        <div class="bx in" style="--a:var(--red);--d:.85s;min-width:150px"><div class="e">🐉</div><div class="l">დრაკონი</div></div>
+      </div>
+    </div>
+  </div>
+  <aside class="study">
+# კლასები და ობიექტები
+
+აქამდე მონაცემები (ცვლადები, მასივები) და მოქმედებები (მეთოდები) ცალ-ცალკე იყო. დღეს მათ ერთად ვაერთიანებთ: **კლასი** — ნახაზი, **ობიექტი** — ამ ნახაზით შექმნილი ნამდვილი რამ.
+  </aside>
+</section>
+<lecture-review/>
+<lecture-homework-review/>
+<lecture-intro/>
+<section class="slide" data-section="შესავალი">
+  <div class="kicker">პრობლემა</div>
+  <h2>ერთი მოსწავლე — <span class="c-red">სამ სხვადასხვა მასივში</span></h2>
+  <div class="grid2" style="grid-template-columns:1.2fr 1fr;gap:30px;align-items:start;margin-top:6px">
+    <div class="col" style="gap:14px">
+      <code-block id="par" lang="csharp" title="Program.cs · ჩვენი ცოდნით">
+string[] names = { "ნიკა", "ანა", "ლუკა" };
+int[] ages = { 16, 15, 17 };
+double[] averages = { 8.5, 9.2, 7.8 };
+
+PrintStudent(names[1], ages[1], averages[1]);
+
+void PrintStudent(string name, int age, double average)
+{
+    Console.WriteLine($"{name}, {age} წლის, საშუალო {average}");
+}
+      </code-block>
+      <table class="data step"><tr><th>[i]</th><th>names</th><th>ages</th><th>averages</th></tr>
+        <tr><td>0</td><td>ნიკა</td><td>16</td><td>8.5</td></tr>
+        <tr><td>1</td><td class="new">ანა</td><td class="new">15</td><td class="new">9.2</td></tr>
+        <tr><td>2</td><td>ლუკა</td><td>17</td><td>7.8</td></tr></table>
+    </div>
+    <div class="col" style="gap:12px">
+      <div class="problem step" style="display:block;font-size:20px">🧩 ანას მონაცემები <b>სამ ადგილას</b> — მხოლოდ ერთი ინდექსი აკავშირებს</div>
+      <div class="problem step" style="display:block;font-size:20px">🔀 <code class="i">names</code> დაალაგე ანბანით? ასაკები და ქულები <b>აირია</b></div>
+      <div class="problem step" style="display:block;font-size:20px">📋 ტელეფონი, მისამართი, კლასი… მეთოდს <b>10 პარამეტრი</b>?</div>
+      <div class="solve step" style="display:block;font-size:21px">მოსწავლე — <b>ერთი რამ</b>. ერთ ცვლადში უნდა ცხოვრობდეს: <code class="i">Student ana</code></div>
+    </div>
+  </div>
+  <aside class="study">
+### პრობლემა: ერთი მოსწავლე — სამ სხვადასხვა მასივში
+
+```csharp Program.cs · ჩვენი ცოდნით
+string[] names = { "ნიკა", "ანა", "ლუკა" };
+int[] ages = { 16, 15, 17 };
+double[] averages = { 8.5, 9.2, 7.8 };
+
+PrintStudent(names[1], ages[1], averages[1]);
+
+void PrintStudent(string name, int age, double average)
+{
+    Console.WriteLine($"{name}, {age} წლის, საშუალო {average}");
+}
+```
+
+- 🧩 ანას მონაცემები სამ ადგილასაა — მხოლოდ ინდექსი `1` აკავშირებს მათ.
+- 🔀 `names` ანბანით დაალაგე? ასაკები და ქულები სხვა მოსწავლეებს „მიეწებება“.
+- 📋 დაამატე ტელეფონი, მისამართი, კლასი… მეთოდს 10 პარამეტრი დასჭირდება.
+
+მოსწავლე **ერთი რამაა** — და ერთ ცვლადში უნდა ცხოვრობდეს. ამისთვის საკუთარ ტიპს შევქმნით: `Student`.
+  </aside>
+</section>
+<section class="slide divider" data-section="1 · კლასი და ობიექტი">
+  <div class="vcenter">
+    <div class="kicker in">ნაწილი 1</div>
+    <h1 class="in" style="--d:.1s">კლასი და ობიექტი:<br><span class="grad">ნახაზი და სახლი</span></h1>
+    <p class="lead mt in" style="--d:.3s">საკუთარი ტიპი — int-ისა და string-ის გვერდით</p>
+  </div>
+  <div class="big-num">01</div>
+  <aside class="study">
+## ნაწილი 1 · კლასი და ობიექტი
+
+საკუთარი ტიპი — `int`-ისა და `string`-ის გვერდით.
+  </aside>
+</section>
+<section class="slide" data-section="1 · კლასი და ობიექტი">
+  <div class="kicker">მთავარი იდეა</div>
+  <h2>კლასი = <span class="grad">ნახაზი</span> · ობიექტი = <span class="grad">სახლი</span></h2>
+  <div class="flowrow" style="margin-top:30px">
+    <div class="fbox in" style="--a:var(--net)"><div class="e">📐</div><div class="l">class Student</div><div class="s">Name · Age · Average</div><p class="small" style="margin-top:8px">ერთი ნახაზი — <b>რა</b> აქვს ყველა მოსწავლეს</p></div>
+    <div class="farrow step fade" style="--a:var(--net);min-width:120px"><span class="ar">→</span>new</div>
+    <div class="col" style="gap:12px;flex:1.2">
+      <div class="fbox step zoom" data-with style="--a:var(--mvc);padding:12px"><div class="l">🧑 nika</div><div class="s">"ნიკა" · 16 · 8.5</div></div>
+      <div class="fbox step zoom" data-with style="--a:var(--mvc);padding:12px"><div class="l">👩 ana</div><div class="s">"ანა" · 15 · 9.2</div></div>
+      <div class="fbox step zoom" data-with style="--a:var(--mvc);padding:12px"><div class="l">🧑 luka</div><div class="s">"ლუკა" · 17 · 7.8</div></div>
+    </div>
+  </div>
+  <div class="grid2 mt" style="gap:20px">
+    <div class="callout step" style="--a:var(--net);font-size:20px">ნახაზში <b>ვერ იცხოვრებ</b> — ის მხოლოდ ამბობს, რა უნდა ჰქონდეს სახლს. კლასიც ასეა: მონაცემი მხოლოდ <b>ობიექტში</b> ინახება</div>
+    <div class="callout step" style="--a:var(--pink);font-size:20px">Angular-ში ეს <b>უკვე</b> ნახეთ: <code class="i">export class ProductListComponent</code> — კლასი. Angular მისგან ობიექტს ქმნის</div>
+  </div>
+  <aside class="study">
+### კლასი = ნახაზი · ობიექტი = სახლი
+
+- **კლასი** (`class Student`) — ნახაზი: ამბობს, **რა** აქვს ყველა მოსწავლეს — სახელი, ასაკი, საშუალო.
+- **ობიექტი** — ამ ნახაზით აშენებული ნამდვილი მოსწავლე, თავისი მონაცემებით: ნიკა, 16, 8.5.
+- ერთი კლასიდან — რამდენიც გინდა ობიექტი. ობიექტს `new` ქმნის.
+
+ნახაზში ვერ იცხოვრებ. კლასიც ასეა: მონაცემი მხოლოდ ობიექტში ინახება.
+
+Angular-ში ეს უკვე ნახე: `export class ProductListComponent` — კლასია, და Angular მისგან ობიექტს ქმნის, როცა კომპონენტი გვერდზე ჩნდება.
+
+```terms
+კლასი — ნახაზი: რა მონაცემები და მოქმედებები აქვს ამ ტიპს
+ობიექტი — კლასით შექმნილი კონკრეტული „რამ“ საკუთარი მონაცემებით
+```
+  </aside>
+</section>
+<section class="slide" data-section="1 · კლასი და ობიექტი">
+  <div class="kicker">პირველი კლასი</div>
+  <h2><code class="i" style="font-size:1em">class</code> <span class="muted">+</span> <code class="i" style="font-size:1em">new</code></h2>
+  <div class="grid2" style="gap:26px;align-items:start;margin-top:6px">
+    <div class="col" style="gap:12px">
+      <code-block id="st1" lang="csharp" title="Student.cs">
+public class Student
+{
+    public string Name { get; set; } = "";
+    public int Age { get; set; }
+    public double Average { get; set; }
+}
+      </code-block>
+      <div class="callout step" style="--a:var(--net);font-size:18px"><b>property</b> — ობიექტის მონაცემი. <code class="i">{ get; set; }</code> — წაკითხვაც და შეცვლაც შეიძლება · <code class="i">public</code> — გარედან ჩანს</div>
+      <div class="callout step" style="--a:var(--asp);font-size:18px"><code class="i">= ""</code> — დასაწყისში ცარიელი ტექსტი, რომ სახელი „არაფერი“ არ იყოს</div>
+    </div>
+    <div class="col" style="gap:12px">
+      <code-block id="st1p" lang="csharp" cls="step" title="Program.cs">
+Student nika = new Student();
+nika.Name = "ნიკა";
+nika.Age = 16;
+nika.Average = 8.5;
+
+Console.WriteLine($"{nika.Name}, {nika.Age} წლის");
+      </code-block>
+      <div class="callout step" style="--a:var(--mvc);font-size:18px"><code class="i">Student</code> — ახალი <b>ტიპი</b>, როგორც <code class="i">int</code>. <code class="i">new Student()</code> — ახალი ობიექტი. წერტილი <code class="i">.</code> — „ნიკას სახელი“</div>
+      <div class="vsline step" style="grid-template-columns:1fr 40px 1fr"><div class="js" style="font-size:16px">class Student { name: string; }</div><div class="ar">→</div><div class="cs" style="font-size:16px">public string Name { get; set; }</div></div>
+    </div>
+  </div>
+  <aside class="study">
+### პირველი კლასი: class + new
+
+```csharp Student.cs
+public class Student
+{
+    public string Name { get; set; } = "";
+    public int Age { get; set; }
+    public double Average { get; set; }
+}
+```
+
+- **property** (თვისება) — ობიექტის მონაცემი: `Name`, `Age`, `Average`. სახელი — დიდი ასოთი.
+- `{ get; set; }` — წაკითხვაც (get) და შეცვლაც (set) შეიძლება.
+- `public` — კლასის გარედან ჩანს.
+- `= ""` — სახელი დასაწყისში ცარიელი ტექსტია და არა „არაფერი“.
+
+```csharp Program.cs
+Student nika = new Student();
+nika.Name = "ნიკა";
+nika.Age = 16;
+nika.Average = 8.5;
+
+Console.WriteLine($"{nika.Name}, {nika.Age} წლის");
+```
+
+- `Student` — ახალი **ტიპი**, ისევე როგორც `int` ან `string`.
+- `new Student()` — ახალი ობიექტი. `nika.Name` — „ნიკას სახელი“.
+
+TypeScript-ში: `class Student { name: string; age: number; }` — იდეა იგივეა.
+  </aside>
+</section>
+<section class="slide" data-section="1 · კლასი და ობიექტი">
+  <div class="kicker c-mvc">⌨️ ერთად · Visual Studio</div>
+  <h2>ერთი კლასი — <span class="grad">ერთი ფაილი</span></h2>
+  <div class="grid2" style="grid-template-columns:1.15fr 1fr;gap:36px;align-items:start;margin-top:10px">
+    <ul class="check">
+      <li class="step">Solution Explorer → <b>პროექტზე</b> მარჯვენა ღილაკი</li>
+      <li class="step"><b>Add</b> → <b>Class…</b></li>
+      <li class="step">სახელი: <b class="mono">Student.cs</b> → <b>Add</b></li>
+      <li class="step">VS-ის ჩაწერილი ტექსტი <b>შეცვალე</b> ჩვენი კლასით</li>
+    </ul>
+    <div class="col" style="gap:14px">
+      <div class="mock in" style="--d:.3s"><div class="mh">Solution Explorer</div><div class="mb">
+        <div class="tree">
+          <span class="n">📁 Solution 'SchoolApp'</span>
+          <span class="n lvl1 hi">💜 SchoolApp</span>
+          <span class="n lvl2">🔗 Dependencies</span>
+          <span class="n lvl2">📄 Program.cs</span>
+          <span class="n lvl2 hi">📄 Student.cs <span class="c-mvc">← ახალი</span></span>
+        </div></div></div>
+      <div class="callout step" style="--a:var(--pink);font-size:19px">Angular-შიც ყოველ კომპონენტს <b>თავისი ფაილი</b> ჰქონდა — იგივე იდეა</div>
+    </div>
+  </div>
+  <div class="callout step mt" style="--a:var(--asp);font-size:20px">⚠️ VS ფაილის თავში წერს <code class="i">namespace SchoolApp</code>-ს. ჯერ <b>წაშალე</b> — ან Program.cs-ის პირველ ხაზზე დაწერე <code class="i">using SchoolApp;</code>. namespace-ებს მოგვიანებით ავხსნით</div>
+  <aside class="study">
+### ერთი კლასი — ერთი ფაილი
+
+1. Solution Explorer → **პროექტზე** მარჯვენა ღილაკი
+2. **Add** → **Class…**
+3. სახელი: **Student.cs** → **Add**
+4. VS-ის ჩაწერილი ტექსტი შეცვალე ჩვენი კლასით
+
+ფაილის სახელი = კლასის სახელი. Angular-შიც ყოველ კომპონენტს თავისი ფაილი ჰქონდა — იგივე იდეა.
+
+```warn
+VS ახალი ფაილის თავში წერს `namespace SchoolApp`-ს (შენი პროექტის სახელით). ამის გამო Program.cs კლასს ვერ „დაინახავს“. ორი გზა: ეს ხაზი წაშალე, ან Program.cs-ის პირველ ხაზზე დაწერე `using SchoolApp;`. namespace-ებს მოგვიანებით ავხსნით.
+```
+  </aside>
+</section>
+<section class="slide" data-section="1 · კლასი და ობიექტი">
+  <div class="kicker">ყოველ ობიექტს — საკუთარი მონაცემები</div>
+  <h2>ერთი ნახაზი — <span class="grad">ბევრი ობიექტი</span></h2>
+  <div class="grid2" style="grid-template-columns:1.25fr 1fr;gap:30px;align-items:start;margin-top:8px">
+    <code-block id="many" lang="csharp" title="Program.cs">
+Student ana = new Student { Name = "ანა", Age = 15, Average = 9.2 };
+Student luka = new Student { Name = "ლუკა", Age = 17, Average = 7.8 };
+
+ana.Average = 9.5;   // მხოლოდ ანა შეიცვალა
+
+Console.WriteLine(ana.Average);    // 9.5
+Console.WriteLine(luka.Average);   // 7.8
+    </code-block>
+    <div class="col" style="gap:12px">
+      <i class="codestep" data-for="many" data-lines="1-2"></i>
+      <div class="callout step" data-with style="--a:var(--net);font-size:19px"><code class="i">{ Name = …, Age = … }</code> — შექმნა და შევსება <b>ერთ ხაზში</b></div>
+      <i class="codestep" data-for="many" data-lines="4"></i>
+      <div class="callout step" data-with style="--a:var(--asp);font-size:19px">ანა და ლუკა — <b>ორი ცალკე ობიექტი</b>. ერთის შეცვლა მეორეს არ ეხება</div>
+      <div class="vsline step" style="grid-template-columns:1fr 40px 1fr"><div class="js" style="font-size:16px">{ name: "ანა", age: 15 }</div><div class="ar">→</div><div class="cs" style="font-size:16px">new Student { Name = "ანა" }</div></div>
+      <div class="callout step" style="--a:var(--red);font-size:18px"><code class="i">Nmae = "ანა"</code>? JS ჩუმად <b>ახალ ველს</b> შექმნიდა. C# — <b>წითელი ხაზი</b>: Student-ს ასეთი რამ არ აქვს</div>
+    </div>
+  </div>
+  <aside class="study">
+### ერთი ნახაზი — ბევრი ობიექტი
+
+```csharp Program.cs
+Student ana = new Student { Name = "ანა", Age = 15, Average = 9.2 };
+Student luka = new Student { Name = "ლუკა", Age = 17, Average = 7.8 };
+
+ana.Average = 9.5;   // მხოლოდ ანა შეიცვალა
+
+Console.WriteLine(ana.Average);    // 9.5
+Console.WriteLine(luka.Average);   // 7.8
+```
+
+- `new Student { Name = "ანა", Age = 15 }` — შექმნა და შევსება ერთ ხაზში. JS-ის `{ name: "ანა", age: 15 }`-ს ჰგავს.
+- ანა და ლუკა ორი ცალკე ობიექტია — ერთის შეცვლა მეორეს არ ეხება.
+- შეცდომით `Nmae` დაწერე? JS ჩუმად ახალ ველს შექმნიდა; C# წითელ ხაზს გაჩვენებს — Student-ს ასეთი property არ აქვს.
+  </aside>
+</section>
+<section class="slide divider" data-section="2 · ქცევა">
+  <div class="vcenter">
+    <div class="kicker in">ნაწილი 2</div>
+    <h1 class="in" style="--d:.1s">ობიექტი, რომელიც<br><span class="grad">თვითონ მოქმედებს</span></h1>
+    <p class="lead mt in" style="--d:.3s">მეთოდები კლასში · კონსტრუქტორი · private</p>
+  </div>
+  <div class="big-num">02</div>
+  <aside class="study">
+## ნაწილი 2 · ობიექტი, რომელიც თვითონ მოქმედებს
+
+მეთოდები კლასში, კონსტრუქტორი და `private`.
+  </aside>
+</section>
+<section class="slide" data-section="2 · ქცევა">
+  <div class="kicker">მეთოდი კლასის შიგნით</div>
+  <h2>ობიექტი <span class="grad">თავის მონაცემებს</span> იცნობს</h2>
+  <div class="grid2" style="grid-template-columns:1.3fr 1fr;gap:26px;align-items:start;margin-top:6px">
+    <code-block id="sm" lang="csharp" cls="sm" title="Student.cs">
+public class Student
+{
+    public string Name { get; set; } = "";
+    public int Age { get; set; }
+    public double Average { get; set; }
+
+    public void Introduce()
+    {
+        Console.WriteLine($"გამარჯობა, მე ვარ {Name}, {Age} წლის");
+    }
+
+    public bool IsExcellent()
+    {
+        return Average >= 9;
+    }
+}
+    </code-block>
+    <div class="col" style="gap:12px">
+      <code-block id="smp" lang="csharp" cls="step" title="Program.cs">
+ana.Introduce();
+luka.Introduce();
+
+if (ana.IsExcellent())
+{
+    Console.WriteLine("🌟 ფრიადოსანი!");
+}
+      </code-block>
+      <div class="callout step" style="--a:var(--net);font-size:19px"><code class="i">Introduce()</code>-ს <b>პარამეტრები არ სჭირდება</b> — <code class="i">Name</code> და <code class="i">Age</code> იმ ობიექტისაა, რომელზეც გამოიძახე</div>
+      <div class="callout step" style="--a:var(--asp);font-size:19px">გაიხსენე <code class="i">PrintStudent(name, age, average)</code> — სამი პარამეტრი. ახლა: <code class="i">ana.Introduce()</code></div>
+      <div class="callout step" style="--a:var(--pink);font-size:19px">Angular: <code class="i">addToCart()</code> იყენებდა <code class="i">this.items</code>-ს — იგივე იდეა</div>
+    </div>
+  </div>
+  <aside class="study">
+### მეთოდი კლასის შიგნით
+
+```csharp Student.cs
+public class Student
+{
+    public string Name { get; set; } = "";
+    public int Age { get; set; }
+    public double Average { get; set; }
+
+    public void Introduce()
+    {
+        Console.WriteLine($"გამარჯობა, მე ვარ {Name}, {Age} წლის");
+    }
+
+    public bool IsExcellent()
+    {
+        return Average >= 9;
+    }
+}
+```
+
+```csharp Program.cs
+ana.Introduce();      // გამარჯობა, მე ვარ ანა, 15 წლის
+luka.Introduce();     // გამარჯობა, მე ვარ ლუკა, 17 წლის
+
+if (ana.IsExcellent())
+{
+    Console.WriteLine("🌟 ფრიადოსანი!");
+}
+```
+
+- `Introduce()`-ს პარამეტრები არ სჭირდება: `Name` და `Age` იმ ობიექტისაა, რომელზეც გამოიძახე. `ana.Introduce()` — ანას სახელს ბეჭდავს, `luka.Introduce()` — ლუკასას.
+- გაიხსენე ლექციის დასაწყისი: `PrintStudent(name, age, average)` — სამი პარამეტრი. ახლა მონაცემი და მოქმედება **ერთადაა**.
+- Angular-ში კომპონენტის მეთოდი (`addToCart()`) იყენებდა `this.items`-ს — იგივე იდეა.
+  </aside>
+</section>
+<section class="slide" data-section="2 · ქცევა">
+  <div class="kicker">კონსტრუქტორი</div>
+  <h2>ობიექტი <span class="grad">ცარიელი არ დაიბადება</span></h2>
+  <div class="grid2" style="grid-template-columns:1.25fr 1fr;gap:28px;align-items:start;margin-top:6px">
+    <code-block id="ctor" lang="csharp" cls="sm" title="Student.cs">
+public class Student
+{
+    public string Name { get; set; }
+    public int Age { get; set; }
+    public double Average { get; set; }
+
+    public Student(string name, int age, double average)
+    {
+        Name = name;
+        Age = age;
+        Average = average;
+    }
+
+    // Introduce() და IsExcellent() — უცვლელად
+}
+    </code-block>
+    <div class="col" style="gap:12px">
+      <i class="codestep" data-for="ctor" data-lines="7"></i>
+      <div class="callout step" data-with style="--a:var(--net);font-size:19px">კლასის <b>სახელი</b>, დასაბრუნებელი ტიპის <b>გარეშე</b>. სრულდება <code class="i">new</code>-ის დროს</div>
+      <code-block id="ctorp" lang="csharp" cls="step" title="Program.cs">
+Student nika = new Student("ნიკა", 16, 8.5);
+Student x = new Student();   // ❌
+      </code-block>
+      <div class="callout step" style="--a:var(--red);font-size:19px">სახელის გარეშე მოსწავლეს <b>ვეღარ შექმნი</b> — კომპილატორი არ მოგცემს</div>
+      <div class="vsline step" style="grid-template-columns:1fr 40px 1fr"><div class="js" style="font-size:16px">constructor(name: string)</div><div class="ar">→</div><div class="cs" style="font-size:16px">public Student(string name)</div></div>
+    </div>
+  </div>
+  <aside class="study">
+### კონსტრუქტორი: ობიექტი ცარიელი არ დაიბადება
+
+```csharp Student.cs
+public class Student
+{
+    public string Name { get; set; }
+    public int Age { get; set; }
+    public double Average { get; set; }
+
+    public Student(string name, int age, double average)
+    {
+        Name = name;
+        Age = age;
+        Average = average;
+    }
+
+    // Introduce() და IsExcellent() — უცვლელად
+}
+```
+
+```csharp Program.cs
+Student nika = new Student("ნიკა", 16, 8.5);
+Student x = new Student();   // ❌ სახელი, ასაკი და საშუალო აკლია
+```
+
+- **კონსტრუქტორი** — სპეციალური მეთოდი: სახელი = კლასის სახელი, დასაბრუნებელი ტიპი არ აქვს. სრულდება `new`-ის დროს.
+- პარამეტრები (`name` — პატარა ასოთი) ჩადის property-ებში (`Name` — დიდი ასოთი).
+- სახელის გარეშე მოსწავლეს ვეღარ შექმნი — კომპილატორი არ მოგცემს. `= ""` აღარ გვჭირდება.
+
+TypeScript-ში: `constructor(name: string) { this.name = name; }` — იგივე იდეა.
+  </aside>
+</section>
+<section class="slide" data-section="2 · ქცევა">
+  <div class="kicker">private — მონაცემების დაცვა</div>
+  <h2>🛡️ გმირს <span class="c-red">ჩიტერი</span> ეწვია</h2>
+  <div class="grid2" style="grid-template-columns:1.3fr 1fr;gap:26px;align-items:start;margin-top:4px">
+    <code-block id="hero" lang="csharp" cls="xs" title="Hero.cs">
+public class Hero
+{
+    public string Name { get; }
+    public int Health { get; private set; }
+
+    public Hero(string name, int health)
+    {
+        Name = name;
+        Health = health;
+    }
+
+    public void TakeDamage(int damage)
+    {
+        Health -= damage;
+        if (Health < 0)
+        {
+            Health = 0;
+        }
+    }
+
+    public bool IsAlive()
+    {
+        return Health > 0;
+    }
+}
+    </code-block>
+    <div class="col" style="gap:12px">
+      <div class="term in" style="--d:.2s"><div class="bar"><i></i><i></i><i></i><span>Program.cs · public set-ით</span></div><div class="body" style="font-size:17px">hero.Health = -500;   <span class="usr">// 😱</span><br>hero.Health = 99999;  <span class="usr">// 😈 ჩიტერი</span></div></div>
+      <i class="codestep" data-for="hero" data-lines="4"></i>
+      <div class="callout step" data-with style="--a:var(--net);font-size:18px"><code class="i">private set</code> — წაკითხვა ყველას შეუძლია, შეცვლა — <b>მხოლოდ კლასის შიგნიდან</b>. <code class="i">hero.Health = 99999;</code> → ❌</div>
+      <i class="codestep" data-for="hero" data-lines="12-19"></i>
+      <div class="callout step" data-with style="--a:var(--mvc);font-size:18px">სიცოცხლე იცვლება მხოლოდ <b>მეთოდით</b>, რომელიც წესს იცავს: 0-ზე ნაკლები ვერ გახდება</div>
+      <i class="codestep" data-for="hero" data-lines="3"></i>
+      <div class="callout step" data-with style="--a:var(--asp);font-size:18px"><code class="i">{ get; }</code> — მხოლოდ წაკითხვა. სახელი კონსტრუქტორში ჩაიწერება და მორჩა</div>
+      <div class="solve step" style="display:block;font-size:18px">გახსოვს ლექცია 1? Backend ფასს იცავს ბრაუზერისგან. კლასი — <b>თავის მონაცემებს</b></div>
+    </div>
+  </div>
+  <aside class="study">
+### private — მონაცემების დაცვა
+
+თუ `Health`-ს ყველას შეუძლია შეცვლა, ერთი ხაზით გაფუჭდება თამაში:
+
+```csharp Program.cs
+hero.Health = -500;   // 😱
+hero.Health = 99999;  // 😈 ჩიტერი
+```
+
+გამოსავალი — მონაცემი შეიცვალოს მხოლოდ კლასის შიგნიდან, მეთოდით, რომელიც წესებს იცავს:
+
+```csharp Hero.cs
+public class Hero
+{
+    public string Name { get; }
+    public int Health { get; private set; }
+
+    public Hero(string name, int health)
+    {
+        Name = name;
+        Health = health;
+    }
+
+    public void TakeDamage(int damage)
+    {
+        Health -= damage;
+        if (Health < 0)
+        {
+            Health = 0;
+        }
+    }
+
+    public bool IsAlive()
+    {
+        return Health > 0;
+    }
+}
+```
+
+| ჩანაწერი | წაკითხვა | შეცვლა |
+|---|---|---|
+| `{ get; set; }` | ყველგან | ყველგან |
+| `{ get; private set; }` | ყველგან | მხოლოდ კლასის შიგნით |
+| `{ get; }` | ყველგან | მხოლოდ კონსტრუქტორში |
+
+- `hero.Health = 99999;` → ❌ შეცდომა. სიცოცხლე იცვლება მხოლოდ `TakeDamage`-ით — და 0-ზე ნაკლები ვერ გახდება.
+- გახსოვს ლექცია 1? Backend ფასს იცავს ბრაუზერისგან. კლასი იცავს თავის მონაცემებს. ამას ჰქვია **ინკაფსულაცია**.
+
+```terms
+private — მხოლოდ კლასის შიგნიდან ხელმისაწვდომი
+ინკაფსულაცია — მონაცემი იმალება, შეცვლა მხოლოდ კლასის მეთოდებით, წესების დაცვით
+```
+  </aside>
+</section>
+<section class="slide divider" data-section="3 · ობიექტები ერთად">
+  <div class="vcenter">
+    <div class="kicker in">ნაწილი 3</div>
+    <h1 class="in" style="--d:.1s">ობიექტები<br><span class="grad">ერთად</span></h1>
+    <p class="lead mt in" style="--d:.3s">ობიექტების მასივი — და ბრძოლა ⚔️</p>
+  </div>
+  <div class="big-num">03</div>
+  <aside class="study">
+## ნაწილი 3 · ობიექტები ერთად
+
+ობიექტების მასივი — და ბრძოლა, სადაც ერთი კლასიდან ორი გმირი იბრძვის.
+  </aside>
+</section>
+<section class="slide" data-section="3 · ობიექტები ერთად">
+  <div class="kicker">ობიექტების მასივი</div>
+  <h2>სამი მასივის ნაცვლად — <span class="grad">ერთი</span></h2>
+  <div class="grid2" style="grid-template-columns:1.3fr 1fr;gap:26px;align-items:start;margin-top:6px">
+    <code-block id="arr" lang="csharp" cls="sm" title="Program.cs">
+Student[] students =
+{
+    new Student("ნიკა", 16, 8.5),
+    new Student("ანა", 15, 9.2),
+    new Student("ლუკა", 17, 7.8)
+};
+
+Student best = students[0];
+
+foreach (Student s in students)
+{
+    s.Introduce();
+    if (s.Average > best.Average)
+    {
+        best = s;
+    }
+}
+
+Console.WriteLine($"🏆 საუკეთესო: {best.Name}");
+    </code-block>
+    <div class="col" style="gap:12px">
+      <i class="codestep" data-for="arr" data-lines="1-6"></i>
+      <div class="callout step" data-with style="--a:var(--net);font-size:19px"><code class="i">Student[]</code> — ისევე როგორც <code class="i">int[]</code>. ყოველი ელემენტი — <b>მთელი მოსწავლე</b></div>
+      <i class="codestep" data-for="arr" data-lines="10-17"></i>
+      <div class="callout step" data-with style="--a:var(--asp);font-size:19px">foreach + მეთოდი + if — ყველაფერი, რაც ვისწავლეთ, <b>ერთად</b></div>
+      <div class="solve step" style="display:block;font-size:19px">დაალაგე, წაშალე, დაამატე — მოსწავლის მონაცემები <b>ვეღარ აირევა</b></div>
+    </div>
+  </div>
+  <aside class="study">
+### ობიექტების მასივი: სამი მასივის ნაცვლად — ერთი
+
+```csharp Program.cs
+Student[] students =
+{
+    new Student("ნიკა", 16, 8.5),
+    new Student("ანა", 15, 9.2),
+    new Student("ლუკა", 17, 7.8)
+};
+
+Student best = students[0];
+
+foreach (Student s in students)
+{
+    s.Introduce();
+    if (s.Average > best.Average)
+    {
+        best = s;
+    }
+}
+
+Console.WriteLine($"🏆 საუკეთესო: {best.Name}");
+```
+
+- `Student[]` — ისევე როგორც `int[]`, ოღონდ ყოველი ელემენტი მთელი მოსწავლეა.
+- ლექციის დასაწყისის `names[]`, `ages[]`, `averages[]` — ერთ მასივად იქცა. მოსწავლის მონაცემები ვეღარ აირევა.
+- foreach, if, მეთოდი, ობიექტი — ყველაფერი ერთად.
+  </aside>
+</section>
+<section class="slide" data-section="3 · ობიექტები ერთად">
+  <div class="kicker c-mvc">⌨️ ერთად ვწერთ · მინი-თამაში</div>
+  <h2>⚔️ რაინდი <span class="muted">vs</span> 🐉 დრაკონი</h2>
+  <div class="grid2" style="grid-template-columns:1.4fr 1fr;gap:22px;align-items:start">
+    <code-block id="battle" lang="csharp" cls="xs" title="Program.cs">
+Hero knight = new Hero("რაინდი", 100);
+Hero dragon = new Hero("დრაკონი", 120);
+int round = 1;
+
+while (knight.IsAlive() && dragon.IsAlive())
+{
+    Console.WriteLine($"── რაუნდი {round} ── 🛡️ {knight.Health} | 🐉 {dragon.Health}");
+
+    int damage = knight.Attack();
+    dragon.TakeDamage(damage);
+    Console.WriteLine($"⚔️ {knight.Name} → {damage}");
+
+    if (dragon.IsAlive())
+    {
+        damage = dragon.Attack();
+        knight.TakeDamage(damage);
+        Console.WriteLine($"🔥 {dragon.Name} → {damage}");
+    }
+
+    round++;
+    Thread.Sleep(600);
+}
+
+Console.WriteLine(knight.IsAlive() ? "🏆 რაინდმა გაიმარჯვა!" : "💀 დრაკონმა გაიმარჯვა...");
+    </code-block>
+    <div class="col" style="gap:12px">
+      <code-block id="atk" lang="csharp" cls="step" title="Hero.cs — ერთი ახალი მეთოდი">
+public int Attack()
+{
+    return Random.Shared.Next(5, 21);
+}
+      </code-block>
+      <i class="codestep" data-for="battle" data-lines="1-2"></i>
+      <div class="callout step" data-with style="--a:var(--net);font-size:18px"><b>ერთი კლასი — ორი ობიექტი</b>, თავ-თავისი სახელით და სიცოცხლით</div>
+      <i class="codestep" data-for="battle" data-lines="5"></i>
+      <div class="callout step" data-with style="--a:var(--asp);font-size:18px">კითხვას <b>ობიექტს</b> ვუსვამთ: „ცოცხალი ხარ?“</div>
+      <div class="term step"><div class="bar"><i></i><i></i><i></i><span>Console</span></div><div class="body" style="font-size:15px">── რაუნდი 1 ── 🛡️ 100 | 🐉 120<br>⚔️ რაინდი → 17<br>🔥 დრაკონი → 9<br>…<br><span class="g">🏆 რაინდმა გაიმარჯვა!</span></div></div>
+    </div>
+  </div>
+  <aside class="study">
+### ⚔️ მინი-თამაში: რაინდი vs დრაკონი
+
+`Hero.cs`-ს ერთი მეთოდი ემატება:
+
+```csharp Hero.cs — ახალი მეთოდი
+public int Attack()
+{
+    return Random.Shared.Next(5, 21);
+}
+```
+
+```csharp Program.cs
+Hero knight = new Hero("რაინდი", 100);
+Hero dragon = new Hero("დრაკონი", 120);
+int round = 1;
+
+while (knight.IsAlive() && dragon.IsAlive())
+{
+    Console.WriteLine($"── რაუნდი {round} ── 🛡️ {knight.Health} | 🐉 {dragon.Health}");
+
+    int damage = knight.Attack();
+    dragon.TakeDamage(damage);
+    Console.WriteLine($"⚔️ {knight.Name} → {damage}");
+
+    if (dragon.IsAlive())
+    {
+        damage = dragon.Attack();
+        knight.TakeDamage(damage);
+        Console.WriteLine($"🔥 {dragon.Name} → {damage}");
+    }
+
+    round++;
+    Thread.Sleep(600);
+}
+
+Console.WriteLine(knight.IsAlive() ? "🏆 რაინდმა გაიმარჯვა!" : "💀 დრაკონმა გაიმარჯვა...");
+```
+
+- **ერთი კლასი — ორი ობიექტი**: რაინდი და დრაკონი, თავ-თავისი სახელით და სიცოცხლით.
+- კითხვას ობიექტს ვუსვამთ: `knight.IsAlive()` — „ცოცხალი ხარ?“
+- `TakeDamage` იცავს წესს — სიცოცხლე 0-ზე ნაკლები ვერ გახდება.
+- აქ ხუთივე ლექციაა: ცვლადები, პირობები, ციკლი, მეთოდები, კლასები.
+
+```prompt თამაშის გაუმჯობესება
+ვსწავლობ C#-ს: ვიცი ცვლადები, if/switch, ციკლები, მასივები, მეთოდები და კლასები (property, კონსტრუქტორი, private set). დავწერე „რაინდი vs დრაკონი“ Hero კლასით.
+მომეცი 3 იდეა გასაუმჯობესებლად (მაგ. განკურნება, კრიტიკული დარტყმა, მოთამაშის არჩევანი) — თითოეულისთვის მხოლოდ მინიშნება, რომელ კლასში რა დავამატო, მზა კოდის გარეშე. ქართულად.
+```
+  </aside>
+</section>
+<section class="slide" data-section="3 · ობიექტები ერთად">
+  <div class="kicker">შევაჯამოთ</div>
+  <h2>კლასი <span class="muted">vs</span> <span class="grad">ობიექტი</span></h2>
+  <table class="t" style="font-size:21px;margin-top:14px">
+    <tr><th style="width:24%"></th><th style="width:38%">კლასი · <span class="c-net">class Hero</span></th><th>ობიექტი · <span class="c-mvc">knight</span></th></tr>
+    <tr class="step fade"><td>რა არის</td><td>ნახაზი</td><td>ნახაზით შექმნილი „რამ“</td></tr>
+    <tr class="step fade"><td>რამდენი</td><td>ერთი</td><td>რამდენიც გინდა</td></tr>
+    <tr class="step fade"><td>როგორ ჩნდება</td><td>ვწერთ ფაილში: <code class="i">Hero.cs</code></td><td><code class="i">new Hero("რაინდი", 100)</code></td></tr>
+    <tr class="step fade"><td>მონაცემები</td><td>ამბობს, <b>რა</b> უნდა ჰქონდეს</td><td>ინახავს <b>კონკრეტულ</b> მნიშვნელობებს</td></tr>
+  </table>
+  <div class="solve step mt" style="display:block;text-align:center;font-size:23px">ცვლადი · პირობა · ციკლი · მეთოდი · კლასი — <b>ამ ხუთზე</b> დგას ყველაფერი, რასაც შემდეგ ავაშენებთ</div>
+  <aside class="study">
+### კლასი vs ობიექტი
+
+| | კლასი · `class Hero` | ობიექტი · `knight` |
+|---|---|---|
+| რა არის | ნახაზი | ნახაზით შექმნილი „რამ“ |
+| რამდენი | ერთი | რამდენიც გინდა |
+| როგორ ჩნდება | ვწერთ ფაილში: `Hero.cs` | `new Hero("რაინდი", 100)` |
+| მონაცემები | ამბობს, **რა** უნდა ჰქონდეს | ინახავს **კონკრეტულ** მნიშვნელობებს |
+
+ცვლადი, პირობა, ციკლი, მეთოდი, კლასი — ამ ხუთზე დგას ყველაფერი, რასაც შემდეგ ავაშენებთ.
+  </aside>
+</section>
+<lecture-classwork/>
+<section class="slide" data-section="შეჯამება">
+  <div class="kicker">📸 სურათი გადაუღეთ</div>
+  <h2>TS <span class="muted">→</span> C# · <span class="grad">კლასები</span></h2>
+  <table class="t" style="font-size:20px;margin-top:6px">
+    <tr><th style="width:40%">TypeScript</th><th style="width:40%">C#</th><th></th></tr>
+    <tr><td class="mono">class Hero { }</td><td class="mono">public class Hero { }</td><td>კლასი · ცალკე ფაილი</td></tr>
+    <tr><td class="mono">name: string;</td><td class="mono">public string Name { get; set; }</td><td>property</td></tr>
+    <tr><td class="mono">constructor(name: string)</td><td class="mono">public Hero(string name)</td><td>კონსტრუქტორი</td></tr>
+    <tr><td class="mono">this.name</td><td class="mono">Name</td><td>this არ სჭირდება</td></tr>
+    <tr><td class="mono">private hp: number;</td><td class="mono">public int Health { get; private set; }</td><td>დაცვა</td></tr>
+    <tr><td class="mono">new Hero("რაინდი")</td><td class="mono">new Hero("რაინდი", 100)</td><td><span class="same">იგივეა ✓</span></td></tr>
+  </table>
+  <aside class="study">
+### 📸 TS → C# · კლასები
+
+| TypeScript | C# | |
+|---|---|---|
+| `class Hero { }` | `public class Hero { }` | კლასი — ცალკე ფაილში |
+| `name: string;` | `public string Name { get; set; }` | property |
+| `constructor(name: string)` | `public Hero(string name)` | კონსტრუქტორი |
+| `this.name` | `Name` | `this` არ სჭირდება |
+| `private hp: number;` | `public int Health { get; private set; }` | დაცვა |
+| `new Hero("რაინდი")` | `new Hero("რაინდი", 100)` | იგივეა ✓ |
+  </aside>
+</section>
+<lecture-check/>
+<section class="slide" data-section="შეჯამება">
+  <div class="vcenter" style="max-width:1050px">
+    <div class="kicker in" style="color:var(--net)">დღეს</div>
+    <h1 class="in" style="--d:.1s;font-size:62px">საკუთარი ტიპები —<br><span class="grad">საკუთარი სამყარო</span></h1>
+    <div class="grid2 mt2">
+      <div class="card accent step" style="--a:var(--mvc)"><h3><span class="ico">🧠</span>დაიმახსოვრე</h3><ul class="clean small"><li><b>კლასი</b> — ნახაზი · <b>ობიექტი</b> — <code class="i">new</code>-ით შექმნილი</li><li>property — მონაცემი · მეთოდი — მოქმედება · კონსტრუქტორი — დაბადება</li><li><code class="i">private set</code> — მონაცემს მხოლოდ კლასი ცვლის</li></ul></div>
+      <div class="card accent step" style="--a:var(--net)"><h3><span class="ico">⏭️</span>შემდეგ</h3><p class="small">C#-ის საფუძველი მზადაა ✓. ამ ხუთ იარაღზე ავაშენებთ ყველაფერს — მონაცემთა ბაზას, API-ს, თამაშებს</p></div>
+    </div>
+  </div>
+  <div class="abs in" style="--d:.4s;right:110px;top:120px;font-size:120px">🏰</div>
+  <aside class="study">
+## შეჯამება · საკუთარი ტიპები — საკუთარი სამყარო
+
+**დაიმახსოვრე:**
+
+1. **კლასი** — ნახაზი; **ობიექტი** — ამ ნახაზით `new`-ით შექმნილი „რამ“ საკუთარი მონაცემებით.
+2. **property** — მონაცემი (`Name { get; set; }`), **მეთოდი** — მოქმედება (`Introduce()`), **კონსტრუქტორი** — ობიექტის „დაბადება“ საჭირო მონაცემებით.
+3. კლასის მეთოდი იცნობს თავისი ობიექტის მონაცემებს — პარამეტრებად გადაცემა არ სჭირდება.
+4. `private set` — მონაცემს მხოლოდ კლასი ცვლის, თავისი მეთოდებით და წესებით.
+5. ერთი კლასი — ერთი ფაილი.
+
+### ⏭️ შემდეგ
+
+C#-ის საფუძველი მზადაა: ცვლადი, პირობა, ციკლი, მეთოდი, კლასი. ამ ხუთზე ავაშენებთ ყველაფერს — ბაზას, API-ს, თამაშებს.
+  </aside>
+</section>
+<lecture-homework/>
