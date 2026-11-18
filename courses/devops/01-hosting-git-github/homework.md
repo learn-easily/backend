@@ -1,58 +1,57 @@
-# პროექტების გვერდი და README
+# უნარები და hosting.md
 
-my-portfolio — შემდეგ ლექციაზე ინტერნეტში გამოვაქვეყნებთ
+my-portfolio — შემდეგ ლექციაზე GitHub-ზე ავტვირთავთ
 
 ## მოთხოვნები
 
-- branch `feature/projects`: `projects.html` — 2-3 პროექტი (სახელი + მოკლე აღწერა) და ბმული მასზე `index.html`-დან
-- მინიმუმ 2 commit გასაგები მესიჯებით → merge `main`-ში → `git push`
-- `README.md`: რა პროექტია, ვინ ხართ, რა ტექნოლოგიებით არის აწყობილი
-- README-ის ბოლოს: 3 საიტი, რომლითაც ხშირად სარგებლობთ — თქვენი აზრით, სტატიკურია თუ დინამიური, და რატომ
+- `index.html`-ში ბლოკი „ჩემი უნარები“ — სია 4-5 უნარით (`<ul>`), და მისი სტილი `style.css`-ში
+- ფაილი `hosting.md`: 3 საიტი, რომლითაც ხშირად სარგებლობთ — თქვენი აზრით, სტატიკურია თუ დინამიური, და რატომ
+- ყოველი ცვლილება — **ცალკე commit**, გასაგები მესიჯით (მინიმუმ 3 ახალი commit)
 
 ## ✓ მზადაა, როცა
 
-GitHub-ზე `main`-ში ჩანს `projects.html` და `README.md`, ხოლო `git log --oneline --graph`-ში ჩანს branch-ი და merge
+`git log --oneline` აჩვენებს კლასში გაკეთებულ commit-ებს და მათ ზემოთ — მინიმუმ 3 ახალს, ხოლო `git status` წერს `nothing to commit`
 
 ## ⭐ ბონუსი
 
-- ერთი და იგივე ხაზი შეცვალეთ სხვადასხვანაირად ორ branch-ზე → merge → თვითონ გადაჭერით კონფლიქტი
+- `hosting.md`-ში დაამატეთ: თქვენი პორტფოლიოსთვის რომელი ჰოსტინგი აირჩიეთ (სახლი, საერთო ბინა, ნაქირავები ბინა, სასტუმრო) და რატომ
 
 ## ამოხსნა
 
 ```bash ტერმინალი !
-git switch -c feature/projects
-# projects.html შევქმენით
-git add projects.html
-git commit -m "Add projects page"
-# index.html-ში ბმული დავამატეთ
+# index.html-ში "ჩემი უნარები" დავამატეთ
 git add index.html
-git commit -m "Link projects page from home"
+git commit -m "Add skills section"
 
-git switch main
-git merge feature/projects
-git branch -d feature/projects
+# style.css-ში უნარების სტილი
+git add style.css
+git commit -m "Style skills list"
 
-# README.md შევქმენით
-git add README.md
-git commit -m "Add README"
-git push
+# hosting.md შევქმენით
+git add hosting.md
+git commit -m "Add hosting notes"
+
+git log --oneline
+git status
 ```
 
 ```html index.html
-<nav>
-  <a href="index.html">მთავარი</a>
-  <a href="projects.html">პროექტები</a>
-</nav>
+<h2>ჩემი უნარები</h2>
+<ul class="skills">
+  <li>HTML</li>
+  <li>CSS</li>
+  <li>JavaScript</li>
+  <li>Git</li>
+</ul>
 ```
 
-```markdown README.md
-# my-portfolio
+```css style.css
+.skills { display: flex; gap: 10px; list-style: none; padding: 0; }
+.skills li { background: #ede9fe; padding: 6px 14px; border-radius: 20px; }
+```
 
-ჩემი პირადი საიტი — ვინ ვარ და რაზე ვმუშაობ.
-
-**ტექნოლოგიები:** HTML, CSS
-
-## საიტები, რომლებითაც ვსარგებლობ
+```markdown hosting.md
+# საიტები, რომლებითაც ვსარგებლობ
 
 - **Wikipedia** — დინამიური: ყოველ გვერდს ბაზიდან აწყობს, მომხმარებლები არედაქტირებენ
 - **ჩემი ბანკის აპი** — დინამიური: ყველას თავისი ანგარიში და ბალანსი აქვს

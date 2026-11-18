@@ -1,30 +1,31 @@
 # პირველი რეპოზიტორია — my-portfolio
 
-დავალება · თქვენი პორტფოლიო GitHub-ზე
+დავალება · თქვენი პორტფოლიო Git-ში
 
 ## ნაბიჯები
 
+- `git config --global user.name` და `user.email` — თქვენი სახელით
 - საქაღალდე `my-portfolio`: `index.html` (სახელი + 2-3 წინადადება თქვენზე) და `style.css`
 - `git init` და პირველი commit: `"Add home page"`
-- `.env` ფაილი + `.gitignore` (`.env`, `node_modules/`, `.vscode/`) — `git status` `.env`-ს **აღარ** უნდა აჩვენებდეს
-- branch `feature/contacts` → კონტაქტების ბლოკი → commit → merge `main`-ში
-- GitHub-ზე **ცარიელი** რეპო `my-portfolio` → `git remote add origin …` → `git push -u origin main`
+- `index.html`-ში ახალი წინადადება → `git status` (`modified`) → commit `"Update about text"`
+- `style.css`-ში ფერი შეცვალეთ → კიდევ ერთი commit გასაგები მესიჯით
 
 ## ✓ მზადაა, როცა
 
-GitHub-ზე ჩანს `index.html`, `style.css`, `.gitignore` და მინიმუმ 3 commit — `.env` კი **არ** ჩანს
+`git log --oneline` აჩვენებს მინიმუმ 3 commit-ს, თქვენი მესიჯებით
 
 ## ⭐ ბონუსი
 
-- GitHub-ის საიტზე შეცვალეთ ერთი ხაზი (✏️) → ლოკალურად `git pull`
-- `git log --oneline --graph` — აუხსენით გვერდით მჯდომს, რას ხედავთ
+- იგივე ციკლი VS Code-ის **Source Control** პანელით (Ctrl+Shift+G): `+` = add, ✓ = commit
+- `git log` (`--oneline`-ის გარეშე) — იპოვეთ ავტორი და თარიღი. გამოსვლა — **q**
 
 ## 💡 მინიშნება
 
 ```bash
-git switch -c feature/contacts   # ახალი branch + გადასვლა
-git switch main                  # main-ზე დაბრუნება
-git merge feature/contacts       # branch-ის შერწყმა
+git status            # რა მდგომარეობაა?
+git add .             # ყველა ცვლილება staging-ში
+git commit -m "..."   # შენახვა ისტორიაში
+git log --oneline     # ისტორია მოკლედ
 ```
 
 `git status` — ყველაზე ხშირი ბრძანება. როცა არ იცით, რა ხდება — ჯერ ის გაუშვით.
