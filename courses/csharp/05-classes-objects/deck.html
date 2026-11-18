@@ -74,7 +74,7 @@ i.codestep{display:none}
 .gold .verb{font-size:46px;line-height:1}
 </style>
 <!-- =========================================================
-     C# · ლექცია 5 — კლასები და ობიექტები: კლასი Program.cs-ში → მეთოდი კლასში → კონსტრუქტორი(ები) → ცალკე ფაილი → მასივი და ბრძოლა
+     C# · ლექცია 5 — კლასები და ობიექტები: კლასი Program.cs-ში → მეთოდი კლასში → კონსტრუქტორი(ები) → ცალკე ფაილი
      აუდიტორია: სკოლის მოსწავლეები, Frontend (JS/TS/Angular) უკვე გავლილი
      ფერები: Frontend / JS = ვარდისფერი · Backend / C# = იისფერი · ბაზა = ქარვისფერი
              Unity / თამაშები = ზღვისფერი (teal) · წარმატება = მწვანე · შეცდომა = წითელი
@@ -110,14 +110,14 @@ table.t td.mono,table.t th.mono{font-family:var(--mono)}
   <div class="vcenter" style="max-width:860px">
     <div class="kicker in" style="color:var(--net)">C# · ლექცია 5</div>
     <h1 class="in" style="--d:.15s">კლასები და<br><span class="grad">ობიექტები</span></h1>
-    <p class="lead in mt" style="--d:.35s">მონაცემები და მეთოდები — ერთ „ყუთში“, კონსტრუქტორით. ბოლოს რაინდი დრაკონს შეებრძოლება ⚔️🐉</p>
+    <p class="lead in mt" style="--d:.35s">მონაცემები და მეთოდები — ერთ „ყუთში“, კონსტრუქტორით და ცალკე ფაილში</p>
   </div>
   <div class="abs" style="right:110px;top:250px">
     <div class="who" style="flex-direction:column;gap:14px">
-      <div class="bx in" style="--a:var(--net);--d:.4s"><div class="e">📐</div><div class="l">class Hero</div></div>
+      <div class="bx in" style="--a:var(--net);--d:.4s"><div class="e">📐</div><div class="l">class Student</div></div>
       <div style="display:flex;gap:16px">
-        <div class="bx in" style="--a:var(--mvc);--d:.7s;min-width:150px"><div class="e">🛡️</div><div class="l">რაინდი</div></div>
-        <div class="bx in" style="--a:var(--red);--d:.85s;min-width:150px"><div class="e">🐉</div><div class="l">დრაკონი</div></div>
+        <div class="bx in" style="--a:var(--mvc);--d:.7s;min-width:150px"><div class="e">👩</div><div class="l">ანა</div></div>
+        <div class="bx in" style="--a:var(--asp);--d:.85s;min-width:150px"><div class="e">👦</div><div class="l">გიო</div></div>
       </div>
     </div>
   </div>
@@ -836,13 +836,12 @@ CS0111: Type 'Student' already defines a member called 'Student' with the same p
   <div class="vcenter">
     <div class="kicker in">ნაწილი 4</div>
     <h1 class="in" style="--d:.1s">ერთი კლასი —<br><span class="grad">ერთი ფაილი</span></h1>
-    <p class="lead mt in" style="--d:.3s">და ობიექტები ერთად: მასივი და ბრძოლა ⚔️</p>
   </div>
   <div class="big-num">04</div>
   <aside class="study">
 ## ნაწილი 4 · ერთი კლასი — ერთი ფაილი
 
-კლასებს ცალკე ფაილებში გადავიტანთ — და ობიექტებს ერთად ვამუშავებთ: მასივი და ბრძოლა.
+კლასებს ცალკე ფაილებში გადავიტანთ.
   </aside>
 </section>
 <section class="slide" data-section="4 · ცალკე ფაილი">
@@ -948,247 +947,30 @@ namespace SchoolApp
 - `internal` — VS თვითონ წერს; ჯერ უბრალოდ ვტოვებთ.
   </aside>
 </section>
-<section class="slide" data-section="4 · ცალკე ფაილი">
-  <div class="kicker c-mvc">⌨️ ვწერთ · ობიექტების მასივი</div>
-  <h2>ბევრი მოსწავლე — <span class="grad">ერთ მასივში</span></h2>
-  <div class="grid2" style="grid-template-columns:1.3fr 1fr;gap:26px;align-items:start;margin-top:6px">
-    <code-block id="arr" lang="csharp" cls="sm" title="Program.cs · Main">
-Student[] students =
-{
-    new Student("ნიკა", 16, 8.5),
-    new Student("ანა", 15, 9.2),
-    new Student("ლუკა", 17, 7.8)
-};
-
-Student best = students[0];
-
-foreach (Student s in students)
-{
-    s.Introduce();
-    if (s.Average > best.Average)
-    {
-        best = s;
-    }
-}
-
-Console.WriteLine($"🏆 საუკეთესო: {best.Name}");
-    </code-block>
-    <div class="col" style="gap:12px">
-      <i class="codestep" data-for="arr" data-lines="1-6"></i>
-      <div class="callout step" data-with style="--a:var(--net);font-size:19px"><code class="i">Student[]</code> — ისევე როგორც <code class="i">int[]</code>. ყოველი ელემენტი — <b>მთელი მოსწავლე</b>, კონსტრუქტორით</div>
-      <i class="codestep" data-for="arr" data-lines="10-17"></i>
-      <div class="callout step" data-with style="--a:var(--asp);font-size:19px">foreach + მეთოდი + if — ყველაფერი, რაც ვისწავლეთ, <b>ერთად</b></div>
-      <div class="solve step" style="display:block;font-size:19px">დასაწყისში 2 მოსწავლეს <b>6 ცვლადი</b> სჭირდებოდა — ახლა <b>ერთი მასივია</b>. მონაცემები <b>ვეღარ აირევა</b></div>
-    </div>
-  </div>
-  <aside class="study">
-### ობიექტების მასივი: ბევრი მოსწავლე — ერთ მასივში
-
-```csharp Program.cs · Main
-Student[] students =
-{
-    new Student("ნიკა", 16, 8.5),
-    new Student("ანა", 15, 9.2),
-    new Student("ლუკა", 17, 7.8)
-};
-
-Student best = students[0];
-
-foreach (Student s in students)
-{
-    s.Introduce();
-    if (s.Average > best.Average)
-    {
-        best = s;
-    }
-}
-
-Console.WriteLine($"🏆 საუკეთესო: {best.Name}");
-```
-
-- `Student[]` — ისევე როგორც `int[]`, ოღონდ ყოველი ელემენტი მთელი მოსწავლეა.
-- ლექციის დასაწყისში 2 მოსწავლეს 6 ცალკე ცვლადი სჭირდებოდა (`anaName`, `anaAge`…). ახლა ყოველი მოსწავლე ერთი ობიექტია, ყველა ერთად — ერთ მასივში. მონაცემები ვეღარ აირევა.
-  </aside>
-</section>
-<section class="slide" data-section="4 · ცალკე ფაილი">
-  <div class="kicker c-mvc">⌨️ ვწერთ · Hero.cs — ახალი ფაილი</div>
-  <h2>🛡️ გმირის <span class="grad">ნახაზი</span></h2>
-  <div class="grid2" style="grid-template-columns:1.3fr 1fr;gap:26px;align-items:start;margin-top:4px">
-    <code-block id="hero" lang="csharp" cls="xs" title="Hero.cs · namespace-ის შიგნით">
-internal class Hero
-{
-    public string Name { get; set; }
-    public int Health { get; set; }
-
-    public Hero(string name, int health)
-    {
-        Name = name;
-        Health = health;
-    }
-
-    public int Attack()
-    {
-        return Random.Shared.Next(5, 21);
-    }
-
-    public void TakeDamage(int damage)
-    {
-        Health -= damage;
-        if (Health < 0) Health = 0;
-    }
-
-    public bool IsAlive()
-    {
-        return Health > 0;
-    }
-}
-    </code-block>
-    <div class="col" style="gap:12px">
-      <i class="codestep" data-for="hero" data-lines="6-10"></i>
-      <div class="callout step" data-with style="--a:var(--net);font-size:19px"><b>კონსტრუქტორი</b> — გმირი სახელისა და სიცოცხლის გარეშე ვერ დაიბადება</div>
-      <i class="codestep" data-for="hero" data-lines="12-26"></i>
-      <div class="callout step" data-with style="--a:var(--asp);font-size:19px">სამი მეთოდი — <b>თავდასხმა</b>, <b>დაზიანება</b>, <b>ცოცხალია?</b> სიცოცხლე 0-ზე ქვემოთ არ ჩადის</div>
-    </div>
-  </div>
-  <aside class="study">
-### 🛡️ Hero.cs — გმირის ნახაზი
-
-```csharp Hero.cs · namespace-ის შიგნით
-internal class Hero
-{
-    public string Name { get; set; }
-    public int Health { get; set; }
-
-    public Hero(string name, int health)
-    {
-        Name = name;
-        Health = health;
-    }
-
-    public int Attack()
-    {
-        return Random.Shared.Next(5, 21);
-    }
-
-    public void TakeDamage(int damage)
-    {
-        Health -= damage;
-        if (Health < 0) Health = 0;
-    }
-
-    public bool IsAlive()
-    {
-        return Health > 0;
-    }
-}
-```
-
-- **კონსტრუქტორი** — გმირი სახელისა და სიცოცხლის გარეშე ვერ დაიბადება.
-- `Attack()` — 5-დან 20-მდე შემთხვევითი დაზიანება. `TakeDamage` — სიცოცხლეს აკლებს, 0-ზე ქვემოთ არ ჩადის. `IsAlive()` — ცოცხალია?
-  </aside>
-</section>
-<section class="slide" data-section="4 · ცალკე ფაილი">
-  <div class="kicker c-mvc">⌨️ ვწერთ · მინი-თამაში</div>
-  <h2>⚔️ რაინდი <span class="muted">vs</span> 🐉 დრაკონი</h2>
-  <div class="grid2" style="grid-template-columns:1.4fr 1fr;gap:22px;align-items:start">
-    <code-block id="battle" lang="csharp" cls="xs" title="Program.cs · Main">
-Hero knight = new Hero("რაინდი", 100);
-Hero dragon = new Hero("დრაკონი", 120);
-int round = 1;
-
-while (knight.IsAlive() && dragon.IsAlive())
-{
-    Console.WriteLine($"── რაუნდი {round} ── 🛡️ {knight.Health} | 🐉 {dragon.Health}");
-
-    int damage = knight.Attack();
-    dragon.TakeDamage(damage);
-    Console.WriteLine($"⚔️ {knight.Name} → {damage}");
-
-    if (dragon.IsAlive())
-    {
-        damage = dragon.Attack();
-        knight.TakeDamage(damage);
-        Console.WriteLine($"🔥 {dragon.Name} → {damage}");
-    }
-
-    round++;
-    Thread.Sleep(600);
-}
-
-Console.WriteLine(knight.IsAlive() ? "🏆 რაინდმა გაიმარჯვა!" : "💀 დრაკონმა გაიმარჯვა...");
-    </code-block>
-    <div class="col" style="gap:12px">
-      <i class="codestep" data-for="battle" data-lines="1-2"></i>
-      <div class="callout step" data-with style="--a:var(--net);font-size:18px"><b>ერთი კლასი — ორი ობიექტი</b>, თავ-თავისი სახელით და სიცოცხლით</div>
-      <i class="codestep" data-for="battle" data-lines="5"></i>
-      <div class="callout step" data-with style="--a:var(--asp);font-size:18px">კითხვას <b>ობიექტს</b> ვუსვამთ: „ცოცხალი ხარ?“</div>
-      <div class="term step"><div class="bar"><i></i><i></i><i></i><span>Console</span></div><div class="body" style="font-size:15px">── რაუნდი 1 ── 🛡️ 100 | 🐉 120<br>⚔️ რაინდი → 17<br>🔥 დრაკონი → 9<br>…<br><span class="g">🏆 რაინდმა გაიმარჯვა!</span></div></div>
-    </div>
-  </div>
-  <aside class="study">
-### ⚔️ მინი-თამაში: რაინდი vs დრაკონი
-
-```csharp Program.cs · Main
-Hero knight = new Hero("რაინდი", 100);
-Hero dragon = new Hero("დრაკონი", 120);
-int round = 1;
-
-while (knight.IsAlive() && dragon.IsAlive())
-{
-    Console.WriteLine($"── რაუნდი {round} ── 🛡️ {knight.Health} | 🐉 {dragon.Health}");
-
-    int damage = knight.Attack();
-    dragon.TakeDamage(damage);
-    Console.WriteLine($"⚔️ {knight.Name} → {damage}");
-
-    if (dragon.IsAlive())
-    {
-        damage = dragon.Attack();
-        knight.TakeDamage(damage);
-        Console.WriteLine($"🔥 {dragon.Name} → {damage}");
-    }
-
-    round++;
-    Thread.Sleep(600);
-}
-
-Console.WriteLine(knight.IsAlive() ? "🏆 რაინდმა გაიმარჯვა!" : "💀 დრაკონმა გაიმარჯვა...");
-```
-
-- **ერთი კლასი — ორი ობიექტი**: რაინდი და დრაკონი, თავ-თავისი სახელით და სიცოცხლით.
-- კითხვას ობიექტს ვუსვამთ: `knight.IsAlive()` — „ცოცხალი ხარ?“
-- აქ ხუთივე ლექციაა: ცვლადები, პირობები, ციკლი, მეთოდები, კლასები.
-
-```prompt თამაშის გაუმჯობესება
-ვსწავლობ C#-ს: ვიცი ცვლადები, if/switch, ციკლები, მასივები, მეთოდები და კლასები (property, მეთოდები, კონსტრუქტორები). დავწერე „რაინდი vs დრაკონი“ Hero კლასით.
-მომეცი 3 იდეა გასაუმჯობესებლად (მაგ. განკურნება, კრიტიკული დარტყმა, მოთამაშის არჩევანი) — თითოეულისთვის მხოლოდ მინიშნება, რომელ კლასში რა დავამატო, მზა კოდის გარეშე. ქართულად.
-```
-  </aside>
-</section>
 <lecture-classwork/>
 <section class="slide" data-section="შეჯამება">
   <div class="kicker">📸 სურათი გადაუღეთ</div>
   <h2>TS <span class="muted">→</span> C# · <span class="grad">კლასები</span></h2>
   <table class="t" style="font-size:20px;margin-top:6px">
     <tr><th style="width:40%">TypeScript</th><th style="width:40%">C#</th><th></th></tr>
-    <tr><td class="mono">class Hero { }</td><td class="mono">class Hero { }</td><td>კლასი · ცალკე ფაილი</td></tr>
+    <tr><td class="mono">class Student { }</td><td class="mono">class Student { }</td><td>კლასი · ცალკე ფაილი</td></tr>
     <tr><td class="mono">name: string;</td><td class="mono">public string Name { get; set; }</td><td>property</td></tr>
-    <tr><td class="mono">constructor(name: string)</td><td class="mono">public Hero(string name)</td><td>კონსტრუქტორი</td></tr>
-    <tr><td class="muted">— ერთი constructor —</td><td class="mono">Hero() · Hero(string) · Hero(string, int)</td><td>რამდენიმე კონსტრუქტორი</td></tr>
+    <tr><td class="mono">constructor(name: string)</td><td class="mono">public Student(string name)</td><td>კონსტრუქტორი</td></tr>
+    <tr><td class="muted">— ერთი constructor —</td><td class="mono">Student() · Student(string) · Student(string, int)</td><td>რამდენიმე კონსტრუქტორი</td></tr>
     <tr><td class="mono">this.name</td><td class="mono">Name</td><td>this არ სჭირდება</td></tr>
-    <tr><td class="mono">new Hero("რაინდი")</td><td class="mono">new Hero("რაინდი", 100)</td><td><span class="same">იგივეა ✓</span></td></tr>
+    <tr><td class="mono">new Student("ანა")</td><td class="mono">new Student("ანა", 15)</td><td><span class="same">იგივეა ✓</span></td></tr>
   </table>
   <aside class="study">
 ### 📸 TS → C# · კლასები
 
 | TypeScript | C# | |
 |---|---|---|
-| `class Hero { }` | `class Hero { }` | კლასი — ცალკე ფაილში |
+| `class Student { }` | `class Student { }` | კლასი — ცალკე ფაილში |
 | `name: string;` | `public string Name { get; set; }` | property |
-| `constructor(name: string)` | `public Hero(string name)` | კონსტრუქტორი |
-| — მხოლოდ ერთი constructor — | `Hero()` · `Hero(string)` · `Hero(string, int)` | რამდენიმე კონსტრუქტორი |
+| `constructor(name: string)` | `public Student(string name)` | კონსტრუქტორი |
+| — მხოლოდ ერთი constructor — | `Student()` · `Student(string)` · `Student(string, int)` | რამდენიმე კონსტრუქტორი |
 | `this.name` | `Name` | `this` არ სჭირდება |
-| `new Hero("რაინდი")` | `new Hero("რაინდი", 100)` | იგივეა ✓ |
+| `new Student("ანა")` | `new Student("ანა", 15)` | იგივეა ✓ |
   </aside>
 </section>
 <lecture-check/>
