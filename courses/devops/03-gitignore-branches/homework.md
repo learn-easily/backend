@@ -6,7 +6,7 @@ my-portfolio — შემდეგ ლექციაზე ინტერნ�
 
 - branch `feature/projects`: `projects.html` — 2-3 პროექტი (სახელი + მოკლე აღწერა) და ბმული მასზე `index.html`-დან
 - მინიმუმ 2 commit გასაგები მესიჯებით → merge `main`-ში → `git push`
-- `README.md`: რა პროექტია, ვინ ხართ, რა ტექნოლოგიებით არის აწყობილი
+- `README.md` შეავსეთ: რა პროექტია, ვინ ხართ, რა ტექნოლოგიებით არის აწყობილი
 
 ## ✓ მზადაა, როცა
 
@@ -31,9 +31,9 @@ git switch main
 git merge feature/projects
 git branch -d feature/projects
 
-# README.md შევქმენით
+# README.md შევავსეთ
 git add README.md
-git commit -m "Add README"
+git commit -m "Update README"
 git push
 ```
 

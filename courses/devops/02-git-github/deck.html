@@ -1,0 +1,935 @@
+<!-- =========================================================
+     ლექცია 2 — Git (ლოკალურად) · GitHub · push · pull · პრაქტიკა
+     ========================================================= -->
+
+<!-- 1. TITLE -->
+<section class="slide" data-section="შესავალი">
+  <div class="vcenter" style="max-width:860px">
+    <div class="kicker in">DevOps Crash Course · ლექცია 2</div>
+    <h1 class="in" style="--d:.15s">Git<br>და <span class="grad">GitHub</span></h1>
+    <p class="lead in mt" style="--d:.35s">კოდის ისტორია შენს კომპიუტერზე — და მისი ასლი ინტერნეტში</p>
+  </div>
+  <div class="abs" style="right:100px;top:170px">
+    <svg viewBox="0 0 460 420" width="460" height="420">
+      <g class="in" style="--d:.5s"><rect x="130" y="10" width="200" height="110" rx="18" class="box"/><text x="230" y="65" text-anchor="middle" font-size="40">💻</text><text x="230" y="102" text-anchor="middle" class="tw b" font-size="19">შენი ლეპტოპი</text></g>
+      <g class="in fade" style="--d:.8s"><path d="M230 120 V250" stroke="#22c55e" stroke-width="3" class="flow"/><text x="250" y="180" class="tg mono" font-size="18">git push</text><text x="250" y="210" class="ta mono" font-size="18">git pull</text></g>
+      <g class="in" style="--d:1s"><rect x="130" y="250" width="200" height="110" rx="18" fill="#1d1640" stroke="#8b6cff" stroke-width="3"/><text x="230" y="305" text-anchor="middle" font-size="40">🐙</text><text x="230" y="342" text-anchor="middle" class="tn b" font-size="19">GitHub</text></g>
+    </svg>
+  </div>
+</section>
+
+<lecture-review/>
+<lecture-homework-review/>
+<lecture-intro/>
+
+<!-- ================= PART 1: GIT ================= -->
+<section class="slide divider" data-section="1 · Git">
+  <div class="vcenter">
+    <div class="kicker in">ნაწილი 1</div>
+    <h1 class="in" style="--d:.1s">Git — კოდის<br><span class="grad">დროის მანქანა</span> ⏳</h1>
+    <p class="lead mt in" style="--d:.3s">რეპოზიტორია, სამი ზონა, commit</p>
+  </div>
+  <div class="big-num">01</div>
+  <aside class="study">
+## ნაწილი 1 · Git — კოდის დროის მანქანა
+
+რეპოზიტორია, სამი ზონა და commit — ცნებები, რომლებზეც მთელი Git დგას. დღეს Git-ს ჯერ ჩვენს კომპიუტერზე ვსწავლობთ, მერე — GitHub-ს. branch-ები — შემდეგ ლექციაზე.
+  </aside>
+</section>
+
+<section class="slide" data-section="1 · Git">
+  <div class="kicker">პრობლემა</div>
+  <h2>ნაცნობი საქაღალდეა? 😅</h2>
+  <div class="grid2" style="grid-template-columns:1fr 1fr;align-items:center">
+    <div class="card" style="font:22px/2.1 var(--mono)">
+      📁 <b>Desktop</b><br>
+      <span class="in fade" style="--d:0.20s">&nbsp;├ 🗜️ portfolio.zip</span><br>
+      <span class="in fade" style="--d:0.45s">&nbsp;├ 🗜️ portfolio_final.zip</span><br>
+      <span class="in fade" style="--d:0.70s">&nbsp;├ 🗜️ portfolio_final_v2.zip</span><br>
+      <span class="in fade" style="--d:0.95s">&nbsp;├ 🗜️ portfolio_final_v2_REAL.zip</span><br>
+      <span class="in fade" style="--d:1.20s">&nbsp;└ 🗜️ <span class="c-red">portfolio_final_v2_REAL_nika_edits.zip</span></span>
+    </div>
+    <div class="col" style="gap:16px">
+      <div class="problem step">რა შეიცვალა v2-სა და REAL-ს შორის?</div>
+      <div class="problem step" data-with>გუშინ მუშაობდა, დღეს — არა. რა შევცვალე?</div>
+      <div class="problem step" data-with>ნიკამ და მე ერთი ფაილი ერთად შევცვალეთ — რომელი დავტოვოთ?</div>
+      <div class="problem step" data-with>ლეპტოპი გაფუჭდა — პროექტი გაქრა</div>
+    </div>
+  </div>
+  <aside class="study">
+### პრობლემა: ნაცნობი საქაღალდეა?
+
+```plain
+📁 Desktop
+ ├ 🗜️ portfolio.zip
+ ├ 🗜️ portfolio_final.zip
+ ├ 🗜️ portfolio_final_v2.zip
+ ├ 🗜️ portfolio_final_v2_REAL.zip
+ └ 🗜️ portfolio_final_v2_REAL_nika_edits.zip
+```
+
+ასე ვერსიების შენახვა რეალურ პრობლემებს ქმნის:
+
+- ⚠ **რა შეიცვალა** ორ ვერსიას შორის? ხელით უნდა შეადარო.
+- ⚠ **გუშინ მუშაობდა, დღეს — არა.** რა შევცვალე? ვინ იცის.
+- ⚠ **გუნდური მუშაობა:** ორმა ადამიანმა ერთი ფაილი შეცვალა — ვისი დავტოვოთ? ფაილებს მესენჯერით ვუგზავნით ერთმანეთს?
+- ⚠ **ლეპტოპი გაფუჭდა** — პროექტი გაქრა.
+  </aside>
+</section>
+
+<section class="slide" data-section="1 · Git">
+  <div class="kicker">გადაწყვეტა</div>
+  <h2>Git = <span class="c-mvc">Save Point</span>-ები შენი პროექტისთვის 🎮</h2>
+  <svg viewBox="0 0 1420 260" width="1420" height="260">
+    <path class="autodraw" d="M80 120 H1340" stroke="#353b6b" stroke-width="4"/>
+    <g class="in zoom" style="--d:0.30s;transform-origin:120px 120px"><circle cx="120" cy="120" r="34" fill="#123321" stroke="#22c55e" stroke-width="3"/><text x="120" y="130" text-anchor="middle" font-size="28">💾</text><text x="120" y="195" text-anchor="middle" class="tw" font-size="18">„მთავარი გვერდი“</text></g>
+    <g class="in zoom" style="--d:0.60s;transform-origin:440px 120px"><circle cx="440" cy="120" r="34" fill="#123321" stroke="#22c55e" stroke-width="3"/><text x="440" y="130" text-anchor="middle" font-size="28">💾</text><text x="440" y="195" text-anchor="middle" class="tw" font-size="18">„სტილები“</text></g>
+    <g class="in zoom" style="--d:0.90s;transform-origin:760px 120px"><circle cx="760" cy="120" r="34" fill="#123321" stroke="#22c55e" stroke-width="3"/><text x="760" y="130" text-anchor="middle" font-size="28">💾</text><text x="760" y="195" text-anchor="middle" class="tw" font-size="18">„კონტაქტები“</text></g>
+    <g class="in zoom" style="--d:1.20s;transform-origin:1080px 120px"><circle cx="1080" cy="120" r="34" fill="#2a1d4d" stroke="#f43f5e" stroke-width="3"/><text x="1080" y="130" text-anchor="middle" font-size="28">💥</text><text x="1080" y="195" text-anchor="middle" class="tr" font-size="18">რაღაც გავტეხე</text></g>
+    <g class="step fade"><path d="M1060 80 C960 10 860 10 780 80" stroke="#22d3ee" stroke-width="3" fill="none" class="flow"/><text x="920" y="30" text-anchor="middle" class="ta b" font-size="18">↩ დაბრუნება</text></g>
+  </svg>
+  <div class="grid3">
+    <div class="card step" data-with><h3>📸 ფოტოები</h3><p>Git ინახავს პროექტის <b>„ფოტოს“</b> ყოველ შენახვაზე — ვინ, როდის, რა შეცვალა</p></div>
+    <div class="card step" data-with><h3>💻 ლოკალური</h3><p>Git <b>შენს კომპიუტერზე</b> მუშაობს — ინტერნეტი არ სჭირდება</p></div>
+    <div class="card step" data-with><h3>🐧 2005 წლიდან</h3><p>შექმნა <b>ლინუს ტორვალდსმა</b> Linux-ის ბირთვისთვის. დღეს — სტანდარტი</p></div>
+  </div>
+  <aside class="study">
+### Git = Save Point-ები შენი პროექტისთვის
+
+თამაშში „Save Point“ გახსოვს? სანამ ბოსს შეებრძოლები, ინახავ. თუ წააგე — იქიდან აგრძელებ, თავიდან არ იწყებ.
+
+**Git ზუსტად ამას აკეთებს კოდისთვის:**
+
+- 📸 შენს ბრძანებაზე ინახავს მთელი პროექტის „ფოტოს“ — და იმახსოვრებს, **ვინ, როდის და რა** შეცვალა.
+- ↩ თუ რაღაც გატეხე, ნებისმიერ წინა „ფოტოზე“ დაბრუნდები.
+- 💻 მუშაობს **შენს კომპიუტერზე**, ინტერნეტის გარეშეც.
+- 🐧 შექმნა **ლინუს ტორვალდსმა** 2005 წელს Linux-ის ბირთვის განვითარებისთვის. დღეს პრაქტიკულად ყველა პროექტი Git-ს იყენებს.
+
+```terms
+Version Control System (VCS) — ვერსიების კონტროლის სისტემა: პროგრამა, რომელიც ფაილების ცვლილებების ისტორიას ინახავს
+```
+  </aside>
+</section>
+
+<section class="slide" data-section="1 · Git">
+  <div class="kicker">ყველაზე ხშირი დაბნეულობა</div>
+  <h2><span class="c-mvc">Git</span> ≠ <span class="c-net">GitHub</span></h2>
+  <div class="grid2" style="margin-top:20px">
+    <div class="card accent in left" style="padding:18px 26px;--d:0.20s;--a:var(--mvc);text-align:center"><div class="big-emoji">📷</div><h3 class="mt" style="justify-content:center">Git</h3><p><b>პროგრამა</b> შენს კომპიუტერზე. ინახავს ისტორიას. ინტერნეტი არ სჭირდება.</p><p class="tiny mt">= ფოტოაპარატი</p></div>
+    <div class="card accent in right" style="--d:0.40s;--a:var(--net);text-align:center"><div class="big-emoji">🖼️</div><h3 class="mt" style="justify-content:center">GitHub</h3><p><b>ვებ-სერვისი</b>, სადაც Git-ის რეპოზიტორიები ონლაინ ინახება + გუნდური მუშაობა.</p><p class="tiny mt">= ონლაინ ალბომი</p></div>
+  </div>
+  <div class="row step mt" style="gap:12px;justify-content:center;flex-wrap:wrap"><span class="pill on" style="--a:var(--net)">GitHub</span><span class="pill">GitLab</span><span class="pill">Bitbucket</span><span class="pill">Azure DevOps</span></div>
+  <div class="callout step mt" style="--a:var(--asp);font-size:24px" data-with>GitHub = <b>კოდის ჰოსტინგი</b>. თან Actions და Pages — ამიტომ კურსი მისით იწყება.</div>
+  <aside class="study">
+### Git ≠ GitHub
+
+ეს ყველაზე ხშირი დაბნეულობაა:
+
+| | 📷 Git | 🖼️ GitHub |
+|---|---|---|
+| რა არის | პროგრამა | ვებ-სერვისი (საიტი) |
+| სად მუშაობს | შენს კომპიუტერზე | ინტერნეტში |
+| რას აკეთებს | ინახავს ისტორიას | ინახავს რეპოზიტორიებს ონლაინ, გუნდური მუშაობა |
+| ანალოგია | ფოტოაპარატი | ონლაინ ალბომი |
+
+Git უამრავ სერვისთან მუშაობს: **GitHub**, GitLab, Bitbucket, Azure DevOps. ყველა ერთსა და იმავე Git-ს იყენებს.
+
+**GitHub არის კოდის ჰოსტინგი** — ზუსტად ის, რაზეც პირველ ნაწილში ვისაუბრეთ, ოღონდ კოდისთვის. გარდა ამისა, მას აქვს **GitHub Pages** (საიტის ჰოსტინგი) და **GitHub Actions** (ავტომატიზაცია). ამიტომ ეს კურსი GitHub-ით იწყება.
+  </aside>
+</section>
+
+<section class="slide" data-section="1 · Git">
+  <div class="kicker">ცნება 1</div>
+  <h2>რეპოზიტორია = საქაღალდე + <span class="c-asp mono">.git</span></h2>
+  <div class="grid2" style="grid-template-columns:.9fr 1.1fr;align-items:center">
+    <div class="card" style="font:24px/2.1 var(--mono)">
+      📁 <b>my-portfolio</b><br>
+      <span class="step fade">&nbsp;├ 📁 <b class="c-asp">.git</b> <span class="tiny">← ისტორია აქ ცხოვრობს</span></span><br>
+      &nbsp;├ 📄 index.html<br>
+      &nbsp;└ 📄 style.css
+    </div>
+    <div class="col" style="gap:16px">
+      <code-block lang="console" cls="big step" title="Git Bash" data-with>
+$ git init
+Initialized empty Git repository in ~/my-portfolio/.git/
+      </code-block>
+      <div class="callout step" style="--a:var(--asp)" data-with><b>.git</b> დამალული საქაღალდეა. მას <b>ხელით არ ვეხებით</b> — წაშლი და ისტორია გაქრება.</div>
+      <div class="callout step" style="--a:var(--api)" data-with>ერთი პროექტი = ერთი რეპოზიტორია (ხშირად „რეპო“)</div>
+    </div>
+  </div>
+  <aside class="study">
+### ცნება 1 · რეპოზიტორია
+
+**რეპოზიტორია (repository, „რეპო“)** — ჩვეულებრივი საქაღალდე, რომელშიც Git-მა ისტორიის შენახვა დაიწყო.
+
+```console Git Bash
+$ git init
+Initialized empty Git repository in ~/my-portfolio/.git/
+```
+
+`git init` საქაღალდეში ქმნის დამალულ `.git` საქაღალდეს. მასში ინახება **მთელი ისტორია**: ყველა „ფოტო“, ყველა branch, პარამეტრები.
+
+```plain
+📁 my-portfolio
+ ├ 📁 .git        ← ისტორია აქ ცხოვრობს
+ ├ 📄 index.html
+ └ 📄 style.css
+```
+
+```warn
+`.git` საქაღალდეს ხელით არ ვეხებით. თუ წაშლი — საქაღალდე ჩვეულებრივ საქაღალდედ იქცევა და მთელი ისტორია ქრება.
+```
+  </aside>
+</section>
+
+<section class="slide" data-section="1 · Git">
+  <div class="kicker">ცნება 2 · როგორ ვინახავთ</div>
+  <h2>სამი ზონა: <span class="c-api">რედაქტირება</span> → <span class="c-asp">მზადება</span> → <span class="c-mvc">ისტორია</span></h2>
+  <svg viewBox="0 0 1420 400" width="1420" height="400">
+    <g class="in"><rect x="10" y="40" width="380" height="270" rx="20" fill="#0e2a33" stroke="#22d3ee" stroke-width="3"/><text x="200" y="100" text-anchor="middle" font-size="48">📝</text><text x="200" y="150" text-anchor="middle" class="ta b" font-size="24">Working Directory</text><text x="200" y="185" text-anchor="middle" class="tm" font-size="18">აქ ფაილებს არედაქტირებ</text></g>
+    <g class="in" style="--d:.15s"><rect x="520" y="40" width="380" height="270" rx="20" fill="#33240b" stroke="#f5a524" stroke-width="3"/><text x="710" y="100" text-anchor="middle" font-size="48">📦</text><text x="710" y="150" text-anchor="middle" class="to b" font-size="24">Staging Area</text><text x="710" y="185" text-anchor="middle" class="tm" font-size="18">„რა შევინახო ამჯერად“</text></g>
+    <g class="in" style="--d:.3s"><rect x="1030" y="40" width="380" height="270" rx="20" fill="#123321" stroke="#22c55e" stroke-width="3"/><text x="1220" y="100" text-anchor="middle" font-size="48">🗃️</text><text x="1220" y="150" text-anchor="middle" class="tg b" font-size="24">Repository</text><text x="1220" y="185" text-anchor="middle" class="tm" font-size="18">ისტორია (.git)</text></g>
+    <g class="in fade" style="--d:0.40s"><rect x="60" y="215" width="130" height="40" rx="8" class="box"/><text x="125" y="242" text-anchor="middle" class="tw mono" font-size="16">index.html</text><rect x="210" y="215" width="130" height="40" rx="8" class="box"/><text x="275" y="242" text-anchor="middle" class="tw mono" font-size="16">style.css</text></g>
+    <g class="step fade"><path d="M390 175 H520" stroke="#f5a524" stroke-width="4" class="flow"/><text x="455" y="350" text-anchor="middle" class="to mono b" font-size="22">git add</text>
+      <rect x="645" y="215" width="130" height="40" rx="8" fill="#f5a524"/><text x="710" y="242" text-anchor="middle" class="td mono" font-size="16">index.html</text></g>
+    <g class="step fade"><path d="M900 175 H1030" stroke="#22c55e" stroke-width="4" class="flow"/><text x="965" y="350" text-anchor="middle" class="tg mono b" font-size="22">git commit</text>
+      <circle cx="1220" cy="240" r="26" fill="#22c55e"/><text x="1220" y="248" text-anchor="middle" class="td" font-size="20">💾</text></g>
+  </svg>
+  <div class="callout step" style="--a:var(--asp);font-size:23px" data-with>📮 ანალოგია: <b>add</b> = ნივთს ყუთში დებ. <b>commit</b> = ყუთს ლუქავ, აწერ წარწერას და აგზავნი.</div>
+  <aside class="study">
+### ცნება 2 · სამი ზონა
+
+Git-ში ფაილი სამ „ზონას“ გადის:
+
+| ზონა | რა არის | როგორ ხვდება აქ |
+|---|---|---|
+| 📝 **Working Directory** | შენი საქაღალდე, სადაც ფაილებს არედაქტირებ | უბრალოდ ცვლი ფაილს |
+| 📦 **Staging Area** | „რა შევინახო ამჯერად“ — მომზადებული ცვლილებები | `git add` |
+| 🗃️ **Repository** | ისტორია `.git`-ში | `git commit` |
+
+რატომ გვჭირდება შუალედური ზონა? შეიძლება 5 ფაილი შეცვალე, მაგრამ ერთ „ფოტოში“ მხოლოდ 2 გინდა — ის, რაც ერთ ამოცანას ეხება. Staging-ით შენ წყვეტ, რა მოხვდეს შენახვაში.
+
+📮 **ანალოგია — ამანათი:** `git add` = ნივთს ყუთში დებ (ჯერ კიდევ შეგიძლია ამოიღო). `git commit` = ყუთს ლუქავ, აწერ წარწერას და აგზავნი — ის უკვე ისტორიაშია.
+
+```bash
+git add index.html   # ერთი ფაილი staging-ში
+git add .            # ყველა შეცვლილი ფაილი
+git commit -m "Add home page"
+```
+  </aside>
+</section>
+
+<section class="slide" data-section="1 · Git">
+  <div class="kicker">ცნება 3</div>
+  <h2>Commit — ისტორიის <span class="c-mvc">ერთი ფოტო</span></h2>
+  <div class="grid2" style="grid-template-columns:1fr 1fr;gap:40px">
+    <div class="card accent in left" style="padding:18px 26px;--d:0.20s;--a:var(--mvc);font-size:22px;line-height:2">
+      <div><span class="tag">hash</span> <span class="mono c-asp">a3f9c21</span></div>
+      <div><span class="tag" style="--a:var(--api)">ავტორი</span> გიორგი &lt;giorgi@mail.ge&gt;</div>
+      <div><span class="tag" style="--a:var(--api)">თარიღი</span> 11 ნოე, 14:32</div>
+      <div><span class="tag" style="--a:var(--asp)">მესიჯი</span> <b>Add contact section</b></div>
+      <div><span class="tag" style="--a:var(--net)">მშობელი</span> <span class="mono">7b2e0d4</span></div>
+      <div class="tiny">+ მთელი პროექტის მდგომარეობა იმ მომენტში</div>
+    </div>
+    <div class="col">
+      <h3>მესიჯი — ვისთვის? <span class="muted">მომავალი შენთვის</span></h3>
+      <div class="card in right" style="--d:0.40s;border-color:rgba(34,197,94,.5)"><p class="mono c-mvc" style="font-size:20px">✓ Add contact section<br>✓ Fix broken link on projects page<br>✓ Update profile photo</p></div>
+      <div class="card in right" style="--d:0.60s;border-color:rgba(244,63,94,.5)"><p class="mono c-red" style="font-size:20px">✗ fix<br>✗ asdfgh<br>✗ ცვლილებები</p></div>
+      <p class="tiny in" style="--d:0.80s">წესი: <b>რა გააკეთე</b>, ბრძანებით, მოკლედ — „Add…“, „Fix…“, „Update…“</p>
+    </div>
+  </div>
+  <aside class="study">
+### ცნება 3 · Commit — ისტორიის ერთი ფოტო
+
+**Commit** — პროექტის შენახული მდგომარეობა. ყოველ commit-ს აქვს:
+
+- **hash** — უნიკალური იდენტიფიკატორი, მაგ. `a3f9c21` (სრულად 40 სიმბოლოა, ჩვეულებრივ პირველ 7-ს ვიყენებთ);
+- **ავტორი** და **თარიღი**;
+- **მესიჯი** — რა გაკეთდა;
+- **მშობელი** — წინა commit-ის hash. ასე იქმნება ისტორიის ჯაჭვი.
+
+**კარგი მესიჯი** მომავალი შენთვის იწერება — ექვსი თვის შემდეგ უნდა მიხვდე, რა გააკეთე:
+
+| ✓ კარგი | ✗ ცუდი |
+|---|---|
+| `Add contact section` | `fix` |
+| `Fix broken link on projects page` | `asdfgh` |
+| `Update profile photo` | `ცვლილებები` |
+
+წესი: **რა გააკეთე**, ბრძანებითი ფორმით, მოკლედ: „Add…“, „Fix…“, „Update…“, „Remove…“.
+
+```tip
+ერთი commit = ერთი აზრი. „დავამატე კონტაქტები და შევცვალე ფერები და გავასწორე ბმული“ — ეს სამი commit-ია.
+```
+  </aside>
+</section>
+
+<section class="slide" data-section="1 · Git">
+  <div class="kicker">ერთხელ, ყველა კომპიუტერზე</div>
+  <h2>Git-ის ინსტალაცია და <span class="c-api">გაცნობა</span></h2>
+  <div class="grid2" style="grid-template-columns:1fr 1.25fr">
+    <div class="col">
+      <div class="card in left" style="--d:0.20s"><h3>🪟 Windows</h3><p><b>git-scm.com</b> → Download → Next, Next… <br>ერთად დაყენდება <b>Git Bash</b></p></div>
+      <div class="card in left" style="--d:0.35s"><h3>🍎 macOS</h3><p class="mono" style="font-size:19px">brew install git</p></div>
+      <div class="card in left" style="--d:0.50s"><h3>🐧 Ubuntu</h3><p class="mono" style="font-size:19px">sudo apt install git</p><p class="tiny">ამას სერვერზე გავაკეთებთ</p></div>
+    </div>
+    <div class="col">
+      <code-block id="cfg" lang="console" cls="in" title="Git Bash" style="--d:0.65s">
+$ git --version
+git version 2.51.0
+
+$ git config --global user.name "Giorgi Beridze"
+$ git config --global user.email "giorgi@mail.ge"
+$ git config --global init.defaultBranch main
+      </code-block>
+      <div class="callout in" style="--d:0.80s;--a:var(--asp)">email — <b>იგივე, რაც GitHub-ზე</b>. ასე commit-ები შენს პროფილს მიებმება.</div>
+    </div>
+  </div>
+  <aside class="study">
+### Git-ის ინსტალაცია და გაცნობა
+
+**ინსტალაცია:**
+
+- 🪟 **Windows** — [git-scm.com](https://git-scm.com) → Download → ინსტალერში ყველგან Next. ერთად დაყენდება **Git Bash** — ტერმინალი, რომელშიც Linux-ის ბრძანებები მუშაობს (სერვერთან მუშაობისას გამოგვადგება).
+- 🍎 **macOS** — `brew install git` (ან ტერმინალში `git` აკრიფე და სისტემა თვითონ შემოგთავაზებს).
+- 🐧 **Ubuntu** — `sudo apt install git`. ამას სერვერზე გავაკეთებთ.
+
+**გაცნობა** — ერთხელ, ყოველ ახალ კომპიუტერზე. Git ამ სახელს და email-ს ყოველ commit-ს მიაწერს:
+
+```console Git Bash
+$ git --version
+git version 2.51.0
+
+$ git config --global user.name "Giorgi Beridze"
+$ git config --global user.email "giorgi@mail.ge"
+$ git config --global init.defaultBranch main
+```
+
+- `--global` — პარამეტრი ამ კომპიუტერის ყველა პროექტისთვის.
+- `init.defaultBranch main` — ახალ რეპოებში მთავარ branch-ს `main` დაერქმევა.
+
+```warn
+email იგივე უნდა იყოს, რაც GitHub-ის ანგარიშზე — მაშინ GitHub commit-ებს შენს პროფილს მიაბამს.
+```
+  </aside>
+</section>
+
+<!-- ================= PART 2: PRACTICE ================= -->
+<section class="slide divider" data-section="2 · პრაქტიკა">
+  <div class="vcenter">
+    <div class="kicker in">ნაწილი 2</div>
+    <h1 class="in" style="--d:.1s">ვაკეთებთ ერთად<br><span class="grad">my-portfolio</span> ⌨️</h1>
+    <p class="lead mt in" style="--d:.3s">ცარიელი საქაღალდიდან — პირველ commit-ებამდე</p>
+  </div>
+  <div class="big-num">02</div>
+  <aside class="study">
+## ნაწილი 2 · პრაქტიკა: my-portfolio
+
+ცარიელი საქაღალდიდან პირველ commit-ებამდე. ეს რეპო მთელი კურსის განმავლობაში გამოგვადგება — დღესვე, შესვენების შემდეგ, მას GitHub-ზე ავიტანთ.
+  </aside>
+</section>
+
+<section class="slide" data-section="2 · პრაქტიკა">
+  <div class="kicker">ნაბიჯი 1</div>
+  <h2>პროექტი + <span class="mono c-asp">git init</span></h2>
+  <div class="grid2" style="grid-template-columns:1fr 1.1fr">
+    <div class="col">
+      <code-block lang="console" cls="in" title="Git Bash" style="--d:0.20s">
+$ mkdir my-portfolio
+$ cd my-portfolio
+$ code .
+      </code-block>
+      <code-block lang="html" cls="sm in" title="index.html" style="--d:0.40s">
+<!DOCTYPE html>
+<html lang="ka">
+<head>
+  <meta charset="UTF-8">
+  <title>გიორგი ბერიძე</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <h1>გამარჯობა, მე გიორგი ვარ 👋</h1>
+  <p>ვსწავლობ Full Stack დეველოპმენტს.</p>
+</body>
+</html>
+      </code-block>
+    </div>
+    <div class="col">
+      <code-block lang="css" cls="sm in" title="style.css" style="--d:0.60s">
+body { font-family: sans-serif; max-width: 720px; margin: 40px auto; }
+h1 { color: #6d28d9; }
+      </code-block>
+      <code-block lang="console" cls="big in" title="Git Bash" style="--d:0.80s">
+$ git init
+Initialized empty Git repository in ~/my-portfolio/.git/
+      </code-block>
+      <div class="callout in" style="--d:1.00s;--a:var(--api)">VS Code-ში: <b>Terminal → New Terminal</b> → ⌄ → <b>Git Bash</b></div>
+    </div>
+  </div>
+  <aside class="study">
+### ნაბიჯი 1 · პროექტი + git init
+
+```console Git Bash
+$ mkdir my-portfolio
+$ cd my-portfolio
+$ code .
+```
+
+`mkdir` — საქაღალდის შექმნა, `cd` — მასში შესვლა, `code .` — VS Code-ის გახსნა მიმდინარე საქაღალდეში. ტერმინალი VS Code-შიც გაქვს: **Terminal → New Terminal** → ⌄ ისარი → **Git Bash**.
+
+ორი ფაილი:
+
+```html index.html
+<!DOCTYPE html>
+<html lang="ka">
+<head>
+  <meta charset="UTF-8">
+  <title>გიორგი ბერიძე</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <h1>გამარჯობა, მე გიორგი ვარ 👋</h1>
+  <p>ვსწავლობ Full Stack დეველოპმენტს.</p>
+</body>
+</html>
+```
+
+```css style.css
+body { font-family: sans-serif; max-width: 720px; margin: 40px auto; }
+h1 { color: #6d28d9; }
+```
+
+და რეპოზიტორიის შექმნა:
+
+```console Git Bash
+$ git init
+Initialized empty Git repository in ~/my-portfolio/.git/
+```
+  </aside>
+</section>
+
+<section class="slide" data-section="2 · პრაქტიკა">
+  <div class="kicker">ნაბიჯი 2</div>
+  <h2>status → add → <span class="c-mvc">commit</span></h2>
+  <div class="grid2" style="grid-template-columns:1.2fr 1fr">
+    <code-block id="st" lang="console" cls="sm" title="Git Bash">
+$ git status
+On branch main
+Untracked files:
+        index.html
+        style.css
+
+$ git add .
+$ git status
+Changes to be committed:
+        new file:   index.html
+        new file:   style.css
+
+$ git commit -m "Add home page"
+[main (root-commit) 7b2e0d4] Add home page
+ 2 files changed, 14 insertions(+)
+    </code-block>
+    <div class="col">
+      <i class="codestep" data-for="st" data-lines="1-5"></i>
+      <div class="callout step" style="--a:var(--red)" data-with><b>Untracked</b> — Git ფაილებს ხედავს, მაგრამ ჯერ არ ინახავს (📝 ზონა)</div>
+      <i class="codestep" data-for="st" data-lines="7-11"></i>
+      <div class="callout step" style="--a:var(--asp)" data-with><b>to be committed</b> — staging-შია (📦 ზონა)</div>
+      <i class="codestep" data-for="st" data-lines="13-15"></i>
+      <div class="callout step" style="--a:var(--mvc)" data-with>პირველი commit ✓ — <b>7b2e0d4</b> ისტორიაშია (🗃️ ზონა)</div>
+    </div>
+  </div>
+  <aside class="study">
+### ნაბიჯი 2 · status → add → commit
+
+```console Git Bash
+$ git status
+On branch main
+Untracked files:
+        index.html
+        style.css
+
+$ git add .
+$ git status
+Changes to be committed:
+        new file:   index.html
+        new file:   style.css
+
+$ git commit -m "Add home page"
+[main (root-commit) 7b2e0d4] Add home page
+ 2 files changed, 14 insertions(+)
+```
+
+აქ სამივე ზონა ჩანს:
+
+1. **Untracked files** (ტერმინალში წითლად) — Git ფაილებს ხედავს, მაგრამ ჯერ არ ინახავს. 📝 Working Directory.
+2. **Changes to be committed** (მწვანედ) — `git add`-ის შემდეგ ფაილები staging-შია. 📦 Staging Area.
+3. **`[main (root-commit) 7b2e0d4]`** — პირველი commit ისტორიაშია. 🗃️ Repository.
+
+```tip
+VS Code-ის მარცხენა პანელში **Source Control** (Ctrl+Shift+G) იგივეს ღილაკებით აკეთებს: `+` = add, ✓ = commit. ჯერ ბრძანებებით ისწავლე — მერე ღილაკებს ადვილად გაიგებ.
+```
+  </aside>
+</section>
+
+<section class="slide" data-section="2 · პრაქტიკა">
+  <div class="kicker">ნაბიჯი 3</div>
+  <h2>შეცვლა → commit → <span class="c-api mono">git log</span></h2>
+  <div class="grid2" style="grid-template-columns:1.2fr 1fr">
+    <code-block id="lg" lang="console" cls="sm" title="Git Bash">
+# index.html-ში ახალი წინადადება დავამატეთ
+$ git status
+On branch main
+Changes not staged for commit:
+        modified:   index.html
+
+$ git add .
+$ git commit -m "Update about text"
+[main 2d9f5a1] Update about text
+ 1 file changed, 1 insertion(+)
+
+$ git log --oneline
+2d9f5a1 (HEAD -> main) Update about text
+7b2e0d4 Add home page
+    </code-block>
+    <div class="col">
+      <i class="codestep" data-for="lg" data-lines="1-5"></i>
+      <div class="callout step" style="--a:var(--red)" data-with><b>modified</b> — Git ხედავს, რა შეიცვალა ბოლო commit-ის შემდეგ</div>
+      <i class="codestep" data-for="lg" data-lines="7-10"></i>
+      <div class="callout step" style="--a:var(--mvc)" data-with>მეორე commit — <b>ახალი Save Point</b></div>
+      <i class="codestep" data-for="lg" data-lines="12-14"></i>
+      <div class="callout step" style="--a:var(--api)" data-with><b>git log</b> — მთელი ისტორია: ვინ, როდის, რა</div>
+    </div>
+  </div>
+  <div class="callout in mt" style="--d:.3s;--a:var(--asp);font-size:23px">🔁 ყოველდღიური ციკლი: <b>შეცვლა → <code class="i">git add .</code> → <code class="i">git commit -m "…"</code></b></div>
+  <aside class="study">
+### ნაბიჯი 3 · შეცვლა → commit → git log
+
+`index.html`-ში, `<p>`-ის ქვემოთ, დავამატოთ ერთი წინადადება:
+
+```html index.html
+<p>მიყვარს ვებ-საიტების აწყობა.</p>
+```
+
+```console Git Bash
+$ git status
+On branch main
+Changes not staged for commit:
+        modified:   index.html
+
+$ git add .
+$ git commit -m "Update about text"
+[main 2d9f5a1] Update about text
+ 1 file changed, 1 insertion(+)
+
+$ git log --oneline
+2d9f5a1 (HEAD -> main) Update about text
+7b2e0d4 Add home page
+```
+
+- **modified** — Git-მა დაინახა, რომ ფაილი ბოლო commit-ის შემდეგ შეიცვალა.
+- `add` + `commit` — ცვლილება ისტორიაში ახალ **Save Point**-ად შევინახეთ.
+- `git log --oneline` — ისტორია მოკლედ: ზემოთ ყველაზე ახალი commit. `HEAD -> main` — „ახლა აქ ვარ“.
+
+**ეს არის ყოველდღიური ციკლი:** შეცვლა → `git add .` → `git commit -m "…"`. რამდენჯერაც საჭიროა.
+
+```tip
+`git log`-ის სრული ვერსია (`--oneline`-ის გარეშე) ავტორს და თარიღსაც აჩვენებს. გამოსასვლელად დააჭირე **q**-ს.
+```
+  </aside>
+</section>
+
+<section class="slide" data-section="☕ შესვენება">
+  <div class="center">
+    <div class="big-emoji float" style="font-size:120px">☕</div>
+    <h1 class="mt">შესვენება</h1>
+    <p class="lead mt">10 წუთი · მერე — GitHub</p>
+  </div>
+</section>
+
+<!-- ================= PART 3: GITHUB ================= -->
+<section class="slide divider" data-section="3 · GitHub">
+  <div class="vcenter">
+    <div class="kicker in">ნაწილი 3</div>
+    <h1 class="in" style="--d:.1s">GitHub —<br><span class="grad">კოდის ჰოსტინგი</span> 🐙</h1>
+    <p class="lead mt in" style="--d:.3s">ანგარიში, რეპოზიტორია, push და pull</p>
+  </div>
+  <div class="big-num">03</div>
+  <aside class="study">
+## ნაწილი 3 · GitHub — კოდის ჰოსტინგი
+
+ანგარიში, რეპოზიტორია, push და pull. Git ისტორიას შენს კომპიუტერზე ინახავს — ახლა ის ინტერნეტში გავიტანოთ.
+  </aside>
+</section>
+
+<section class="slide" data-section="3 · GitHub">
+  <div class="kicker">Local ↔ Remote</div>
+  <h2>ერთი რეპო — <span class="c-api">რამდენიმე ასლი</span></h2>
+  <svg viewBox="0 0 1420 470" width="1420" height="470">
+    <g class="in"><rect x="510" y="10" width="400" height="160" rx="22" fill="#1d1640" stroke="#8b6cff" stroke-width="3"/><text x="710" y="80" text-anchor="middle" font-size="50">🐙</text><text x="710" y="130" text-anchor="middle" class="tn b" font-size="24">GitHub · origin</text><text x="710" y="158" text-anchor="middle" class="tm mono" font-size="15">github.com/giorgi/my-portfolio</text></g>
+    <g class="in" style="--d:.15s"><rect x="60" y="300" width="380" height="150" rx="20" class="box"/><text x="250" y="365" text-anchor="middle" font-size="46">💻</text><text x="250" y="420" text-anchor="middle" class="tw b" font-size="21">შენი ლეპტოპი</text></g>
+    <g class="in" style="--d:.3s"><rect x="980" y="300" width="380" height="150" rx="20" class="box"/><text x="1170" y="365" text-anchor="middle" font-size="46">🖥️</text><text x="1170" y="420" text-anchor="middle" class="tw b" font-size="21">ნიკას კომპიუტერი / სერვერი</text></g>
+    <g class="in fade" style="--d:0.40s"><path d="M300 300 C320 230 450 160 510 120" stroke="#22c55e" stroke-width="4" fill="none" class="flow"/><text x="300" y="215" class="tg mono b" font-size="22">push ↑</text></g>
+    <g class="in fade" style="--d:0.65s"><path d="M510 150 C430 200 380 260 390 300" stroke="#22d3ee" stroke-width="4" fill="none" class="flow"/><text x="470" y="270" class="ta mono b" font-size="22">pull ↓</text></g>
+    <g class="in fade" style="--d:0.90s"><path d="M910 120 C1020 160 1120 230 1130 300" stroke="#f5a524" stroke-width="4" fill="none" class="flow"/><text x="1080" y="215" class="to mono b" font-size="22">clone ↓</text></g>
+  </svg>
+  <div class="grid3">
+    <div class="callout in" style="--d:1.15s;--a:var(--mvc)"><b>push</b> — ჩემი commit-ები → GitHub</div>
+    <div class="callout in" style="--d:1.40s;--a:var(--api)"><b>pull</b> — GitHub-ის ახალი commit-ები → ჩემთან</div>
+    <div class="callout in" style="--d:1.65s;--a:var(--asp)"><b>clone</b> — მთელი რეპოს პირველი ჩამოტვირთვა</div>
+  </div>
+  <aside class="study">
+### Local ↔ Remote: ერთი რეპო — რამდენიმე ასლი
+
+- **Local** — რეპოზიტორია შენს კომპიუტერზე.
+- **Remote** — იგივე რეპოზიტორია GitHub-ზე. ჩვეულებრივ მას **`origin`** ჰქვია.
+
+ყოველ ასლს **სრული ისტორია** აქვს. GitHub „მთავარ“ ასლად გამოიყენება, რომლითაც ყველა სინქრონიზდება:
+
+| ბრძანება | მიმართულება | როდის |
+|---|---|---|
+| `git push` | ჩემი commit-ები → GitHub | როცა რამე დავასრულე და გაზიარება მინდა |
+| `git pull` | GitHub-ის ახალი commit-ები → ჩემთან | მუშაობის დაწყებამდე |
+| `git clone <url>` | მთელი რეპო → ახალ კომპიუტერზე | ერთხელ, პირველად |
+
+```note
+„ნიკას კომპიუტერი“ შეიძლება **სერვერიც** იყოს: კურსში სერვერი თვითონ ჩამოიტვირთავს კოდს GitHub-იდან. ასე მუშაობს დეპლოიმენტი.
+```
+  </aside>
+</section>
+
+<section class="slide" data-section="3 · GitHub">
+  <div class="kicker">ნაბიჯი 1</div>
+  <h2>GitHub-ის ანგარიში</h2>
+  <div class="grid2" style="grid-template-columns:1fr 1fr">
+    <div class="col" style="gap:14px">
+      <div class="method-card in left" style="--d:0.20s;--a:var(--net)"><span class="m" style="min-width:50px">1</span><span class="t"><b>github.com</b> → Sign up</span></div>
+      <div class="method-card in left" style="--d:0.32s;--a:var(--net)"><span class="m" style="min-width:50px">2</span><span class="t">email — <b>იგივე</b>, რაც <code class="i">git config</code>-ში</span></div>
+      <div class="method-card in left" style="--d:0.44s;--a:var(--asp)"><span class="m" style="min-width:50px">3</span><span class="t"><b>username</b> — ფრთხილად აირჩიე ⚠</span></div>
+      <div class="method-card in left" style="--d:0.56s;--a:var(--net)"><span class="m" style="min-width:50px">4</span><span class="t">email-ის დადასტურება</span></div>
+      <div class="method-card in left" style="--d:0.68s;--a:var(--red)"><span class="m" style="min-width:50px">5</span><span class="t"><b>2FA</b> — Authenticator აპით</span></div>
+    </div>
+    <div class="col">
+      <div class="card accent in right" style="--d:0.80s;--a:var(--asp)"><h3>⚠ username ყველგან ჩანს</h3>
+        <p class="mono" style="font-size:19px">github.com/<b class="c-asp">giorgi-beridze</b><br><b class="c-asp">giorgi-beridze</b>.github.io</p>
+        <p class="tiny mt">✓ giorgi-beridze &nbsp; ✗ xXgamer2007Xx</p></div>
+      <div class="card accent in right" style="--d:0.92s;--a:var(--mvc)"><h3>💼 ეს შენი CV-ა</h3><p>დამსაქმებელი GitHub-ს უყურებს: ფოტო, სახელი, პროექტები, აქტივობა</p></div>
+    </div>
+  </div>
+  <aside class="study">
+### ნაბიჯი 1 · GitHub-ის ანგარიში
+
+1. [github.com](https://github.com) → **Sign up**.
+2. **email** — იგივე, რაც `git config user.email`-ში ჩაწერე.
+3. **username** — ფრთხილად აირჩიე (იხ. ქვემოთ).
+4. email-ის დადასტურება.
+5. **2FA (ორფაქტორიანი ავტორიზაცია)** — Settings → Password and authentication. გამოიყენე Authenticator აპი (Google Authenticator, Microsoft Authenticator). GitHub კოდის ატვირთვისთვის 2FA-ს მოითხოვს.
+
+```warn
+**username ყველგან ჩანს:** `github.com/giorgi-beridze` და მოგვიანებით შენი საიტის მისამართიც — `giorgi-beridze.github.io`. აირჩიე ნამდვილ სახელთან ახლოს: ✓ `giorgi-beridze`, ✗ `xXgamer2007Xx`.
+```
+
+💼 **GitHub შენი CV-ა.** დამსაქმებლები უყურებენ: ფოტო, სახელი, პროექტები, რამდენად აქტიურად წერ კოდს. პროფილი მოწესრიგებული გქონდეს.
+  </aside>
+</section>
+
+<section class="slide" data-section="3 · GitHub">
+  <div class="kicker">ნაბიჯი 2</div>
+  <h2>ახალი რეპოზიტორია: <span class="c-net">New repository</span></h2>
+  <div class="grid2" style="grid-template-columns:1.1fr 1fr">
+    <div class="card in fade" style="--d:0.20s;padding:0;overflow:hidden">
+      <div style="background:#1b1f3d;padding:12px 20px;font-size:16px;color:var(--muted)">Create a new repository</div>
+      <div style="padding:22px 26px;font-size:19px;line-height:2.1;color:var(--ink2)">
+        <div>Owner / Repository name &nbsp;<span class="chip">giorgi-beridze / <b>my-portfolio</b></span></div>
+        <div>Description &nbsp;<span class="chip">ჩემი პორტფოლიო</span></div>
+        <div><span class="c-mvc">◉</span> Public &nbsp; <span class="muted">○</span> Private</div>
+        <div><span class="muted">☐</span> Add a README file</div>
+        <div>.gitignore &nbsp;<span class="chip">None</span> &nbsp; License &nbsp;<span class="chip">None</span></div>
+        <div style="margin-top:8px"><span class="chip" style="background:#16a34a;color:#fff;border-color:#16a34a">Create repository</span></div>
+      </div>
+    </div>
+    <div class="col">
+      <div class="callout in" style="--d:0.40s;--a:var(--mvc)"><b>Public</b> — ყველა ხედავს (პორტფოლიოსთვის სწორედ ეს გვინდა). <b>Private</b> — მხოლოდ შენ და მოწვეულები.</div>
+      <div class="callout in" style="--d:0.60s;--a:var(--asp)">ლოკალური პროექტი <b>უკვე გვაქვს</b> → რეპო <b>ცარიელი</b> უნდა იყოს: README, .gitignore — არაფერი ☐</div>
+      <div class="callout in" style="--d:0.80s;--a:var(--api)">შექმნის შემდეგ GitHub გაჩვენებს მზა ბრძანებებს — <b>„…or push an existing repository“</b></div>
+    </div>
+  </div>
+  <aside class="study">
+### ნაბიჯი 2 · ახალი რეპოზიტორია
+
+GitHub-ზე: **+** → **New repository**:
+
+- **Repository name** — `my-portfolio` (პატარა ასოები, სიტყვებს შორის `-`).
+- **Description** — მოკლე აღწერა.
+- **Public** — ყველა ხედავს; პორტფოლიოსთვის სწორედ ეს გვინდა. **Private** — მხოლოდ შენ და ვისაც მოიწვევ.
+- **Add a README file**, **.gitignore**, **License** — **ცარიელი დატოვე**.
+
+```warn
+ლოკალურ კომპიუტერზე პროექტი და მისი ისტორია **უკვე გვაქვს**. თუ GitHub-ზეც შექმნი README-ს, იქაც გაჩნდება საკუთარი პირველი commit — ორ ისტორიას საერთო არაფერი ექნება და `git push` უარს იტყვის. ამიტომ არსებული პროექტისთვის რეპო ყოველთვის **ცარიელი** იქმნება.
+```
+
+შექმნის შემდეგ GitHub გაჩვენებს მზა ბრძანებებს — გვჭირდება ბლოკი **„…or push an existing repository from the command line“**.
+  </aside>
+</section>
+
+<section class="slide" data-section="3 · GitHub">
+  <div class="kicker">ნაბიჯი 3</div>
+  <h2>ლოკალური რეპო → <span class="c-net">GitHub</span></h2>
+  <div class="grid2" style="grid-template-columns:1.3fr 1fr">
+    <code-block id="push" lang="console" cls="sm" title="Git Bash">
+$ git remote add origin https://github.com/giorgi-beridze/my-portfolio.git
+$ git branch -M main
+$ git push -u origin main
+Enumerating objects: 9, done.
+To https://github.com/giorgi-beridze/my-portfolio.git
+ * [new branch]      main -> main
+    </code-block>
+    <div class="col">
+      <i class="codestep" data-for="push" data-lines="1"></i>
+      <div class="callout step" style="--a:var(--net)" data-with><b>remote add</b> — „GitHub-ის ამ მისამართს <b>origin</b> დავარქვათ“</div>
+      <i class="codestep" data-for="push" data-lines="2"></i>
+      <div class="callout step" style="--a:var(--muted)" data-with>branch-ს <b>main</b> ერქმევა (თუ უკვე ასეა — არაფერს ცვლის)</div>
+      <i class="codestep" data-for="push" data-lines="3-6"></i>
+      <div class="callout step" style="--a:var(--mvc)" data-with><b>push</b> — commit-ები მიდის. <b>-u</b> — დაიმახსოვრე; შემდეგ უბრალოდ <code class="i">git push</code></div>
+    </div>
+  </div>
+  <div class="callout step mt" style="--a:var(--asp);font-size:21px" data-with>🔐 პირველ push-ზე გაიხსნება ბრაუზერი → <b>Sign in with your browser</b>. GitHub-ის პაროლი ტერმინალში აღარ მუშაობს.</div>
+  <aside class="study">
+### ნაბიჯი 3 · ლოკალური რეპო → GitHub
+
+```console Git Bash
+$ git remote add origin https://github.com/giorgi-beridze/my-portfolio.git
+$ git branch -M main
+$ git push -u origin main
+```
+
+- **`git remote add origin <url>`** — ლოკალურ რეპოს ვეუბნებით: „GitHub-ზე შენი ასლი ამ მისამართზეა, და მას `origin` დავარქვათ“. ერთხელ კეთდება.
+- **`git branch -M main`** — მიმდინარე branch-ს `main` ერქმევა. თუ `init.defaultBranch main` დააყენე, უკვე ასეა და არაფერი იცვლება.
+- **`git push -u origin main`** — `main`-ის commit-ები GitHub-ზე მიდის. `-u` აკავშირებს ლოკალურ `main`-ს GitHub-ის `main`-თან, ამიტომ შემდეგ ჯერზე საკმარისია უბრალოდ `git push` და `git pull`.
+
+```note
+**ავტორიზაცია:** პირველ push-ზე გაიხსნება ფანჯარა → **Sign in with your browser** → ბრაუზერში დაადასტურე. Windows-ზე ამას Git-თან ერთად დაყენებული Git Credential Manager აკეთებს და ავტორიზაციას იმახსოვრებს. GitHub-ის პაროლი ტერმინალში აღარ მუშაობს. სხვა გზაა SSH გასაღებები — მათ კურსში მოგვიანებით ვისწავლით.
+```
+
+push-ის შემდეგ GitHub-ის გვერდი განაახლე — ფაილები და commit-ები იქ არის.
+  </aside>
+</section>
+
+<section class="slide" data-section="3 · GitHub">
+  <div class="kicker">რეპოს გვერდი</div>
+  <h2>რა არის GitHub-ის <span class="c-net">რეპოს გვერდზე</span>?</h2>
+  <div class="grid3" style="margin-top:10px">
+    <div class="card in" style="--d:0.20s"><h3>📁 Code</h3><p>ფაილები, branch-ები, <b>README.md</b> — ქვემოთ ლამაზად ჩანს</p></div>
+    <div class="card in" style="--d:0.32s"><h3>🕓 Commits</h3><p>მთელი ისტორია: ვინ, როდის, რა. ყოველ commit-ზე — ცვლილებები ფერებით</p></div>
+    <div class="card in" style="--d:0.44s"><h3>✏️ რედაქტირება</h3><p>ფაილის შეცვლა პირდაპირ ბრაუზერიდან — ესეც commit-ია</p></div>
+    <div class="card in" style="--d:0.56s"><h3>🔀 Pull requests</h3><p>„ჩემი branch გადახედეთ და შეურწყით“ — გუნდური მუშაობის გული</p></div>
+    <div class="card accent in" style="--d:0.68s;--a:var(--asp)"><h3>⚙️ Actions</h3><p>ავტომატიზაცია: build, ტესტი, დეპლოი</p></div>
+    <div class="card accent in" style="--d:0.80s;--a:var(--mvc)"><h3>📄 Settings → Pages</h3><p>რეპო → საიტი ინტერნეტში</p></div>
+  </div>
+  <aside class="study">
+### რა არის GitHub-ის რეპოს გვერდზე?
+
+- 📁 **Code** — ფაილები და branch-ები. თუ რეპოში `README.md` არის, GitHub მას ფაილების ქვემოთ ლამაზად აჩვენებს — ეს პროექტის „სავიზიტო ბარათია“.
+- 🕓 **Commits** — მთელი ისტორია. ყოველ commit-ზე დაჭერით ჩანს, რა შეიცვალა: წაშლილი ხაზები წითლად, დამატებული — მწვანედ.
+- ✏️ **რედაქტირება** — ფაილი შეგიძლია პირდაპირ ბრაუზერში შეცვალო (✏️ ხატულა). შენახვისას GitHub commit-ს ქმნის — ლოკალურად მის ჩამოსატანად `git pull` დაგჭირდება.
+- 🔀 **Pull requests** — „ჩემი branch გადახედეთ და `main`-ს შეურწყით“. ასე მუშაობს გუნდი: კოდს `main`-ში პირდაპირ არავინ წერს.
+- ⚙️ **Actions** — ავტომატიზაცია (build, ტესტი, დეპლოი).
+- 📄 **Settings → Pages** — რეპოს საიტად გადაქცევა.
+  </aside>
+</section>
+
+<section class="slide" data-section="3 · GitHub">
+  <div class="kicker">ყოველდღიური ციკლი</div>
+  <h2>pull → შეცვლა → add → commit → <span class="c-mvc">push</span> 🔁</h2>
+  <svg viewBox="0 0 1420 420" width="1420" height="420">
+    <circle cx="710" cy="210" r="150" stroke="#353b6b" stroke-width="4" fill="none" stroke-dasharray="10 10" class="spin" style="animation-duration:30s"/>
+    <text x="710" y="200" text-anchor="middle" font-size="44">💻</text><text x="710" y="245" text-anchor="middle" class="tm" font-size="18">ყოველდღე</text>
+    <g class="in zoom" style="--d:0.30s;transform-origin:710px 50px"><rect x="590" y="20" width="240" height="64" rx="16" fill="#0e2a33" stroke="#22d3ee" stroke-width="3"/><text x="710" y="62" text-anchor="middle" class="ta mono b" font-size="22">① git pull</text></g>
+    <g class="in zoom" style="--d:0.60s;transform-origin:960px 150px"><rect x="890" y="120" width="300" height="64" rx="16" class="box"/><text x="1040" y="162" text-anchor="middle" class="tw b" font-size="22">② კოდის შეცვლა ✍️</text></g>
+    <g class="in zoom" style="--d:0.90s;transform-origin:960px 300px"><rect x="890" y="270" width="300" height="64" rx="16" fill="#33240b" stroke="#f5a524" stroke-width="3"/><text x="1040" y="312" text-anchor="middle" class="to mono b" font-size="22">③ git add .</text></g>
+    <g class="in zoom" style="--d:1.20s;transform-origin:710px 380px"><rect x="530" y="345" width="360" height="64" rx="16" fill="#123321" stroke="#22c55e" stroke-width="3"/><text x="710" y="387" text-anchor="middle" class="tg mono b" font-size="22">④ git commit -m "…"</text></g>
+    <g class="in zoom" style="--d:1.50s;transform-origin:460px 210px"><rect x="230" y="178" width="260" height="64" rx="16" fill="#1d1640" stroke="#8b6cff" stroke-width="3"/><text x="360" y="220" text-anchor="middle" class="tn mono b" font-size="22">⑤ git push</text></g>
+  </svg>
+  <div class="callout in" style="--d:1.80s;--a:var(--api);font-size:23px">მუშაობის დაწყებამდე — <b>pull</b>. დასრულების შემდეგ — <b>push</b>. შუაში — ხშირი, პატარა <b>commit</b>-ები.</div>
+  <aside class="study">
+### ყოველდღიური ციკლი
+
+1. **`git pull`** — მუშაობის დაწყებამდე ჩამოიტანე, რაც სხვებმა (ან შენ, სხვა კომპიუტერიდან) ატვირთეს.
+2. **კოდის შეცვლა.**
+3. **`git add .`** — ცვლილებები staging-ში.
+4. **`git commit -m "…"`** — შენახვა ისტორიაში.
+5. **`git push`** — GitHub-ზე გაგზავნა.
+
+3–4 ნაბიჯი დღეში ბევრჯერ მეორდება: **ხშირი, პატარა commit-ები** სჯობს ერთ უზარმაზარს — ადვილია გადახედვა და, საჭიროებისას, დაბრუნება.
+
+```tip
+ნებისმიერ მომენტში, როცა არ იცი, რა ხდება — `git status`. ის გეტყვის, რომელ branch-ზე ხარ, რა შეიცვალა და რა დევს staging-ში.
+```
+  </aside>
+</section>
+
+<!-- ================= PART 4: PRACTICE ================= -->
+<section class="slide divider" data-section="4 · პრაქტიკა">
+  <div class="vcenter">
+    <div class="kicker in">ნაწილი 4</div>
+    <h1 class="in" style="--d:.1s">ვაკეთებთ ერთად<br><span class="grad">my-portfolio → GitHub</span> ⌨️</h1>
+    <p class="lead mt in" style="--d:.3s">push → pull</p>
+  </div>
+  <div class="big-num">04</div>
+  <aside class="study">
+## ნაწილი 4 · პრაქტიკა: my-portfolio → GitHub
+
+იგივე `my-portfolio`, რომელიც დღეს შევქმენით (ორი commit: `Add home page`, `Update about text`). ახლა მას GitHub-ზე ავიტანთ და ცვლილებას უკან ჩამოვიტანთ.
+  </aside>
+</section>
+
+<section class="slide" data-section="4 · პრაქტიკა">
+  <div class="kicker">ნაბიჯი 4</div>
+  <h2>GitHub-ზე ატვირთვა 🚀</h2>
+  <div class="grid2" style="grid-template-columns:1.3fr 1fr">
+    <div class="col">
+      <div class="method-card in left" style="--d:0.20s;--a:var(--net)"><span class="m" style="min-width:50px">1</span><span class="t">GitHub → <b>New repository</b> → <b>my-portfolio</b>, ცარიელი</span></div>
+      <code-block lang="console" cls="sm in" title="Git Bash" style="--d:0.45s">
+$ git remote add origin https://github.com/giorgi-beridze/my-portfolio.git
+$ git push -u origin main
+      </code-block>
+      <div class="method-card in left" style="--d:0.70s;--a:var(--mvc)"><span class="m" style="min-width:50px">3</span><span class="t">GitHub-ის გვერდი → <b>F5</b> 🎉</span></div>
+    </div>
+    <div class="card in fade" style="--d:0.95s;font:21px/2 var(--mono)">
+      🐙 <b>giorgi-beridze / my-portfolio</b><br>
+      <span class="tiny">🕓 2 commits</span><br>
+      &nbsp;📄 index.html<br>
+      &nbsp;📄 style.css<br>
+      <span class="c-mvc">&nbsp;✓ ჩემი ორი commit — GitHub-ზე</span>
+    </div>
+  </div>
+  <aside class="study">
+### ნაბიჯი 4 · GitHub-ზე ატვირთვა
+
+1. GitHub → **New repository** → სახელი `my-portfolio`, Public, **ცარიელი** (README-ს გარეშე).
+2. ტერმინალში (USERNAME შენით შეცვალე):
+
+```console Git Bash
+$ git remote add origin https://github.com/USERNAME/my-portfolio.git
+$ git push -u origin main
+```
+
+3. GitHub-ის გვერდი განაახლე (**F5**):
+
+```plain
+🐙 USERNAME / my-portfolio      🕓 2 commits
+ ├ 📄 index.html
+ └ 📄 style.css
+```
+
+შეამოწმე **Commits** გვერდიც: ორივე commit შენი სახელით ჩანს — ზუსტად ისე, როგორც `git log`-ში.
+  </aside>
+</section>
+
+<section class="slide" data-section="4 · პრაქტიკა">
+  <div class="kicker">ნაბიჯი 5</div>
+  <h2>GitHub → ლეპტოპი: <span class="c-api mono">git pull</span></h2>
+  <div class="grid2" style="grid-template-columns:1fr 1.2fr">
+    <div class="col">
+      <div class="method-card in left" style="--d:0.20s;--a:var(--net)"><span class="m" style="min-width:50px">1</span><span class="t">GitHub: <b>Add a README</b> → ტექსტი → <b>Commit changes</b></span></div>
+      <div class="method-card in left" style="--d:0.40s;--a:var(--asp)"><span class="m" style="min-width:50px">2</span><span class="t">ლეპტოპზე README <b>ჯერ არ არის</b></span></div>
+      <div class="method-card in left" style="--d:0.60s;--a:var(--api)"><span class="m" style="min-width:50px">3</span><span class="t"><code class="i">git pull</code> → ჩამოვიდა ✓</span></div>
+    </div>
+    <code-block lang="console" cls="big in" title="Git Bash" style="--d:0.80s">
+$ git pull
+Updating 2d9f5a1..e81b0f2
+Fast-forward
+ README.md | 3 +++
+ 1 file changed, 3 insertions(+)
+    </code-block>
+  </div>
+  <div class="callout in mt2" style="--d:1.00s;--a:var(--api);font-size:23px">ასე ჩამოდის ნებისმიერი ცვლილება — <b>გუნდელისგან</b>, <b>სხვა კომპიუტერიდან</b> თუ <b>GitHub-ის საიტიდან</b>.</div>
+  <aside class="study">
+### ნაბიჯი 5 · GitHub → ლეპტოპი: git pull
+
+1. GitHub-ზე რეპოს გვერდზე: **Add a README** → დაწერე ორი ხაზი → **Commit changes**. GitHub-მა ახალი commit შექმნა.
+2. ლეპტოპზე `README.md` **ჯერ არ არის** — ლოკალურმა რეპომ არ იცის, რომ GitHub-ზე რაღაც შეიცვალა.
+3. ჩამოვიტანოთ:
+
+```console Git Bash
+$ git pull
+Updating 2d9f5a1..e81b0f2
+Fast-forward
+ README.md | 3 +++
+ 1 file changed, 3 insertions(+)
+```
+
+ასე ჩამოდის ნებისმიერი ცვლილება — გუნდელისგან, შენივე სხვა კომპიუტერიდან თუ GitHub-ის საიტიდან.
+  </aside>
+</section>
+
+<section class="slide" data-section="4 · პრაქტიკა">
+  <div class="kicker">შპარგალკა 📌</div>
+  <h2>დღევანდელი <span class="c-api">ბრძანებები</span></h2>
+  <div class="grid3" style="gap:20px">
+    <div class="card accent in" style="--d:0.20s;--a:var(--api)"><h3>⚙️ ერთხელ</h3><p class="mono" style="font-size:17px;line-height:1.9">git config --global user.name "…"<br>git config --global user.email "…"<br>git init<br>git remote add origin &lt;url&gt;<br>git push -u origin main</p></div>
+    <div class="card accent in" style="--d:0.40s;--a:var(--mvc)"><h3>🔁 ყოველდღე</h3><p class="mono" style="font-size:17px;line-height:1.9">git status<br>git add .<br>git commit -m "…"<br>git log --oneline</p></div>
+    <div class="card accent in" style="--d:0.60s;--a:var(--net)"><h3>🐙 GitHub</h3><p class="mono" style="font-size:17px;line-height:1.9">git push<br>git pull<br>git clone &lt;url&gt;</p></div>
+  </div>
+  <div class="callout in mt2" style="--d:.8s;--a:var(--asp);font-size:24px">არ იცი, რა ხდება? → <code class="i">git status</code></div>
+  <aside class="study">
+### შპარგალკა: დღევანდელი ბრძანებები
+
+**⚙️ ერთხელ**
+
+| ბრძანება | რას აკეთებს |
+|---|---|
+| `git config --global user.name "…"` | სახელი commit-ებისთვის |
+| `git config --global user.email "…"` | email (იგივე, რაც GitHub-ზე) |
+| `git init` | საქაღალდე → რეპოზიტორია |
+| `git remote add origin <url>` | GitHub-ის რეპოს დაკავშირება |
+| `git push -u origin main` | პირველი ატვირთვა (მერე — უბრალოდ `git push`) |
+
+**🔁 ყოველდღე**
+
+| ბრძანება | რას აკეთებს |
+|---|---|
+| `git status` | რა მდგომარეობაა — **როცა ეჭვი გაქვს** |
+| `git add .` | ყველა ცვლილება staging-ში |
+| `git commit -m "…"` | შენახვა ისტორიაში |
+| `git log --oneline` | ისტორია მოკლედ |
+
+**🐙 GitHub**
+
+| ბრძანება | რას აკეთებს |
+|---|---|
+| `git push` | ჩემი commit-ები → GitHub |
+| `git pull` | GitHub-ის commit-ები → ჩემთან |
+| `git clone <url>` | GitHub-იდან რეპოს ჩამოტვირთვა |
+  </aside>
+</section>
+<lecture-classwork/>
+<lecture-check/>
+<section class="slide" data-section="შეჯამება">
+  <div class="kicker">შეჯამება</div>
+  <h2>დღეს ვისწავლეთ</h2>
+  <div class="col" style="gap:30px;margin-top:30px">
+    <div class="row in left" style="--d:0.20s;gap:20px;align-items:center"><span class="big-emoji" style="font-size:44px">⏳</span><span style="font-size:29px"><b>Git</b> — კოდის ისტორია: რეპო, 3 ზონა, <code class="i">add</code> → <code class="i">commit</code> → <code class="i">log</code></span></div>
+    <div class="row in left" style="--d:0.35s;gap:20px;align-items:center"><span class="big-emoji" style="font-size:44px">🐙</span><span style="font-size:29px"><b>GitHub</b> — კოდის ჰოსტინგი: <code class="i">remote</code>, <code class="i">push</code>, <code class="i">pull</code>, <code class="i">clone</code></span></div>
+    <div class="row in left" style="--d:0.50s;gap:20px;align-items:center"><span class="big-emoji" style="font-size:44px">🔁</span><span style="font-size:29px"><b>ციკლი</b> — <code class="i">pull</code> → შეცვლა → <code class="i">add</code> → <code class="i">commit</code> → <code class="i">push</code></span></div>
+  </div>
+  <p class="lead in mt" style="--d:0.7s;text-align:center">შემდეგ ლექციაზე: <code class="i">.gitignore</code> 🙈 და <b>branch · merge · conflict</b> 🌿</p>
+  <aside class="study">
+## შეჯამება · დღეს ვისწავლეთ
+
+- ⏳ **Git** — კოდის ისტორია შენს კომპიუტერზე: რეპოზიტორია (`.git`), სამი ზონა (working → staging → repository), `git init`, `status`, `add`, `commit`, `log`.
+- 🐙 **GitHub** — კოდის ჰოსტინგი: remote (`origin`), `push`, `pull`, `clone`. ერთი რეპო — რამდენიმე ასლი.
+- 🔁 **ყოველდღიური ციკლი** — `pull` → შეცვლა → `add` → `commit` → `push`.
+
+**შემდეგ ლექციაზე:** `.gitignore` — რა არ უნდა მოხვდეს GitHub-ზე, და branch, merge, conflict.
+
+```prompt გამოცდა მეორე ლექციაზე
+ვსწავლობ DevOps-ს. მეორე ლექციაზე გავიარეთ: Git (repository, working directory / staging / repository, git init, status, add, commit, log, git config) და GitHub (remote, push, pull, clone; ყოველდღიური ციკლი pull → შეცვლა → add → commit → push).
+დამისვი 8 კითხვა სათითაოდ, მარტივიდან რთულისკენ — ნაწილი პრაქტიკული სიტუაციები იყოს („რა ბრძანებას გაუშვებ, როცა…“). ყოველ პასუხზე შემიფასე და ამიხსენი. ბოლოს მითხარი, რა გავიმეორო. ქართულად.
+```
+
+```prompt Git-ის ბრძანება არ მესმის
+ვსწავლობ Git-ს. ამიხსენი ეს ბრძანება მარტივად, ქართულად: რას აკეთებს, როდის ვიყენებ, და ერთი პატარა მაგალითი ტერმინალის გამოსავლით. ბრძანება: [აქ ჩასვი ბრძანება]
+```
+  </aside>
+</section>
+<lecture-homework/>
