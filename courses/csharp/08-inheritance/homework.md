@@ -4,11 +4,9 @@
 
 ## მოთხოვნები
 
-- ახალი Console App: **School**. კლასები — ცალკე ფაილებში
-- `Person`: `Name` (property წესით: ცარიელი → „უცნობი“), `Age { get; private set; }` (მინიმუმ 5), კონსტრუქტორი და `Introduce()`
+- Console App **School**, კლასები ცალკე ფაილებში. `Person`: `Name` (ცარიელი → „უცნობი“), `Age { get; private set; }` (მინიმუმ 5), `Introduce()`
 - `Student : Person`: `Grade` (1–12, `private set`), `Study()`
-- `Teacher : Person`: `Subject`, `Teach(Student student)` — ბეჭდავს, ვინ ვის ასწავლის
-- კონსტრუქტორები — `: base(name, age)`-ით
+- `Teacher : Person`: `Subject`, `Teach(Student student)` — ბეჭდავს, ვინ ვის ასწავლის. კონსტრუქტორები — `: base(name, age)`-ით
 - Main-ში: 2 მოსწავლე და 1 მასწავლებელი; `Person[] people` → ყველა წარდგება `foreach`-ით; მერე `Study()` და `Teach()`
 
 ## ✓ მზადაა, როცა
