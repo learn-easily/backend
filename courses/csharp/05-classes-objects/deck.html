@@ -124,7 +124,7 @@ table.t td.mono,table.t th.mono{font-family:var(--mono)}
   <aside class="study">
 # კლასები და ობიექტები
 
-აქამდე მონაცემები (ცვლადები, მასივები) და მოქმედებები (მეთოდები) ცალ-ცალკე იყო. დღეს მათ ერთად ვაერთიანებთ: **კლასი** — ნახაზი, **ობიექტი** — ამ ნახაზით შექმნილი ნამდვილი რამ.
+აქამდე მონაცემები (ცვლადები) და მოქმედებები (მეთოდები) ცალ-ცალკე იყო. დღეს მათ ერთად ვაერთიანებთ: **კლასი** — ნახაზი, **ობიექტი** — ამ ნახაზით შექმნილი ნამდვილი რამ.
   </aside>
 </section>
 <lecture-review/>
@@ -137,31 +137,36 @@ table.t td.mono,table.t th.mono{font-family:var(--mono)}
     <div class="fbox in" style="--a:var(--mvc)"><div class="e">👩</div><div class="l">ანა</div><div class="s">ერთი მოსწავლე</div></div>
     <div class="farrow in" style="--a:var(--red);--d:.3s;min-width:120px"><span class="ar">✂️</span>იჭრება</div>
     <div class="col" style="gap:12px;flex:1.3">
-      <div class="fbox step" style="--a:var(--net);padding:12px"><div class="l">names[1] = "ანა"</div></div>
-      <div class="fbox step" data-with style="--a:var(--asp);padding:12px"><div class="l">ages[1] = 15</div></div>
-      <div class="fbox step" data-with style="--a:var(--api);padding:12px"><div class="l">averages[1] = 9.2</div></div>
+      <div class="fbox step" style="--a:var(--net);padding:12px"><div class="l">anaName = "ანა"</div></div>
+      <div class="fbox step" data-with style="--a:var(--asp);padding:12px"><div class="l">anaAge = 15</div></div>
+      <div class="fbox step" data-with style="--a:var(--api);padding:12px"><div class="l">anaAverage = 9.2</div></div>
     </div>
   </div>
   <div class="solve step mt2" style="display:block;text-align:center;font-size:24px">ცხოვრებაში მოსწავლე, პროდუქტი, გმირი — <b>ერთი რამაა</b>. კოდშიც <b>ერთ ცვლადში</b> უნდა ცხოვრობდეს</div>
   <aside class="study">
 ### 🧩 პრობლემა: მოსწავლე — ერთი რამ, ჩვენ კი ნაწილებად ვინახავთ
 
-ანა ერთი მოსწავლეა, მაგრამ ჩვენი ცოდნით მისი სახელი ერთ მასივშია, ასაკი — მეორეში, საშუალო — მესამეში. მოსწავლე, პროდუქტი, გმირი — ცხოვრებაში ერთი რამაა და კოდშიც ერთ ცვლადში უნდა ცხოვრობდეს.
+ანა ერთი მოსწავლეა, მაგრამ ჩვენი ცოდნით ის სამ ცალკე ცვლადშია: `anaName`, `anaAge`, `anaAverage`. მოსწავლე, პროდუქტი, გმირი — ცხოვრებაში ერთი რამაა და კოდშიც ერთ ცვლადში უნდა ცხოვრობდეს.
   </aside>
 </section>
 <section class="slide" data-section="შესავალი">
   <div class="kicker c-red">💥 პრობლემა კოდში</div>
-  <h2>ერთი მოსწავლე — <span class="c-red">სამ სხვადასხვა მასივში</span></h2>
+  <h2>ერთი მოსწავლე — <span class="c-red">სამი ცალკე ცვლადი</span></h2>
   <div class="grid2" style="grid-template-columns:1.2fr 1fr;gap:30px;align-items:start;margin-top:6px">
     <div class="col" style="gap:14px">
       <code-block id="par" lang="csharp" cls="sm" title="Program.cs · ჩვენი ცოდნით">
 static void Main(string[] args)
 {
-    string[] names = { "ნიკა", "ანა", "ლუკა" };
-    int[] ages = { 16, 15, 17 };
-    double[] averages = { 8.5, 9.2, 7.8 };
+    string anaName = "ანა";
+    int anaAge = 15;
+    double anaAverage = 9.2;
 
-    PrintStudent(names[1], ages[1], averages[1]);
+    string gioName = "გიო";
+    int gioAge = 16;
+    double gioAverage = 8.5;
+
+    PrintStudent(anaName, anaAge, anaAverage);
+    PrintStudent(gioName, gioAge, gioAverage);
 }
 
 static void PrintStudent(string name, int age, double average)
@@ -169,29 +174,31 @@ static void PrintStudent(string name, int age, double average)
     Console.WriteLine($"{name}, {age} წლის, საშუალო {average}");
 }
       </code-block>
-      <table class="data step"><tr><th>[i]</th><th>names</th><th>ages</th><th>averages</th></tr>
-        <tr><td>0</td><td>ნიკა</td><td>16</td><td>8.5</td></tr>
-        <tr><td>1</td><td class="new">ანა</td><td class="new">15</td><td class="new">9.2</td></tr>
-        <tr><td>2</td><td>ლუკა</td><td>17</td><td>7.8</td></tr></table>
     </div>
     <div class="col" style="gap:12px">
-      <div class="problem step" style="display:block;font-size:20px">🧩 ანას მონაცემებს მხოლოდ <b>ერთი ინდექსი</b> აკავშირებს</div>
-      <div class="problem step" style="display:block;font-size:20px">🔀 <code class="i">names</code> ანბანით დაალაგე? ასაკები და ქულები <b>აირია</b></div>
+      <div class="problem step" style="display:block;font-size:20px">🧩 ანას სამ ცვლადს მხოლოდ <b>სახელი</b> <code class="i">ana…</code> აკავშირებს — C#-მა ეს არ იცის</div>
+      <div class="problem step" style="display:block;font-size:20px">🔀 <code class="i">PrintStudent(anaName, gioAge, anaAverage)</code> — დაკომპილირდება, მაგრამ მონაცემები <b>აირია</b></div>
+      <div class="problem step" style="display:block;font-size:20px">👥 მესამე მოსწავლე — კიდევ 3 ცვლადი. 30 მოსწავლე — <b>90 ცვლადი</b></div>
       <div class="problem step" style="display:block;font-size:20px">📋 ტელეფონი, მისამართი, კლასი… მეთოდს <b>10 პარამეტრი</b>?</div>
       <div class="solve step" style="display:block;font-size:21px">გამოსავალი: <b>საკუთარი ტიპი</b> — <code class="i">Student</code>, ისევე როგორც <code class="i">int</code> ან <code class="i">string</code></div>
     </div>
   </div>
   <aside class="study">
-### 💥 პრობლემა კოდში: ერთი მოსწავლე — სამ სხვადასხვა მასივში
+### 💥 პრობლემა კოდში: ერთი მოსწავლე — სამი ცალკე ცვლადი
 
 ```csharp Program.cs · ჩვენი ცოდნით
 static void Main(string[] args)
 {
-    string[] names = { "ნიკა", "ანა", "ლუკა" };
-    int[] ages = { 16, 15, 17 };
-    double[] averages = { 8.5, 9.2, 7.8 };
+    string anaName = "ანა";
+    int anaAge = 15;
+    double anaAverage = 9.2;
 
-    PrintStudent(names[1], ages[1], averages[1]);
+    string gioName = "გიო";
+    int gioAge = 16;
+    double gioAverage = 8.5;
+
+    PrintStudent(anaName, anaAge, anaAverage);
+    PrintStudent(gioName, gioAge, gioAverage);
 }
 
 static void PrintStudent(string name, int age, double average)
@@ -200,8 +207,9 @@ static void PrintStudent(string name, int age, double average)
 }
 ```
 
-- 🧩 ანას მონაცემებს მხოლოდ ინდექსი `1` აკავშირებს.
-- 🔀 `names` ანბანით დაალაგე? ასაკები და ქულები სხვა მოსწავლეებს „მიეწებება“.
+- 🧩 ანას სამ ცვლადს მხოლოდ სახელის დასაწყისი `ana…` აკავშირებს. C#-ისთვის ეს სამი სრულიად დამოუკიდებელი ცვლადია.
+- 🔀 `PrintStudent(anaName, gioAge, anaAverage)` — დაკომპილირდება და შეცდომას ვერავინ შეამჩნევს: ანას გიოს ასაკი მიეწერა.
+- 👥 ყოველ ახალ მოსწავლეს კიდევ სამი ცვლადი სჭირდება. 30 მოსწავლე — 90 ცვლადი.
 - 📋 დაამატე ტელეფონი, მისამართი, კლასი… მეთოდს 10 პარამეტრი დასჭირდება.
 
 გამოსავალი — **საკუთარი ტიპი** `Student`, ისევე როგორც `int` ან `string`.
@@ -942,7 +950,7 @@ namespace SchoolApp
 </section>
 <section class="slide" data-section="4 · ცალკე ფაილი">
   <div class="kicker c-mvc">⌨️ ვწერთ · ობიექტების მასივი</div>
-  <h2>სამი მასივის ნაცვლად — <span class="grad">ერთი</span></h2>
+  <h2>ბევრი მოსწავლე — <span class="grad">ერთ მასივში</span></h2>
   <div class="grid2" style="grid-template-columns:1.3fr 1fr;gap:26px;align-items:start;margin-top:6px">
     <code-block id="arr" lang="csharp" cls="sm" title="Program.cs · Main">
 Student[] students =
@@ -970,11 +978,11 @@ Console.WriteLine($"🏆 საუკეთესო: {best.Name}");
       <div class="callout step" data-with style="--a:var(--net);font-size:19px"><code class="i">Student[]</code> — ისევე როგორც <code class="i">int[]</code>. ყოველი ელემენტი — <b>მთელი მოსწავლე</b>, კონსტრუქტორით</div>
       <i class="codestep" data-for="arr" data-lines="10-17"></i>
       <div class="callout step" data-with style="--a:var(--asp);font-size:19px">foreach + მეთოდი + if — ყველაფერი, რაც ვისწავლეთ, <b>ერთად</b></div>
-      <div class="solve step" style="display:block;font-size:19px">ლექციის დასაწყისის სამი მასივი — <b>ერთი</b>. მონაცემები <b>ვეღარ აირევა</b></div>
+      <div class="solve step" style="display:block;font-size:19px">დასაწყისში 2 მოსწავლეს <b>6 ცვლადი</b> სჭირდებოდა — ახლა <b>ერთი მასივია</b>. მონაცემები <b>ვეღარ აირევა</b></div>
     </div>
   </div>
   <aside class="study">
-### ობიექტების მასივი: სამი მასივის ნაცვლად — ერთი
+### ობიექტების მასივი: ბევრი მოსწავლე — ერთ მასივში
 
 ```csharp Program.cs · Main
 Student[] students =
@@ -999,7 +1007,7 @@ Console.WriteLine($"🏆 საუკეთესო: {best.Name}");
 ```
 
 - `Student[]` — ისევე როგორც `int[]`, ოღონდ ყოველი ელემენტი მთელი მოსწავლეა.
-- ლექციის დასაწყისის `names[]`, `ages[]`, `averages[]` — ერთ მასივად იქცა. მოსწავლის მონაცემები ვეღარ აირევა.
+- ლექციის დასაწყისში 2 მოსწავლეს 6 ცალკე ცვლადი სჭირდებოდა (`anaName`, `anaAge`…). ახლა ყოველი მოსწავლე ერთი ობიექტია, ყველა ერთად — ერთ მასივში. მონაცემები ვეღარ აირევა.
   </aside>
 </section>
 <section class="slide" data-section="4 · ცალკე ფაილი">
