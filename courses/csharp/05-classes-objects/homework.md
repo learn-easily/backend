@@ -26,7 +26,6 @@ Student nika = new Student("ნიკა", new int[] { 8, 9, 7 });
 Student ana = new Student("ანა", new int[] { 9, 10, 8 });
 Student luka = new Student("ლუკა", new int[] { 6, 7, 5 });
 Student mariami = new Student("მარიამი");
-
 nika.PrintReport();
 ana.PrintReport();
 luka.PrintReport();
@@ -36,7 +35,6 @@ Student best = nika;
 if (ana.Average() > best.Average()) best = ana;
 if (luka.Average() > best.Average()) best = luka;
 if (mariami.Average() > best.Average()) best = mariami;
-
 int excellent = 0;
 if (nika.Grade() == "ფრიადი") excellent++;
 if (ana.Grade() == "ფრიადი") excellent++;
