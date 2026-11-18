@@ -27,7 +27,6 @@ Hero[] team =
     new Hero("ჯადოქარი", 70)
 };
 Hero dragon = new Hero("დრაკონი", 200);
-
 while (dragon.IsAlive() && AnyAlive(team))
 {
     foreach (Hero h in team)
