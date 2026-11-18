@@ -183,8 +183,9 @@ def first_code(text):   # the code fence marked with a trailing "!" in its title
 
 # ---------- generated slides ----------
 def qa_rows(review):
-    return ''.join(f'<div class="qa"><span class="n">{n}</span><span class="q">{md_inline(r["q"]).replace("<code>", "<code class=\"i\">")}</span>'
-                   f'<span class="a step">{md_inline(r["a"]).replace("<code>", "<code class=\"i\">")}</span></div>' for n, r in enumerate(review, 1))
+    cls = 'qa-list two' if len(review) > 4 else 'qa-list'   # 5+ questions: two columns, so the slide never overflows
+    return f'<div class="{cls}">' + ''.join(f'<div class="qa"><span class="n">{n}</span><span class="q">{md_inline(r["q"]).replace("<code>", "<code class=\"i\">")}</span>'
+                   f'<span class="a step">{md_inline(r["a"]).replace("<code>", "<code class=\"i\">")}</span></div>' for n, r in enumerate(review, 1)) + '</div>'
 
 def check_md(review):
     return '```check\n' + '\n'.join(f'? {r["q"]}\n= {r["a"]}' for r in review) + '\n```'
@@ -307,12 +308,14 @@ def expand(src, meta, ldir, prev):
     }
     problems = []
     if '<lecture-intro/>' in src:   # new-format lecture: every part is required
-        need = ['lecture-intro', 'lecture-classwork', 'lecture-check', 'lecture-homework']
+        # classwork.md / homework.md are optional (e.g. an intro lecture without tasks) — but tag and file go together
+        need = ['lecture-intro', 'lecture-check']
+        for tag, f in (('lecture-classwork', 'classwork.md'), ('lecture-homework', 'homework.md')):
+            if (ldir / f).exists(): need.append(tag)
+            elif f'<{tag}/>' in src: problems.append(f'<{tag}/> არის, მაგრამ {f} აკლია')
         if prev and prev['meta'].get('review'): need.append('lecture-review')
         if prev and prev['homework']: need.append('lecture-homework-review')
         problems += [f'<{n}/> აკლია' for n in need if f'<{n}/>' not in src]
-        for f in ('classwork.md', 'homework.md'):
-            if not (ldir / f).exists(): problems.append(f'{f} აკლია')
         for k in ('why', 'outcomes', 'review'):
             if not meta.get(k): problems.append(f'lecture.json: "{k}" აკლია')
         if problems:
