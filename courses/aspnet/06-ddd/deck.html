@@ -1,0 +1,985 @@
+<style>
+i.codestep{display:none}
+.mono{font-family:var(--mono)}
+.qbig{font-size:46px;font-weight:800;line-height:1.25;color:var(--ink)}
+.opt{display:flex;gap:16px;align-items:flex-start;background:#fff;border:1px solid var(--line);border-left:6px solid var(--a);border-radius:12px;padding:14px 20px;box-shadow:var(--shadow)}
+.opt .n{font:800 28px var(--mono);color:var(--a);line-height:1}
+.opt h3{font-size:21px;margin-bottom:4px}
+.opt p{font-size:18px}
+.opt .v{margin-left:auto;font-size:28px;flex:none}
+/* who-says boxes */
+.say{border-radius:16px;padding:16px 20px;border:2px solid var(--a);background:color-mix(in srgb,var(--a) 7%,#fff)}
+.say .who{font:700 15px var(--mono);color:var(--a);letter-spacing:.04em;text-transform:uppercase;margin-bottom:6px}
+.say p{font-size:21px;color:var(--ink)}
+/* word with two meanings */
+.word{display:grid;grid-template-columns:170px 1fr 1fr;gap:12px;align-items:stretch}
+.word .w{font:800 26px var(--font);color:var(--ink);display:flex;align-items:center}
+.word .m{border-radius:12px;padding:10px 14px;font-size:18px;background:#fff;border:2px solid var(--a);color:var(--ink2)}
+.word .m b{display:block;font:700 14px var(--mono);color:var(--a);margin-bottom:2px}
+/* glossary */
+.gl{display:grid;grid-template-columns:150px 150px 1fr;background:#fff;border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);overflow:hidden}
+.gl>div{padding:10px 14px;border-bottom:1px solid var(--line);font-size:18px;color:var(--ink2)}
+.gl .h{background:var(--bg3);font:700 14px var(--mono);color:var(--ink);letter-spacing:.04em}
+.gl .t{font-weight:800;color:var(--ink)}
+.gl .e{font:700 17px var(--mono);color:var(--core)}
+/* dialog */
+.dlg{display:flex;flex-direction:column;gap:9px}
+.msg{max-width:88%;border-radius:16px;padding:9px 16px;font-size:18px;line-height:1.4;box-shadow:var(--shadow)}
+.msg b.who{display:block;font:700 13px var(--mono);opacity:.75;margin-bottom:1px}
+.msg.biz{align-self:flex-start;background:#fff7ed;border:1px solid #fdba74;color:#7c2d12}
+.msg.dev{align-self:flex-end;background:#eef2ff;border:1px solid #a5b4fc;color:#312e81}
+.msg .tq{display:inline-block;font:700 12px var(--mono);background:#4f46e5;color:#fff;border-radius:6px;padding:1px 7px;margin-left:6px}
+.found{display:flex;gap:10px;align-items:center;border-radius:12px;padding:10px 14px;border:2px solid var(--a);background:color-mix(in srgb,var(--a) 7%,#fff);font-size:18px;color:var(--ink)}
+.found .k{font:700 13px var(--mono);color:#fff;background:var(--a);border-radius:7px;padding:3px 9px;white-space:nowrap}
+/* technique cards */
+.tq-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.tqc{border-radius:14px;padding:12px 16px;background:#fff;border:1px solid var(--line);border-left:6px solid var(--a);box-shadow:var(--shadow)}
+.tqc h3{font-size:20px;margin-bottom:2px}
+.tqc p{font-size:17px;color:var(--ink2)}
+.no{border-radius:12px;padding:10px 14px;background:#fef2f2;border:1px solid #fca5a5;color:#991b1b;font-size:18px}
+/* pipeline */
+.pipe{display:flex;align-items:stretch;gap:10px}
+.pipe .st{flex:1;border-radius:14px;padding:14px 10px;text-align:center;border:2px solid var(--a);background:color-mix(in srgb,var(--a) 8%,#fff)}
+.pipe .st .e{font-size:34px;line-height:1.2}
+.pipe .st .l{font-size:18px;font-weight:800;color:var(--ink)}
+.pipe .st .s{font:14px var(--mono);color:var(--muted);margin-top:2px}
+.pipe .ar{align-self:center;font:800 24px var(--mono);color:var(--muted)}
+/* sentence -> code */
+.sent{font-size:28px;line-height:1.6;background:#fff;border:1px solid var(--line);border-radius:16px;padding:18px 24px;box-shadow:var(--shadow);color:var(--ink)}
+.sent .n{border-bottom:4px solid var(--core);font-weight:700}
+.sent .v{border-bottom:4px solid var(--net);font-weight:700}
+.sent .r{border-bottom:4px solid var(--red);font-weight:700}
+.sent .a{border-bottom:4px solid #d97706;font-weight:700}
+.mapr{display:grid;grid-template-columns:200px 40px 1fr;gap:10px 8px;align-items:center}
+.mapr .k{border-radius:10px;padding:8px 12px;font-weight:800;font-size:19px;color:#fff;background:var(--a);text-align:center}
+.mapr .ar{text-align:center;font:800 22px var(--mono);color:var(--muted)}
+.mapr .c{font:600 18px var(--mono);background:#fff;border:1px solid var(--line);border-radius:10px;padding:8px 14px;color:var(--ink)}
+/* user story */
+.story{background:#fff;border:2px solid var(--core);border-radius:18px;padding:18px 24px;box-shadow:var(--shadow);font-size:24px;line-height:1.55;color:var(--ink)}
+.story .k{font:800 15px var(--mono);color:var(--core);letter-spacing:.06em;text-transform:uppercase;display:block;margin-bottom:4px}
+.story em{font-style:normal;font-weight:800}
+.note-text{background:#fffbeb;border:1px solid #fcd34d;border-radius:16px;padding:20px 26px;font-size:22px;line-height:1.6;color:var(--ink);box-shadow:var(--shadow)}
+.ans{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+</style>
+<!-- =========================================================
+     ლექცია 6 — DDD: ბიზნესის ენიდან კოდამდე
+     ფერები:
+       ბიზნესი / Domain Expert = ნარინჯისფერი · დეველოპერი = ლურჯი-იისფერი
+       ტერმინი (არსებითი სახელი) = teal · მოქმედება = იისფერი · წესი = წითელი · აქტორი = ქარვისფერი
+     ========================================================= -->
+
+<!-- TITLE -->
+<section class="slide" data-section="შესავალი">
+  <div class="vcenter" style="max-width:800px">
+    <div class="kicker in" style="color:var(--core)">ASP.NET Core Web API · ლექცია 6</div>
+    <h1 class="in" style="--d:.15s">ჯერ გაიგე —<br><span class="grad">მერე დაწერე</span></h1>
+    <p class="lead in mt" style="--d:.35s"><b>DDD</b>: ბიზნესთან საერთო ენა, სწორი კითხვები და ამ ენის გადატანა კოდში</p>
+  </div>
+  <div class="abs" style="right:90px;top:210px">
+    <svg viewBox="0 0 600 460" width="600" height="460">
+      <g class="in" style="--d:.4s"><rect x="0" y="40" width="220" height="110" rx="22" fill="#fff7ed" stroke="#ea580c" stroke-width="3"/><text x="110" y="88" text-anchor="middle" font-size="34">🧑‍💼</text><text x="110" y="130" text-anchor="middle" font-size="18" font-weight="700" fill="#9a3412">ბიზნესი</text></g>
+      <g class="in" style="--d:.6s"><rect x="380" y="40" width="220" height="110" rx="22" fill="#eef2ff" stroke="#4f46e5" stroke-width="3"/><text x="490" y="88" text-anchor="middle" font-size="34">👩‍💻</text><text x="490" y="130" text-anchor="middle" font-size="18" font-weight="700" fill="#3730a3">დეველოპერი</text></g>
+      <path class="autodraw" style="--d:.8s" d="M220 80 C 290 40, 310 40, 380 80" stroke="#0d9488" stroke-width="4" fill="none"/>
+      <path class="autodraw" style="--d:1s" d="M380 115 C 310 155, 290 155, 220 115" stroke="#0d9488" stroke-width="4" fill="none"/>
+      <g class="in fade" style="--d:1.3s"><rect x="200" y="190" width="200" height="60" rx="30" fill="#f0fdfa" stroke="#0d9488" stroke-width="3"/><text x="300" y="228" text-anchor="middle" font-size="20" font-weight="800" fill="#0f766e">ერთი ენა</text></g>
+      <path class="autodraw" style="--d:1.5s" d="M300 250 L300 320" stroke="#0d9488" stroke-width="4" fill="none" stroke-dasharray="8 8"/>
+      <g class="in" style="--d:1.8s"><rect x="150" y="320" width="300" height="80" rx="18" fill="#fff" stroke="#cbd5e1" stroke-width="2"/><text x="300" y="356" text-anchor="middle" font-size="19" font-family="monospace" font-weight="700" fill="#0f766e">class Enrollment</text><text x="300" y="384" text-anchor="middle" font-size="17" font-family="monospace" fill="#475569">POST …/withdraw</text></g>
+    </svg>
+  </div>
+</section>
+<lecture-review/>
+<lecture-homework-review/>
+<lecture-intro/>
+<section class="slide" data-section="დღის თემა">
+  <div class="kicker">ნამდვილი ისტორია</div>
+  <h2>„პროგრამა მუშაობს. <span class="c-red">მე სხვა რამ მინდოდა.</span>“</h2>
+  <div class="grid2" style="grid-template-columns:1fr 1.1fr;align-items:center;gap:46px">
+    <div class="col" style="gap:18px">
+      <div class="say in" style="--a:#ea580c;--d:.2s"><div class="who">🧑‍💼 დირექტორი · თვის დასაწყისი</div><p>„სტუდენტს <b>3 გაცდენაზე მეტი</b> არ უნდა ჰქონდეს.“</p></div>
+      <div class="say step" style="--a:#4f46e5"><div class="who">👩‍💻 დეველოპერი · ორი კვირის შემდეგ</div><p>„მზადაა! მე-4 გაცდენაზე სტუდენტი <b>იბლოკება</b>.“</p></div>
+    </div>
+    <div class="col" style="gap:14px">
+      <div class="opt step right" style="--a:var(--red)"><span class="n">1</span><div><h3>ანამ ჯგუფში ვეღარ შეიხედა</h3><p>ლექციის მასალა, დავალება — ყველაფერი ჩაიკეტა</p></div><span class="v">😢</span></div>
+      <div class="opt step right" style="--a:var(--red)"><span class="n">2</span><div><h3>დირექტორი: „ვინ გთხოვა ბლოკი?!“</h3><p>„მე მინდოდა, ლექტორმა <b>გაიგოს</b> და დაურეკოს“</p></div><span class="v">😠</span></div>
+      <div class="callout step" style="--a:var(--net)">კოდში შეცდომა არ არის — ტესტიც გადის. შეცდომა <b>გაგებაშია</b></div>
+    </div>
+  </div>
+  <aside class="study">
+### „პროგრამა მუშაობს. მე სხვა რამ მინდოდა.“
+
+აკადემიის დირექტორმა დეველოპერს უთხრა: „სტუდენტს 3 გაცდენაზე მეტი არ უნდა ჰქონდეს.“ დეველოპერმა ორ კვირაში დაწერა ფუნქცია: მე-4 გაცდენაზე სტუდენტის ანგარიში იბლოკება.
+
+შედეგი:
+
+1. სტუდენტმა ანამ ჯგუფში ვეღარ შეიხედა: მასალა, დავალებები, ყველაფერი ჩაიკეტა.
+2. დირექტორი გაბრაზდა: „ვინ გთხოვა ბლოკი? მე მინდოდა, ლექტორმა გაიგოს და დაურეკოს.“
+
+კოდში შეცდომა არ არის: ის კომპილირდება, მუშაობს და ზუსტად იმას აკეთებს, რაც დეველოპერმა ჩაიფიქრა. პრობლემა ისაა, რომ დეველოპერმა **სხვა რამ გაიგო**, ვიდრე დირექტორმა თქვა.
+
+ეს პროგრამირების ყველაზე ძვირი შეცდომაა. syntax-ის შეცდომას კომპილატორი გვიჩვენებს, ამ შეცდომას კი არავინ, სანამ ბიზნესი არ დაინახავს. დღევანდელი ლექცია სწორედ ამაზეა: როგორ გავიგოთ ბიზნესი სწორად, სანამ კოდს დავწერთ.
+  </aside>
+</section>
+
+<!-- ================= PART 1 ================= -->
+<section class="slide divider" data-section="1 · რა არის DDD">
+  <div class="vcenter">
+    <div class="kicker in">ნაწილი 1</div>
+    <h1 class="in" style="--d:.1s">რა არის <span class="grad">DDD</span></h1>
+    <p class="lead mt in" style="--d:.3s">კოდი, რომელიც ბიზნესს იმეორებს</p>
+  </div>
+  <div class="big-num">01</div>
+  <aside class="study">
+## ნაწილი 1 · რა არის DDD
+
+ჯერ ვნახავთ, როგორ გამოიყურება „გაუგებრობა“ კოდში. შემდეგ გავეცნობით DDD-ს, მიდგომას, რომელიც სწორედ ამ პრობლემას ებრძვის, და იმასაც, როდის ღირს მისი გამოყენება.
+  </aside>
+</section>
+<section class="slide" data-section="1 · რა არის DDD">
+  <div class="kicker">პრობლემა კოდში</div>
+  <h2>კოდი <span class="c-mvc">სწორია</span> — წესი <span class="c-red">არასწორია</span></h2>
+  <div class="grid2" style="grid-template-columns:1.15fr 1fr;align-items:start;gap:36px">
+    <code-block id="ab" lang="csharp" cls="sm" title="AttendanceController.cs · Mark">
+var student = await _db.Students.FindAsync(request.StudentId);
+if (student is null) return NotFound();
+
+if (!request.IsPresent)
+    student.Absences++;
+
+// დირექტორი: „3 გაცდენაზე მეტი არ უნდა ჰქონდეს“
+if (student.Absences > 3)
+    student.IsBlocked = true;
+
+await _db.SaveChangesAsync();
+return NoContent();
+    </code-block>
+    <div class="col" style="gap:14px">
+      <i class="codestep" data-for="ab" data-lines="7-9"></i>
+      <div class="callout step" data-with style="--a:#4f46e5">დეველოპერმა „არ უნდა ჰქონდეს“ <b>აკრძალვად</b> გაიგო</div>
+      <div class="tiny step" style="font:700 15px var(--mono);color:var(--muted)">რას გულისხმობდა ბიზნესი:</div>
+      <div class="opt step" data-with style="--a:var(--core)"><span class="n">1</span><div><h3>გაცდენა = არ მოვიდა <b>ან</b> 15 წთ-ზე მეტი დააგვიანა</h3></div></div>
+      <div class="opt step" style="--a:var(--core)"><span class="n">2</span><div><h3>მე-4 გაცდენაზე <b>ლექტორი იღებს შეტყობინებას</b></h3></div></div>
+      <div class="opt step" style="--a:var(--core)"><span class="n">3</span><div><h3>ბლოკი <b>არასდროს</b> — სწავლა გრძელდება</h3></div></div>
+      <div class="problem step" style="font-size:19px">ამ სამიდან კოდში არც ერთი არ არის — და <b>არავინ</b> იკითხა</div>
+    </div>
+  </div>
+  <aside class="study">
+### კოდი სწორია, წესი არასწორია
+
+```csharp AttendanceController.cs · Mark
+var student = await _db.Students.FindAsync(request.StudentId);
+if (student is null) return NotFound();
+
+if (!request.IsPresent)
+    student.Absences++;
+
+// დირექტორი: „3 გაცდენაზე მეტი არ უნდა ჰქონდეს“
+if (student.Absences > 3)
+    student.IsBlocked = true;
+
+await _db.SaveChangesAsync();
+return NoContent();
+```
+
+ამ კოდში ყველაფერი ნაცნობია: `FindAsync`, `NotFound`, `SaveChangesAsync`. ის უშეცდომოდ მუშაობს. მაგრამ დეველოპერმა სიტყვა „არ უნდა ჰქონდეს“ **აკრძალვად** გაიგო და ბლოკი დაწერა.
+
+ბიზნესი კი სამ რამეს გულისხმობდა:
+
+1. **გაცდენა** მხოლოდ „არ მოვიდა“ არ არის: 15 წუთზე მეტი დაგვიანებაც გაცდენად ითვლება.
+2. მე-4 გაცდენაზე **ლექტორი იღებს შეტყობინებას** და სტუდენტს უკავშირდება.
+3. ბლოკი **არასდროს** ხდება: სწავლა გრძელდება.
+
+ამ სამიდან კოდში არც ერთი არ არის, რადგან არავის უკითხავს. დეველოპერმა სიტყვები გაიგონა, მაგრამ მათი **მნიშვნელობა** არ გაარკვია.
+  </aside>
+</section>
+<section class="slide" data-section="1 · რა არის DDD">
+  <div class="kicker">ცნებები</div>
+  <h2><span class="c-core">Domain</span> · <span class="c-core">Domain Expert</span> · <span class="grad">DDD</span></h2>
+  <div class="grid3" style="grid-template-columns:1fr 1fr 1fr;gap:20px;align-items:start">
+    <div class="card accent step" style="--a:var(--core)"><h3><span class="ico">🏫</span>Domain</h3><p class="small">ბიზნესის <b>სფერო</b>, რომლისთვისაც პროგრამას ვწერთ: სწავლება, ბანკი, მაღაზია, საავადმყოფო</p></div>
+    <div class="card accent step" style="--a:#ea580c"><h3><span class="ico">🧑‍💼</span>Domain Expert</h3><p class="small">ადამიანი, ვინც ამ ბიზნესს <b>შიგნიდან</b> იცნობს: დირექტორი, მენეჯერი, ლექტორი. კოდი არ იცის — <b>წესები</b> იცის</p></div>
+    <div class="card accent step" style="--a:var(--net)"><h3><span class="ico">🧭</span>DDD</h3><p class="small"><b>Domain-Driven Design</b>: პროექტს <b>ბიზნესიდან</b> ვიწყებთ, არა ცხრილებიდან და ტექნოლოგიიდან</p></div>
+  </div>
+  <div class="grid2 mt" style="gap:24px">
+    <div class="callout step" style="--a:#ea580c"><b>ბიზნესის მხარე:</b> საერთო ენა, პროცესები, წესები — <b>ვინ რას აკეთებს და რატომ</b></div>
+    <div class="callout step" data-with style="--a:var(--net)"><b>კოდის მხარე:</b> იგივე ენა და წესები — class-ებში, endpoint-ებში, შემოწმებებში</div>
+  </div>
+  <aside class="study">
+### Domain, Domain Expert, DDD
+
+- **Domain** (დომენი) ბიზნესის სფეროა, რომლისთვისაც პროგრამას ვწერთ: სწავლება, ბანკი, მაღაზია, საავადმყოფო. ჩვენი დომენი **სწავლების მართვაა**: კურსები, ჯგუფები, ლექციები, დავალებები.
+- **Domain Expert** ადამიანია, ვინც ამ ბიზნესს შიგნიდან იცნობს: დირექტორი, მენეჯერი, ლექტორი. ის პროგრამირებას არ იცის, სამაგიეროდ იცის **წესები**: როდის ითვლება გაცდენა, ვინ რიცხავს სტუდენტს, როდის შეიძლება დავალების ხელახლა ჩაბარება.
+- **DDD** (Domain-Driven Design) მიდგომაა, რომლის დროსაც პროექტს **ბიზნესიდან** ვიწყებთ და არა ცხრილებიდან ან ტექნოლოგიიდან. ჯერ ვიგებთ, როგორ მუშაობს ბიზნესი, შემდეგ კი კოდი ამ სურათს იმეორებს.
+
+DDD-ს ორი მხარე აქვს:
+
+| მხარე | რას აკეთებს | ჩვენთან |
+|---|---|---|
+| **ბიზნესის მხარე** | საერთო ენა, პროცესები, წესები: ვინ რას აკეთებს და რატომ | დღეს და შემდეგ ლექციაზე სრულად |
+| **კოდის მხარე** | იგივე ენა და წესები class-ებში, endpoint-ებში, შემოწმებებში | დღეს საფუძველი, დანარჩენი თანდათან |
+
+```note
+DDD ბიბლიოთეკა ან NuGet პაკეტი არ არის: ის აზროვნების წესია. მას ვერ „დააინსტალირებ“, მაგრამ შეგიძლია მიჰყვე.
+```
+
+```terms
+Domain — ბიზნესის სფერო, რომლისთვისაც პროგრამას ვწერთ
+Domain Expert — ბიზნესის მცოდნე ადამიანი (დირექტორი, მენეჯერი, ლექტორი)
+DDD (Domain-Driven Design) — პროექტის დაგეგმვა და აწყობა ბიზნესიდან დაწყებით
+```
+  </aside>
+</section>
+<section class="slide" data-section="1 · რა არის DDD">
+  <div class="kicker">ყოველთვის?</div>
+  <h2>როდის ღირს <span class="grad">DDD</span></h2>
+  <div class="grid2" style="gap:36px;align-items:start">
+    <div class="card accent step left" style="--a:var(--muted)">
+      <h3><span class="ico">📒</span>მარტივი CRUD</h3>
+      <ul class="clean small"><li>„შეინახე — აჩვენე — წაშალე“</li><li>წესები თითქმის არ არის</li><li>მაგ. კონტაქტების წიგნი, LibraryApi-ის პირველი ვერსია</li></ul>
+      <p class="small mt"><b>DDD ზედმეტია</b> — ჩვეულებრივი Controller + DbContext საკმარისია</p>
+    </div>
+    <div class="card accent step right" style="--a:var(--mvc)">
+      <h3><span class="ico">🏫</span>ბევრი წესი · ბევრი ადამიანი</h3>
+      <ul class="clean small"><li>ჯგუფში ადგილები შეზღუდულია</li><li>დედლაინის შემდეგ ნამუშევარი აღარ მიიღება</li><li>შეფასება 1–12 · გაცდენა · ხელახლა ჩაბარება</li></ul>
+      <p class="small mt"><b>DDD ღირს</b> — LMS ზუსტად ასეთია</p>
+    </div>
+  </div>
+  <div class="solve step mt">ზომა: <b>რამდენი წესია</b> ბიზნესში, და არა რამდენი ცხრილი</div>
+  <aside class="study">
+### როდის ღირს DDD
+
+DDD ყველა პროექტს არ სჭირდება.
+
+- **მარტივი CRUD**: „შეინახე, აჩვენე, წაშალე“, წესები თითქმის არ არის. მაგალითად, კონტაქტების წიგნი ან LibraryApi-ის პირველი ვერსია. აქ DDD ზედმეტია: ჩვეულებრივი Controller და DbContext საკმარისია.
+- **ბევრი წესი და ბევრი ადამიანი**: სისტემაში სხვადასხვა როლის ადამიანი მუშაობს და ბევრი წესი მოქმედებს. LMS ზუსტად ასეთია: ჯგუფში ადგილები შეზღუდულია, დედლაინის შემდეგ ნამუშევარი აღარ მიიღება, შეფასება 1-დან 12-მდეა, გაცდენებს ითვლიან, ხელახლა ჩაბარებას კი თავისი პირობები აქვს. აქ DDD ღირს.
+
+საზომი ცხრილების რაოდენობა არ არის. მთავარია, **რამდენი წესია ბიზნესში** და რამდენად ძვირია მათი არასწორად გაგება.
+
+```check
+? ონლაინ ბლოგი: პოსტის დაწერა, ჩვენება, წაშლა. DDD ღირს?
+= ნაკლებად: წესები თითქმის არ არის, ჩვეულებრივი CRUD საკმარისია
+? ბანკის სესხების სისტემა (განაკვეთები, ვადები, ჯარიმები, დამტკიცება). DDD ღირს?
+= კი: ბევრი წესია და შეცდომა ძვირი ჯდება
+```
+  </aside>
+</section>
+
+<!-- ================= PART 2 ================= -->
+<section class="slide divider" data-section="2 · Ubiquitous Language">
+  <div class="vcenter">
+    <div class="kicker in">ნაწილი 2</div>
+    <h1 class="in" style="--d:.1s"><span class="grad">ერთი</span> ენა</h1>
+    <p class="lead mt in" style="--d:.3s">Ubiquitous Language — ერთი სიტყვა, ერთი მნიშვნელობა</p>
+  </div>
+  <div class="big-num">02</div>
+  <aside class="study">
+## ნაწილი 2 · Ubiquitous Language
+
+გაცდენის ისტორიაში პრობლემა სიტყვებში იყო. ახლა ვნახავთ, როგორ ერევა სიტყვები ერთმანეთში, როგორ ჩანს ეს კოდში და როგორ ვაწესრიგებთ მას.
+  </aside>
+</section>
+<section class="slide" data-section="2 · Ubiquitous Language">
+  <div class="kicker">პრობლემა</div>
+  <h2>ერთი სიტყვა — <span class="c-red">ორი მნიშვნელობა</span></h2>
+  <div class="col" style="gap:16px">
+    <div class="word step"><div class="w">„კურსი“</div><div class="m" style="--a:var(--core)"><b>მენეჯერისთვის</b>პროგრამა: „ASP.NET Web API“</div><div class="m" style="--a:#ea580c"><b>სტუდენტისთვის</b>„ჩემი კურსი“ = ჩემი ჯგუფი, ჩემი ლექტორი</div></div>
+    <div class="word step"><div class="w">„დავალება“</div><div class="m" style="--a:var(--core)"><b>ლექტორისთვის</b>ამოცანა, რომელიც ჯგუფს მისცა</div><div class="m" style="--a:#ea580c"><b>სტუდენტისთვის</b>ფაილი, რომელიც ჩააბარა</div></div>
+    <div class="word step"><div class="w" style="font-size:20px">სტუდენტი · მსმენელი · მოსწავლე</div><div class="m" style="--a:var(--net);grid-column:span 2"><b>სამი სიტყვა</b>ერთი და იგივე ადამიანი — ან არა? დეველოპერი სამ სხვადასხვა რამეს ხედავს</div></div>
+  </div>
+  <div class="problem step mt">ორივე მხარეს <b>ჰგონია</b>, რომ ერთმანეთს ეთანხმება</div>
+  <aside class="study">
+### ერთი სიტყვა, ორი მნიშვნელობა
+
+ყოველდღიურ საუბარში ერთსა და იმავე სიტყვას სხვადასხვა რამეს ვუწოდებთ და ვერც ვამჩნევთ. LMS-ში ამის მაგალითები LB-დანაც კარგად იცით:
+
+- **„კურსი“** მენეჯერისთვის პროგრამაა („ASP.NET Web API“, რომელიც ყოველ სემესტრში მეორდება). სტუდენტისთვის „ჩემი კურსი“ მისი **ჯგუფია**: კონკრეტული ლექტორი, კონკრეტული განრიგი.
+- **„დავალება“** ლექტორისთვის ამოცანაა, რომელიც ჯგუფს მისცა. სტუდენტისთვის კი ფაილია, რომელიც ჩააბარა.
+- **„სტუდენტი“, „მსმენელი“, „მოსწავლე“**: სამი სიტყვა ერთი ადამიანისთვის? ბიზნესისთვის ეს ერთი და იგივეა, დეველოპერი კი შეიძლება სამ სხვადასხვა რამედ ჩათვალოს.
+
+ყველაზე საშიში ისაა, რომ საუბარში ამას ვერავინ ამჩნევს: ორივე მხარეს **ჰგონია**, რომ ერთმანეთს ეთანხმება. განსხვავება მხოლოდ მაშინ ჩანს, როცა კოდი უკვე დაწერილია.
+
+```tip
+ერთი სიტყვა შეიძლება მართლა სხვადასხვა რამეს ნიშნავდეს სხვადასხვა განყოფილებაში. მაგალითად, „სტუდენტი“ ბუღალტერიისთვის გადამხდელია, სასწავლო ნაწილისთვის კი ის, ვინც ლექციებზე დადის. დიდ სისტემებში ასეთ საზღვრებს **Bounded Context** ჰქვია. ჩვენი LMS ერთ კონტექსტში (სწავლება) დარჩება, ამიტომ ამაზე ახლა მეტს არ ვილაპარაკებთ.
+```
+  </aside>
+</section>
+<section class="slide" data-section="2 · Ubiquitous Language">
+  <div class="kicker">პრობლემა კოდში</div>
+  <h2>რას <span class="c-red">ნიშნავს</span> ეს კოდი?</h2>
+  <div class="grid2" style="grid-template-columns:1.1fr 1fr;align-items:start;gap:36px">
+    <code-block id="bad" lang="csharp" cls="sm" title="StudentCourse.cs · StudentCoursesController.cs">
+public class StudentCourse
+{
+    public Guid Id { get; set; }
+    public Guid StudentId { get; set; }
+    public Guid CourseId { get; set; }
+    public int Status { get; set; }
+}
+
+[HttpPut("{id:guid}/status")]
+public async Task<IActionResult> UpdateStatus(Guid id, int status)
+{
+    var sc = await _db.StudentCourses.FindAsync(id);
+    if (sc is null) return NotFound();
+    sc.Status = status;
+    await _db.SaveChangesAsync();
+    return NoContent();
+}
+    </code-block>
+    <div class="col" style="gap:14px">
+      <i class="codestep" data-for="bad" data-lines="1"></i>
+      <div class="opt step" data-with style="--a:var(--red)"><span class="n">?</span><div><h3>StudentCourse</h3><p>ჩარიცხვაა? ჯგუფია? ორი ცხრილის „კავშირი“?</p></div></div>
+      <i class="codestep" data-for="bad" data-lines="5"></i>
+      <div class="opt step" data-with style="--a:var(--red)"><span class="n">?</span><div><h3>CourseId</h3><p>კურსზე ირიცხება თუ <b>ჯგუფში</b>?</p></div></div>
+      <i class="codestep" data-for="bad" data-lines="6,10,14"></i>
+      <div class="opt step" data-with style="--a:var(--red)"><span class="n">?</span><div><h3>Status = 3</h3><p>რა მოხდა? დაასრულა? გაირიცხა? შეჩერდა?</p></div></div>
+      <div class="problem step" style="font-size:19px">დირექტორი ამ კოდს <b>ვერ წაიკითხავს</b> — ახალი დეველოპერიც ვერა</div>
+    </div>
+  </div>
+  <aside class="study">
+### რას ნიშნავს ეს კოდი?
+
+```csharp StudentCourse.cs
+public class StudentCourse
+{
+    public Guid Id { get; set; }
+    public Guid StudentId { get; set; }
+    public Guid CourseId { get; set; }
+    public int Status { get; set; }
+}
+```
+
+```csharp StudentCoursesController.cs
+[HttpPut("{id:guid}/status")]
+public async Task<IActionResult> UpdateStatus(Guid id, int status)
+{
+    var sc = await _db.StudentCourses.FindAsync(id);
+    if (sc is null) return NotFound();
+    sc.Status = status;
+    await _db.SaveChangesAsync();
+    return NoContent();
+}
+```
+
+კოდი მუშაობს, მაგრამ კითხვები რჩება:
+
+- **`StudentCourse`**: ეს ჩარიცხვაა? ჯგუფია? თუ უბრალოდ ორი ცხრილის „შემაერთებელი“? სახელი **ცხრილების** ენით არის დარქმეული და არა ბიზნესის ენით.
+- **`CourseId`**: სტუდენტი კურსზე ირიცხება თუ კონკრეტულ **ჯგუფში**? ერთ კურსს ბევრი ჯგუფი აქვს, ამიტომ ეს კავშირი შეიძლება საერთოდ არასწორი იყოს.
+- **`Status = 3`**: რა მოხდა? სტუდენტმა კურსი დაასრულა? გაირიცხა? შეჩერდა? ეს მხოლოდ იმ დეველოპერის თავშია, ვინც კოდი დაწერა.
+- **`UpdateStatus`**: რომელ მოქმედებას აკეთებს მომხმარებელი? „სტატუსის განახლება“ ბიზნესში არავის უთქვამს.
+
+ასეთ კოდს დირექტორი ვერ წაიკითხავს. ახალი დეველოპერიც ვერ გაიგებს, რა ხდება, თუ ძველს არ ჰკითხავს.
+  </aside>
+</section>
+<section class="slide" data-section="2 · Ubiquitous Language">
+  <div class="kicker">ამოხსნა</div>
+  <h2>ლექსიკონი — <span class="grad">Ubiquitous Language</span></h2>
+  <div class="grid2" style="grid-template-columns:1.25fr 1fr;align-items:start;gap:34px">
+    <div class="gl step">
+      <div class="h">ტერმინი</div><div class="h">კოდში</div><div class="h">რას ნიშნავს</div>
+      <div class="t">კურსი</div><div class="e">Course</div><div>სასწავლო პროგრამა: <b>რას</b> ვასწავლით</div>
+      <div class="t">ჯგუფი</div><div class="e">Group</div><div>სტუდენტები, რომლებიც კურსს <b>ერთად</b> გადიან</div>
+      <div class="t">ჩარიცხვა</div><div class="e">Enrollment</div><div>სტუდენტის მიღება <b>ჯგუფში</b></div>
+      <div class="t">გარიცხვა</div><div class="e">Withdraw</div><div>სტუდენტი ჯგუფს ტოვებს სწავლის დასრულებამდე</div>
+      <div class="t" style="border:0">სტუდენტი</div><div class="e" style="border:0">Student</div><div style="border:0">„მსმენელი“ და „მოსწავლე“ <b>აღარ</b> ვიყენებთ</div>
+    </div>
+    <div class="col" style="gap:14px">
+      <div class="callout step" style="--a:var(--core)"><b>ერთი სიტყვა = ერთი მნიშვნელობა</b> · სინონიმები გამოვრიცხეთ</div>
+      <div class="callout step" style="--a:#ea580c">სიტყვას <b>ბიზნესი</b> ირჩევს — დეველოპერი მხოლოდ ჩაწერს</div>
+      <div class="callout step" style="--a:var(--net)">იგივე სიტყვები — საუბარში, დოკუმენტში <b>და კოდში</b></div>
+    </div>
+  </div>
+  <aside class="study">
+### ლექსიკონი: Ubiquitous Language
+
+ამოხსნა მარტივია: **ბიზნესთან ერთად ვადგენთ ლექსიკონს**. ყოველ მნიშვნელოვან სიტყვას ერთი, ზუსტი მნიშვნელობა აქვს.
+
+| ტერმინი | კოდში | რას ნიშნავს |
+|---|---|---|
+| კურსი | `Course` | სასწავლო პროგრამა: **რას** ვასწავლით |
+| ჯგუფი | `Group` | სტუდენტები, რომლებიც კურსს **ერთად** გადიან |
+| ჩარიცხვა | `Enrollment` | სტუდენტის მიღება **ჯგუფში** |
+| გარიცხვა | `Withdraw` | სტუდენტი ჯგუფს ტოვებს სწავლის დასრულებამდე |
+| სტუდენტი | `Student` | „მსმენელი“ და „მოსწავლე“ **აღარ** ვიყენებთ |
+
+ამ ენას DDD-ში **Ubiquitous Language** ჰქვია („ყველგან არსებული ენა“). სამი წესი:
+
+1. **ერთი სიტყვა, ერთი მნიშვნელობა.** სინონიმებს ვაქრობთ: „სტუდენტი“ რჩება, „მსმენელი“ და „მოსწავლე“ ქრება.
+2. **სიტყვას ბიზნესი ირჩევს.** დეველოპერი მას არ იგონებს და არ „ალამაზებს“. თუ დირექტორი „ჩარიცხვას“ ამბობს, კოდშიც ჩარიცხვაა (`Enrollment`) და არა `StudentCourse`.
+3. **ენა ყველგანაა**: საუბარში, დოკუმენტებში, ტესტებში და **კოდში**: class-ების, property-ების, endpoint-ების სახელებში.
+
+ლექსიკონი ცოცხალი დოკუმენტია: ყოველ საუბარზე ივსება და სწორდება.
+
+```terms
+Ubiquitous Language — ბიზნესისა და დეველოპერის საერთო ენა; ერთი სიტყვა, ერთი მნიშვნელობა, ყველგან (კოდშიც)
+ლექსიკონი (Glossary) — ტერმინების სია განმარტებით, რომელსაც ბიზნესი ამოწმებს
+```
+  </aside>
+</section>
+<section class="slide" data-section="2 · Ubiquitous Language">
+  <div class="kicker">ამოხსნა კოდში</div>
+  <h2>კოდი <span class="grad">ლექსიკონის სიტყვებით</span></h2>
+  <div class="grid2" style="grid-template-columns:1.15fr 1fr;align-items:start;gap:34px">
+    <code-block id="good" lang="csharp" cls="sm" title="Enrollment.cs · EnrollmentsController.cs">
+public class Enrollment
+{
+    public Guid Id { get; set; }
+    public Guid StudentId { get; set; }
+    public Guid GroupId { get; set; }
+    public EnrollmentStatus Status { get; set; }
+}
+
+public enum EnrollmentStatus { Active, Withdrawn, Completed }
+
+[HttpPost("{id:guid}/withdraw")]
+public async Task<IActionResult> Withdraw(Guid id)
+{
+    var enrollment = await _db.Enrollments.FindAsync(id);
+    if (enrollment is null) return NotFound();
+    enrollment.Status = EnrollmentStatus.Withdrawn;
+    await _db.SaveChangesAsync();
+    return NoContent();
+}
+    </code-block>
+    <div class="col" style="gap:14px">
+      <i class="codestep" data-for="good" data-lines="1"></i>
+      <div class="solve step" data-with style="font-size:19px"><b>Enrollment</b> — „ჩარიცხვა“, ლექსიკონიდან</div>
+      <i class="codestep" data-for="good" data-lines="5"></i>
+      <div class="solve step" data-with style="font-size:19px"><b>GroupId</b> — ირიცხება ჯგუფში, არა კურსზე</div>
+      <i class="codestep" data-for="good" data-lines="6,9"></i>
+      <div class="solve step" data-with style="font-size:19px"><b>enum</b> — 3-ის ნაცვლად <code class="i">Withdrawn</code></div>
+      <i class="codestep" data-for="good" data-lines="11-12,16"></i>
+      <div class="solve step" data-with style="font-size:19px"><b>Withdraw</b> — მოქმედება, არა „სტატუსის განახლება“</div>
+      <div class="callout step" style="--a:#ea580c">დირექტორი კოდს ვერ წერს — მაგრამ <b>სახელებს წაიკითხავს</b> და იტყვის „კი, ეს არის“</div>
+    </div>
+  </div>
+  <aside class="study">
+### კოდი ლექსიკონის სიტყვებით
+
+იგივე ფუნქციონალი, ოღონდ ბიზნესის ენით:
+
+```csharp Enrollment.cs
+public class Enrollment
+{
+    public Guid Id { get; set; }
+    public Guid StudentId { get; set; }
+    public Guid GroupId { get; set; }
+    public EnrollmentStatus Status { get; set; }
+}
+
+public enum EnrollmentStatus { Active, Withdrawn, Completed }
+```
+
+```csharp EnrollmentsController.cs
+[HttpPost("{id:guid}/withdraw")]
+public async Task<IActionResult> Withdraw(Guid id)
+{
+    var enrollment = await _db.Enrollments.FindAsync(id);
+    if (enrollment is null) return NotFound();
+    enrollment.Status = EnrollmentStatus.Withdrawn;
+    await _db.SaveChangesAsync();
+    return NoContent();
+}
+```
+
+რა შეიცვალა:
+
+| ადრე | ახლა | რატომ |
+|---|---|---|
+| `StudentCourse` | `Enrollment` | ლექსიკონის სიტყვა „ჩარიცხვა“ |
+| `CourseId` | `GroupId` | სტუდენტი ჯგუფში ირიცხება, არა კურსზე |
+| `int Status` (1, 2, 3) | `enum EnrollmentStatus` | `Withdrawn` თავისით ხსნის, რა მოხდა |
+| `PUT …/status` + `UpdateStatus(int)` | `POST …/withdraw` + `Withdraw()` | endpoint ბიზნესის **მოქმედებაა**: „გარიცხვა“ |
+
+C#-ის არც ერთი ახალი ცნება არ გამოგვიყენებია: class, enum, Controller, async ყველა ნაცნობია. შეიცვალა მხოლოდ **სახელები**, და კოდი გასაგები გახდა. დირექტორი C#-ს ვერ წაიკითხავს, მაგრამ class-ებისა და endpoint-ების სახელებს წაიკითხავს და იტყვის: „კი, ეს არის“ ან „არა, ასე არ ხდება“.
+
+```note
+`POST /api/enrollments/{id}/withdraw` REST-ის ჩვეულებრივ CRUD-ს არ ჰგავს: ეს **მოქმედების** endpoint-ია. როცა მოქმედება უბრალოდ „ველის შეცვლა“ კი არა, ბიზნესის ცალკე ნაბიჯია (გარიცხვა, შეფასება, ჩაბარება), მას თავისი სახელი ეკუთვნის.
+```
+
+```check
+? რატომ ჯობს `enum EnrollmentStatus` ვიდრე `int Status`?
+= `Withdrawn` სიტყვაა ლექსიკონიდან და თვითონ ამბობს, რა მოხდა. `3` კი არაფერს ნიშნავს, თუ კოდის ავტორს არ ჰკითხე
+? ვინ ირჩევს სიტყვას: `Enrollment` თუ `StudentCourse`?
+= ბიზნესი. დეველოპერი მის სიტყვას კოდში ინგლისურად ჩაწერს
+```
+  </aside>
+</section>
+
+<!-- ================= PART 3 ================= -->
+<section class="slide divider" data-section="3 · საუბარი ბიზნესთან">
+  <div class="vcenter">
+    <div class="kicker in">ნაწილი 3</div>
+    <h1 class="in" style="--d:.1s">როგორ <span class="grad">ვესაუბრებით</span> ბიზნესს</h1>
+    <p class="lead mt in" style="--d:.3s">სწორი კითხვა იაფია — არასწორი კოდი ძვირი</p>
+  </div>
+  <div class="big-num">03</div>
+  <aside class="study">
+## ნაწილი 3 · როგორ ვესაუბრებით ბიზნესს
+
+ლექსიკონი თავისით არ ჩნდება: მას საუბარში ვაგროვებთ. მთავარი უნარი **კითხვის დასმაა**. ვნახავთ, რომელი კითხვა არ მუშაობს, რომელი მუშაობს, და ერთ საუბარს ნაბიჯ-ნაბიჯ გავივლით.
+  </aside>
+</section>
+<section class="slide" data-section="3 · საუბარი ბიზნესთან">
+  <div class="kicker">პრობლემა</div>
+  <h2>„რა ფუნქციები <span class="c-red">გინდათ?</span>“</h2>
+  <div class="grid2" style="grid-template-columns:1fr 1.1fr;align-items:center;gap:40px">
+    <div class="say in" style="--a:#4f46e5;--d:.2s"><div class="who">👩‍💻 დეველოპერი</div><p>„მითხარით, რა ფუნქციები უნდა ჰქონდეს სისტემას?“</p></div>
+    <div class="col" style="gap:12px">
+      <div class="say step" style="--a:#ea580c"><div class="who">🧑‍💼 დირექტორი</div><p>„მარტივი უნდა იყოს. დასწრება, ქულები… ყველაფერი, რაც LB-ს აქვს. და ლამაზი.“</p></div>
+      <div class="problem step" style="font-size:19px"><b>სურვილების სია</b> — ბუნდოვანი, წესების გარეშე</div>
+      <div class="problem step" style="font-size:19px">დირექტორი <b>ფუნქციებით არ ფიქრობს</b> — ის თავის დღეს ცხოვრობს</div>
+    </div>
+  </div>
+  <aside class="study">
+### „რა ფუნქციები გინდათ?“
+
+ეს პირველი კითხვაა, რაც თავში მოგვდის, და ყველაზე ნაკლებად სასარგებლო:
+
+> **დეველოპერი:** „მითხარით, რა ფუნქციები უნდა ჰქონდეს სისტემას?“
+> **დირექტორი:** „მარტივი უნდა იყოს. დასწრება, ქულები… ყველაფერი, რაც LB-ს აქვს. და ლამაზი.“
+
+რა მივიღეთ? **სურვილების სია**: ბუნდოვანი, წესების გარეშე. „დასწრება“ რას ნიშნავს? ვინ აღრიცხავს? რა ხდება გაცდენაზე? არაფერი ვიცით.
+
+რატომ ხდება ასე? დირექტორი **ფუნქციებით არ ფიქრობს**: „ფუნქცია“ დეველოპერის სიტყვაა. დირექტორი თავის სამუშაო დღეს ცხოვრობს: ვინ მოვიდა, ვინ დააგვიანა, ვის რა ქულა აქვს, რომელ მშობელს დაურეკა. ამიტომ კითხვებიც მისი დღის შესახებ უნდა დავსვათ.
+  </aside>
+</section>
+<section class="slide" data-section="3 · საუბარი ბიზნესთან">
+  <div class="kicker">ამოხსნა</div>
+  <h2>ექვსი კითხვა, რომელიც <span class="grad">მუშაობს</span></h2>
+  <div class="grid2" style="grid-template-columns:1.5fr 1fr;align-items:start;gap:30px">
+    <div class="tq-grid">
+      <div class="tqc step" style="--a:var(--core)"><h3>🔎 მაგალითი</h3><p>„ბოლოს როდის მოხდა? როგორ იყო?“</p></div>
+      <div class="tqc step" style="--a:var(--net)"><h3>➡️ მერე?</h3><p>„და მერე რა ხდება?“ — პროცესი ბოლომდე</p></div>
+      <div class="tqc step" style="--a:var(--red)"><h3>♾️ ყოველთვის?</h3><p>„ყოველთვის ასეა?“ — წესი</p></div>
+      <div class="tqc step" style="--a:var(--red)"><h3>🚧 გამონაკლისი?</h3><p>„როდის არ არის ასე?“</p></div>
+      <div class="tqc step" style="--a:#d97706"><h3>🧑 ვინ?</h3><p>„ვინ აკეთებს? ვინ წყვეტს?“ — აქტორი</p></div>
+      <div class="tqc step" style="--a:var(--mvc)"><h3>🎯 რატომ?</h3><p>„რატომ გჭირდებათ?“ — ნამდვილი მიზანი</p></div>
+    </div>
+    <div class="col" style="gap:12px">
+      <div class="tiny step" style="font:700 15px var(--mono);color:var(--red)">✗ არ გააკეთო:</div>
+      <div class="no step" data-with>ტექნიკური სიტყვები: „ცხრილი“, „endpoint“, „სტატუსი“</div>
+      <div class="no step">მზა ამოხსნის შეთავაზება: „ბლოკს ხომ არ დავამატებთ?“</div>
+      <div class="no step">პასუხის გამოცნობა — <b>იკითხე</b> და <b>ჩაიწერე მისი სიტყვებით</b></div>
+    </div>
+  </div>
+  <aside class="study">
+### ექვსი კითხვა, რომელიც მუშაობს
+
+| კითხვა | მაგალითი | რას გვაძლევს |
+|---|---|---|
+| 🔎 **მაგალითი** | „ბოლოს როდის მოხდა? როგორ იყო?“ | ნამდვილ შემთხვევას ზოგადი სურვილის ნაცვლად |
+| ➡️ **მერე?** | „და მერე რა ხდება?“ | **პროცესს** ბოლომდე, ნაბიჯ-ნაბიჯ |
+| ♾️ **ყოველთვის?** | „ყოველთვის ასეა?“ | **წესს** |
+| 🚧 **გამონაკლისი?** | „როდის არ არის ასე?“ | წესის საზღვრებს |
+| 🧑 **ვინ?** | „ვინ აკეთებს? ვინ წყვეტს?“ | **აქტორს** (როლს) |
+| 🎯 **რატომ?** | „რატომ გჭირდებათ?“ | ნამდვილ **მიზანს** მოთხოვნის უკან |
+
+ყველაზე ძლიერი პირველია, **მაგალითი**. ადამიანს უჭირს უპასუხოს კითხვას „როგორ მუშაობს დასწრება?“, მაგრამ ადვილად გიამბობს, რა მოხდა გასულ ხუთშაბათს.
+
+**არ გააკეთო:**
+
+- **ტექნიკური სიტყვები.** „ცხრილი“, „endpoint“, „სტატუსი“ დირექტორს არაფერს ეუბნება და დააბნევს.
+- **მზა ამოხსნის შეთავაზება.** „ბლოკს ხომ არ დავამატებთ?“ ადამიანი ხშირად უბრალოდ დაგეთანხმება, თუმცა ეს სულაც არ უნდოდა.
+- **პასუხის გამოცნობა.** თუ არ იცი, იკითხე. პასუხი **მისი სიტყვებით** ჩაიწერე და არ „გადათარგმნო“.
+
+```prompt ვივარჯიშოთ საუბარში
+ვსწავლობ, როგორ დავუსვა კითხვები ბიზნესს პროგრამის დაწერამდე (DDD, Ubiquitous Language). ითამაშე სასწავლო აკადემიის დირექტორის როლი, რომელსაც სასწავლო პლატფორმა (LMS) სჭირდება. პასუხები მოკლე და ცოტა ბუნდოვანი იყოს, როგორც ნამდვილ ცხოვრებაში. ტექნიკური სიტყვები არ იცი.
+მე დაგისვამ კითხვებს. 10 კითხვის შემდეგ როლიდან გამოდი და შემიფასე: რომელი კითხვა იყო კარგი, რომელი არა და რა წესები ან ბუნდოვანი სიტყვები გამომრჩა. ქართულად.
+```
+  </aside>
+</section>
+<section class="slide" data-section="3 · საუბარი ბიზნესთან">
+  <div class="kicker">ერთი საუბარი · ნაბიჯ-ნაბიჯ</div>
+  <h2>რა იყო „<span class="c-red">3 გაცდენა</span>“ სინამდვილეში?</h2>
+  <div class="grid2" style="grid-template-columns:1.35fr 1fr;align-items:start;gap:30px">
+    <div class="dlg">
+      <div class="msg dev step"><b class="who">დეველოპერი</b>რას ნიშნავს „გაცდენა“?<span class="tq">რას ნიშნავს?</span></div>
+      <div class="msg biz step" data-with><b class="who">დირექტორი</b>სტუდენტი ლექციაზე არ მოვიდა.</div>
+      <div class="msg dev step"><b class="who">დეველოპერი</b>თუ 20 წუთით დააგვიანა?<span class="tq">გამონაკლისი?</span></div>
+      <div class="msg biz step" data-with><b class="who">დირექტორი</b>15 წუთზე მეტი — ესეც გაცდენაა.</div>
+      <div class="msg dev step"><b class="who">დეველოპერი</b>ბოლოს ვის ჰქონდა 3-ზე მეტი? რა მოხდა?<span class="tq">მაგალითი</span></div>
+      <div class="msg biz step" data-with><b class="who">დირექტორი</b>გასულ თვეს ანას. ლექტორმა დაურეკა, გავარკვიეთ.</div>
+      <div class="msg dev step"><b class="who">დეველოპერი</b>ანას სწავლა შეუჩერეთ?<span class="tq">მერე?</span></div>
+      <div class="msg biz step" data-with><b class="who">დირექტორი</b>არა! უბრალოდ ლექტორმა დროზე უნდა გაიგოს.</div>
+    </div>
+    <div class="col" style="gap:12px">
+      <div class="found step" style="--a:var(--core)"><span class="k">ტერმინი</span>გაცდენა = არ მოვიდა <b>ან</b> &gt;15 წთ დაგვიანება</div>
+      <div class="found step" style="--a:#d97706"><span class="k">აქტორი</span>ლექტორი — ის უკავშირდება სტუდენტს</div>
+      <div class="found step" style="--a:var(--net)"><span class="k">პროცესი</span>მე-4 გაცდენა → ლექტორი იღებს შეტყობინებას</div>
+      <div class="found step" style="--a:var(--red)"><span class="k">წესი</span>სწავლა <b>არ</b> ჩერდება · ბლოკი არ არის</div>
+      <div class="solve step" style="font-size:19px">4 კითხვა — და ორკვირიანი <b>არასწორი</b> სამუშაო თავიდან აცილებულია</div>
+    </div>
+  </div>
+  <aside class="study">
+### ერთი საუბარი: რა იყო „3 გაცდენა“ სინამდვილეში?
+
+დავუბრუნდეთ ლექციის დასაწყისის ისტორიას. ასე უნდა წასულიყო საუბარი:
+
+> **დეველოპერი:** რას ნიშნავს „გაცდენა“? *(რას ნიშნავს?)*
+> **დირექტორი:** სტუდენტი ლექციაზე არ მოვიდა.
+> **დეველოპერი:** თუ 20 წუთით დააგვიანა? *(გამონაკლისი?)*
+> **დირექტორი:** 15 წუთზე მეტი — ესეც გაცდენაა.
+> **დეველოპერი:** ბოლოს ვის ჰქონდა 3-ზე მეტი? რა მოხდა? *(მაგალითი)*
+> **დირექტორი:** გასულ თვეს ანას. ლექტორმა დაურეკა, გავარკვიეთ.
+> **დეველოპერი:** ანას სწავლა შეუჩერეთ? *(მერე?)*
+> **დირექტორი:** არა! უბრალოდ ლექტორმა დროზე უნდა გაიგოს.
+
+ოთხმა კითხვამ მოგვცა:
+
+| რა | რა ვიპოვეთ |
+|---|---|
+| **ტერმინი** | გაცდენა = არ მოვიდა **ან** 15 წუთზე მეტი დააგვიანა |
+| **აქტორი** | ლექტორი: ის უკავშირდება სტუდენტს |
+| **პროცესი** | მე-4 გაცდენა → ლექტორი იღებს შეტყობინებას |
+| **წესი** | სწავლა არ ჩერდება, ბლოკი არ არის |
+
+ოთხმა კითხვამ ხუთი წუთი წაიღო. ამით თავიდან ავიცილეთ ორი კვირის არასწორი სამუშაო და გაბრაზებული დირექტორი.
+
+```terms
+აქტორი (Actor) — ვინც სისტემაში რამეს აკეთებს: სტუდენტი, ლექტორი, მენეჯერი
+პროცესი — ნაბიჯების რიგი: „რა ხდება და მერე რა ხდება“
+წესი (Business Rule) — რა შეიძლება და რა არა: „15 წუთზე მეტი დაგვიანება = გაცდენა“
+```
+
+```check
+? დეველოპერმა ჰკითხა: „ბლოკი ხომ არ დავამატოთ 3 გაცდენაზე?“ რა არის ამაში ცუდი?
+= ეს მზა ამოხსნის შეთავაზებაა: დირექტორი შეიძლება უბრალოდ დაეთანხმოს. ჯობს ჰკითხო, რა მოხდა ბოლოს, როცა ვინმეს ბევრი გაცდენა ჰქონდა
+```
+  </aside>
+</section>
+
+<section class="slide" data-section="შესვენება">
+  <div class="center">
+    <div class="big-emoji in" style="font-size:120px">☕</div>
+    <h1 class="in" style="--d:.15s">10 წუთი</h1>
+    <p class="lead in" style="--d:.3s">შემდეგ: <b class="c-net">საუბრიდან კოდამდე</b></p>
+  </div>
+</section>
+
+<!-- ================= PART 4 ================= -->
+<section class="slide divider" data-section="4 · საუბრიდან კოდამდე">
+  <div class="vcenter">
+    <div class="kicker in">ნაწილი 4</div>
+    <h1 class="in" style="--d:.1s">საუბრიდან <span class="grad">კოდამდე</span></h1>
+    <p class="lead mt in" style="--d:.3s">როგორ ვგეგმავთ პროექტს</p>
+  </div>
+  <div class="big-num">04</div>
+  <aside class="study">
+## ნაწილი 4 · საუბრიდან კოდამდე
+
+საუბარი გვაქვს, ლექსიკონიც. ახლა ვნახავთ მთელ გზას საუბრიდან კოდამდე, როგორ გადაიქცევა ბიზნესის წინადადება C#-ად და როგორ ვწერთ სამუშაოს სიას (backlog-ს).
+  </aside>
+</section>
+<section class="slide" data-section="4 · საუბრიდან კოდამდე">
+  <div class="kicker">დაგეგმვა</div>
+  <h2>გზა <span class="grad">საუბრიდან კოდამდე</span></h2>
+  <div class="pipe mt">
+    <div class="st step" style="--a:#ea580c"><div class="e">💬</div><div class="l">საუბარი</div><div class="s">კითხვები · მაგალითები</div></div><span class="ar step" data-with>→</span>
+    <div class="st step" style="--a:var(--core)"><div class="e">📘</div><div class="l">ლექსიკონი</div><div class="s">ერთი სიტყვა = ერთი აზრი</div></div><span class="ar step" data-with>→</span>
+    <div class="st step" style="--a:#d97706"><div class="e">🧑‍🤝‍🧑</div><div class="l">აქტორები + პროცესები</div><div class="s">ვინ · რას · რა რიგით</div></div><span class="ar step" data-with>→</span>
+    <div class="st step" style="--a:var(--red)"><div class="e">📏</div><div class="l">წესები</div><div class="s">რა შეიძლება · რა არა</div></div><span class="ar step" data-with>→</span>
+    <div class="st step" style="--a:var(--net)"><div class="e">🗂️</div><div class="l">Backlog</div><div class="s">user story-ები</div></div><span class="ar step" data-with>→</span>
+    <div class="st step" style="--a:var(--mvc)"><div class="e">💻</div><div class="l">კოდი</div><div class="s">ერთი story ერთხელ</div></div>
+  </div>
+  <div class="grid2 mt2" style="gap:24px">
+    <div class="callout step" style="--a:var(--core)">კოდი <b>ბოლოა</b> — და ყველაზე ძვირი გამოსასწორებელი</div>
+    <div class="callout step" data-with style="--a:var(--net)">გზა <b>მეორდება</b>: ახალი კითხვა → ლექსიკონი სწორდება → კოდიც</div>
+  </div>
+  <aside class="study">
+### გზა საუბრიდან კოდამდე
+
+DDD-ით პროექტის დაგეგმვა ასე გამოიყურება:
+
+1. **საუბარი**: კითხვები და მაგალითები Domain Expert-თან.
+2. **ლექსიკონი**: ყოველი ტერმინი ერთი მნიშვნელობით.
+3. **აქტორები და პროცესები**: ვინ რას აკეთებს და რა რიგით.
+4. **წესები**: რა შეიძლება და რა არა.
+5. **Backlog**: სამუშაოების სია user story-ების სახით.
+6. **კოდი**: ერთ ჯერზე ერთ story-ს ვწერთ.
+
+კოდი ბოლოა და ყველაზე ძვირი გამოსასწორებელიც. ლექსიკონში სიტყვის შეცვლას ერთი წუთი სჭირდება, დაწერილ class-ში, ბაზაში, endpoint-ებსა და Frontend-ში კი შეიძლება მთელი დღე დასჭირდეს.
+
+ეს გზა **ერთხელ არ გაივლება**. ახალი კითხვა ახალ წესს აჩენს, ლექსიკონი სწორდება და მასთან ერთად კოდიც. DDD-ში ეს ნორმალურია: ბიზნესს პროექტის განმავლობაში უკეთ ვიცნობთ.
+  </aside>
+</section>
+<section class="slide" data-section="4 · საუბრიდან კოდამდე">
+  <div class="kicker">წინადადება → კოდი</div>
+  <h2>ბიზნესის წინადადებაში <span class="grad">კოდი იმალება</span></h2>
+  <div class="sent in" style="--d:.1s">„<span class="a">ლექტორი</span> <span class="v">აფასებს</span> ჩაბარებულ <span class="n">ნამუშევარს</span> <span class="r">1-დან 12-მდე</span>.“</div>
+  <div class="mapr mt">
+    <div class="k step" style="--a:var(--core)">არსებითი სახელი</div><div class="ar step" data-with>→</div><div class="c step" data-with>class Submission · ნამუშევარი</div>
+    <div class="k step" style="--a:var(--net)">მოქმედება (ზმნა)</div><div class="ar step" data-with>→</div><div class="c step" data-with>POST /api/submissions/{id}/grade · Grade()</div>
+    <div class="k step" style="--a:var(--red)">წესი</div><div class="ar step" data-with>→</div><div class="c step" data-with>if (grade is &lt; 1 or &gt; 12) …</div>
+    <div class="k step" style="--a:var(--red);background:#991b1b">წესი დაირღვა</div><div class="ar step" data-with>→</div><div class="c step" data-with>400 BadRequest · 409 Conflict</div>
+    <div class="k step" style="--a:#d97706">აქტორი</div><div class="ar step" data-with>→</div><div class="c step" data-with>ვის შეუძლია ამის გაკეთება (უფლებები — მოგვიანებით)</div>
+  </div>
+  <aside class="study">
+### ბიზნესის წინადადებაში კოდი იმალება
+
+ავიღოთ ერთი წინადადება ლექსიკონიდან:
+
+> „**ლექტორი** **აფასებს** ჩაბარებულ **ნამუშევარს** **1-დან 12-მდე**.“
+
+ყოველი ნაწილი კოდში თავის ადგილს პოულობს:
+
+| წინადადებაში | მაგალითი | კოდში |
+|---|---|---|
+| **არსებითი სახელი** (ტერმინი) | ნამუშევარი | class: `Submission` |
+| **მოქმედება** (ზმნა) | აფასებს | endpoint / მეთოდი: `POST /api/submissions/{id}/grade` → `Grade()` |
+| **წესი** | 1-დან 12-მდე | შემოწმება: `if (grade is < 1 or > 12)` |
+| **წესი დაირღვა** | ქულა 15 | შეცდომის პასუხი: `400 BadRequest` (ან `409 Conflict`, როცა მოქმედება ახლა შეუძლებელია) |
+| **აქტორი** | ლექტორი | ვის შეუძლია ამის გაკეთება (უფლებებს მოგვიანებით ვისწავლით) |
+
+ეს მეთოდი ყოველ წინადადებაზე მუშაობს. ლექსიკონი და წესები მზად რომ გაქვს, კოდის დიდი ნაწილი უკვე „დაწერილია“: სახელები და შემოწმებები ბიზნესმა გიკარნახა.
+
+```check
+? „მენეჯერი რიცხავს სტუდენტს ჯგუფში, თუ ჯგუფში ადგილი არის.“ რა არის აქ class, რა მოქმედება და რა წესი?
+= class: `Enrollment` (ჩარიცხვა) · მოქმედება: ჩარიცხვა → `POST /api/groups/{id}/enrollments` · წესი: ადგილი უნდა იყოს; თუ არ არის → `409 Conflict` · აქტორი: მენეჯერი
+```
+  </aside>
+</section>
+<section class="slide" data-section="4 · საუბრიდან კოდამდე">
+  <div class="kicker">დემო · წინადადება C#-ში</div>
+  <h2>„ლექტორი <span class="c-net">აფასებს</span> ნამუშევარს <span class="c-red">1-დან 12-მდე</span>“</h2>
+  <div class="grid2" style="grid-template-columns:1.25fr 1fr;align-items:start;gap:30px">
+    <code-block id="gr" lang="csharp" cls="sm" title="Submission.cs · SubmissionsController.cs">
+public class Submission
+{
+    public Guid Id { get; set; }
+    public Guid AssignmentId { get; set; }
+    public Guid StudentId { get; set; }
+    public DateTime SubmittedAt { get; set; }
+    public int? Grade { get; set; }
+}
+
+public record GradeSubmissionRequest(int Grade);
+
+[HttpPost("{id:guid}/grade")]
+public async Task<IActionResult> Grade(Guid id, GradeSubmissionRequest request)
+{
+    if (request.Grade is < 1 or > 12) return BadRequest();
+
+    var submission = await _db.Submissions.FindAsync(id);
+    if (submission is null) return NotFound();
+
+    submission.Grade = request.Grade;
+    await _db.SaveChangesAsync();
+    return NoContent();
+}
+    </code-block>
+    <div class="col" style="gap:13px">
+      <i class="codestep" data-for="gr" data-lines="1,4"></i>
+      <div class="callout step" data-with style="--a:var(--core)"><b>Submission</b> · <b>AssignmentId</b> — „დავალება“ ორ ტერმინად გაიყო</div>
+      <i class="codestep" data-for="gr" data-lines="7"></i>
+      <div class="callout step" data-with style="--a:var(--core)"><code class="i">int?</code> — ჯერ <b>შეუფასებელია</b> (null)</div>
+      <i class="codestep" data-for="gr" data-lines="10,12-13"></i>
+      <div class="callout step" data-with style="--a:var(--net)">მოქმედება → <b>endpoint</b> · DTO (03) · async (05)</div>
+      <i class="codestep" data-for="gr" data-lines="15"></i>
+      <div class="callout step" data-with style="--a:var(--red)">წესი → <b>შემოწმება</b> · დაირღვა → 400</div>
+      <div class="tiny step">ახლა წესი Controller-შია. მისი სწორ ადგილს მომდევნო ლექციებში ვიპოვით</div>
+    </div>
+  </div>
+  <aside class="study">
+### დემო: წინადადება C#-ში
+
+ბიზნესის წინადადება: **„ლექტორი აფასებს ჩაბარებულ ნამუშევარს 1-დან 12-მდე.“** ყველაფერი, რაც აქ წერია, უკვე ნაცნობია: class, DTO (03 ლექცია), Controller, async (05 ლექცია).
+
+```csharp Submission.cs
+public class Submission
+{
+    public Guid Id { get; set; }
+    public Guid AssignmentId { get; set; }
+    public Guid StudentId { get; set; }
+    public DateTime SubmittedAt { get; set; }
+    public int? Grade { get; set; }
+}
+```
+
+```csharp Dtos/GradeSubmissionRequest.cs
+public record GradeSubmissionRequest(int Grade);
+```
+
+```csharp Controllers/SubmissionsController.cs · Grade
+[HttpPost("{id:guid}/grade")]
+public async Task<IActionResult> Grade(Guid id, GradeSubmissionRequest request)
+{
+    if (request.Grade is < 1 or > 12) return BadRequest();
+
+    var submission = await _db.Submissions.FindAsync(id);
+    if (submission is null) return NotFound();
+
+    submission.Grade = request.Grade;
+    await _db.SaveChangesAsync();
+    return NoContent();
+}
+```
+
+ხაზ-ხაზ ბიზნესის ენით:
+
+- **`Submission`** = ნამუშევარი. ლექსიკონში „დავალება“ ორად გავყავით: `Assignment` (ამოცანა) და `Submission` (ნამუშევარი). ამიტომ ნამუშევარს `AssignmentId` აქვს: ის კონკრეტულ დავალებაზეა ჩაბარებული.
+- **`int? Grade`**: `?` ნიშნავს, რომ ქულა შეიძლება ჯერ არ იყოს (`null`). ბიზნესის ენაზე: „ნამუშევარი ჯერ შეუფასებელია“.
+- **`POST …/grade`** + **`Grade()`**: მოქმედება „აფასებს“ endpoint-ად იქცა.
+- **`if (request.Grade is < 1 or > 12) return BadRequest();`**: წესი „1-დან 12-მდე“ შემოწმებად იქცა. დარღვევისას `400 Bad Request`. `is < 1 or > 12` C#-ის pattern-ია და ნიშნავს „1-ზე ნაკლები ან 12-ზე მეტი“.
+
+```note
+ახლა წესი Controller-შია, რადგან სხვა ადგილი ჯერ არ გვისწავლია. ეს მუშაობს, მაგრამ თუ ქულას სხვაგანაც ვცვლით, შემოწმების დავიწყება ადვილია. მომდევნო ლექციებში წესებს მათ სწორ ადგილს ვუპოვით. დღეს მთავარია, რომ **წესი ბიზნესიდან მოვიდა** და კოდში ზუსტად მისი სიტყვებით ჩანს.
+```
+  </aside>
+</section>
+<section class="slide" data-section="4 · საუბრიდან კოდამდე">
+  <div class="kicker">Backlog</div>
+  <h2><span class="grad">User Story</span> — სამუშაო ბიზნესის ენაზე</h2>
+  <div class="grid2" style="grid-template-columns:1.2fr 1fr;align-items:start;gap:34px">
+    <div class="col" style="gap:16px">
+      <div class="story in" style="--d:.1s"><span class="k">ფორმა</span>როგორც <em>&lt;აქტორი&gt;</em>, მინდა <em>&lt;მოქმედება&gt;</em>, რომ <em>&lt;მიზანი&gt;</em></div>
+      <div class="story step"><span class="k">მაგალითი</span>როგორც <em style="color:#d97706">ლექტორი</em>, მინდა <em style="color:var(--net)">ჩაბარებული ნამუშევარი შევაფასო</em>, რომ <em style="color:var(--mvc)">სტუდენტმა იცოდეს თავისი დონე</em></div>
+    </div>
+    <div class="card accent step" style="--a:var(--red)">
+      <h3><span class="ico">✅</span>მიღების კრიტერიუმები</h3>
+      <ul class="clean small"><li>ქულა მთელი რიცხვია <b>1-დან 12-მდე</b></li><li>ფასდება მხოლოდ <b>ჩაბარებული</b> ნამუშევარი</li><li>სტუდენტი ქულას <b>მაშინვე</b> ხედავს</li></ul>
+      <p class="tiny mt">ყველა შესრულდა → story <b>მზადაა</b></p>
+    </div>
+  </div>
+  <div class="callout step mt" style="--a:var(--net)"><b>Backlog</b> = ყველა story-ის სია, მნიშვნელობის მიხედვით დალაგებული · LMS-ისას შემდეგ ლექციაზე შევადგენთ</div>
+  <aside class="study">
+### User Story: სამუშაო ბიზნესის ენაზე
+
+საუბრიდან, ლექსიკონიდან და წესებიდან სამუშაოების სიას ვადგენთ: **backlog**-ს. ყოველი სამუშაო **user story**-ის ფორმით იწერება:
+
+> როგორც **&lt;აქტორი&gt;**, მინდა **&lt;მოქმედება&gt;**, რომ **&lt;მიზანი&gt;**.
+
+მაგალითი:
+
+> როგორც **ლექტორი**, მინდა **ჩაბარებული ნამუშევარი შევაფასო**, რომ **სტუდენტმა იცოდეს თავისი დონე**.
+
+user story-ს სამი ნაწილი აქვს, და სამივე მნიშვნელოვანია:
+
+- **აქტორი**: ვისთვის ვაკეთებთ (ლექსიკონიდან).
+- **მოქმედება**: რა უნდა შეეძლოს (კოდში endpoint-ი გახდება).
+- **მიზანი**: რატომ. თუ მიზანს ვერ წერ, იქნებ ეს სამუშაო საერთოდ არ არის საჭირო?
+
+story-ს ემატება **მიღების კრიტერიუმები** (Acceptance Criteria): წესები, რომელთა შესრულების შემდეგ story მზად ითვლება.
+
+- ქულა მთელი რიცხვია 1-დან 12-მდე;
+- ფასდება მხოლოდ ჩაბარებული ნამუშევარი;
+- სტუდენტი ქულას მაშინვე ხედავს.
+
+ეს კრიტერიუმები პირდაპირ კოდის შემოწმებებად გადაიქცევა, მოგვიანებით კი ტესტებადაც.
+
+**Backlog** ყველა story-ის სიაა, მნიშვნელობის მიხედვით დალაგებული: ყველაზე საჭირო ზემოთაა. LMS-ის backlog-ს შემდეგ ლექციაზე ერთად შევადგენთ.
+
+```terms
+User Story — ერთი სამუშაო ბიზნესის ენაზე: „როგორც <აქტორი>, მინდა <მოქმედება>, რომ <მიზანი>“
+მიღების კრიტერიუმები (Acceptance Criteria) — წესები, რომლებიც story-ის დასრულებისთვის უნდა შესრულდეს
+Backlog — ყველა story-ის სია, მნიშვნელობის მიხედვით დალაგებული
+```
+
+```prompt User story-ის შემოწმება
+ვსწავლობ user story-ების წერას (DDD-ის კურსი, სასწავლო პლატფორმა LMS). აქ არის ჩემი story და მიღების კრიტერიუმები: [ჩასვი]
+შეამოწმე: არის თუ არა აქტორი, მოქმედება და მიზანი? კრიტერიუმები შემოწმებადია? არის თუ არა ტექნიკური სიტყვები, რომლებიც ბიზნესის ენაში არ უნდა იყოს? მზა ვარიანტი არ დამიწერო, მხოლოდ მიმითითე, რა გავასწორო. ქართულად.
+```
+  </aside>
+</section>
+
+<!-- ================= PRACTICE ================= -->
+<section class="slide divider" data-section="პრაქტიკა">
+  <div class="vcenter">
+    <div class="kicker in">ნაწილი 5</div>
+    <h1 class="in" style="--d:.1s">ახლა <span class="grad">თქვენი ჯერია</span></h1>
+    <p class="lead mt in" style="--d:.3s">დირექტორის ჩანაწერი: დავალებები და შეფასება</p>
+  </div>
+  <div class="big-num">05</div>
+  <aside class="study">
+## ნაწილი 5 · თქვენი ჯერია
+
+დირექტორმა LMS-ის ერთ ნაწილზე, დავალებებსა და შეფასებაზე, მოკლე ჩანაწერი დაგვიტოვა. შენი ამოცანაა, ის ისე წაიკითხო, როგორც დეველოპერი: იპოვე ტერმინები, ბუნდოვანი სიტყვები, აქტორები, წესები, და მოამზადე კითხვები.
+  </aside>
+</section>
+<section class="slide" data-section="პრაქტიკა">
+  <div class="kicker">📄 დირექტორის ჩანაწერი</div>
+  <h2>დავალებები და შეფასება</h2>
+  <div class="note-text in" style="--d:.1s">„ლექტორი ყოველი ლექციის შემდეგ ნაკადს დავალებას აძლევს და დედლაინს უწერს, ჩვეულებრივ ერთ კვირას. სტუდენტი დავალებას ფაილად ტვირთავს. დედლაინის შემდეგ სისტემამ დავალება აღარ უნდა მიიღოს. ლექტორი დავალებას 1-დან 12-მდე აფასებს. თუ მსმენელმა 6-ზე ნაკლები მიიღო, ერთხელ შეუძლია ხელახლა ჩააბაროს. ლექტორმა შეფასება კვირაში უნდა დაწეროს, თორემ მენეჯერი ნერვიულობს. ჯგუფის საშუალო ქულა ყოველთვის უნდა ჩანდეს. ხო, თუ სტუდენტს ცნობა აქვს, მენეჯერს შეუძლია დედლაინი გადაუწიოს.“</div>
+  <div class="callout step mt" style="--a:var(--net)">ორჯერ წაიკითხეთ: ჯერ — რაზეა · მერე — ყოველ სიტყვაზე <b>„ზუსტად რას ნიშნავს?“</b></div>
+</section>
+<lecture-classwork/>
+<section class="slide" data-section="პრაქტიკა">
+  <div class="kicker">ერთად გავიაროთ</div>
+  <h2>რა <span class="grad">ვიპოვეთ</span></h2>
+  <div class="ans">
+    <div class="card accent step" style="--a:var(--red)"><h3><span class="ico">❓</span>ბუნდოვანი სიტყვები</h3><ul class="clean small"><li><b>„დავალება“</b> — ამოცანა (Assignment) თუ ჩაბარებული ფაილი (Submission)?</li><li><b>ნაკადი = ჯგუფი</b> · <b>სტუდენტი = მსმენელი</b></li><li><b>„კვირაში“</b> — დედლაინიდან თუ ჩაბარებიდან?</li></ul></div>
+    <div class="card accent step" style="--a:#d97706"><h3><span class="ico">🧑</span>აქტორები</h3><ul class="clean small"><li><b>ლექტორი</b> — აძლევს დავალებას, აფასებს</li><li><b>სტუდენტი</b> — აბარებს</li><li><b>მენეჯერი</b> — ადევნებს თვალს, გადაწევს დედლაინს</li></ul></div>
+    <div class="card accent step" style="--a:var(--red)"><h3><span class="ico">📏</span>წესები</h3><ul class="clean small"><li>დედლაინის შემდეგ ნამუშევარი <b>არ მიიღება</b></li><li>ქულა <b>1–12</b> · 6-ზე ნაკლები → <b>ერთხელ</b> ხელახლა</li><li>გამონაკლისი: ცნობა → მენეჯერი <b>გადაწევს</b></li></ul></div>
+    <div class="card accent step" style="--a:var(--net)"><h3><span class="ico">💬</span>კითხვები (ნიმუში)</h3><ul class="clean small"><li><b>მაგალითი:</b> ბოლოს ვინ ჩააბარა ხელახლა? რომელი ქულა დარჩა?</li><li><b>ვინ?</b> „მენეჯერი ნერვიულობს“ — ვინ იღებს შეტყობინებას?</li><li><b>რატომ?</b> საშუალო ქულა ვისთვის? დავალებაზე თუ კურსზე?</li></ul></div>
+  </div>
+  <aside class="study">
+### ერთად გავიაროთ: რა ვიპოვეთ
+
+**ბუნდოვანი სიტყვები:**
+
+- **„დავალება“** ტექსტში სამ რამეს ნიშნავს: ლექტორი დავალებას „აძლევს“ (ამოცანა), სტუდენტი დავალებას „ტვირთავს“ (ფაილი), ლექტორი დავალებას „აფასებს“ (ფაილს, არა ამოცანას). ამოხსნა: ორი ტერმინი, **Assignment** (ამოცანა) და **Submission** (ნამუშევარი).
+- **ნაკადი** და **ჯგუფი** ერთი რამაა, ორი სახელით. **სტუდენტი** და **მსმენელიც**. ვირჩევთ ერთს: „ჯგუფი“ და „სტუდენტი“.
+- **„კვირაში“**: დედლაინიდან ერთი კვირის განმავლობაში თუ ჩაბარებიდან? კალენდარული კვირა თუ 7 დღე?
+- **„ჯგუფის საშუალო ქულა“**: ერთ დავალებაზე თუ მთელ კურსზე?
+
+**აქტორები:** ლექტორი (აძლევს დავალებას, აფასებს), სტუდენტი (აბარებს), მენეჯერი (ადევნებს თვალს შეფასებას, გადაწევს დედლაინს).
+
+**წესები:**
+
+1. დედლაინის შემდეგ ნამუშევარი არ მიიღება.
+2. ქულა 1-დან 12-მდეა; 6-ზე ნაკლების შემთხვევაში სტუდენტს ერთხელ შეუძლია ხელახლა ჩაბარება.
+3. ლექტორი ნამუშევარს კვირაში აფასებს.
+4. **გამონაკლისი:** თუ სტუდენტს ცნობა აქვს, მენეჯერს დედლაინის გადაწევა შეუძლია.
+
+**კითხვები (ნიმუში):**
+
+- *მაგალითი:* ბოლოს ვინ ჩააბარა ხელახლა? რომელი ქულა დარჩა, პირველი თუ მეორე?
+- *ყოველთვის?* დედლაინი ყოველთვის ერთი კვირაა?
+- *ვინ?* „მენეჯერი ნერვიულობს“: ვინ იღებს შეტყობინებას, თუ ლექტორმა კვირაში არ შეაფასა?
+- *მერე?* მენეჯერმა დედლაინი გადაწია. მერე? ლექტორი ამას ხედავს?
+- *რატომ?* ვისთვისაა ჯგუფის საშუალო ქულა? რას აკეთებს ამ რიცხვით?
+
+```note
+„ხელახლა ჩაბარება“ ბიზნესისთვის ერთი წინადადებაა, კოდში კი ბევრ კითხვას აჩენს: ახალი ნამუშევარია თუ ძველი იცვლება? ორივე ქულა ინახება? დედლაინი ამ დროს მოქმედებს? ასეთ კითხვებს **კოდის წერამდე** ვსვამთ.
+```
+  </aside>
+</section>
+<lecture-check/>
+<section class="slide" data-section="შეჯამება">
+  <div class="kicker in" style="color:var(--core)">დღეს</div>
+  <h2 class="in" style="--d:.1s">ჯერ გაიგე — <span class="grad">მერე დაწერე</span></h2>
+  <div class="grid2" style="grid-template-columns:1fr 1.1fr;gap:40px;align-items:start">
+    <div class="col" style="gap:18px">
+      <div class="card accent step" style="--a:var(--mvc)"><h3><span class="ico">🧠</span>დაიმახსოვრე</h3><ul class="clean small"><li><b>DDD</b> — პროექტს ბიზნესიდან ვიწყებთ</li><li><b>ერთი სიტყვა = ერთი მნიშვნელობა</b> — საუბარში და კოდში</li><li>კითხვა: <b>მაგალითი · მერე? · ყოველთვის? · ვინ? · რატომ?</b></li><li>სახელი → class · მოქმედება → endpoint · წესი → შემოწმება</li></ul></div>
+      <div class="card accent step" style="--a:var(--pink)"><h3><span class="ico">🏠</span>საშინაოზე</h3><p class="small">შენი LMS: <b>ხედვა</b>, <b>ლექსიკონი</b> და <b>კითხვები</b> დირექტორისთვის — შემდეგ ლექციაზე აქედან დავიწყებთ</p></div>
+    </div>
+    <div class="col step" data-with style="gap:14px">
+      <div class="pipe" style="flex-direction:column;gap:8px">
+        <div class="st" style="--a:#ea580c;padding:10px"><div class="l">💬 „ლექტორი აფასებს ნამუშევარს 1-დან 12-მდე“</div></div>
+        <div class="ar" style="text-align:center">↓</div>
+        <div class="st" style="--a:var(--mvc);padding:10px"><div class="l mono" style="font-size:17px">Submission · POST …/grade · if (grade is &lt; 1 or &gt; 12)</div></div>
+      </div>
+      <div class="callout mt" style="--a:var(--net);font-size:20px">💬 საუბარი → 📘 ლექსიკონი → 🧑 აქტორები → 📏 წესები → 🗂️ backlog → 💻 კოდი</div>
+      <div class="callout" style="--a:#ea580c;font-size:20px">„რა ფუნქციები გინდათ?“ ✗ → „ბოლოს როდის მოხდა?“ ✓</div>
+    </div>
+  </div>
+  <aside class="study">
+## შეჯამება · ჯერ გაიგე, მერე დაწერე
+
+**დაიმახსოვრე:**
+
+1. ყველაზე ძვირი შეცდომა ის კოდია, რომელიც მუშაობს, მაგრამ **სხვა რამეს** აკეთებს, ვიდრე ბიზნესს უნდოდა.
+2. **Domain** ბიზნესის სფეროა, **Domain Expert** ბიზნესის მცოდნე ადამიანი, **DDD** კი პროექტის დაწყება ბიზნესიდან.
+3. DDD ღირს, როცა **წესები ბევრია** (LMS). მარტივ CRUD-ს არ სჭირდება.
+4. **Ubiquitous Language**: ერთი სიტყვა, ერთი მნიშვნელობა. სიტყვას ბიზნესი ირჩევს, და ის ყველგან ჩანს, **კოდშიც**.
+5. კითხვა „რა ფუნქციები გინდათ?“ არ მუშაობს. მუშაობს: **მაგალითი · მერე? · ყოველთვის? · გამონაკლისი? · ვინ? · რატომ?** მზა ამოხსნას არ ვთავაზობთ, პასუხს ბიზნესის სიტყვებით ვიწერთ.
+6. გზა: **საუბარი → ლექსიკონი → აქტორები და პროცესები → წესები → backlog → კოდი**.
+7. წინადადებაში: არსებითი სახელი → **class**, მოქმედება → **endpoint**, წესი → **შემოწმება**, დარღვევა → **400 / 409**.
+8. **User story**: „როგორც &lt;აქტორი&gt;, მინდა &lt;მოქმედება&gt;, რომ &lt;მიზანი&gt;“ + მიღების კრიტერიუმები.
+
+```prompt DDD-ის საფუძვლები: გასაუბრებისთვის
+ვემზადები .NET Junior გასაუბრებისთვის. დამისვი კითხვები DDD-ის საფუძვლებზე: Domain, Domain Expert, Ubiquitous Language, როდის ღირს DDD და როდის არა, როგორ ვესაუბრებით ბიზნესს, user story და მიღების კრიტერიუმები, როგორ აისახება ბიზნესის ენა კოდში.
+სათითაოდ დასვი, დაელოდე ჩემს პასუხს, შემიფასე და აუხსენი, რა გამომრჩა. 8 კითხვა. ქართულად.
+```
+  </aside>
+</section>
+<lecture-homework/>
