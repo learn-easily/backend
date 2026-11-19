@@ -167,7 +167,7 @@ i.codestep{display:none}
   <div class="vcenter" style="max-width:800px">
     <div class="kicker in" style="color:var(--core)">ASP.NET Core Web API · ლექცია 5</div>
     <h1 class="in" style="--d:.15s">ნუ დგახარ —<br><span class="grad">გააგრძელე</span></h1>
-    <p class="lead in mt" style="--d:.35s"><b>async / await</b> — ShopApi ბაზას ისე ელოდება, რომ სერვერი არ ჩერდება · და ბოლოს: რა ემართება ShopApi-ს, როცა იზრდება</p>
+    <p class="lead in mt" style="--d:.35s"><b>async / await</b> — ShopApi ბაზას ისე ელოდება, რომ სერვერი არ ჩერდება</p>
   </div>
   <div class="abs" style="right:80px;top:200px">
     <svg viewBox="0 0 620 480" width="620" height="480">
@@ -1007,6 +1007,14 @@ public async Task<IActionResult> GetAll() => Ok(_db.Products.ToList());
   </aside>
 </section>
 
+<section class="slide" data-section="შესვენება">
+  <div class="center">
+    <div class="big-emoji in" style="font-size:120px">☕</div>
+    <h1 class="in" style="--d:.15s">10 წუთი</h1>
+    <p class="lead in" style="--d:.3s">შემდეგ: <b class="c-net">თქვენი ჯერია</b> — LibraryApi → async</p>
+  </div>
+</section>
+
 <!-- ================= PRACTICE ================= -->
 <section class="slide divider" data-section="პრაქტიკა">
   <div class="vcenter">
@@ -1052,303 +1060,6 @@ ASP.NET Core Web API-ში Controller-ებს async/await-ზე გადა
 ```
   </aside>
 </section>
-<section class="slide" data-section="შესვენება">
-  <div class="center">
-    <div class="big-emoji in" style="font-size:120px">☕</div>
-    <h1 class="in" style="--d:.15s">10 წუთი</h1>
-    <p class="lead in" style="--d:.3s">შემდეგ: ShopApi რომ <b class="c-net">გაიზარდოს</b></p>
-  </div>
-</section>
-<!-- ================= PART 6 · SHOPAPI GROWS ================= -->
-<section class="slide divider" data-section="6 · ShopApi რომ გაიზარდოს">
-  <div class="vcenter">
-    <div class="kicker in">ნაწილი 6</div>
-    <h1 class="in" style="--d:.1s">ShopApi რომ <span class="grad">გაიზარდოს</span></h1>
-    <p class="lead mt in" style="--d:.3s">კოდი მუშაობს — მაგრამ რამდენ ხანს?</p>
-  </div>
-  <div class="big-num">06</div>
-  <aside class="study">
-## ნაწილი 6 · ShopApi რომ გაიზარდოს
-
-ShopApi ახლა ყველაფერს აკეთებს, რაც ვისწავლეთ: CRUD, DTO, DI, ბაზა, async. ერთ პროდუქტზე და ოთხ endpoint-ზე ყველაფერი მარტივია. მაგრამ ნამდვილი პროექტი იზრდება — ბიზნესს ახალი მოთხოვნები უჩნდება.
-
-ამ ნაწილში **ამოხსნას არ ვწერთ**. ვნახავთ, რა ემართება კოდს, როცა მას ბიზნესის წესები ემატება — და დავსვამთ კითხვას, რომელზეც შემდეგი ლექცია უპასუხებს.
-  </aside>
-</section>
-<section class="slide" data-section="6 · ShopApi რომ გაიზარდოს">
-  <div class="kicker">მენეჯერი ისევ წერს</div>
-  <h2>„პროდუქტებს <span class="c-asp">მარაგი</span> უნდა ჰქონდეს“</h2>
-  <div class="grid2" style="grid-template-columns:1fr 1.1fr;align-items:center;gap:50px">
-    <div class="card in" style="--d:.2s">
-      <p style="font-size:23px">💬 „გუშინ საწყობში 3 ლეპტოპი გვქონდა, საიტმა კი 5 გაყიდა. ზოგ პროდუქტს ფასად 0 ეწერა. ახლა მინდა, რომ ყველაფერი <b>წესით</b> მუშაობდეს.“</p>
-      <p class="tiny" style="margin-top:14px">— მენეჯერი</p>
-    </div>
-    <div class="col" style="gap:14px">
-      <div class="opt step left" style="--a:var(--asp)"><span class="n">1</span><div><h3>მარაგი <b>მინუსში ვერ ჩავა</b></h3><p>Stock ≥ 0</p></div></div>
-      <div class="opt step left" style="--a:var(--asp)"><span class="n">2</span><div><h3>ფასი <b>0-ზე მეტია</b></h3><p>Price &gt; 0</p></div></div>
-      <div class="opt step left" style="--a:var(--asp)"><span class="n">3</span><div><h3>გაყიდვა <b>მარაგს ამცირებს</b></h3><p>არ ჰყოფნის → უარი</p></div></div>
-      <div class="callout step" style="--a:var(--net)">ეს არც HTTP-ია, არც ბაზა — ეს <b>ბიზნესის წესებია</b>. სად დავწეროთ?</div>
-    </div>
-  </div>
-  <aside class="study">
-### მენეჯერი ისევ წერს
-
-„გუშინ საწყობში 3 ლეპტოპი გვქონდა, საიტმა კი 5 გაყიდა. ზოგ პროდუქტს ფასად 0 ეწერა. ახლა მინდა, რომ ყველაფერი წესით მუშაობდეს.“
-
-მენეჯერის ენაზე ეს სამი წესია:
-
-1. **მარაგი მინუსში ვერ ჩავა** — `Stock` არასდროს არის 0-ზე ნაკლები.
-2. **ფასი 0-ზე მეტია** — უფასო ან უარყოფითი ფასის პროდუქტი არ არსებობს.
-3. **გაყიდვა მარაგს ამცირებს** — და თუ მარაგი არ ჰყოფნის, გაყიდვა არ ხდება.
-
-ეს წესები არც HTTP-ს ეხება, არც ბაზას. ისინი ბიზნესს ეკუთვნის — ასე მუშაობს მაღაზია, საიტი რომ არც არსებობდეს. კითხვა მხოლოდ ისაა: **კოდში სად დავწეროთ?**
-
-```note
-`Product`-ს ემატება `int Stock` — EF Core-ისთვის ეს ჩვეულებრივი ახალი სვეტია და მიგრაცია, რომელიც უკვე იცით.
-```
-  </aside>
-</section>
-<section class="slide" data-section="6 · ShopApi რომ გაიზარდოს">
-  <div class="kicker">პირველი, რაც თავში მოდის</div>
-  <h2>წესები — <span class="c-asp">Controller-ში</span></h2>
-  <div class="grid2" style="grid-template-columns:1.25fr 1fr;align-items:start">
-    <code-block id="g1" lang="csharp" cls="sm" title="Controllers/ProductsController.cs">
-[HttpPost("{id:guid}/sell")]
-public async Task<IActionResult> Sell(Guid id, int quantity)
-{
-    var product = await _db.Products.FindAsync(id);
-    if (product is null) return NotFound();
-
-    if (quantity <= 0)
-        return BadRequest("რაოდენობა 0-ზე მეტი უნდა იყოს");
-    if (product.Stock < quantity)
-        return Conflict("მარაგი არ ჰყოფნის");
-
-    product.Stock -= quantity;
-    await _db.SaveChangesAsync();
-    return NoContent();
-}
-    </code-block>
-    <div class="col" style="gap:16px">
-      <div class="solve step">მუშაობს ✓ — Swagger-ში 5 ლეპტოპს ვეღარ გაყიდი</div>
-      <i class="codestep" data-for="g1" data-lines="2,14"></i>
-      <div class="callout step" data-with style="--a:var(--net)">🌐 <b>HTTP</b> — მარშრუტი, სტატუს კოდები</div>
-      <i class="codestep" data-for="g1" data-lines="4,13"></i>
-      <div class="callout step" data-with style="--a:var(--core)">🗄️ <b>ბაზა</b> — FindAsync, SaveChangesAsync</div>
-      <i class="codestep" data-for="g1" data-lines="7-12"></i>
-      <div class="callout step" data-with style="--a:var(--asp)">📏 <b>ბიზნესის წესი</b> — მარაგი, რაოდენობა</div>
-      <div class="qbig step" style="font-size:32px">ერთი მეთოდი — <span class="c-red">სამი საქმე</span></div>
-    </div>
-  </div>
-  <aside class="study">
-### პირველი, რაც თავში მოდის: წესები Controller-ში
-
-```csharp Controllers/ProductsController.cs
-[HttpPost("{id:guid}/sell")]
-public async Task<IActionResult> Sell(Guid id, int quantity)
-{
-    var product = await _db.Products.FindAsync(id);
-    if (product is null) return NotFound();
-
-    if (quantity <= 0)
-        return BadRequest("რაოდენობა 0-ზე მეტი უნდა იყოს");
-    if (product.Stock < quantity)
-        return Conflict("მარაგი არ ჰყოფნის");
-
-    product.Stock -= quantity;
-    await _db.SaveChangesAsync();
-    return NoContent();
-}
-```
-
-კოდი მუშაობს: 3 ლეპტოპიდან 5-ს ვეღარ გაყიდი, 409 Conflict ბრუნდება. მაგრამ დააკვირდი — ეს ერთი მეთოდი **სამ სხვადასხვა საქმეს** აკეთებს:
-
-- 🌐 **HTTP** — მარშრუტი, პარამეტრები, სტატუს კოდები (`NotFound`, `BadRequest`, `Conflict`).
-- 🗄️ **ბაზა** — პროდუქტის მოძებნა და ცვლილების შენახვა.
-- 📏 **ბიზნესის წესი** — რაოდენობა დადებითია, მარაგი ჰყოფნის, მარაგი მცირდება.
-
-სანამ ასეთი მეთოდი ერთია, ეს პრობლემა არ არის. ახლა ვნახოთ, რა ხდება, როცა წესი სხვაგანაც გვჭირდება.
-  </aside>
-</section>
-<section class="slide" data-section="6 · ShopApi რომ გაიზარდოს">
-  <div class="kicker">პრობლემა 1</div>
-  <h2>ერთი წესი — <span class="c-red">ბევრ ადგილას</span></h2>
-  <div class="grid2" style="gap:26px;align-items:start">
-    <code-block id="g2" lang="csharp" cls="xs" title="Create">
-[HttpPost]
-public async Task<IActionResult> Create(Product product)
-{
-    if (product.Price <= 0)
-        return BadRequest("ფასი 0-ზე მეტი უნდა იყოს");
-    if (product.Stock < 0)
-        return BadRequest("მარაგი მინუსში ვერ იქნება");
-
-    _db.Products.Add(product);
-    await _db.SaveChangesAsync();
-    return CreatedAtAction(nameof(GetById),
-        new { id = product.Id }, product);
-}
-    </code-block>
-    <div class="col" style="gap:16px">
-      <code-block id="g3" lang="csharp" cls="xs" title="Update">
-[HttpPut("{id:guid}")]
-public async Task<IActionResult> Update(Guid id, Product updated)
-{
-    var product = await _db.Products.FindAsync(id);
-    if (product is null) return NotFound();
-
-    product.Name = updated.Name;
-    product.Price = updated.Price;
-    product.Stock = updated.Stock;
-    await _db.SaveChangesAsync();
-    return NoContent();
-}
-      </code-block>
-      <i class="codestep" data-for="g2" data-lines="4-7"></i>
-      <div class="callout step" data-with style="--a:var(--asp)">Create-ში წესი <b>დავწერეთ</b></div>
-      <i class="codestep" data-for="g3" data-lines="8-9"></i>
-      <div class="callout step" data-with style="--a:var(--red)">Update-ში <b>დაგვავიწყდა</b> → PUT-ით ფასი 0 და მარაგი −5 ✗</div>
-      <div class="solve step">წესი 3 ადგილას · ერთგან შეცვლი — <b>ორგან დაგავიწყდება</b></div>
-    </div>
-  </div>
-  <aside class="study">
-### პრობლემა 1 · ერთი წესი — ბევრ ადგილას
-
-„ფასი 0-ზე მეტია“ და „მარაგი მინუსში ვერ იქნება“ — ეს წესები მხოლოდ გაყიდვას არ ეხება. პროდუქტის **შექმნისასაც** და **შეცვლისასაც** მოქმედებს.
-
-```csharp Create
-if (product.Price <= 0)
-    return BadRequest("ფასი 0-ზე მეტი უნდა იყოს");
-if (product.Stock < 0)
-    return BadRequest("მარაგი მინუსში ვერ იქნება");
-```
-
-Create-ში შემოწმება დავწერეთ. Update-ში კი — დაგვავიწყდა:
-
-```csharp Update
-product.Name = updated.Name;
-product.Price = updated.Price;
-product.Stock = updated.Stock;
-await _db.SaveChangesAsync();
-```
-
-შედეგი: POST-ით ფასს 0-ს ვერ ჩაწერ, PUT-ით — მშვიდად. პროდუქტი „არასწორ“ მდგომარეობაში ბაზაში ინახება, და ამას ტესტირებისას ვერც შეამჩნევ, რადგან Create მუშაობს.
-
-ახლა წარმოიდგინე: მენეჯერი ამბობს „ფასი მინიმუმ 1 ლარი უნდა იყოს“. ეს ცვლილება სამ ადგილას უნდა გააკეთო — Create, Update და ყველა სხვა endpoint, რომელიც ფასს ეხება. ერთგან შეცვლი, ორგან დაგავიწყდება.
-
-```warn
-ეს პრობლემა copy-paste-ის ნაკლებობით არ წყდება — „ერთ მეთოდში გავიტანოთ“ ნაწილობრივ შველის, მაგრამ არავინ გაიძულებს, ის მეთოდი გამოიძახო. იხილე პრობლემა 2.
-```
-  </aside>
-</section>
-<section class="slide" data-section="6 · ShopApi რომ გაიზარდოს">
-  <div class="kicker">პრობლემა 2</div>
-  <h2>Product <span class="c-red">არაფერს იცავს</span></h2>
-  <div class="grid2" style="grid-template-columns:1fr 1.1fr;align-items:start;gap:40px">
-    <code-block id="g4" lang="csharp" cls="sm" title="Models/Product.cs">
-public class Product
-{
-    public Guid Id { get; set; }
-    public string Name { get; set; } = "";
-    public decimal Price { get; set; }
-    public int Stock { get; set; }
-}
-    </code-block>
-    <div class="col" style="gap:16px">
-      <code-block id="g5" lang="csharp" cls="sm" title="ნებისმიერ ადგილას">
-product.Stock = -5;
-product.Price = 0;
-product.Name = "";
-      </code-block>
-      <div class="callout step" style="--a:var(--red)">კომპილირდება ✓ · გაეშვება ✓ · ბაზაში შეინახება ✓</div>
-      <div class="opt step left" style="--a:var(--asp)"><span class="n">📦</span><div><h3>Product — მხოლოდ <b>მონაცემების ყუთია</b></h3><p>ვინც გინდა, რაც გინდა, ჩადებს</p></div></div>
-      <div class="solve step">წესებს Product <b>არ იცნობს</b> — ისინი მის გარეთ, Controller-ებშია მიმოფანტული</div>
-    </div>
-  </div>
-  <aside class="study">
-### პრობლემა 2 · Product არაფერს იცავს
-
-```csharp Models/Product.cs
-public class Product
-{
-    public Guid Id { get; set; }
-    public string Name { get; set; } = "";
-    public decimal Price { get; set; }
-    public int Stock { get; set; }
-}
-```
-
-ყველა property `public` და `set`-ით. ეს ნიშნავს, რომ პროექტის **ნებისმიერ ადგილას** ასეთი კოდი კომპილირდება, გაეშვება და ბაზაში შეინახება:
-
-```csharp
-product.Stock = -5;
-product.Price = 0;
-product.Name = "";
-```
-
-ჩვენი `Product` მხოლოდ **მონაცემების ყუთია** — მასში ვინც გინდა, რაც გინდა, ჩადებს. ბიზნესის წესებს ის არ იცნობს: წესები მის გარეთ, Controller-ებშია მიმოფანტული, და მათი დაცვა იმაზეა დამოკიდებული, ვინმეს დაავიწყდება თუ არა.
-
-```check
-? რატომ არ შველის, რომ Create-ში ფასი შემოწმებულია?
-= შემოწმება Create-ს ეკუთვნის, არა Product-ს. სხვა ნებისმიერი კოდი (Update, Sell, მომავალი endpoint) Price-ს პირდაპირ ცვლის და შემოწმებას გვერდს უვლის.
-```
-  </aside>
-</section>
-<section class="slide" data-section="6 · ShopApi რომ გაიზარდოს">
-  <div class="kicker">პრობლემა 3</div>
-  <h2>ბიზნესი და კოდი <span class="c-red">სხვადასხვა ენაზე</span> ლაპარაკობენ</h2>
-  <table class="t" style="font-size:19px">
-    <tr><th style="width:38%">💬 მენეჯერი ამბობს</th><th>💻 კოდში წერია</th></tr>
-    <tr class="step fade"><td>„პროდუქტი <b>გაიყიდა</b>“</td><td><code class="i">product.Stock -= quantity;</code></td></tr>
-    <tr class="step fade"><td>„მარაგი <b>შეივსო</b>“</td><td><code class="i">product.Stock += quantity;</code></td></tr>
-    <tr class="step fade"><td>„20%-იანი <b>ფასდაკლება</b> გამოვაცხადეთ“</td><td><code class="i">product.Price = product.Price * 0.8m;</code></td></tr>
-    <tr class="step fade"><td>„მარაგი <b>ჩამოვწერეთ</b> — დაზიანდა“</td><td><code class="i">product.Stock -= quantity;</code></td></tr>
-  </table>
-  <div class="grid2 mt" style="gap:26px">
-    <div class="callout step" style="--a:var(--red)">„გაიყიდა“ და „ჩამოიწერა“ — კოდში <b>ერთნაირია</b>. კოდი რომ წაიკითხო, ვერ გაიგებ, რა მოხდა ბიზნესში</div>
-    <div class="callout step" style="--a:var(--net)">მენეჯერი მოქმედებებზე ლაპარაკობს — კოდი მხოლოდ <b>ველებს ცვლის</b></div>
-  </div>
-  <aside class="study">
-### პრობლემა 3 · ბიზნესი და კოდი სხვადასხვა ენაზე ლაპარაკობენ
-
-| 💬 მენეჯერი ამბობს | 💻 კოდში წერია |
-|---|---|
-| „პროდუქტი გაიყიდა“ | `product.Stock -= quantity;` |
-| „მარაგი შეივსო“ | `product.Stock += quantity;` |
-| „20%-იანი ფასდაკლება გამოვაცხადეთ“ | `product.Price = product.Price * 0.8m;` |
-| „მარაგი ჩამოვწერეთ — დაზიანდა“ | `product.Stock -= quantity;` |
-
-მენეჯერი **მოქმედებებზე** ლაპარაკობს: გაიყიდა, შეივსო, ჩამოიწერა. კოდი კი მხოლოდ **ველებს ცვლის**: `Stock`-ს აკლებს, `Price`-ს ამრავლებს.
-
-„გაიყიდა“ და „ჩამოიწერა“ ბიზნესისთვის სრულიად სხვადასხვა რამეა — ერთი შემოსავალია, მეორე ზარალი. კოდში კი ორივე ერთი და იგივე ხაზია. ახალი დეველოპერი კოდს რომ წაიკითხავს, ვერ გაიგებს, რა ხდება ბიზნესში — მენეჯერთან საუბრისას კი ორივე სხვადასხვა ენაზე ილაპარაკებს.
-  </aside>
-</section>
-<section class="slide" data-section="6 · ShopApi რომ გაიზარდოს">
-  <div class="kicker">შემდეგი ლექციისთვის</div>
-  <h2>ერთი კითხვა, რომელსაც <span class="grad">დღეს არ ვპასუხობთ</span></h2>
-  <div class="qbig in" style="--d:.2s;font-size:46px;text-align:center;margin:30px 0 34px">სად უნდა <span class="c-asp">ცხოვრობდეს</span> ბიზნესის წესი?</div>
-  <div class="grid2" style="grid-template-columns:repeat(3,1fr);gap:22px">
-    <div class="card accent step" style="--a:var(--net)"><h3><span class="ico">🌐</span>Controller-ში?</h3><p class="small">მისი საქმე HTTP-ია — და წესი იქ მეორდება</p></div>
-    <div class="card accent step" style="--a:var(--core)"><h3><span class="ico">🗄️</span>ბაზაში?</h3><p class="small">CHECK-ი მინუსს დაიჭერს — მაგრამ „გაიყიდა“ და „ჩამოიწერა“ მაინც ვერ განსხვავდება</p></div>
-    <div class="card accent step" style="--a:var(--asp)"><h3><span class="ico">❓</span>სხვაგან?</h3><p class="small">შემდეგ ლექციაზე</p></div>
-  </div>
-  <div class="solve step mt">🔜 <b>DDD</b> — ჯერ ბიზნესს ვუსმენთ, მერე ვწერთ კოდს · და ვიწყებთ <b>ახალ პროექტს</b> — ბიზნესზე, რომელსაც თქვენ ყველაზე კარგად იცნობთ</div>
-  <aside class="study">
-### ერთი კითხვა, რომელსაც დღეს არ ვპასუხობთ
-
-**სად უნდა ცხოვრობდეს ბიზნესის წესი?**
-
-- **Controller-ში?** Controller-ის საქმე HTTP-ია: მოთხოვნის მიღება და პასუხის დაბრუნება. წესი იქ ყოველ endpoint-ში მეორდება (პრობლემა 1).
-- **ბაზაში?** `CHECK (Stock >= 0)` მინუსს დაიჭერს — ეს კარგი დაცვაა, მაგრამ „გაიყიდა“ და „ჩამოიწერა“ მაინც ვერ განსხვავდება (პრობლემა 3), და შეცდომას მომხმარებელი SQL-ის exception-ად მიიღებს.
-- **სხვაგან?** — ამაზე შემდეგ ლექციაზე.
-
-ShopApi აქ სრულდება: მასზე ვისწავლეთ Controller-ები, REST, DTO, DI, ბაზა და async. შემდეგ ლექციაზე **DDD**-ს (Domain-Driven Design) გავეცნობით — როგორ ვუსმინოთ ბიზნესს, ვილაპარაკოთ მის ენაზე და ეს ენა კოდში გადავიტანოთ. და დავიწყებთ **ახალ პროექტს**, რომელშიც ყველა შემდეგი თემა შემოვა.
-
-```note
-სახლში დაფიქრდი: შენს LibraryApi-ში რომელი ბიზნესის წესები გაქვს (მაგ. „ერთი წიგნი ერთდროულად ერთ წევრთანაა“) და სად წერია თითოეული?
-```
-  </aside>
-</section>
 <lecture-check/>
 <section class="slide" data-section="შეჯამება">
   <div class="kicker in" style="color:var(--core)">დღეს</div>
@@ -1357,7 +1068,6 @@ ShopApi აქ სრულდება: მასზე ვისწავლ�
     <div class="col" style="gap:18px">
       <div class="card accent step" style="--a:var(--mvc)"><h3><span class="ico">🧠</span>დაიმახსოვრე</h3><ul class="clean small"><li><b>სინქრონული</b> — ნაკადი ბაზას ელოდება და დგას</li><li><b>await</b> — ნაკადი აუზში ბრუნდება, შედეგის შემდეგ მეთოდი გრძელდება</li><li><b>Task&lt;T&gt;</b> — დაპირება შედეგზე · async ბოლომდე</li><li>ლოდინი (I/O) → <b>async</b> · გამოთვლა → ჩვეულებრივი</li></ul></div>
       <div class="card accent step" style="--a:var(--pink)"><h3><span class="ico">🏠</span>საშინაოზე</h3><p class="small">LibraryApi-ს <b>წევრები და გატანები</b> async ხდება — LoansController-ის სამი შემოწმებაც</p></div>
-      <div class="card accent step" style="--a:var(--asp)"><h3><span class="ico">🔜</span>შემდეგ ლექციაზე</h3><p class="small"><b>სად ცხოვრობს ბიზნესის წესი?</b> · DDD · ახალი პროექტი</p></div>
     </div>
     <div class="col step" data-with style="gap:14px">
       <code-block lang="csharp" cls="sm" title="დღევანდელი შედეგი">
@@ -1383,7 +1093,6 @@ public async Task<IActionResult> GetAll()
 5. async ერთ მოთხოვნას **არ აჩქარებს** — სერვერს **მეტი მომხმარებლის** ატანას აძლევს.
 6. **I/O-bound** (ბაზა, ქსელი, ფაილი) → async. **CPU-bound** (გამოთვლა) → ჩვეულებრივი მეთოდი.
 7. არა: დავიწყებული `await`, `.Result`/`.Wait()`, `async void`, ორი Task ერთ DataContext-ზე.
-8. ShopApi რომ იზრდება, Controller-ში დაწერილი ბიზნესის წესები **მეორდება**, `Product` მათ **არ იცავს**, კოდი კი ბიზნესის ენაზე **არ ლაპარაკობს**. სად უნდა ცხოვრობდეს წესი — შემდეგ ლექციაზე (DDD).
 
 ```csharp დღევანდელი შედეგი
 [HttpGet]
