@@ -1,0 +1,961 @@
+<style>
+i.codestep{display:none}
+.mono{font-family:var(--mono)}
+.tree{font:19px/1.85 var(--mono);color:var(--ink2);background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px 20px;box-shadow:var(--shadow)}
+.tree .n{display:block;white-space:nowrap}
+.tree .n i{font-style:normal;margin-right:8px}
+.tree .lvl1{padding-left:30px}.tree .lvl2{padding-left:60px}
+.tree .hi{color:var(--ink);font-weight:700}
+.tree small{color:var(--muted);font-size:14px;margin-left:10px}
+.nuget{display:flex;align-items:center;gap:14px;background:#fff;border:1px solid var(--line);border-radius:12px;padding:10px 14px;box-shadow:var(--shadow)}
+.nuget .logo{width:40px;height:40px;border-radius:10px;display:grid;place-items:center;font:800 14px var(--mono);color:#fff;background:linear-gradient(135deg,#db2777,#6d28d9);flex:none}
+.nuget .nm{font:700 17px var(--mono);color:var(--ink)}
+.nuget .ds{font-size:14px;color:var(--muted)}
+.mock{background:#fff;border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);overflow:hidden}
+.mock .mh{background:var(--bg2);padding:10px 16px;font:600 14px var(--mono);color:var(--muted);border-bottom:1px solid var(--line)}
+.mock .mb{padding:14px 20px}
+.vs .row2{display:flex;align-items:center;gap:14px;margin:9px 0;font-size:18px;color:var(--ink2)}
+.vs .lbl{width:190px;color:var(--muted);font-size:16px}
+.vs .sel{flex:1;border:1px solid var(--line2);border-radius:8px;padding:7px 12px;font:600 16px var(--mono);color:var(--ink);background:#fff}
+.cb{width:22px;height:22px;border-radius:6px;border:2px solid var(--line2);display:inline-grid;place-items:center;font:800 15px var(--font);color:#fff;flex:none}
+.cb.on{background:var(--api);border-color:var(--api)}
+.term{background:#0f172a;border-radius:14px;overflow:hidden;box-shadow:var(--shadow)}
+.term .bar{background:#1e293b;padding:8px 14px;font:600 13px var(--mono);color:#94a3b8}
+.term .body{padding:12px 16px;font:500 16px/1.6 var(--mono);color:#e2e8f0}
+.term .pm::before{content:"PM> ";color:#60a5fa}
+.term .ok{color:#4ade80}
+.story{background:#fff;border:2px solid var(--core);border-radius:18px;padding:16px 22px;box-shadow:var(--shadow);font-size:22px;line-height:1.5;color:var(--ink)}
+.story .k{font:800 14px var(--mono);color:var(--core);letter-spacing:.06em;text-transform:uppercase;display:block;margin-bottom:4px}
+.ep{display:grid;grid-template-columns:90px 230px 1fr;background:#fff;border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);overflow:hidden}
+.ep>div{padding:9px 14px;border-bottom:1px solid var(--line);font-size:18px;color:var(--ink2)}
+.ep .h{background:var(--bg3);font:700 14px var(--mono);color:var(--ink)}
+.ep .m{font:800 15px var(--mono)}
+.ep .u{font:600 16px var(--mono);color:var(--ink)}
+.st{display:inline-block;font:700 14px var(--mono);border-radius:7px;padding:2px 8px;margin:1px 2px;background:#eaf8ef;color:#166534}
+.st.e{background:#fef2f2;color:#b91c1c}
+.st.w{background:#fff7ed;color:#c2410c}
+.resp{display:flex;align-items:center;gap:12px;border-radius:12px;padding:10px 14px;background:#fff;border:1px solid var(--line);border-left:6px solid var(--a);box-shadow:var(--shadow);font-size:18px;color:var(--ink2)}
+.resp .c{font:800 20px var(--mono);color:var(--a);min-width:44px}
+.resp .b{font:600 15px var(--mono);color:var(--muted);margin-left:auto}
+.opt{display:flex;gap:16px;align-items:flex-start;background:#fff;border:1px solid var(--line);border-left:6px solid var(--a);border-radius:12px;padding:12px 18px;box-shadow:var(--shadow)}
+.opt .n{font:800 26px var(--mono);color:var(--a);line-height:1}
+.opt h3{font-size:20px;margin-bottom:3px}
+.opt p{font-size:17px}
+.errbox{background:#fff;border:2px solid var(--red);border-radius:14px;box-shadow:var(--shadow);overflow:hidden}
+.errbox .eh{background:#fef2f2;color:#991b1b;font:700 15px var(--mono);padding:8px 14px;border-bottom:1px solid #fca5a5}
+.errbox .eb{padding:10px 14px;font:600 15px/1.5 var(--mono);color:var(--ink2)}
+</style>
+<!-- =========================================================
+     ლექცია 8 — LMS: პროექტის აწყობა და პირველი feature
+     ფერები: story/ლექსიკონი = teal · კოდი/Controller = იისფერი · წესი/შეცდომა = წითელი · წარმატება = მწვანე
+     ========================================================= -->
+
+<section class="slide" data-section="შესავალი">
+  <div class="vcenter" style="max-width:780px">
+    <div class="kicker in" style="color:var(--core)">ASP.NET Core Web API · ლექცია 8</div>
+    <h1 class="in" style="--d:.15s">Story №1 —<br><span class="grad">კოდში</span></h1>
+    <p class="lead in mt" style="--d:.35s">LMS-ის პროექტი და პირველი feature <b>ნაცნობი გზით</b>: Controller · DataContext · DTO · async</p>
+  </div>
+  <div class="abs" style="right:90px;top:210px;width:560px">
+    <div class="col" style="gap:14px">
+      <div class="story in" style="--d:.4s;font-size:20px"><span class="k">backlog №1</span>როგორც <b>მენეჯერი</b>, მინდა <b>შევქმნა კურსი</b>, რომ მასზე ჯგუფები გავხსნა</div>
+      <div class="in" style="--d:.8s;text-align:center;font:800 30px var(--mono);color:var(--muted)">↓</div>
+      <div class="resp in" style="--a:var(--mvc);--d:1.1s"><span class="c">201</span><span class="mono">POST /api/courses</span><span class="b">Created</span></div>
+    </div>
+  </div>
+</section>
+<lecture-review/>
+<lecture-homework-review/>
+<lecture-intro/>
+<section class="slide" data-section="დღის თემა">
+  <div class="kicker">story → endpoint-ები</div>
+  <h2>რა უნდა <span class="grad">ავაწყოთ</span>?</h2>
+  <div class="grid2" style="grid-template-columns:1fr 1.45fr;align-items:start;gap:30px">
+    <div class="col" style="gap:14px">
+      <div class="story in" style="--d:.1s;font-size:20px"><span class="k">backlog №1</span>როგორც <b>მენეჯერი</b>, მინდა <b>შევქმნა კურსი</b>, რომ მასზე ჯგუფები გავხსნა</div>
+      <div class="card accent step" style="--a:var(--red);padding:16px 20px"><h3 style="font-size:20px">✅ კრიტერიუმები</h3><ul class="clean small"><li>სახელი <b>სავალდებულოა</b></li><li>სახელი <b>უნიკალურია</b> (R1)</li><li>ხანგრძლივობა <b>1–52</b> კვირა</li></ul></div>
+    </div>
+    <div class="ep step">
+      <div class="h">მეთოდი</div><div class="h">მისამართი</div><div class="h">პასუხები</div>
+      <div class="m" style="color:#16a34a">POST</div><div class="u">/api/courses</div><div><span class="st">201</span><span class="st e">400</span><span class="st w">409</span></div>
+      <div class="m" style="color:#2563eb">GET</div><div class="u">/api/courses</div><div><span class="st">200</span></div>
+      <div class="m" style="color:#2563eb">GET</div><div class="u">/api/courses/{id}</div><div><span class="st">200</span><span class="st e">404</span></div>
+      <div class="m" style="color:#d97706">PUT</div><div class="u">/api/courses/{id}</div><div><span class="st">204</span><span class="st e">400</span><span class="st e">404</span><span class="st w">409</span></div>
+      <div class="m" style="color:#dc2626;border:0">DELETE</div><div class="u" style="border:0">/api/courses/{id}</div><div style="border:0"><span class="st">204</span><span class="st e">404</span></div>
+    </div>
+  </div>
+  <aside class="study">
+### Story-დან endpoint-ებამდე
+
+backlog-ის პირველი story:
+
+> როგორც **მენეჯერი**, მინდა **შევქმნა კურსი**, რომ მასზე ჯგუფები გავხსნა.
+
+**კრიტერიუმები:** სახელი სავალდებულოა · სახელი უნიკალურია (R1) · ხანგრძლივობა 1-დან 52 კვირამდეა.
+
+მენეჯერს კურსის შექმნის გარდა მისი ნახვა, შეცვლა და წაშლაც დასჭირდება. REST-ის წესებით (02 ლექცია) ეს ხუთ endpoint-ად იქცევა:
+
+| მეთოდი | მისამართი | პასუხები |
+|---|---|---|
+| `POST` | `/api/courses` | 201 შეიქმნა · 400 არასწორი მონაცემი · 409 ასეთი სახელი უკვე არის |
+| `GET` | `/api/courses` | 200 სია |
+| `GET` | `/api/courses/{id}` | 200 · 404 არ არსებობს |
+| `PUT` | `/api/courses/{id}` | 204 · 400 · 404 · 409 |
+| `DELETE` | `/api/courses/{id}` | 204 · 404 |
+
+ყოველი კრიტერიუმი სტატუს კოდად იქცა: „სავალდებულოა“ და „1–52“ → **400**, „უნიკალურია“ → **409**. კოდის წერამდე უკვე ვიცით, რა უნდა დააბრუნოს თითოეულმა endpoint-მა.
+  </aside>
+</section>
+
+<!-- ================= PART 1 ================= -->
+<section class="slide divider" data-section="1 · პროექტი">
+  <div class="vcenter">
+    <div class="kicker in">ნაწილი 1</div>
+    <h1 class="in" style="--d:.1s"><span class="grad">Lms.Api</span></h1>
+    <p class="lead mt in" style="--d:.3s">პროექტი, პაკეტები, საქაღალდეები</p>
+  </div>
+  <div class="big-num">01</div>
+  <aside class="study">
+## ნაწილი 1 · Lms.Api
+
+ახალ პროექტს ვქმნით და ShopApi-ის ნაცნობ სტრუქტურას ვაწყობთ. ეს პროექტი კურსის ბოლომდე გაგვყვება.
+  </aside>
+</section>
+<section class="slide" data-section="1 · პროექტი">
+  <div class="kicker">Visual Studio · ნაცნობი ნაბიჯები</div>
+  <h2>ახალი პროექტი + <span class="c-pink">5 პაკეტი</span></h2>
+  <div class="grid2" style="grid-template-columns:1.15fr 1fr;align-items:start;gap:30px">
+    <div class="mock vs step">
+      <div class="mh">ASP.NET Core Web API · Additional information</div>
+      <div class="mb">
+        <div class="row2"><span class="lbl">Project name</span><span class="sel">Lms.Api</span></div>
+        <div class="row2"><span class="lbl">Framework</span><span class="sel">.NET 10.0</span></div>
+        <div class="row2"><span class="lbl">Authentication</span><span class="sel">None</span></div>
+        <div class="row2"><span class="cb on">✓</span>Configure for HTTPS</div>
+        <div class="row2"><span class="cb on">✓</span>Enable OpenAPI support</div>
+        <div class="row2"><span class="cb on">✓</span>Use controllers</div>
+      </div>
+    </div>
+    <div class="col" style="gap:10px">
+      <div class="nuget step"><div class="logo">EF</div><div><div class="nm">Microsoft.EntityFrameworkCore</div><div class="ds">+ .SqlServer · .Tools · .Design — ერთი ვერსია 10.0.x</div></div></div>
+      <div class="nuget step"><div class="logo">{ }</div><div><div class="nm">Swashbuckle.AspNetCore</div><div class="ds">Swagger UI</div></div></div>
+      <div class="callout step" style="--a:var(--core)">სახელი — <b>Lms.Api</b>: namespace-ები <code class="i">Lms.Api.Entities</code>, <code class="i">Lms.Api.Data</code>…</div>
+    </div>
+  </div>
+  <aside class="study">
+### ახალი პროექტი + 5 პაკეტი
+
+ნაბიჯები ShopApi-დან უკვე ნაცნობია:
+
+1. **Create a new project** → **ASP.NET Core Web API**.
+2. **Project name:** `Lms.Api`. ეს სახელი namespace-ებშიც გამოჩნდება: `Lms.Api.Entities`, `Lms.Api.Data` და ა.შ.
+3. **Framework:** .NET 10.0 · **Authentication:** None (ავთენტიფიკაციას მოგვიანებით ჩვენ თვითონ დავწერთ).
+4. ✓ Configure for HTTPS · ✓ Enable OpenAPI support · ✓ **Use controllers**.
+
+**პაკეტები** (Manage NuGet Packages, ყველა ერთი ვერსიით, 10.0.x):
+
+- `Microsoft.EntityFrameworkCore`
+- `Microsoft.EntityFrameworkCore.SqlServer`
+- `Microsoft.EntityFrameworkCore.Tools`: `Add-Migration`, `Update-Database`
+- `Microsoft.EntityFrameworkCore.Design`
+- `Swashbuckle.AspNetCore`: Swagger UI
+
+```note
+ჯერჯერობით Controller-ებს ვიყენებთ, ზუსტად ისე, როგორც ShopApi-ში. ეს განზრახ არის: პირველი feature ნაცნობი გზით უნდა დავწეროთ, რომ მერე მისი ნაკლიც დავინახოთ.
+```
+  </aside>
+</section>
+<section class="slide" data-section="1 · პროექტი">
+  <div class="kicker">სტრუქტურა</div>
+  <h2>საქაღალდეები — <span class="grad">როგორც ShopApi-ში</span></h2>
+  <div class="grid2" style="grid-template-columns:1fr 1.15fr;align-items:start;gap:34px">
+    <div class="tree step">
+      <span class="n hi"><i>📁</i>Lms.Api</span>
+      <span class="n lvl1"><i>📁</i>Controllers<small>HTTP: მისამართები, პასუხები</small></span>
+      <span class="n lvl1"><i>📁</i>Data<small>DataContext</small></span>
+      <span class="n lvl1"><i>📁</i>Dtos<small>რა შემოდის · რა გადის</small></span>
+      <span class="n lvl1"><i>📁</i>Entities<small>ბაზის ცხრილები</small></span>
+      <span class="n lvl1"><i>📁</i>Mappers<small>Entity ⇄ DTO</small></span>
+      <span class="n lvl1"><i>📁</i>Migrations<small>EF Core ქმნის</small></span>
+      <span class="n lvl1"><i>📄</i>appsettings.json</span>
+      <span class="n lvl1"><i>📄</i>Program.cs</span>
+    </div>
+    <div class="col" style="gap:14px">
+      <div class="callout step" style="--a:var(--core)">სახელები — <b>ლექსიკონიდან</b>: <code class="i">Course</code>, <code class="i">Group</code>, <code class="i">Enrollment</code>… არა <code class="i">Item</code>, <code class="i">Data1</code>, <code class="i">StudentCourse</code></div>
+      <div class="callout step" style="--a:var(--net)">საქაღალდე = <b>ტექნიკური როლი</b>: ყველა Controller ერთად, ყველა DTO ერთად</div>
+      <div class="tiny step">დაიმახსოვრე ეს მეორე ხაზი — ლექციის ბოლოს მას დავუბრუნდებით</div>
+    </div>
+  </div>
+  <aside class="study">
+### საქაღალდეები, როგორც ShopApi-ში
+
+| საქაღალდე | რა არის შიგნით |
+|---|---|
+| `Controllers` | HTTP: მისამართები, მეთოდები, პასუხები |
+| `Data` | `DataContext`: კავშირი ბაზასთან |
+| `Dtos` | რა შემოდის მოთხოვნაში და რა გადის პასუხში |
+| `Entities` | ბაზის ცხრილების კლასები |
+| `Mappers` | Entity ⇄ DTO გადაყვანა |
+| `Migrations` | EF Core თვითონ ქმნის |
+
+**სახელები ლექსიკონიდან მოდის:** `Course`, `Group`, `Enrollment`. არა `Item`, `Data1` ან `StudentCourse`. 06 ლექციაზე ვნახეთ, რომ სახელი ბიზნესის ენით უნდა იყოს.
+
+ამ სტრუქტურაში საქაღალდე **ტექნიკურ როლს** ნიშნავს: ყველა Controller ერთად, ყველა DTO ერთად, ყველა Mapper ერთად. ShopApi-ში ეს კარგად მუშაობდა. ლექციის ბოლოს ვნახავთ, რა ემართება ამ სტრუქტურას, როცა პროექტი იზრდება.
+  </aside>
+</section>
+
+<!-- ================= PART 2 ================= -->
+<section class="slide divider" data-section="2 · Course და ბაზა">
+  <div class="vcenter">
+    <div class="kicker in">ნაწილი 2</div>
+    <h1 class="in" style="--d:.1s">Course და <span class="grad">ბაზა</span></h1>
+    <p class="lead mt in" style="--d:.3s">Entity · DataContext · მიგრაცია</p>
+  </div>
+  <div class="big-num">02</div>
+  <aside class="study">
+## ნაწილი 2 · Course და ბაზა
+
+პირველი entity, DataContext და მიგრაცია. ბოლოს ბაზაში ცხრილი `Courses` გვექნება.
+  </aside>
+</section>
+<section class="slide" data-section="2 · Course და ბაზა">
+  <div class="kicker">ლექსიკონი → კოდი</div>
+  <h2><span class="c-core">Course</span> entity და <span class="c-core">DataContext</span></h2>
+  <div class="grid2" style="grid-template-columns:1fr 1.15fr;gap:24px;align-items:start">
+    <code-block id="ce" lang="csharp" cls="sm" title="Entities/Course.cs">
+namespace Lms.Api.Entities;
+
+public class Course
+{
+    public Guid Id { get; set; }
+    public string Title { get; set; } = string.Empty;
+    public string? Description { get; set; }
+    public int DurationWeeks { get; set; }
+    public DateTime CreatedAt { get; set; }
+}
+    </code-block>
+    <code-block id="dc" lang="csharp" cls="sm" title="Data/DataContext.cs">
+public class DataContext : DbContext
+{
+    public DataContext(DbContextOptions<DataContext> options)
+        : base(options) { }
+
+    public DbSet<Course> Courses { get; set; }
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<Course>(course =>
+        {
+            course.Property(c => c.Title).HasMaxLength(100);
+            course.HasIndex(c => c.Title).IsUnique();
+        });
+    }
+}
+    </code-block>
+  </div>
+  <div class="grid2 mt" style="gap:20px">
+    <i class="codestep" data-for="ce" data-lines="6,8"></i>
+    <div class="callout step" data-with style="--a:var(--core)"><b>Title</b> · <b>DurationWeeks</b> — story-ის სიტყვები · <code class="i">string?</code> — აღწერა არასავალდებულოა</div>
+    <i class="codestep" data-for="dc" data-lines="12-13"></i>
+    <div class="callout step" data-with style="--a:var(--red)"><b>R1 ბაზაშიც</b>: <code class="i">IsUnique()</code> — ბაზა დუბლიკატს არ ჩაწერს</div>
+  </div>
+  <aside class="study">
+### Course entity და DataContext
+
+```csharp Entities/Course.cs
+namespace Lms.Api.Entities;
+
+public class Course
+{
+    public Guid Id { get; set; }
+    public string Title { get; set; } = string.Empty;
+    public string? Description { get; set; }
+    public int DurationWeeks { get; set; }
+    public DateTime CreatedAt { get; set; }
+}
+```
+
+- `Title` და `DurationWeeks` story-დან მოდის: „სახელი“ და „ხანგრძლივობა კვირებში“. სახელი ისე ავარჩიეთ, რომ ერთეული (კვირა) თვითონ ჩანდეს: `Duration`-ს ვერ მიხვდები, დღეებშია თუ თვეებში.
+- `string?` აღწერისთვის: კითხვის ნიშანი ნიშნავს, რომ აღწერა შეიძლება არ იყოს (`null`). სახელი კი სავალდებულოა, ამიტომ `string`, საწყისი მნიშვნელობით `string.Empty`.
+- `CreatedAt`: როდის შეიქმნა. ბიზნესს ხშირად სჭირდება („ახალი კურსები ზემოთ“).
+
+```csharp Data/DataContext.cs
+using Lms.Api.Entities;
+using Microsoft.EntityFrameworkCore;
+
+namespace Lms.Api.Data;
+
+public class DataContext : DbContext
+{
+    public DataContext(DbContextOptions<DataContext> options)
+        : base(options) { }
+
+    public DbSet<Course> Courses { get; set; }
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<Course>(course =>
+        {
+            course.Property(c => c.Title).HasMaxLength(100);
+            course.HasIndex(c => c.Title).IsUnique();
+        });
+    }
+}
+```
+
+`OnModelCreating`-ში ბაზას ორ რამეს ვეუბნებით:
+
+- `HasMaxLength(100)`: სვეტი `nvarchar(100)` იქნება და არა `nvarchar(max)`.
+- `HasIndex(c => c.Title).IsUnique()`: **unique index**. ბაზა ორ ერთნაირ სახელს არ ჩაწერს. ეს არის **R1** ბაზის დონეზე.
+
+```note
+R1-ს კოდშიც შევამოწმებთ, Controller-ში. რატომ ორჯერ? ეს ნაწილ 4-ში ვნახავთ.
+```
+  </aside>
+</section>
+<section class="slide" data-section="2 · Course და ბაზა">
+  <div class="kicker">კავშირი და მიგრაცია</div>
+  <h2>Program.cs · appsettings · <span class="grad">Migration</span></h2>
+  <div class="grid2" style="grid-template-columns:1.15fr 1fr;gap:26px;align-items:start">
+    <div class="col" style="gap:12px">
+      <code-block id="pg" lang="csharp" cls="xs" title="Program.cs">
+var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddControllers();
+builder.Services.AddOpenApi();
+builder.Services.AddSwaggerGen();
+builder.Services.AddDbContext<DataContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("Default")));
+
+var app = builder.Build();
+
+if (app.Environment.IsDevelopment())
+{
+    app.MapOpenApi();
+    app.UseSwagger();
+    app.UseSwaggerUI();
+}
+
+app.UseHttpsRedirection();
+app.MapControllers();
+app.Run();
+      </code-block>
+      <code-block lang="json" cls="xs" title="appsettings.json">
+"ConnectionStrings": {
+  "Default": "Server=(localdb)\\MSSQLLocalDB;Database=LmsDb;Trusted_Connection=True;TrustServerCertificate=True"
+}
+      </code-block>
+    </div>
+    <div class="col" style="gap:14px">
+      <i class="codestep" data-for="pg" data-lines="6-7"></i>
+      <div class="callout step" data-with style="--a:var(--net)"><b>AddDbContext</b> — Scoped · სტრიქონი <b>appsettings</b>-იდან (04)</div>
+      <div class="term step"><div class="bar">Package Manager Console</div><div class="body"><div class="pm">Add-Migration InitialCreate</div><div class="pm">Update-Database</div><div class="ok">Done.</div></div></div>
+      <div class="solve step" style="font-size:19px">SQL Server-ში: ბაზა <b>LmsDb</b> · ცხრილი <b>Courses</b> · index <b>IX_Courses_Title</b></div>
+    </div>
+  </div>
+  <aside class="study">
+### Program.cs, appsettings, Migration
+
+```csharp Program.cs
+using Lms.Api.Data;
+using Microsoft.EntityFrameworkCore;
+
+var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddControllers();
+builder.Services.AddOpenApi();
+builder.Services.AddSwaggerGen();
+builder.Services.AddDbContext<DataContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("Default")));
+
+var app = builder.Build();
+
+if (app.Environment.IsDevelopment())
+{
+    app.MapOpenApi();
+    app.UseSwagger();
+    app.UseSwaggerUI();
+}
+
+app.UseHttpsRedirection();
+app.MapControllers();
+app.Run();
+```
+
+```json appsettings.json
+{
+  "ConnectionStrings": {
+    "Default": "Server=(localdb)\\MSSQLLocalDB;Database=LmsDb;Trusted_Connection=True;TrustServerCertificate=True"
+  },
+  "Logging": { ... },
+  "AllowedHosts": "*"
+}
+```
+
+ყველაფერი 04 ლექციიდან ნაცნობია: `AddDbContext` DataContext-ს Container-ში Scoped-ად არეგისტრირებს, connection string კი appsettings.json-იდან მოდის.
+
+**მიგრაცია** (Tools → NuGet Package Manager → Package Manager Console):
+
+```text Package Manager Console
+Add-Migration InitialCreate
+Update-Database
+```
+
+SQL Server Object Explorer-ში ჩანს: ბაზა `LmsDb`, ცხრილი `Courses` და index `IX_Courses_Title`.
+  </aside>
+</section>
+
+<section class="slide" data-section="შესვენება">
+  <div class="center">
+    <div class="big-emoji in" style="font-size:120px">☕</div>
+    <h1 class="in" style="--d:.15s">10 წუთი</h1>
+    <p class="lead in" style="--d:.3s">შემდეგ: <b class="c-net">DTO, Mapper და CoursesController</b></p>
+  </div>
+</section>
+
+<!-- ================= PART 3 ================= -->
+<section class="slide divider" data-section="3 · DTO და Mapper">
+  <div class="vcenter">
+    <div class="kicker in">ნაწილი 3</div>
+    <h1 class="in" style="--d:.1s">DTO და <span class="grad">Mapper</span></h1>
+    <p class="lead mt in" style="--d:.3s">რა შემოდის · რა გადის</p>
+  </div>
+  <div class="big-num">03</div>
+  <aside class="study">
+## ნაწილი 3 · DTO და Mapper
+
+03 ლექციიდან ვიცით: entity-ს გარეთ არ ვაჩენთ. შემოსვლისთვის და გასვლისთვის ცალკე DTO გვჭირდება, გადაყვანისთვის კი Mapper.
+  </aside>
+</section>
+<section class="slide" data-section="3 · DTO და Mapper">
+  <div class="kicker">03 ლექციიდან</div>
+  <h2>სამი <span class="c-core">record</span> + <span class="c-core">CourseMapper</span></h2>
+  <div class="grid2" style="grid-template-columns:1fr 1.15fr;gap:24px;align-items:start">
+    <div class="col" style="gap:14px">
+    <code-block id="dt" lang="csharp" cls="sm" title="Dtos/CourseDtos.cs">
+public record CreateCourseRequest(
+    string Title, string? Description, int DurationWeeks);
+
+public record UpdateCourseRequest(
+    string Title, string? Description, int DurationWeeks);
+
+public record CourseResponse(
+    Guid Id, string Title, string? Description,
+    int DurationWeeks, DateTime CreatedAt);
+    </code-block>
+    <i class="codestep" data-for="dt" data-lines="1-2"></i>
+    <div class="callout step" data-with style="--a:var(--core);font-size:18px">Request-ში <b>Id არ არის</b> — Id-ს ბაზა ქმნის, <b>CreatedAt</b>-ს — Mapper</div>
+    <i class="codestep" data-for="mp" data-lines="13,16"></i>
+    <div class="callout step" data-with style="--a:var(--net);font-size:18px"><code class="i">Trim()</code> — „ ASP.NET “ და „ASP.NET“ ერთი სახელია</div>
+    </div>
+    <code-block id="mp" lang="csharp" cls="xs" title="Mappers/CourseMapper.cs">
+public static class CourseMapper
+{
+    public static CourseResponse ToResponse(this Course course)
+    {
+        return new CourseResponse(course.Id, course.Title,
+            course.Description, course.DurationWeeks, course.CreatedAt);
+    }
+
+    public static Course ToEntity(this CreateCourseRequest request)
+    {
+        return new Course
+        {
+            Title = request.Title.Trim(),
+            Description = request.Description,
+            DurationWeeks = request.DurationWeeks,
+            CreatedAt = DateTime.UtcNow
+        };
+    }
+
+    public static void UpdateFrom(this Course course, UpdateCourseRequest request)
+    {
+        course.Title = request.Title.Trim();
+        course.Description = request.Description;
+        course.DurationWeeks = request.DurationWeeks;
+    }
+}
+    </code-block>
+  </div>
+  <aside class="study">
+### სამი record და CourseMapper
+
+```csharp Dtos/CourseDtos.cs
+namespace Lms.Api.Dtos;
+
+public record CreateCourseRequest(
+    string Title, string? Description, int DurationWeeks);
+
+public record UpdateCourseRequest(
+    string Title, string? Description, int DurationWeeks);
+
+public record CourseResponse(
+    Guid Id, string Title, string? Description,
+    int DurationWeeks, DateTime CreatedAt);
+```
+
+- **Request-ებში Id არ არის**: Id-ს EF Core ქმნის (Guid). კლიენტი მას არ გვიგზავნის.
+- **CreatedAt** არც Request-შია: მას Mapper წერს. კლიენტს არ ვენდობით, როცა საქმე დროს ეხება.
+
+```csharp Mappers/CourseMapper.cs
+public static class CourseMapper
+{
+    public static CourseResponse ToResponse(this Course course)
+    {
+        return new CourseResponse(course.Id, course.Title,
+            course.Description, course.DurationWeeks, course.CreatedAt);
+    }
+
+    public static Course ToEntity(this CreateCourseRequest request)
+    {
+        return new Course
+        {
+            Title = request.Title.Trim(),
+            Description = request.Description,
+            DurationWeeks = request.DurationWeeks,
+            CreatedAt = DateTime.UtcNow
+        };
+    }
+
+    public static void UpdateFrom(this Course course, UpdateCourseRequest request)
+    {
+        course.Title = request.Title.Trim();
+        course.Description = request.Description;
+        course.DurationWeeks = request.DurationWeeks;
+    }
+}
+```
+
+`Trim()` სახელის თავში და ბოლოში ჰარებს აცილებს: „ ASP.NET “ და „ASP.NET“ ერთი და იგივე სახელია. თუ ამას არ გავაკეთებთ, R1 (უნიკალური სახელი) ჰარის ერთი დამატებით გვერდს აუვლის.
+
+```note
+03 ლექციაზე Mapperly-იც ვნახეთ. LMS-ში Mapper-ს ხელით ვწერთ: ის მოკლეა და ყველა ხაზი ჩანს. თუ შენს LMS-ში Mapperly გირჩევნია, ესეც სწორია.
+```
+  </aside>
+</section>
+
+<!-- ================= PART 4 ================= -->
+<section class="slide divider" data-section="4 · CoursesController">
+  <div class="vcenter">
+    <div class="kicker in">ნაწილი 4</div>
+    <h1 class="in" style="--d:.1s"><span class="grad">CoursesController</span></h1>
+    <p class="lead mt in" style="--d:.3s">ხუთი endpoint · R1 · async</p>
+  </div>
+  <div class="big-num">04</div>
+  <aside class="study">
+## ნაწილი 4 · CoursesController
+
+ხუთი endpoint, ყველა async (05 ლექცია). განსაკუთრებულ ყურადღებას Create-ს ვაქცევთ: მასში ყველა კრიტერიუმი მოწმდება.
+  </aside>
+</section>
+<section class="slide" data-section="4 · CoursesController">
+  <div class="kicker">წაკითხვა</div>
+  <h2>GetAll · <span class="c-net">GetById</span></h2>
+  <div class="grid2" style="grid-template-columns:1.35fr 1fr;gap:28px;align-items:start">
+    <code-block id="cg" lang="csharp" cls="xs" title="Controllers/CoursesController.cs">
+[ApiController]
+[Route("api/courses")]
+public class CoursesController : ControllerBase
+{
+    private readonly DataContext _db;
+    public CoursesController(DataContext db) { _db = db; }
+
+    [HttpGet]
+    public async Task<IActionResult> GetAll()
+    {
+        var courses = await _db.Courses
+            .OrderBy(c => c.Title)
+            .ToListAsync();
+        return Ok(courses.Select(c => c.ToResponse()));
+    }
+
+    [HttpGet("{id:guid}")]
+    public async Task<IActionResult> GetById(Guid id)
+    {
+        var course = await _db.Courses.FindAsync(id);
+        if (course is null) return NotFound();
+        return Ok(course.ToResponse());
+    }
+}
+    </code-block>
+    <div class="col" style="gap:14px">
+      <i class="codestep" data-for="cg" data-lines="5-6"></i>
+      <div class="callout step" data-with style="--a:var(--net)">DataContext — <b>constructor-ით</b> (04)</div>
+      <i class="codestep" data-for="cg" data-lines="11-13"></i>
+      <div class="callout step" data-with style="--a:var(--core)"><code class="i">OrderBy</code> — SQL-ში <b>ORDER BY</b> · ბაზაში მიდის მხოლოდ <code class="i">ToListAsync</code>-ზე</div>
+      <i class="codestep" data-for="cg" data-lines="14,22"></i>
+      <div class="callout step" data-with style="--a:var(--mvc)">გარეთ — მხოლოდ <b>CourseResponse</b></div>
+    </div>
+  </div>
+  <aside class="study">
+### GetAll და GetById
+
+```csharp Controllers/CoursesController.cs
+[ApiController]
+[Route("api/courses")]
+public class CoursesController : ControllerBase
+{
+    private readonly DataContext _db;
+
+    public CoursesController(DataContext db)
+    {
+        _db = db;
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> GetAll()
+    {
+        var courses = await _db.Courses
+            .OrderBy(c => c.Title)
+            .ToListAsync();
+        return Ok(courses.Select(c => c.ToResponse()));
+    }
+
+    [HttpGet("{id:guid}")]
+    public async Task<IActionResult> GetById(Guid id)
+    {
+        var course = await _db.Courses.FindAsync(id);
+        if (course is null) return NotFound();
+        return Ok(course.ToResponse());
+    }
+}
+```
+
+- DataContext-ს Controller-ი **constructor-ით** ითხოვს: Container მას თვითონ ქმნის და მიაწვდის (04).
+- `OrderBy` SQL-ში `ORDER BY`-ად იქცევა. ბაზაში მოთხოვნა მხოლოდ `ToListAsync`-ზე მიდის (05).
+- გარეთ მხოლოდ `CourseResponse` გადის, entity არასდროს (03).
+  </aside>
+</section>
+<section class="slide" data-section="4 · CoursesController">
+  <div class="kicker">პრობლემა · R1-ის გარეშე</div>
+  <h2>ორჯერ „ASP.NET“ → <span class="c-red">500</span></h2>
+  <div class="grid2" style="grid-template-columns:1fr 1.1fr;gap:30px;align-items:start">
+    <div class="col" style="gap:12px">
+      <code-block lang="csharp" cls="sm" title="Create · პირველი ვერსია">
+[HttpPost]
+public async Task<IActionResult> Create(CreateCourseRequest request)
+{
+    var course = request.ToEntity();
+    _db.Courses.Add(course);
+    await _db.SaveChangesAsync();
+    return CreatedAtAction(nameof(GetById),
+        new { id = course.Id }, course.ToResponse());
+}
+      </code-block>
+      <div class="resp step" style="--a:var(--mvc)"><span class="c">201</span>პირველი „ASP.NET“<span class="b">Created</span></div>
+      <div class="resp step" style="--a:var(--red)"><span class="c">500</span>მეორე „ASP.NET“<span class="b">Internal Server Error</span></div>
+    </div>
+    <div class="col" style="gap:12px">
+      <div class="errbox step"><div class="eh">DbUpdateException</div><div class="eb">Cannot insert duplicate key row in object 'dbo.Courses' with unique index 'IX_Courses_Title'.</div></div>
+      <div class="opt step" style="--a:var(--mvc)"><span class="n">✓</span><div><h3>ბაზამ დაგვიცვა</h3><p>დუბლიკატი <b>არ</b> ჩაიწერა</p></div></div>
+      <div class="opt step" style="--a:var(--red)"><span class="n">✗</span><div><h3>კლიენტმა მიიღო 500</h3><p>„სერვერი გაფუჭდა“ — თუმცა არაფერი გაფუჭებულა. მენეჯერმა <b>არ იცის</b>, რა გააკეთოს</p></div></div>
+      <div class="opt step" style="--a:var(--red)"><span class="n">✗</span><div><h3>ცარიელი სახელი · 0 კვირა</h3><p>ბაზამ <b>ჩაწერა</b> — ასეთი კურსი ბიზნესში არ არსებობს</p></div></div>
+    </div>
+  </div>
+  <aside class="study">
+### R1-ის გარეშე: ორჯერ „ASP.NET“ → 500
+
+Create-ის პირველი ვერსია შემოწმებების გარეშე:
+
+```csharp Create · პირველი ვერსია
+[HttpPost]
+public async Task<IActionResult> Create(CreateCourseRequest request)
+{
+    var course = request.ToEntity();
+    _db.Courses.Add(course);
+    await _db.SaveChangesAsync();
+    return CreatedAtAction(nameof(GetById),
+        new { id = course.Id }, course.ToResponse());
+}
+```
+
+Swagger-ში ვაგზავნით „ASP.NET“-ს ორჯერ:
+
+1. პირველი → **201 Created**.
+2. მეორე → **500 Internal Server Error**: `DbUpdateException: Cannot insert duplicate key row … with unique index 'IX_Courses_Title'`.
+
+რა მოხდა:
+
+- ✓ **ბაზამ დაგვიცვა**: unique index-მა დუბლიკატი არ ჩაწერა.
+- ✗ **კლიენტმა 500 მიიღო**, ანუ „სერვერი გაფუჭდა“, თუმცა არაფერი გაფუჭებულა. მენეჯერმა არ იცის, რა შეცდომა დაუშვა და რა გააკეთოს.
+- ✗ **ცარიელი სახელი და 0 კვირა** ბაზამ უპრობლემოდ ჩაწერა. ასეთი კურსი ბიზნესში არ არსებობს.
+
+ბაზა ბოლო დაცვაა, მაგრამ კლიენტს გასაგებ პასუხს ვერ მისცემს. ეს კოდის საქმეა.
+  </aside>
+</section>
+<section class="slide" data-section="4 · CoursesController">
+  <div class="kicker">ამოხსნა · კრიტერიუმები კოდში</div>
+  <h2>Create — <span class="c-red">400</span> · <span class="c-red">409</span> · <span class="c-mvc">201</span></h2>
+  <div class="grid2" style="grid-template-columns:1.35fr 1fr;gap:26px;align-items:start">
+    <code-block id="cc" lang="csharp" cls="sm" title="Controllers/CoursesController.cs · Create">
+[HttpPost]
+public async Task<IActionResult> Create(CreateCourseRequest request)
+{
+    if (string.IsNullOrWhiteSpace(request.Title))
+        return BadRequest("კურსის სახელი სავალდებულოა");
+
+    if (request.DurationWeeks is < 1 or > 52)
+        return BadRequest("ხანგრძლივობა 1-დან 52 კვირამდეა");
+
+    var title = request.Title.Trim();
+    if (await _db.Courses.AnyAsync(c => c.Title == title))
+        return Conflict($"კურსი „{title}“ უკვე არსებობს");
+
+    var course = request.ToEntity();
+    _db.Courses.Add(course);
+    await _db.SaveChangesAsync();
+    return CreatedAtAction(nameof(GetById),
+        new { id = course.Id }, course.ToResponse());
+}
+    </code-block>
+    <div class="col" style="gap:12px">
+      <i class="codestep" data-for="cc" data-lines="4-8"></i>
+      <div class="resp step" data-with style="--a:var(--red)"><span class="c">400</span>მოთხოვნა <b>თვითონ</b> არასწორია</div>
+      <i class="codestep" data-for="cc" data-lines="10-12"></i>
+      <div class="resp step" data-with style="--a:#d97706"><span class="c">409</span>მოთხოვნა სწორია — <b>სისტემას</b> ეწინააღმდეგება (R1)</div>
+      <i class="codestep" data-for="cc" data-lines="14-18"></i>
+      <div class="resp step" data-with style="--a:var(--mvc)"><span class="c">201</span>ყველა კრიტერიუმი შესრულდა</div>
+      <div class="callout step" style="--a:var(--net);font-size:18px">კოდი — <b>გასაგები პასუხი</b> · ბაზა — <b>ბოლო დაცვა</b>, თუ ორი მოთხოვნა ერთად მოვიდა</div>
+    </div>
+  </div>
+  <aside class="study">
+### Create: 400, 409, 201
+
+story-ის ყოველი კრიტერიუმი კოდში ერთ შემოწმებად იქცა:
+
+```csharp Controllers/CoursesController.cs · Create
+[HttpPost]
+public async Task<IActionResult> Create(CreateCourseRequest request)
+{
+    if (string.IsNullOrWhiteSpace(request.Title))
+        return BadRequest("კურსის სახელი სავალდებულოა");
+
+    if (request.DurationWeeks is < 1 or > 52)
+        return BadRequest("ხანგრძლივობა 1-დან 52 კვირამდეა");
+
+    var title = request.Title.Trim();
+    if (await _db.Courses.AnyAsync(c => c.Title == title))
+        return Conflict($"კურსი „{title}“ უკვე არსებობს");
+
+    var course = request.ToEntity();
+    _db.Courses.Add(course);
+    await _db.SaveChangesAsync();
+    return CreatedAtAction(nameof(GetById),
+        new { id = course.Id }, course.ToResponse());
+}
+```
+
+**400 თუ 409?**
+
+| კოდი | როდის | მაგალითი |
+|---|---|---|
+| **400** Bad Request | მოთხოვნა **თვითონ** არასწორია: სხვა მონაცემის ნახვა არ გვჭირდება | ცარიელი სახელი, 0 კვირა |
+| **409** Conflict | მოთხოვნა სწორია, მაგრამ სისტემის **ახლანდელ მდგომარეობას** ეწინააღმდეგება | ასეთი სახელით კურსი უკვე არსებობს (R1) |
+
+**რატომ ვამოწმებთ R1-ს ორჯერ?** `AnyAsync` კლიენტს გასაგებ 409-ს უბრუნებს. Unique index კი ბოლო დაცვაა: თუ ორი მენეჯერი ზუსტად ერთ დროს ერთ სახელს გაგზავნის, ორივე მოთხოვნამ `AnyAsync` შეიძლება ერთად გაიაროს, და ბაზა მეორეს მაინც არ ჩაწერს. ასეთ „ერთდროულობას“ მოგვიანებით ცალკე ლექციაზე განვიხილავთ.
+
+```tip
+`[ApiController]`-ი `null` სახელს თვითონ იჭერს და ავტომატურ 400-ს აბრუნებს, რადგან `Title` არის `string` და არა `string?`. მაგრამ `""` და `"   "` `null` არ არის. ამიტომ `IsNullOrWhiteSpace` მაინც გვჭირდება.
+```
+  </aside>
+</section>
+<section class="slide" data-section="4 · CoursesController">
+  <div class="kicker">ცვლილება და წაშლა</div>
+  <h2>Update · <span class="c-red">Delete</span></h2>
+  <div class="grid2" style="grid-template-columns:1.35fr 1fr;gap:26px;align-items:start">
+    <code-block id="cu" lang="csharp" cls="xs" title="Controllers/CoursesController.cs">
+[HttpPut("{id:guid}")]
+public async Task<IActionResult> Update(Guid id, UpdateCourseRequest request)
+{
+    if (string.IsNullOrWhiteSpace(request.Title))
+        return BadRequest("კურსის სახელი სავალდებულოა");
+    if (request.DurationWeeks is < 1 or > 52)
+        return BadRequest("ხანგრძლივობა 1-დან 52 კვირამდეა");
+    var course = await _db.Courses.FindAsync(id);
+    if (course is null) return NotFound();
+    var title = request.Title.Trim();
+    if (await _db.Courses.AnyAsync(c => c.Title == title && c.Id != id))
+        return Conflict($"კურსი „{title}“ უკვე არსებობს");
+    course.UpdateFrom(request);
+    await _db.SaveChangesAsync();
+    return NoContent();
+}
+
+[HttpDelete("{id:guid}")]
+public async Task<IActionResult> Delete(Guid id)
+{
+    var course = await _db.Courses.FindAsync(id);
+    if (course is null) return NotFound();
+    _db.Courses.Remove(course);
+    await _db.SaveChangesAsync();
+    return NoContent();
+}</code-block>
+    <div class="col" style="gap:14px">
+      <i class="codestep" data-for="cu" data-lines="11"></i>
+      <div class="callout step" data-with style="--a:var(--red)"><code class="i">c.Id != id</code> — <b>სხვა</b> კურსი ამ სახელით? საკუთარი თავი არ ითვლება</div>
+      <i class="codestep" data-for="cu" data-lines="4-7"></i>
+      <div class="problem step" data-with style="font-size:18px">იგივე ორი შემოწმება — <b>მეორედ</b> დავწერეთ</div>
+      <i class="codestep" data-for="cu" data-lines="all"></i>
+      <div class="callout step" style="--a:var(--muted)">Controller-ი უკვე <b>~90 ხაზია</b> — და ეს მხოლოდ კურსია</div>
+    </div>
+  </div>
+  <aside class="study">
+### Update და Delete
+
+```csharp Controllers/CoursesController.cs
+[HttpPut("{id:guid}")]
+public async Task<IActionResult> Update(Guid id, UpdateCourseRequest request)
+{
+    if (string.IsNullOrWhiteSpace(request.Title))
+        return BadRequest("კურსის სახელი სავალდებულოა");
+    if (request.DurationWeeks is < 1 or > 52)
+        return BadRequest("ხანგრძლივობა 1-დან 52 კვირამდეა");
+
+    var course = await _db.Courses.FindAsync(id);
+    if (course is null) return NotFound();
+
+    var title = request.Title.Trim();
+    if (await _db.Courses.AnyAsync(c => c.Title == title && c.Id != id))
+        return Conflict($"კურსი „{title}“ უკვე არსებობს");
+
+    course.UpdateFrom(request);
+    await _db.SaveChangesAsync();
+    return NoContent();
+}
+
+[HttpDelete("{id:guid}")]
+public async Task<IActionResult> Delete(Guid id)
+{
+    var course = await _db.Courses.FindAsync(id);
+    if (course is null) return NotFound();
+    _db.Courses.Remove(course);
+    await _db.SaveChangesAsync();
+    return NoContent();
+}
+```
+
+**`c.Id != id`** Update-ში აუცილებელია. თუ მენეჯერი მხოლოდ აღწერას ცვლის და სახელს იგივეს ტოვებს, `AnyAsync(c => c.Title == title)` **თავის თავს** იპოვის და 409-ს დააბრუნებს. ჩვენ ვეძებთ **სხვა** კურსს იმავე სახელით.
+
+შენიშვნა: სახელისა და ხანგრძლივობის ორი შემოწმება მეორედ დავწერეთ, Create-ში და Update-ში. ეს პირველი ნიშანია, რომ რაღაც ისე არ არის. ამას ბოლო ნაწილში დავუბრუნდებით.
+
+```check
+? რატომ არ მოწმდება Delete-ში წესები?
+= ამ ეტაპზე კურსის წაშლას წესი არ აქვს. როცა კურსს ჯგუფები ექნება, დირექტორს უნდა ვკითხოთ: „ჯგუფებიანი კურსის წაშლა შეიძლება?“ ეს ახალი წესი იქნება
+```
+  </aside>
+</section>
+
+<!-- ================= PART 5 ================= -->
+<section class="slide" data-section="5 · რა გვაწუხებს">
+  <div class="kicker">ნაცნობი გზის ფასი</div>
+  <h2>მუშაობს — მაგრამ <span class="c-red">რა მოხდება 10 feature-ზე?</span></h2>
+  <div class="grid2" style="grid-template-columns:1fr 1fr;gap:26px;align-items:start">
+    <div class="tree step">
+      <span class="n hi"><i>📁</i>Lms.Api</span>
+      <span class="n lvl1"><i>📁</i>Controllers</span>
+      <span class="n lvl2" style="color:var(--red);font-weight:700"><i>📄</i>CoursesController.cs <small>← Create</small></span>
+      <span class="n lvl1"><i>📁</i>Dtos</span>
+      <span class="n lvl2" style="color:var(--red);font-weight:700"><i>📄</i>CourseDtos.cs <small>← CreateCourseRequest</small></span>
+      <span class="n lvl1"><i>📁</i>Entities</span>
+      <span class="n lvl2"><i>📄</i>Course.cs</span>
+      <span class="n lvl1"><i>📁</i>Mappers</span>
+      <span class="n lvl2" style="color:var(--red);font-weight:700"><i>📄</i>CourseMapper.cs <small>← ToEntity</small></span>
+    </div>
+    <div class="col" style="gap:12px">
+      <div class="opt step" style="--a:var(--red)"><span class="n">1</span><div><h3>ერთი feature — 3–4 საქაღალდე</h3><p>„კურსის შექმნა“ რომ შეცვალო, ყველგან უნდა იარო</p></div></div>
+      <div class="opt step" style="--a:var(--red)"><span class="n">2</span><div><h3>Controller იზრდება</h3><p>ჯგუფი, ჩარიცხვა, ლექცია… — <b>ასობით ხაზი</b> ერთ ფაილში</p></div></div>
+      <div class="opt step" style="--a:var(--red)"><span class="n">3</span><div><h3>HTTP და წესები ერთად</h3><p>R1, 1–52 — Controller-ის მეთოდში · <b>გამეორდა</b> Update-ში</p></div></div>
+      <div class="solve step" style="font-size:19px">შემდეგ ლექციაზე — <b>არქიტექტურა</b>: სად რა უნდა იდოს</div>
+    </div>
+  </div>
+  <aside class="study">
+## ნაცნობი გზის ფასი
+
+კოდი მუშაობს: ხუთივე endpoint, ყველა კრიტერიუმი. მაგრამ დავაკვირდეთ, რა მოხდება, როცა backlog-ის კიდევ 10 story დაემატება.
+
+**1. ერთი feature 3–4 საქაღალდეშია გაბნეული.** „კურსის შექმნა“ რომ შეცვალო (მაგალითად, ახალი ველი დაემატა), უნდა შეხვიდე `Controllers/CoursesController.cs`-ში, `Dtos/CourseDtos.cs`-ში, `Mappers/CourseMapper.cs`-ში და ხშირად `Entities/Course.cs`-შიც. ოთხი ფაილი, ოთხი საქაღალდე, ერთი ცვლილებისთვის.
+
+**2. Controller იზრდება.** `CoursesController` უკვე ~90 ხაზია. ჯგუფებს, ჩარიცხვას, ლექციებს, დასწრებას თავისი Controller-ები ექნება, თითოეულში ათობით endpoint და ასობით ხაზი. როცა ორი დეველოპერი ერთსა და იმავე Controller-ზე მუშაობს, ერთმანეთის ცვლილებებს ეჯახებიან.
+
+**3. HTTP და ბიზნესის წესები ერთ მეთოდშია.** R1 და „1–52 კვირა“ Controller-ის მეთოდშია ჩაწერილი, Update-ში კი მეორედ. წესი ბიზნესს ეკუთვნის, HTTP კი მხოლოდ გზაა, რომლითაც მოთხოვნა მოდის.
+
+ეს პრობლემები ShopApi-ში არ ჩანდა, რადგან ის პატარა იყო. LMS-ში აუცილებლად გამოჩნდება. შემდეგ ლექციაზე ამას **არქიტექტურით** მოვაგვარებთ: ვიფიქრებთ, სად რა უნდა იდოს და რატომ.
+  </aside>
+</section>
+
+<!-- ================= PRACTICE ================= -->
+<section class="slide divider" data-section="პრაქტიკა">
+  <div class="vcenter">
+    <div class="kicker in">ნაწილი 6</div>
+    <h1 class="in" style="--d:.1s">ახლა <span class="grad">თქვენი ჯერია</span></h1>
+    <p class="lead mt in" style="--d:.3s">შენი LMS · პროექტი და Courses</p>
+  </div>
+  <div class="big-num">06</div>
+  <aside class="study">
+## ნაწილი 6 · თქვენი ჯერია
+
+შენი LMS-ის პროექტი და story №1. იგივე გზა: entity → DataContext → მიგრაცია → DTO → Mapper → Controller.
+  </aside>
+</section>
+<lecture-classwork/>
+<section class="slide" data-section="პრაქტიკა">
+  <div class="kicker">გაჭედე?</div>
+  <h2>ხშირი შეცდომები</h2>
+  <table class="t" style="font-size:16px">
+    <tr><th style="width:42%">რას ხედავ</th><th style="width:26%">მიზეზი</th><th>გამოსწორება</th></tr>
+    <tr class="step fade"><td class="mono" style="font-size:14px">Unable to create a 'DbContext' of type 'DataContext'</td><td>Add-Migration DataContext-ს ვერ პოულობს</td><td><code class="i">AddDbContext</code> Program.cs-ში · Startup project — Lms.Api</td></tr>
+    <tr class="step fade"><td class="mono" style="font-size:14px">A network-related or instance-specific error…</td><td>connection string არასწორია</td><td><code class="i">(localdb)\\MSSQLLocalDB</code> — JSON-ში <b>ორი</b> <code class="i">\\</code></td></tr>
+    <tr class="step fade"><td class="mono" style="font-size:14px">Cannot insert duplicate key row … IX_Courses_Title (500)</td><td><code class="i">AnyAsync</code> შემოწმება აკლია</td><td>შემოწმება <b>SaveChanges-მდე</b> → <code class="i">Conflict()</code></td></tr>
+    <tr class="step fade"><td class="mono" style="font-size:14px">PUT-ზე 409, თუმცა სახელი არ შეგიცვლია</td><td>კურსი თავის თავს პოულობს</td><td><code class="i">&amp;&amp; c.Id != id</code></td></tr>
+    <tr class="step fade"><td class="mono" style="font-size:14px">'DbSet&lt;Course&gt;' does not contain a definition for 'AnyAsync'</td><td>using აკლია</td><td><code class="i">using Microsoft.EntityFrameworkCore;</code></td></tr>
+  </table>
+  <aside class="study">
+### ხშირი შეცდომები
+
+| რას ხედავ | მიზეზი და გამოსწორება |
+|---|---|
+| `Unable to create a 'DbContext' of type 'DataContext'` | `Add-Migration` DataContext-ს ვერ პოულობს → შეამოწმე `AddDbContext` Program.cs-ში და რომ Startup project `Lms.Api`-ია |
+| `A network-related or instance-specific error…` | connection string არასწორია → JSON-ში `(localdb)\\MSSQLLocalDB`: **ორი** `\\` |
+| `Cannot insert duplicate key row … IX_Courses_Title` (500) | `AnyAsync` შემოწმება აკლია ან `SaveChangesAsync`-ის შემდეგაა → შეამოწმე **მანამდე** და დააბრუნე `Conflict()` |
+| PUT-ზე 409, თუმცა სახელი არ შეგიცვლია | კურსი თავის თავს პოულობს → `&& c.Id != id` |
+| `'DbSet<Course>' does not contain a definition for 'AnyAsync'` | `using Microsoft.EntityFrameworkCore;` აკლია |
+
+```prompt როცა რამე არ მუშაობს
+ვაწყობ ASP.NET Core Web API-ს (.NET 10, Controllers, EF Core, SQL Server LocalDB). პროექტი: სასწავლო პლატფორმა LMS, entity Course (Guid Id, Title — unique index, DurationWeeks).
+პრობლემა: [აღწერე]
+შეცდომის ტექსტი: [ჩასვი]
+ჩემი კოდი: [ჩასვი]
+ჯერ ამიხსენი, რას ნიშნავს შეცდომა და სად ვეძებო. მზა კოდი ნუ დამიწერე.
+```
+  </aside>
+</section>
+<lecture-check/>
+<section class="slide" data-section="შეჯამება">
+  <div class="kicker in" style="color:var(--core)">დღეს</div>
+  <h2 class="in" style="--d:.1s">Story №1 — <span class="grad">მზადაა</span></h2>
+  <div class="grid2" style="grid-template-columns:1fr 1.1fr;gap:36px;align-items:start">
+    <div class="col" style="gap:16px">
+      <div class="card accent step" style="--a:var(--mvc)"><h3><span class="ico">🧠</span>დაიმახსოვრე</h3><ul class="clean small"><li>story → <b>endpoint-ები + სტატუს კოდები</b> — კოდამდე</li><li>სახელები — <b>ლექსიკონიდან</b></li><li><b>400</b> — მოთხოვნა არასწორია · <b>409</b> — სისტემას ეწინააღმდეგება</li><li>R1: <b>AnyAsync</b> (გასაგები პასუხი) + <b>unique index</b> (ბოლო დაცვა)</li></ul></div>
+      <div class="card accent step" style="--a:var(--pink)"><h3><span class="ico">🏠</span>საშინაოზე</h3><p class="small">backlog №2 — <b>Students</b> და <b>Lecturers</b> CRUD · R2: Email უნიკალურია</p></div>
+    </div>
+    <div class="col step" data-with style="gap:12px">
+      <div class="resp" style="--a:var(--mvc)"><span class="c">201</span><span class="mono">POST /api/courses</span><span class="b">Created</span></div>
+      <div class="resp" style="--a:var(--red)"><span class="c">400</span>ცარიელი სახელი · 0 კვირა</div>
+      <div class="resp" style="--a:#d97706"><span class="c">409</span>„ASP.NET“ უკვე არსებობს</div>
+      <div class="problem" style="font-size:18px">და სამი ტკივილი: <b>გაბნეული feature · ზრდადი Controller · წესი HTTP-ში</b></div>
+    </div>
+  </div>
+  <aside class="study">
+## შეჯამება · Story №1 მზადაა
+
+**დაიმახსოვრე:**
+
+1. კოდამდე story-ს **endpoint-ებად და სტატუს კოდებად** ვშლით: ყოველი კრიტერიუმი რომელიმე პასუხად იქცევა.
+2. ყოველი სახელი (`Course`, `Title`, `DurationWeeks`) **ლექსიკონიდან და story-დან** მოდის.
+3. **400**: მოთხოვნა თვითონ არასწორია. **409**: მოთხოვნა სწორია, მაგრამ სისტემის მდგომარეობას ეწინააღმდეგება.
+4. **R1** ორ ადგილას მოწმდება: `AnyAsync` კლიენტს გასაგებ 409-ს აძლევს, unique index კი ბოლო დაცვაა.
+5. Update-ში უნიკალურობა `c.Id != id`-ით მოწმდება.
+6. ნაცნობ გზას სამი ტკივილი აქვს: feature 3–4 საქაღალდეშია გაბნეული, Controller იზრდება, ბიზნესის წესები კი HTTP-ის კოდშია და მეორდება. ეს შემდეგი ლექციის თემაა.
+  </aside>
+</section>
+<lecture-homework/>

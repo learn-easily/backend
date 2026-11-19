@@ -1,0 +1,621 @@
+<style>
+.mono{font-family:var(--mono)}
+.say{border-radius:16px;padding:16px 20px;border:2px solid var(--a);background:color-mix(in srgb,var(--a) 7%,#fff)}
+.say .who{font:700 15px var(--mono);color:var(--a);letter-spacing:.04em;text-transform:uppercase;margin-bottom:6px}
+.say p{font-size:21px;color:var(--ink)}
+.dlg{display:flex;flex-direction:column;gap:9px}
+.msg{max-width:88%;border-radius:16px;padding:9px 16px;font-size:18px;line-height:1.4;box-shadow:var(--shadow)}
+.msg b.who{display:block;font:700 13px var(--mono);opacity:.75;margin-bottom:1px}
+.msg.biz{align-self:flex-start;background:#fff7ed;border:1px solid #fdba74;color:#7c2d12}
+.msg.dev{align-self:flex-end;background:#eef2ff;border:1px solid #a5b4fc;color:#312e81}
+.msg .tq{display:inline-block;font:700 12px var(--mono);background:#4f46e5;color:#fff;border-radius:6px;padding:1px 7px;margin-left:6px}
+.found{display:flex;gap:10px;align-items:center;border-radius:12px;padding:10px 14px;border:2px solid var(--a);background:color-mix(in srgb,var(--a) 7%,#fff);font-size:18px;color:var(--ink)}
+.found .k{font:700 13px var(--mono);color:#fff;background:var(--a);border-radius:7px;padding:3px 9px;white-space:nowrap}
+.gl{display:grid;grid-template-columns:150px 140px 1fr;background:#fff;border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);overflow:hidden}
+.gl>div{padding:7px 14px;border-bottom:1px solid var(--line);font-size:17px;color:var(--ink2)}
+.gl .h{background:var(--bg3);font:700 14px var(--mono);color:var(--ink);letter-spacing:.04em}
+.gl .t{font-weight:800;color:var(--ink)}
+.gl .e{font:700 16px var(--mono);color:var(--core)}
+.actor{border-radius:18px;padding:18px 20px;border:2px solid var(--a);background:color-mix(in srgb,var(--a) 6%,#fff)}
+.actor .e{font-size:44px;line-height:1.1}
+.actor h3{font-size:24px;color:var(--a);margin:6px 0 8px}
+.actor ul{margin:0;padding-left:20px}
+.actor li{font-size:17px;color:var(--ink2);margin:5px 0}
+.evrow{display:flex;flex-wrap:wrap;gap:10px 8px;align-items:center}
+.ev{position:relative;border-radius:10px;padding:8px 12px 8px 12px;background:#fff7d6;border:1px solid #f5d565;box-shadow:var(--shadow);font-size:17px;color:#713f12;font-weight:700}
+.ev small{display:block;font:600 12px var(--mono);color:var(--a,#92400e);margin-bottom:1px}
+.evrow .ar{font:800 18px var(--mono);color:var(--muted)}
+.flowv{display:flex;flex-direction:column;gap:9px}
+.fstep{display:flex;align-items:center;gap:14px;border-radius:12px;padding:9px 16px;border:2px solid var(--a);background:color-mix(in srgb,var(--a) 7%,#fff);font-size:19px;color:var(--ink)}
+.fstep .n{font:800 18px var(--mono);color:var(--a);min-width:26px}
+.fstep .q{margin-left:auto;font:700 13px var(--mono);color:#fff;background:#4f46e5;border-radius:7px;padding:3px 9px;white-space:nowrap}
+.rules{display:grid;grid-template-columns:62px 1fr;background:#fff;border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);overflow:hidden}
+.rules>div{padding:8px 14px;border-bottom:1px solid var(--line);font-size:18px;color:var(--ink)}
+.rules .r{font:800 17px var(--mono);color:var(--red);text-align:center}
+.no{border-radius:12px;padding:10px 14px;background:#fef2f2;border:1px solid #fca5a5;color:#991b1b;font-size:18px}
+.bl{display:grid;grid-template-columns:44px 1fr 120px;background:#fff;border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);overflow:hidden}
+.bl>div{padding:6px 12px;border-bottom:1px solid var(--line);font-size:17px;color:var(--ink2)}
+.bl .n{font:800 16px var(--mono);color:var(--net);text-align:center}
+.bl .r{font:700 14px var(--mono);color:var(--red)}
+.bl .first{background:#f0fdf4}
+.map text{font-family:var(--font)}
+.map .bx rect{fill:#fff;stroke-width:2.5}
+.map .bx .t{font-size:20px;font-weight:800;fill:#1f2335}
+.map .bx .e{font-size:15px;font-family:var(--mono);font-weight:700}
+.map line,.map path{stroke:#94a3b8;stroke-width:2.5;fill:none}
+.map .m{font:700 14px var(--mono);fill:#64748b}
+</style>
+<!-- =========================================================
+     ლექცია 7 — LMS-ის აღმოჩენა
+     ფერები: ბიზნესი = ნარინჯისფერი · დეველოპერი = ლურჯი-იისფერი
+       ტერმინი = teal · მოვლენა = ყვითელი stickers · წესი = წითელი · story = იისფერი
+     ========================================================= -->
+
+<section class="slide" data-section="შესავალი">
+  <div class="vcenter" style="max-width:780px">
+    <div class="kicker in" style="color:var(--core)">ASP.NET Core Web API · ლექცია 7</div>
+    <h1 class="in" style="--d:.15s">ვიდრე კოდს<br><span class="grad">დავწერთ</span></h1>
+    <p class="lead in mt" style="--d:.35s"><b>LMS-ის აღმოჩენა</b>: ენა, აქტორები, პროცესები, წესები → დომენის რუკა და backlog</p>
+  </div>
+  <div class="abs" style="right:90px;top:190px">
+    <div class="col" style="gap:12px;width:560px">
+      <div class="evrow in" style="--d:.4s"><div class="ev"><small>მენეჯერი</small>კურსი შეიქმნა</div><span class="ar">→</span><div class="ev"><small>მენეჯერი</small>ჯგუფი გაიხსნა</div></div>
+      <div class="evrow in" style="--d:.7s"><div class="ev"><small>მენეჯერი</small>სტუდენტი ჩაირიცხა</div><span class="ar">→</span><div class="ev"><small>ლექტორი</small>ლექცია ჩატარდა</div></div>
+      <div class="evrow in" style="--d:1s"><div class="ev"><small>სტუდენტი</small>ნამუშევარი ჩაბარდა</div><span class="ar">→</span><div class="ev"><small>ლექტორი</small>ნამუშევარი შეფასდა</div></div>
+      <div class="found in" style="--a:var(--net);--d:1.4s;margin-top:10px"><span class="k">backlog</span>1. მენეჯერი ქმნის კურსს · 2. … · 3. …</div>
+    </div>
+  </div>
+</section>
+<lecture-review/>
+<lecture-homework-review/>
+<lecture-intro/>
+<section class="slide" data-section="დღის თემა">
+  <div class="kicker">ჩვენი პროექტი ბოლომდე</div>
+  <h2>LMS — სისტემა, რომელსაც <span class="grad">უკვე იცნობთ</span></h2>
+  <div class="grid3" style="grid-template-columns:1fr 1fr 1fr;gap:22px;align-items:start">
+    <div class="card accent step" style="--a:var(--core)"><h3><span class="ico">🏫</span>LMS</h3><p class="small"><b>Learning Management System</b>: კურსები, ჯგუფები, ლექციები, დასწრება, დავალებები, შეფასება. ზუსტად ის, რასაც LB-ზე ყოველდღე ხედავთ</p></div>
+    <div class="card accent step" style="--a:var(--net)"><h3><span class="ico">🧑‍🏫</span>კლასში</h3><p class="small">LMS-ს <b>ლექტორი</b> აწყობს, თემა თემაზე. თქვენ უყურებთ, კითხულობთ, კამათობთ</p></div>
+    <div class="card accent step" style="--a:var(--mvc)"><h3><span class="ico">🏠</span>სახლში</h3><p class="small">თითოეული <b>საკუთარ</b> LMS-ს აწყობს, იმავე ბიზნესზე. კლასის დავალება და საშინაო შენი LMS-ის ნაწილია</p></div>
+  </div>
+  <div class="callout step mt" style="--a:#ea580c">დღეს კოდი <b>არ</b> არის. დღეს ვიგებთ ბიზნესს, რომ შემდეგი ლექციიდან სწორი კოდი დავწეროთ</div>
+  <aside class="study">
+### LMS: სისტემა, რომელსაც უკვე იცნობთ
+
+აქედან კურსის ბოლომდე ყველა ახალი თემა ერთ პროექტში შემოდის: **LMS** (Learning Management System), სასწავლო პლატფორმაში. მასში არის კურსები, ჯგუფები, სტუდენტები, ლექტორები, ლექციები, დასწრება, დავალებები და შეფასება 1-დან 12-მდე.
+
+ეს დომენი კარგად იცით: LB-ზე ყოველდღე ხედავთ განრიგს, დასწრებას, აბარებთ დავალებებს და იღებთ ქულებს. ამიტომ დირექტორის ყოველი სიტყვა თქვენთვისაც ნაცნობია.
+
+**როგორ ვმუშაობთ:**
+
+- **კლასში** LMS-ს ლექტორი აწყობს, თემა თემაზე. თქვენ უყურებთ, სვამთ კითხვებს და კამათობთ.
+- **სახლში** თითოეული **საკუთარ** LMS-ს აწყობს, იმავე ბიზნესზე და იმავე წესებით. კლასის დავალება და საშინაო ყოველთვის შენი LMS-ის შემდეგი ნაწილია.
+
+დღეს კოდი არ არის. 06 ლექციაზე ვნახეთ, რომ ყველაზე ძვირი შეცდომა არასწორად გაგებული ბიზნესია. დღეს LMS-ის ბიზნესს ვიგებთ: ენას, აქტორებს, პროცესებს და წესებს. დღის ბოლოს გვექნება **დომენის რუკა** და **backlog**, სამუშაოების სია, საიდანაც შემდეგ ლექციაზე პირველ feature-ს დავწერთ.
+  </aside>
+</section>
+
+<!-- ================= PART 1 ================= -->
+<section class="slide divider" data-section="1 · ენა">
+  <div class="vcenter">
+    <div class="kicker in">ნაწილი 1</div>
+    <h1 class="in" style="--d:.1s">LMS-ის <span class="grad">ენა</span></h1>
+    <p class="lead mt in" style="--d:.3s">ერთი ლექსიკონი მთელი კლასისთვის</p>
+  </div>
+  <div class="big-num">01</div>
+  <aside class="study">
+## ნაწილი 1 · LMS-ის ენა
+
+საშინაოში ყველამ თავისი ლექსიკონი დაწერა. ახლა ვნახავთ, რატომ არის ეს პრობლემა, და ერთ, საერთო ლექსიკონს შევთანხმდებით.
+  </aside>
+</section>
+<section class="slide" data-section="1 · ენა">
+  <div class="kicker">პრობლემა</div>
+  <h2>30 ლექსიკონი — <span class="c-red">30 სხვადასხვა LMS</span></h2>
+  <div class="grid3" style="grid-template-columns:1fr 1fr 1fr;gap:18px;align-items:start">
+    <div class="say step" style="--a:#4f46e5"><div class="who">ნიკა</div><p>„<b>კურსი</b> — სტუდენტები, რომლებიც ერთად სწავლობენ“</p></div>
+    <div class="say step" style="--a:#0d9488"><div class="who">ანა</div><p>„<b>ნაკადი</b> — სტუდენტები, რომლებიც ერთად სწავლობენ“</p></div>
+    <div class="say step" style="--a:#db2777"><div class="who">გიო</div><p>„<b>ჯგუფი</b> — სტუდენტები, რომლებიც ერთად სწავლობენ“</p></div>
+  </div>
+  <div class="grid2 mt" style="gap:24px">
+    <div class="problem step">ერთი ცნება — <b>სამი სიტყვა</b>. ერთი სიტყვა („კურსი“) — <b>ორი ცნება</b></div>
+    <div class="solve step">დირექტორს ვკითხავთ და <b>ერთ</b> ლექსიკონზე შევთანხმდებით</div>
+  </div>
+  <aside class="study">
+### 30 ლექსიკონი, 30 სხვადასხვა LMS
+
+საშინაოში ყველამ ლექსიკონი დაწერა. შევადაროთ სამი ნაშრომი:
+
+- ნიკა: „**კურსი**: სტუდენტები, რომლებიც ერთად სწავლობენ.“
+- ანა: „**ნაკადი**: სტუდენტები, რომლებიც ერთად სწავლობენ.“
+- გიო: „**ჯგუფი**: სტუდენტები, რომლებიც ერთად სწავლობენ.“
+
+ერთ ცნებას სამი სხვადასხვა სიტყვა ჰქვია. ნიკასთან „კურსი“ კიდევ ორ რამეს ნიშნავს: პროგრამასაც და ჯგუფსაც. ეს სამი ადამიანი ერთ პროექტზე ერთად ვერ იმუშავებს, რადგან სინამდვილეში სამ სხვადასხვა LMS-ზე ლაპარაკობენ.
+
+ამოხსნა 06 ლექციიდან ვიცით: **ერთი ლექსიკონი**. სიტყვას კი ბიზნესი ირჩევს, ამიტომ ჯერ დირექტორს ვეკითხებით.
+  </aside>
+</section>
+<section class="slide" data-section="1 · ენა">
+  <div class="kicker">საუბარი დირექტორთან</div>
+  <h2>„კურსზე ჩაირიცხა“ — <span class="c-red">სად</span> ჩაირიცხა?</h2>
+  <div class="grid2" style="grid-template-columns:1.35fr 1fr;align-items:start;gap:30px">
+    <div class="dlg">
+      <div class="msg dev step"><b class="who">დეველოპერი</b>როცა ამბობთ „კურსზე ჩაირიცხა“ — ზუსტად სად ირიცხება?<span class="tq">რას ნიშნავს?</span></div>
+      <div class="msg biz step" data-with><b class="who">დირექტორი</b>ASP.NET-ის კურსზე.</div>
+      <div class="msg dev step"><b class="who">დეველოპერი</b>ASP.NET-ს ახლა რამდენი ჯგუფი გადის?<span class="tq">მაგალითი</span></div>
+      <div class="msg biz step" data-with><b class="who">დირექტორი</b>სამი: დილის, საღამოს და ონლაინ.</div>
+      <div class="msg dev step"><b class="who">დეველოპერი</b>სტუდენტი სამივეში დადის?<span class="tq">ყოველთვის?</span></div>
+      <div class="msg biz step" data-with><b class="who">დირექტორი</b>არა, ერთში. ჰო… ფაქტობრივად, ჯგუფში ირიცხება.</div>
+      <div class="msg dev step"><b class="who">დეველოპერი</b>ჯგუფი სავსეა. მერე?<span class="tq">მერე?</span></div>
+      <div class="msg biz step" data-with><b class="who">დირექტორი</b>20-ზე მეტი არ ეტევა. მენეჯერი ახალ ჯგუფს ხსნის.</div>
+    </div>
+    <div class="col" style="gap:12px">
+      <div class="found step" style="--a:var(--core)"><span class="k">ტერმინი</span><b>კურსი</b> = პროგრამა · <b>ჯგუფი</b> = ვინ სწავლობს ერთად</div>
+      <div class="found step" style="--a:var(--core)"><span class="k">ტერმინი</span><b>ჩარიცხვა</b> — ჯგუფში, არა კურსზე</div>
+      <div class="found step" style="--a:var(--red)"><span class="k">წესი</span>ჯგუფს ადგილების <b>ლიმიტი</b> აქვს</div>
+      <div class="found step" style="--a:#d97706"><span class="k">აქტორი</span>მენეჯერი <b>ხსნის</b> ჯგუფს</div>
+    </div>
+  </div>
+  <aside class="study">
+### „კურსზე ჩაირიცხა“: სად ჩაირიცხა?
+
+06 ლექციის კითხვებს LMS-ზე ვიყენებთ:
+
+> **დეველოპერი:** როცა ამბობთ „კურსზე ჩაირიცხა“, ზუსტად სად ირიცხება? *(რას ნიშნავს?)*
+> **დირექტორი:** ASP.NET-ის კურსზე.
+> **დეველოპერი:** ASP.NET-ს ახლა რამდენი ჯგუფი გადის? *(მაგალითი)*
+> **დირექტორი:** სამი: დილის, საღამოს და ონლაინ.
+> **დეველოპერი:** სტუდენტი სამივეში დადის? *(ყოველთვის?)*
+> **დირექტორი:** არა, ერთში. ჰო… ფაქტობრივად, ჯგუფში ირიცხება.
+> **დეველოპერი:** ჯგუფი სავსეა. მერე? *(მერე?)*
+> **დირექტორი:** 20-ზე მეტი არ ეტევა. მენეჯერი ახალ ჯგუფს ხსნის.
+
+რა ვიპოვეთ:
+
+- **კურსი** პროგრამაა (რას ვასწავლით), **ჯგუფი** კი ადამიანები, რომლებიც მას ერთად გადიან.
+- **ჩარიცხვა** ჯგუფში ხდება და არა კურსზე. დირექტორი ამბობდა „კურსზე“, თუმცა თვითონაც ჯგუფს გულისხმობდა.
+- **წესი:** ჯგუფს ადგილების ლიმიტი აქვს.
+- **აქტორი:** ჯგუფს მენეჯერი ხსნის.
+
+ოთხი კითხვით მივიღეთ ორი ზუსტი ტერმინი, ერთი წესი და ერთი აქტორი.
+  </aside>
+</section>
+<section class="slide" data-section="1 · ენა">
+  <div class="kicker">ამოხსნა</div>
+  <h2>LMS-ის <span class="grad">ლექსიკონი</span></h2>
+  <div class="grid2" style="grid-template-columns:1.6fr 1fr;align-items:start;gap:28px">
+    <div class="gl step">
+      <div class="h">ტერმინი</div><div class="h">კოდში</div><div class="h">რას ნიშნავს</div>
+      <div class="t">კურსი</div><div class="e">Course</div><div>სასწავლო პროგრამა: <b>რას</b> ვასწავლით</div>
+      <div class="t">ჯგუფი</div><div class="e">Group</div><div>ვინ გადის კურსს <b>ერთად</b>: ლექტორი, ადგილები, დაწყება</div>
+      <div class="t">ჩარიცხვა</div><div class="e">Enrollment</div><div>სტუდენტის მიღება <b>ჯგუფში</b></div>
+      <div class="t">ლექცია</div><div class="e">Lecture</div><div>ჯგუფის ერთი შეხვედრა, თარიღით და დროით</div>
+      <div class="t">დასწრება</div><div class="e">Attendance</div><div>სტუდენტი ლექციაზე: იყო · დააგვიანა · გააცდინა</div>
+      <div class="t">დავალება</div><div class="e">Assignment</div><div>ამოცანა, რომელიც ლექტორმა ჯგუფს მისცა, დედლაინით</div>
+      <div class="t">ნამუშევარი</div><div class="e">Submission</div><div>სტუდენტის ჩაბარებული ფაილი ერთ დავალებაზე</div>
+      <div class="t" style="border:0">შეფასება</div><div class="e" style="border:0">Grade</div><div style="border:0">ქულა ნამუშევარზე: მთელი რიცხვი 1–12</div>
+    </div>
+    <div class="col" style="gap:12px">
+      <div class="callout step" style="--a:var(--core)">სტუდენტი · ლექტორი · მენეჯერი — <b>Student · Lecturer · Manager</b></div>
+      <div class="tiny step" style="font:700 15px var(--mono);color:var(--red)">✗ აღარ ვიყენებთ:</div>
+      <div class="no step" data-with>ნაკადი · მსმენელი · მოსწავლე · „კურსზე ჩარიცხვა“</div>
+      <div class="tiny step" style="font:700 15px var(--mono);color:var(--muted)">LMS-ში არ შედის:</div>
+      <div class="no step" data-with style="background:#f8fafc;border-color:var(--line2);color:var(--ink2)">გადახდები · ხელშეკრულებები · ჩატი</div>
+    </div>
+  </div>
+  <aside class="study">
+### LMS-ის ლექსიკონი
+
+კლასის საერთო ლექსიკონი. თქვენს LMS-შიც ზუსტად ეს სიტყვები გამოიყენება:
+
+| ტერმინი | კოდში | რას ნიშნავს |
+|---|---|---|
+| კურსი | `Course` | სასწავლო პროგრამა: **რას** ვასწავლით (მაგ. „ASP.NET Web API“) |
+| ჯგუფი | `Group` | ვინ გადის კურსს **ერთად**: ერთი ლექტორი, ადგილების ლიმიტი, დაწყების თარიღი |
+| ჩარიცხვა | `Enrollment` | სტუდენტის მიღება **ჯგუფში** |
+| ლექცია | `Lecture` | ჯგუფის ერთი შეხვედრა, თარიღით და დროით |
+| დასწრება | `Attendance` | სტუდენტი ერთ ლექციაზე: იყო · დააგვიანა · გააცდინა |
+| დავალება | `Assignment` | ამოცანა, რომელიც ლექტორმა ჯგუფს მისცა, დედლაინით |
+| ნამუშევარი | `Submission` | სტუდენტის ჩაბარებული ფაილი ერთ დავალებაზე |
+| შეფასება | `Grade` | ქულა ნამუშევარზე: მთელი რიცხვი 1-დან 12-მდე |
+| სტუდენტი · ლექტორი · მენეჯერი | `Student` · `Lecturer` · `Manager` | ადამიანები, რომლებიც სისტემას იყენებენ |
+
+**აღარ ვიყენებთ:** „ნაკადი“ (= ჯგუფი), „მსმენელი“ და „მოსწავლე“ (= სტუდენტი), „კურსზე ჩარიცხვა“ (ჩარიცხვა ჯგუფში ხდება).
+
+**LMS-ში არ შედის:** გადახდები, ხელშეკრულებები, ჩატი. ამასაც ვწერთ: საზღვარი ცხადია და პროექტი უსასრულოდ არ იზრდება.
+
+```tip
+ლექსიკონი ცოცხალი დოკუმენტია. როცა ახალ სიტყვას შეხვდებით ან ძველი ბუნდოვანი აღმოჩნდება, ჯერ ლექსიკონი სწორდება, მერე კოდი.
+```
+
+```terms
+LMS (Learning Management System) — სასწავლო პროცესის მართვის სისტემა
+Scope (საზღვარი) — რა შედის პროექტში და რა არა
+```
+  </aside>
+</section>
+
+<!-- ================= PART 2 ================= -->
+<section class="slide divider" data-section="2 · აქტორები">
+  <div class="vcenter">
+    <div class="kicker in">ნაწილი 2</div>
+    <h1 class="in" style="--d:.1s"><span class="grad">ვინ</span> იყენებს LMS-ს</h1>
+    <p class="lead mt in" style="--d:.3s">აქტორები და მათი მიზნები</p>
+  </div>
+  <div class="big-num">02</div>
+  <aside class="study">
+## ნაწილი 2 · აქტორები
+
+ენა გვაქვს. ახლა ვიგებთ, ვინ იყენებს სისტემას და რა უნდა თითოეულს.
+  </aside>
+</section>
+<section class="slide" data-section="2 · აქტორები">
+  <div class="kicker">აქტორები</div>
+  <h2>სამი როლი — <span class="grad">სამი მიზანი</span></h2>
+  <div class="grid3" style="grid-template-columns:1fr 1fr 1fr;gap:20px;align-items:start">
+    <div class="actor step" style="--a:#d97706"><div class="e">🧑‍💼</div><h3>მენეჯერი</h3><p class="small" style="margin-bottom:6px"><b>მიზანი:</b> სწავლა ორგანიზებული იყოს</p><ul><li>ქმნის კურსებს</li><li>ხსნის ჯგუფებს, ნიშნავს ლექტორს</li><li>რიცხავს სტუდენტებს</li><li>გეგმავს ლექციებს · გადაწევს დედლაინს</li></ul></div>
+    <div class="actor step" style="--a:var(--net)"><div class="e">🧑‍🏫</div><h3>ლექტორი</h3><p class="small" style="margin-bottom:6px"><b>მიზანი:</b> ასწავლოს და შეაფასოს</p><ul><li>ატარებს ლექციებს</li><li>აღრიცხავს დასწრებას</li><li>აძლევს დავალებებს</li><li>აფასებს ნამუშევრებს</li></ul></div>
+    <div class="actor step" style="--a:var(--mvc)"><div class="e">🧑‍🎓</div><h3>სტუდენტი</h3><p class="small" style="margin-bottom:6px"><b>მიზანი:</b> ისწავლოს და დაასრულოს</p><ul><li>ხედავს განრიგს</li><li>აბარებს ნამუშევრებს</li><li>ხედავს ქულებს და დასწრებას</li></ul></div>
+  </div>
+  <div class="grid2 mt" style="gap:22px">
+    <div class="callout step" style="--a:var(--muted)">⚙️ <b>სისტემაც</b> აკეთებს რამეს თვითონ — მაგ. შეხსენებას დედლაინამდე</div>
+    <div class="problem step" style="font-size:19px">„ადმინს ყველაფერი შეუძლია“ — <b>არა</b>. ყოველ მოქმედებას თავისი აქტორი აქვს</div>
+  </div>
+  <aside class="study">
+### სამი როლი, სამი მიზანი
+
+**აქტორი** ის არის, ვინც სისტემაში რამეს აკეთებს. LMS-ს სამი აქტორი ჰყავს:
+
+| აქტორი | მიზანი | რას აკეთებს |
+|---|---|---|
+| 🧑‍💼 **მენეჯერი** | სწავლა ორგანიზებული იყოს | ქმნის კურსებს, ხსნის ჯგუფებს და ნიშნავს ლექტორს, რიცხავს სტუდენტებს, გეგმავს ლექციებს, გადაწევს დედლაინს |
+| 🧑‍🏫 **ლექტორი** | ასწავლოს და შეაფასოს | ატარებს ლექციებს, აღრიცხავს დასწრებას, აძლევს დავალებებს, აფასებს ნამუშევრებს |
+| 🧑‍🎓 **სტუდენტი** | ისწავლოს და კურსი დაასრულოს | ხედავს განრიგს, აბარებს ნამუშევრებს, ხედავს თავის ქულებს და დასწრებას |
+
+**მიზანი** მნიშვნელოვანია: ის გვეუბნება, **რატომ** სჭირდება აქტორს მოქმედება. მოგვიანებით ეს user story-ის „რომ …“ ნაწილი ხდება.
+
+ზოგჯერ თვითონ **სისტემაც** მოქმედებს: მაგალითად, დედლაინამდე სტუდენტს შეხსენებას უგზავნის. მას ცალკე „აქტორად“ ვწერთ.
+
+```warn
+ხშირი შეცდომაა, რომ ყველაფერს „ადმინს“ მივაწერთ: „ადმინი ქმნის, ადმინი აფასებს, ადმინი აღრიცხავს“. ასე ვკარგავთ ინფორმაციას: ვინ რის უფლებას ფლობს. LMS-ში ნიშანს **მხოლოდ ლექტორი** წერს და არა მენეჯერი. ეს წესი მოგვიანებით უფლებების ლექციაზე გამოგვადგება.
+```
+
+```terms
+აქტორი (Actor) — ვინც სისტემაში მოქმედებს: ადამიანის როლი ან თვითონ სისტემა
+```
+  </aside>
+</section>
+
+<!-- ================= PART 3 ================= -->
+<section class="slide divider" data-section="3 · პროცესები">
+  <div class="vcenter">
+    <div class="kicker in">ნაწილი 3</div>
+    <h1 class="in" style="--d:.1s"><span class="grad">რა</span> ხდება LMS-ში</h1>
+    <p class="lead mt in" style="--d:.3s">პროცესები — მოვლენებად</p>
+  </div>
+  <div class="big-num">03</div>
+  <aside class="study">
+## ნაწილი 3 · პროცესები
+
+ვიცით, **ვინ** იყენებს სისტემას. ახლა ვიგებთ, **რა ხდება** მასში და რა რიგით.
+  </aside>
+</section>
+<section class="slide" data-section="3 · პროცესები">
+  <div class="kicker">პრობლემა → ამოხსნა</div>
+  <h2>ფუნქციების სია <span class="c-red">რიგს არ აჩვენებს</span></h2>
+  <div class="grid2" style="grid-template-columns:1fr 1.7fr;align-items:start;gap:34px">
+    <div class="col" style="gap:12px">
+      <div class="card step" style="padding:16px 20px"><p class="small" style="margin:0">❌ „დასწრება · ქულები · ჯგუფები · განრიგი · დავალებები“</p></div>
+      <div class="problem step" style="font-size:18px">რა არის <b>პირველი</b>? რას <b>ელოდება</b> რა?</div>
+      <div class="solve step" style="font-size:18px"><b>მოვლენა</b> — ფაქტი, რომელიც მოხდა: <b>წარსულ დროში</b> + ვინ</div>
+    </div>
+    <div class="col" style="gap:10px">
+      <div class="evrow step"><div class="ev"><small>მენეჯერი</small>კურსი შეიქმნა</div><span class="ar">→</span><div class="ev"><small>მენეჯერი</small>ჯგუფი გაიხსნა</div><span class="ar">→</span><div class="ev"><small>მენეჯერი</small>ლექტორი დაინიშნა</div></div>
+      <div class="evrow step"><div class="ev"><small>მენეჯერი</small>სტუდენტი ჩაირიცხა</div><span class="ar">→</span><div class="ev"><small>მენეჯერი</small>ლექცია დაიგეგმა</div><span class="ar">→</span><div class="ev"><small>ლექტორი</small>ლექცია ჩატარდა</div></div>
+      <div class="evrow step"><div class="ev"><small>ლექტორი</small>დასწრება აღირიცხა</div><span class="ar">→</span><div class="ev"><small>ლექტორი</small>დავალება მიეცა</div><span class="ar">→</span><div class="ev"><small>სტუდენტი</small>ნამუშევარი ჩაბარდა</div></div>
+      <div class="evrow step"><div class="ev"><small>ლექტორი</small>ნამუშევარი შეფასდა</div><span class="ar">→</span><div class="ev" style="--a:#475569"><small>სისტემა</small>შეხსენება გაიგზავნა</div><span class="ar">→</span><div class="ev"><small>მენეჯერი</small>კურსი დასრულდა</div></div>
+    </div>
+  </div>
+  <aside class="study">
+### ფუნქციების სია რიგს არ აჩვენებს
+
+სია „დასწრება, ქულები, ჯგუფები, განრიგი, დავალებები“ ბევრს არაფერს გვეუბნება. რა არის პირველი? რა რას ელოდება? ვინ აკეთებს?
+
+ამიტომ პროცესს **მოვლენებად** ვწერთ. მოვლენა ფაქტია, რომელიც უკვე **მოხდა**. ის **წარსულ დროში** იწერება და ყოველ მოვლენას თავისი აქტორი ჰყავს:
+
+1. **მენეჯერი:** კურსი შეიქმნა → ჯგუფი გაიხსნა → ლექტორი დაინიშნა
+2. **მენეჯერი:** სტუდენტი ჩაირიცხა → ლექცია დაიგეგმა
+3. **ლექტორი:** ლექცია ჩატარდა → დასწრება აღირიცხა → დავალება მიეცა
+4. **სტუდენტი:** ნამუშევარი ჩაბარდა
+5. **ლექტორი:** ნამუშევარი შეფასდა
+6. **სისტემა:** შეხსენება გაიგზავნა
+7. **მენეჯერი:** კურსი დასრულდა
+
+რატომ წარსულ დროში? ფაქტს ბიზნესი ადვილად ამოწმებს: „კი, ასე ხდება“ ან „არა, ჯერ ლექტორი ინიშნება და მერე იხსნება ჯგუფი“. ასევე ჩანს **რიგი**: დასწრება ვერ აღირიცხება, სანამ ლექცია არ ჩატარდა, ლექცია კი ვერ ჩატარდება, სანამ ჯგუფი არ გაიხსნა.
+
+```note
+ამ ტექნიკის სრულ ვერსიას **Event Storming** ჰქვია: გუნდი და ბიზნესი კედელზე ფერად სტიკერებს აკრავენ და მოვლენებს რიგზე ალაგებენ. ჩვენ მის მარტივ ვერსიას ვიყენებთ: მოვლენა, აქტორი, რიგი.
+```
+
+```terms
+მოვლენა (Event) — ფაქტი, რომელიც სისტემაში მოხდა; იწერება წარსულ დროში: „სტუდენტი ჩაირიცხა“
+```
+  </aside>
+</section>
+<section class="slide" data-section="3 · პროცესები">
+  <div class="kicker">ერთი პროცესი დეტალურად</div>
+  <h2>„სტუდენტი ჩაირიცხა“ — <span class="grad">ნაბიჯ-ნაბიჯ</span></h2>
+  <div class="grid2" style="grid-template-columns:1.3fr 1fr;align-items:start;gap:34px">
+    <div class="flowv">
+      <div class="fstep step" style="--a:#d97706"><span class="n">1</span>მენეჯერი ირჩევს ჯგუფს და სტუდენტს</div>
+      <div class="fstep step" style="--a:var(--red)"><span class="n">2</span>ჯგუფში ადგილი არის?<span class="q">თუ არა — მერე?</span></div>
+      <div class="fstep step" style="--a:var(--red)"><span class="n">3</span>სტუდენტი ამ ჯგუფში უკვე ხომ არ არის?<span class="q">ყოველთვის?</span></div>
+      <div class="fstep step" style="--a:var(--red)"><span class="n">4</span>ჯგუფი უკვე დაწყებულია?<span class="q">გამონაკლისი?</span></div>
+      <div class="fstep step" style="--a:var(--mvc)"><span class="n">5</span>✓ სტუდენტი ჩაირიცხა · ჩანს ჯგუფის სიაში</div>
+    </div>
+    <div class="col" style="gap:12px">
+      <div class="say step" style="--a:#ea580c"><div class="who">დირექტორი პასუხობს</div><p style="font-size:18px">სავსეა → <b>არა</b>, მენეჯერი ახალ ჯგუფს ხსნის · ორჯერ → <b>არა</b> · დაწყებულში → <b>კი</b>, პირველ კვირაში</p></div>
+      <div class="solve step" style="font-size:18px">ერთ მოვლენაში — <b>სამი წესი</b></div>
+    </div>
+  </div>
+  <aside class="study">
+### „სტუდენტი ჩაირიცხა“, ნაბიჯ-ნაბიჯ
+
+ერთი მოვლენის უკან ხშირად მთელი პროცესი იმალება. გავშალოთ „სტუდენტი ჩაირიცხა“:
+
+1. მენეჯერი ირჩევს ჯგუფს და სტუდენტს.
+2. ჯგუფში ადგილი არის? *თუ არ არის, მერე?*
+3. სტუდენტი ამ ჯგუფში უკვე ხომ არ არის? *ყოველთვის ასეა?*
+4. ჯგუფი უკვე დაწყებულია? *გამონაკლისი?*
+5. სტუდენტი ჩაირიცხა და ჯგუფის სიაში ჩანს.
+
+ყოველ ნაბიჯზე დირექტორს კითხვა დავუსვით. პასუხები:
+
+- ჯგუფი სავსეა → ჩარიცხვა **არ** ხდება; მენეჯერი ახალ ჯგუფს ხსნის. რიგი (waitlist) არ არის.
+- ერთ ჯგუფში ორჯერ ჩარიცხვა → **არ** შეიძლება.
+- დაწყებულ ჯგუფში ჩარიცხვა → **შეიძლება**, მაგრამ მხოლოდ პირველ კვირაში.
+
+ერთ მოვლენაში სამი წესი აღმოჩნდა. ასე პოულობს „მერე?“, „ყოველთვის?“ და „გამონაკლისი?“ წესებს, რომლებსაც ბიზნესი თავისით არასდროს გეტყვის: მისთვის ისინი თავისთავად ცხადია.
+  </aside>
+</section>
+
+<section class="slide" data-section="შესვენება">
+  <div class="center">
+    <div class="big-emoji in" style="font-size:120px">☕</div>
+    <h1 class="in" style="--d:.15s">10 წუთი</h1>
+    <p class="lead in" style="--d:.3s">შემდეგ: <b class="c-net">წესები, რუკა და backlog</b></p>
+  </div>
+</section>
+
+<!-- ================= PART 4 ================= -->
+<section class="slide divider" data-section="4 · წესები">
+  <div class="vcenter">
+    <div class="kicker in">ნაწილი 4</div>
+    <h1 class="in" style="--d:.1s">LMS-ის <span class="grad">წესები</span></h1>
+    <p class="lead mt in" style="--d:.3s">რა შეიძლება და რა არა</p>
+  </div>
+  <div class="big-num">04</div>
+  <aside class="study">
+## ნაწილი 4 · წესები
+
+პროცესებში უკვე ბევრი წესი ვიპოვეთ. ახლა მათ ერთ სიაში ვაგროვებთ, ვნომრავთ და ვამოწმებთ, რომ სურვილი წესში არ აგვერიოს.
+  </aside>
+</section>
+<section class="slide" data-section="4 · წესები">
+  <div class="kicker">ბიზნესის წესები</div>
+  <h2>რვა წესი — <span class="grad">ნომრებით</span></h2>
+  <div class="grid2" style="grid-template-columns:1.7fr 1fr;align-items:start;gap:26px">
+    <div class="rules step">
+      <div class="r">R1</div><div>კურსის სახელი <b>უნიკალურია</b></div>
+      <div class="r">R2</div><div>ერთ email-ზე <b>ერთი</b> ადამიანია</div>
+      <div class="r">R3</div><div>ჯგუფს <b>ადგილების ლიმიტი</b> აქვს · სტუდენტი ჯგუფში <b>ერთხელ</b> ირიცხება · დაწყებულში — მხოლოდ პირველ კვირაში</div>
+      <div class="r">R4</div><div>ჯგუფის ლექციები დროში <b>არ ფარავს</b> ერთმანეთს · ლექტორი ერთ დროს <b>ერთ</b> ლექციაზეა</div>
+      <div class="r">R5</div><div>დასწრებას აღრიცხავს და აფასებს <b>მხოლოდ ჯგუფის ლექტორი</b></div>
+      <div class="r">R6</div><div><b>15 წთ-ზე მეტი</b> დაგვიანება = გაცდენა · მე-4 გაცდენაზე ლექტორი იღებს <b>შეტყობინებას</b></div>
+      <div class="r">R7</div><div>დედლაინის შემდეგ ნამუშევარი <b>არ მიიღება</b> (მენეჯერს გადაწევა შეუძლია) · ქულა <b>1–12</b></div>
+      <div class="r" style="border:0">R8</div><div style="border:0">კურსი ჩაბარებულია: საშუალო ქულა <b>≥ 6</b> და დასწრება <b>≥ 75%</b></div>
+    </div>
+    <div class="col" style="gap:14px">
+      <div class="card accent step" style="--a:var(--red)"><h3><span class="ico">📏</span>წესი</h3><p class="small">ყოველთვის მოქმედებს · დარღვევა <b>არ შეიძლება</b> · შეგიძლია შეამოწმო</p></div>
+      <div class="card accent step" style="--a:var(--muted)"><h3><span class="ico">💭</span>სურვილი</h3><p class="small">„მარტივი იყოს“, „ლამაზი იყოს“ · <b>არ</b> მოწმდება → წესი არ არის</p></div>
+    </div>
+  </div>
+  <aside class="study">
+### რვა წესი, ნომრებით
+
+LMS-ის წესები ბიზნესის ენაზე. ნომრები იმიტომ გვჭირდება, რომ მერე story-ებსა და კოდში მარტივად მივუთითოთ: „R3-ს ამოწმებს“.
+
+| # | წესი |
+|---|---|
+| **R1** | კურსის სახელი უნიკალურია |
+| **R2** | ერთ email-ზე ერთი ადამიანია (სტუდენტი ან ლექტორი) |
+| **R3** | ჯგუფს ადგილების ლიმიტი აქვს · სტუდენტი ჯგუფში ერთხელ ირიცხება · დაწყებულ ჯგუფში ჩარიცხვა მხოლოდ პირველ კვირაშია შესაძლებელი |
+| **R4** | ერთი ჯგუფის ლექციები დროში არ ფარავს ერთმანეთს · ლექტორი ერთ დროს მხოლოდ ერთ ლექციაზეა |
+| **R5** | დასწრებას აღრიცხავს და ნამუშევარს აფასებს მხოლოდ ამ ჯგუფის ლექტორი |
+| **R6** | 15 წუთზე მეტი დაგვიანება გაცდენაა · მე-4 გაცდენაზე ლექტორი შეტყობინებას იღებს |
+| **R7** | დედლაინის შემდეგ ნამუშევარი არ მიიღება (მენეჯერს დედლაინის გადაწევა შეუძლია) · ქულა მთელი რიცხვია 1-დან 12-მდე |
+| **R8** | კურსი ჩაბარებულია, თუ საშუალო ქულა ≥ 6 და დასწრება ≥ 75% |
+
+**წესი თუ სურვილი?**
+
+- **წესი** ყოველთვის მოქმედებს, მისი დარღვევა არ შეიძლება და შემოწმებაც შეიძლება. „ქულა 1-დან 12-მდეა“ წესია: 13 არასწორია.
+- **სურვილი** არ მოწმდება: „სისტემა მარტივი იყოს“, „ლამაზი იყოს“. ეს მნიშვნელოვანია, მაგრამ წესი არ არის: კოდში მას ვერ შეამოწმებ.
+
+```check
+? „სისტემა სწრაფი უნდა იყოს“ — წესია?
+= ასე ჩაწერილი არა: შემოწმება შეუძლებელია. თუ ბიზნესს ჰკითხავ „რამდენად სწრაფი?“ და პასუხია „გვერდი 2 წამში უნდა გაიხსნას“, მაშინ შემოწმებადი მოთხოვნა ხდება
+? R5 რომელ აქტორს ეხება და რას კრძალავს?
+= ლექტორს: დასწრებას და ქულას მხოლოდ თავის ჯგუფში წერს. სხვა ლექტორს და მენეჯერსაც ეს ეკრძალებათ
+```
+  </aside>
+</section>
+
+<!-- ================= PART 5 ================= -->
+<section class="slide divider" data-section="5 · რუკა და backlog">
+  <div class="vcenter">
+    <div class="kicker in">ნაწილი 5</div>
+    <h1 class="in" style="--d:.1s">რუკა და <span class="grad">backlog</span></h1>
+    <p class="lead mt in" style="--d:.3s">ყველაფერი ერთ სურათზე — და სამუშაოს რიგი</p>
+  </div>
+  <div class="big-num">05</div>
+  <aside class="study">
+## ნაწილი 5 · დომენის რუკა და backlog
+
+ენა, აქტორები, პროცესები და წესები გვაქვს. ახლა ყველაფერს ერთ სურათზე ვხატავთ (დომენის რუკა) და სამუშაოების რიგს ვადგენთ (backlog).
+  </aside>
+</section>
+<section class="slide" data-section="5 · რუკა და backlog">
+  <div class="kicker">დომენის რუკა</div>
+  <h2>LMS — <span class="grad">ერთ სურათზე</span></h2>
+  <div class="grid2" style="grid-template-columns:1.9fr 1fr;gap:24px;align-items:start">
+    <svg class="map" viewBox="0 0 1180 520" width="100%">
+      <g class="step fade">
+        <line x1="440" y1="110" x2="440" y2="210"/><text class="m" x="452" y="166">1 → ბევრი</text>
+        <line x1="240" y1="255" x2="330" y2="255"/><text class="m" x="250" y="245">1 → ბევრი</text>
+        <line x1="440" y1="300" x2="440" y2="400"/><text class="m" x="452" y="356">1 → ბევრი</text>
+        <line x1="240" y1="445" x2="330" y2="445"/><text class="m" x="250" y="435">1 → ბევრი</text>
+      </g>
+      <g class="step fade">
+        <line x1="550" y1="255" x2="640" y2="255"/><text class="m" x="556" y="245">1 → ბევრი</text>
+        <line x1="860" y1="255" x2="950" y2="255"/><text class="m" x="866" y="245">1 → ბევრი</text>
+        <path d="M550 290 L640 420"/><text class="m" x="600" y="345">1 → ბევრი</text>
+        <line x1="860" y1="445" x2="950" y2="445"/><text class="m" x="866" y="435">1 → ბევრი</text>
+      </g>
+      <g class="bx"><rect x="330" y="20" width="220" height="90" rx="16" stroke="#4f46e5"/><text class="t" x="440" y="60" text-anchor="middle">🧑‍🏫 ლექტორი</text><text class="e" x="440" y="88" text-anchor="middle" fill="#4f46e5">Lecturer</text></g>
+      <g class="bx"><rect x="20" y="210" width="220" height="90" rx="16" stroke="#0d9488"/><text class="t" x="130" y="250" text-anchor="middle">📚 კურსი</text><text class="e" x="130" y="278" text-anchor="middle" fill="#0d9488">Course</text></g>
+      <g class="bx"><rect x="330" y="210" width="220" height="90" rx="16" stroke="#0d9488" stroke-width="4"/><text class="t" x="440" y="250" text-anchor="middle">👥 ჯგუფი</text><text class="e" x="440" y="278" text-anchor="middle" fill="#0d9488">Group</text></g>
+      <g class="bx"><rect x="20" y="400" width="220" height="90" rx="16" stroke="#16a34a"/><text class="t" x="130" y="440" text-anchor="middle">🧑‍🎓 სტუდენტი</text><text class="e" x="130" y="468" text-anchor="middle" fill="#16a34a">Student</text></g>
+      <g class="bx"><rect x="330" y="400" width="220" height="90" rx="16" stroke="#0d9488"/><text class="t" x="440" y="440" text-anchor="middle">✍️ ჩარიცხვა</text><text class="e" x="440" y="468" text-anchor="middle" fill="#0d9488">Enrollment</text></g>
+      <g class="step fade">
+        <g class="bx"><rect x="640" y="210" width="220" height="90" rx="16" stroke="#7c3aed"/><text class="t" x="750" y="250" text-anchor="middle">🗓️ ლექცია</text><text class="e" x="750" y="278" text-anchor="middle" fill="#7c3aed">Lecture</text></g>
+        <g class="bx"><rect x="950" y="210" width="220" height="90" rx="16" stroke="#7c3aed"/><text class="t" x="1060" y="250" text-anchor="middle">✅ დასწრება</text><text class="e" x="1060" y="278" text-anchor="middle" fill="#7c3aed">Attendance</text></g>
+        <g class="bx"><rect x="640" y="400" width="220" height="90" rx="16" stroke="#db2777"/><text class="t" x="750" y="440" text-anchor="middle">📝 დავალება</text><text class="e" x="750" y="468" text-anchor="middle" fill="#db2777">Assignment</text></g>
+        <g class="bx"><rect x="950" y="400" width="220" height="90" rx="16" stroke="#db2777"/><text class="t" x="1060" y="440" text-anchor="middle">📎 ნამუშევარი</text><text class="e" x="1060" y="468" text-anchor="middle" fill="#db2777">Submission</text></g>
+      </g>
+    </svg>
+    <div class="col" style="gap:12px">
+      <div class="callout step" style="--a:var(--core)"><b>ჯგუფი</b> — რუკის ცენტრი: თითქმის ყველაფერი მას უკავშირდება</div>
+      <div class="callout step" style="--a:var(--net)">დასწრება და ნამუშევარი — <b>თითო სტუდენტზე</b></div>
+      <div class="problem step" style="font-size:18px">ეს <b>არ</b> არის ბაზის სქემა: ცხრილი, სვეტი, ტიპი აქ არ წერია</div>
+    </div>
+  </div>
+  <aside class="study">
+### LMS ერთ სურათზე: დომენის რუკა
+
+**დომენის რუკა** ბიზნესის ცნებებს და მათ კავშირებს ერთ სურათზე აჩვენებს:
+
+- **ლექტორი** 1 → ბევრი **ჯგუფი**: ერთ ლექტორს რამდენიმე ჯგუფი ჰყავს, ჯგუფს კი ერთი ლექტორი.
+- **კურსი** 1 → ბევრი **ჯგუფი**: ASP.NET-ს სამი ჯგუფი გადის.
+- **ჯგუფი** 1 → ბევრი **ჩარიცხვა** ← 1 **სტუდენტი**: სტუდენტი და ჯგუფი ჩარიცხვით უკავშირდება ერთმანეთს. ერთ სტუდენტს რამდენიმე ჯგუფი შეიძლება ჰქონდეს (სხვადასხვა კურსზე), ჯგუფს კი ბევრი სტუდენტი ჰყავს.
+- **ჯგუფი** 1 → ბევრი **ლექცია** → ბევრი **დასწრება** (თითო სტუდენტზე, თითო ლექციაზე).
+- **ჯგუფი** 1 → ბევრი **დავალება** → ბევრი **ნამუშევარი** (თითო სტუდენტზე, თითო დავალებაზე).
+
+**ჯგუფი** რუკის ცენტრია: თითქმის ყველაფერი მას უკავშირდება. ეს შემთხვევითი არ არის. ბიზნესის წესების უმეტესობა (ადგილები, ლექციები, ლექტორის უფლებები) ჯგუფის გარშემოა, და მოგვიანებით კოდშიც ამას ვიგრძნობთ.
+
+```warn
+დომენის რუკა **ბაზის სქემა არ არის**. მასზე არ წერია ცხრილები, სვეტები, ტიპები ან Id-ები. რუკას დირექტორი კითხულობს და ამოწმებს: „კი, ჯგუფს ერთი ლექტორი ჰყავს“. კოდი და ბაზა მისგან მოგვიანებით გამოვა, ერთი story ერთ ჯერზე.
+```
+
+```terms
+დომენის რუკა (Domain Map) — ბიზნესის ცნებები და მათი კავშირები ერთ სურათზე, ბიზნესის ენაზე
+```
+  </aside>
+</section>
+<section class="slide" data-section="5 · რუკა და backlog">
+  <div class="kicker">Backlog</div>
+  <h2>სამუშაოს <span class="grad">რიგი</span></h2>
+  <div class="grid2" style="grid-template-columns:1.6fr 1fr;align-items:start;gap:26px">
+    <div class="bl">
+      <div class="n first">1</div><div class="first"><b>მენეჯერი ქმნის კურსს</b>, რომ მასზე ჯგუფები გახსნას</div><div class="r first">R1</div>
+      <div class="n">2</div><div>მენეჯერი ამატებს სტუდენტს და ლექტორს</div><div class="r">R2</div>
+      <div class="n">3</div><div>მენეჯერი ხსნის ჯგუფს და ნიშნავს ლექტორს</div><div class="r">ლიმიტი &gt; 0</div>
+      <div class="n">4</div><div>მენეჯერი რიცხავს სტუდენტს ჯგუფში</div><div class="r">R3</div>
+      <div class="n">5</div><div>მენეჯერი გეგმავს ჯგუფის ლექციებს</div><div class="r">R4</div>
+      <div class="n">6</div><div>სტუდენტი ხედავს თავის განრიგს</div><div class="r">—</div>
+      <div class="n">7</div><div>ლექტორი აღრიცხავს დასწრებას</div><div class="r">R5 · R6</div>
+      <div class="n">8</div><div>ლექტორი აძლევს დავალებას დედლაინით</div><div class="r">—</div>
+      <div class="n">9</div><div>სტუდენტი აბარებს ნამუშევარს</div><div class="r">R7</div>
+      <div class="n">10</div><div>ლექტორი აფასებს ნამუშევარს</div><div class="r">R5 · R7</div>
+      <div class="n" style="border:0">11</div><div style="border:0">სტუდენტი ხედავს, ჩააბარა თუ არა კურსი</div><div class="r" style="border:0">R8</div>
+    </div>
+    <div class="col" style="gap:14px">
+      <div class="callout step" style="--a:var(--net)">რიგი = <b>დამოკიდებულება</b>: შეფასებას სჭირდება ნამუშევარი → დავალება → ჯგუფი → კურსი</div>
+      <div class="solve step" style="font-size:19px">№1 <b>არაფერს ელოდება</b> — მისით ვიწყებთ</div>
+      <div class="story step" style="background:#fff;border:2px solid var(--core);border-radius:16px;padding:14px 18px;font-size:19px;line-height:1.5"><b class="c-core">№1 · კრიტერიუმები</b><br>სახელი სავალდებულოა · უნიკალურია (R1) · ხანგრძლივობა 1–52 კვირა</div>
+    </div>
+  </div>
+  <aside class="study">
+### Backlog: სამუშაოს რიგი
+
+მოვლენებიდან და წესებიდან ვადგენთ **backlog**-ს. ეს user story-ების სიაა, რიგზე დალაგებული:
+
+| № | Story | წესები |
+|---|---|---|
+| 1 | **მენეჯერი ქმნის კურსს**, რომ მასზე ჯგუფები გახსნას | R1 |
+| 2 | მენეჯერი ამატებს სტუდენტს და ლექტორს | R2 |
+| 3 | მენეჯერი ხსნის ჯგუფს და ნიშნავს ლექტორს | ლიმიტი > 0 |
+| 4 | მენეჯერი რიცხავს სტუდენტს ჯგუფში | R3 |
+| 5 | მენეჯერი გეგმავს ჯგუფის ლექციებს | R4 |
+| 6 | სტუდენტი ხედავს თავის განრიგს | — |
+| 7 | ლექტორი აღრიცხავს დასწრებას | R5 · R6 |
+| 8 | ლექტორი აძლევს დავალებას დედლაინით | — |
+| 9 | სტუდენტი აბარებს ნამუშევარს | R7 |
+| 10 | ლექტორი აფასებს ნამუშევარს | R5 · R7 |
+| 11 | სტუდენტი ხედავს, ჩააბარა თუ არა კურსი | R8 |
+
+**როგორ ვალაგებთ?** **დამოკიდებულებით**: ჯერ ის, რის გარეშეც სხვა ვერ იმუშავებს. შეფასებას ნამუშევარი სჭირდება, ნამუშევარს დავალება, დავალებას ჯგუფი, ჯგუფს კურსი. №1 კი არაფერს ელოდება, ამიტომ მისით ვიწყებთ.
+
+**Story №1-ის მიღების კრიტერიუმები:**
+
+- სახელი სავალდებულოა;
+- სახელი უნიკალურია (R1);
+- ხანგრძლივობა 1-დან 52 კვირამდეა.
+
+შემდეგ ლექციაზე სწორედ ამ story-ით ვიწყებთ კოდს.
+
+```prompt შეამოწმე ჩემი backlog
+ვაწყობ სასწავლო პლატფორმას (LMS: კურსი, ჯგუფი, ჩარიცხვა, ლექცია, დასწრება, დავალება, ნამუშევარი, შეფასება 1–12; აქტორები: მენეჯერი, ლექტორი, სტუდენტი). აქ არის ჩემი backlog: [ჩასვი]
+შეამოწმე: სწორია თუ არა რიგი (რომელი story რომელს ელოდება)? აქვს თუ არა ყველას აქტორი, მოქმედება და მიზანი? რომელ story-ს აკლია მიღების კრიტერიუმი? მზა backlog არ დამიწერო, მხოლოდ მიმითითე. ქართულად.
+```
+  </aside>
+</section>
+
+<!-- ================= PRACTICE ================= -->
+<section class="slide divider" data-section="პრაქტიკა">
+  <div class="vcenter">
+    <div class="kicker in">ნაწილი 6</div>
+    <h1 class="in" style="--d:.1s">ახლა <span class="grad">თქვენი ჯერია</span></h1>
+    <p class="lead mt in" style="--d:.3s">შენი LMS · დასწრება</p>
+  </div>
+  <div class="big-num">06</div>
+  <aside class="study">
+## ნაწილი 6 · თქვენი ჯერია
+
+დღევანდელ გზას შენს LMS-ში ერთ სფეროზე გაივლი: დასწრებაზე. მოვლენები, წესები და story-ები.
+  </aside>
+</section>
+<lecture-classwork/>
+<lecture-check/>
+<section class="slide" data-section="შეჯამება">
+  <div class="kicker in" style="color:var(--core)">დღეს</div>
+  <h2 class="in" style="--d:.1s">ბიზნესი <span class="grad">გავიგეთ</span> — კოდისთვის მზად ვართ</h2>
+  <div class="grid2" style="grid-template-columns:1fr 1fr;gap:36px;align-items:start">
+    <div class="card accent step" style="--a:var(--mvc)"><h3><span class="ico">🧠</span>დაიმახსოვრე</h3><ul class="clean small"><li><b>ლექსიკონი</b> — კურსი ≠ ჯგუფი · ჩარიცხვა ჯგუფში</li><li><b>აქტორები</b> — მენეჯერი · ლექტორი · სტუდენტი (+ სისტემა)</li><li><b>მოვლენები</b> — წარსულ დროში, აქტორით, რიგზე</li><li><b>წესები</b> R1–R8 · წესი ≠ სურვილი</li><li><b>რუკა</b> — ბიზნესის სურათი, არა ბაზა · <b>backlog</b> — რიგი დამოკიდებულებით</li></ul></div>
+    <div class="col" style="gap:16px">
+      <div class="card accent step" style="--a:var(--pink)"><h3><span class="ico">🏠</span>საშინაოზე</h3><p class="small">შენი LMS: <b>რუკა</b>, <b>მოვლენები</b>, <b>წესები</b> და <b>backlog</b> (15+ story)</p></div>
+      <div class="found step" style="--a:var(--net)"><span class="k">შემდეგ</span>backlog №1 → პროექტი და პირველი კოდი</div>
+    </div>
+  </div>
+  <aside class="study">
+## შეჯამება · ბიზნესი გავიგეთ, კოდისთვის მზად ვართ
+
+**დაიმახსოვრე:**
+
+1. **ლექსიკონი:** კურსი პროგრამაა, ჯგუფი კი ადამიანები, რომლებიც მას ერთად გადიან. ჩარიცხვა ჯგუფში ხდება. „ნაკადი“, „მსმენელი“ და „მოსწავლე“ აღარ გამოიყენება.
+2. **აქტორები:** მენეჯერი, ლექტორი, სტუდენტი, ზოგჯერ თვითონ სისტემაც. ყოველ მოქმედებას თავისი აქტორი აქვს და ყველაფერი „ადმინს“ არ ეკუთვნის.
+3. **პროცესები მოვლენებად:** წარსულ დროში, აქტორით და რიგზე. ერთი მოვლენის გაშლა (მერე? ყოველთვის? გამონაკლისი?) წესებს აჩენს.
+4. **წესები R1–R8:** შემოწმებადია და დარღვევა არ შეიძლება. სურვილი („მარტივი იყოს“) წესი არ არის.
+5. **დომენის რუკა:** ბიზნესის ცნებები და კავშირები. ის ბაზის სქემა არ არის. ჯგუფი რუკის ცენტრია.
+6. **Backlog:** story-ები დამოკიდებულების რიგით. №1 „მენეჯერი ქმნის კურსს“ შემდეგი ლექციის თემაა.
+  </aside>
+</section>
+<lecture-homework/>

@@ -1,0 +1,1039 @@
+<style>
+i.codestep{display:none}
+.mono{font-family:var(--mono)}
+.tree{font:18px/1.8 var(--mono);color:var(--ink2);background:#fff;border:1px solid var(--line);border-radius:14px;padding:12px 18px;box-shadow:var(--shadow)}
+.tree .n{display:block;white-space:nowrap}
+.tree .n i{font-style:normal;margin-right:8px}
+.tree .lvl1{padding-left:28px}.tree .lvl2{padding-left:56px}.tree .lvl3{padding-left:84px}
+.tree .hi{color:var(--ink);font-weight:700}
+.tree .red{color:var(--red);font-weight:700}
+.tree .grn{color:#15803d;font-weight:700}
+.tree small{color:var(--muted);font-size:13px;margin-left:10px}
+.opt{display:flex;gap:16px;align-items:flex-start;background:#fff;border:1px solid var(--line);border-left:6px solid var(--a);border-radius:12px;padding:12px 18px;box-shadow:var(--shadow)}
+.opt .n{font:800 26px var(--mono);color:var(--a);line-height:1}
+.opt h3{font-size:20px;margin-bottom:3px}
+.opt p{font-size:17px}
+/* layers vs slices grid */
+.arch{display:grid;grid-template-columns:150px repeat(3,1fr);gap:8px}
+.arch .rh{font:700 15px var(--mono);color:var(--muted);display:flex;align-items:center}
+.arch .ch{font:700 15px var(--mono);color:var(--ink);text-align:center;padding:4px 0}
+.arch .c{border-radius:10px;padding:10px 8px;text-align:center;font:600 15px var(--mono);color:var(--ink2);background:#fff;border:1px solid var(--line)}
+.arch.layers .c{border-top:5px solid var(--a)}
+.arch .c.hot{background:color-mix(in srgb,var(--red) 10%,#fff);border-color:var(--red);color:#991b1b;font-weight:800}
+.arch.slices .c{border-left:5px solid var(--a)}
+.arch .c.ok{background:#f0fdf4;border-color:#16a34a;color:#166534;font-weight:800}
+.reason{display:flex;gap:10px;align-items:center;border-radius:10px;padding:8px 12px;background:#fff;border:1px solid var(--line);font-size:17px;color:var(--ink2);box-shadow:var(--shadow)}
+.reason b.k{font:800 14px var(--mono);color:#fff;background:var(--a);border-radius:6px;padding:2px 8px}
+.flowrow{display:flex;align-items:center;gap:12px}
+.fbox{flex:1;border-radius:14px;padding:12px 14px;border:2px solid var(--a);background:color-mix(in srgb,var(--a) 8%,#fff);text-align:center}
+.fbox .e{font-size:30px;line-height:1.2}
+.fbox .l{font-size:19px;font-weight:800;color:var(--ink)}
+.fbox .s{font:14px var(--mono);color:var(--muted)}
+.farrow{font:800 24px var(--mono);color:var(--muted)}
+.bind{display:grid;grid-template-columns:1fr 34px 1fr;gap:10px 8px;align-items:center}
+.bind .p{font:700 17px var(--mono);background:#fff;border:1px solid var(--line);border-radius:10px;padding:8px 12px;color:var(--ink)}
+.bind .ar{text-align:center;font:800 20px var(--mono);color:var(--muted)}
+.bind .s{border-radius:10px;padding:8px 12px;font-size:17px;font-weight:700;color:#fff;background:var(--a)}
+.nuget{display:flex;align-items:center;gap:14px;background:#fff;border:1px solid var(--line);border-radius:12px;padding:10px 14px;box-shadow:var(--shadow)}
+.nuget .logo{width:40px;height:40px;border-radius:10px;display:grid;place-items:center;font:800 14px var(--mono);color:#fff;background:linear-gradient(135deg,#0ea5e9,#6d28d9);flex:none}
+.nuget .nm{font:700 17px var(--mono);color:var(--ink)}
+.nuget .ds{font-size:14px;color:var(--muted)}
+.nuget.del{opacity:.6}
+.nuget.del .nm{text-decoration:line-through;color:var(--red)}
+.scalar{background:#fff;border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);overflow:hidden;display:grid;grid-template-columns:200px 1fr}
+.scalar .side{background:#f8fafc;border-right:1px solid var(--line);padding:12px;font:600 14px var(--mono);color:var(--ink2)}
+.scalar .side div{padding:5px 8px;border-radius:6px}
+.scalar .side .g{font-weight:800;color:var(--ink);margin-top:6px}
+.scalar .side .on{background:#ede9fe;color:#5b21b6}
+.scalar .main{padding:14px 18px}
+.scalar .verb{display:inline-block;font:800 13px var(--mono);color:#fff;background:#16a34a;border-radius:6px;padding:2px 8px;margin-right:8px}
+.scalar .url{font:700 17px var(--mono);color:var(--ink)}
+.scalar .box{margin-top:10px;background:#0f172a;color:#e2e8f0;border-radius:10px;padding:10px 14px;font:500 14px/1.6 var(--mono)}
+.scalar .btn{display:inline-block;margin-top:10px;background:#5b21b6;color:#fff;border-radius:8px;padding:6px 14px;font:700 14px var(--font)}
+</style>
+<!-- =========================================================
+     ლექცია 9 — არქიტექტურა: Layers vs Vertical Slices
+     ფერები: Layers = ლურჯი · VSA/slice = teal · პრობლემა = წითელი · Endpoint = იისფერი · Handler = teal · Request = ნარინჯისფერი
+     ========================================================= -->
+
+<section class="slide" data-section="შესავალი">
+  <div class="vcenter" style="max-width:760px">
+    <div class="kicker in" style="color:var(--core)">ASP.NET Core Web API · ლექცია 9</div>
+    <h1 class="in" style="--d:.15s">ფენები თუ<br><span class="grad">ნაჭრები?</span></h1>
+    <p class="lead in mt" style="--d:.35s"><b>არქიტექტურა</b>: Layers vs Vertical Slices · SRP · DIP · Minimal API · Scalar</p>
+  </div>
+  <div class="abs" style="right:90px;top:200px;width:560px">
+    <div class="arch slices in" style="--d:.4s;grid-template-columns:repeat(3,1fr)">
+      <div class="ch">CreateCourse</div><div class="ch">GetCourses</div><div class="ch">EnrollStudent</div>
+      <div class="c" style="--a:#ea580c">Request</div><div class="c" style="--a:#ea580c">Request</div><div class="c" style="--a:#ea580c">Request</div>
+      <div class="c" style="--a:#0d9488">Handler</div><div class="c" style="--a:#0d9488">Handler</div><div class="c" style="--a:#0d9488">Handler</div>
+      <div class="c" style="--a:#7c3aed">Endpoint</div><div class="c" style="--a:#7c3aed">Endpoint</div><div class="c" style="--a:#7c3aed">Endpoint</div>
+    </div>
+    <p class="tiny in" style="--d:.9s;text-align:center;margin-top:14px">რაც ერთად იცვლება — ერთად დევს</p>
+  </div>
+</section>
+<lecture-review/>
+<lecture-homework-review/>
+<lecture-intro/>
+<section class="slide" data-section="დღის თემა">
+  <div class="kicker">სადაც შევჩერდით</div>
+  <h2>სამი <span class="c-red">ტკივილი</span> 08 ლექციიდან</h2>
+  <div class="grid3" style="grid-template-columns:1fr 1fr 1fr;gap:18px;align-items:start">
+    <div class="opt step" style="--a:var(--red)"><span class="n">1</span><div><h3>გაბნეული feature</h3><p>„კურსის შექმნა“ — Controllers · Dtos · Mappers · Entities</p></div></div>
+    <div class="opt step" style="--a:var(--red)"><span class="n">2</span><div><h3>Controller იზრდება</h3><p>Courses + Students + Lecturers = <b>15 endpoint</b>, სამ დიდ ფაილში</p></div></div>
+    <div class="opt step" style="--a:var(--red)"><span class="n">3</span><div><h3>წესი HTTP-ში</h3><p>R1 და „1–52“ — Controller-ის მეთოდში, <b>ორჯერ</b></p></div></div>
+  </div>
+  <div class="callout step mt" style="--a:var(--net)">კითხვა: <b>სად რა უნდა იდოს</b>, რომ ზრდისას კოდი არ აირიოს? ამას <b>არქიტექტურა</b> ჰქვია</div>
+  <aside class="study">
+### სამი ტკივილი 08 ლექციიდან
+
+story №1 (კურსის შექმნა) და საშინაოში Students და Lecturers ნაცნობი გზით დავწერეთ. ყველაფერი მუშაობს, მაგრამ სამი რამ გვაწუხებს:
+
+1. **გაბნეული feature.** „კურსის შექმნა“ ოთხ საქაღალდეშია: `Controllers`, `Dtos`, `Mappers`, `Entities`. ერთი ცვლილებისთვის ოთხ ადგილას უნდა იარო.
+2. **Controller იზრდება.** სამ Controller-ში უკვე 15 endpoint-ია. LMS-ს ათობით ექნება.
+3. **ბიზნესის წესი HTTP-ის კოდშია.** R1 და „1–52 კვირა“ Controller-ის მეთოდშია ჩაწერილი, თანაც ორჯერ, Create-ში და Update-ში.
+
+ერთი კითხვა რჩება: **სად რა უნდა იდოს**, რომ კოდი ზრდასთან ერთად არ აირიოს? ამ კითხვაზე პასუხს **არქიტექტურა** ჰქვია: კოდის დალაგების წესები, რომლებზეც გუნდი თანხმდება.
+
+```terms
+არქიტექტურა — წესები, რომლებიც ამბობს, სად დევს კოდის თითოეული ნაწილი და ვინ ვის იძახებს
+```
+  </aside>
+</section>
+
+<!-- ================= PART 1 ================= -->
+<section class="slide divider" data-section="1 · Layers">
+  <div class="vcenter">
+    <div class="kicker in">ნაწილი 1</div>
+    <h1 class="in" style="--d:.1s"><span class="grad">Layers</span> — ფენები</h1>
+    <p class="lead mt in" style="--d:.3s">ყველაზე გავრცელებული პასუხი</p>
+  </div>
+  <div class="big-num">01</div>
+  <aside class="study">
+## ნაწილი 1 · Layers
+
+ჯერ ყველაზე გავრცელებული პასუხი: კოდის დაყოფა ფენებად. ბევრ პროექტში შეხვდებით, ამიტომ უნდა იცოდეთ, რას იძლევა და რა ფასი აქვს.
+  </aside>
+</section>
+<section class="slide" data-section="1 · Layers">
+  <div class="kicker">კლასიკური გზა</div>
+  <h2>Controller → <span class="c-net">Service</span> → Data</h2>
+  <div class="grid2" style="grid-template-columns:1fr 1.15fr;gap:28px;align-items:start">
+    <div class="col" style="gap:12px">
+      <div class="flowrow step" style="flex-direction:column;align-items:stretch;gap:8px">
+        <div class="fbox" style="--a:#7c3aed"><div class="l">🌐 Controllers</div><div class="s">HTTP: მისამართი, სტატუს კოდი</div></div>
+        <div class="farrow" style="text-align:center">↓</div>
+        <div class="fbox" style="--a:#2563eb"><div class="l">⚙️ Services</div><div class="s">ბიზნესის ლოგიკა, წესები</div></div>
+        <div class="farrow" style="text-align:center">↓</div>
+        <div class="fbox" style="--a:#d97706"><div class="l">🗄️ Data</div><div class="s">DataContext, ბაზა</div></div>
+      </div>
+      <div class="callout step" style="--a:var(--net);font-size:18px">ყოველი ფენა იძახებს <b>მხოლოდ ქვედას</b></div>
+    </div>
+    <code-block id="sv" lang="csharp" cls="xs" title="Services/CourseService.cs · Controllers/CoursesController.cs">
+public class CourseService
+{
+    private readonly DataContext _db;
+    public CourseService(DataContext db) { _db = db; }
+
+    public async Task<List<CourseResponse>> GetAllAsync() { ... }
+    public async Task<CourseResponse?> GetByIdAsync(Guid id) { ... }
+    public async Task<CourseResponse> CreateAsync(CreateCourseRequest r) { ... }
+    public async Task UpdateAsync(Guid id, UpdateCourseRequest r) { ... }
+    public async Task DeleteAsync(Guid id) { ... }
+}
+
+[HttpGet("{id:guid}")]
+public async Task<IActionResult> GetById(Guid id)
+{
+    var course = await _courseService.GetByIdAsync(id);
+    if (course is null) return NotFound();
+    return Ok(course);
+}
+    </code-block>
+  </div>
+  <aside class="study">
+### Controller → Service → Data
+
+**Layered Architecture** (ფენოვანი არქიტექტურა) კოდს **ტექნიკური როლის** მიხედვით ყოფს:
+
+| ფენა | რას აკეთებს |
+|---|---|
+| 🌐 **Controllers** | HTTP: მისამართი, მეთოდი, სტატუს კოდი |
+| ⚙️ **Services** | ბიზნესის ლოგიკა და წესები |
+| 🗄️ **Data** | DataContext და ბაზა |
+
+წესი: ყოველი ფენა **მხოლოდ ქვედა ფენას** იძახებს. Controller-ი Service-ს, Service-ი DataContext-ს.
+
+```csharp Services/CourseService.cs
+public class CourseService
+{
+    private readonly DataContext _db;
+    public CourseService(DataContext db) { _db = db; }
+
+    public async Task<List<CourseResponse>> GetAllAsync() { ... }
+    public async Task<CourseResponse?> GetByIdAsync(Guid id) { ... }
+    public async Task<CourseResponse> CreateAsync(CreateCourseRequest r) { ... }
+    public async Task UpdateAsync(Guid id, UpdateCourseRequest r) { ... }
+    public async Task DeleteAsync(Guid id) { ... }
+}
+```
+
+```csharp Controllers/CoursesController.cs · GetById
+[HttpGet("{id:guid}")]
+public async Task<IActionResult> GetById(Guid id)
+{
+    var course = await _courseService.GetByIdAsync(id);
+    if (course is null) return NotFound();
+    return Ok(course);
+}
+```
+
+ტკივილი №3 გამოსწორდა: Controller-ში მხოლოდ HTTP დარჩა, წესები Service-ში გადავიდა.
+
+```note
+ხშირად მესამე ფენასაც ამატებენ: **Repository** (`CourseRepository`), რომელიც DataContext-ს „ფარავს“. EF Core-ის DbSet თვითონ არის repository-ის მსგავსი, ამიტომ ჩვენ მას არ ვამატებთ.
+```
+  </aside>
+</section>
+<section class="slide" data-section="1 · Layers">
+  <div class="kicker">ფასი</div>
+  <h2>ერთი feature — <span class="c-red">ყველა ფენაში</span></h2>
+  <div class="grid2" style="grid-template-columns:1.3fr 1fr;gap:28px;align-items:start">
+    <div class="col" style="gap:10px">
+      <div class="arch layers step">
+        <div></div><div class="ch">Courses</div><div class="ch">Students</div><div class="ch">Groups</div>
+        <div class="rh">Controllers</div><div class="c hot" style="--a:#7c3aed">CoursesController</div><div class="c" style="--a:#7c3aed">StudentsController</div><div class="c" style="--a:#7c3aed">GroupsController</div>
+        <div class="rh">Services</div><div class="c hot" style="--a:#2563eb">CourseService</div><div class="c" style="--a:#2563eb">StudentService</div><div class="c" style="--a:#2563eb">GroupService</div>
+        <div class="rh">Dtos</div><div class="c hot" style="--a:#ea580c">CourseDtos</div><div class="c" style="--a:#ea580c">StudentDtos</div><div class="c" style="--a:#ea580c">GroupDtos</div>
+        <div class="rh">Mappers</div><div class="c hot" style="--a:#db2777">CourseMapper</div><div class="c" style="--a:#db2777">StudentMapper</div><div class="c" style="--a:#db2777">GroupMapper</div>
+      </div>
+      <p class="tiny step" data-with>წითელი — ფაილები, რომლებსაც „კურსის შექმნის“ შეცვლა ეხება</p>
+    </div>
+    <div class="col" style="gap:12px">
+      <div class="opt step" style="--a:var(--mvc)"><span class="n">✓</span><div><h3>მოწესრიგებული</h3><p>HTTP ცალკე, წესები ცალკე · ყველამ იცის, სად ეძებოს</p></div></div>
+      <div class="opt step" style="--a:var(--red)"><span class="n">✗</span><div><h3>ტკივილი №1 დარჩა</h3><p>ერთი ცვლილება — <b>ყველა</b> ფენა</p></div></div>
+      <div class="opt step" style="--a:var(--red)"><span class="n">✗</span><div><h3>ტკივილი №2 გადავიდა</h3><p>CourseService-ს ყოველ story-ზე ემატება მეთოდი — <b>ახლა ის იზრდება</b></p></div></div>
+    </div>
+  </div>
+  <aside class="study">
+### ერთი feature ყველა ფენაშია
+
+Layers კოდს **ჰორიზონტალურად** ჭრის: ყველა Controller ერთ „სართულზეა“, ყველა Service მეორეზე, ყველა DTO მესამეზე.
+
+„კურსის შექმნის“ შესაცვლელად ისევ **ყველა სართულზე** უნდა იარო: `CoursesController`, `CourseService`, `CourseDtos`, `CourseMapper`.
+
+| | |
+|---|---|
+| ✓ **მოწესრიგებული** | HTTP ცალკეა, წესები ცალკე. ყველამ იცის, სად ეძებოს Service. |
+| ✗ **ტკივილი №1 დარჩა** | ერთი ცვლილება ისევ ყველა ფენას ეხება. |
+| ✗ **ტკივილი №2 გადავიდა** | Controller-ი დაპატარავდა, სამაგიეროდ `CourseService` იზრდება: ყოველ ახალ story-ზე („კურსის დაარქივება“, „კურსის კოპირება“, „კურსის სტატისტიკა“) მას ახალი მეთოდი და ახალი დამოკიდებულებები ემატება. |
+
+Layers ცუდი არ არის: დიდ ნაწილ პროექტებში შეხვდებით და კარგად მუშაობს. მაგრამ პრობლემის მხოლოდ ნაწილს ხსნის. ვიდრე სხვა გზას ვნახავთ, ორი პრინციპი გვჭირდება, რომლებიც ამ ტკივილს ზუსტად ასახელებს.
+  </aside>
+</section>
+
+<!-- ================= PART 2 ================= -->
+<section class="slide divider" data-section="2 · SRP და DIP">
+  <div class="vcenter">
+    <div class="kicker in">ნაწილი 2</div>
+    <h1 class="in" style="--d:.1s"><span class="grad">SRP</span> და <span class="grad">DIP</span></h1>
+    <p class="lead mt in" style="--d:.3s">ორი პრინციპი, რომლითაც კოდს ვაფასებთ</p>
+  </div>
+  <div class="big-num">02</div>
+  <aside class="study">
+## ნაწილი 2 · SRP და DIP
+
+SOLID ხუთი პრინციპია, რომლებიც კოდის დიზაინის შეფასებაში გვეხმარება. დღეს ორი გვჭირდება: **S** (SRP) და **D** (DIP). ორივეს ჩვენს კოდზე ვნახავთ.
+  </aside>
+</section>
+<section class="slide" data-section="2 · SRP და DIP">
+  <div class="kicker">S · Single Responsibility Principle</div>
+  <h2>კლასს — <span class="grad">ერთი მიზეზი</span> შესაცვლელად</h2>
+  <div class="grid2" style="grid-template-columns:1fr 1fr;gap:30px;align-items:start">
+    <div class="col" style="gap:10px">
+      <div class="tiny" style="font:700 15px var(--mono);color:var(--red)">CoursesController / CourseService იცვლება, როცა:</div>
+      <div class="reason step" style="--a:var(--red)"><b class="k">1</b>კურსის შექმნას ახალი წესი დაემატა</div>
+      <div class="reason step" style="--a:var(--red)"><b class="k">2</b>სიას დალაგება შეეცვალა</div>
+      <div class="reason step" style="--a:var(--red)"><b class="k">3</b>ერთი კურსის პასუხს ველი დაემატა</div>
+      <div class="reason step" style="--a:var(--red)"><b class="k">4</b>ცვლილებას ახალი შემოწმება დაემატა</div>
+      <div class="reason step" style="--a:var(--red)"><b class="k">5</b>წაშლა აიკრძალა, თუ კურსს ჯგუფები აქვს</div>
+    </div>
+    <div class="col" style="gap:14px">
+      <div class="problem step" style="font-size:19px"><b>ხუთი</b> მიზეზი = ხუთი პასუხისმგებლობა ერთ კლასში</div>
+      <div class="solve step" style="font-size:19px">ერთი კლასი — <b>ერთი საქმე</b>: <code class="i">CreateCourseHandler</code> იცვლება მხოლოდ მაშინ, როცა <b>კურსის შექმნა</b> იცვლება</div>
+      <div class="callout step" style="--a:var(--muted);font-size:17px">„ერთი საქმე“ ≠ „ერთი მეთოდი“. საზომი — <b>ვინ და რატომ</b> მოითხოვს ცვლილებას</div>
+    </div>
+  </div>
+  <aside class="study">
+### SRP: კლასს შეცვლის ერთი მიზეზი უნდა ჰქონდეს
+
+**SRP** (Single Responsibility Principle, ერთი პასუხისმგებლობის პრინციპი): **კლასს შეცვლის მხოლოდ ერთი მიზეზი უნდა ჰქონდეს.**
+
+ჩამოვწეროთ, როდის იცვლება `CoursesController` (ან Layers-ში `CourseService`):
+
+1. კურსის შექმნას ახალი წესი დაემატა;
+2. სიას დალაგება შეეცვალა;
+3. ერთი კურსის პასუხს ველი დაემატა;
+4. ცვლილებას ახალი შემოწმება დაემატა;
+5. წაშლა აიკრძალა, თუ კურსს ჯგუფები აქვს.
+
+ხუთი მიზეზი ხუთი პასუხისმგებლობაა ერთ კლასში. როცა ერთს ცვლი, დანარჩენ ოთხსაც ეხები და შეიძლება გააფუჭო.
+
+SRP-ს მიხედვით: ერთი კლასი, ერთი საქმე. თუ გვექნება `CreateCourseHandler`, ის მხოლოდ მაშინ შეიცვლება, როცა **კურსის შექმნა** იცვლება.
+
+```warn
+„ერთი საქმე“ „ერთ მეთოდს“ არ ნიშნავს. საზომი ისაა, **ვინ და რატომ** მოითხოვს ცვლილებას. თუ ორ სხვადასხვა მოთხოვნას ერთი კლასის შეცვლა სჭირდება, კლასს ორი პასუხისმგებლობა აქვს.
+```
+
+```terms
+SRP (Single Responsibility Principle) — კლასს შეცვლის ერთი მიზეზი უნდა ჰქონდეს
+SOLID — კოდის დიზაინის ხუთი პრინციპი: S · O · L · I · D
+```
+  </aside>
+</section>
+<section class="slide" data-section="2 · SRP და DIP">
+  <div class="kicker">D · Dependency Inversion Principle</div>
+  <h2>არ <span class="c-red">ქმნი</span> — <span class="grad">ითხოვ</span>, და დეტალი არ გაინტერესებს</h2>
+  <div class="grid2" style="grid-template-columns:1fr 1.1fr;gap:28px;align-items:start">
+    <div class="col" style="gap:12px">
+      <code-block lang="csharp" cls="sm" title="❌ თვითონ ქმნის">
+public class CreateCourseHandler
+{
+    private readonly DataContext _db = new DataContext(
+        "Server=(localdb)\\MSSQLLocalDB;Database=LmsDb;…");
+}
+      </code-block>
+      <code-block lang="csharp" cls="sm" title="✅ ითხოვს">
+public class CreateCourseHandler
+{
+    private readonly DataContext _db;
+
+    public CreateCourseHandler(DataContext db)
+    {
+        _db = db;
+    }
+}
+      </code-block>
+    </div>
+    <div class="col" style="gap:12px">
+      <div class="opt step" style="--a:var(--net)"><span class="n">1</span><div><h3>ითხოვს — არ ქმნის</h3><p>DataContext-ს Container აძლევს (04) · handler-მა არ იცის, <b>როგორ</b> იქმნება</p></div></div>
+      <div class="opt step" style="--a:var(--core)"><span class="n">2</span><div><h3>აბსტრაქციაზე მუშაობს</h3><p><code class="i">_db.Courses.AnyAsync(…)</code> — SQL Server-ის შესახებ <b>არაფერი</b></p></div></div>
+      <div class="solve step" style="font-size:18px">ბაზა PostgreSQL-ით შეიცვალა? → <b>მხოლოდ Program.cs</b>: <code class="i">UseSqlServer</code> → <code class="i">UseNpgsql</code>. handler-ები არ იცვლება</div>
+    </div>
+  </div>
+  <aside class="study">
+### DIP: არ ქმნი, ითხოვ, და დეტალი არ გაინტერესებს
+
+**DIP** (Dependency Inversion Principle, დამოკიდებულების ინვერსიის პრინციპი) ორ რამეს ამბობს:
+
+1. **კლასი თავის დამოკიდებულებებს თვითონ არ ქმნის, ითხოვს.** ეს 04 ლექციიდან ვიცით: DataContext-ს constructor-ით ვითხოვთ, Container კი ქმნის და გვაწვდის.
+2. **კლასი აბსტრაქციაზე მუშაობს და არა დეტალზე.** ბიზნესის კოდს არ უნდა აინტერესებდეს, რომელი ბაზაა, როგორი connection string აქვს ან როგორ იგზავნება email.
+
+```csharp ❌ თვითონ ქმნის
+public class CreateCourseHandler
+{
+    private readonly DataContext _db = new DataContext(
+        "Server=(localdb)\\MSSQLLocalDB;Database=LmsDb;…");
+}
+```
+
+```csharp ✅ ითხოვს
+public class CreateCourseHandler
+{
+    private readonly DataContext _db;
+
+    public CreateCourseHandler(DataContext db)
+    {
+        _db = db;
+    }
+}
+```
+
+მეორე ვერსიაში handler-მა არ იცის, როგორ იქმნება DataContext. მან ისიც არ იცის, რომ ბაზა SQL Server-ია: `_db.Courses.AnyAsync(…)` ნებისმიერ ბაზაზე იმუშავებს, რომელსაც EF Core იცნობს. თუ აკადემია PostgreSQL-ზე გადავა, შეიცვლება **მხოლოდ Program.cs** (`UseSqlServer` → `UseNpgsql`). ერთი handler-იც არ შეიცვლება.
+
+DataContext აქ **აბსტრაქციაა**: ის SQL Server-ის დეტალებს მალავს. სხვა შემთხვევაში აბსტრაქციად `interface` გამოიყენება, მაგალითად email-ის გაგზავნისთვის, სადაც ნამდვილი სერვისი და სატესტო ვერსია უნდა შევცვალოთ. interface-ს მაშინ შემოვიტანთ, როცა ასეთი საჭიროება მართლა გაჩნდება.
+
+```terms
+DIP (Dependency Inversion Principle) — კლასი დამოკიდებულებებს ითხოვს და აბსტრაქციაზე მუშაობს, არა კონკრეტულ დეტალზე
+აბსტრაქცია — რაც დეტალს მალავს: გვეუბნება, რა შეუძლია, და არა როგორ აკეთებს
+```
+  </aside>
+</section>
+
+<!-- ================= PART 3 ================= -->
+<section class="slide divider" data-section="3 · Vertical Slices">
+  <div class="vcenter">
+    <div class="kicker in">ნაწილი 3</div>
+    <h1 class="in" style="--d:.1s"><span class="grad">Vertical Slices</span></h1>
+    <p class="lead mt in" style="--d:.3s">ფენები კი არა — feature-ები</p>
+  </div>
+  <div class="big-num">03</div>
+  <aside class="study">
+## ნაწილი 3 · Vertical Slice Architecture
+
+Layers კოდს ჰორიზონტალურად ჭრის. ახლა ვნახავთ, რა მოხდება, თუ **ვერტიკალურად** მოვჭრით.
+  </aside>
+</section>
+<section class="slide" data-section="3 · Vertical Slices">
+  <div class="kicker">ვჭრით ვერტიკალურად</div>
+  <h2>ერთი feature — <span class="grad">ერთი საქაღალდე</span></h2>
+  <div class="grid2" style="grid-template-columns:1.1fr 1fr;gap:30px;align-items:start">
+    <div class="col" style="gap:10px">
+      <div class="arch slices step" style="grid-template-columns:repeat(3,1fr)">
+        <div class="ch">CreateCourse</div><div class="ch">GetCourses</div><div class="ch">UpdateCourse</div>
+        <div class="c ok" style="--a:#ea580c">Request</div><div class="c" style="--a:#ea580c">—</div><div class="c" style="--a:#ea580c">Request</div>
+        <div class="c ok" style="--a:#0d9488">Handler</div><div class="c" style="--a:#0d9488">Handler</div><div class="c" style="--a:#0d9488">Handler</div>
+        <div class="c ok" style="--a:#7c3aed">Endpoint</div><div class="c" style="--a:#7c3aed">Endpoint</div><div class="c" style="--a:#7c3aed">Endpoint</div>
+      </div>
+      <p class="tiny step" data-with>მწვანე — „კურსის შექმნის“ შეცვლა: <b>ერთი</b> საქაღალდე</p>
+      <div class="callout step" style="--a:var(--core);font-size:19px"><b>რაც ერთად იცვლება — ერთად დევს</b></div>
+    </div>
+    <div class="tree step">
+      <span class="n hi"><i>📁</i>Features</span>
+      <span class="n lvl1 hi"><i>📁</i>Courses</span>
+      <span class="n lvl2 grn"><i>📁</i>CreateCourse</span>
+      <span class="n lvl3"><i>📄</i>CreateCourseRequest.cs</span>
+      <span class="n lvl3"><i>📄</i>CreateCourseHandler.cs</span>
+      <span class="n lvl3"><i>📄</i>CreateCourseEndpoint.cs</span>
+      <span class="n lvl2"><i>📁</i>GetCourses<small>…</small></span>
+      <span class="n lvl2"><i>📁</i>GetCourseById<small>…</small></span>
+      <span class="n lvl2"><i>📄</i>CourseResponse.cs<small>საერთო</small></span>
+      <span class="n lvl2"><i>📄</i>CourseMapper.cs<small>საერთო</small></span>
+      <span class="n lvl2"><i>📄</i>CourseEndpoints.cs<small>რეგისტრაცია</small></span>
+      <span class="n lvl1"><i>📁</i>Students<small>…</small></span>
+      <span class="n hi"><i>📁</i>Entities<small>საერთო</small></span>
+      <span class="n hi"><i>📁</i>Data<small>საერთო</small></span>
+    </div>
+  </div>
+  <aside class="study">
+### ერთი feature, ერთი საქაღალდე
+
+**Vertical Slice Architecture** (VSA) კოდს **feature-ის** მიხედვით ჭრის. თითო feature („slice“, ნაჭერი) ერთ backlog story-ს ან მის ერთ მოქმედებას შეესაბამება: `CreateCourse`, `GetCourses`, `EnrollStudent`. ყველაფერი, რაც ამ feature-ს სჭირდება, ერთ საქაღალდეში დევს:
+
+```text Lms.Api
+Features/
+  Courses/
+    CreateCourse/
+      CreateCourseRequest.cs     ← რა შემოდის
+      CreateCourseHandler.cs     ← საქმე: წესები, ბაზა, პასუხი
+      CreateCourseEndpoint.cs    ← მისამართი და მეთოდი
+    GetCourses/ …
+    GetCourseById/ …
+    CourseResponse.cs            ← საერთო Courses-ის slice-ებისთვის
+    CourseMapper.cs              ← საერთო (ToResponse)
+    CourseEndpoints.cs           ← Courses-ის რეგისტრაცია
+  Students/ …
+Entities/                        ← საერთო ყველასთვის
+Data/                            ← საერთო ყველასთვის
+```
+
+ერთი მთავარი წესი: **რაც ერთად იცვლება, ერთად დევს.**
+
+- „კურსის შექმნას“ ახალი ველი დაემატა? → მხოლოდ `CreateCourse/` საქაღალდე (და, თუ ბაზაშიც უნდა შეინახო, `Course` entity).
+- ორი დეველოპერი ორ სხვადასხვა feature-ზე მუშაობს? → ორ სხვადასხვა საქაღალდეში. ერთ ფაილზე აღარ ეჯახებიან.
+
+**რა რჩება საერთო?** ის, რასაც ბევრი slice იყენებს: `Entities` (ბიზნესის ცნებები), `Data` (DataContext) და ერთი ჯგუფის საერთო პასუხი (`CourseResponse`). `ToEntity`-ს მხოლოდ CreateCourse იყენებს, ამიტომ ის handler-ში გადადის. Mapper-ში მხოლოდ `ToResponse` რჩება.
+
+```terms
+Vertical Slice Architecture (VSA) — კოდის დალაგება feature-ის მიხედვით: ერთი feature, ერთი საქაღალდე
+Slice (ნაჭერი) — ერთი feature-ის ყველა ნაწილი: Request, Handler, Endpoint
+```
+  </aside>
+</section>
+<section class="slide" data-section="3 · Vertical Slices">
+  <div class="kicker">ერთი slice — სამი ნაწილი</div>
+  <h2>Request → <span class="c-net">Endpoint</span> → <span class="c-core">Handler</span></h2>
+  <div class="flowrow mt">
+    <div class="fbox step" style="--a:#ea580c"><div class="e">📨</div><div class="l">Request</div><div class="s">რა შემოდის · record</div></div>
+    <span class="farrow step" data-with>→</span>
+    <div class="fbox step" style="--a:#7c3aed"><div class="e">🌐</div><div class="l">Endpoint</div><div class="s">POST /api/courses · Minimal API</div></div>
+    <span class="farrow step" data-with>→</span>
+    <div class="fbox step" style="--a:#0d9488"><div class="e">⚙️</div><div class="l">Handler</div><div class="s">წესები · ბაზა · პასუხი</div></div>
+    <span class="farrow step" data-with>→</span>
+    <div class="fbox step" style="--a:#16a34a"><div class="e">✅</div><div class="l">IResult</div><div class="s">201 · 400 · 409</div></div>
+  </div>
+  <div class="grid3 mt2" style="grid-template-columns:1fr 1fr 1fr;gap:18px">
+    <div class="callout step" style="--a:#7c3aed;font-size:18px"><b>Endpoint</b> — მხოლოდ „სად“: მისამართი, მეთოდი · <b>Controller აღარ არის</b></div>
+    <div class="callout step" style="--a:#0d9488;font-size:18px"><b>Handler</b> — ჩვეულებრივი class · <b>DI</b>-ით მოდის · ჩანს, რა ხდება</div>
+    <div class="callout step" style="--a:var(--muted);font-size:18px"><b>„magic“ არ არის</b>: არც MediatR, არც ავტომატური ძებნა — ყველაფერი <b>ხელით</b> ჩანს</div>
+  </div>
+  <aside class="study">
+### ერთი slice, სამი ნაწილი
+
+| ნაწილი | რას აკეთებს | რა არის C#-ში |
+|---|---|---|
+| 📨 **Request** | რა შემოდის მოთხოვნაში | `record` (DTO, 03 ლექციიდან) |
+| 🌐 **Endpoint** | მისამართი და მეთოდი; მოთხოვნას handler-ს გადასცემს | Minimal API: `MapPost(...)` (02 ლექციიდან) |
+| ⚙️ **Handler** | საქმე: წესები, ბაზა, პასუხი | ჩვეულებრივი class, DataContext-ს constructor-ით ითხოვს |
+
+რატომ ცალკე Endpoint და Handler? **SRP:** Endpoint მხოლოდ HTTP-ის „მისამართს“ იცნობს, Handler კი feature-ის საქმეს. Controller აღარ გვჭირდება: მის როლს ერთი slice-ის ერთი Endpoint ასრულებს.
+
+```note
+VSA-ს ბევრი პროექტი **MediatR**-ის ბიბლიოთეკით აწყობს: handler-ს ავტომატურად პოულობს და იძახებს. ჩვენ ამას არ ვაკეთებთ. Handler ჩვეულებრივი class-ია, რეგისტრაციას ხელით ვწერთ, ხოლო Endpoint მას პირდაპირ იძახებს. ასე ყოველი ნაბიჯი ჩანს და არაფერი „ჯადოსნურად“ არ ხდება.
+```
+  </aside>
+</section>
+
+<section class="slide" data-section="შესვენება">
+  <div class="center">
+    <div class="big-emoji in" style="font-size:120px">☕</div>
+    <h1 class="in" style="--d:.15s">10 წუთი</h1>
+    <p class="lead in" style="--d:.3s">შემდეგ: <b class="c-net">პირველი slice კოდში</b> + Scalar</p>
+  </div>
+</section>
+
+<!-- ================= PART 4 ================= -->
+<section class="slide divider" data-section="4 · Slice კოდში">
+  <div class="vcenter">
+    <div class="kicker in">ნაწილი 4</div>
+    <h1 class="in" style="--d:.1s">CreateCourse — <span class="grad">slice</span></h1>
+    <p class="lead mt in" style="--d:.3s">Controller-იდან Minimal API-ზე</p>
+  </div>
+  <div class="big-num">04</div>
+  <aside class="study">
+## ნაწილი 4 · პირველი slice კოდში
+
+`CoursesController.Create`-ს CreateCourse slice-ად ვაქცევთ. ლოგიკა იგივე რჩება, იცვლება მხოლოდ ის, სად დევს და როგორ იძახება.
+  </aside>
+</section>
+<section class="slide" data-section="4 · Slice კოდში">
+  <div class="kicker">Handler · საქმე</div>
+  <h2><span class="c-core">CreateCourseHandler</span></h2>
+  <div class="grid2" style="grid-template-columns:1.4fr 1fr;gap:26px;align-items:start">
+    <code-block id="ch" lang="csharp" cls="xs" title="Features/Courses/CreateCourse/CreateCourseHandler.cs">
+public class CreateCourseHandler
+{
+    private readonly DataContext _db;
+    public CreateCourseHandler(DataContext db) { _db = db; }
+
+    public async Task<IResult> HandleAsync(CreateCourseRequest request)
+    {
+        if (string.IsNullOrWhiteSpace(request.Title))
+            return Results.BadRequest("კურსის სახელი სავალდებულოა");
+        if (request.DurationWeeks is < 1 or > 52)
+            return Results.BadRequest("ხანგრძლივობა 1-დან 52 კვირამდეა");
+
+        var title = request.Title.Trim();
+        if (await _db.Courses.AnyAsync(c => c.Title == title))
+            return Results.Conflict($"კურსი „{title}“ უკვე არსებობს");
+
+        var course = new Course
+        {
+            Title = title,
+            Description = request.Description,
+            DurationWeeks = request.DurationWeeks,
+            CreatedAt = DateTime.UtcNow
+        };
+        _db.Courses.Add(course);
+        await _db.SaveChangesAsync();
+        return Results.Created($"/api/courses/{course.Id}", course.ToResponse());
+    }
+}
+    </code-block>
+    <div class="col" style="gap:12px">
+      <i class="codestep" data-for="ch" data-lines="3-4"></i>
+      <div class="callout step" data-with style="--a:var(--net);font-size:18px">DataContext — <b>ითხოვს</b> (DIP)</div>
+      <i class="codestep" data-for="ch" data-lines="6"></i>
+      <div class="callout step" data-with style="--a:var(--core);font-size:18px"><code class="i">IResult</code> — Minimal API-ის <code class="i">IActionResult</code></div>
+      <i class="codestep" data-for="ch" data-lines="8-15"></i>
+      <div class="callout step" data-with style="--a:var(--red);font-size:18px">იგივე შემოწმებები · <code class="i">BadRequest()</code> → <code class="i">Results.BadRequest()</code></div>
+      <i class="codestep" data-for="ch" data-lines="17-23"></i>
+      <div class="callout step" data-with style="--a:#ea580c;font-size:18px"><code class="i">ToEntity</code> — <b>აქ</b>: მხოლოდ ამ slice-ს სჭირდება</div>
+      <i class="codestep" data-for="ch" data-lines="26"></i>
+      <div class="callout step" data-with style="--a:var(--mvc);font-size:18px"><code class="i">Results.Created(url, body)</code> → <b>201</b></div>
+    </div>
+  </div>
+  <aside class="study">
+### CreateCourseHandler
+
+```csharp Features/Courses/CreateCourse/CreateCourseRequest.cs
+namespace Lms.Api.Features.Courses.CreateCourse;
+
+public record CreateCourseRequest(
+    string Title, string? Description, int DurationWeeks);
+```
+
+```csharp Features/Courses/CreateCourse/CreateCourseHandler.cs
+using Lms.Api.Data;
+using Lms.Api.Entities;
+using Microsoft.EntityFrameworkCore;
+
+namespace Lms.Api.Features.Courses.CreateCourse;
+
+public class CreateCourseHandler
+{
+    private readonly DataContext _db;
+
+    public CreateCourseHandler(DataContext db)
+    {
+        _db = db;
+    }
+
+    public async Task<IResult> HandleAsync(CreateCourseRequest request)
+    {
+        if (string.IsNullOrWhiteSpace(request.Title))
+            return Results.BadRequest("კურსის სახელი სავალდებულოა");
+        if (request.DurationWeeks is < 1 or > 52)
+            return Results.BadRequest("ხანგრძლივობა 1-დან 52 კვირამდეა");
+
+        var title = request.Title.Trim();
+        if (await _db.Courses.AnyAsync(c => c.Title == title))
+            return Results.Conflict($"კურსი „{title}“ უკვე არსებობს");
+
+        var course = new Course
+        {
+            Title = title,
+            Description = request.Description,
+            DurationWeeks = request.DurationWeeks,
+            CreatedAt = DateTime.UtcNow
+        };
+        _db.Courses.Add(course);
+        await _db.SaveChangesAsync();
+        return Results.Created($"/api/courses/{course.Id}", course.ToResponse());
+    }
+}
+```
+
+რა შეიცვალა Controller-ის მეთოდთან შედარებით:
+
+- **ჩვეულებრივი class**, `ControllerBase`-ის გარეშე. DataContext-ს constructor-ით ითხოვს (DIP).
+- **`IResult`** Minimal API-ის „პასუხის ტიპია“, როგორც Controller-ში `IActionResult`. `BadRequest()` → `Results.BadRequest()`, `Conflict()` → `Results.Conflict()`.
+- **`Results.Created(url, body)`** 201-ს აბრუნებს. `CreatedAtAction` Controller-ის action-ს ეძებდა; აქ მისამართს თვითონ ვწერთ.
+- **`ToEntity` აღარ არის Mapper-ში.** `new Course { ... }` handler-შია, რადგან მხოლოდ ამ slice-ს სჭირდება.
+
+შემოწმებები ზუსტად იგივეა. ბიზნესის ლოგიკა არ შეცვლილა: შეიცვალა მხოლოდ ის, სად დევს.
+  </aside>
+</section>
+<section class="slide" data-section="4 · Slice კოდში">
+  <div class="kicker">Endpoint · მისამართი</div>
+  <h2><span class="c-net">CreateCourseEndpoint</span> — საიდან რა მოდის?</h2>
+  <div class="grid2" style="grid-template-columns:1.3fr 1fr;gap:28px;align-items:start">
+    <div class="col" style="gap:14px">
+      <code-block id="ce" lang="csharp" cls="sm" title="Features/Courses/CreateCourse/CreateCourseEndpoint.cs">
+public static class CreateCourseEndpoint
+{
+    public static void Map(IEndpointRouteBuilder app)
+    {
+        app.MapPost("/", async (CreateCourseRequest request,
+                                CreateCourseHandler handler) =>
+            await handler.HandleAsync(request));
+    }
+}
+      </code-block>
+      <code-block id="ge" lang="csharp" cls="sm" title="Features/Courses/GetCourseById/GetCourseByIdEndpoint.cs">
+app.MapGet("/{id:guid}", async (Guid id, GetCourseByIdHandler handler) =>
+    await handler.HandleAsync(id));
+      </code-block>
+    </div>
+    <div class="col" style="gap:10px">
+      <div class="tiny step" style="font:700 15px var(--mono)">Minimal API თვითონ ხვდება:</div>
+      <div class="bind">
+        <div class="p step">CreateCourseRequest</div><div class="ar step" data-with>←</div><div class="s step" data-with style="--a:#ea580c">body · JSON</div>
+        <div class="p step">CreateCourseHandler</div><div class="ar step" data-with>←</div><div class="s step" data-with style="--a:#0d9488">DI Container</div>
+        <div class="p step">Guid id</div><div class="ar step" data-with>←</div><div class="s step" data-with style="--a:#7c3aed">მისამართი {id}</div>
+      </div>
+      <div class="callout step" style="--a:var(--muted);font-size:17px">„/“ — ჯგუფის მისამართის <b>გაგრძელება</b>: <code class="i">/api/courses</code> + <code class="i">/</code></div>
+    </div>
+  </div>
+  <aside class="study">
+### CreateCourseEndpoint: საიდან რა მოდის?
+
+```csharp Features/Courses/CreateCourse/CreateCourseEndpoint.cs
+namespace Lms.Api.Features.Courses.CreateCourse;
+
+public static class CreateCourseEndpoint
+{
+    public static void Map(IEndpointRouteBuilder app)
+    {
+        app.MapPost("/", async (CreateCourseRequest request,
+                                CreateCourseHandler handler) =>
+            await handler.HandleAsync(request));
+    }
+}
+```
+
+Endpoint ერთ ხაზს აკეთებს: მისამართს (`POST /`) handler-თან აკავშირებს. Minimal API ეს 02 ლექციიდან ვიცით: `MapGet("/hello", () => ...)`. ახლა ლამბდას **პარამეტრები** აქვს, და ASP.NET Core თვითონ ხვდება, საიდან მოიტანოს თითოეული:
+
+| პარამეტრი | საიდან მოდის | რატომ |
+|---|---|---|
+| `CreateCourseRequest request` | **body** (JSON) | რთული ტიპია, POST-ში JSON-იდან იკითხება |
+| `CreateCourseHandler handler` | **DI Container** | Container-ში რეგისტრირებულია (შემდეგი სლაიდი) |
+| `Guid id` (GetById-ში) | **მისამართი** | მისამართში `{id:guid}` წერია, სახელი ემთხვევა |
+
+```csharp Features/Courses/GetCourseById/GetCourseByIdEndpoint.cs
+app.MapGet("/{id:guid}", async (Guid id, GetCourseByIdHandler handler) =>
+    await handler.HandleAsync(id));
+```
+
+მისამართი `"/"` ჯგუფის მისამართის **გაგრძელებაა**: ჯგუფს `/api/courses` ექნება, ამიტომ სრული მისამართი `POST /api/courses` გამოდის.
+
+```tip
+თუ ოდესმე ASP.NET Core ვერ მიხვდება, საიდან მოიტანოს პარამეტრი, ცხადად მიუთითებ: `[FromBody]`, `[FromRoute]`, `[FromServices]`. ჩვენს შემთხვევაში ეს არ გვჭირდება.
+```
+  </aside>
+</section>
+<section class="slide" data-section="4 · Slice კოდში">
+  <div class="kicker">რეგისტრაცია · ყველაფერი ხელით ჩანს</div>
+  <h2><span class="c-core">CourseEndpoints</span> + Program.cs</h2>
+  <div class="grid2" style="grid-template-columns:1.2fr 1fr;gap:24px;align-items:start">
+    <code-block id="rg" lang="csharp" cls="xs" title="Features/Courses/CourseEndpoints.cs">
+public static class CourseEndpoints
+{
+    public static void AddCourseHandlers(this IServiceCollection services)
+    {
+        services.AddScoped<CreateCourseHandler>();
+        services.AddScoped<GetCoursesHandler>();
+        services.AddScoped<GetCourseByIdHandler>();
+        services.AddScoped<UpdateCourseHandler>();
+        services.AddScoped<DeleteCourseHandler>();
+    }
+
+    public static void MapCourseEndpoints(this IEndpointRouteBuilder app)
+    {
+        var group = app.MapGroup("/api/courses").WithTags("Courses");
+
+        CreateCourseEndpoint.Map(group);
+        GetCoursesEndpoint.Map(group);
+        GetCourseByIdEndpoint.Map(group);
+        UpdateCourseEndpoint.Map(group);
+        DeleteCourseEndpoint.Map(group);
+    }
+}
+    </code-block>
+    <div class="col" style="gap:12px">
+      <code-block id="pr" lang="csharp" cls="xs" title="Program.cs">
+builder.Services.AddDbContext<DataContext>(…);
+builder.Services.AddCourseHandlers();
+
+var app = builder.Build();
+…
+app.MapCourseEndpoints();
+app.Run();
+      </code-block>
+      <i class="codestep" data-for="rg" data-lines="5-9"></i>
+      <div class="callout step" data-with style="--a:var(--net);font-size:17px"><b>Scoped</b> — handler-ს DataContext სჭირდება, ის კი Scoped-ია (04)</div>
+      <i class="codestep" data-for="rg" data-lines="14"></i>
+      <div class="callout step" data-with style="--a:#7c3aed;font-size:17px"><b>MapGroup</b> — საერთო მისამართი · <b>WithTags</b> — ჯგუფი დოკუმენტაციაში</div>
+      <i class="codestep" data-for="pr" data-lines="2,6"></i>
+      <div class="solve step" data-with style="font-size:17px">Program.cs-ში — <b>ორი ხაზი</b> თითო feature-ჯგუფზე</div>
+    </div>
+  </div>
+  <aside class="study">
+### CourseEndpoints და Program.cs
+
+Courses-ის ყველა slice ერთ ფაილში რეგისტრირდება:
+
+```csharp Features/Courses/CourseEndpoints.cs
+namespace Lms.Api.Features.Courses;
+
+public static class CourseEndpoints
+{
+    public static void AddCourseHandlers(this IServiceCollection services)
+    {
+        services.AddScoped<CreateCourseHandler>();
+        services.AddScoped<GetCoursesHandler>();
+        services.AddScoped<GetCourseByIdHandler>();
+        services.AddScoped<UpdateCourseHandler>();
+        services.AddScoped<DeleteCourseHandler>();
+    }
+
+    public static void MapCourseEndpoints(this IEndpointRouteBuilder app)
+    {
+        var group = app.MapGroup("/api/courses").WithTags("Courses");
+
+        CreateCourseEndpoint.Map(group);
+        GetCoursesEndpoint.Map(group);
+        GetCourseByIdEndpoint.Map(group);
+        UpdateCourseEndpoint.Map(group);
+        DeleteCourseEndpoint.Map(group);
+    }
+}
+```
+
+- **`AddCourseHandlers`** handler-ებს Container-ში არეგისტრირებს. **Scoped**-ად, რადგან handler-ს DataContext სჭირდება, DataContext კი Scoped-ია. 04 ლექციიდან ვიცით: Scoped სერვისი ვერ ჩაჯდება Singleton-ში, ამიტომ handler-იც Scoped უნდა იყოს.
+- **`MapGroup("/api/courses")`** ჯგუფის საერთო მისამართს აწესებს. ყოველი slice-ის მისამართი მისი გაგრძელებაა.
+- **`WithTags("Courses")`** დოკუმენტაციაში endpoint-ებს ერთ ჯგუფად აჩვენებს.
+- `this IServiceCollection` და `this IEndpointRouteBuilder` **extension method**-ებია, როგორც `ToResponse` Mapper-ში (03).
+
+```csharp Program.cs
+builder.Services.AddDbContext<DataContext>(…);
+builder.Services.AddCourseHandlers();
+
+var app = builder.Build();
+…
+app.MapCourseEndpoints();
+app.Run();
+```
+
+Program.cs-ში თითო feature-ჯგუფს მხოლოდ ორი ხაზი სჭირდება. ახალი slice? → ერთი ხაზი `AddCourseHandlers`-ში და ერთი `MapCourseEndpoints`-ში. ყველაფერი ხელით ჩანს: არც ავტომატური ძებნა, არც „magic“.
+  </aside>
+</section>
+<section class="slide" data-section="4 · Slice კოდში">
+  <div class="kicker">წაკითხვის slice</div>
+  <h2>GetCourseById — <span class="grad">პატარა slice</span></h2>
+  <div class="grid2" style="grid-template-columns:1.3fr 1fr;gap:26px;align-items:start">
+    <code-block id="gb" lang="csharp" cls="sm" title="Features/Courses/GetCourseById/GetCourseByIdHandler.cs">
+public class GetCourseByIdHandler
+{
+    private readonly DataContext _db;
+
+    public GetCourseByIdHandler(DataContext db)
+    {
+        _db = db;
+    }
+
+    public async Task<IResult> HandleAsync(Guid id)
+    {
+        var course = await _db.Courses.FindAsync(id);
+        if (course is null) return Results.NotFound();
+        return Results.Ok(course.ToResponse());
+    }
+}
+    </code-block>
+    <div class="col" style="gap:12px">
+      <div class="callout step" style="--a:#ea580c;font-size:18px">Request record <b>არ სჭირდება</b> — მხოლოდ <code class="i">Guid id</code></div>
+      <div class="callout step" style="--a:var(--core);font-size:18px"><code class="i">ToResponse</code> — <b>საერთო</b>: ხუთივე slice იყენებს → <code class="i">CourseMapper</code>-ში რჩება</div>
+      <div class="tree step" style="font-size:16px">
+        <span class="n hi"><i>📁</i>Features/Courses</span>
+        <span class="n lvl1"><i>📁</i>CreateCourse<small>3 ფაილი</small></span>
+        <span class="n lvl1"><i>📁</i>GetCourses<small>2 ფაილი</small></span>
+        <span class="n lvl1"><i>📁</i>GetCourseById<small>2 ფაილი</small></span>
+        <span class="n lvl1"><i>📁</i>UpdateCourse<small>3 ფაილი</small></span>
+        <span class="n lvl1"><i>📁</i>DeleteCourse<small>2 ფაილი</small></span>
+      </div>
+    </div>
+  </div>
+  <aside class="study">
+### GetCourseById: პატარა slice
+
+```csharp Features/Courses/GetCourseById/GetCourseByIdHandler.cs
+public class GetCourseByIdHandler
+{
+    private readonly DataContext _db;
+
+    public GetCourseByIdHandler(DataContext db)
+    {
+        _db = db;
+    }
+
+    public async Task<IResult> HandleAsync(Guid id)
+    {
+        var course = await _db.Courses.FindAsync(id);
+        if (course is null) return Results.NotFound();
+        return Results.Ok(course.ToResponse());
+    }
+}
+```
+
+- ყოველ slice-ს Request record არ სჭირდება. GetById-ს მხოლოდ `Guid id` სჭირდება, რომელიც მისამართიდან მოდის.
+- `ToResponse` ხუთივე slice-ს სჭირდება, ამიტომ `CourseMapper`-ში რჩება: `Features/Courses/CourseMapper.cs`. საერთო ის არის, რასაც ბევრი slice იყენებს.
+
+**GetCourses** (სია) და **DeleteCourse** იგივე ფორმისაა: handler + endpoint. **UpdateCourse**-ს Request-იც აქვს. Courses-ის ხუთი slice 12 პატარა ფაილია. თითოეული ერთ საქმეს აკეთებს და ერთ ეკრანზე ეტევა.
+
+```check
+? CreateCourse-ის და UpdateCourse-ის შემოწმებები („სახელი სავალდებულოა“, „1–52“) ისევ ორჯერაა დაწერილი. VSA ამას რატომ ვერ ხსნის?
+= VSA ფაილებს feature-ის მიხედვით ალაგებს, წესების ადგილს კი არ ცვლის. „სახელი სავალდებულოა“ თვითონ კურსის წესია. სად უნდა იდოს ასეთი წესი, ცალკე თემაა და შემდეგ ლექციებზე ვნახავთ
+```
+  </aside>
+</section>
+
+<!-- ================= PART 5 ================= -->
+<section class="slide" data-section="5 · Scalar">
+  <div class="kicker">Swagger → Scalar</div>
+  <h2>API-ის დოკუმენტაცია — <span class="grad">Scalar</span></h2>
+  <div class="grid2" style="grid-template-columns:1fr 1.25fr;gap:28px;align-items:start">
+    <div class="col" style="gap:12px">
+      <div class="nuget del step"><div class="logo">{ }</div><div><div class="nm">Swashbuckle.AspNetCore</div><div class="ds">წავშალეთ</div></div></div>
+      <div class="nuget step" data-with><div class="logo">S</div><div><div class="nm">Scalar.AspNetCore</div><div class="ds">დოკუმენტაციის გვერდი</div></div></div>
+      <code-block id="sc" lang="csharp" cls="sm" title="Program.cs">
+builder.Services.AddOpenApi();
+…
+if (app.Environment.IsDevelopment())
+{
+    app.MapOpenApi();
+    app.MapScalarApiReference();
+}
+      </code-block>
+      <i class="codestep" data-for="sc" data-lines="1,5"></i>
+      <div class="callout step" data-with style="--a:var(--core);font-size:17px"><b>.NET 10</b> OpenAPI დოკუმენტს თვითონ ქმნის: <code class="i">/openapi/v1.json</code></div>
+      <i class="codestep" data-for="sc" data-lines="6"></i>
+      <div class="callout step" data-with style="--a:#7c3aed;font-size:17px">Scalar მას ხატავს: <code class="i">/scalar</code></div>
+    </div>
+    <div class="scalar step">
+      <div class="side"><div class="g">Courses</div><div class="on">POST /api/courses</div><div>GET /api/courses</div><div>GET /api/courses/{id}</div><div>PUT /api/courses/{id}</div><div>DELETE /api/courses/{id}</div><div class="g">Students</div><div>…</div></div>
+      <div class="main">
+        <div><span class="verb">POST</span><span class="url">/api/courses</span></div>
+        <div class="box">{<br>&nbsp;&nbsp;"title": "ASP.NET Web API",<br>&nbsp;&nbsp;"description": "Backend .NET-ზე",<br>&nbsp;&nbsp;"durationWeeks": 12<br>}</div>
+        <span class="btn">Send ▶</span>
+        <div class="box" style="background:#f0fdf4;color:#166534">201 Created · { "id": "3f2c…", "title": "ASP.NET Web API", … }</div>
+      </div>
+    </div>
+  </div>
+  <aside class="study">
+### API-ის დოკუმენტაცია: Scalar
+
+02 ლექციიდან ვიცით: Swagger ორ ნაწილად მუშაობს. ჯერ კოდიდან **OpenAPI დოკუმენტს** (JSON) ქმნის, მერე **Swagger UI** მას გვერდად ხატავს.
+
+.NET 9-დან OpenAPI დოკუმენტს ASP.NET Core **თვითონ** ქმნის: ამას აკეთებენ `AddOpenApi()` და `MapOpenApi()`, ხოლო დოკუმენტი `/openapi/v1.json`-ზეა. Swashbuckle .NET-ის შაბლონიდან ამოიღეს. დოკუმენტის დასახატად კი ნებისმიერი UI შეგვიძლია ავირჩიოთ. ჩვენ **Scalar**-ს ვიყენებთ: თანამედროვე გვერდი, ჯგუფებით, მზა მოთხოვნის მაგალითებით და კოდის ნიმუშებით სხვადასხვა ენაზე.
+
+1. **Swashbuckle.AspNetCore** წავშალოთ, ასევე `AddSwaggerGen`, `UseSwagger` და `UseSwaggerUI`.
+2. დავაყენოთ **Scalar.AspNetCore**.
+3. Program.cs:
+
+```csharp Program.cs
+builder.Services.AddOpenApi();
+…
+if (app.Environment.IsDevelopment())
+{
+    app.MapOpenApi();
+    app.MapScalarApiReference();
+}
+```
+
+4. გავხსნათ `https://localhost:<port>/scalar`.
+
+მარცხნივ ჯგუფები ჩანს (`WithTags("Courses")`), მარჯვნივ კი მოთხოვნის გაგზავნა: JSON-ის შევსება → **Send** → პასუხი.
+
+```tip
+Visual Studio-ში პროექტის გაშვებისას Scalar რომ თვითონ გაიხსნას: `Properties/launchSettings.json` → `"launchBrowser": true` და `"launchUrl": "scalar"`.
+```
+
+```terms
+OpenAPI დოკუმენტი — API-ის აღწერა JSON-ში: endpoint-ები, პარამეტრები, პასუხები
+Scalar — გვერდი, რომელიც OpenAPI დოკუმენტს ინტერაქტიულ დოკუმენტაციად ხატავს
+```
+  </aside>
+</section>
+<section class="slide" data-section="5 · Scalar">
+  <div class="kicker">ადრე და ახლა</div>
+  <h2>„კურსის შექმნას ველი დაემატა“ — <span class="grad">სად ვცვლით?</span></h2>
+  <div class="grid2" style="gap:30px;align-items:start">
+    <div class="tree step">
+      <span class="n hi" style="color:var(--muted)">08 · ტექნიკური საქაღალდეები</span>
+      <span class="n red"><i>📄</i>Controllers/CoursesController.cs</span>
+      <span class="n red"><i>📄</i>Dtos/CourseDtos.cs</span>
+      <span class="n red"><i>📄</i>Mappers/CourseMapper.cs</span>
+      <span class="n"><i>📄</i>Entities/Course.cs</span>
+      <span class="n" style="margin-top:6px;color:var(--red)">→ 3–4 ფაილი · 4 საქაღალდე</span>
+    </div>
+    <div class="tree step">
+      <span class="n hi" style="color:var(--muted)">09 · Vertical Slices</span>
+      <span class="n grn"><i>📁</i>Features/Courses/CreateCourse/</span>
+      <span class="n lvl1 grn"><i>📄</i>CreateCourseRequest.cs</span>
+      <span class="n lvl1 grn"><i>📄</i>CreateCourseHandler.cs</span>
+      <span class="n"><i>📄</i>Entities/Course.cs</span>
+      <span class="n" style="margin-top:6px;color:#15803d">→ ერთი საქაღალდე</span>
+    </div>
+  </div>
+  <div class="grid3 mt" style="grid-template-columns:1fr 1fr 1fr;gap:16px">
+    <div class="solve step" style="font-size:17px">ტკივილი №1 — <b>მოგვარდა</b></div>
+    <div class="solve step" style="font-size:17px">ტკივილი №2 — <b>მოგვარდა</b>: ყოველი handler პატარაა</div>
+    <div class="problem step" style="font-size:17px">ტკივილი №3 — <b>ნაწილობრივ</b>: წესი დუბლირებულია</div>
+  </div>
+  <aside class="study">
+### ადრე და ახლა
+
+ვთქვათ, ბიზნესმა თქვა: „კურსის შექმნისას დონეც მიუთითეთ: დამწყები ან საშუალო“. სად ვცვლით?
+
+| 08 · ტექნიკური საქაღალდეები | 09 · Vertical Slices |
+|---|---|
+| `Controllers/CoursesController.cs` | `Features/Courses/CreateCourse/CreateCourseRequest.cs` |
+| `Dtos/CourseDtos.cs` | `Features/Courses/CreateCourse/CreateCourseHandler.cs` |
+| `Mappers/CourseMapper.cs` | |
+| `Entities/Course.cs` | `Entities/Course.cs` |
+| **3–4 ფაილი, 4 საქაღალდე** | **ერთი slice-ის საქაღალდე** (+ entity, თუ ბაზაშიც ინახება) |
+
+**სამი ტკივილის ბედი:**
+
+1. ✓ **გაბნეული feature:** მოგვარდა. ერთი feature ერთ საქაღალდეშია.
+2. ✓ **ზრდადი Controller:** მოგვარდა. Controller აღარ არის, ყოველი handler პატარაა და ერთ საქმეს აკეთებს (SRP).
+3. ◐ **წესი HTTP-ში:** ნაწილობრივ. Handler-ი HTTP-ს თითქმის არ იცნობს (მხოლოდ `Results`-ს), მაგრამ კურსის წესები Create-ში და Update-ში ისევ მეორდება. ეს სხვა საკითხია, და შემდეგ ლექციებზე დავუბრუნდებით.
+  </aside>
+</section>
+
+<!-- ================= PRACTICE ================= -->
+<section class="slide divider" data-section="პრაქტიკა">
+  <div class="vcenter">
+    <div class="kicker in">ნაწილი 6</div>
+    <h1 class="in" style="--d:.1s">ახლა <span class="grad">თქვენი ჯერია</span></h1>
+    <p class="lead mt in" style="--d:.3s">შენი LMS · Courses → Vertical Slices</p>
+  </div>
+  <div class="big-num">06</div>
+  <aside class="study">
+## ნაწილი 6 · თქვენი ჯერია
+
+შენი LMS-ის Courses-ს Vertical Slices-ზე გადაიყვან და Swagger-ს Scalar-ით შეცვლი.
+  </aside>
+</section>
+<lecture-classwork/>
+<section class="slide" data-section="პრაქტიკა">
+  <div class="kicker">გაჭედე?</div>
+  <h2>ხშირი შეცდომები</h2>
+  <table class="t" style="font-size:16px">
+    <tr><th style="width:42%">რას ხედავ</th><th style="width:26%">მიზეზი</th><th>გამოსწორება</th></tr>
+    <tr class="step fade"><td class="mono" style="font-size:14px">Unable to resolve service for type 'CreateCourseHandler'</td><td>handler რეგისტრირებული არ არის</td><td><code class="i">services.AddScoped&lt;CreateCourseHandler&gt;()</code></td></tr>
+    <tr class="step fade"><td class="mono" style="font-size:14px">Body was inferred but the method does not allow inferred body parameters</td><td>handler-ი Container-ში არ არის — ASP.NET Core მას body-დან ეძებს</td><td>იგივე: <code class="i">AddScoped</code> · <code class="i">AddCourseHandlers()</code> Program.cs-ში</td></tr>
+    <tr class="step fade"><td class="mono" style="font-size:14px">404 — endpoint Scalar-ში არ ჩანს</td><td><code class="i">MapCourseEndpoints()</code> ან <code class="i">Map(group)</code> აკლია</td><td>Program.cs-ში <code class="i">app.MapCourseEndpoints()</code></td></tr>
+    <tr class="step fade"><td class="mono" style="font-size:14px">/scalar — 404</td><td><code class="i">MapScalarApiReference()</code> აკლია, ან გარემო Development არ არის</td><td><code class="i">if (app.Environment.IsDevelopment())</code>-ში</td></tr>
+    <tr class="step fade"><td class="mono" style="font-size:14px">მისამართი: /api/courses/api/courses</td><td>slice-ში სრული მისამართი დაწერე</td><td>slice-ში — <code class="i">"/"</code> ან <code class="i">"/{id:guid}"</code></td></tr>
+  </table>
+  <aside class="study">
+### ხშირი შეცდომები
+
+| რას ხედავ | მიზეზი და გამოსწორება |
+|---|---|
+| `Unable to resolve service for type 'CreateCourseHandler'` | handler Container-ში რეგისტრირებული არ არის → `services.AddScoped<CreateCourseHandler>()` |
+| `Body was inferred but the method does not allow inferred body parameters` | handler-ი Container-ში არ არის, ამიტომ ASP.NET Core მას JSON-იდან ეძებს → იგივე: `AddScoped` და `builder.Services.AddCourseHandlers()` Program.cs-ში |
+| 404, endpoint Scalar-ში არ ჩანს | `app.MapCourseEndpoints()` ან slice-ის `Map(group)` აკლია |
+| `/scalar` → 404 | `MapScalarApiReference()` აკლია ან `IsDevelopment()`-ის გარეთაა, ან გარემო Development არ არის |
+| მისამართი `/api/courses/api/courses` | slice-ში სრული მისამართი დაწერე → slice-ში მხოლოდ `"/"` ან `"/{id:guid}"`, დანარჩენს ჯგუფი ამატებს |
+
+```prompt Layers თუ VSA — ამიხსენი ჩემს კოდზე
+ვსწავლობ ASP.NET Core Web API-ს (.NET 10). ჩემი პროექტი სასწავლო პლატფორმაა (LMS) და Controller-ებიდან Vertical Slice Architecture-ზე გადამაქვს: Request + Handler (ჩვეულებრივი class, DI-ით) + Minimal API Endpoint, MediatR-ის გარეშე.
+აი ჩემი slice: [ჩასვი Request, Handler, Endpoint]
+შეამოწმე: დაცულია თუ არა SRP (ერთი მიზეზი შესაცვლელად)? რა არის ზედმეტი ან რა აკლია? მზა კოდი ნუ დამიწერე, მხოლოდ მიმითითე და ამიხსენი რატომ. ქართულად.
+```
+  </aside>
+</section>
+<lecture-check/>
+<section class="slide" data-section="შეჯამება">
+  <div class="kicker in" style="color:var(--core)">დღეს</div>
+  <h2 class="in" style="--d:.1s">რაც ერთად იცვლება — <span class="grad">ერთად დევს</span></h2>
+  <div class="grid2" style="grid-template-columns:1fr 1.1fr;gap:36px;align-items:start">
+    <div class="col" style="gap:16px">
+      <div class="card accent step" style="--a:var(--mvc)"><h3><span class="ico">🧠</span>დაიმახსოვრე</h3><ul class="clean small"><li><b>Layers</b> — ტექნიკური როლით · <b>VSA</b> — feature-ით</li><li><b>SRP</b> — ერთი მიზეზი შესაცვლელად</li><li><b>DIP</b> — ითხოვ, არ ქმნი · აბსტრაქციაზე მუშაობ</li><li>slice = <b>Request · Handler · Endpoint</b> · რეგისტრაცია ხელით</li><li>Swagger UI → <b>Scalar</b> · <code class="i">/scalar</code></li></ul></div>
+      <div class="card accent step" style="--a:var(--pink)"><h3><span class="ico">🏠</span>საშინაოზე</h3><p class="small">Courses · Students · Lecturers — <b>მთლიანად</b> slice-ებზე · Controllers აღარ არის</p></div>
+    </div>
+    <div class="col step" data-with style="gap:12px">
+      <div class="flowrow">
+        <div class="fbox" style="--a:#ea580c"><div class="l">Request</div></div><span class="farrow">→</span>
+        <div class="fbox" style="--a:#7c3aed"><div class="l">Endpoint</div></div><span class="farrow">→</span>
+        <div class="fbox" style="--a:#0d9488"><div class="l">Handler</div></div>
+      </div>
+      <code-block lang="csharp" cls="sm" title="Program.cs">
+builder.Services.AddCourseHandlers();
+…
+app.MapCourseEndpoints();
+      </code-block>
+    </div>
+  </div>
+  <aside class="study">
+## შეჯამება · რაც ერთად იცვლება, ერთად დევს
+
+**დაიმახსოვრე:**
+
+1. **Layers** (Controller → Service → Data) კოდს **ტექნიკური როლით** ყოფს. ის მოწესრიგებულია, მაგრამ ერთი feature ყველა ფენაში ხვდება, Service-ები კი იზრდება.
+2. **SRP:** კლასს შეცვლის ერთი მიზეზი უნდა ჰქონდეს. CoursesController-ს ხუთი ჰქონდა.
+3. **DIP:** კლასი დამოკიდებულებებს ითხოვს და აბსტრაქციაზე მუშაობს. handler-მა არ იცის, რომ ბაზა SQL Server-ია.
+4. **Vertical Slice Architecture** კოდს **feature-ით** ყოფს: რაც ერთად იცვლება, ერთად დევს. Entities და DataContext საერთოა.
+5. **Slice = Request + Handler + Endpoint.** Handler ჩვეულებრივი class-ია, Scoped-ად რეგისტრირებული. Endpoint Minimal API-ა `MapGroup`-ის შიგნით. ყველაფერი ხელით ჩანს: MediatR არ არის.
+6. Minimal API პარამეტრებს თვითონ ავსებს: body-დან (Request), DI-დან (Handler) და მისამართიდან (`Guid id`).
+7. .NET 10 OpenAPI დოკუმენტს თვითონ ქმნის, **Scalar** კი მას `/scalar`-ზე ხატავს.
+
+```prompt არქიტექტურა — გასაუბრებისთვის
+ვემზადები .NET Junior გასაუბრებისთვის. დამისვი კითხვები: Layered Architecture vs Vertical Slice Architecture (უპირატესობები და ნაკლი), SRP და DIP მაგალითებით, Minimal API-ში parameter binding (body, route, DI), handler-ის lifetime DbContext-თან ერთად, OpenAPI და Scalar .NET 10-ში.
+სათითაოდ დასვი, დაელოდე ჩემს პასუხს, შემიფასე და აუხსენი, რა გამომრჩა. 8 კითხვა. ქართულად.
+```
+  </aside>
+</section>
+<lecture-homework/>

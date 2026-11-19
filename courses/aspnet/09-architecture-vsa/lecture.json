@@ -1,0 +1,37 @@
+{
+  "title": "არქიტექტურა: Layers vs Vertical Slices",
+  "repo": "aspnet-api-09-vsa",
+  "why": "წინა ლექციაზე story №1 ნაცნობი გზით დავწერეთ და სამი ტკივილი დავინახეთ: ერთი feature 3–4 საქაღალდეშია გაბნეული, Controller ყოველ endpoint-ზე იზრდება, ბიზნესის წესები კი HTTP-ის კოდშია. LMS-ს ათობით feature ექნება, ამიტომ კოდი ისე უნდა დავალაგოთ, რომ ზრდასთან ერთად არ აირიოს. დღეს ორ არქიტექტურას შევადარებთ, Layers-ს და Vertical Slices-ს, გავიგებთ ორ პრინციპს (SRP, DIP), Controller-ებს Minimal API-ით შევცვლით და Swagger-ს Scalar-ით.",
+  "outcomes": [
+    "Layers და Vertical Slice Architecture-ის შედარება: რას აჯგუფებს თითოეული და რა ფასი აქვს",
+    "SRP და DIP: ახსნა მარტივად და ჩვენს კოდში დანახვა",
+    "ერთი slice-ის აწყობა: Request · Handler · Endpoint (Minimal API, MapGroup)",
+    "Swagger-ის ნაცვლად Scalar: .NET 10-ის OpenAPI დოკუმენტი"
+  ],
+  "review": [
+    {
+      "q": "რას აჯგუფებს Layers და რას Vertical Slices?",
+      "a": "Layers: ტექნიკური როლით (ყველა Controller ერთად, ყველა Service ერთად) · VSA: feature-ით (ყველაფერი „კურსის შექმნისთვის“ ერთ საქაღალდეში) · წესი: რაც ერთად იცვლება, ერთად დევს"
+    },
+    {
+      "q": "რას ამბობს SRP?",
+      "a": "კლასს შეცვლის ერთი მიზეზი უნდა ჰქონდეს · CoursesController-ს ხუთი ჰქონდა (ხუთი endpoint) · CreateCourseHandler-ს ერთი: კურსის შექმნის წესები"
+    },
+    {
+      "q": "რას ამბობს DIP? მაგალითი ჩვენი კოდიდან",
+      "a": "კლასი დამოკიდებულებებს თვითონ არ ქმნის: ითხოვს და აბსტრაქციაზე მუშაობს, არა დეტალზე · handler-ი DataContext-ს constructor-ით იღებს და SQL Server-ზე არაფერი იცის: ბაზის შეცვლა მხოლოდ Program.cs-ში ხდება"
+    },
+    {
+      "q": "რისგან შედგება ერთი slice და რას აკეთებს თითოეული ნაწილი?",
+      "a": "Request: რა შემოდის · Handler: საქმე (წესები, ბაზა, პასუხი) · Endpoint: მისამართი და მეთოდი, რომელიც მოთხოვნას handler-ს გადასცემს"
+    },
+    {
+      "q": "Minimal API endpoint-ში საიდან მოდის `CreateCourseRequest`, `CreateCourseHandler` და `Guid id`?",
+      "a": "request: body-დან (JSON) · handler: DI Container-იდან (რეგისტრირებულია Scoped-ად, რადგან DataContext Scoped-ია) · id: მისამართიდან (`{id:guid}`)"
+    },
+    {
+      "q": "რატომ შევცვალეთ Swagger UI Scalar-ით?",
+      "a": ".NET 10 OpenAPI დოკუმენტს თვითონ ქმნის (`AddOpenApi` / `MapOpenApi`) · Swashbuckle შაბლონში აღარ არის · Scalar იმავე დოკუმენტს თანამედროვე გვერდად ხატავს: `/scalar`"
+    }
+  ]
+}
