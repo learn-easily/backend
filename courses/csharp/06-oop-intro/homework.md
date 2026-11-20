@@ -1,13 +1,13 @@
-# გუნდი vs დრაკონი
+# რაინდი და ჯადოქარი vs დრაკონი
 
-სამი გმირი ერთ დრაკონს ებრძვის
+ორი გმირი ერთ დრაკონს ებრძვის
 
 ## მოთხოვნები
 
-- `Hero[] team` — 3 გმირი (ზუსტად როგორც `Student[]`); დრაკონი — 200 სიცოცხლით
-- რაუნდი: **ყოველი ცოცხალი** გმირი უტევს დრაკონს → დრაკონი (თუ ცოცხალია) **პირველ ცოცხალ** გმირს ურტყამს: `dragon.Attack() + 10`
-- ბრძოლა გრძელდება, სანამ დრაკონი ცოცხალია **და** გუნდში ერთი ცოცხალი მაინც არის; ბოლოს — გამარჯვებული
-- Program-ში ორი `static` მეთოდი: `bool AnyAlive(Hero[] team)` და `Hero FirstAlive(Hero[] team)`
+- ორი გმირი: `knight` (100) და `mage` (70); დრაკონი — 200 სიცოცხლით
+- რაუნდი: **ყოველი ცოცხალი** გმირი უტევს დრაკონს → დრაკონი (თუ ცოცხალია) **პირველ ცოცხალ** გმირს ურტყამს (ჯერ რაინდს, ის თუ მოკვდა — ჯადოქარს): `dragon.Attack() + 10`
+- ბრძოლა გრძელდება, სანამ დრაკონი ცოცხალია **და** ერთი გმირი მაინც ცოცხალია; ბოლოს — გამარჯვებული
+- Program-ში ორი `static` მეთოდი: `bool AnyAlive(Hero a, Hero b)` და `Hero FirstAlive(Hero a, Hero b)`
 
 ## ✓ მზადაა, როცა
 
@@ -15,53 +15,42 @@
 
 ## ⭐ ბონუსი
 
-- დრაკონმა **შემთხვევით** ცოცხალ გმირს დაარტყას: `team[Random.Shared.Next(team.Length)]` — სანამ მკვდარი ამოდის, თავიდან აირჩიე
+- დრაკონმა **შემთხვევით** ცოცხალ გმირს დაარტყას: თუ ორივე ცოცხალია, `Random.Shared.Next(2)` აირჩევს, ვის; თუ ერთია — მას
 
 ## ამოხსნა
 
 ```csharp Program.cs · Main !
-Hero[] team =
-{
-    new Hero("რაინდი", 100),
-    new Hero("მშვილდოსანი", 80),
-    new Hero("ჯადოქარი", 70)
-};
+Hero knight = new Hero("რაინდი", 100);
+Hero mage = new Hero("ჯადოქარი", 70);
 Hero dragon = new Hero("დრაკონი", 200);
-while (dragon.IsAlive() && AnyAlive(team))
+
+while (dragon.IsAlive() && AnyAlive(knight, mage))
 {
-    foreach (Hero h in team)
-    {
-        if (h.IsAlive()) dragon.TakeDamage(h.Attack());
-    }
+    if (knight.IsAlive()) dragon.TakeDamage(knight.Attack());
+    if (mage.IsAlive()) dragon.TakeDamage(mage.Attack());
+
     if (dragon.IsAlive())
     {
-        Hero target = FirstAlive(team);
+        Hero target = FirstAlive(knight, mage);
         target.TakeDamage(dragon.Attack() + 10);
     }
 }
-Console.WriteLine(dragon.IsAlive() ? "💀 დრაკონმა გაიმარჯვა" : "🏆 გუნდმა გაიმარჯვა!");
+Console.WriteLine(dragon.IsAlive() ? "💀 დრაკონმა გაიმარჯვა" : "🏆 გმირებმა გაიმარჯვეს!");
 ```
 
 ```csharp Program.cs · დამხმარე მეთოდები
-static bool AnyAlive(Hero[] team)
+static bool AnyAlive(Hero a, Hero b)
 {
-    foreach (Hero h in team)
-    {
-        if (h.IsAlive()) return true;
-    }
-    return false;
+    return a.IsAlive() || b.IsAlive();
 }
 
-static Hero FirstAlive(Hero[] team)
+static Hero FirstAlive(Hero a, Hero b)
 {
-    foreach (Hero h in team)
-    {
-        if (h.IsAlive()) return h;
-    }
-    return team[0];
+    if (a.IsAlive()) return a;
+    return b;
 }
 ```
 
 ```note
-`AnyAlive` და `FirstAlive` გუნდის **მასივს** იღებს — ერთი მეთოდი ნებისმიერი ზომის გუნდისთვის მუშაობს. `FirstAlive`-ის ბოლო `return team[0]` მხოლოდ იმიტომ გვჭირდება, რომ მეთოდმა ყოველთვის რამე დააბრუნოს — ციკლი მას მხოლოდ მაშინ იძახებს, როცა ცოცხალი ნამდვილად არის.
+`FirstAlive` გმირის **მისამართს** აბრუნებს — ამიტომ `target.TakeDamage(...)` ნამდვილ რაინდს ან ჯადოქარს აზიანებს და არა ასლს. ციკლი `FirstAlive`-ს მხოლოდ მაშინ იძახებს, როცა ცოცხალი გმირი ნამდვილად არის.
 ```

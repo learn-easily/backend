@@ -101,14 +101,14 @@ table.t td.mono,table.t th.mono{font-family:var(--mono)}
 .vsline .ar{text-align:center;font:800 26px var(--mono);color:var(--muted)}
 </style>
 <!-- =========================================================
-     C# · ლექცია 6 — OOP: ობიექტების მასივი → ყველაფერი ობიექტია → value/reference → რატომ OOP + 4 პრინციპი → არენა (Hero, ბრძოლა, გუნდი)
+     C# · ლექცია 6 — OOP: ყველაფერი ობიექტია → value/reference → რატომ OOP + 4 პრინციპი → არენა (Hero, ბრძოლა)
      ========================================================= -->
 <!-- TITLE -->
 <section class="slide" data-section="შესავალი">
   <div class="vcenter" style="max-width:860px">
     <div class="kicker in" style="color:var(--net)">C# · ლექცია 6</div>
     <h1 class="in" style="--d:.15s">OOP:<br><span class="grad">ობიექტებით ფიქრი</span></h1>
-    <p class="lead in mt" style="--d:.35s">ობიექტების მასივი, C#-ის „ჩაშენებული“ ობიექტები, OOP-ის ოთხი პრინციპი — და ვიწყებთ ჩვენს თამაშს: არენას ⚔️</p>
+    <p class="lead in mt" style="--d:.35s">C#-ის „ჩაშენებული“ ობიექტები, ორი ცვლადი — ერთი ობიექტი, OOP-ის ოთხი პრინციპი — და ვიწყებთ ჩვენს თამაშს: არენას ⚔️</p>
   </div>
   <div class="abs" style="right:110px;top:230px">
     <div class="grid2" style="gap:16px">
@@ -122,156 +122,20 @@ table.t td.mono,table.t th.mono{font-family:var(--mono)}
 <lecture-review/>
 <lecture-homework-review/>
 <lecture-intro/>
-<section class="slide" data-section="შესავალი">
-  <div class="kicker c-red">💥 პრობლემა კოდში · წინა საშინაოდან</div>
-  <h2>ოთხი მოსწავლე — <span class="c-red">ოთხჯერ ერთი და იგივე</span></h2>
-  <div class="grid2" style="grid-template-columns:1.3fr 1fr;gap:26px;align-items:start;margin-top:6px">
-    <code-block id="hw" lang="csharp" cls="xs" title="Program.cs · Main">
-Student nika = new Student("ნიკა", new int[] { 8, 9, 7 });
-Student ana = new Student("ანა", new int[] { 9, 10, 8 });
-Student luka = new Student("ლუკა", new int[] { 6, 7, 5 });
-Student mariami = new Student("მარიამი");
-
-nika.PrintReport();
-ana.PrintReport();
-luka.PrintReport();
-mariami.PrintReport();
-
-Student best = nika;
-if (ana.Average() > best.Average()) best = ana;
-if (luka.Average() > best.Average()) best = luka;
-if (mariami.Average() > best.Average()) best = mariami;
-    </code-block>
-    <div class="col" style="gap:12px">
-      <i class="codestep" data-for="hw" data-lines="6-9"></i>
-      <div class="problem step" data-with style="display:block;font-size:20px">📋 ერთი და იგივე ხაზი — ოთხჯერ. <b>30 მოსწავლე</b>? 30 ხაზი</div>
-      <i class="codestep" data-for="hw" data-lines="11-14"></i>
-      <div class="problem step" data-with style="display:block;font-size:20px">🔁 საუკეთესოს საძებნად — ყოველ ახალ მოსწავლეზე <b>ახალი if</b></div>
-      <div class="problem step" style="display:block;font-size:20px">➕ ახალი მოსწავლე → კოდი <b>სამ ადგილას</b> უნდა შეიცვალოს</div>
-      <div class="solve step" style="display:block;font-size:20px">მასივი უკვე ვიცით: <code class="i">int[]</code>. <code class="i">Student</code>-იც <b>ტიპია</b> → <code class="i">Student[]</code></div>
-    </div>
-  </div>
-  <aside class="study">
-### 💥 პრობლემა კოდში: ოთხი მოსწავლე — ოთხჯერ ერთი და იგივე
-
-წინა საშინაოში ოთხი მოსწავლე ოთხ ცალკე ცვლადში იყო:
-
-```csharp Program.cs · Main
-Student nika = new Student("ნიკა", new int[] { 8, 9, 7 });
-Student ana = new Student("ანა", new int[] { 9, 10, 8 });
-Student luka = new Student("ლუკა", new int[] { 6, 7, 5 });
-Student mariami = new Student("მარიამი");
-
-nika.PrintReport();
-ana.PrintReport();
-luka.PrintReport();
-mariami.PrintReport();
-
-Student best = nika;
-if (ana.Average() > best.Average()) best = ana;
-if (luka.Average() > best.Average()) best = luka;
-if (mariami.Average() > best.Average()) best = mariami;
-```
-
-- ერთი და იგივე ხაზი ოთხჯერ მეორდება. 30 მოსწავლე — 30 ხაზი.
-- საუკეთესოს საპოვნელად ყოველ ახალ მოსწავლეზე ახალი `if` გვჭირდება.
-- ახალი მოსწავლე → კოდი სამ ადგილას იცვლება.
-
-გამოსავალი უკვე ვიცით — **მასივი**. `int[]` ბევრ რიცხვს ინახავს. `Student` კი ისეთივე ტიპია, როგორც `int` → `Student[]` ბევრ მოსწავლეს შეინახავს.
-  </aside>
-</section>
-<section class="slide divider" data-section="1 · ობიექტების მასივი">
+<section class="slide divider" data-section="1 · ყველაფერი ობიექტია">
   <div class="vcenter">
     <div class="kicker in">ნაწილი 1</div>
-    <h1 class="in" style="--d:.1s">ბევრი ობიექტი —<br><span class="grad">ერთ მასივში</span></h1>
-    <p class="lead mt in" style="--d:.3s">Student[] — ისევე, როგორც int[]</p>
-  </div>
-  <div class="big-num">01</div>
-  <aside class="study">
-## ნაწილი 1 · ობიექტების მასივი
-
-`Student[]` — ისევე, როგორც `int[]`.
-  </aside>
-</section>
-<section class="slide" data-section="1 · ობიექტების მასივი">
-  <div class="kicker c-mvc">⌨️ ერთად ვწერთ · ობიექტების მასივი</div>
-  <h2>ბევრი მოსწავლე — <span class="grad">ერთ მასივში</span></h2>
-  <div class="grid2" style="grid-template-columns:1.3fr 1fr;gap:26px;align-items:start;margin-top:6px">
-    <code-block id="arr" lang="csharp" cls="xs" title="Program.cs · Main">
-Student[] students =
-{
-    new Student("ნიკა", 16, 8.5),
-    new Student("ანა", 15, 9.2),
-    new Student("ლუკა", 17, 7.8)
-};
-
-Student best = students[0];
-
-foreach (Student s in students)
-{
-    s.Introduce();
-    if (s.Average > best.Average)
-    {
-        best = s;
-    }
-}
-
-Console.WriteLine($"🏆 საუკეთესო: {best.Name}");
-    </code-block>
-    <div class="col" style="gap:12px">
-      <i class="codestep" data-for="arr" data-lines="1-6"></i>
-      <div class="callout step" data-with style="--a:var(--net);font-size:19px"><code class="i">Student[]</code> — ისევე როგორც <code class="i">int[]</code>. ყოველი ელემენტი — <b>მთელი მოსწავლე</b>, კონსტრუქტორით</div>
-      <i class="codestep" data-for="arr" data-lines="10-17"></i>
-      <div class="callout step" data-with style="--a:var(--asp);font-size:19px"><code class="i">foreach</code> ყოველ მოსწავლეს თავის მეთოდს „სთხოვს“: <code class="i">s.Introduce()</code></div>
-      <div class="callout step" style="--a:var(--mvc);font-size:19px"><code class="i">students[1].Name</code> — „მეორე მოსწავლის სახელი“: ჯერ ინდექსი, მერე წერტილი</div>
-      <div class="solve step" style="display:block;font-size:19px">30 მოსწავლე? მასივში 30 ხაზი — <b>ციკლი იგივე რჩება</b></div>
-    </div>
-  </div>
-  <aside class="study">
-### ⌨️ ობიექტების მასივი: ბევრი მოსწავლე — ერთ მასივში
-
-```csharp Program.cs · Main
-Student[] students =
-{
-    new Student("ნიკა", 16, 8.5),
-    new Student("ანა", 15, 9.2),
-    new Student("ლუკა", 17, 7.8)
-};
-
-Student best = students[0];
-
-foreach (Student s in students)
-{
-    s.Introduce();
-    if (s.Average > best.Average)
-    {
-        best = s;
-    }
-}
-
-Console.WriteLine($"🏆 საუკეთესო: {best.Name}");
-```
-
-- `Student[]` — ისევე როგორც `int[]`, ოღონდ ყოველი ელემენტი მთელი მოსწავლეა. მასივს ვავსებთ კონსტრუქტორით: `new Student("ნიკა", 16, 8.5)`.
-- `foreach` ყოველ მოსწავლეს თავის მეთოდს „სთხოვს“: `s.Introduce()`.
-- `students[1].Name` — „მეორე მოსწავლის სახელი“: ჯერ ინდექსი `[1]`, მერე წერტილი.
-- 30 მოსწავლე? მასივში 30 ხაზი დაემატება — ციკლი იგივე რჩება.
-  </aside>
-</section>
-<section class="slide divider" data-section="2 · ყველაფერი ობიექტია">
-  <div class="vcenter">
-    <div class="kicker in">ნაწილი 2</div>
     <h1 class="in" style="--d:.1s">C#-ში ყველაფერი<br><span class="grad">ობიექტია</span></h1>
     <p class="lead mt in" style="--d:.3s">ობიექტებს აქამდეც იყენებდით — უბრალოდ ასე არ ეძახდით</p>
   </div>
-  <div class="big-num">02</div>
+  <div class="big-num">01</div>
   <aside class="study">
-## ნაწილი 2 · C#-ში ყველაფერი ობიექტია
+## ნაწილი 1 · C#-ში ყველაფერი ობიექტია
 
 ობიექტებს აქამდეც იყენებდით — უბრალოდ ასე არ ეძახდით.
   </aside>
 </section>
-<section class="slide" data-section="2 · ყველაფერი ობიექტია">
+<section class="slide" data-section="1 · ყველაფერი ობიექტია">
   <div class="kicker">💡 ახსნა · ნაცნობი ობიექტები</div>
   <h2>წერტილი = „შედი <span class="grad">ობიექტში</span>“</h2>
   <div class="grid2" style="grid-template-columns:1.3fr 1fr;gap:26px;align-items:start;margin-top:6px">
@@ -325,20 +189,20 @@ int roll = dice.Next(1, 7);            // 1..6
 წერტილი ყოველთვის ერთსა და იმავეს ნიშნავს: **„შედი ობიექტში და აიღე მისი property ან გამოიძახე მისი მეთოდი“**.
   </aside>
 </section>
-<section class="slide divider" data-section="3 · მნიშვნელობა და მისამართი">
+<section class="slide divider" data-section="2 · მნიშვნელობა და მისამართი">
   <div class="vcenter">
-    <div class="kicker in">ნაწილი 3</div>
+    <div class="kicker in">ნაწილი 2</div>
     <h1 class="in" style="--d:.1s">ორი ცვლადი —<br><span class="grad">ერთი ობიექტი</span></h1>
     <p class="lead mt in" style="--d:.3s">რა ხდება, როცა ობიექტს სხვა ცვლადში ვწერთ?</p>
   </div>
-  <div class="big-num">03</div>
+  <div class="big-num">02</div>
   <aside class="study">
-## ნაწილი 3 · მნიშვნელობა და მისამართი
+## ნაწილი 2 · მნიშვნელობა და მისამართი
 
 რა ხდება, როცა ობიექტს სხვა ცვლადში ვწერთ?
   </aside>
 </section>
-<section class="slide" data-section="3 · მნიშვნელობა და მისამართი">
+<section class="slide" data-section="2 · მნიშვნელობა და მისამართი">
   <div class="kicker">❓ შევამოწმოთ · ერთად</div>
   <h2>რას დაბეჭდავს? <span class="grad">გამოიცანით</span></h2>
   <div class="grid2" style="gap:30px;margin-top:10px">
@@ -385,7 +249,7 @@ Console.WriteLine(a.Name);
 პასუხი: **გიო**! `b = a` ობიექტს არ აკოპირებს — `a` და `b` ერთსა და იმავე მოსწავლეს უჩვენებს. რატომ — შემდეგ სლაიდზე.
   </aside>
 </section>
-<section class="slide" data-section="3 · მნიშვნელობა და მისამართი">
+<section class="slide" data-section="2 · მნიშვნელობა და მისამართი">
   <div class="kicker">💡 ახსნა · value და reference</div>
   <h2>ცვლადში <span class="grad">ობიექტი კი არა</span>, მისამართი წერია</h2>
   <div class="grid2" style="gap:34px;margin-top:20px">
@@ -420,7 +284,7 @@ reference — მისამართი, რომლითაც ცვლა
 ```
   </aside>
 </section>
-<section class="slide" data-section="3 · მნიშვნელობა და მისამართი">
+<section class="slide" data-section="2 · მნიშვნელობა და მისამართი">
   <div class="kicker c-mvc">⌨️ ერთად ვწერთ · ობიექტი მეთოდში</div>
   <h2>მეთოდი <span class="grad">ნამდვილ ობიექტს</span> ცვლის</h2>
   <div class="grid2" style="grid-template-columns:1.3fr 1fr;gap:26px;align-items:start;margin-top:6px">
@@ -486,20 +350,20 @@ static void Main(string[] args)
 თამაშში ზუსტად ეს გვჭირდება: მეთოდი გმირს აზიანებს — და ნამდვილი გმირი ზიანდება.
   </aside>
 </section>
-<section class="slide divider" data-section="4 · რატომ OOP">
+<section class="slide divider" data-section="3 · რატომ OOP">
   <div class="vcenter">
-    <div class="kicker in">ნაწილი 4</div>
+    <div class="kicker in">ნაწილი 3</div>
     <h1 class="in" style="--d:.1s">რატომ<br><span class="grad">OOP?</span></h1>
     <p class="lead mt in" style="--d:.3s">Object-Oriented Programming — ობიექტზე ორიენტირებული დაპროგრამება</p>
   </div>
-  <div class="big-num">04</div>
+  <div class="big-num">03</div>
   <aside class="study">
-## ნაწილი 4 · რატომ OOP?
+## ნაწილი 3 · რატომ OOP?
 
 **OOP** — Object-Oriented Programming, ობიექტზე ორიენტირებული დაპროგრამება.
   </aside>
 </section>
-<section class="slide" data-section="4 · რატომ OOP">
+<section class="slide" data-section="3 · რატომ OOP">
   <div class="kicker c-red">🧩 პრობლემა</div>
   <h2>თამაში იზრდება — <span class="c-red">კოდი იშლება</span></h2>
   <div class="grid2" style="grid-template-columns:1fr 1.1fr;gap:34px;margin-top:14px">
@@ -526,7 +390,7 @@ static void Main(string[] args)
 **OOP**-ში პროგრამა ობიექტების სამყაროა: ყოველ ობიექტს თავისი მონაცემი და ქცევა აქვს.
   </aside>
 </section>
-<section class="slide" data-section="4 · რატომ OOP">
+<section class="slide" data-section="3 · რატომ OOP">
   <div class="kicker">💡 ახსნა · OOP</div>
   <h2>ობიექტი = <span class="grad">მონაცემი + ქცევა</span></h2>
   <div class="flowrow" style="margin-top:28px">
@@ -549,7 +413,7 @@ static void Main(string[] args)
 C# — OOP ენაა: ყველაფერი კლასებშია, `Program`-იც კი.
   </aside>
 </section>
-<section class="slide" data-section="4 · რატომ OOP">
+<section class="slide" data-section="3 · რატომ OOP">
   <div class="kicker">💡 ახსნა · ოთხი პრინციპი</div>
   <h2>OOP-ის <span class="grad">ოთხი პრინციპი</span></h2>
   <div class="grid4" style="margin-top:22px">
@@ -578,7 +442,7 @@ OOP — Object-Oriented Programming: პროგრამა ობიექტ
 ```
   </aside>
 </section>
-<section class="slide" data-section="4 · რატომ OOP">
+<section class="slide" data-section="3 · რატომ OOP">
   <div class="kicker">💡 ახსნა · რატომ ვიცავთ</div>
   <h2>პრინციპები — <span class="grad">ბაგების წინააღმდეგ</span></h2>
   <div class="grid2" style="margin-top:22px;gap:22px">
@@ -596,22 +460,22 @@ OOP — Object-Oriented Programming: პროგრამა ობიექტ
 - ➕ **ახალი ფუნქციები** — ახალი გმირი = ახალი კლასი. ძველ, უკვე მომუშავე კოდს არ ვეხებით.
   </aside>
 </section>
-<section class="slide divider" data-section="5 · არენა">
+<section class="slide divider" data-section="4 · არენა">
   <div class="vcenter">
-    <div class="kicker in">ნაწილი 5</div>
+    <div class="kicker in">ნაწილი 4</div>
     <h1 class="in" style="--d:.1s">არენა ⚔️ —<br><span class="grad">ჩვენი თამაში</span></h1>
     <p class="lead mt in" style="--d:.3s">ხუთი ლექცია — ერთი თამაში. დღეს — პირველი გმირი და პირველი ბრძოლა</p>
   </div>
-  <div class="big-num">05</div>
+  <div class="big-num">04</div>
   <aside class="study">
-## ნაწილი 5 · არენა — ჩვენი თამაში
+## ნაწილი 4 · არენა — ჩვენი თამაში
 
 ხუთი ლექცია — ერთი თამაში. დღეს — პირველი გმირი და პირველი ბრძოლა.
 
 ახალი პროექტი: **Console App → Arena**. კლასი — **Add → Class… → Hero.cs**.
   </aside>
 </section>
-<section class="slide" data-section="5 · არენა">
+<section class="slide" data-section="4 · არენა">
   <div class="kicker c-mvc">⌨️ ერთად ვწერთ · ახალი პროექტი Arena · Hero.cs</div>
   <h2>🛡️ გმირის <span class="grad">ნახაზი</span></h2>
   <div class="grid2" style="grid-template-columns:1.3fr 1fr;gap:26px;align-items:start;margin-top:6px">
@@ -694,7 +558,7 @@ internal class Hero
 - `TakeDamage` — სიცოცხლეს აკლებს, 0-ზე ქვემოთ არ ჩადის. `IsAlive()` — ცოცხალია?
   </aside>
 </section>
-<section class="slide" data-section="5 · არენა">
+<section class="slide" data-section="4 · არენა">
   <div class="kicker c-mvc">⌨️ ერთად ვწერთ · პირველი ბრძოლა</div>
   <h2>⚔️ რაინდი <span class="muted">vs</span> 🐉 დრაკონი</h2>
   <div class="grid2" style="grid-template-columns:1.3fr 1fr;gap:26px;align-items:start;margin-top:6px">
@@ -769,7 +633,7 @@ Console.WriteLine(knight.IsAlive() ? "🏆 რაინდმა გაიმა
 - `Thread.Sleep(600)` — 0.6 წამი პაუზა, რომ ბრძოლას თვალი ვადევნოთ.
   </aside>
 </section>
-<section class="slide" data-section="5 · არენა">
+<section class="slide" data-section="4 · არენა">
   <div class="kicker c-red">🧩 შემდეგი ლექციისთვის</div>
   <h2>ჩვენი თამაში <span class="c-red">ჯერ არ არის დაცული</span></h2>
   <div class="grid2" style="grid-template-columns:1.1fr 1fr;gap:30px;margin-top:10px">
@@ -809,7 +673,7 @@ knight.Name = "";           // 😈 უსახელო გმირი
     <div class="kicker in" style="color:var(--net)">დღეს</div>
     <h1 class="in" style="--d:.1s;font-size:62px">ობიექტების<br><span class="grad">სამყარო</span></h1>
     <div class="grid2 mt2">
-      <div class="card accent step" style="--a:var(--mvc)"><h3><span class="ico">🧠</span>დაიმახსოვრე</h3><ul class="clean small"><li><code class="i">Student[]</code> — ობიექტების მასივი + <code class="i">foreach</code></li><li><code class="i">string</code>, <code class="i">Random</code>, მასივი — ობიექტებია</li><li><code class="i">b = a</code> — <b>ერთი</b> ობიექტი, ორი ისარი</li><li>OOP: ინკაფსულაცია · მემკვიდრეობა · პოლიმორფიზმი · აბსტრაქცია</li></ul></div>
+      <div class="card accent step" style="--a:var(--mvc)"><h3><span class="ico">🧠</span>დაიმახსოვრე</h3><ul class="clean small"><li><code class="i">string</code>, <code class="i">Random</code>, მასივი — ობიექტებია</li><li><code class="i">b = a</code> — <b>ერთი</b> ობიექტი, ორი ისარი</li><li>OOP: ინკაფსულაცია · მემკვიდრეობა · პოლიმორფიზმი · აბსტრაქცია</li></ul></div>
       <div class="card accent step" style="--a:var(--net)"><h3><span class="ico">⏭️</span>შემდეგ</h3><p class="small">🛡️ <b>ინკაფსულაცია</b>: <code class="i">public</code> და <code class="i">private</code>, დაცული სიცოცხლე და წამლები არენაში 🧪</p></div>
     </div>
   </div>
@@ -819,12 +683,11 @@ knight.Name = "";           // 😈 უსახელო გმირი
 
 **დაიმახსოვრე:**
 
-1. `Student[]` — ობიექტების მასივი; `foreach` ყოველ ობიექტს თავის მეთოდს „სთხოვს“.
-2. `string`, `Random`, მასივი — ობიექტებია. წერტილი = „შედი ობიექტში“.
-3. `int`, `double`, `bool` — **value type**: `=` მნიშვნელობას აკოპირებს.
-4. კლასის ობიექტი — **reference type**: `b = a` ისარს აკოპირებს, ობიექტი ერთი რჩება. ახალი ობიექტი — მხოლოდ `new`-ით.
-5. ობიექტი = მონაცემი (property) + ქცევა (მეთოდი).
-6. OOP-ის 4 პრინციპი: ინკაფსულაცია, მემკვიდრეობა, პოლიმორფიზმი, აბსტრაქცია.
+1. `string`, `Random`, მასივი — ობიექტებია. წერტილი = „შედი ობიექტში“.
+2. `int`, `double`, `bool` — **value type**: `=` მნიშვნელობას აკოპირებს.
+3. კლასის ობიექტი — **reference type**: `b = a` ისარს აკოპირებს, ობიექტი ერთი რჩება. ახალი ობიექტი — მხოლოდ `new`-ით.
+4. ობიექტი = მონაცემი (property) + ქცევა (მეთოდი).
+5. OOP-ის 4 პრინციპი: ინკაფსულაცია, მემკვიდრეობა, პოლიმორფიზმი, აბსტრაქცია.
 
 ### ⏭️ შემდეგ
 
