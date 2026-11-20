@@ -1,0 +1,254 @@
+<!doctype html>
+<html lang="ka">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>06 · დირექტორის ჩანაწერი — დავალების ფურცელი</title>
+<style>
+:root{--bg:#f7f5f0;--card:#fff;--ink:#1f2335;--ink2:#475569;--muted:#94a3b8;--line:#e5e2da;--core:#0d9488;--net:#4f46e5;--red:#dc2626;--amber:#d97706;--green:#16a34a;--r:14px;--font:"Noto Sans Georgian","Segoe UI",system-ui,sans-serif;--mono:"JetBrains Mono",Consolas,monospace}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 var(--font)}
+.wrap{max-width:980px;margin:0 auto;padding:28px 20px 80px}
+header{display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end;justify-content:space-between;margin-bottom:18px}
+.kicker{font:700 13px var(--mono);color:var(--core);letter-spacing:.06em;text-transform:uppercase}
+h1{margin:4px 0 0;font-size:28px}
+h2{font-size:19px;margin:0 0 4px;display:flex;align-items:center;gap:10px}
+h2 .n{font:800 14px var(--mono);color:#fff;background:var(--a,var(--core));border-radius:8px;padding:2px 9px}
+.hint{color:var(--ink2);font-size:14px;margin:0 0 12px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:18px 20px;margin:16px 0;box-shadow:0 4px 18px rgba(31,35,53,.05);border-top:4px solid var(--a,var(--core))}
+input,select,textarea{font:inherit;color:var(--ink);border:1px solid #d6d3cb;border-radius:9px;padding:8px 10px;background:#fff;width:100%}
+input:focus,select:focus,textarea:focus{outline:2px solid color-mix(in srgb,var(--a,var(--core)) 40%,transparent);border-color:var(--a,var(--core))}
+.name{max-width:300px}
+.note{background:#fffbeb;border:1px solid #fcd34d;border-radius:var(--r);padding:16px 20px;font-size:18px;line-height:1.9}
+.note .w{cursor:pointer;border-radius:5px;padding:1px 1px;transition:background .15s}
+.note .w:hover{background:#fde68a}
+.note .w.on{background:#99f6e4;color:#134e4a;font-weight:700}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;min-height:38px}
+.chip{display:inline-flex;align-items:center;gap:6px;background:#f0fdfa;border:1px solid #5eead4;color:#115e59;border-radius:999px;padding:4px 6px 4px 12px;font-weight:700}
+.chip button{border:0;background:#ccfbf1;color:#115e59;border-radius:999px;width:22px;height:22px;cursor:pointer;font-weight:800;line-height:1}
+.addterm{display:flex;gap:8px;margin-top:10px;max-width:420px;align-items:center}
+.addterm .btn{margin:0;white-space:nowrap}
+.rows{display:flex;flex-direction:column;gap:8px}
+.row{display:grid;gap:8px;align-items:start}
+.row .del{border:0;background:#fef2f2;color:var(--red);border-radius:9px;width:38px;height:40px;cursor:pointer;font-weight:800}
+.hdr{display:grid;gap:8px;font:700 12px var(--mono);color:var(--muted);text-transform:uppercase;letter-spacing:.04em;padding:0 2px}
+.add,.btn{border:1px dashed var(--a,var(--core));background:transparent;color:var(--a,var(--core));border-radius:9px;padding:7px 14px;font:700 14px var(--font);cursor:pointer;margin-top:10px}
+.btn{border-style:solid}
+.btn.solid{background:var(--net);border-color:var(--net);color:#fff}
+.btn.danger{border-color:#fca5a5;color:var(--red)}
+.status{position:sticky;bottom:12px;margin-top:24px;background:#1f2335;color:#e2e8f0;border-radius:var(--r);padding:10px 14px;display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center;box-shadow:0 10px 30px rgba(0,0,0,.2)}
+.st{font-size:14px}
+.st b{color:#fff}
+.st.ok{color:#86efac}
+.st.ok::before{content:"✓ "}
+.st.no::before{content:"○ ";color:#94a3b8}
+.status .sp{flex:1}
+.status .btn{margin:0;padding:6px 11px;font-size:13px;color:#e2e8f0;border-color:#475569}
+.status .btn.solid{color:#fff;border-color:var(--net)}
+.done{display:none;font-weight:800;color:#86efac}
+.status.all .done{display:inline}
+.toast{position:fixed;left:50%;top:18px;transform:translateX(-50%);background:var(--green);color:#fff;padding:8px 16px;border-radius:10px;font-weight:700;opacity:0;transition:opacity .2s;pointer-events:none}
+.toast.show{opacity:1}
+.bonus{--a:#7c3aed}
+@media (max-width:720px){.row,.hdr{grid-template-columns:1fr !important}.hdr{display:none}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div>
+      <div class="kicker">ASP.NET Core Web API · ლექცია 6 · კლასის დავალება</div>
+      <h1>📄 დირექტორის ჩანაწერი</h1>
+    </div>
+    <input class="name" id="who" placeholder="შენი სახელი და გვარი">
+  </header>
+
+  <div class="card" style="--a:#d97706">
+    <h2>ჩანაწერი</h2>
+    <p class="hint">ორჯერ წაიკითხე: ჯერ გაიგე, რაზეა, მერე ყოველ სიტყვაზე იკითხე „ზუსტად რას ნიშნავს?“. <b>დააკლიკე სიტყვას</b>, და ის ტერმინებში დაემატება.</p>
+    <div class="note" id="note"></div>
+  </div>
+
+  <div class="card" style="--a:#0d9488">
+    <h2><span class="n">1</span>ტერმინები</h2>
+    <p class="hint">არსებითი სახელები, რომლებიც ბიზნესისთვის რამეს ნიშნავს. დააკლიკე ჩანაწერში ან ჩაწერე ხელით.</p>
+    <div class="chips" id="terms"></div>
+    <div class="addterm"><input id="termIn" placeholder="ახალი ტერმინი…"><button class="btn" id="termAdd">+ დამატება</button></div>
+  </div>
+
+  <div class="card" style="--a:#dc2626">
+    <h2><span class="n">2</span>ბუნდოვანი სიტყვები</h2>
+    <p class="hint">ერთი სიტყვა ორი მნიშვნელობით, ან ერთი რამ ორი სახელით. მინიმუმ <b>2</b>.</p>
+    <div class="hdr" style="grid-template-columns:1fr 1.4fr 1.4fr 38px"><span>სიტყვა</span><span>მნიშვნელობა 1</span><span>მნიშვნელობა 2</span><span></span></div>
+    <div class="rows" id="amb"></div>
+    <button class="add" data-add="amb">+ სიტყვა</button>
+  </div>
+
+  <div class="card" style="--a:#d97706">
+    <h2><span class="n">3</span>აქტორები</h2>
+    <p class="hint">ვინ რას აკეთებს ტექსტში.</p>
+    <div class="hdr" style="grid-template-columns:1fr 2.4fr 38px"><span>აქტორი</span><span>რას აკეთებს</span><span></span></div>
+    <div class="rows" id="act"></div>
+    <button class="add" data-add="act">+ აქტორი</button>
+  </div>
+
+  <div class="card" style="--a:#be123c">
+    <h2><span class="n">4</span>წესები</h2>
+    <p class="hint">რა შეიძლება და რა არა. მინიმუმ <b>3</b>. თუ წესს გამონაკლისი აქვს, ისიც ჩაწერე.</p>
+    <div class="hdr" style="grid-template-columns:52px 2fr 1.3fr 38px"><span>#</span><span>წესი</span><span>გამონაკლისი</span><span></span></div>
+    <div class="rows" id="rule"></div>
+    <button class="add" data-add="rule">+ წესი</button>
+  </div>
+
+  <div class="card" style="--a:#4f46e5">
+    <h2><span class="n">5</span>კითხვები დირექტორისთვის</h2>
+    <p class="hint">მინიმუმ <b>5</b>. თითოს მიუწერე ტექნიკა. ტექნიკური სიტყვები (ცხრილი, endpoint…) არ გამოიყენო.</p>
+    <div class="hdr" style="grid-template-columns:2.6fr 1fr 38px"><span>კითხვა</span><span>ტექნიკა</span><span></span></div>
+    <div class="rows" id="q"></div>
+    <button class="add" data-add="q">+ კითხვა</button>
+  </div>
+
+  <div class="card bonus">
+    <h2><span class="n">⭐</span>ბონუსი · User Story</h2>
+    <p class="hint">„როგორც &lt;აქტორი&gt;, მინდა &lt;მოქმედება&gt;, რომ &lt;მიზანი&gt;“ + მიღების კრიტერიუმები.</p>
+    <div class="hdr" style="grid-template-columns:1fr 1.6fr 1.6fr 1.8fr 38px"><span>როგორც</span><span>მინდა</span><span>რომ</span><span>კრიტერიუმები</span><span></span></div>
+    <div class="rows" id="us"></div>
+    <button class="add" data-add="us">+ story</button>
+  </div>
+
+  <div class="status" id="status">
+    <span class="st" id="s-amb"></span>
+    <span class="st" id="s-rule"></span>
+    <span class="st" id="s-q"></span>
+    <span class="done">მზადაა 🎉</span>
+    <span class="sp"></span>
+    <button class="btn solid" id="copy">კოპირება</button>
+    <button class="btn" id="dl">ჩამოტვირთვა .md</button>
+    <button class="btn danger" id="clear" title="გასუფთავება">🗑</button>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+const NOTE = "ლექტორი ყოველი ლექციის შემდეგ ნაკადს დავალებას აძლევს და დედლაინს უწერს, ჩვეულებრივ ერთ კვირას. სტუდენტი დავალებას ფაილად ტვირთავს. დედლაინის შემდეგ სისტემამ დავალება აღარ უნდა მიიღოს. ლექტორი დავალებას 1-დან 12-მდე აფასებს. თუ მსმენელმა 6-ზე ნაკლები მიიღო, ერთხელ შეუძლია ხელახლა ჩააბაროს. ლექტორმა შეფასება კვირაში უნდა დაწეროს, თორემ მენეჯერი ნერვიულობს. ჯგუფის საშუალო ქულა ყოველთვის უნდა ჩანდეს. ხო, თუ სტუდენტს ცნობა აქვს, მენეჯერს შეუძლია დედლაინი გადაუწიოს.";
+const TECH = ["მაგალითი", "მერე?", "ყოველთვის?", "გამონაკლისი?", "ვინ?", "რატომ?", "რას ნიშნავს?"];
+const KEY = "lms-06-director-note";
+const FIELDS = {
+  amb:  {cols: "1fr 1.4fr 1.4fr 38px", f: [["word","მაგ. „დავალება“"],["m1","…ამოცანა, რომელიც ლექტორმა მისცა"],["m2","…ფაილი, რომელიც სტუდენტმა ჩააბარა"]], min: 2},
+  act:  {cols: "1fr 2.4fr 38px", f: [["who","მაგ. ლექტორი"],["does","აძლევს დავალებას, აფასებს…"]], min: 3},
+  rule: {cols: "52px 2fr 1.3fr 38px", f: [["#",""],["text","მაგ. დედლაინის შემდეგ ნამუშევარი არ მიიღება"],["exc","მაგ. ცნობით — მენეჯერი გადაწევს"]], min: 3},
+  q:    {cols: "2.6fr 1fr 38px", f: [["text","მაგ. ბოლოს ვინ ჩააბარა ხელახლა? რომელი ქულა დარჩა?"],["tech","select"]], min: 5},
+  us:   {cols: "1fr 1.6fr 1.6fr 1.8fr 38px", f: [["as","ლექტორი"],["want","შევაფასო ნამუშევარი"],["so","სტუდენტმა იცოდეს დონე"],["ac","ქულა 1–12; …"]], min: 1}
+};
+
+let state = load();
+function load(){
+  try { const s = JSON.parse(localStorage.getItem(KEY)); if (s) return s; } catch (e) {}
+  const s = {who:"", terms:[]};
+  for (const k in FIELDS) s[k] = Array.from({length: FIELDS[k].min}, () => ({}));
+  return s;
+}
+function save(){ try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {} status(); }
+const clean = w => w.replace(/[.,„“"!?:;]/g, "").trim();
+
+// note with clickable words
+function renderNote(){
+  const note = document.getElementById("note"); note.innerHTML = "";
+  NOTE.split(/(\s+)/).forEach(part => {
+    if (/^\s+$/.test(part)) { note.append(part); return; }
+    const s = document.createElement("span"); s.className = "w"; s.textContent = part;
+    const w = clean(part);
+    if (state.terms.includes(w)) s.classList.add("on");
+    s.onclick = () => { if (!w) return; toggleTerm(w); };
+    note.append(s);
+  });
+}
+function toggleTerm(w){
+  const i = state.terms.indexOf(w);
+  if (i >= 0) state.terms.splice(i, 1); else state.terms.push(w);
+  save(); renderTerms(); renderNote();
+}
+function renderTerms(){
+  const box = document.getElementById("terms"); box.innerHTML = "";
+  state.terms.forEach(t => {
+    const c = document.createElement("span"); c.className = "chip"; c.textContent = t;
+    const x = document.createElement("button"); x.textContent = "×"; x.title = "წაშლა"; x.onclick = () => toggleTerm(t);
+    c.append(x); box.append(c);
+  });
+}
+document.getElementById("termAdd").onclick = () => {
+  const inp = document.getElementById("termIn"); const w = clean(inp.value);
+  if (w && !state.terms.includes(w)) { state.terms.push(w); save(); renderTerms(); renderNote(); }
+  inp.value = ""; inp.focus();
+};
+document.getElementById("termIn").addEventListener("keydown", e => { if (e.key === "Enter") document.getElementById("termAdd").click(); });
+
+// table sections
+function renderRows(k){
+  const cfg = FIELDS[k], box = document.getElementById(k); box.innerHTML = "";
+  state[k].forEach((row, idx) => {
+    const r = document.createElement("div"); r.className = "row"; r.style.gridTemplateColumns = cfg.cols;
+    cfg.f.forEach(([name, ph]) => {
+      let el;
+      if (name === "#") { el = document.createElement("div"); el.textContent = "R" + (idx + 1); el.style.cssText = "font:800 16px var(--mono);color:#be123c;padding-top:9px;text-align:center"; r.append(el); return; }
+      if (ph === "select") {
+        el = document.createElement("select");
+        el.innerHTML = '<option value="">— ტექნიკა —</option>' + TECH.map(t => `<option>${t}</option>`).join("");
+      } else { el = document.createElement("input"); if (idx === 0) el.placeholder = ph; }
+      el.value = row[name] || "";
+      el.oninput = el.onchange = () => { row[name] = el.value; save(); };
+      r.append(el);
+    });
+    const del = document.createElement("button"); del.className = "del"; del.textContent = "×"; del.title = "წაშლა";
+    del.onclick = () => { state[k].splice(idx, 1); save(); renderRows(k); };
+    r.append(del); box.append(r);
+  });
+}
+document.querySelectorAll("[data-add]").forEach(b => b.onclick = () => { state[b.dataset.add].push({}); save(); renderRows(b.dataset.add); });
+
+// status — „✓ მზადაა, როცა“
+function status(){
+  const amb = state.amb.filter(r => r.word && r.m1 && r.m2).length;
+  const rule = state.rule.filter(r => r.text).length;
+  const q = state.q.filter(r => r.text && r.tech).length;
+  const set = (id, ok, html) => { const e = document.getElementById(id); e.className = "st " + (ok ? "ok" : "no"); e.innerHTML = html; };
+  set("s-amb", amb >= 2, `ბუნდოვანი <b>${amb}/2</b> (ორივე მნიშვნელობით)`);
+  set("s-rule", rule >= 3, `წესები <b>${rule}/3</b>`);
+  set("s-q", q >= 5, `კითხვები <b>${q}/5</b> (ტექნიკით)`);
+  document.getElementById("status").classList.toggle("all", amb >= 2 && rule >= 3 && q >= 5);
+}
+
+// export
+function toMd(){
+  const L = [`# დირექტორის ჩანაწერი — ${state.who || "(სახელი)"}`, "", "## ტერმინები", state.terms.join(", ") || "—", "", "## ბუნდოვანი სიტყვები"];
+  state.amb.filter(r => r.word).forEach(r => L.push(`- **${r.word}**: 1) ${r.m1 || "?"} · 2) ${r.m2 || "?"}`));
+  L.push("", "## აქტორები"); state.act.filter(r => r.who).forEach(r => L.push(`- **${r.who}**: ${r.does || ""}`));
+  L.push("", "## წესები"); state.rule.filter(r => r.text).forEach((r, i) => L.push(`- R${i + 1}: ${r.text}${r.exc ? ` (გამონაკლისი: ${r.exc})` : ""}`));
+  L.push("", "## კითხვები"); state.q.filter(r => r.text).forEach(r => L.push(`- ${r.text}${r.tech ? ` _(${r.tech})_` : ""}`));
+  const us = state.us.filter(r => r.as || r.want);
+  if (us.length) { L.push("", "## User Stories"); us.forEach(r => L.push(`- როგორც **${r.as || "?"}**, მინდა **${r.want || "?"}**, რომ **${r.so || "?"}**${r.ac ? `\n  - კრიტერიუმები: ${r.ac}` : ""}`)); }
+  return L.join("\n");
+}
+function toast(t){ const e = document.getElementById("toast"); e.textContent = t; e.classList.add("show"); setTimeout(() => e.classList.remove("show"), 1600); }
+document.getElementById("copy").onclick = async () => {
+  try { await navigator.clipboard.writeText(toMd()); toast("დაკოპირდა ✓"); }
+  catch (e) { const t = document.createElement("textarea"); t.value = toMd(); document.body.append(t); t.select(); document.execCommand("copy"); t.remove(); toast("დაკოპირდა ✓"); }
+};
+document.getElementById("dl").onclick = () => {
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(new Blob([toMd()], {type: "text/markdown"}));
+  a.download = `06-director-note${state.who ? "-" + state.who.replace(/\s+/g, "-") : ""}.md`; a.click();
+};
+document.getElementById("clear").onclick = () => {
+  if (!confirm("ყველაფერი წაიშალოს?")) return;
+  try { localStorage.removeItem(KEY); } catch (e) {}
+  state = load(); init();
+};
+const who = document.getElementById("who");
+who.oninput = () => { state.who = who.value; save(); };
+
+function init(){ who.value = state.who || ""; renderNote(); renderTerms(); Object.keys(FIELDS).forEach(renderRows); status(); }
+init();
+</script>
+</body>
+</html>
