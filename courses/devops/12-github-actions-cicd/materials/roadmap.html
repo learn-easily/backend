@@ -47,11 +47,17 @@ section.panel{display:none}section.panel.on{display:block}
 .hero p{margin:6px 0}
 .resp{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:10px;margin-top:12px}
 .resp div{background:color-mix(in srgb,var(--a) 6%,#fff);border-radius:12px;padding:10px 14px;font-size:15px}
-.sec-title{margin:34px 0 4px;scroll-margin-top:120px}
+.sec-title{scroll-margin-top:120px}
+.block{margin:36px 0 0;padding:22px 24px 24px;border-radius:20px;background:color-mix(in srgb,var(--a) 4%,#fbfaf7);border:1px solid color-mix(in srgb,var(--a) 18%,var(--line));scroll-margin-top:120px}
+.block>.bh{display:flex;align-items:center;gap:12px;margin:0 0 4px;padding-bottom:12px;border-bottom:2px solid color-mix(in srgb,var(--a) 20%,transparent)}
+.block>.bh .bn{width:34px;height:34px;border-radius:10px;background:var(--a);color:#fff;font:800 16px var(--mono);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.block>.bh h2{margin:0}
+.block>.sec-sub{margin:12px 0 4px}
+.block .card{margin:0}
 .sec-sub{color:var(--ink2);margin:0 0 6px}
 /* topics */
-.topics{display:grid;grid-template-columns:repeat(auto-fill,minmax(330px,1fr));gap:14px;margin-top:10px;align-items:start}
-details.topic{background:var(--card);border:1px solid var(--line);border-left:6px solid var(--a);border-radius:14px;padding:0;box-shadow:0 3px 12px rgba(31,35,53,.04)}
+.topics{display:flex;flex-direction:column;gap:10px;margin-top:10px}
+details.topic{scroll-margin-top:130px;background:var(--card);border:1px solid var(--line);border-left:6px solid var(--a);border-radius:14px;padding:0;box-shadow:0 3px 12px rgba(31,35,53,.04)}
 details.topic summary{list-style:none;cursor:pointer;padding:14px 18px;display:flex;align-items:center;gap:12px}
 details.topic summary::-webkit-details-marker{display:none}
 details.topic summary .e{font-size:26px}
@@ -100,13 +106,13 @@ ul.check input:checked + label{color:var(--muted);text-decoration:line-through}
 .cert{display:flex;gap:10px;padding:8px 0;border-top:1px solid #f1f1f1}.cert:first-child{border-top:0}
 .cert b{min-width:0}
 /* ready */
-.ready{border:2px solid var(--a);background:color-mix(in srgb,var(--a) 4%,#fff)}
+.ready{border:2px solid var(--a);background:color-mix(in srgb,var(--a) 6%,#fff)}
 .ready ul.check{padding:4px 0 0}
 .next{display:flex;justify-content:flex-end;margin-top:16px}
 .next button{border:0;background:var(--a);color:#fff;font:800 16px var(--font);border-radius:12px;padding:12px 20px;cursor:pointer}
 .note{background:#fffbeb;border:1px solid #fde68a;border-radius:12px;padding:12px 16px;color:#78350f;font-size:15px}
 .top{position:fixed;right:18px;bottom:18px;background:var(--ink);color:#fff;border-radius:999px;width:46px;height:46px;display:flex;align-items:center;justify-content:center;text-decoration:none;font-size:20px;box-shadow:0 8px 20px rgba(0,0,0,.2)}
-@media (max-width:760px){.now,.two{grid-template-columns:1fr}.tablist{gap:6px}.tab{padding:8px 10px}.tab .t{font-size:15px;flex-wrap:wrap;gap:4px}.tab .t .e{font-size:20px}.tab .t .y{margin-left:0;width:100%;font-size:11px}.tab .bar,.tab .pc{display:none}h1{font-size:27px}.topics{grid-template-columns:1fr}}
+@media (max-width:760px){.now,.two{grid-template-columns:1fr}.tablist{gap:6px}.tab{padding:8px 10px}.tab .t{font-size:15px;flex-wrap:wrap;gap:4px}.tab .t .e{font-size:20px}.tab .t .y{margin-left:0;width:100%;font-size:11px}.tab .bar,.tab .pc{display:none}h1{font-size:27px}}
 @media print{.tabs,.secnav,.top,.next{display:none}section.panel{display:block!important;page-break-before:always}details.topic{break-inside:avoid}details.topic:not([open]) ul{display:block}}
 </style>
 </head>
@@ -499,7 +505,7 @@ function cb(id, labelHtml, extraCls) {
 }
 
 function panel(L) {
-  const secs = [["about","👤 ვინ ხარ"],["topics","📚 რა უნდა იცოდე"],["tools","🧰 ინსტრუმენტები"],["exercises","🏋️ სავარჯიშოები"],["practices","🧭 პრაქტიკები"],["learn","🎓 სერტიფიკატები და რესურსები"],["ready","✅ მზადყოფნა"]];
+  const secs = [["about","👤 ვინ ხარ"],["topics","1 · რა უნდა იცოდე"],["tools","2 · ინსტრუმენტები"],["exercises","3 · სავარჯიშოები"],["practices","4 · პრაქტიკები"],["learn","5 · სერტიფიკატები და რესურსები"],["ready","6 · მზადყოფნა"]];
   const nav = secs.map(([id, t]) => `<a href="#${L.id}-${id}">${t}</a>`).join("");
   const topics = L.topics.map((t, ti) => `
     <details class="topic" ${ti === 0 ? "open" : ""}>
@@ -526,34 +532,45 @@ function panel(L) {
   <section class="panel" id="panel-${L.id}" role="tabpanel" aria-labelledby="tab-${L.id}" style="--a:${L.a}">
     <nav class="secnav">${nav}</nav>
 
-    <div class="card hero sec-title" id="${L.id}-about">
+    <div class="card hero sec-title" id="${L.id}-about" style="margin-top:18px">
       <div class="row"><span class="big">${L.e}</span>
         <div style="flex:1;min-width:260px"><div class="kicker" style="color:${L.a}">${L.years}</div><h2 style="margin:2px 0 4px;font-size:28px">${L.name} DevOps ინჟინერი</h2><p>${L.summary}</p></div></div>
       <div class="resp">${L.resp.map(r => `<div>• ${r}</div>`).join("")}</div>
     </div>
 
-    <h2 class="sec-title" id="${L.id}-topics">📚 რა უნდა იცოდე</h2>
-    <p class="sec-sub">დააჭირე თემას, რომ გაიხსნას, და მონიშნე ✓, რაც უკვე იცი.</p>
-    <div class="topics">${topics}</div>
-
-    <h2 class="sec-title" id="${L.id}-tools">🧰 ინსტრუმენტები, რომლებიც დღეს გამოიყენება</h2>
-    <div class="legend"><span><span class="chip must">ფერადი</span> — აუცილებელი</span><span><span class="chip">ნაცრისფერი</span> — სასურველი / ალტერნატივა</span></div>
-    <div class="toolgrid">${tools}</div>
-
-    <h2 class="sec-title" id="${L.id}-exercises">🏋️ სავარჯიშოები და პროექტები</h2>
-    <p class="sec-sub">რიგით. ყოველი წინაზე დგას და თითოეული პორტფოლიოში ჩასაწერი შედეგია.</p>
-    <div class="exs">${exs}</div>
-
-    <h2 class="sec-title" id="${L.id}-practices">🧭 პრაქტიკები და ჩვევები</h2>
-    <div class="prs">${prs}</div>
-
-    <div class="two sec-title" id="${L.id}-learn">
-      <div class="card"><h2>🏅 სერტიფიკატები <span class="small muted" style="font-weight:400">(სურვილისამებრ)</span></h2>${certs}</div>
-      <div class="card"><h2>🔗 სად ვისწავლო</h2><ul class="res">${res}</ul></div>
+    <div class="block" id="${L.id}-topics">
+      <div class="bh"><span class="bn">1</span><h2>📚 რა უნდა იცოდე</h2></div>
+      <p class="sec-sub">დააჭირე თემას, რომ გაიხსნას, და მონიშნე ✓, რაც უკვე იცი.</p>
+      <div class="topics">${topics}</div>
     </div>
 
-    <div class="card ready sec-title" id="${L.id}-ready">
-      <h2>✅ ${L.readyTitle}</h2>
+    <div class="block" id="${L.id}-tools">
+      <div class="bh"><span class="bn">2</span><h2>🧰 ინსტრუმენტები, რომლებიც დღეს გამოიყენება</h2></div>
+      <div class="legend"><span><span class="chip must">ფერადი</span> — აუცილებელი</span><span><span class="chip">ნაცრისფერი</span> — სასურველი / ალტერნატივა</span></div>
+      <div class="toolgrid">${tools}</div>
+    </div>
+
+    <div class="block" id="${L.id}-exercises">
+      <div class="bh"><span class="bn">3</span><h2>🏋️ სავარჯიშოები და პროექტები</h2></div>
+      <p class="sec-sub">რიგით: ყოველი წინაზე დგას და თითოეული პორტფოლიოში ჩასაწერი შედეგია.</p>
+      <div class="exs">${exs}</div>
+    </div>
+
+    <div class="block" id="${L.id}-practices">
+      <div class="bh"><span class="bn">4</span><h2>🧭 პრაქტიკები და ჩვევები</h2></div>
+      <div class="prs">${prs}</div>
+    </div>
+
+    <div class="block" id="${L.id}-learn">
+      <div class="bh"><span class="bn">5</span><h2>🎓 სერტიფიკატები და რესურსები</h2></div>
+      <div class="two" style="margin-top:14px">
+        <div class="card"><h3>🏅 სერტიფიკატები <span class="small muted" style="font-weight:400">(სურვილისამებრ)</span></h3>${certs}</div>
+        <div class="card"><h3>🔗 სად ვისწავლო</h3><ul class="res">${res}</ul></div>
+      </div>
+    </div>
+
+    <div class="block ready" id="${L.id}-ready">
+      <div class="bh"><span class="bn">6</span><h2>✅ ${L.readyTitle}</h2></div>
       <ul class="check">${ready}</ul>
     </div>
     ${next}
@@ -595,6 +612,12 @@ function show(id, scroll) {
 }
 
 render();
+// accordion: ერთ დროს მხოლოდ ერთი თემაა გახსნილი
+document.addEventListener("toggle", e => {
+  const d = e.target; if (!d.matches || !d.matches("details.topic") || !d.open) return;
+  d.closest(".topics").querySelectorAll("details.topic[open]").forEach(o => { if (o !== d) o.open = false; });
+  requestAnimationFrame(() => { if (d.getBoundingClientRect().top < 120) d.scrollIntoView({ block: "start", behavior: "smooth" }); });
+}, true);
 document.addEventListener("change", e => {
   const k = e.target.dataset && e.target.dataset.k; if (!k) return;
   if (e.target.checked) state[k] = 1; else delete state[k];
