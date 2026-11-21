@@ -4,11 +4,10 @@
 
 ## ნაბიჯები
 
-- WSL-ში: `ssh-keygen -t ed25519 -C "<email>"` → `cat ~/.ssh/id_ed25519.pub` — დააკოპირეთ
-- DigitalOcean → **Create → Droplets**: Frankfurt · Ubuntu 24.04 (LTS) · Basic, უმცირესი ზომა · Authentication: **SSH Key** (ჩასვით `.pub`) · hostname: `lms-server` → **Create**
-- `ssh root@<IP>` → პირველ შეკითხვაზე `yes` → `hostname`, `whoami`, `df -h`, `free -h`
-- `adduser <სახელი>` → `usermod -aG sudo <სახელი>` → `rsync --archive --chown=<სახელი>:<სახელი> ~/.ssh /home/<სახელი>`
-- **ახალ** WSL ფანჯარაში: `ssh <სახელი>@<IP>` → `sudo whoami` უნდა დაწეროს `root`
+- WSL-ში `ssh-keygen -t ed25519` → `cat ~/.ssh/id_ed25519.pub` — დააკოპირეთ
+- DigitalOcean → **Create → Droplets**: Frankfurt · Ubuntu 24.04 · Basic · **SSH Key** · `lms-server`
+- `ssh root@<IP>` → `adduser <სახელი>` → `usermod -aG sudo <სახელი>` → `rsync` `~/.ssh`
+- **ახალ** ფანჯარაში `ssh <სახელი>@<IP>` → `sudo whoami`
 
 ## ✓ მზადაა, როცა
 

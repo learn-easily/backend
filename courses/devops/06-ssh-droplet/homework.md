@@ -22,21 +22,22 @@ lms-server — მზადაა შემდეგი ლექციისთ
 ## ამოხსნა
 
 ```console lms-server !
-$ sudo apt update && sudo apt upgrade -y
-
 $ sudo nano /etc/ssh/sshd_config.d/00-hardening.conf
 PermitRootLogin no
 PasswordAuthentication no
 
-$ sudo sshd -t                     # სინტაქსის შემოწმება — ცარიელი პასუხი = OK
+$ sudo sshd -t                     # ცარიელი პასუხი = OK
 $ sudo systemctl restart ssh
 
 $ sudo ufw allow OpenSSH
 $ sudo ufw enable
 $ sudo ufw status
 Status: active
-To          Action   From
 OpenSSH     ALLOW    Anywhere
+```
+
+```console lms-server
+$ sudo apt update && sudo apt upgrade -y
 
 $ sudo fallocate -l 2G /swapfile
 $ sudo chmod 600 /swapfile

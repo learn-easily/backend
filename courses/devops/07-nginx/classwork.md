@@ -4,12 +4,10 @@
 
 ## ნაბიჯები
 
-- `ssh lms` → `sudo apt install -y nginx` → `sudo ufw allow 'Nginx HTTP'` → ბრაუზერში `http://<IP>` — „Welcome to nginx!“
-- `sudo mkdir -p /var/www/portfolio` → `sudo chown -R $USER:$USER /var/www/portfolio`
-- WSL-ში, my-portfolio-ს საქაღალდიდან: `rsync -avz --delete --exclude .git ./ lms:/var/www/portfolio/`
-- `/etc/nginx/sites-available/portfolio` — server block (`listen 80`, `root /var/www/portfolio`, `try_files`)
-- ჩართვა: `ln -s` → `default`-ის წაშლა `sites-enabled`-იდან → `nginx -t` → `systemctl reload nginx`
-- ბრაუზერში `http://<IP>` — თქვენი portfolio
+- სერვერზე: `apt install nginx` → `ufw allow 'Nginx HTTP'` → `http://<IP>` — „Welcome to nginx!“
+- `/var/www/portfolio` (თქვენი user-ის) ← WSL-იდან `rsync -avz --delete --exclude .git ./ lms:/var/www/portfolio/`
+- `sites-available/portfolio` — `listen 80`, `root`, `try_files` → `ln -s` → `default`-ის წაშლა
+- `nginx -t` → `reload` → `http://<IP>` — თქვენი portfolio
 
 ## ✓ მზადაა, როცა
 
