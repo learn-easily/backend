@@ -1,0 +1,641 @@
+<!-- =========================================================
+     ლექცია 9 — Docker: image/container · docker run · volume · Dockerfile · build
+     ========================================================= -->
+
+<!-- 1. TITLE -->
+<section class="slide" data-section="შესავალი">
+  <div class="vcenter" style="max-width:860px">
+    <div class="kicker in">DevOps Crash Course · ლექცია 9</div>
+    <h1 class="in" style="--d:.15s"><span class="grad">Docker</span> 📦<br>აპი გარემოსთან ერთად</h1>
+    <p class="lead in mt" style="--d:.35s">„ჩემთან მუშაობს“ → „ყველგან მუშაობს“</p>
+  </div>
+  <div class="abs" style="right:90px;top:180px">
+    <svg viewBox="0 0 480 400" width="480" height="400">
+      <g class="in" style="--d:.5s"><rect x="40" y="40" width="400" height="300" rx="22" fill="#0e2a33" stroke="#22d3ee" stroke-width="4"/>
+        <path d="M40 100 H440" stroke="#22d3ee" stroke-width="2" stroke-dasharray="6 6"/><text x="240" y="80" text-anchor="middle" class="ta b mono" font-size="20">📦 lms-api:latest</text>
+        <rect x="80" y="125" width="320" height="52" rx="12" fill="#33240b" stroke="#f5a524" stroke-width="2"/><text x="240" y="159" text-anchor="middle" class="to b" font-size="19">⚙️ LMS · Lms.Api.dll</text>
+        <rect x="80" y="192" width="320" height="52" rx="12" fill="#1d1640" stroke="#8b6cff" stroke-width="2"/><text x="240" y="226" text-anchor="middle" class="tn b" font-size="19">.NET 10 runtime</text>
+        <rect x="80" y="259" width="320" height="52" rx="12" fill="#123321" stroke="#22c55e" stroke-width="2"/><text x="240" y="293" text-anchor="middle" class="tg b" font-size="19">🐧 Linux ფაილები</text></g>
+    </svg>
+  </div>
+</section>
+
+<lecture-review/>
+<lecture-homework-review/>
+<lecture-intro/>
+
+<!-- ================= PART 1: CONTAINERS ================= -->
+<section class="slide divider" data-section="1 · კონტეინერი">
+  <div class="vcenter">
+    <div class="kicker in">ნაწილი 1</div>
+    <h1 class="in" style="--d:.1s">რა არის <span class="grad">კონტეინერი</span></h1>
+    <p class="lead mt in" style="--d:.3s">და PostgreSQL — ერთი ბრძანებით</p>
+  </div>
+  <div class="big-num">01</div>
+  <aside class="study">
+## ნაწილი 1 · რა არის კონტეინერი
+
+იდეა, ტერმინები და პირველი სასარგებლო კონტეინერი — PostgreSQL ინსტალაციის გარეშე.
+  </aside>
+</section>
+
+<section class="slide" data-section="1 · კონტეინერი">
+  <div class="kicker">პრობლემა</div>
+  <h2>„ჩემთან <span class="c-mvc">მუშაობს</span>“ — სერვერზე <span class="c-red">არა</span></h2>
+  <div class="grid3" style="gap:22px">
+    <div class="card accent in" style="--d:0.20s;--a:var(--mvc)"><h3>💻 შენი ლეპტოპი</h3><p class="tiny mono" style="font-size:16px;line-height:1.8">Windows 11<br>.NET 10.0.3 SDK<br>SQL Server LocalDB</p></div>
+    <div class="card accent in" style="--d:0.35s;--a:var(--asp)"><h3>👩‍💻 ნინოს ლეპტოპი</h3><p class="tiny mono" style="font-size:16px;line-height:1.8">macOS<br>.NET 9 SDK<br>PostgreSQL 15</p></div>
+    <div class="card accent in" style="--d:0.50s;--a:var(--red)"><h3>🖥️ სერვერი</h3><p class="tiny mono" style="font-size:16px;line-height:1.8">Ubuntu 24.04<br>runtime 10.0.1<br>PostgreSQL 16 — ხელით</p></div>
+  </div>
+  <div class="callout step mt2" style="--a:var(--net);font-size:24px">🚢 1950-იანებამდე გემზე ტვირთს ცალ-ცალკე ტვირთავდნენ: ტომრები, კასრები, ყუთები. მერე გამოიგონეს <b>სტანდარტული კონტეინერი</b> — შიგნით რაც არ უნდა იყოს, გარედან ყველა ერთნაირია.</div>
+  <aside class="study">
+### პრობლემა: „ჩემთან მუშაობს“ — სერვერზე არა
+
+ერთი და იგივე LMS სამ ადგილას:
+
+| | შენი ლეპტოპი | გუნდელის ლეპტოპი | სერვერი |
+|---|---|---|---|
+| OS | Windows 11 | macOS | Ubuntu 24.04 |
+| .NET | 10.0.3 SDK | 9 SDK | 10.0.1 runtime |
+| ბაზა | SQL Server LocalDB | PostgreSQL 15 | PostgreSQL 16, ხელით დაყენებული |
+
+ყოველ ადგილას გარემო ცოტა სხვანაირია — და ყოველი განსხვავება შეიძლება „უცნაური“ შეცდომის მიზეზი გახდეს. წინა ლექციაზე სერვერის მოსამზადებლად 10-ზე მეტი ხელით ნაბიჯი დაგვჭირდა.
+
+**ანალოგია.** 1950-იანებამდე გემზე ტვირთს ცალ-ცალკე ტვირთავდნენ — ტომრები, კასრები, ყუთები — და ყოველ პორტში სხვანაირად. მერე გამოიგონეს **სტანდარტული საზღვაო კონტეინერი**: შიგნით რაც არ უნდა იყოს, გარედან ყველა ერთნაირია — ერთნაირად იტვირთება ნებისმიერ გემზე, მატარებელზე, სატვირთოზე.
+
+Docker იგივეს აკეთებს პროგრამებისთვის.
+  </aside>
+</section>
+
+<section class="slide" data-section="1 · კონტეინერი">
+  <div class="kicker">ტერმინები</div>
+  <h2><span class="c-asp">image</span> = კლასი · <span class="c-mvc">container</span> = ობიექტი</h2>
+  <div class="grid2" style="grid-template-columns:1fr 1fr">
+    <code-block lang="csharp" cls="big in" title="C# — უკვე იცი" style="--d:0.20s">
+class Course { ... }            // შაბლონი
+
+var c1 = new Course();          // ეგზემპლარი
+var c2 = new Course();          // კიდევ ერთი
+    </code-block>
+    <code-block lang="console" cls="big in" title="Docker — იგივე იდეა" style="--d:0.40s">
+postgres:17                     # image — შაბლონი
+
+$ docker run postgres:17        # container 1
+$ docker run postgres:17        # container 2
+    </code-block>
+  </div>
+  <div class="grid3 mt2">
+    <div class="card accent step" style="--a:var(--asp)"><h3>📀 image</h3><p>აპი + runtime + ფაილები. <b>მხოლოდ წასაკითხი</b> შაბლონი</p></div>
+    <div class="card accent step" style="--a:var(--mvc)" data-with><h3>📦 container</h3><p>image-იდან <b>გაშვებული</b> პროცესი — თავისი იზოლირებული ფაილებით და ქსელით</p></div>
+    <div class="card accent step" style="--a:var(--net)" data-with><h3>🏪 registry</h3><p>image-ების „მაღაზია“: <b>Docker Hub</b>, <code class="i">mcr.microsoft.com</code>, GHCR</p></div>
+  </div>
+  <aside class="study">
+### image = კლასი · container = ობიექტი
+
+C#-ში უკვე იცი ეს იდეა:
+
+```csharp C#
+class Course { ... }            // შაბლონი
+var c1 = new Course();          // ეგზემპლარი
+var c2 = new Course();          // კიდევ ერთი, დამოუკიდებელი
+```
+
+Docker-ში:
+
+| ტერმინი | რა არის | C# ანალოგია |
+|---|---|---|
+| **image** | აპი + runtime + საჭირო ფაილები, „გაყინული“ — მხოლოდ წასაკითხი შაბლონი | კლასი |
+| **container** | image-იდან **გაშვებული** ეგზემპლარი: საკუთარი იზოლირებული ფაილებით, ქსელით, პროცესებით | ობიექტი |
+| **registry** | image-ების საცავი, საიდანაც `docker` მათ ჩამოტვირთავს | NuGet |
+
+ცნობილი registry-ები: **Docker Hub** (`postgres`, `nginx`, `redis`...), **mcr.microsoft.com** (Microsoft-ის .NET image-ები), **GHCR** (GitHub-ის — მე-12 ლექციაზე გამოვიყენებთ).
+
+image-ის სახელი: `postgres:17` — `სახელი:tag`, სადაც tag ჩვეულებრივ ვერსიაა. `latest` — ნაგულისხმევი tag.
+  </aside>
+</section>
+
+<section class="slide" data-section="1 · კონტეინერი">
+  <div class="kicker">კონტეინერი vs ვირტუალური მანქანა</div>
+  <h2>ყუთი, <span class="c-api">არა მთელი კომპიუტერი</span></h2>
+  <svg viewBox="0 0 1420 330" width="1420" height="330">
+    <g class="in left" style="--d:.2s">
+      <text x="340" y="30" text-anchor="middle" class="tw b" font-size="22">🖥️ ვირტუალური მანქანა (Droplet)</text>
+      <rect x="40" y="50" width="180" height="70" rx="10" fill="#33240b" stroke="#f5a524" stroke-width="2"/><text x="130" y="92" text-anchor="middle" class="to b" font-size="17">აპი A</text>
+      <rect x="250" y="50" width="180" height="70" rx="10" fill="#33240b" stroke="#f5a524" stroke-width="2"/><text x="340" y="92" text-anchor="middle" class="to b" font-size="17">აპი B</text>
+      <rect x="460" y="50" width="180" height="70" rx="10" fill="#33240b" stroke="#f5a524" stroke-width="2"/><text x="550" y="92" text-anchor="middle" class="to b" font-size="17">აპი C</text>
+      <rect x="40" y="130" width="180" height="70" rx="10" fill="#3b1218" stroke="#ef4444" stroke-width="2"/><text x="130" y="172" text-anchor="middle" class="tr b" font-size="16">მთელი OS</text>
+      <rect x="250" y="130" width="180" height="70" rx="10" fill="#3b1218" stroke="#ef4444" stroke-width="2"/><text x="340" y="172" text-anchor="middle" class="tr b" font-size="16">მთელი OS</text>
+      <rect x="460" y="130" width="180" height="70" rx="10" fill="#3b1218" stroke="#ef4444" stroke-width="2"/><text x="550" y="172" text-anchor="middle" class="tr b" font-size="16">მთელი OS</text>
+      <rect x="40" y="210" width="600" height="50" rx="10" class="box"/><text x="340" y="242" text-anchor="middle" class="tm" font-size="17">ჰიპერვიზორი · რკინა</text>
+      <text x="340" y="300" text-anchor="middle" class="tm" font-size="18">GB-ები · წუთები ჩართვაზე</text></g>
+    <g class="step">
+      <text x="1060" y="30" text-anchor="middle" class="tw b" font-size="22">📦 კონტეინერები</text>
+      <rect x="760" y="50" width="180" height="70" rx="10" fill="#33240b" stroke="#f5a524" stroke-width="2"/><text x="850" y="92" text-anchor="middle" class="to b" font-size="17">აპი A</text>
+      <rect x="970" y="50" width="180" height="70" rx="10" fill="#33240b" stroke="#f5a524" stroke-width="2"/><text x="1060" y="92" text-anchor="middle" class="to b" font-size="17">აპი B</text>
+      <rect x="1180" y="50" width="180" height="70" rx="10" fill="#33240b" stroke="#f5a524" stroke-width="2"/><text x="1270" y="92" text-anchor="middle" class="to b" font-size="17">აპი C</text>
+      <rect x="760" y="130" width="600" height="70" rx="10" fill="#0e2a33" stroke="#22d3ee" stroke-width="2"/><text x="1060" y="172" text-anchor="middle" class="ta b" font-size="17">Docker · ერთი საერთო Linux-ის ბირთვი</text>
+      <rect x="760" y="210" width="600" height="50" rx="10" class="box"/><text x="1060" y="242" text-anchor="middle" class="tm" font-size="17">OS · რკინა</text>
+      <text x="1060" y="300" text-anchor="middle" class="tg b" font-size="18">MB-ები · წამები ჩართვაზე</text></g>
+  </svg>
+  <aside class="study">
+### კონტეინერი vs ვირტუალური მანქანა
+
+**ვირტუალური მანქანა** (VM — მაგ. ჩვენი Droplet) — მთელი კომპიუტერის იმიტაცია: თავისი სრული OS-ით. ყოველი VM რამდენიმე GB-ია და ჩართვას წუთები სჭირდება.
+
+**კონტეინერი** მთელ OS-ს არ შეიცავს: ყველა კონტეინერი ერთ საერთო Linux-ის **ბირთვს** იყენებს, თითოეულს კი მხოლოდ საკუთარი ფაილები, ბიბლიოთეკები და აპი აქვს. ამიტომ კონტეინერი MB-ებია და **წამებში** ირთვება.
+
+| | VM | კონტეინერი |
+|---|---|---|
+| შეიცავს | მთელ OS-ს | აპს და მის ფაილებს |
+| ზომა | GB-ები | MB-ები |
+| ჩართვა | წუთები | წამები |
+| იზოლაცია | ძალიან ძლიერი | ძლიერი, საკმარისი აპებისთვის |
+
+ისინი ერთმანეთს არ ცვლის: ჩვენ Droplet-ზე (VM) **კონტეინერებს** გავუშვებთ.
+
+```note
+Windows-ზე Docker Desktop კონტეინერებს WSL 2-ის Linux-ში უშვებს — სწორედ ამიტომ გჭირდებოდათ virtualization BIOS-ში.
+```
+  </aside>
+</section>
+
+<section class="slide" data-section="1 · კონტეინერი">
+  <div class="kicker">ვაკეთებთ ერთად · ნაბიჯი 1</div>
+  <h2>PostgreSQL — <span class="c-mvc">ერთი ბრძანებით</span></h2>
+  <div class="grid2" style="grid-template-columns:1.2fr 1fr">
+    <code-block lang="console" cls="in" title="WSL" style="--d:0.20s">
+$ docker run hello-world
+Hello from Docker!
+
+$ docker run -d --name lms-db \
+    -e POSTGRES_USER=lms \
+    -e POSTGRES_PASSWORD=dev \
+    -e POSTGRES_DB=lms \
+    -p 5432:5432 \
+    -v lms-data:/var/lib/postgresql/data \
+    postgres:17
+Unable to find image 'postgres:17' locally
+17: Pulling from library/postgres ...
+a3f9c1e2b7d4...
+
+$ docker ps
+CONTAINER ID  IMAGE        STATUS        PORTS                   NAMES
+a3f9c1e2b7d4  postgres:17  Up 5 seconds  0.0.0.0:5432->5432/tcp  lms-db
+    </code-block>
+    <table class="t in" style="--d:0.40s;font-size:18px">
+      <tr><th>ნაწილი</th><th>რას ნიშნავს</th></tr>
+      <tr><td class="mono">-d</td><td>ფონზე (detached)</td></tr>
+      <tr><td class="mono">--name</td><td>კონტეინერის სახელი</td></tr>
+      <tr><td class="mono">-e</td><td>გარემოს ცვლადი — user, პაროლი, ბაზა</td></tr>
+      <tr><td class="mono">-p 5432:5432</td><td><b>ჰოსტი</b>:<b>კონტეინერი</b></td></tr>
+      <tr><td class="mono">-v lms-data:…</td><td>volume — მონაცემები <b>გარეთ</b></td></tr>
+      <tr><td class="mono">postgres:17</td><td>image:tag</td></tr>
+    </table>
+  </div>
+  <aside class="study">
+### ნაბიჯი 1 · PostgreSQL — ერთი ბრძანებით
+
+ჯერ შემოწმება — Docker Desktop ჩართულია და მუშაობს:
+
+```console WSL
+$ docker run hello-world
+Hello from Docker!
+```
+
+ახლა — წინა ლექციის „PostgreSQL-ის დაყენება + user + ბაზა“, ერთი ბრძანებით:
+
+```console WSL
+$ docker run -d --name lms-db \
+    -e POSTGRES_USER=lms \
+    -e POSTGRES_PASSWORD=dev \
+    -e POSTGRES_DB=lms \
+    -p 5432:5432 \
+    -v lms-data:/var/lib/postgresql/data \
+    postgres:17
+```
+
+| ნაწილი | რას ნიშნავს |
+|---|---|
+| `-d` | detached — ფონზე, terminal-ი თავისუფალი რჩება |
+| `--name lms-db` | სახელი, რომლითაც კონტეინერს მივმართავთ |
+| `-e POSTGRES_USER=lms` … | გარემოს ცვლადები: image პირველ გაშვებაზე თვითონ ქმნის user-ს, პაროლს და ბაზას |
+| `-p 5432:5432` | `ჰოსტის-port:კონტეინერის-port` — შენი კომპიუტერის 5432 → კონტეინერის 5432 |
+| `-v lms-data:/var/lib/postgresql/data` | volume — სადაც PostgreSQL მონაცემებს ინახავს (იხ. შემდეგი სლაიდები) |
+| `postgres:17` | image Docker Hub-იდან, ვერსია 17 |
+
+პირველად Docker image-ს ჩამოტვირთავს (pull), შემდეგ ჯერზე — უკვე ლოკალურად აქვს.
+
+```console WSL
+$ docker ps
+CONTAINER ID  IMAGE        STATUS        PORTS                   NAMES
+a3f9c1e2b7d4  postgres:17  Up 5 seconds  0.0.0.0:5432->5432/tcp  lms-db
+```
+
+LMS-ის connection string ლოკალურად: `Host=localhost;Database=lms;Username=lms;Password=dev` → `dotnet ef database update` → `dotnet run`. ბაზა მზადაა — ინსტალაციის გარეშე.
+  </aside>
+</section>
+
+<section class="slide" data-section="1 · კონტეინერი">
+  <div class="kicker">ნაბიჯი 2 · მართვა</div>
+  <h2>ps · logs · exec · <span class="c-red">rm</span></h2>
+  <div class="grid2" style="grid-template-columns:1.15fr 1fr">
+    <code-block lang="console" cls="in" title="WSL" style="--d:0.20s">
+$ docker ps -a                  # ყველა, გაჩერებულებიც
+$ docker logs -f lms-db         # ლოგი ცოცხლად
+database system is ready to accept connections
+
+$ docker exec -it lms-db psql -U lms
+lms=# \dt
+ public | Courses | table | lms
+lms=# \q
+
+$ docker stop lms-db            # გაჩერება
+$ docker start lms-db           # ჩართვა
+$ docker rm -f lms-db           # წაშლა (გაჩერებულიც)
+$ docker images                 # ჩამოტვირთული image-ები
+    </code-block>
+    <div class="col">
+      <div class="card accent in right" style="--d:0.40s;--a:var(--net)"><h3>🔎 logs</h3><p>იგივე, რაც <code class="i">journalctl -u</code> — ოღონდ კონტეინერის</p></div>
+      <div class="card accent in right" style="--d:0.55s;--a:var(--asp)"><h3>🚪 exec -it</h3><p>ბრძანება <b>კონტეინერის შიგნით</b>. <code class="i">-it</code> — ინტერაქტიულად (ტერმინალით)</p></div>
+      <div class="card accent in right" style="--d:0.70s;--a:var(--red)"><h3>🗑️ rm</h3><p>კონტეინერი ქრება. <b>მონაცემები?</b> → შემდეგი სლაიდი</p></div>
+    </div>
+  </div>
+  <aside class="study">
+### ნაბიჯი 2 · კონტეინერების მართვა
+
+```console WSL
+$ docker ps                     # მუშა კონტეინერები
+$ docker ps -a                  # ყველა, გაჩერებულებიც
+$ docker logs -f lms-db         # ლოგი ცოცხლად (Ctrl+C — გამოსვლა)
+$ docker exec -it lms-db psql -U lms     # ბრძანება კონტეინერის შიგნით
+$ docker stop lms-db            # გაჩერება
+$ docker start lms-db           # ჩართვა
+$ docker rm -f lms-db           # წაშლა (-f: გაჩერებულიც და მუშაც)
+$ docker images                 # ლოკალური image-ები
+```
+
+| ბრძანება | ანალოგია უკვე ნასწავლიდან |
+|---|---|
+| `docker ps` | `ps aux` / `systemctl status` |
+| `docker logs -f` | `journalctl -u … -f` |
+| `docker exec -it <name> bash` | `ssh` — „შესვლა“ კონტეინერში |
+| `docker stop` / `start` | `systemctl stop` / `start` |
+
+`exec -it`: `-i` — შეყვანა ღიაა, `-t` — ტერმინალი. `docker exec -it lms-db bash` — Linux-ის ტერმინალი კონტეინერის შიგნით (`exit` — გამოსვლა).
+  </aside>
+</section>
+
+<section class="slide" data-section="1 · კონტეინერი">
+  <div class="kicker">volume</div>
+  <h2>კონტეინერი ქრება — <span class="c-mvc">მონაცემები რჩება</span></h2>
+  <svg viewBox="0 0 1420 260" width="1420" height="260">
+    <g class="in left" style="--d:.2s"><rect x="40" y="30" width="360" height="190" rx="20" fill="#0e2a33" stroke="#22d3ee" stroke-width="3" stroke-dasharray="10 8"/><text x="220" y="90" text-anchor="middle" font-size="42">📦</text><text x="220" y="135" text-anchor="middle" class="ta b" font-size="21">lms-db (კონტეინერი)</text><text x="220" y="170" text-anchor="middle" class="tm" font-size="17">შეიძლება წაიშალოს, შეიცვალოს</text><text x="220" y="198" text-anchor="middle" class="tm" font-size="17">ახალი ვერსიით</text></g>
+    <g class="in fade" style="--d:.5s"><path d="M400 125 H620" stroke="#22c55e" stroke-width="4" class="flow"/><text x="510" y="105" text-anchor="middle" class="tg b mono" font-size="17">-v lms-data:</text><text x="510" y="160" text-anchor="middle" class="tm mono" font-size="14">/var/lib/postgresql/data</text></g>
+    <g class="in" style="--d:.7s"><rect x="620" y="40" width="300" height="170" rx="20" fill="#123321" stroke="#22c55e" stroke-width="3"/><text x="770" y="100" text-anchor="middle" font-size="42">💾</text><text x="770" y="145" text-anchor="middle" class="tg b" font-size="21">volume lms-data</text><text x="770" y="180" text-anchor="middle" class="tm" font-size="17">Docker-ის მართვაში, დისკზე</text></g>
+    <g class="step"><text x="1170" y="90" text-anchor="middle" class="tw" font-size="20">docker rm -f lms-db</text><text x="1170" y="125" text-anchor="middle" class="tw" font-size="20">docker run … -v lms-data:…</text><text x="1170" y="175" text-anchor="middle" class="tg b" font-size="22">✅ Courses ისევ იქაა</text></g>
+  </svg>
+  <div class="callout step mt" style="--a:var(--red);font-size:22px">⚠ volume-ის გარეშე: <code class="i">docker rm</code> = <b>ბაზა წაიშალა</b>. ბაზას <b>ყოველთვის</b> volume</div>
+  <aside class="study">
+### volume — კონტეინერი ქრება, მონაცემები რჩება
+
+კონტეინერის ფაილები **დროებითია**: `docker rm` — და ყველაფერი, რაც კონტეინერის შიგნით შეიქმნა, ქრება. აპისთვის ეს კარგია (ახალი ვერსია = ახალი კონტეინერი, სუფთა). **ბაზისთვის** — კატასტროფა.
+
+**volume** — Docker-ის მიერ მართული საცავი დისკზე, რომელიც კონტეინერის შიგნით საქაღალდედ ჩანს:
+
+```plain
+-v lms-data:/var/lib/postgresql/data
+   ↑ volume     ↑ საქაღალდე კონტეინერში, სადაც PostgreSQL მონაცემებს წერს
+```
+
+ექსპერიმენტი:
+
+```console WSL
+$ docker rm -f lms-db
+$ docker run -d --name lms-db ... -v lms-data:/var/lib/postgresql/data postgres:17
+$ docker exec -it lms-db psql -U lms -c 'SELECT * FROM "Courses";'
+# ჩანაწერები ისევ იქაა ✅
+```
+
+```console WSL
+$ docker volume ls              # ყველა volume
+$ docker volume rm lms-data     # ⚠ ეს უკვე ნამდვილად შლის მონაცემებს
+```
+
+```warn
+ბაზის კონტეინერს **ყოველთვის** volume სჭირდება. volume-ის გარეშე `docker rm` (ან სერვერზე კონტეინერის განახლება) = ბაზა წაიშალა.
+```
+  </aside>
+</section>
+
+<section class="slide" data-section="☕ შესვენება">
+  <div class="center">
+    <div class="big-emoji float" style="font-size:120px">☕</div>
+    <h1 class="mt">შესვენება</h1>
+    <p class="lead mt">10 წუთი · მერე — საკუთარი image LMS-სთვის</p>
+  </div>
+</section>
+
+<!-- ================= PART 2: DOCKERFILE ================= -->
+<section class="slide divider" data-section="2 · Dockerfile">
+  <div class="vcenter">
+    <div class="kicker in">ნაწილი 2</div>
+    <h1 class="in" style="--d:.1s"><span class="grad">Dockerfile</span> LMS-სთვის</h1>
+    <p class="lead mt in" style="--d:.3s">რეცეპტი, რომლითაც image აეწყობა</p>
+  </div>
+  <div class="big-num">02</div>
+  <aside class="study">
+## ნაწილი 2 · Dockerfile LMS-სთვის
+
+`postgres:17` ვიღაცამ ააწყო. LMS-ის image ჩვენ თვითონ უნდა ავაწყოთ — **Dockerfile**-ით: ტექსტური „რეცეპტით“, რომელშიც ნაბიჯ-ნაბიჯ წერია, როგორ.
+  </aside>
+</section>
+
+<section class="slide" data-section="2 · Dockerfile">
+  <div class="kicker">ნაბიჯი 3 · Dockerfile</div>
+  <h2>ორი ეტაპი: <span class="c-asp">აწყობა</span> → <span class="c-mvc">გაშვება</span></h2>
+  <div class="grid2" style="grid-template-columns:1.25fr 1fr">
+    <code-block lang="dockerfile" cls="in" title="Dockerfile" style="--d:0.20s">
+# ── ეტაპი 1: build (SDK) ──────────────────
+FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
+WORKDIR /src
+COPY Lms.Api/Lms.Api.csproj Lms.Api/
+RUN dotnet restore Lms.Api/Lms.Api.csproj
+COPY . .
+RUN dotnet publish Lms.Api/Lms.Api.csproj \
+    -c Release -o /app/publish
+
+# ── ეტაპი 2: runtime (მხოლოდ გაშვება) ─────
+FROM mcr.microsoft.com/dotnet/aspnet:10.0
+WORKDIR /app
+COPY --from=build /app/publish .
+USER $APP_UID
+EXPOSE 8080
+ENTRYPOINT ["dotnet", "Lms.Api.dll"]
+    </code-block>
+    <div class="col">
+      <div class="method-card step" style="--a:var(--asp)"><span class="m mono" style="min-width:120px">FROM</span><span class="t">რაზე ვაშენებთ — მზა image</span></div>
+      <div class="method-card step" style="--a:var(--net)"><span class="m mono" style="min-width:120px">WORKDIR</span><span class="t">„<code class="i">cd</code>“ კონტეინერის შიგნით</span></div>
+      <div class="method-card step" style="--a:var(--net)"><span class="m mono" style="min-width:120px">COPY</span><span class="t">შენი ფაილები → image-ში</span></div>
+      <div class="method-card step" style="--a:var(--asp)"><span class="m mono" style="min-width:120px">RUN</span><span class="t">ბრძანება <b>აწყობისას</b></span></div>
+      <div class="method-card step" style="--a:var(--mvc)"><span class="m mono" style="min-width:120px">--from=build</span><span class="t">პირველი ეტაპიდან — მხოლოდ შედეგი</span></div>
+      <div class="method-card step" style="--a:var(--red)"><span class="m mono" style="min-width:120px">USER</span><span class="t">არა root (როგორც systemd-ში)</span></div>
+      <div class="method-card step" style="--a:var(--mvc)"><span class="m mono" style="min-width:120px">ENTRYPOINT</span><span class="t">რა გაეშვას <b>კონტეინერის ჩართვისას</b></span></div>
+    </div>
+  </div>
+  <aside class="study">
+### ნაბიჯი 3 · Dockerfile: ორი ეტაპი
+
+LMS-ის რეპოს root-ში (იქ, სადაც `.sln`-ია) — ფაილი `Dockerfile` (გაფართოების გარეშე):
+
+```dockerfile Dockerfile
+# ── ეტაპი 1: build (SDK) ──
+FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
+WORKDIR /src
+COPY Lms.Api/Lms.Api.csproj Lms.Api/
+RUN dotnet restore Lms.Api/Lms.Api.csproj
+COPY . .
+RUN dotnet publish Lms.Api/Lms.Api.csproj -c Release -o /app/publish
+
+# ── ეტაპი 2: runtime (მხოლოდ გაშვება) ──
+FROM mcr.microsoft.com/dotnet/aspnet:10.0
+WORKDIR /app
+COPY --from=build /app/publish .
+USER $APP_UID
+EXPOSE 8080
+ENTRYPOINT ["dotnet", "Lms.Api.dll"]
+```
+
+| ინსტრუქცია | რას აკეთებს |
+|---|---|
+| `FROM <image> AS build` | საწყისი image; `AS` — ეტაპის სახელი |
+| `WORKDIR /src` | მიმდინარე საქაღალდე image-ის შიგნით (არ არსებობს — შეიქმნება) |
+| `COPY <შენთან> <image-ში>` | ფაილების კოპირება |
+| `RUN <ბრძანება>` | ბრძანება **აწყობისას** (`restore`, `publish`) |
+| `COPY --from=build` | ფაილები **წინა ეტაპიდან** |
+| `USER $APP_UID` | .NET-ის image-ში მზა არა-root user `app` |
+| `EXPOSE 8080` | დოკუმენტაცია: აპი 8080-ს უსმენს (.NET image-ის ნაგულისხმევი port) |
+| `ENTRYPOINT` | ბრძანება, რომელიც **კონტეინერის ჩართვისას** სრულდება |
+
+**რატომ ორი ეტაპი (multi-stage)?** აწყობას **SDK** სჭირდება (დიდია), გაშვებას — მხოლოდ **runtime** (წინა ლექციის იგივე იდეა). საბოლოო image მხოლოდ მეორე ეტაპია: მასში არ არის SDK და შენი საწყისი კოდი — ის პატარაა და უსაფრთხო.
+
+```note
+`Lms.Api` — პროექტის საქაღალდე და სახელი. შენი თუ სხვაა, შეცვალე. თუ რამდენიმე პროექტია (მაგ. ცალკე class library), `COPY` ყველა `.csproj`-ისთვის დაამატე, ან უბრალოდ `COPY . .` → `restore`.
+```
+  </aside>
+</section>
+
+<section class="slide" data-section="2 · Dockerfile">
+  <div class="kicker">ნაბიჯი 4 · ფენები და .dockerignore</div>
+  <h2>რატომ <span class="c-net">.csproj</span> ცალკე?</h2>
+  <div class="grid2" style="grid-template-columns:1fr 1fr">
+    <div class="col">
+      <div class="card in left" style="--d:0.20s;padding:18px 24px"><p class="mono" style="font-size:17px;line-height:1.9">① COPY *.csproj &nbsp;&nbsp;&nbsp;<span class="c-mvc">✓ CACHED</span><br>② RUN restore &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="c-mvc">✓ CACHED</span> ← 40 წმ დაზოგილი<br>③ COPY . . &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="c-asp">↻ კოდი შეიცვალა</span><br>④ RUN publish &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="c-asp">↻</span></p></div>
+      <div class="callout step" style="--a:var(--net)">ყოველი ინსტრუქცია = <b>ფენა</b> (layer). შეუცვლელი ფენა ქეშიდან აიღება</div>
+    </div>
+    <div class="col">
+      <code-block lang="plain" cls="big in" title=".dockerignore" style="--d:0.40s">
+**/bin/
+**/obj/
+.git/
+.vs/
+.vscode/
+*.user
+      </code-block>
+      <div class="callout step" style="--a:var(--asp)">როგორც <code class="i">.gitignore</code> — ოღონდ <b>build-ისთვის</b>: ნაკლები ფაილი → სწრაფი build, სუფთა image</div>
+    </div>
+  </div>
+  <aside class="study">
+### ნაბიჯი 4 · ფენები და .dockerignore
+
+**ფენები (layers).** Dockerfile-ის ყოველი ინსტრუქცია ქმნის **ფენას** და Docker მას ქეშავს. თუ ფენის შემავალი არ შეცვლილა, Docker მას ხელახლა აღარ ასრულებს:
+
+```plain docker build — მეორედ, კოდის ცვლილების შემდეგ
+① COPY Lms.Api/Lms.Api.csproj      ✓ CACHED
+② RUN dotnet restore               ✓ CACHED   ← NuGet პაკეტები აღარ იტვირთება
+③ COPY . .                         ↻ კოდი შეიცვალა
+④ RUN dotnet publish               ↻
+```
+
+ამიტომ ჯერ **მხოლოდ** `.csproj`-ს ვაკოპირებთ და `restore`-ს ვუშვებთ: პაკეტები იშვიათად იცვლება, კოდი — ხშირად. `COPY . .` რომ პირველი ყოფილიყო, კოდის ყოველი ცვლილება `restore`-ს თავიდან გაუშვებდა.
+
+**`.dockerignore`** — როგორც `.gitignore`, ოღონდ `docker build`-ისთვის: ეს ფაილები build-ში არ გადაიგზავნება.
+
+```plain .dockerignore
+**/bin/
+**/obj/
+.git/
+.vs/
+.vscode/
+*.user
+```
+
+ლოკალური `bin/` და `obj/` image-ში არ გვინდა — `publish` თავისას შექმნის. ნაკლები ფაილი = სწრაფი build და სუფთა image.
+  </aside>
+</section>
+
+<section class="slide" data-section="2 · Dockerfile">
+  <div class="kicker">ნაბიჯი 5 · build და run</div>
+  <h2><span class="c-asp">docker build</span> → <span class="c-mvc">docker run</span></h2>
+  <div class="grid2" style="grid-template-columns:1.3fr 1fr">
+    <code-block lang="console" cls="sm in" title="WSL · LMS-ის რეპო" style="--d:0.20s">
+$ docker build -t lms-api .
+[+] Building 48.2s (14/14) FINISHED
+ => [build 3/6] COPY Lms.Api/Lms.Api.csproj Lms.Api/
+ => [build 4/6] RUN dotnet restore ...
+ => [build 6/6] RUN dotnet publish ...
+ => naming to docker.io/library/lms-api:latest
+
+$ docker images
+REPOSITORY  TAG     SIZE
+lms-api     latest  ~250MB
+postgres    17      ~440MB
+
+$ docker run -d --name lms-api -p 8080:8080 \
+    -e ASPNETCORE_ENVIRONMENT=Development \
+    -e ConnectionStrings__Default="Host=host.docker.internal;\
+Database=lms;Username=lms;Password=dev" \
+    lms-api
+    </code-block>
+    <div class="col">
+      <div class="card accent in right" style="--d:0.40s;--a:var(--asp)"><h3>🏷️ -t lms-api .</h3><p>სახელი (tag) და <b>.</b> — Dockerfile აქ არის</p></div>
+      <div class="card accent in right" style="--d:0.55s;--a:var(--net)"><h3>🔁 host.docker.internal</h3><p>კონტეინერისთვის <code class="i">localhost</code> = <b>თვითონ</b>. შენი კომპიუტერი (და lms-db-ის port) — ეს სახელია</p></div>
+      <div class="callout step" style="--a:var(--mvc)">🌐 <code class="i">http://localhost:8080/swagger</code></div>
+    </div>
+  </div>
+  <aside class="study">
+### ნაბიჯი 5 · build და run
+
+```console WSL · LMS-ის რეპო
+$ docker build -t lms-api .
+[+] Building 48.2s (14/14) FINISHED
+ => [build 4/6] RUN dotnet restore ...
+ => [build 6/6] RUN dotnet publish ...
+ => naming to docker.io/library/lms-api:latest
+```
+
+- `-t lms-api` — image-ის სახელი (tag-ის გარეშე → `latest`);
+- `.` — **build context**: საქაღალდე, სადაც Dockerfile და კოდია.
+
+```console WSL
+$ docker run -d --name lms-api -p 8080:8080 \
+    -e ASPNETCORE_ENVIRONMENT=Development \
+    -e ConnectionStrings__Default="Host=host.docker.internal;Database=lms;Username=lms;Password=dev" \
+    lms-api
+
+$ docker logs -f lms-api
+info: Now listening on: http://[::]:8080
+```
+
+ბრაუზერში `http://localhost:8080/swagger` — LMS, **კონტეინერიდან**. 🎉
+
+**`host.docker.internal`** — რატომ არა `localhost`? კონტეინერისთვის `localhost` **თვითონ კონტეინერია** — მასში PostgreSQL არ არის. `host.docker.internal` — Docker Desktop-ის სპეციალური სახელი შენი კომპიუტერისთვის, სადაც `lms-db`-ის port 5432 გახსნილია.
+
+`ASPNETCORE_ENVIRONMENT=Development` — რომ Swagger ჩანდეს. ნაგულისხმევად კონტეინერში Production-ია.
+  </aside>
+</section>
+
+<section class="slide" data-section="2 · Dockerfile">
+  <div class="kicker">რა მივიღეთ — და რა აკლია</div>
+  <h2>ორი კონტეინერი — <span class="c-red">ორი გრძელი ბრძანება</span></h2>
+  <div class="grid2" style="grid-template-columns:1fr 1fr">
+    <div class="col">
+      <div class="solve in left" style="--d:.2s;display:block">✅ runtime არსად ვაყენებთ — <b>image-შია</b></div>
+      <div class="solve in left" style="--d:.35s;display:block">✅ PostgreSQL — ერთი ბრძანება, ინსტალაციის გარეშე</div>
+      <div class="solve in left" style="--d:.5s;display:block">✅ ნინოს Mac-ზე, შენს Windows-ზე, სერვერზე — <b>ერთი და იგივე</b> image</div>
+    </div>
+    <div class="col">
+      <div class="problem step" style="display:block">😩 ორი <code class="i">docker run</code>, თითოეულში 6-7 ოფცია — <b>ზეპირად?</b></div>
+      <div class="problem step" style="display:block" data-with>🔗 <code class="i">host.docker.internal</code> — API და ბაზა ერთმანეთს „შემოვლით“ პოულობენ</div>
+      <div class="problem step" style="display:block" data-with>⏱️ API ბაზაზე ადრე ჩაირთო → crash</div>
+      <div class="callout step" style="--a:var(--mvc);font-size:22px">შემდეგ ლექციაზე: ყველაფერი <b>ერთ ფაილში</b> — <b>Docker Compose</b></div>
+    </div>
+  </div>
+  <aside class="study">
+### რა მივიღეთ — და რა აკლია
+
+**✅ მივიღეთ:**
+
+- .NET runtime აღარსად გვჭირდება — ის **image-შია**, ზუსტად სწორი ვერსიით;
+- PostgreSQL — ერთი ბრძანებით, ინსტალაციის და `psql`-ში ხელით user-ების შექმნის გარეშე;
+- ერთი და იგივე image მუშაობს ნებისმიერ კომპიუტერზე, სადაც Docker-ია — „ჩემთან მუშაობს“ = „ყველგან მუშაობს“.
+
+**😩 რა აკლია:**
+
+- ორი `docker run`, თითოეულში 6-7 ოფცია — ზეპირად, ყოველ ჯერზე;
+- API ბაზას `host.docker.internal`-ით, „შემოვლით“ პოულობს;
+- თუ API ბაზაზე ადრე ჩაირთო, ბაზა ჯერ მზად არ არის → API ვარდება.
+
+შემდეგ ლექციაზე ეს ყველაფერი ერთ ფაილში — **`compose.yaml`** — ჩაიწერება და ერთი ბრძანებით გაეშვება. ჯერ შენს კომპიუტერზე, მერე — სერვერზე.
+  </aside>
+</section>
+
+<section class="slide" data-section="შეჯამება">
+  <div class="kicker">შპარგალკა</div>
+  <h2>Docker — <span class="c-api">ბრძანებები</span></h2>
+  <div class="grid3" style="gap:22px">
+    <div class="card accent in" style="--d:0.20s;--a:var(--asp)"><h3>🏗️ image</h3><p class="mono" style="font-size:16px;line-height:1.85">docker build -t name .<br>docker images<br>docker pull postgres:17<br>docker rmi name</p></div>
+    <div class="card accent in" style="--d:0.35s;--a:var(--mvc)"><h3>📦 container</h3><p class="mono" style="font-size:16px;line-height:1.85">docker run -d --name … -p -e -v<br>docker ps · ps -a<br>docker logs -f name<br>docker exec -it name bash<br>docker stop · start · rm -f</p></div>
+    <div class="card accent in" style="--d:0.50s;--a:var(--net)"><h3>💾 volume</h3><p class="mono" style="font-size:16px;line-height:1.85">-v data:/path<br>docker volume ls<br>docker volume rm ⚠</p></div>
+  </div>
+  <aside class="study">
+### შპარგალკა: Docker
+
+**🏗️ image**
+
+| ბრძანება | რას აკეთებს |
+|---|---|
+| `docker build -t lms-api .` | image Dockerfile-იდან |
+| `docker images` | ლოკალური image-ები და ზომები |
+| `docker pull postgres:17` | image-ის ჩამოტვირთვა |
+| `docker rmi lms-api` | image-ის წაშლა |
+
+**📦 container**
+
+| ბრძანება | რას აკეთებს |
+|---|---|
+| `docker run -d --name X -p H:C -e K=V -v vol:/path image` | გაშვება |
+| `docker ps` / `ps -a` | მუშა / ყველა |
+| `docker logs -f X` | ლოგი |
+| `docker exec -it X bash` | ტერმინალი შიგნით |
+| `docker stop` / `start` / `rm -f X` | მართვა |
+
+**💾 volume:** `-v name:/path` — მონაცემები კონტეინერის გარეთ; `docker volume ls`; `docker volume rm` — ⚠ შლის მონაცემებს.
+
+**Dockerfile:** `FROM` · `WORKDIR` · `COPY` · `RUN` · `COPY --from` · `USER` · `EXPOSE` · `ENTRYPOINT`; `.dockerignore`.
+  </aside>
+</section>
+
+<lecture-classwork/>
+<lecture-check/>
+
+<section class="slide" data-section="შეჯამება">
+  <div class="kicker">შეჯამება</div>
+  <h2>დღეს ვისწავლეთ</h2>
+  <div class="col" style="gap:28px;margin-top:30px">
+    <div class="row in left" style="--d:0.20s;gap:20px;align-items:center"><span class="big-emoji" style="font-size:42px">📦</span><span style="font-size:28px"><b>image = კლასი, container = ობიექტი</b>; registry — Docker Hub, mcr</span></div>
+    <div class="row in left" style="--d:0.35s;gap:20px;align-items:center"><span class="big-emoji" style="font-size:42px">🐘</span><span style="font-size:28px"><b>docker run</b> — PostgreSQL ერთი ბრძანებით: -p, -e, -v</span></div>
+    <div class="row in left" style="--d:0.50s;gap:20px;align-items:center"><span class="big-emoji" style="font-size:42px">💾</span><span style="font-size:28px"><b>volume</b> — კონტეინერი ქრება, ბაზა რჩება</span></div>
+    <div class="row in left" style="--d:0.65s;gap:20px;align-items:center"><span class="big-emoji" style="font-size:42px">🏗️</span><span style="font-size:28px"><b>Dockerfile</b> — multi-stage: sdk → aspnet; ფენები და ქეში</span></div>
+  </div>
+  <p class="lead in mt" style="--d:0.85s;text-align:center">შემდეგ ლექციაზე: <b>Docker Compose</b> — LMS + ბაზა ერთი ბრძანებით, შენთან და სერვერზე 🚀</p>
+  <aside class="study">
+## შეჯამება · დღეს ვისწავლეთ
+
+- 📦 **კონტეინერი** — აპი მთელ გარემოსთან ერთად; ყველგან ერთნაირად ეშვება. **image** — შაბლონი (კლასი), **container** — გაშვებული ეგზემპლარი (ობიექტი), **registry** — image-ების საცავი.
+- 🖥️ **კონტეინერი ≠ VM** — საერთო ბირთვი, MB-ები, წამები.
+- 🐘 **`docker run`** — `-d`, `--name`, `-p ჰოსტი:კონტეინერი`, `-e`, `-v`; მართვა — `ps`, `logs`, `exec`, `stop`, `rm`.
+- 💾 **volume** — მონაცემები კონტეინერის გარეთ; ბაზას ყოველთვის.
+- 🏗️ **Dockerfile** — multi-stage (`sdk` აწყობს, `aspnet` უშვებს), `.csproj` ცალკე ქეშისთვის, `.dockerignore`, `USER $APP_UID`.
+- 🔗 **`host.docker.internal`** — კონტეინერიდან შენი კომპიუტერი; ეს „შემოვლითი გზაა“ — Compose მას გამოასწორებს.
+
+```prompt გამოცდა მეცხრე ლექციაზე
+ვსწავლობ DevOps-ს. მეცხრე ლექციაზე გავიარეთ Docker: image vs container (კლასი და ობიექტი), registry, კონტეინერი vs VM, docker run (-d, --name, -p, -e, -v), ps/logs/exec/stop/rm, volume, multi-stage Dockerfile .NET 10 API-სთვის (sdk → aspnet, FROM, WORKDIR, COPY, RUN, COPY --from, USER, EXPOSE, ENTRYPOINT), ფენები და ქეში, .dockerignore, docker build, host.docker.internal.
+დამისვი 8 კითხვა სათითაოდ, მარტივიდან რთულისკენ — ნაწილი სიტუაციური იყოს („ბაზის კონტეინერი წავშალე, რა დაემართა მონაცემებს?“). ყოველ პასუხზე შემიფასე და ამიხსენი. ბოლოს მითხარი, რა გავიმეორო. ქართულად.
+```
+
+```prompt ჩემი Dockerfile-ის განხილვა
+ვსწავლობ Docker-ს. ეს არის ჩემი Dockerfile ASP.NET Core (.NET 10) API-სთვის. ამიხსენი ქართულად, რას აკეთებს თითოეული ხაზი, და მითხარი, რა შეიძლება გაუმჯობესდეს (ზომა, ქეში, უსაფრთხოება) — მარტივად, ახალბედასთვის. Dockerfile: [აქ ჩასვი]
+```
+  </aside>
+</section>
+<lecture-homework/>
