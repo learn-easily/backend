@@ -28,6 +28,8 @@ h1{font-size:34px;line-height:1.1;margin:0;font-weight:800;letter-spacing:-.01em
 .tab.on{background:var(--c,var(--accent));color:#fff}
 .tab .n{font:600 12px var(--mono);padding:1px 7px;border-radius:999px;background:color-mix(in srgb,currentColor 14%,transparent)}
 .tab.none{opacity:.55}
+.tab.ext{margin-left:auto;color:var(--c);border:1.5px solid var(--c)}
+.tab.ext:hover{background:var(--c);color:#fff}
 .course{margin:0 0 46px}
 .course>h2{display:flex;align-items:center;gap:12px;font-size:28px;margin:0 0 18px;font-weight:800}
 .course>h2::before{content:"";width:6px;height:28px;border-radius:3px;background:var(--c)}
@@ -98,10 +100,16 @@ document.getElementById('courses').innerHTML = courses.map(c => `
     ${c.count ? `<div class="grid">${c.lectures.map(card(c)).join('')}</div>` : `<div class="soon">ლექციები მალე დაემატება</div>`}
   </section>`).join('');
 
+// external courses — separate sites, open in a new tab
+const EXTERNAL = [
+  { title: '🤖 AI Engineering', href: 'https://ai-learnify.github.io/lectures/', color: '#7c3aed' }
+];
+
 // category tabs — the choice lives in the URL (#devops), so a category can be linked directly
 const tabs = document.getElementById('tabs');
 tabs.innerHTML = [{ slug: '', title: 'ყველა', count: total, color: '' }, ...courses].map(k =>
-  `<button class="tab${k.count ? '' : ' none'}" data-cat="${k.slug}" style="${k.color ? `--c:${k.color}` : ''}">${esc(k.title)}<span class="n">${k.count}</span></button>`).join('');
+  `<button class="tab${k.count ? '' : ' none'}" data-cat="${k.slug}" style="${k.color ? `--c:${k.color}` : ''}">${esc(k.title)}<span class="n">${k.count}</span></button>`).join('')
+  + EXTERNAL.map(x => `<a class="tab ext" href="${esc(x.href)}" target="_blank" rel="noopener" style="--c:${x.color}">${esc(x.title)}<span class="n">↗</span></a>`).join('');
 let cur = '';
 function showCat(slug) {
   cur = courses.some(k => k.slug === slug) ? slug : '';
@@ -109,7 +117,7 @@ function showCat(slug) {
   applyFilter();
 }
 tabs.addEventListener('click', e => {
-  const t = e.target.closest('.tab'); if (!t) return;
+  const t = e.target.closest('.tab'); if (!t || t.classList.contains('ext')) return;
   history.replaceState(null, '', t.dataset.cat ? '#' + t.dataset.cat : location.pathname);
   showCat(t.dataset.cat);
 });

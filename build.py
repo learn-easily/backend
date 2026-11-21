@@ -9,7 +9,8 @@
 #   classwork.md    კლასში დავალება            homework.md    საშინაო (+ "## ამოხსნა" — ჩანს მხოლოდ შემდეგ ლექციაზე)
 #   materials/      ფაილები ჩამოსატვირთად
 #
-# ყველა HTML გვერდი იშიფრება კოდით (.access-code ან LECTURES_CODE) — engine/gate.html კოდს ერთხელ ითხოვს.
+# HTML გვერდები იშიფრება კოდით (.access-code ან LECTURES_CODE) — engine/gate.html კოდს ერთხელ ითხოვს.
+# გამონაკლისი: study.html (კონსპექტი) და materials/ — ღიაა, სტუდენტები კოდის გარეშე ხსნიან.
 #
 # deck.html-ში ლექციის ნაწილები ცხადად იწერება (build მათ სლაიდებად აქცევს):
 #   <lecture-review/>            გამეორება — წინა ლექციის review კითხვები
@@ -57,7 +58,10 @@ def access_key():
         _key = (salt, kdf.derive(code.encode()))
     return _key
 
-def write_page(path, page):
+def write_page(path, page, encrypt=True):
+    if not encrypt:                       # კონსპექტი სტუდენტებისთვის ღიაა — კოდის გარეშე
+        path.write_text(page)
+        return
     salt, key = access_key()
     iv = os.urandom(12)
     b = lambda x: base64.b64encode(x).decode()
@@ -424,7 +428,7 @@ def write_study(out, course, meta, num, deck_title, study, materials):
                  '{{DECK_TITLE_JSON}}': json.dumps(deck_title, ensure_ascii=False), '{{TOC}}': ''.join(toc),
                  '{{BODY}}': '\n'.join(body), '{{MATERIALS}}': mats, '{{TOKEN_CSS}}': TOKEN_CSS, '{{FONTS}}': FONTS}.items():
         page = page.replace(k, v)
-    write_page(out / 'study.html', page)
+    write_page(out / 'study.html', page, encrypt=False)
 
 # ---------- everything ----------
 def main(filters):
