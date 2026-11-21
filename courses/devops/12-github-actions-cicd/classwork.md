@@ -4,7 +4,7 @@
 
 ## ნაბიჯები
 
-- LMS-ში `.github/workflows/ci.yml`: `on: pull_request` → checkout → setup-dotnet `10.0.x` → `restore` → `build`
+- პროექტში `.github/workflows/ci.yml`: `on: pull_request` → checkout → setup-dotnet `10.0.x` → `restore` → `build`
 - GitHub → **Settings → Rules → Rulesets** (`main`): Require a pull request · Require status checks → `build`
 - branch `feature/ci-test` → კოდში განზრახ შეცდომა → PR → ❌ → გაასწორეთ → push → ✅ → merge
 

@@ -1,13 +1,13 @@
 # API — სერვისად და Nginx-ის უკან
 
-LMS API მუშაობს 24/7 და ინტერნეტიდანაც ჩანს
+შენი API მუშაობს 24/7 და ინტერნეტიდანაც ჩანს
 
 ## მოთხოვნები
 
 - `lms-api.service` (`Restart=always`, URL, connection string) → `daemon-reload` → `enable --now`
 - Nginx: `listen 8081` + `proxy_pass http://127.0.0.1:5000` → `ufw allow 8081/tcp`
 - crash-ის ტესტი: `kill -9 <PID>` → 5 წამში ისევ `running`
-- README-ში — ყველა ნაბიჯი, რაც LMS-ის გასაშვებად გადადგით
+- README-ში — ყველა ნაბიჯი, რაც პროექტის გასაშვებად გადადგით
 
 ## ✓ მზადაა, როცა
 

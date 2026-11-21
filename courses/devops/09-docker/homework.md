@@ -1,10 +1,10 @@
-# LMS კონტეინერში
+# შენი API კონტეინერში
 
 Dockerfile — შემდეგ ლექციაზე მას სერვერზე გავუშვებთ
 
 ## მოთხოვნები
 
-- LMS-ის root-ში: multi-stage `Dockerfile` (`sdk:10.0` → `aspnet:10.0`) და `.dockerignore`
+- პროექტის root-ში: multi-stage `Dockerfile` (`sdk:10.0` → `aspnet:10.0`) და `.dockerignore`
 - `docker build -t lms-api .` → გაშვება `-p 8080:8080`, `host.docker.internal`-ით `lms-db`-ზე, `Development`-ით
 - `Dockerfile` და `.dockerignore` → GitHub
 

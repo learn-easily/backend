@@ -6,12 +6,12 @@
 
 - `docker --version` → `docker run hello-world`
 - PostgreSQL კონტეინერი `lms-db`: user/პაროლი/ბაზა `lms`, port `5432`, volume `lms-data`
-- LMS-ის `appsettings.Development.json` → `Host=localhost;...` → `dotnet ef database update` → `dotnet run` → Swagger-ით დაამატეთ კურსი
+- თქვენი პროექტის `appsettings.Development.json` → `Host=localhost;...` → `dotnet ef database update` → `dotnet run` → Swagger-ით დაამატეთ ჩანაწერი
 - `docker exec -it lms-db psql -U lms` → `SELECT * FROM "Courses";`
 
 ## ✓ მზადაა, როცა
 
-`docker ps` აჩვენებს `lms-db`-ს, LMS ლოკალურად მუშაობს ამ ბაზასთან, ჩანაწერი ჩანს `psql`-ში
+`docker ps` აჩვენებს `lms-db`-ს, პროექტი ლოკალურად მუშაობს ამ ბაზასთან, ჩანაწერი ჩანს `psql`-ში
 
 ## ⭐ ბონუსი
 

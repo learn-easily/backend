@@ -15,7 +15,7 @@ port-ები 8080/8081 აღარ გვჭირდება
 
 ## ⭐ ბონუსი
 
-- LMS-ში დროებით endpoint, რომელიც აბრუნებს `Request.Scheme`-ს → `https://api.<domain>/...` → `https` უნდა დაწეროს (forwarded headers მუშაობს) → მერე წაშალეთ
+- პროექტში დროებით endpoint, რომელიც აბრუნებს `Request.Scheme`-ს → `https://api.<domain>/...` → `https` უნდა დაწეროს (forwarded headers მუშაობს) → მერე წაშალეთ
 
 ## ამოხსნა
 
