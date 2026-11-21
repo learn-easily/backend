@@ -220,15 +220,61 @@ DigitalOcean-ის panel-ში: **Create → Droplets**.
 </section>
 
 <section class="slide" data-section="2 · Droplet">
-  <div class="kicker">ნაბიჯი 3</div>
+  <div class="kicker">ვაკეთებთ ერთად · ნაბიჯი 3</div>
+  <h2><span class="c-net">Termius</span> — სერვერთან კავშირი</h2>
+  <div class="grid2" style="grid-template-columns:1fr 1fr">
+    <div class="col">
+      <div class="card in left" style="--d:0.20s"><h3>1️⃣ Keychain → Key → Import</h3><p>WSL-ში შექმნილი <b>პირადი</b> გასაღები: <code class="i">cat ~/.ssh/id_ed25519</code> → ჩასვი <b>Private key</b> ველში</p></div>
+      <div class="card in left" style="--d:0.35s"><h3>2️⃣ Hosts → New Host</h3><p>Label: <code class="i">lms-server</code> · Address: <code class="i">164.90.12.34</code> · Username: <code class="i">root</code> · Key: ეს გასაღები</p></div>
+      <div class="card in left" style="--d:0.50s"><h3>3️⃣ Connect</h3><p>„Unknown host fingerprint“ → <b>Continue</b>: სერვერს პირველად ვხედავთ</p></div>
+    </div>
+    <div class="col">
+      <div class="card accent in right" style="--d:0.65s;--a:var(--net)"><h3>🖥️ რა არის Termius</h3><p>SSH კლიენტი: სერვერების სია, გასაღებები, tab-ები, SFTP. შიგნით — ზუსტად იგივე <code class="i">ssh root@164.90.12.34</code></p></div>
+      <div class="callout step" style="--a:var(--mvc);font-size:22px">ამიერიდან <b>სერვერზე</b> ყველაფერს <b>Termius-ში</b> ვაკეთებთ. შენს კომპიუტერზე (git, docker, rsync) — ისევ <b>WSL</b>-ში</div>
+    </div>
+  </div>
+  <aside class="study">
+### ნაბიჯი 3 · Termius — სერვერთან კავშირი
+
+**Termius** — SSH კლიენტი: სერვერების სია, შენახული გასაღებები, რამდენიმე tab ერთად და ჩაშენებული SFTP (ფაილების დათვალიერება). შიგნით ის ზუსტად იმას აკეთებს, რასაც ტერმინალში `ssh root@164.90.12.34` — უბრალოდ IP-ს და პარამეტრებს ყოველ ჯერზე აღარ კრეფ.
+
+**1. გასაღების შემოტანა.** გასაღები უკვე შევქმენით WSL-ში (ნაბიჯი 1). Termius-ს იგივე გასაღებს ვაძლევთ — ახალს არ ვქმნით, რომ WSL-იდანაც და Termius-იდანაც ერთი გასაღებით შევიდეთ:
+
+```console WSL
+$ cat ~/.ssh/id_ed25519
+-----BEGIN OPENSSH PRIVATE KEY-----
+...
+-----END OPENSSH PRIVATE KEY-----
+```
+
+Termius → **Keychain** → **Key** → **Import** (ან New Key) → მთელი ტექსტი, `-----BEGIN`-იდან `-----END`-ის ჩათვლით, ჩასვი **Private key** ველში.
+
+**2. Host.** **Hosts → New Host**:
+
+| ველი | მნიშვნელობა |
+|---|---|
+| Label | `lms-server` |
+| Address | Droplet-ის IP |
+| Username | `root` (ცალკე user-ს მოგვიანებით შევქმნით) |
+| Key | ის, რაც ახლა შემოვიტანეთ |
+
+**3. Connect.** პირველად Termius იტყვის, რომ სერვერის „თითის ანაბეჭდი“ (fingerprint) უცნობია: ამ სერვერს პირველად ვხედავთ — **Continue**. Termius მას იმახსოვრებს და თუ შემდეგში შეიცვლება, გაგაფრთხილებს (შეიძლება ვინმე შუაში ჩაჯდა).
+
+```warn
+გასაღების ტექსტი მხოლოდ Termius-ის ველში ჩასვი — **არა** ჩატში, არა სხვაგან. ის პაროლზე მნიშვნელოვანია.
+```
+
+```note
+გასაღებს Termius-ში **არ** ვქმნით: მაშინ ის მხოლოდ Termius-ში იცხოვრებდა, WSL-ის ბრძანებები კი (`rsync`, `scp`, `ssh-copy-id`, `deploy.sh`) — მომდევნო ლექციებზე — ვერ შევიდოდნენ.
+```
+  </aside>
+</section>
+
+<section class="slide" data-section="2 · Droplet">
+  <div class="kicker">ნაბიჯი 4</div>
   <h2>პირველი <span class="c-mvc">შესვლა</span></h2>
   <div class="grid2" style="grid-template-columns:1.2fr 1fr">
-    <code-block lang="console" cls="in" title="WSL → სერვერი" style="--d:0.20s">
-$ ssh root@164.90.12.34
-The authenticity of host '164.90.12.34' can't be
-established. ED25519 key fingerprint is SHA256:p3Xa...
-Are you sure you want to continue connecting? yes
-
+    <code-block lang="console" cls="in" title="Termius · root@lms-server" style="--d:0.20s">
 Welcome to Ubuntu 24.04.3 LTS
 root@lms-server:~# hostname
 lms-server
@@ -238,38 +284,32 @@ Filesystem  Size  Used Avail Use% Mounted on
 root@lms-server:~# free -h
        total   used   free
 Mem:   961Mi  310Mi  420Mi
-root@lms-server:~# exit
+root@lms-server:~# uptime
+ 12:04:11 up 6 min,  1 user,  load average: 0.02
     </code-block>
     <div class="col">
-      <div class="card accent in right" style="--d:0.40s;--a:var(--net)"><h3>❓ fingerprint</h3><p>„ამ სერვერს პირველად ვხედავ — ვენდო?“ → <code class="i">yes</code>. იმახსოვრებს <code class="i">~/.ssh/known_hosts</code>-ში</p></div>
-      <div class="card accent in right" style="--d:0.55s;--a:var(--asp)"><h3>👀 მიმოიხედე</h3><p><code class="i">df -h</code> დისკი · <code class="i">free -h</code> RAM · <code class="i">uptime</code></p></div>
+      <div class="card accent in right" style="--d:0.40s;--a:var(--asp)"><h3>👀 მიმოიხედე</h3><p><code class="i">df -h</code> დისკი · <code class="i">free -h</code> RAM · <code class="i">uptime</code></p></div>
+      <div class="card accent in right" style="--d:0.55s;--a:var(--net)"><h3>🐧 იგივე Linux</h3><p>ყველა ბრძანება მე-5 ლექციიდან აქაც მუშაობს — ოღონდ ახლა <b>ფრანკფურტში</b></p></div>
       <div class="callout step" style="--a:var(--red)"><code class="i">#</code> = <b>root</b>. ასე დიდხანს არ ვიმუშავებთ</div>
     </div>
   </div>
   <aside class="study">
-### ნაბიჯი 3 · პირველი შესვლა
+### ნაბიჯი 4 · პირველი შესვლა
 
-```console WSL → სერვერი
-$ ssh root@164.90.12.34
-The authenticity of host '164.90.12.34' can't be established.
-ED25519 key fingerprint is SHA256:p3Xa...
-Are you sure you want to continue connecting (yes/no)? yes
+Termius-ში `lms-server` → Connect:
 
+```console Termius · root@lms-server
 Welcome to Ubuntu 24.04.3 LTS
-root@lms-server:~#
+root@lms-server:~# hostname          # სერვერის სახელი
+lms-server
+root@lms-server:~# df -h /           # დისკი: რამდენია თავისუფალი
+/dev/vda1    24G  2.1G   22G   9% /
+root@lms-server:~# free -h           # RAM
+Mem:   961Mi  310Mi  420Mi
+root@lms-server:~# uptime            # რამდენი ხანია ჩართულია, დატვირთვა
 ```
 
-**fingerprint-ის კითხვა** — SSH გეკითხება: „ამ სერვერს პირველად ვხედავ, ვენდო?“. `yes` — და ის სერვერის „თითის ანაბეჭდს“ `~/.ssh/known_hosts`-ში იმახსოვრებს. თუ შემდეგში ანაბეჭდი შეიცვლება, SSH გაგაფრთხილებს (შეიძლება ვინმე შუაში ჩაჯდა).
-
-**მიმოიხედე:**
-
-```console სერვერი
-# hostname          # სერვერის სახელი
-# df -h /           # დისკი: რამდენია თავისუფალი
-# free -h           # RAM
-# uptime            # რამდენი ხანია ჩართულია, დატვირთვა
-# exit              # გამოსვლა — ისევ შენს WSL-ში ხარ
-```
+ეს ის Ubuntu 24.04-ია, რომელიც WSL-ში ვისწავლეთ — ყველა ბრძანება მე-5 ლექციიდან აქაც მუშაობს, ოღონდ კომპიუტერი ფრანკფურტშია.
 
 prompt-ში `#` ნიშნავს, რომ **root** ხარ. root-ით მუშაობა სახიფათოა — ამიტომ პირველივე საქმე ცალკე user-ის შექმნაა.
   </aside>
@@ -299,10 +339,10 @@ prompt-ში `#` ნიშნავს, რომ **root** ხარ. root-ი�
 </section>
 
 <section class="slide" data-section="3 · დაცვა">
-  <div class="kicker">ნაბიჯი 4 · ცალკე user</div>
+  <div class="kicker">ნაბიჯი 5 · ცალკე user</div>
   <h2>root-ის ნაცვლად — <span class="c-mvc">giorgi + sudo</span></h2>
   <div class="grid2" style="grid-template-columns:1.25fr 1fr">
-    <code-block lang="console" cls="in" title="root@lms-server" style="--d:0.20s">
+    <code-block lang="console" cls="in" title="Termius · root@lms-server" style="--d:0.20s">
 # adduser giorgi
 New password: ********
 Full Name []:                    ← Enter-ებით
@@ -314,8 +354,7 @@ Is the information correct? [Y/n] y
         ~/.ssh /home/giorgi        ← გასაღები მასაც
     </code-block>
     <div class="col">
-      <code-block lang="console" cls="in" title="ახალი WSL ფანჯარა" style="--d:0.40s">
-$ ssh giorgi@164.90.12.34
+      <code-block lang="console" cls="in" title="Termius · New Host: Username giorgi" style="--d:0.40s">
 giorgi@lms-server:~$ sudo whoami
 [sudo] password for giorgi:
 root
@@ -324,11 +363,11 @@ root
     </div>
   </div>
   <aside class="study">
-### ნაბიჯი 4 · ცალკე user
+### ნაბიჯი 5 · ცალკე user
 
 root-ის ნაცვლად ვქმნით ჩვეულებრივ user-ს, რომელსაც საჭიროებისას `sudo` შეუძლია:
 
-```console root@lms-server
+```console Termius · root@lms-server
 # adduser giorgi                   # ახალი user — ითხოვს პაროლს, დანარჩენზე Enter
 # usermod -aG sudo giorgi          # -aG: დაამატე ჯგუფში sudo
 # rsync --archive --chown=giorgi:giorgi ~/.ssh /home/giorgi
@@ -336,10 +375,9 @@ root-ის ნაცვლად ვქმნით ჩვეულებრი
 
 ბოლო ბრძანება root-ის `~/.ssh` საქაღალდეს (შენი საჯარო გასაღებით) ახალ user-ს უკოპირებს და მფლობელად მას ნიშნავს — ასე `giorgi`-თიც გასაღებით შეხვალ.
 
-**ახალ** WSL ფანჯარაში შეამოწმე:
+Termius-ში შექმენი **მეორე Host** — იგივე IP და გასაღები, ოღონდ Username: `giorgi` (Label: `lms-server`). ძველი, root-ის Host შეგიძლია წაშალო, როცა ყველაფერი შემოწმდება. ახალი Host → Connect:
 
-```console WSL
-$ ssh giorgi@164.90.12.34
+```console Termius · giorgi@lms-server
 giorgi@lms-server:~$ sudo whoami
 [sudo] password for giorgi:
 root
@@ -350,18 +388,18 @@ root
 </section>
 
 <section class="slide" data-section="3 · დაცვა">
-  <div class="kicker">ნაბიჯი 5 · SSH-ის კონფიგი</div>
+  <div class="kicker">ნაბიჯი 6 · SSH-ის კონფიგი</div>
   <h2>root-ით და პაროლით — <span class="c-red">აკრძალულია</span></h2>
   <div class="grid2" style="grid-template-columns:1.2fr 1fr">
     <div class="col">
-      <code-block lang="console" cls="in" title="giorgi@lms-server" style="--d:0.20s">
+      <code-block lang="console" cls="in" title="Termius · giorgi@lms-server" style="--d:0.20s">
 $ sudo nano /etc/ssh/sshd_config.d/00-hardening.conf
       </code-block>
       <code-block lang="ini" cls="big in" title="00-hardening.conf" style="--d:0.35s">
 PermitRootLogin no
 PasswordAuthentication no
       </code-block>
-      <code-block lang="console" cls="in" title="giorgi@lms-server" style="--d:0.50s">
+      <code-block lang="console" cls="in" title="Termius · giorgi@lms-server" style="--d:0.50s">
 $ sudo sshd -t                    # სინტაქსი OK?
 $ sudo systemctl restart ssh
 $ sudo sshd -T | grep -E "permitroot|passwordauth"
@@ -370,17 +408,17 @@ passwordauthentication no
       </code-block>
     </div>
     <div class="col">
-      <div class="callout step" style="--a:var(--red);font-size:22px">⚠ <b>ეს ფანჯარა არ დახურო!</b> ჯერ <b>ახალ</b> ფანჯარაში შეამოწმე, რომ <code class="i">ssh giorgi@…</code> მუშაობს</div>
-      <div class="card accent step" style="--a:var(--net)"><h3>🧪 შემოწმება</h3><p class="mono" style="font-size:17px">$ ssh root@164.90.12.34<br>Permission denied (publickey).</p><p class="tiny mt">ასეც უნდა იყოს ✓</p></div>
+      <div class="callout step" style="--a:var(--red);font-size:22px">⚠ <b>ეს tab არ დახურო!</b> ჯერ Termius-ის <b>ახალ</b> tab-ში შეამოწმე, რომ <code class="i">giorgi</code>-ით შესვლა მუშაობს</div>
+      <div class="card accent step" style="--a:var(--net)"><h3>🧪 შემოწმება</h3><p class="mono" style="font-size:17px">Termius → root-ის Host → Connect<br>Permission denied (publickey).</p><p class="tiny mt">ასეც უნდა იყოს ✓</p></div>
       <div class="card step" style="padding:16px 22px"><p class="tiny"><b>რატომ 00-?</b> SSH ერთ პარამეტრზე <b>პირველ</b> მნიშვნელობას იღებს, ფაილებს კი ანბანით კითხულობს</p></div>
     </div>
   </div>
   <aside class="study">
-### ნაბიჯი 5 · SSH-ის კონფიგი: root-ით და პაროლით — აკრძალულია
+### ნაბიჯი 6 · SSH-ის კონფიგი: root-ით და პაროლით — აკრძალულია
 
 SSH სერვერის (`sshd`) პარამეტრები `/etc/ssh/`-შია. მთავარ ფაილს არ ვეხებით — ვქმნით საკუთარს `sshd_config.d` საქაღალდეში:
 
-```console giorgi@lms-server
+```console Termius · giorgi@lms-server
 $ sudo nano /etc/ssh/sshd_config.d/00-hardening.conf
 ```
 
@@ -392,7 +430,7 @@ PasswordAuthentication no
 - `PermitRootLogin no` — root-ით შესვლა აკრძალულია (მის სახელს ყველა ბოტი იცის).
 - `PasswordAuthentication no` — პაროლით შესვლა აკრძალულია, მხოლოდ გასაღებით.
 
-```console giorgi@lms-server
+```console Termius · giorgi@lms-server
 $ sudo sshd -t                  # სინტაქსის შემოწმება: ცარიელი პასუხი = OK
 $ sudo systemctl restart ssh    # ცვლილების ამოქმედება
 $ sudo sshd -T | grep -E "permitrootlogin|passwordauthentication"
@@ -405,16 +443,16 @@ passwordauthentication no
 **რატომ `00-`?** SSH ერთ პარამეტრზე **პირველ** ნანახ მნიშვნელობას იღებს, `sshd_config.d`-ის ფაილებს კი ანბანის მიხედვით კითხულობს. DigitalOcean-ს იქ შეიძლება უკვე ედოს `50-cloud-init.conf` — `00` მასზე ადრე იკითხება.
 
 ```warn
-**მიმდინარე SSH ფანჯარა არ დახურო**, სანამ **ახალ** ფანჯარაში არ შეამოწმებ, რომ `ssh giorgi@<IP>` მუშაობს. თუ რამე შეგეშალა, ძველი სესიით გაასწორებ. თუ მაინც ჩაიკეტე — Droplet-ის **Console** ბრაუზერში.
+**მიმდინარე Termius-ის tab არ დახურო**, სანამ **ახალ** tab-ში არ შეამოწმებ, რომ `giorgi`-ს Host-ით შესვლა მუშაობს. თუ რამე შეგეშალა, ძველი სესიით გაასწორებ. თუ მაინც ჩაიკეტე — Droplet-ის **Console** ბრაუზერში.
 ```
   </aside>
 </section>
 
 <section class="slide" data-section="3 · დაცვა">
-  <div class="kicker">ნაბიჯი 6 · firewall</div>
+  <div class="kicker">ნაბიჯი 7 · firewall</div>
   <h2><span class="c-api">ufw</span> — ყველა კარი დახურულია, გარდა…</h2>
   <div class="grid2" style="grid-template-columns:1.1fr 1fr">
-    <code-block lang="console" cls="in" title="giorgi@lms-server" style="--d:0.20s">
+    <code-block lang="console" cls="in" title="Termius · giorgi@lms-server" style="--d:0.20s">
 $ sudo ufw allow OpenSSH        # ჯერ ეს!
 Rules updated
 
@@ -440,11 +478,11 @@ OpenSSH     ALLOW    Anywhere
     </div>
   </div>
   <aside class="study">
-### ნაბიჯი 6 · firewall: ufw
+### ნაბიჯი 7 · firewall: ufw
 
 **firewall** — „დაცვა კარებთან“: წყვეტს, რომელ port-ზე შეიძლება ინტერნეტიდან შემოსვლა. Ubuntu-ში მისი მარტივი ინტერფეისია **ufw** (uncomplicated firewall). ჩართვის შემდეგ **ყველა** შემოსული კავშირი იბლოკება, გარდა იმისა, რაც ცალკე დაუშვი.
 
-```console giorgi@lms-server
+```console Termius · giorgi@lms-server
 $ sudo ufw allow OpenSSH        # port 22 — ჯერ ეს!
 $ sudo ufw enable
 Command may disrupt existing ssh connections. Proceed with operation (y|n)? y
@@ -465,10 +503,10 @@ OpenSSH     ALLOW    Anywhere
 </section>
 
 <section class="slide" data-section="3 · დაცვა">
-  <div class="kicker">ნაბიჯი 7 · განახლება და swap</div>
+  <div class="kicker">ნაბიჯი 8 · განახლება და swap</div>
   <h2>1 GB RAM — <span class="c-asp">და სათადარიგო 2 GB</span></h2>
   <div class="grid2" style="grid-template-columns:1.15fr 1fr">
-    <code-block lang="console" cls="in" title="giorgi@lms-server" style="--d:0.20s">
+    <code-block lang="console" cls="in" title="Termius · giorgi@lms-server" style="--d:0.20s">
 $ sudo apt update && sudo apt upgrade -y
 
 $ sudo fallocate -l 2G /swapfile
@@ -490,11 +528,11 @@ Swap:  2.0Gi     0B  2.0Gi
     </div>
   </div>
   <aside class="study">
-### ნაბიჯი 7 · განახლება და swap
+### ნაბიჯი 8 · განახლება და swap
 
 **განახლებები** — ახალ სერვერზე პირველივე დღეს ვაყენებთ (უსაფრთხოების პატჩები):
 
-```console giorgi@lms-server
+```console Termius · giorgi@lms-server
 $ sudo apt update && sudo apt upgrade -y
 ```
 
@@ -502,7 +540,7 @@ $ sudo apt update && sudo apt upgrade -y
 
 **swap** — დისკზე გამოყოფილი ადგილი, რომელსაც სისტემა RAM-ად იყენებს, როცა ნამდვილი RAM ივსება. დისკი RAM-ზე ბევრად ნელია, მაგრამ swap-ის გარეშე მეხსიერების ამოწურვისას Linux პროცესებს **კლავს** (OOM killer). ჩვენს 1 GB-იან სერვერზე მოგვიანებით .NET-ის build-იც მოგვიწევს და ბაზაც — swap დაგვაზღვევს.
 
-```console giorgi@lms-server
+```console Termius · giorgi@lms-server
 $ sudo fallocate -l 2G /swapfile                          # 2 GB ფაილი
 $ sudo chmod 600 /swapfile                                # მხოლოდ root
 $ sudo mkswap /swapfile                                   # swap-ად მომზადება
@@ -520,8 +558,8 @@ Swap:  2.0Gi     0B  2.0Gi
 </section>
 
 <section class="slide" data-section="3 · დაცვა">
-  <div class="kicker">ნაბიჯი 8 · მოხერხებულობა</div>
-  <h2><span class="mono c-mvc">ssh lms</span> — IP-ის დამახსოვრების გარეშე</h2>
+  <div class="kicker">ნაბიჯი 9 · WSL-ისთვის</div>
+  <h2><span class="mono c-mvc">~/.ssh/config</span> — WSL-ის ბრძანებებისთვის</h2>
   <div class="grid2" style="grid-template-columns:1fr 1fr">
     <div class="col">
       <code-block lang="console" cls="in" title="WSL" style="--d:0.20s">
@@ -539,13 +577,13 @@ Host lms
 $ ssh lms
 giorgi@lms-server:~$ ▊
       </code-block>
-      <div class="callout step" style="--a:var(--net)">შემდეგ ლექციაზე იგივე სახელი იმუშავებს ფაილების ასატვირთადაც: <code class="i">rsync … lms:/var/www/</code></div>
+      <div class="callout step" style="--a:var(--net)">🖥️ <b>Termius</b> — შენთვის, სერვერზე მუშაობისას. 🐧 <b>config</b> — WSL-ის ბრძანებებისთვის: <code class="i">rsync … lms:/var/www/</code>, სკრიპტები</div>
     </div>
   </div>
   <aside class="study">
-### ნაბიჯი 8 · `ssh lms` — IP-ის დამახსოვრების გარეშე
+### ნაბიჯი 9 · `~/.ssh/config` — WSL-ის ბრძანებებისთვის
 
-`~/.ssh/config` (შენს WSL-ში, არა სერვერზე) — სერვერების „მისამართების წიგნი“:
+სერვერზე ჩვენ Termius-ით ვმუშაობთ. მაგრამ შემდეგ ლექციებზე **შენი კომპიუტერიდან** (WSL) გავუშვებთ ბრძანებებს, რომლებიც სერვერს თვითონ უკავშირდება: `rsync` (ფაილების ატვირთვა), `scp`, `ssh-copy-id`, `deploy.sh`. Termius-ის Host-ებს ისინი ვერ ხედავენ — მათ WSL-ის „მისამართების წიგნი“ სჭირდებათ, `~/.ssh/config`:
 
 ```plain ~/.ssh/config
 Host lms
@@ -554,7 +592,7 @@ Host lms
     IdentityFile ~/.ssh/id_ed25519
 ```
 
-ახლა საკმარისია:
+შემოწმება — WSL-იდან:
 
 ```console WSL
 $ ssh lms
@@ -569,7 +607,7 @@ giorgi@lms-server:~$
   <div class="kicker">შპარგალკა</div>
   <h2>ახალი სერვერის <span class="c-api">ჩეკლისტი</span></h2>
   <div class="grid2" style="gap:30px">
-    <div class="card accent in" style="--d:0.20s;--a:var(--net)"><h3>💻 შენთან (ერთხელ)</h3><p class="mono" style="font-size:18px;line-height:1.9">ssh-keygen -t ed25519<br>cat ~/.ssh/id_ed25519.pub<br>~/.ssh/config → Host lms</p></div>
+    <div class="card accent in" style="--d:0.20s;--a:var(--net)"><h3>💻 შენთან (ერთხელ)</h3><p class="mono" style="font-size:18px;line-height:1.9">ssh-keygen -t ed25519<br>Termius: Import key · New Host<br>~/.ssh/config → Host lms</p></div>
     <div class="card accent in" style="--d:0.40s;--a:var(--mvc)"><h3>🖥️ ყოველ ახალ სერვერზე</h3><p class="mono" style="font-size:17px;line-height:1.85">adduser · usermod -aG sudo<br>rsync ~/.ssh → /home/user<br>00-hardening.conf → restart ssh<br>ufw allow OpenSSH · enable<br>apt upgrade · swap</p></div>
   </div>
   <aside class="study">
@@ -581,7 +619,8 @@ giorgi@lms-server:~$
 |---|---|
 | `ssh-keygen -t ed25519 -C "email"` | გასაღებების წყვილი |
 | `cat ~/.ssh/id_ed25519.pub` | საჯარო ნაწილი — DigitalOcean-ში/GitHub-ზე |
-| `~/.ssh/config` → `Host lms` | მოკლე სახელი: `ssh lms` |
+| Termius: Keychain → Import, Hosts → New Host | სერვერთან კავშირი |
+| `~/.ssh/config` → `Host lms` | მოკლე სახელი WSL-ისთვის: `rsync … lms:` |
 
 **🖥️ ყოველ ახალ სერვერზე:**
 
@@ -606,7 +645,7 @@ giorgi@lms-server:~$
     <div class="row in left" style="--d:0.20s;gap:20px;align-items:center"><span class="big-emoji" style="font-size:44px">🔑</span><span style="font-size:29px"><b>SSH გასაღები</b> — 🔒 .pub სერვერზე, 🔑 პირადი მხოლოდ შენთან</span></div>
     <div class="row in left" style="--d:0.35s;gap:20px;align-items:center"><span class="big-emoji" style="font-size:44px">💧</span><span style="font-size:29px"><b>Droplet</b> — Ubuntu 24.04 ფრანკფურტში; Power Off-იც ფასიანია</span></div>
     <div class="row in left" style="--d:0.50s;gap:20px;align-items:center"><span class="big-emoji" style="font-size:44px">🛡️</span><span style="font-size:29px"><b>დაცვა</b> — ცალკე user, root/პაროლი აკრძალულია, ufw</span></div>
-    <div class="row in left" style="--d:0.65s;gap:20px;align-items:center"><span class="big-emoji" style="font-size:44px">⚡</span><span style="font-size:29px"><b>ssh lms</b> — <code class="i">~/.ssh/config</code>-ით</span></div>
+    <div class="row in left" style="--d:0.65s;gap:20px;align-items:center"><span class="big-emoji" style="font-size:44px">⚡</span><span style="font-size:29px"><b>Termius</b> — სერვერზე; <code class="i">~/.ssh/config</code> — WSL-ისთვის</span></div>
   </div>
   <p class="lead in mt" style="--d:0.85s;text-align:center">შემდეგ ლექციაზე: <b>Nginx</b> — portfolio და Angular შენს სერვერზე 🌐</p>
   <aside class="study">
@@ -615,7 +654,7 @@ giorgi@lms-server:~$
 - 🔑 **SSH გასაღები** — წყვილი: საჯარო `.pub` (საკეტი) მიდის სერვერზე `authorized_keys`-ში; პირადი (გასაღები) მხოლოდ შენთანაა, უფლებით `600`.
 - 💧 **Droplet** — DigitalOcean-ის VPS: Frankfurt, Ubuntu 24.04, SSH Key. ფასი საათობრივია; Power Off გადახდას არ აჩერებს — მხოლოდ Destroy.
 - 🛡️ **პირველი დღის დაცვა** — ცალკე user `sudo`-თი; `PermitRootLogin no`, `PasswordAuthentication no`; `ufw` მხოლოდ SSH-ით; `apt upgrade`; swap.
-- ⚡ **`~/.ssh/config`** — `ssh lms` IP-ის გარეშე.
+- 🖥️ **Termius** — სერვერზე ამიერიდან მასში ვმუშაობთ (იგივე გასაღებით, რაც WSL-შია). ⚡ **`~/.ssh/config`** — `lms` სახელი WSL-ის ბრძანებებისთვის (`rsync`, `scp`, სკრიპტები).
 
 **შემდეგ ლექციაზე:** სერვერზე ვაყენებთ Nginx-ს და ვაქვეყნებთ my-portfolio-ს და შენს Angular აპს — ამჯერად საკუთარ სერვერზე.
 

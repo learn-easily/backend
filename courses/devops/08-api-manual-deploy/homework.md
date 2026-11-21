@@ -38,7 +38,7 @@ Environment="ConnectionStrings__Default=Host=localhost;Database=lms;Username=lms
 WantedBy=multi-user.target
 ```
 
-```console lms-server
+```console Termius · lms-server
 $ sudo systemctl daemon-reload
 $ sudo systemctl enable --now lms-api
 $ systemctl status lms-api
@@ -62,7 +62,7 @@ server {
 }
 ```
 
-```console lms-server
+```console Termius · lms-server
 $ sudo ln -s /etc/nginx/sites-available/lms-api /etc/nginx/sites-enabled/
 $ sudo nginx -t && sudo systemctl reload nginx
 $ sudo ufw allow 8081/tcp

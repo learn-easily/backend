@@ -49,7 +49,7 @@
   <div class="grid2" style="grid-template-columns:1.1fr 1fr">
     <code-block lang="console" cls="in" title="ყოველ ჯერზე" style="--d:0.20s">
 $ git push                       # შენთან
-$ ssh lms                        # სერვერზე
+# Termius → lms-server
 $ cd ~/lms
 $ git pull
 $ docker compose up -d --build   # build 1 GB RAM-ზე 😬
@@ -69,7 +69,7 @@ $ docker compose logs -f api     # მუშაობს?
 
 ```console ყოველ ჯერზე
 $ git push
-$ ssh lms
+# Termius → lms-server
 $ cd ~/lms
 $ git pull
 $ docker compose up -d --build
@@ -292,7 +292,7 @@ Pull Request-ში review გუნდურ მუშაობაში ერ
 
 **სერვერზე** (SSH-ით, ავტომატურად):
 
-```console lms-server
+```console Termius · lms-server
 $ cd ~/lms
 $ git pull                     # compose.yaml-ის ცვლილებებისთვის
 $ docker compose pull api      # ახალი image GHCR-იდან
@@ -485,7 +485,7 @@ GHCR-ში image-ის სახელი **მხოლოდ პატარ
       <div class="callout step" style="--a:var(--net)"><code class="i">build</code> — შენთან (<code class="i">up --build</code>) · <code class="i">image</code> — სერვერზე (<code class="i">pull</code>)</div>
     </div>
     <div class="col">
-      <code-block lang="console" cls="in" title="lms-server · ერთხელ" style="--d:0.40s">
+      <code-block lang="console" cls="in" title="Termius · lms-server · ერთხელ" style="--d:0.40s">
 $ echo "ghp_xxxx" | docker login ghcr.io \
     -u giorgi --password-stdin
 Login Succeeded
@@ -511,7 +511,7 @@ Login Succeeded
 
 **2. GHCR-ში შესვლა სერვერზე — ერთხელ.** GHCR-ის package ნაგულისხმევად private-ია, ამიტომ სერვერს წაკითხვის უფლება სჭირდება. GitHub → Settings → Developer settings → Personal access tokens → **Tokens (classic)** → Generate, scope **მხოლოდ** `read:packages`:
 
-```console lms-server
+```console Termius · lms-server
 $ echo "ghp_xxxx" | docker login ghcr.io -u giorgi --password-stdin
 Login Succeeded
 ```
@@ -576,7 +576,7 @@ deploy ჩავარდა SSH-ის ნაბიჯზე? ჯერ — Act
   <div class="kicker">ნაბიჯი 7 · rollback</div>
   <h2>ახალმა ვერსიამ გატეხა? — <span class="c-mvc">წამებში უკან</span></h2>
   <div class="grid2" style="grid-template-columns:1.15fr 1fr">
-    <code-block lang="console" cls="in" title="lms-server · ~/lms" style="--d:0.20s">
+    <code-block lang="console" cls="in" title="Termius · lms-server · ~/lms" style="--d:0.20s">
 $ git log --oneline -3
 a91c3f2 Add course capacity        ← გატეხა 💥
 7be04d1 Fix grades pagination      ← მუშაობდა ✓
@@ -599,7 +599,7 @@ $ docker compose up -d                       # ისევ latest
 
 ყოველი image GHCR-ში commit-ის **sha**-ითაცაა მონიშნული. ამიტომ წინა ვერსიაზე დაბრუნება = სხვა tag-ის გაშვება:
 
-```console lms-server · ~/lms
+```console Termius · lms-server · ~/lms
 $ git log --oneline -3
 a91c3f2 Add course capacity        ← გატეხა
 7be04d1 Fix grades pagination      ← მუშაობდა
@@ -608,7 +608,7 @@ a91c3f2 Add course capacity        ← გატეხა
 
 GitHub-ზე commit-ის სრული sha (40 სიმბოლო) ჩანს commit-ის გვერდზე ან Actions-ის გაშვებაში:
 
-```console lms-server · ~/lms
+```console Termius · lms-server · ~/lms
 $ echo "IMAGE_TAG=7be04d1e5c..." >> .env
 $ docker compose up -d
  ✔ Container lms-api-1  Recreated

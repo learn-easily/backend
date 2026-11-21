@@ -61,7 +61,7 @@ jobs:
     image: ghcr.io/giorgi/lms:${IMAGE_TAG:-latest}
 ```
 
-```console lms-server
+```console Termius · lms-server
 $ echo "<PAT>" | docker login ghcr.io -u giorgi --password-stdin
 Login Succeeded
 ```

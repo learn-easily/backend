@@ -32,7 +32,7 @@ server {
 }
 ```
 
-```console lms-server
+```console Termius · lms-server
 $ sudo mkdir -p /var/www/app && sudo chown -R $USER:$USER /var/www/app
 $ sudo ln -s /etc/nginx/sites-available/app /etc/nginx/sites-enabled/
 $ sudo nginx -t && sudo systemctl reload nginx

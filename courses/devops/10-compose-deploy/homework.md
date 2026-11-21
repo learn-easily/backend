@@ -18,10 +18,10 @@
 
 ## ამოხსნა
 
-```console lms-server !
+```console Termius · lms-server !
 $ curl -fsSL https://get.docker.com | sudo sh
-$ sudo usermod -aG docker $USER && exit
-$ ssh lms
+$ sudo usermod -aG docker $USER
+# Termius: გაითიშე და თავიდან დაუკავშირდი — ჯგუფი ამოქმედდება
 $ sudo systemctl disable --now lms-api postgresql
 
 $ git clone https://github.com/giorgi/lms.git ~/lms && cd ~/lms
@@ -35,7 +35,7 @@ $ docker compose ps
 $ curl http://127.0.0.1:5000/api/courses
 ```
 
-```console lms-server
+```console Termius · lms-server
 $ mkdir -p ~/backups
 $ docker compose exec db pg_dump -U lms lms > ~/backups/lms-$(date +%F).sql
 $ ls -lh ~/backups

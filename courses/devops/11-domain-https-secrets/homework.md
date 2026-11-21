@@ -34,7 +34,7 @@ server {
 }
 ```
 
-```console lms-server
+```console Termius · lms-server
 $ sudo nginx -t && sudo systemctl reload nginx
 $ sudo certbot --nginx -d api.giorgi.ge -d app.giorgi.ge
 $ sudo ufw delete allow 8080/tcp

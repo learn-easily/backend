@@ -76,7 +76,7 @@ portfolio-სთვის Nginx-ს მხოლოდ ფაილები ს
   <div class="kicker">ნაბიჯი 1 · runtime</div>
   <h2>.NET 10 — <span class="c-net">runtime</span>, არა SDK</h2>
   <div class="grid2" style="grid-template-columns:1.2fr 1fr">
-    <code-block lang="console" cls="in" title="lms-server" style="--d:0.20s">
+    <code-block lang="console" cls="in" title="Termius · lms-server" style="--d:0.20s">
 $ sudo apt update
 $ sudo apt install -y aspnetcore-runtime-10.0
 
@@ -104,7 +104,7 @@ The command could not be loaded, possibly because:
 
 სერვერზე კოდს არ ვწერთ და არ ვაკომპილირებთ — მხოლოდ მზა აპს ვუშვებთ. ამიტომ **SDK** კი არა, **runtime** გვჭირდება. ASP.NET Core აპისთვის — `aspnetcore-runtime`, რომელიც ჩვეულებრივ .NET runtime-საც შეიცავს:
 
-```console lms-server
+```console Termius · lms-server
 $ sudo apt update
 $ sudo apt install -y aspnetcore-runtime-10.0
 
@@ -131,7 +131,7 @@ runtime-ის ვერსია აპის ვერსიას უნდ�
   <div class="kicker">ნაბიჯი 2 · ბაზა</div>
   <h2><span class="c-mvc">PostgreSQL</span> — user და ბაზა LMS-სთვის</h2>
   <div class="grid2" style="grid-template-columns:1.2fr 1fr">
-    <code-block lang="console" cls="in" title="lms-server" style="--d:0.20s">
+    <code-block lang="console" cls="in" title="Termius · lms-server" style="--d:0.20s">
 $ sudo apt install -y postgresql
 $ systemctl status postgresql
      Active: active (exited)
@@ -154,14 +154,14 @@ LISTEN  127.0.0.1:5432   postgres     ← მხოლოდ შიგნით 
   <aside class="study">
 ### ნაბიჯი 2 · PostgreSQL
 
-```console lms-server
+```console Termius · lms-server
 $ sudo apt install -y postgresql
 $ systemctl status postgresql
 ```
 
 PostgreSQL-ის დაყენებისას იქმნება Linux-ის user `postgres` — ბაზის ადმინისტრატორი. მისი სახელით ვხსნით `psql`-ს (ბაზის კონსოლი) და ვქმნით user-ს და ბაზას LMS-სთვის:
 
-```console lms-server
+```console Termius · lms-server
 $ sudo -u postgres psql
 postgres=# CREATE USER lms WITH PASSWORD 'Str0ng!Pass';
 CREATE ROLE
@@ -174,7 +174,7 @@ postgres=# \q
 - API ბაზას **ცალკე** user-ით (`lms`) უკავშირდება და არა სუპერ-user-ით — თუ API-ს გატეხავენ, ზიანი მხოლოდ ამ ბაზით შემოიფარგლება;
 - `\q` — psql-იდან გამოსვლა.
 
-```console lms-server
+```console Termius · lms-server
 $ sudo ss -tlnp | grep 5432
 LISTEN  127.0.0.1:5432   postgres
 ```
@@ -273,7 +273,7 @@ $ scp migrate.sql lms:~
     <div class="col">
       <div class="card accent in right" style="--d:0.40s;--a:var(--api)"><h3>📦 publish</h3><p>Release build + ყველა საჭირო ფაილი <b>ერთ საქაღალდეში</b></p></div>
       <div class="card accent in right" style="--d:0.55s;--a:var(--mvc)"><h3>📜 --idempotent</h3><p>SQL სკრიპტი, რომელიც <b>მხოლოდ აკლებულ</b> მიგრაციებს უშვებს — ორჯერ გაშვებაც უსაფრთხოა</p></div>
-      <code-block lang="console" cls="sm step" title="lms-server">
+      <code-block lang="console" cls="sm step" title="Termius · lms-server">
 $ psql "host=localhost dbname=lms user=lms" -f ~/migrate.sql
 Password: ********
 CREATE TABLE ...
@@ -308,7 +308,7 @@ $ scp migrate.sql lms:~
 
 **ცხრილები ბაზაში:**
 
-```console lms-server
+```console Termius · lms-server
 $ psql "host=localhost dbname=lms user=lms" -f ~/migrate.sql
 Password: ********
 CREATE TABLE
@@ -322,7 +322,7 @@ CREATE TABLE
   <h2>მუშაობს! …<span class="c-red">სანამ terminal ღიაა</span></h2>
   <div class="grid2" style="grid-template-columns:1.25fr 1fr">
     <div class="col">
-      <code-block lang="console" cls="in" title="lms-server · ფანჯარა 1" style="--d:0.20s">
+      <code-block lang="console" cls="in" title="Termius · lms-server · tab 1" style="--d:0.20s">
 $ cd /var/www/lms-api
 $ ASPNETCORE_URLS=http://127.0.0.1:5000 \
   ConnectionStrings__Default="Host=localhost;Database=lms;Username=lms;Password=Str0ng!Pass" \
@@ -332,14 +332,14 @@ info: Microsoft.Hosting.Lifetime[14]
 info: Microsoft.Hosting.Lifetime[0]
       Hosting environment: Production
       </code-block>
-      <code-block lang="console" cls="in" title="lms-server · ფანჯარა 2" style="--d:0.40s">
+      <code-block lang="console" cls="in" title="Termius · lms-server · tab 2" style="--d:0.40s">
 $ curl http://127.0.0.1:5000/api/courses
 []
       </code-block>
     </div>
     <div class="col">
       <div class="card accent in right" style="--d:0.55s;--a:var(--net)"><h3>🔧 __ = :</h3><p><code class="i">ConnectionStrings__Default</code> → <code class="i">ConnectionStrings:Default</code>. გარემოს ცვლადი <b>ფარავს</b> appsettings.json-ს</p></div>
-      <div class="problem step" style="display:block">ფანჯარა 1 დახურე → API <b>გაჩერდა</b></div>
+      <div class="problem step" style="display:block">tab 1 დახურე → API <b>გაჩერდა</b></div>
       <div class="problem step" style="display:block" data-with>crash → <b>არავინ</b> ჩართავს</div>
       <div class="problem step" style="display:block" data-with>reboot → API <b>აღარ</b> ირთვება</div>
     </div>
@@ -347,7 +347,7 @@ $ curl http://127.0.0.1:5000/api/courses
   <aside class="study">
 ### ნაბიჯი 5 · პირველი გაშვება
 
-```console lms-server · ფანჯარა 1
+```console Termius · lms-server · tab 1
 $ cd /var/www/lms-api
 $ ASPNETCORE_URLS=http://127.0.0.1:5000 \
   ConnectionStrings__Default="Host=localhost;Database=lms;Username=lms;Password=Str0ng!Pass" \
@@ -363,16 +363,16 @@ info: Microsoft.Hosting.Lifetime[0]
 - `ASPNETCORE_URLS` — სად უსმინოს Kestrel-მა. `127.0.0.1` — მხოლოდ სერვერის შიგნიდან;
 - `ConnectionStrings__Default` — `__` (ორი ქვედა ტირე) ნიშნავს JSON-ის ჩადგმულ დონეს, ანუ `ConnectionStrings:Default`.
 
-მეორე SSH ფანჯრიდან:
+Termius-ის მეორე tab-იდან:
 
-```console lms-server · ფანჯარა 2
+```console Termius · lms-server · tab 2
 $ curl http://127.0.0.1:5000/api/courses
 []
 ```
 
 API მუშაობს და ბაზას უკავშირდება. მაგრამ ზუსტად იგივე პრობლემები, რაც მე-4 ლექციაზე `dotnet run`-ს ჰქონდა:
 
-- ფანჯარა დახურე → API **გაჩერდა**;
+- tab დახურე → API **გაჩერდა**;
 - crash → **არავინ** ჩართავს თავიდან;
 - სერვერის reboot → API **აღარ** ირთვება.
 
@@ -440,7 +440,7 @@ WantedBy=multi-user.target
 
 systemd-ს ვუხსნით, როგორ გაუშვას ჩვენი API — **unit ფაილით**:
 
-```console lms-server
+```console Termius · lms-server
 $ sudo nano /etc/systemd/system/lms-api.service
 ```
 
@@ -482,7 +482,7 @@ WantedBy=multi-user.target
   <div class="kicker">ნაბიჯი 7 · ჩართვა და ლოგები</div>
   <h2>enable --now · <span class="c-api">journalctl</span></h2>
   <div class="grid2" style="grid-template-columns:1.2fr 1fr">
-    <code-block lang="console" cls="in" title="lms-server" style="--d:0.20s">
+    <code-block lang="console" cls="in" title="Termius · lms-server" style="--d:0.20s">
 $ sudo systemctl daemon-reload
 $ sudo systemctl enable --now lms-api
 Created symlink ... → /etc/systemd/system/lms-api.service
@@ -507,7 +507,7 @@ $ systemctl status lms-api   # 5 წამში — ახალი PID ✓
   <aside class="study">
 ### ნაბიჯი 7 · ჩართვა და ლოგები
 
-```console lms-server
+```console Termius · lms-server
 $ sudo systemctl daemon-reload          # systemd-მა ახალი unit ფაილი წაიკითხოს
 $ sudo systemctl enable --now lms-api   # enable + start ერთად
 
@@ -519,7 +519,7 @@ $ systemctl status lms-api
 
 **ლოგები.** ყველაფერი, რასაც API კონსოლში წერს (`ILogger`, შეცდომები), systemd **journal**-ში ინახება:
 
-```console lms-server
+```console Termius · lms-server
 $ journalctl -u lms-api -f            # ცოცხლად
 $ journalctl -u lms-api -n 50         # ბოლო 50 ხაზი
 $ journalctl -u lms-api --since "10 min ago"
@@ -527,7 +527,7 @@ $ journalctl -u lms-api --since "10 min ago"
 
 **crash-ის ტესტი:**
 
-```console lms-server
+```console Termius · lms-server
 $ sudo kill -9 4120             # ვკლავთ პროცესს
 $ systemctl status lms-api      # 5 წამში — active (running), ახალი PID
 ```
@@ -559,7 +559,7 @@ server {
     }
 }
       </code-block>
-      <code-block lang="console" cls="sm in" title="lms-server" style="--d:0.35s">
+      <code-block lang="console" cls="sm in" title="Termius · lms-server" style="--d:0.35s">
 $ sudo ln -s /etc/nginx/sites-available/lms-api /etc/nginx/sites-enabled/
 $ sudo nginx -t && sudo systemctl reload nginx
 $ sudo ufw allow 8081/tcp
@@ -594,7 +594,7 @@ server {
 - `proxy_pass` — სად გადასცეს მოთხოვნა;
 - `proxy_set_header` — API-ს გადაეცემა ორიგინალი დომენი (`Host`), მომხმარებლის ნამდვილი IP (`X-Forwarded-For`) და პროტოკოლი (`X-Forwarded-Proto`: http თუ https). მის გარეშე API-ს ეგონება, რომ ყველა მოთხოვნა Nginx-იდან (127.0.0.1) მოდის.
 
-```console lms-server
+```console Termius · lms-server
 $ sudo ln -s /etc/nginx/sites-available/lms-api /etc/nginx/sites-enabled/
 $ sudo nginx -t && sudo systemctl reload nginx
 $ sudo ufw allow 8081/tcp
@@ -618,7 +618,7 @@ $ sudo ufw allow 8081/tcp
   <div class="kicker">ტიპური შეცდომა</div>
   <h2><span class="c-red">502 Bad Gateway</span> — ვინ არის დამნაშავე?</h2>
   <div class="grid2" style="grid-template-columns:1.15fr 1fr">
-    <code-block lang="console" cls="sm in" title="lms-server" style="--d:0.20s">
+    <code-block lang="console" cls="sm in" title="Termius · lms-server" style="--d:0.20s">
 $ sudo tail -n 3 /var/log/nginx/error.log
 connect() failed (111: Connection refused) while connecting
   to upstream, upstream: "http://127.0.0.1:5000/api/courses"
@@ -642,7 +642,7 @@ Unhandled exception. Npgsql.PostgresException:
 
 **502** ნიშნავს: Nginx მუშაობს, მაგრამ მან, ვისაც მოთხოვნა გადასცა (upstream — ჩვენი API), **არ უპასუხა**. ძებნა ფენა-ფენა, ზემოდან ქვემოთ:
 
-```console lms-server
+```console Termius · lms-server
 $ sudo tail -n 3 /var/log/nginx/error.log
 connect() failed (111: Connection refused) while connecting to upstream,
   upstream: "http://127.0.0.1:5000/api/courses"

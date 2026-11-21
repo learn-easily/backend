@@ -4,9 +4,9 @@ lms-server — მზადაა შემდეგი ლექციისთ
 
 ## მოთხოვნები
 
-- `apt upgrade` · `00-hardening.conf`: root და პაროლი აკრძალულია → `restart ssh` (ჯერ ახალ ფანჯარაში შეამოწმეთ!)
+- `apt upgrade` · `00-hardening.conf`: root და პაროლი აკრძალულია → `restart ssh` (ჯერ Termius-ის ახალ tab-ში შეამოწმეთ!)
 - `ufw`: მხოლოდ `OpenSSH` → `enable`
-- swap 2 GB (`/etc/fstab`-ითაც) · `~/.ssh/config` → `ssh lms`
+- swap 2 GB (`/etc/fstab`-ითაც) · WSL-ში `~/.ssh/config` → `ssh lms`
 
 ## ✓ მზადაა, როცა
 
@@ -18,7 +18,7 @@ lms-server — მზადაა შემდეგი ლექციისთ
 
 ## ამოხსნა
 
-```console lms-server !
+```console Termius · lms-server !
 $ sudo nano /etc/ssh/sshd_config.d/00-hardening.conf
 PermitRootLogin no
 PasswordAuthentication no
@@ -33,7 +33,7 @@ Status: active
 OpenSSH     ALLOW    Anywhere
 ```
 
-```console lms-server
+```console Termius · lms-server
 $ sudo apt update && sudo apt upgrade -y
 
 $ sudo fallocate -l 2G /swapfile

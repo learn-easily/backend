@@ -336,15 +336,14 @@ info: Now listening on: http://[::]:8080
   <div class="kicker">ნაბიჯი 4 · Docker სერვერზე</div>
   <h2>Docker Engine — <span class="c-api">Ubuntu-ზე</span></h2>
   <div class="grid2" style="grid-template-columns:1.2fr 1fr">
-    <code-block lang="console" cls="in" title="lms-server" style="--d:0.20s">
+    <code-block lang="console" cls="in" title="Termius · lms-server" style="--d:0.20s">
 $ curl -fsSL https://get.docker.com | sudo sh
 ...
 Client: Docker Engine - Community
 Server: Docker Engine - Community
 
 $ sudo usermod -aG docker $USER
-$ exit
-$ ssh lms                      # ჯგუფი ამოქმედდა
+# Termius: გაითიშე და თავიდან დაუკავშირდი
 $ docker compose version
 Docker Compose version v2.x
 
@@ -362,11 +361,10 @@ $ sudo systemctl disable --now lms-api postgresql
 
 სერვერზე Docker Desktop არ გვჭირდება — მხოლოდ **Docker Engine** (ტერმინალის ვერსია):
 
-```console lms-server
+```console Termius · lms-server
 $ curl -fsSL https://get.docker.com | sudo sh
 $ sudo usermod -aG docker $USER
-$ exit
-$ ssh lms
+# Termius: გაითიშე და თავიდან დაუკავშირდი
 $ docker compose version
 ```
 
@@ -375,7 +373,7 @@ $ docker compose version
 
 **ძველის გაჩერება.** მე-8 ლექციის systemd სერვისი და apt-ით დაყენებული PostgreSQL აღარ გვჭირდება — ისინი RAM-ს ჭამენ:
 
-```console lms-server
+```console Termius · lms-server
 $ sudo systemctl disable --now lms-api postgresql
 ```
 
@@ -391,7 +389,7 @@ $ sudo systemctl disable --now lms-api postgresql
   <div class="kicker">ნაბიჯი 5 · გაშვება სერვერზე</div>
   <h2>clone · <span class="mono c-red">.env</span> · <span class="c-mvc">up</span></h2>
   <div class="grid2" style="grid-template-columns:1.2fr 1fr">
-    <code-block lang="console" cls="in" title="lms-server" style="--d:0.20s">
+    <code-block lang="console" cls="in" title="Termius · lms-server" style="--d:0.20s">
 $ git clone https://github.com/giorgi/lms.git ~/lms
 $ cd ~/lms
 
@@ -416,7 +414,7 @@ $ curl http://127.0.0.1:5000/api/courses
   <aside class="study">
 ### ნაბიჯი 5 · გაშვება სერვერზე
 
-```console lms-server
+```console Termius · lms-server
 $ git clone https://github.com/giorgi/lms.git ~/lms
 $ cd ~/lms
 $ nano .env
@@ -427,7 +425,7 @@ DB_PASSWORD=h7Kq2-xR9v-Lm4Z
 ASPNETCORE_ENVIRONMENT=Production
 ```
 
-```console lms-server
+```console Termius · lms-server
 $ chmod 600 .env
 $ docker compose up -d --build
  ✔ Container lms-db-1   Healthy
@@ -493,7 +491,7 @@ Nginx-ის კონფიგი **არ იცვლება**: მე-8 �
   <div class="grid3" style="gap:20px">
     <div class="col">
       <h3>🔁 ახალი ვერსია</h3>
-      <code-block lang="console" cls="sm in" title="lms-server" style="--d:0.20s">
+      <code-block lang="console" cls="sm in" title="Termius · lms-server" style="--d:0.20s">
 $ cd ~/lms
 $ git pull
 $ docker compose up -d --build
@@ -502,7 +500,7 @@ $ docker compose up -d --build
     </div>
     <div class="col">
       <h3>💾 backup</h3>
-      <code-block lang="console" cls="sm in" title="lms-server" style="--d:0.40s">
+      <code-block lang="console" cls="sm in" title="Termius · lms-server" style="--d:0.40s">
 $ docker compose exec db \
     pg_dump -U lms lms \
     > ~/backups/lms-$(date +%F).sql
@@ -511,7 +509,7 @@ $ docker compose exec db \
     </div>
     <div class="col">
       <h3>📈 რა ხდება?</h3>
-      <code-block lang="console" cls="sm in" title="lms-server" style="--d:0.60s">
+      <code-block lang="console" cls="sm in" title="Termius · lms-server" style="--d:0.60s">
 $ docker compose ps
 $ docker compose logs -f api
 $ docker stats
@@ -525,7 +523,7 @@ $ docker stats
 
 **🔁 ახალი ვერსია:**
 
-```console lms-server
+```console Termius · lms-server
 $ cd ~/lms
 $ git pull
 $ docker compose up -d --build
@@ -535,20 +533,20 @@ Compose ახალ image-ს ააწყობს და **მხოლოდ
 
 **💾 backup:**
 
-```console lms-server
+```console Termius · lms-server
 $ mkdir -p ~/backups
 $ docker compose exec db pg_dump -U lms lms > ~/backups/lms-$(date +%F).sql
 ```
 
 `pg_dump` ბაზას SQL ფაილად აქცევს; `$(date +%F)` ფაილის სახელში დღევანდელ თარიღს სვამს. აღდგენა:
 
-```console lms-server
+```console Termius · lms-server
 $ cat ~/backups/lms-2026-12-05.sql | docker compose exec -T db psql -U lms lms
 ```
 
 **📈 მონიტორინგი:**
 
-```console lms-server
+```console Termius · lms-server
 $ docker compose ps              # ყველა სერვისი მუშაობს?
 $ docker compose logs -f api     # API-ს ლოგი
 $ docker stats                   # CPU / RAM კონტეინერებზე (Ctrl+C)
