@@ -4,15 +4,13 @@ Dockerfile — შემდეგ ლექციაზე მას სერ�
 
 ## მოთხოვნები
 
-- LMS-ის რეპოს root-ში: multi-stage `Dockerfile` (`sdk:10.0` → `aspnet:10.0`) და `.dockerignore`
-- `docker build -t lms-api .` → `docker images` — რა ზომისაა?
-- გაუშვით `-p 8080:8080`-ით, `ConnectionStrings__Default`-ით `lms-db`-ზე (`Host=host.docker.internal`) და `ASPNETCORE_ENVIRONMENT=Development`-ით
-- `http://localhost:8080/swagger` — კურსების სია `lms-db`-დან
-- commit + push: `Dockerfile` და `.dockerignore` GitHub-ზე
+- LMS-ის root-ში: multi-stage `Dockerfile` (`sdk:10.0` → `aspnet:10.0`) და `.dockerignore`
+- `docker build -t lms-api .` → გაშვება `-p 8080:8080`, `host.docker.internal`-ით `lms-db`-ზე, `Development`-ით
+- `Dockerfile` და `.dockerignore` → GitHub
 
 ## ✓ მზადაა, როცა
 
-`docker ps` აჩვენებს ორ კონტეინერს — `lms-db` და `lms-api`, Swagger კონტეინერიდან პასუხობს და ბაზის მონაცემებს აჩვენებს, Dockerfile GitHub-ზეა
+`docker ps` — `lms-db` და `lms-api`, Swagger კონტეინერიდან ბაზის მონაცემებს აჩვენებს
 
 ## ⭐ ბონუსი
 

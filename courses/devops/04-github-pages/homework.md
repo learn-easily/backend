@@ -4,14 +4,13 @@ my-portfolio ცოცხალია — შემდეგ ლექცია�
 
 ## მოთხოვნები
 
-- `README.md`-ში დაამატეთ ცოცხალი საიტის ლინკი; რეპოს მთავარ გვერდზე **About → ⚙ → Website** — იგივე ლინკი
-- `projects.html` (წინა საშინაოდან) ხელმისაწვდომი უნდა იყოს ცოცხალ საიტზეც — ბმული მუშაობს
-- **Windows:** დააყენეთ WSL და Ubuntu — PowerShell (Run as Administrator): `wsl --install -d Ubuntu-24.04` → გადატვირთვა → Ubuntu-ში შექმენით user და პაროლი
-- **macOS:** საკმარისია ჩაშენებული Terminal — ის Unix-ია და ბრძანებები იგივეა
+- `README.md`-ში და რეპოს **About → Website**-ში — ცოცხალი საიტის ლინკი; `projects.html` ცოცხალ საიტზეც იხსნება
+- **Windows:** `wsl --install -d Ubuntu-24.04` (PowerShell, Administrator) → გადატვირთვა → user და პაროლი
+- **macOS:** საკმარისია ჩაშენებული Terminal
 
 ## ✓ მზადაა, როცა
 
-რეპოს გვერდზე ჩანს საიტის ლინკი, `projects.html` იხსნება ცოცხალ საიტზე, Ubuntu-ში `lsb_release -a` აჩვენებს `Ubuntu 24.04`
+რეპოს გვერდზე ჩანს საიტის ლინკი, Ubuntu-ში `lsb_release -a` აჩვენებს `24.04`
 
 ## ⭐ ბონუსი
 

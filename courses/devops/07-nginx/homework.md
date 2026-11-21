@@ -4,15 +4,13 @@
 
 ## მოთხოვნები
 
-- თქვენი Angular პროექტი (Frontend კურსიდან): `ng build` → `dist/<app>/browser/` → `rsync` → `/var/www/app`
-- server block `/etc/nginx/sites-available/app`: `listen 8080`, SPA fallback `try_files … /index.html`
-- `sudo ufw allow 8080/tcp`
-- შეამოწმეთ: `http://<IP>:8080/<რომელიმე-როუტი>` → **refresh** → გვერდი იხსნება (არა 404)
-- my-portfolio-ში `deploy.sh`: ერთი ბრძანებით ატვირთავს საიტს სერვერზე → `chmod +x` → `./deploy.sh`
+- Angular: `ng build` → `rsync` → `/var/www/app`; server block `listen 8080` + `try_files … /index.html`; `ufw allow 8080/tcp`
+- შიდა როუტზე **refresh** → გვერდი იხსნება, არა 404
+- my-portfolio-ში `deploy.sh` — ერთი ბრძანებით ატვირთავს საიტს
 
 ## ✓ მზადაა, როცა
 
-ორივე საიტი მუშაობს, Angular-ის შიდა გვერდზე refresh 404-ს არ აბრუნებს, portfolio-ს ცვლილება სერვერზე `./deploy.sh`-ით ჩანს
+ორივე საიტი მუშაობს, refresh 404-ს არ აბრუნებს, `./deploy.sh` ცვლილებას ტვირთავს
 
 ## ⭐ ბონუსი
 

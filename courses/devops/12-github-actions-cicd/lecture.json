@@ -1,0 +1,37 @@
+{
+  "title": "CI/CD — git push → LMS სერვერზე",
+  "why": "LMS დომენზეა, HTTPS-ით, კონტეინერებში. მაგრამ ყოველი განახლება ჯერ კიდევ ხელით ხდება: ssh → git pull → docker compose up. თან `main`-ში შეიძლება ისეთი კოდი მოხვდეს, რომელიც არც კი იკომპილირდება. დღეს ამას GitHub Actions-ს ვაბარებთ: ყოველ Pull Request-ზე — ავტომატური შემოწმება (CI), ყოველ merge-ზე `main`-ში — ავტომატური deploy (CD). კურსის ბოლოს შენი LMS ერთი `git push`-ით ახლდება.",
+  "outcomes": [
+    "GitHub Actions-ის ცნებები: workflow, trigger, job, runner, step, `uses` და `run`",
+    "CI: ყოველ Pull Request-ზე build, და branch protection — `main`-ში მხოლოდ მწვანე PR",
+    "CD: image-ის აწყობა და ატვირთვა GHCR-ში, deploy სერვერზე SSH-ით",
+    "GitHub Secrets და ცალკე deploy გასაღები",
+    "rollback წინა ვერსიაზე commit-ის sha-ით მონიშნული image-ით"
+  ],
+  "review": [
+    {
+      "q": "CI და CD — რა განსხვავებაა?",
+      "a": "CI (Continuous Integration) — ყოველი ცვლილების ავტომატური შემოწმება (build, ტესტები) `main`-ში შერწყმამდე. CD (Continuous Deployment) — `main`-ის ყოველი ცვლილების ავტომატური გაშვება სერვერზე"
+    },
+    {
+      "q": "`uses:` და `run:` — რა განსხვავებაა step-ში?",
+      "a": "`uses` — მზა action-ის გამოყენება (მაგ. `actions/checkout@v4`), `run` — ბრძანება runner-ის ტერმინალში (მაგ. `dotnet build`)"
+    },
+    {
+      "q": "რას იძლევა branch protection `main`-ზე?",
+      "a": "`main`-ში პირდაპირ push აღარ შეიძლება — მხოლოდ Pull Request-ით, და merge მხოლოდ მაშინ, როცა CI მწვანეა"
+    },
+    {
+      "q": "SSH-ის პირადი გასაღები workflow-ს როგორ მივაწოდოთ?",
+      "a": "GitHub Secrets-ში (`Settings → Secrets and variables → Actions`) — workflow მას `${{ secrets.SSH_KEY }}`-ით კითხულობს, ლოგებში კი ის `***`-ით იმალება. YAML-ში პირდაპირ — არასოდეს"
+    },
+    {
+      "q": "რატომ ვიყენებთ deploy-ისთვის ცალკე SSH გასაღებს და არა საკუთარს?",
+      "a": "თუ GitHub-ის secret გაჟონავს, საკმარისია ამ ერთი გასაღების წაშლა სერვერის `authorized_keys`-იდან — შენი პირადი გასაღები და სხვა სერვერები დაცული რჩება"
+    },
+    {
+      "q": "ახალმა ვერსიამ LMS გატეხა. როგორ დავბრუნდეთ წინაზე?",
+      "a": "ყოველი image commit-ის sha-ითაცაა მონიშნული. სერვერის `.env`-ში `IMAGE_TAG=<წინა sha>` → `docker compose up -d` — წამებში ძველი ვერსია მუშაობს"
+    }
+  ]
+}

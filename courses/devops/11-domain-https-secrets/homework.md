@@ -4,15 +4,14 @@ port-ები 8080/8081 აღარ გვჭირდება
 
 ## მოთხოვნები
 
-- `lms-api` server block: `listen 80`, `server_name api.<domain>` (port 8081-ის ნაცვლად); `app` — `app.<domain>` (8080-ის ნაცვლად)
-- `sudo certbot --nginx -d api.<domain> -d app.<domain>` → ორივე `https://`-ით
-- ufw: წაშალეთ `8080/tcp`, `8081/tcp`, `Nginx HTTP`; დარჩეს `OpenSSH` და `Nginx Full`
-- სერვერის `.env`-ში `JWT_KEY` (`openssl rand -base64 64`) → `compose.yaml`-ში `Jwt__Key: ${JWT_KEY}` და `ASPNETCORE_FORWARDEDHEADERS_ENABLED: "true"`
-- Angular-ის `environment.prod.ts`-ში `apiUrl: 'https://api.<domain>'` → `ng build` → `rsync`
+- `lms-api` → `api.<domain>`, `app` → `app.<domain>` (`listen 80` + `server_name`) → `certbot --nginx`
+- ufw: წაშალეთ `8080/tcp`, `8081/tcp`, `Nginx HTTP`
+- `.env`-ში `JWT_KEY` (`openssl rand`) → compose: `Jwt__Key` და `ASPNETCORE_FORWARDEDHEADERS_ENABLED`
+- Angular: `apiUrl: 'https://api.<domain>'` → `ng build` → `rsync`
 
 ## ✓ მზადაა, როცა
 
-`https://api.<domain>/api/courses` და `https://app.<domain>` ბოქლომით იხსნება, `sudo ufw status`-ში 8080/8081 აღარ არის, `git grep -i "jwt"`-ით რეპოში ნამდვილი გასაღები არსად ჩანს
+`https://api.<domain>` და `https://app.<domain>` ბოქლომით, რეპოში ნამდვილი გასაღები არ ჩანს
 
 ## ⭐ ბონუსი
 

@@ -4,16 +4,14 @@ LMS API მუშაობს 24/7 და ინტერნეტიდან�
 
 ## მოთხოვნები
 
-- `/etc/systemd/system/lms-api.service` — `Restart=always`, `ASPNETCORE_URLS=http://127.0.0.1:5000`, connection string
-- `daemon-reload` → `enable --now` → `systemctl status lms-api` — `active (running)`
-- Nginx: `sites-available/lms-api` — `listen 8081`, `proxy_pass http://127.0.0.1:5000` → `ufw allow 8081/tcp`
-- ბრაუზერში `http://<IP>:8081/api/courses` → JSON
-- crash-ის ტესტი: `sudo kill -9 <PID>` → 5 წამში `systemctl status` ისევ `running`-ს აჩვენებს (ახალი PID-ით)
-- README-ში ჩამოწერეთ **ყველა** ნაბიჯი, რომელიც LMS-ის გასაშვებად გადადგით — თავიდან ბოლომდე
+- `lms-api.service` (`Restart=always`, URL, connection string) → `daemon-reload` → `enable --now`
+- Nginx: `listen 8081` + `proxy_pass http://127.0.0.1:5000` → `ufw allow 8081/tcp`
+- crash-ის ტესტი: `kill -9 <PID>` → 5 წამში ისევ `running`
+- README-ში — ყველა ნაბიჯი, რაც LMS-ის გასაშვებად გადადგით
 
 ## ✓ მზადაა, როცა
 
-API ბრაუზერიდან პასუხობს, `kill -9`-ის შემდეგ თავისით ცოცხლდება, `sudo reboot`-ის შემდეგაც მუშაობს, README-ში ნაბიჯების სიაა
+`http://<IP>:8081/api/courses` → JSON, `kill -9`-ის და `reboot`-ის შემდეგაც მუშაობს
 
 ## ⭐ ბონუსი
 

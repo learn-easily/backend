@@ -4,15 +4,13 @@
 
 ## მოთხოვნები
 
-- სერვერზე Docker: `curl -fsSL https://get.docker.com | sudo sh` → `sudo usermod -aG docker $USER` → ხელახლა შესვლა
-- ძველი, ხელით გაშვებული სერვისები: `sudo systemctl disable --now lms-api postgresql`
-- `git clone` → `~/lms`; სერვერზე **ახალი** `.env` (სხვა, ძლიერი პაროლით, `ASPNETCORE_ENVIRONMENT=Production`) → `chmod 600 .env`
-- `docker compose up -d --build` — Nginx-ის `lms-api` კონფიგი არ იცვლება (`127.0.0.1:5000`)
+- სერვერზე Docker (`get.docker.com`, `docker` ჯგუფი); ძველი `lms-api` და `postgresql` → `disable --now`
+- `git clone` → სერვერის `.env` (ძლიერი პაროლი, `Production`, `chmod 600`) → `docker compose up -d --build`
 - backup: `pg_dump` → `~/backups/lms-<თარიღი>.sql`
 
 ## ✓ მზადაა, როცა
 
-`http://<IP>:8081/api/courses` პასუხობს კონტეინერიდან, `sudo reboot`-ის შემდეგ ყველაფერი თავისით ირთვება, `~/backups`-ში SQL ფაილია
+`http://<IP>:8081/api/courses` კონტეინერიდან პასუხობს, `reboot`-ის შემდეგაც, backup ფაილი არსებობს
 
 ## ⭐ ბონუსი
 

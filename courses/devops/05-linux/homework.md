@@ -4,15 +4,14 @@
 
 ## მოთხოვნები
 
-- `~/linux-quest` საქაღალდეში შექმენით სტრუქტურა: `logs/`, `scripts/`, `notes/`
-- `notes/commands.md` — `nano`-ით ჩაწერეთ დღევანდელი 10 ბრძანება და თითოეულის ახსნა თქვენი სიტყვებით
-- `scripts/hello.sh` — შიგნით ერთი ხაზი `echo "გამარჯობა, $USER"` → გახადეთ გასაშვები (`chmod`) → გაუშვით `./scripts/hello.sh`
-- `logs/app.log` — `echo`-თი ჩაწერეთ 3 ხაზი, ერთ-ერთში სიტყვა `ERROR` → `grep`-ით იპოვეთ მხოლოდ ის ხაზი
-- დარეგისტრირდით **DigitalOcean**-ზე (საჭიროა ბარათი ან PayPal; სტუდენტებს შეუძლიათ შეამოწმონ GitHub Student Developer Pack-ის კრედიტი)
+- `~/linux-quest`-ში: `logs/`, `scripts/`, `notes/`; `notes/commands.md` — 10 ბრძანება თქვენი ახსნით
+- `scripts/hello.sh` (`echo "გამარჯობა, $USER"`) → გასაშვები → `./scripts/hello.sh`
+- `logs/app.log` — 3 ხაზი, ერთში `ERROR` → `grep`-ით მხოლოდ ის
+- დარეგისტრირდით **DigitalOcean**-ზე (ბარათი/PayPal; შეამოწმეთ GitHub Student Pack)
 
 ## ✓ მზადაა, როცა
 
-`ls -l ~/linux-quest/scripts` აჩვენებს `-rwxr-xr-x hello.sh`, `./scripts/hello.sh` წერს მისალმებას, `grep ERROR logs/app.log` აბრუნებს ერთ ხაზს, DigitalOcean-ის panel-ში შეხვედით
+`hello.sh` ეშვება, `grep` ერთ ხაზს აბრუნებს, DigitalOcean-ში შედიხართ
 
 ## ⭐ ბონუსი
 

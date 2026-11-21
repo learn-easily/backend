@@ -4,16 +4,13 @@ lms-server — მზადაა შემდეგი ლექციისთ
 
 ## მოთხოვნები
 
-- `sudo apt update && sudo apt upgrade -y`
-- `/etc/ssh/sshd_config.d/00-hardening.conf`: root-ით შესვლა და პაროლით შესვლა აკრძალულია → `sudo systemctl restart ssh`
-- **ჯერ ახალ ფანჯარაში** შეამოწმეთ შესვლა თქვენი user-ით; `ssh root@<IP>` უნდა ჩავარდეს
-- `ufw`: დაუშვით მხოლოდ SSH და ჩართეთ
-- swap ფაილი 2 GB (`/swapfile`), რომელიც გადატვირთვის შემდეგაც რჩება
-- `~/.ssh/config` — `ssh lms` მუშაობს
+- `apt upgrade` · `00-hardening.conf`: root და პაროლი აკრძალულია → `restart ssh` (ჯერ ახალ ფანჯარაში შეამოწმეთ!)
+- `ufw`: მხოლოდ `OpenSSH` → `enable`
+- swap 2 GB (`/etc/fstab`-ითაც) · `~/.ssh/config` → `ssh lms`
 
 ## ✓ მზადაა, როცა
 
-`sudo sshd -T | grep -E "permitrootlogin|passwordauthentication"` აჩვენებს `no` და `no`; `sudo ufw status` — `active`, მხოლოდ `OpenSSH`; `free -h` — `Swap: 2.0Gi`; `ssh lms` შედის
+`sshd -T` — `no`/`no`, `ufw status` — active, `free -h` — Swap 2.0Gi, `ssh lms` შედის
 
 ## ⭐ ბონუსი
 
