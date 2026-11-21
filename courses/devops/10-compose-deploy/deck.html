@@ -1,0 +1,660 @@
+<!-- =========================================================
+     ლექცია 10 — Docker Compose · .env · migrations · Docker სერვერზე · Nginx → კონტეინერი · backup
+     ========================================================= -->
+
+<!-- 1. TITLE -->
+<section class="slide" data-section="შესავალი">
+  <div class="vcenter" style="max-width:860px">
+    <div class="kicker in">DevOps Crash Course · ლექცია 10</div>
+    <h1 class="in" style="--d:.15s"><span class="grad">Docker Compose</span><br>LMS სერვერზე 🚀</h1>
+    <p class="lead in mt" style="--d:.35s">მთელი სისტემა — ერთ ფაილში, ერთი ბრძანებით</p>
+  </div>
+  <div class="abs" style="right:90px;top:190px">
+    <svg viewBox="0 0 480 360" width="480" height="360">
+      <g class="in" style="--d:.5s"><rect x="20" y="20" width="440" height="80" rx="16" fill="#0a0c16" stroke="#353b6b" stroke-width="3"/><text x="240" y="70" text-anchor="middle" class="tg b mono" font-size="22">$ docker compose up -d</text></g>
+      <g class="in fade" style="--d:.8s"><path d="M140 100 V150" stroke="#f5a524" stroke-width="3" class="flow"/><path d="M340 100 V150" stroke="#8b6cff" stroke-width="3" class="flow"/></g>
+      <g class="in" style="--d:1s"><rect x="30" y="150" width="200" height="110" rx="16" fill="#33240b" stroke="#f5a524" stroke-width="3"/><text x="130" y="200" text-anchor="middle" font-size="34">⚙️</text><text x="130" y="240" text-anchor="middle" class="to b mono" font-size="20">api</text>
+        <rect x="250" y="150" width="200" height="110" rx="16" fill="#1d1640" stroke="#8b6cff" stroke-width="3"/><text x="350" y="200" text-anchor="middle" font-size="34">🐘</text><text x="350" y="240" text-anchor="middle" class="tn b mono" font-size="20">db</text>
+        <path d="M230 205 H250" stroke="#22c55e" stroke-width="3"/><text x="240" y="300" text-anchor="middle" class="tm mono" font-size="17">Host=db · ერთ ქსელში</text></g>
+    </svg>
+  </div>
+</section>
+
+<lecture-review/>
+<lecture-homework-review/>
+<lecture-intro/>
+
+<!-- ================= PART 1: COMPOSE ================= -->
+<section class="slide divider" data-section="1 · Compose">
+  <div class="vcenter">
+    <div class="kicker in">ნაწილი 1</div>
+    <h1 class="in" style="--d:.1s"><span class="grad">compose.yaml</span> 📄</h1>
+    <p class="lead mt in" style="--d:.3s">ჯერ შენს კომპიუტერზე</p>
+  </div>
+  <div class="big-num">01</div>
+  <aside class="study">
+## ნაწილი 1 · compose.yaml
+
+ჯერ ყველაფერს შენს კომპიუტერზე ვაწყობთ — და მხოლოდ მერე სერვერზე, უცვლელად.
+  </aside>
+</section>
+
+<section class="slide" data-section="1 · Compose">
+  <div class="kicker">პრობლემა</div>
+  <h2>ორი კონტეინერი — <span class="c-red">ორი გრძელი ბრძანება</span></h2>
+  <div class="grid2" style="grid-template-columns:1.3fr 1fr">
+    <code-block lang="console" cls="sm in" title="წინა ლექციიდან" style="--d:0.20s">
+$ docker run -d --name lms-db \
+    -e POSTGRES_USER=lms -e POSTGRES_PASSWORD=dev \
+    -e POSTGRES_DB=lms -p 5432:5432 \
+    -v lms-data:/var/lib/postgresql/data postgres:17
+
+$ docker build -t lms-api .
+$ docker run -d --name lms-api -p 8080:8080 \
+    -e ASPNETCORE_ENVIRONMENT=Development \
+    -e ConnectionStrings__Default="Host=host.docker.internal;…" \
+    lms-api
+    </code-block>
+    <div class="col">
+      <div class="problem in right" style="--d:.4s;display:block">📝 ზეპირად? README-ში? — <b>ერთი შეცდომა</b> და არ მუშაობს</div>
+      <div class="problem in right" style="--d:.55s;display:block">🔗 <code class="i">host.docker.internal</code> — „შემოვლითი გზა“</div>
+      <div class="problem in right" style="--d:.7s;display:block">⏱️ API ბაზაზე ადრე → crash</div>
+      <div class="callout step" style="--a:var(--mvc)"><b>Docker Compose</b>: მთელი სისტემა — ფაილში, რომელიც Git-ში ინახება</div>
+    </div>
+  </div>
+  <aside class="study">
+### პრობლემა: ორი კონტეინერი — ორი გრძელი ბრძანება
+
+წინა ლექციის ბოლოს LMS ორი კონტეინერით მუშაობდა — მაგრამ:
+
+- 📝 ორი გრძელი `docker run` — ზეპირად ან README-დან კოპირებით; ერთი შეცდომა და არ მუშაობს;
+- 🔗 API ბაზას `host.docker.internal`-ით პოულობს — „შემოვლით“, შენი კომპიუტერის გავლით;
+- ⏱️ თუ API ბაზაზე ადრე ჩაირთო — ვარდება.
+
+**Docker Compose** მთელ სისტემას — ყველა კონტეინერს, მათ პარამეტრებს და კავშირებს — **ერთ ფაილში** აღწერს: `compose.yaml`. ფაილი Git-ში ინახება, და ნებისმიერ კომპიუტერზე ერთი ბრძანებით ეშვება.
+  </aside>
+</section>
+
+<section class="slide" data-section="1 · Compose">
+  <div class="kicker">ვაკეთებთ ერთად · ნაბიჯი 1</div>
+  <h2><span class="mono c-asp">compose.yaml</span> — LMS-ის რეპოს root-ში</h2>
+  <div class="grid2" style="grid-template-columns:1fr 1.1fr">
+    <code-block lang="yaml" cls="sm in" title="compose.yaml · 1/2" style="--d:0.20s">
+services:
+  db:
+    image: postgres:17
+    environment:
+      POSTGRES_USER: lms
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: lms
+    volumes:
+      - lms-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U lms -d lms"]
+      interval: 5s
+      retries: 10
+    restart: unless-stopped
+    </code-block>
+    <code-block lang="yaml" cls="sm in" title="compose.yaml · 2/2" style="--d:0.40s">
+  api:
+    build: .
+    ports:
+      - "127.0.0.1:5000:8080"
+    environment:
+      ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Production}
+      ConnectionStrings__Default: "Host=db;…;Password=${DB_PASSWORD}"
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+
+volumes:
+  lms-data:
+    </code-block>
+  </div>
+  <div class="row mt" style="gap:14px;flex-wrap:wrap">
+    <div class="callout step" style="--a:var(--net);flex:1">🔗 <b>Host=db</b> — სერვისის სახელი = მისამართი</div>
+    <div class="callout step" style="--a:var(--mvc);flex:1" data-with>⏱️ <b>depends_on</b> → API მხოლოდ <b>healthy</b> ბაზის შემდეგ</div>
+    <div class="callout step" style="--a:var(--asp);flex:1" data-with>♾️ <b>restart</b> — როგორც systemd-ის Restart=always</div>
+  </div>
+  <aside class="study">
+### ნაბიჯი 1 · compose.yaml
+
+LMS-ის რეპოს root-ში, `Dockerfile`-ის გვერდით:
+
+```yaml compose.yaml
+services:
+  db:
+    image: postgres:17
+    environment:
+      POSTGRES_USER: lms
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: lms
+    volumes:
+      - lms-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U lms -d lms"]
+      interval: 5s
+      retries: 10
+    restart: unless-stopped
+
+  api:
+    build: .
+    ports:
+      - "127.0.0.1:5000:8080"
+    environment:
+      ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Production}
+      ConnectionStrings__Default: "Host=db;Database=lms;Username=lms;Password=${DB_PASSWORD}"
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+
+volumes:
+  lms-data:
+```
+
+| ნაწილი | რას ნიშნავს | `docker run`-ში იყო |
+|---|---|---|
+| `services:` | კონტეინერების სია; სახელი (`db`, `api`) — შენი არჩეული | `--name` |
+| `image:` / `build: .` | მზა image / ააწყე მიმდინარე საქაღალდის Dockerfile-ით | `docker build` |
+| `environment:` | გარემოს ცვლადები | `-e` |
+| `volumes:` | volume-ის მიბმა; ქვედა `volumes:` — მისი გამოცხადება | `-v` |
+| `ports:` | `IP:ჰოსტი:კონტეინერი` | `-p` |
+| `healthcheck:` | ბრძანება, რომელიც ამოწმებს, ბაზა მართლა მზადაა თუ არა (`pg_isready`) | — |
+| `depends_on` + `service_healthy` | API მხოლოდ **healthy** ბაზის შემდეგ ირთვება | — |
+| `restart: unless-stopped` | crash-ზე და სერვერის reboot-ზე თავისით ირთვება — როგორც systemd-ის `Restart=always` | — |
+
+**`Host=db`** — Compose ყველა სერვისს **ერთ ქსელში** სვამს, სადაც სერვისის სახელი მისამართად მუშაობს. `host.docker.internal` აღარ გვჭირდება.
+
+**YAML** — ფორმატი, სადაც სტრუქტურას **შეწევა** (space-ები) განსაზღვრავს, არა `{ }`. მხოლოდ space-ები, არა Tab; ერთ დონეზე — ერთნაირი შეწევა.
+  </aside>
+</section>
+
+<section class="slide" data-section="1 · Compose">
+  <div class="kicker">ნაბიჯი 2 · საიდუმლოებები და მიგრაციები</div>
+  <h2><span class="mono c-red">.env</span> და <span class="c-mvc">Migrate()</span></h2>
+  <div class="grid2" style="grid-template-columns:1fr 1.1fr">
+    <div class="col">
+      <code-block lang="ini" cls="big in" title=".env (შენთან)" style="--d:0.20s">
+DB_PASSWORD=dev
+ASPNETCORE_ENVIRONMENT=Development
+      </code-block>
+      <code-block lang="plain" cls="in" title=".gitignore" style="--d:0.35s">
+.env
+      </code-block>
+      <div class="callout step" style="--a:var(--red)">🔑 <code class="i">${DB_PASSWORD}</code> — Compose <code class="i">.env</code>-იდან ჩასვამს. <b>.env — არასოდეს Git-ში</b> (მე-3 ლექცია!)</div>
+    </div>
+    <div class="col">
+      <code-block lang="csharp" cls="in" title="Program.cs — app.Build()-ის შემდეგ" style="--d:0.50s">
+var app = builder.Build();
+
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider
+        .GetRequiredService<LmsDbContext>();
+    db.Database.Migrate();
+}
+      </code-block>
+      <div class="callout step" style="--a:var(--mvc)">აპი ჩართვისას თვითონ უშვებს <b>აკლებულ</b> მიგრაციებს — <code class="i">psql -f migrate.sql</code> აღარ გვჭირდება</div>
+    </div>
+  </div>
+  <aside class="study">
+### ნაბიჯი 2 · საიდუმლოებები და მიგრაციები
+
+**`.env`** — Compose `compose.yaml`-ის გვერდით მდებარე `.env` ფაილს **ავტომატურად** კითხულობს და `${სახელი}`-ს მის მნიშვნელობას უსვამს:
+
+```ini .env (შენთან)
+DB_PASSWORD=dev
+ASPNETCORE_ENVIRONMENT=Development
+```
+
+`${ASPNETCORE_ENVIRONMENT:-Production}` — თუ ცვლადი არ არის მითითებული, ნაგულისხმევად `Production`. შენთან `.env`-ში `Development` წერია (Swagger ჩანს), სერვერზე — `Production`.
+
+```warn
+`.env` **არასოდეს** Git-ში — დაამატე `.gitignore`-ში (მე-3 ლექცია). სერვერზე ცალკე `.env` შეიქმნება, სხვა, ძლიერი პაროლით.
+```
+
+**მიგრაციები ჩართვისას.** წინა ლექციებზე მიგრაციებს ცალკე SQL სკრიპტით ვუშვებდით. ახლა აპი ჩართვისას თვითონ უშვებს მათ:
+
+```csharp Program.cs
+var app = builder.Build();
+
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<LmsDbContext>();
+    db.Database.Migrate();
+}
+```
+
+`Migrate()` ამოწმებს, რომელი მიგრაცია აკლია ბაზას, და მხოლოდ მათ უშვებს — იგივე, რაც `--idempotent` სკრიპტი. `depends_on: service_healthy`-ის წყალობით ამ დროს ბაზა უკვე მზადაა.
+
+```note
+ერთი სერვერისთვის და სასწავლო პროექტისთვის ეს მარტივი და საიმედოა. დიდ სისტემებში, სადაც API რამდენიმე ეგზემპლარად ეშვება, მიგრაციებს ცალკე ნაბიჯად უშვებენ (`efbundle` ან SQL სკრიპტი pipeline-ში).
+```
+  </aside>
+</section>
+
+<section class="slide" data-section="1 · Compose">
+  <div class="kicker">ნაბიჯი 3 · გაშვება</div>
+  <h2><span class="c-mvc">up</span> · ps · logs · <span class="c-red">down</span></h2>
+  <div class="grid2" style="grid-template-columns:1.25fr 1fr">
+    <code-block lang="console" cls="sm in" title="WSL · LMS-ის რეპო" style="--d:0.20s">
+$ docker compose up -d --build
+[+] Building 41.3s (14/14) FINISHED
+[+] Running 4/4
+ ✔ Network lms_default   Created
+ ✔ Volume "lms_lms-data" Created
+ ✔ Container lms-db-1    Healthy
+ ✔ Container lms-api-1   Started
+
+$ docker compose ps
+NAME        SERVICE  STATUS                   PORTS
+lms-db-1    db       Up 20 seconds (healthy)  5432/tcp
+lms-api-1   api      Up 8 seconds             127.0.0.1:5000->8080/tcp
+
+$ docker compose logs -f api
+info: Microsoft.EntityFrameworkCore.Migrations[20402]
+      Applying migration '20261128_InitialCreate'.
+info: Now listening on: http://[::]:8080
+    </code-block>
+    <div class="col">
+      <table class="t in" style="--d:0.40s;font-size:18px">
+        <tr><th>ბრძანება</th><th>რას აკეთებს</th></tr>
+        <tr><td class="mono">up -d --build</td><td>ააწყე და გაუშვი ფონზე</td></tr>
+        <tr><td class="mono">ps</td><td>სტატუსები</td></tr>
+        <tr><td class="mono">logs -f api</td><td>ერთი სერვისის ლოგი</td></tr>
+        <tr><td class="mono">restart api</td><td>გადატვირთვა</td></tr>
+        <tr><td class="mono">down</td><td>გაჩერება, <b>ბაზა რჩება</b></td></tr>
+        <tr><td class="mono c-red">down -v</td><td class="c-red"><b>⚠ ბაზაც იშლება</b></td></tr>
+      </table>
+      <div class="callout step" style="--a:var(--mvc)">🌐 <code class="i">http://localhost:5000/swagger</code></div>
+    </div>
+  </div>
+  <aside class="study">
+### ნაბიჯი 3 · გაშვება
+
+წინა ლექციის კონტეინერები აღარ გვჭირდება: `docker rm -f lms-api lms-db`. მერე:
+
+```console WSL · LMS-ის რეპო
+$ docker compose up -d --build
+ ✔ Network lms_default   Created
+ ✔ Volume "lms_lms-data" Created
+ ✔ Container lms-db-1    Healthy
+ ✔ Container lms-api-1   Started
+```
+
+Compose-მა შექმნა ქსელი, volume, ჩართო ბაზა, **დაელოდა** `healthy`-ს და მხოლოდ მერე ჩართო API. ბრაუზერში — `http://localhost:5000/swagger`.
+
+```console WSL
+$ docker compose logs -f api
+info: Microsoft.EntityFrameworkCore.Migrations[20402]
+      Applying migration '20261128_InitialCreate'.
+info: Now listening on: http://[::]:8080
+```
+
+| ბრძანება | რას აკეთებს |
+|---|---|
+| `docker compose up -d --build` | (ხელახლა) ააწყე image და გაუშვი ყველაფერი ფონზე |
+| `docker compose ps` | სერვისების სტატუსები |
+| `docker compose logs -f api` | ერთი სერვისის ლოგი ცოცხლად |
+| `docker compose restart api` | ერთი სერვისის გადატვირთვა |
+| `docker compose exec db psql -U lms` | ბრძანება სერვისის შიგნით |
+| `docker compose down` | კონტეინერების და ქსელის წაშლა — **volume (ბაზა) რჩება** |
+| `docker compose down -v` | ⚠ **volume-ებიც** — ბაზა სამუდამოდ იკარგება |
+
+```warn
+`down -v` სერვერზე = მთელი ბაზის წაშლა. ეს ბრძანება მხოლოდ მაშინ, როცა **ზუსტად** გინდა ბაზის ნულიდან შექმნა — და backup გაქვს.
+```
+  </aside>
+</section>
+
+<section class="slide" data-section="☕ შესვენება">
+  <div class="center">
+    <div class="big-emoji float" style="font-size:120px">☕</div>
+    <h1 class="mt">შესვენება</h1>
+    <p class="lead mt">10 წუთი · მერე — იგივე, ოღონდ სერვერზე</p>
+  </div>
+</section>
+
+<!-- ================= PART 2: SERVER ================= -->
+<section class="slide divider" data-section="2 · სერვერზე">
+  <div class="vcenter">
+    <div class="kicker in">ნაწილი 2</div>
+    <h1 class="in" style="--d:.1s">იგივე ფაილი — <span class="grad">სერვერზე</span></h1>
+    <p class="lead mt in" style="--d:.3s">Docker Droplet-ზე · Nginx → კონტეინერი · განახლება · backup</p>
+  </div>
+  <div class="big-num">02</div>
+  <aside class="study">
+## ნაწილი 2 · იგივე ფაილი — სერვერზე
+
+`compose.yaml` Git-შია. სერვერზე მას არაფერი ეცვლება — მხოლოდ `.env` იქნება სხვა.
+  </aside>
+</section>
+
+<section class="slide" data-section="2 · სერვერზე">
+  <div class="kicker">ნაბიჯი 4 · Docker სერვერზე</div>
+  <h2>Docker Engine — <span class="c-api">Ubuntu-ზე</span></h2>
+  <div class="grid2" style="grid-template-columns:1.2fr 1fr">
+    <code-block lang="console" cls="in" title="lms-server" style="--d:0.20s">
+$ curl -fsSL https://get.docker.com | sudo sh
+...
+Client: Docker Engine - Community
+Server: Docker Engine - Community
+
+$ sudo usermod -aG docker $USER
+$ exit
+$ ssh lms                      # ჯგუფი ამოქმედდა
+$ docker compose version
+Docker Compose version v2.x
+
+# მე-8 ლექციის ხელით გაშვებული — აღარ გვჭირდება
+$ sudo systemctl disable --now lms-api postgresql
+    </code-block>
+    <div class="col">
+      <div class="card accent in right" style="--d:0.40s;--a:var(--net)"><h3>📜 get.docker.com</h3><p>Docker-ის ოფიციალური სკრიპტი: repo + Engine + <b>Compose</b> ერთად</p></div>
+      <div class="card accent in right" style="--d:0.55s;--a:var(--asp)"><h3>👥 docker ჯგუფი</h3><p>რომ <code class="i">sudo</code>-ს გარეშე იმუშაო. ამოქმედდება <b>ხელახლა შესვლის</b> შემდეგ</p></div>
+      <div class="callout step" style="--a:var(--mvc)">💾 1 GB RAM-ზე build-ს <b>swap</b> უშველის — მე-6 ლექციაში დავამატეთ</div>
+    </div>
+  </div>
+  <aside class="study">
+### ნაბიჯი 4 · Docker სერვერზე
+
+სერვერზე Docker Desktop არ გვჭირდება — მხოლოდ **Docker Engine** (ტერმინალის ვერსია):
+
+```console lms-server
+$ curl -fsSL https://get.docker.com | sudo sh
+$ sudo usermod -aG docker $USER
+$ exit
+$ ssh lms
+$ docker compose version
+```
+
+- `get.docker.com` — Docker-ის ოფიციალური სკრიპტი: ამატებს Docker-ის apt repo-ს და აყენებს Engine-ს და Compose-ს. (`curl … | sh` — ინტერნეტიდან ჩამოტვირთული სკრიპტის გაშვება; ამას მხოლოდ სანდო, ოფიციალურ წყაროზე ვაკეთებთ.)
+- `usermod -aG docker $USER` — `docker` ჯგუფში ყოფნა საშუალებას გაძლევს `sudo`-ს გარეშე იმუშაო. ჯგუფი ამოქმედდება ხელახლა შესვლის შემდეგ.
+
+**ძველის გაჩერება.** მე-8 ლექციის systemd სერვისი და apt-ით დაყენებული PostgreSQL აღარ გვჭირდება — ისინი RAM-ს ჭამენ:
+
+```console lms-server
+$ sudo systemctl disable --now lms-api postgresql
+```
+
+`disable --now` = გაჩერება ახლა + აღარ ჩაირთოს reboot-ზე.
+
+```tip
+1 GB RAM-იან სერვერზე `docker compose up --build` (.NET-ის build) მეხსიერებას საზღვრამდე იყენებს. მე-6 ლექციაში დამატებული **swap** აქ გვიცავს. მე-12 ლექციაზე build სერვერიდან საერთოდ გადავა GitHub-ზე.
+```
+  </aside>
+</section>
+
+<section class="slide" data-section="2 · სერვერზე">
+  <div class="kicker">ნაბიჯი 5 · გაშვება სერვერზე</div>
+  <h2>clone · <span class="mono c-red">.env</span> · <span class="c-mvc">up</span></h2>
+  <div class="grid2" style="grid-template-columns:1.2fr 1fr">
+    <code-block lang="console" cls="in" title="lms-server" style="--d:0.20s">
+$ git clone https://github.com/giorgi/lms.git ~/lms
+$ cd ~/lms
+
+$ nano .env
+DB_PASSWORD=h7Kq2-xR9v-Lm4Z
+ASPNETCORE_ENVIRONMENT=Production
+$ chmod 600 .env
+
+$ docker compose up -d --build
+ ✔ Container lms-db-1   Healthy
+ ✔ Container lms-api-1  Started
+
+$ curl http://127.0.0.1:5000/api/courses
+[]
+    </code-block>
+    <div class="col">
+      <div class="card accent in right" style="--d:0.40s;--a:var(--red)"><h3>🔑 სერვერის .env</h3><p><b>სხვა, ძლიერი</b> პაროლი. <code class="i">chmod 600</code> — მხოლოდ შენ</p></div>
+      <div class="card accent in right" style="--d:0.55s;--a:var(--mvc)"><h3>📄 compose.yaml</h3><p>Git-იდან — <b>უცვლელად</b>. იგივე ფაილი, რაც შენთან</p></div>
+      <div class="callout step" style="--a:var(--net)">მე-8 ლექციის 10 ნაბიჯი → <b>3 ბრძანება</b></div>
+    </div>
+  </div>
+  <aside class="study">
+### ნაბიჯი 5 · გაშვება სერვერზე
+
+```console lms-server
+$ git clone https://github.com/giorgi/lms.git ~/lms
+$ cd ~/lms
+$ nano .env
+```
+
+```ini .env (სერვერზე)
+DB_PASSWORD=h7Kq2-xR9v-Lm4Z
+ASPNETCORE_ENVIRONMENT=Production
+```
+
+```console lms-server
+$ chmod 600 .env
+$ docker compose up -d --build
+ ✔ Container lms-db-1   Healthy
+ ✔ Container lms-api-1  Started
+
+$ curl http://127.0.0.1:5000/api/courses
+[]
+```
+
+- `compose.yaml` — Git-იდან, **უცვლელად**: ზუსტად ის ფაილი, რომელიც შენთან მუშაობდა.
+- `.env` — **ხელით**, მხოლოდ სერვერზე: სხვა, ძლიერი პაროლით და `Production`-ით. `chmod 600` — წაკითხვა მხოლოდ შენ შეგიძლია.
+
+მე-8 ლექციის 10 ხელით ნაბიჯი — runtime, PostgreSQL, user, ბაზა, publish, rsync, მიგრაციები, unit ფაილი… — ახლა **სამი ბრძანებაა**: `clone`, `.env`, `up`.
+
+```tip
+ძლიერი პაროლის გენერაცია: `openssl rand -base64 24`.
+```
+  </aside>
+</section>
+
+<section class="slide" data-section="2 · სერვერზე">
+  <div class="kicker">ნაბიჯი 6 · Nginx → კონტეინერი</div>
+  <h2>Nginx <span class="c-mvc">არ იცვლება</span> — და ერთი <span class="c-red">ხაფანგი</span></h2>
+  <div class="grid2" style="grid-template-columns:1fr 1fr">
+    <div class="col">
+      <code-block lang="nginx" cls="in" title="sites-available/lms-api — უცვლელი" style="--d:0.20s">
+location / {
+    proxy_pass http://127.0.0.1:5000;
+    ...
+}
+      </code-block>
+      <div class="callout step" style="--a:var(--mvc)">მე-8 ლექციაში API 127.0.0.1:5000-ზე იყო — კონტეინერი <b>იმავე</b> port-ზე გამოვიდა. 🌐 <code class="i">http://&lt;IP&gt;:8081/api/courses</code></div>
+    </div>
+    <div class="col">
+      <div class="card accent in right" style="--d:0.40s;--a:var(--red)"><h3>⚠ Docker ufw-ს გვერდს უვლის</h3>
+        <p class="mono" style="font-size:17px;line-height:1.8"><span class="c-red">"5000:8080"</span> → ინტერნეტში ღიაა!<br><span class="c-mvc">"127.0.0.1:5000:8080"</span> → მხოლოდ შიგნით ✓</p>
+        <p class="tiny mt">ბაზას <code class="i">ports</code> საერთოდ არ აქვს — API მას Docker-ის ქსელში პოულობს</p></div>
+    </div>
+  </div>
+  <aside class="study">
+### ნაბიჯი 6 · Nginx → კონტეინერი
+
+Nginx-ის კონფიგი **არ იცვლება**: მე-8 ლექციაში API `127.0.0.1:5000`-ზე იყო, და კონტეინერი ზუსტად იმავე port-ზე გამოვიყვანეთ (`"127.0.0.1:5000:8080"`). Nginx-ისთვის განსხვავება არ არსებობს — `http://<IP>:8081/api/courses` ახლა კონტეინერიდან პასუხობს.
+
+**⚠ ხაფანგი: Docker ufw-ს გვერდს უვლის.** Docker port-ების გასახსნელად firewall-ის წესებს პირდაპირ ცვლის — `ufw`-ის გავლის გარეშე. ამიტომ:
+
+| ჩანაწერი | შედეგი |
+|---|---|
+| `"5000:8080"` | port 5000 **ინტერნეტში ღიაა**, `ufw`-ის მიუხედავად |
+| `"127.0.0.1:5000:8080"` | მხოლოდ სერვერის შიგნიდან — Nginx-ისთვის ✓ |
+
+ბაზის სერვისს `ports` **საერთოდ არ აქვს**: API მას Docker-ის შიდა ქსელში, `db` სახელით პოულობს. ინტერნეტიდან ბაზამდე გზა არ არსებობს.
+
+```warn
+სერვერზე `ports`-ში ყოველთვის `127.0.0.1:` — თუ port-ს მხოლოდ Nginx იყენებს. ბაზის port-ს კი არასოდეს ვხსნით.
+```
+  </aside>
+</section>
+
+<section class="slide" data-section="2 · სერვერზე">
+  <div class="kicker">ნაბიჯი 7 · ცხოვრება სერვერზე</div>
+  <h2>განახლება · <span class="c-mvc">backup</span> · მონიტორინგი</h2>
+  <div class="grid3" style="gap:20px">
+    <div class="col">
+      <h3>🔁 ახალი ვერსია</h3>
+      <code-block lang="console" cls="sm in" title="lms-server" style="--d:0.20s">
+$ cd ~/lms
+$ git pull
+$ docker compose up -d --build
+      </code-block>
+      <p class="tiny">იცვლება მხოლოდ <code class="i">api</code>; ბაზა volume-ში რჩება</p>
+    </div>
+    <div class="col">
+      <h3>💾 backup</h3>
+      <code-block lang="console" cls="sm in" title="lms-server" style="--d:0.40s">
+$ docker compose exec db \
+    pg_dump -U lms lms \
+    > ~/backups/lms-$(date +%F).sql
+      </code-block>
+      <p class="tiny">აღდგენა: <code class="i">cat backup.sql | docker compose exec -T db psql -U lms lms</code></p>
+    </div>
+    <div class="col">
+      <h3>📈 რა ხდება?</h3>
+      <code-block lang="console" cls="sm in" title="lms-server" style="--d:0.60s">
+$ docker compose ps
+$ docker compose logs -f api
+$ docker stats
+      </code-block>
+      <p class="tiny"><code class="i">docker stats</code> — CPU და RAM თითოეულ კონტეინერზე</p>
+    </div>
+  </div>
+  <div class="callout step mt2" style="--a:var(--asp);font-size:22px">მაინც <b>ხელით</b>: ssh → cd → git pull → up. დაგავიწყდა? — სერვერზე ძველი ვერსიაა. → <b>მე-12 ლექცია: CI/CD</b></div>
+  <aside class="study">
+### ნაბიჯი 7 · ცხოვრება სერვერზე
+
+**🔁 ახალი ვერსია:**
+
+```console lms-server
+$ cd ~/lms
+$ git pull
+$ docker compose up -d --build
+```
+
+Compose ახალ image-ს ააწყობს და **მხოლოდ შეცვლილ** სერვისს (`api`) შეცვლის. ბაზა volume-ში რჩება, მიგრაციები `Migrate()`-ით ავტომატურად გაეშვება.
+
+**💾 backup:**
+
+```console lms-server
+$ mkdir -p ~/backups
+$ docker compose exec db pg_dump -U lms lms > ~/backups/lms-$(date +%F).sql
+```
+
+`pg_dump` ბაზას SQL ფაილად აქცევს; `$(date +%F)` ფაილის სახელში დღევანდელ თარიღს სვამს. აღდგენა:
+
+```console lms-server
+$ cat ~/backups/lms-2026-12-05.sql | docker compose exec -T db psql -U lms lms
+```
+
+**📈 მონიტორინგი:**
+
+```console lms-server
+$ docker compose ps              # ყველა სერვისი მუშაობს?
+$ docker compose logs -f api     # API-ს ლოგი
+$ docker stats                   # CPU / RAM კონტეინერებზე (Ctrl+C)
+```
+
+```note
+backup იმავე სერვერზე — ნახევარი backup-ია: თუ სერვერი დაიკარგა, backup-იც დაიკარგება. რეალურ პროექტში მას სხვაგან ინახავენ (მაგ. DigitalOcean Spaces) და ავტომატურად, ყოველ ღამე.
+```
+
+**რა დარჩა ხელით:** ყოველ განახლებაზე — `ssh` → `cd` → `git pull` → `up`. თუ დაგავიწყდა, სერვერზე ძველი ვერსიაა. მე-12 ლექციაზე ამას GitHub Actions გააკეთებს — ყოველ `git push`-ზე.
+  </aside>
+</section>
+
+<section class="slide" data-section="2 · სერვერზე">
+  <div class="kicker">შედარება</div>
+  <h2>მე-8 ლექცია vs <span class="c-mvc">დღეს</span></h2>
+  <table class="t in" style="--d:0.20s;font-size:20px">
+    <tr><th></th><th>ხელით (ლექცია 8)</th><th>Compose (დღეს)</th></tr>
+    <tr><td>.NET runtime</td><td>apt, სწორი ვერსია</td><td class="c-mvc">image-შია</td></tr>
+    <tr><td>PostgreSQL</td><td>apt + psql-ში user და ბაზა</td><td class="c-mvc"><code class="i">image: postgres:17</code></td></tr>
+    <tr><td>მიგრაციები</td><td>script → scp → psql -f</td><td class="c-mvc">Migrate() ჩართვისას</td></tr>
+    <tr><td>24/7, crash, reboot</td><td>systemd unit ფაილი</td><td class="c-mvc"><code class="i">restart: unless-stopped</code></td></tr>
+    <tr><td>პარამეტრები</td><td>unit ფაილში, სერვერზე</td><td class="c-mvc">compose.yaml — Git-ში</td></tr>
+    <tr><td>ახალი სერვერი</td><td>~10 ნაბიჯი თავიდან</td><td class="c-mvc">Docker + clone + .env + up</td></tr>
+    <tr><td>გუნდელის კომპიუტერი</td><td>„ჩემთან მუშაობს“</td><td class="c-mvc">იგივე compose.yaml</td></tr>
+  </table>
+  <aside class="study">
+### შედარება: მე-8 ლექცია vs დღეს
+
+| | ხელით (ლექცია 8) | Compose (დღეს) |
+|---|---|---|
+| .NET runtime | apt, ზუსტად სწორი ვერსია | image-შია |
+| PostgreSQL | apt + `psql`-ში user და ბაზა | `image: postgres:17` + env |
+| მიგრაციები | script → scp → `psql -f` | `Migrate()` ჩართვისას |
+| 24/7, crash, reboot | systemd unit ფაილი | `restart: unless-stopped` |
+| პარამეტრები | unit ფაილში, მხოლოდ სერვერზე | `compose.yaml` — Git-ში, `.env` — სერვერზე |
+| ახალი სერვერი | ~10 ნაბიჯი თავიდან | Docker → clone → `.env` → `up` |
+| გუნდელის კომპიუტერი | „ჩემთან მუშაობს“ | იგივე `compose.yaml` |
+
+Nginx და მე-8 ლექციის ცოდნა არსად გაქრა: Docker-ის შიგნითაც იგივე runtime, იგივე გარემოს ცვლადები, იგივე port-ები და იგივე „ჯერ ბაზა, მერე API“ მუშაობს. Docker უბრალოდ ამ ყველაფერს **ფაილად** აქცევს.
+  </aside>
+</section>
+
+<section class="slide" data-section="შეჯამება">
+  <div class="kicker">შპარგალკა</div>
+  <h2>Compose — <span class="c-api">ბრძანებები</span></h2>
+  <div class="grid2" style="gap:30px">
+    <div class="card accent in" style="--d:0.20s;--a:var(--mvc)"><h3>🐳 docker compose</h3><p class="mono" style="font-size:17px;line-height:1.85">up -d --build<br>ps · logs -f api<br>restart api<br>exec db psql -U lms<br>down · <span class="c-red">down -v ⚠</span></p></div>
+    <div class="card accent in" style="--d:0.40s;--a:var(--net)"><h3>🖥️ სერვერზე</h3><p class="mono" style="font-size:17px;line-height:1.85">get.docker.com · usermod -aG docker<br>git clone · nano .env · chmod 600<br>git pull · up -d --build<br>pg_dump → ~/backups</p></div>
+  </div>
+  <aside class="study">
+### შპარგალკა: Docker Compose
+
+| ბრძანება | რას აკეთებს |
+|---|---|
+| `docker compose up -d --build` | ააწყე და გაუშვი ფონზე |
+| `docker compose ps` | სტატუსები (healthy / running) |
+| `docker compose logs -f api` | ერთი სერვისის ლოგი |
+| `docker compose restart api` | ერთი სერვისის გადატვირთვა |
+| `docker compose exec db psql -U lms` | ბრძანება სერვისის შიგნით |
+| `docker compose down` | გაჩერება და წაშლა — ბაზა რჩება |
+| `docker compose down -v` | ⚠ ბაზაც იშლება |
+
+**სერვერზე, ერთხელ:** `curl -fsSL https://get.docker.com | sudo sh` → `usermod -aG docker $USER` → `git clone` → `.env` (`chmod 600`) → `up -d --build`.
+
+**ყოველ განახლებაზე:** `git pull` → `docker compose up -d --build`.
+
+**backup:** `docker compose exec db pg_dump -U lms lms > ~/backups/lms-$(date +%F).sql`
+
+**compose.yaml-ის წესები:** სერვისი = მისამართი (`Host=db`); ბაზას — volume და healthcheck; `depends_on: service_healthy`; `restart: unless-stopped`; სერვერზე `ports` — `127.0.0.1:`-ით; საიდუმლოებები — `.env`-ში, `.gitignore`-ით.
+  </aside>
+</section>
+
+<lecture-classwork/>
+<lecture-check/>
+
+<section class="slide" data-section="შეჯამება">
+  <div class="kicker">შეჯამება</div>
+  <h2>დღეს ვისწავლეთ</h2>
+  <div class="col" style="gap:28px;margin-top:30px">
+    <div class="row in left" style="--d:0.20s;gap:20px;align-items:center"><span class="big-emoji" style="font-size:42px">📄</span><span style="font-size:28px"><b>compose.yaml</b> — მთელი სისტემა ერთ ფაილში, Git-ში</span></div>
+    <div class="row in left" style="--d:0.35s;gap:20px;align-items:center"><span class="big-emoji" style="font-size:42px">🔗</span><span style="font-size:28px"><b>Host=db</b>, healthcheck, depends_on, restart</span></div>
+    <div class="row in left" style="--d:0.50s;gap:20px;align-items:center"><span class="big-emoji" style="font-size:42px">🔑</span><span style="font-size:28px"><b>.env</b> — საიდუმლოებები Git-ის გარეთ; Migrate() ჩართვისას</span></div>
+    <div class="row in left" style="--d:0.65s;gap:20px;align-items:center"><span class="big-emoji" style="font-size:42px">🚀</span><span style="font-size:28px"><b>სერვერზე</b> — clone + .env + up; <code class="i">127.0.0.1:</code> port-ებში; backup</span></div>
+  </div>
+  <p class="lead in mt" style="--d:0.85s;text-align:center">შემდეგ ლექციაზე: <b>დომენი და HTTPS</b> — IP-ების და port-ების ნაცვლად 🔒</p>
+  <aside class="study">
+## შეჯამება · დღეს ვისწავლეთ
+
+- 📄 **compose.yaml** — ყველა სერვისი, მათი პარამეტრები და კავშირები ერთ ფაილში, რომელიც Git-ში ინახება.
+- 🔗 **კავშირები** — სერვისის სახელი = მისამართი (`Host=db`); `healthcheck` + `depends_on: service_healthy`; `restart: unless-stopped`.
+- 🔑 **`.env`** — საიდუმლოებები `compose.yaml`-ის გარეთ, `.gitignore`-ში; სერვერზე — ცალკე, `chmod 600`.
+- 🗄️ **`Database.Migrate()`** — მიგრაციები აპის ჩართვისას.
+- 🚀 **სერვერზე** — Docker Engine, `git clone`, `.env`, `docker compose up -d --build`. Nginx უცვლელია; `ports` — `127.0.0.1:`-ით, რადგან Docker ufw-ს გვერდს უვლის.
+- 💾 **ცხოვრება** — `git pull` + `up` განახლებისთვის, `pg_dump` backup-ისთვის, `logs`/`stats` მონიტორინგისთვის.
+
+**შემდეგ ლექციაზე:** `http://164.90.12.34:8081` — არც ლამაზია, არც უსაფრთხო. ვყიდულობთ დომენს, ვრთავთ HTTPS-ს და საიდუმლოებებს წესრიგში ვალაგებთ.
+
+```prompt გამოცდა მეათე ლექციაზე
+ვსწავლობ DevOps-ს. მეათე ლექციაზე გავიარეთ Docker Compose ASP.NET Core API-სთვის და PostgreSQL-ისთვის: compose.yaml (services, image, build, ports, environment, volumes, healthcheck, depends_on service_healthy, restart), სერვისის სახელი როგორც მისამართი, .env და ${VAR}, Database.Migrate(), docker compose up/ps/logs/down/down -v, Docker-ის დაყენება Ubuntu სერვერზე, Nginx reverse proxy კონტეინერზე, Docker და ufw (127.0.0.1 port-ებში), pg_dump backup.
+დამისვი 8 კითხვა სათითაოდ, მარტივიდან რთულისკენ — ნაწილი სიტუაციური იყოს („API ვარდება Connection refused-ით, რას შეამოწმებ?“). ყოველ პასუხზე შემიფასე და ამიხსენი. ბოლოს მითხარი, რა გავიმეორო. ქართულად.
+```
+
+```prompt ჩემი compose.yaml-ის განხილვა
+ვსწავლობ Docker Compose-ს. ეს არის ჩემი compose.yaml ASP.NET Core API-სთვის და PostgreSQL-ისთვის. ამიხსენი ქართულად, რას აკეთებს თითოეული ნაწილი, და მითხარი, რა არის სახიფათო ან გასაუმჯობესებელი სერვერზე გასაშვებად (port-ები, პაროლები, volume, restart) — მარტივად. compose.yaml: [აქ ჩასვი, პაროლების გარეშე]
+```
+  </aside>
+</section>
+<lecture-homework/>
