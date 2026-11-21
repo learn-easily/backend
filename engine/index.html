@@ -34,6 +34,15 @@ h1{font-size:34px;line-height:1.1;margin:0;font-weight:800;letter-spacing:-.01em
 .course>h2{display:flex;align-items:center;gap:12px;font-size:28px;margin:0 0 18px;font-weight:800}
 .course>h2::before{content:"";width:6px;height:28px;border-radius:3px;background:var(--c)}
 .course>h2 small{font:500 13px var(--mono);color:var(--muted)}
+.links{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(560px,100%),1fr));gap:16px;margin:0 0 16px}
+.link{display:flex;gap:16px;align-items:center;background:linear-gradient(135deg,color-mix(in srgb,var(--c) 10%,#fff),#fff);border:1px solid color-mix(in srgb,var(--c) 30%,var(--line));border-radius:16px;padding:16px 18px}
+.link .ic{font-size:40px;line-height:1}
+.link .bd{flex:1;min-width:0}
+.link .tt{font-weight:800;font-size:18px;color:var(--ink);text-decoration:none}
+.link .tt:hover{color:var(--c)}
+.link .ds{color:var(--muted);font-size:14px;margin-top:2px}
+.link .la{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
+.link .la .btn{flex:0 0 auto}
 .course .soon{color:var(--muted);background:var(--card);border:1px dashed var(--line);border-radius:16px;padding:22px;text-align:center}
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px}
 .card{position:relative;display:flex;flex-direction:column;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px 18px 16px;
@@ -94,9 +103,26 @@ const card = c => l => {
     <div class="acts"><a class="btn play" href="${href}" data-open="${name}">▶ პრეზენტაცია</a>${l.study ? `<a class="btn" href="${href}study.html">📖 კონსპექტი</a>` : ``}</div>
   </article>`;
 };
+// extra pages of a course (course.json "links") — open in a new tab; shareable without the lecture code
+const linkCard = c => k => {
+  const href = `${c.slug}/${k.href}`;
+  return `<article class="link" data-text="${esc((c.title + ' ' + k.title + ' ' + (k.desc || '')).toLowerCase())}">
+    <span class="ic">${esc(k.icon || '🔗')}</span>
+    <div class="bd"><a class="tt" href="${href}" target="_blank" rel="noopener">${esc(k.title)}</a>
+      ${k.desc ? `<div class="ds">${esc(k.desc)}</div>` : ''}
+      <div class="la"><a class="btn play" href="${href}" target="_blank" rel="noopener">↗ გახსნა</a><button class="btn" type="button" data-copy="${href}">🔗 ლინკის კოპირება</button></div></div>
+  </article>`;
+};
+document.addEventListener('click', e => {
+  const b = e.target.closest('[data-copy]'); if (!b) return;
+  const url = new URL(b.dataset.copy, location.href).href;
+  const ok = () => { const t = b.textContent; b.textContent = '✓ დაკოპირდა'; setTimeout(() => b.textContent = t, 1500); };
+  if (navigator.clipboard) navigator.clipboard.writeText(url).then(ok, () => prompt('ლინკი:', url)); else prompt('ლინკი:', url);
+});
 document.getElementById('courses').innerHTML = courses.map(c => `
   <section class="course" data-cat="${esc(c.slug)}" style="--c:${c.color}">
     <h2>${esc(c.title)}<small>${c.count} ლექცია</small></h2>
+    ${(c.links || []).length ? `<div class="links">${c.links.map(linkCard(c)).join('')}</div>` : ''}
     ${c.count ? `<div class="grid">${c.lectures.map(card(c)).join('')}</div>` : `<div class="soon">ლექციები მალე დაემატება</div>`}
   </section>`).join('');
 
@@ -141,9 +167,9 @@ function applyFilter() {
   document.querySelectorAll('.course').forEach(sec => {
     const inCat = !cur || sec.dataset.cat === cur;
     let n = 0;
-    sec.querySelectorAll('.card').forEach(r => { const hit = words.every(w => r.dataset.text.includes(w)); r.classList.toggle('hidden', !hit); n += hit; });
+    sec.querySelectorAll('.card, .link').forEach(r => { const hit = words.every(w => r.dataset.text.includes(w)); r.classList.toggle('hidden', !hit); n += hit; });
     // an empty course shows its "soon" note only when its own tab is picked
-    const soon = !sec.querySelector('.card') && cur === sec.dataset.cat && !words.length;
+    const soon = !sec.querySelector('.card, .link') && cur === sec.dataset.cat && !words.length;
     sec.classList.toggle('hidden', !inCat || !(n || soon));
     if (inCat) any += n || soon;
   });
