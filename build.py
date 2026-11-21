@@ -456,7 +456,7 @@ def main(filters):
             prev = {'meta': meta, 'num': int(ldir.name.split('-', 1)[0]), 'homework': md_doc(ldir / 'homework.md'),
                     'href': f'../{ldir.name}/'}
         catalog.append({'slug': cdir.name, 'title': course['title'], 'order': course.get('order', 99), 'lectures': lectures,
-                        'links': course.get('links', [])})   # extra pages (e.g. a roadmap), href relative to the course folder
+                        'links': course.get('links', []), 'color': course.get('color')})   # extra pages (e.g. a roadmap), href relative to the course folder
     catalog.sort(key=lambda c: c['order'])
     if not filters:
         page = (ENGINE / 'index.html').read_text().replace('/*CATALOG*/[]', json.dumps(catalog, ensure_ascii=False))
