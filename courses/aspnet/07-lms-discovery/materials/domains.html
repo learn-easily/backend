@@ -67,6 +67,13 @@ details[open] summary{margin-bottom:10px}
 .steps li::before{content:counter(s);display:grid;place-items:center;width:34px;height:34px;border-radius:10px;background:var(--a);color:#fff;font:800 16px var(--mono)}
 .steps b{color:var(--ink)}
 .steps span{color:var(--ink2)}
+.ex{margin-top:4px;font-size:14px;color:#6d28d9;background:#f5f3ff;border-radius:8px;padding:4px 10px;display:inline-block}
+.ex code{color:#6d28d9}
+.find{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:6px 0 12px}
+.find input{font:700 16px var(--mono);border:2px solid var(--net);border-radius:10px;padding:8px 12px;width:160px;text-transform:uppercase}
+tr.hit td{background:#fef9c3 !important;outline:none}
+tr.hit td:first-child{box-shadow:inset 5px 0 0 #ca8a04}
+.id{font:800 14px var(--mono);color:#ca8a04;white-space:nowrap}
 .out{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}
 .out span{background:#fef2f2;border:1px solid #fca5a5;color:#991b1b;border-radius:999px;padding:3px 12px;font-weight:700;font-size:14px}
 .warn{background:#fef2f2;border:1px solid #fca5a5;color:#991b1b;border-radius:12px;padding:12px 16px;font-weight:600}
@@ -93,22 +100,33 @@ const CONCEPTS = [
   ["rating",     "შეფასება",          "ქულა — Value Object"],
   ["completion", "დასრულების წესი",   "როდის „დასრულდა წარმატებით“"]
 ];
+const SHEET = "homework-sheet.html";
+// [ID, ლექცია, თემა, f(domain)] — ერთი ლექცია = ერთი საშინაო = ერთი ID
 const LECTURES = [
-  ["06–07", "DDD · სფეროს აღმოჩენა", () => "ხედვა · ლექსიკონი · აქტორები · მოვლენები · წესები · რუკა · backlog"],
-  ["08", "პროექტი + პირველი feature (CRUD)", d => `პროექტი <code>${d.id === "lms" ? "Lms" : d.brand}.Api</code> · ${d.catalog.ka} — <code>${d.catalog.code}</code> CRUD · R1`],
-  ["08", "ადამიანების CRUD", d => `<code>${d.actors[2].code}</code> · <code>${d.actors[1].code}</code> CRUD · R2 (email)`],
-  ["09", "Layers vs VSA · Minimal API", () => "ყველა არსებული feature → slice-ები"],
-  ["10", "Rich entity + Value Object", d => `<code>${d.container.code}</code> rich entity · <code>Email</code> · <code>${d.rating.code}</code> (${d.rating.scale})`],
-  ["11", "Relationships API-ში", d => `<code>${d.catalog.code}</code> → <code>${d.container.code}</code> ← ${d.actors[1].ka}`],
-  ["12", "Aggregate + Concurrency", d => `${d.membership.ka} <code>${d.container.code}</code>-ის გავლით · ბოლო ადგილი · R3`],
-  ["13–15", "ვალიდაცია · შეცდომები · სიები", () => "შენს endpoint-ებზე: FluentValidation, ProblemDetails, pagination"],
-  ["16", "შემაჯამებელი: განრიგი", d => `${d.schedule.ka} — <code>${d.schedule.code}</code> · R4`],
-  ["17–19", "Config · Authentication · Authorization", d => `როლები: ${d.actors.map(a => a.ka).join(" · ")} · R5`],
-  ["20", "შემაჯამებელი: დასწრება", d => `${d.attendance.ka} — <code>${d.attendance.code}</code> · R6`],
-  ["22", "File upload + შეფასება", d => `${d.deliverable.ka} — <code>${d.deliverable.code}</code> · <code>${d.rating.code}</code> · R7`],
-  ["23", "HttpClient + Background jobs", d => d.reminder],
-  ["24–28", "Logging · CORS + Angular · ტესტები · Production", () => "იგივე — შენს პროექტზე"],
-  ["29", "ფინალური შემაჯამებელი", d => `${d.completion.ka} — R8`]
+  ["HW-06", "06", "DDD: რა არის", () => "საერთო ყველასთვის (სფეროს ჯერ არ ირჩევ): LMS-ის ხედვა, ლექსიკონი, კითხვები"],
+  ["HW-07", "07", "სფეროს აღმოჩენა", () => `ხედვა · ლექსიკონი · აქტორები · მოვლენები · წესები R1–R8 · რუკა · backlog — <a href="${SHEET}" target="_blank">📝 დაგეგმვის ფურცელში</a>`],
+  ["HW-08", "08", "პროექტი + პირველი feature", d => `პროექტი <code>${d.id === "lms" ? "Lms" : d.brand}.Api</code> · ${d.catalog.ka} — <code>${d.catalog.code}</code> CRUD (R1) · <code>${d.actors[2].code}</code> და <code>${d.actors[1].code}</code> CRUD (R2)`],
+  ["HW-09", "09", "Layers vs VSA · Minimal API", () => "ყველა არსებული feature → slice-ები · Controllers აღარ არის · Scalar"],
+  ["HW-10", "10", "Rich entity + Value Object", d => `<code>${d.container.code}</code> rich entity (${d.container.note}) · <code>Email</code> · <code>${d.rating.code}</code> (${d.rating.scale})`],
+  ["HW-11", "11", "Relationships API-ში", d => `<code>${d.catalog.code}</code> → <code>${d.container.code}</code> ← ${d.actors[1].ka}: Include, projection`],
+  ["HW-12", "12", "Aggregate + Concurrency", d => `${d.membership.ka} (<code>${d.membership.code}</code>) <code>${d.container.code}</code>-ის გავლით · ბოლო ადგილი → 409 · R3`],
+  ["HW-13", "13", "ვალიდაცია", () => "FluentValidation ყველა Create/Update request-ზე · ProblemDetails"],
+  ["HW-14", "14", "Middleware + global errors", () => "დომენის შეცდომა → 409, concurrency → 409, დანარჩენი → 500 · try/catch აღარ არის handler-ებში"],
+  ["HW-15", "15", "სიები", d => `pagination · filter · sort · AsNoTracking: ${d.catalog.ka}, ${d.container.ka}, ${d.actors[2].ka}`],
+  ["HW-16", "16", "შემაჯამებელი: განრიგი", d => `${d.schedule.ka} — <code>${d.schedule.code}</code> · R4`],
+  ["HW-17", "17", "Configuration + Options", d => `ლიმიტები და ვადები Options-ში (${d.container.note}, R7-ის ვადა) · user-secrets`],
+  ["HW-18", "18", "Authentication", d => `ანგარიშები სამ როლზე (${d.actors.map(a => `<code>${a.code}</code>`).join(" · ")}) · Argon2 · JWT`],
+  ["HW-19", "19", "Authorization", d => `როლები და policy-ები · R5: ${d.rules[4]}`],
+  ["HW-20", "20", "შემაჯამებელი: დასწრება", d => `${d.attendance.ka} — <code>${d.attendance.code}</code> · R6`],
+  ["—", "21", "ტესტი #1", () => "საშინაო არ არის"],
+  ["HW-22", "22", "File upload + შეფასება", d => `${d.deliverable.ka} — <code>${d.deliverable.code}</code> · <code>${d.rating.code}</code> · R7 · TimeProvider`],
+  ["HW-23", "23", "HttpClient + Background jobs", d => d.reminder],
+  ["HW-24", "24", "Logging", () => "ILogger, structured logging შენს handler-ებში და middleware-ში"],
+  ["HW-25", "25", "CORS + Angular", d => `Angular: შესვლა + ${d.actors[2].ka}ს გვერდი (${d.membership.ka}, განრიგი)`],
+  ["HW-26", "26", "Unit tests", d => `<code>${d.container.code}</code> (R3) · <code>Email</code> · <code>${d.rating.code}</code> · R7-ის ვადა FakeTimeProvider-ით`],
+  ["HW-27", "27", "Integration tests", d => `სცენარი: ${d.membership.ka} → 409 ბოლო ადგილზე → 403 სხვისზე`],
+  ["HW-28", "28", "Health checks + production", () => "health checks · rate limiting · production config"],
+  ["HW-29", "29", "ფინალური შემაჯამებელი", d => `${d.completion.ka} — R8`]
 ];
 
 const DOMAINS = [
@@ -306,6 +324,84 @@ const DOMAINS = [
   out: ["შეკვეთები და მენიუ", "გადახდები", "მიტანა"]
 },
 {
+  id: "hotel", story1: "მენეჯერი ქმნის ოთახის ტიპს", events: "ოთახის ტიპი შეიქმნა → ოთახი დაემატა → სტუმარმა დაჯავშნა → … → სტუმარი Gold გახდა", e: "🏨", name: "სასტუმროს ჯავშნები", brand: "StayEasy", color: "#0e7490",
+  tagline: "ოთახის ტიპები, ოთახები, ჯავშნები თარიღებით, დასუფთავების გრაფიკი, check-in, შეფასება ფოტოებით და ლოიალობის დონე.",
+  owner: "ეკა, სასტუმროს მენეჯერი",
+  brief: "ბათუმში 40-ოთახიანი სასტუმრო გვაქვს: სტანდარტი, დელუქსი ზღვის ხედით, ოჯახური. სტუმარი ოთახს თარიღებზე ჯავშნის. ზაფხულში ბოლო თავისუფალ დელუქსს ორი ადამიანი ერთდროულად ჯავშნის, და ერთ ოთახს ორჯერ ვყიდით. ოჯახური ოთახი 4 კაცზეა, ხალხი 6-ს წერს. დამლაგებლები ოთახს გასვლის მერე ალაგებენ: თუ ვერ მოასწრეს, ახალი სტუმარი ჭუჭყიან ოთახში შედის. ზოგი სტუმარი საერთოდ არ ჩამოდის. სტუმრები შეფასებას და ფოტოებს ტოვებენ. ხშირ სტუმრებს რაღაც ბონუსი უნდა მივცეთ.",
+  interview: [
+    ["ჯავშანი რაზე კეთდება: ოთახზე თუ ტიპზე?", "სტუმარი ტიპს ირჩევს, ჩვენ კი კონკრეტულ ოთახს ვაძლევთ. ერთი ოთახი გადამფარავ თარიღებზე ორჯერ ვერ დაიჯავშნება."],
+    ["რამდენი ღამე შეიძლება? რამდენი ხნით ადრე?", "მინიმუმ 1, მაქსიმუმ 30 ღამე. დაჯავშნა შეიძლება მაქსიმუმ 365 დღით ადრე."],
+    ["„ჭუჭყიანი ოთახი“: როგორ უნდა იყოს?", "გასვლა 12:00-ზეა, შესვლა 14:00-ზე. შუაში ოთახი უნდა დალაგდეს. დამლაგებელი ერთ დროს ერთ ოთახშია, დალაგებას 1 საათი სჭირდება."],
+    ["„არ ჩამოდის“: როდის ითვლება no-show-ად?", "თუ შესვლის დღეს 23:59-მდე არ გამოჩნდა და არ დაგვირეკა. მაშინ ჯავშანი უქმდება, მენეჯერი იღებს შეტყობინებას, ოთახი კი ისევ თავისუფალია."],
+    ["შეფასება ვის და როდის შეუძლია?", "მხოლოდ ვინც დარჩა, გასვლიდან 14 დღეში, 1–10-ით, მაქსიმუმ 5 ფოტოთი."],
+    ["ბონუსი ვის?", "Gold: ბოლო 12 თვეში 10+ ღამე და არც ერთი no-show. ეკუთვნის უფასო გვიანი გასვლა."]
+  ],
+  actors: [
+    {ka: "მენეჯერი", code: "Manager", c: "#d97706", does: ["ქმნის ოთახის ტიპებს და ოთახებს", "აწყობს დასუფთავების გრაფიკს", "ხედავს no-show-ებს"]},
+    {ka: "რეცეფციონისტი", code: "Receptionist", c: "#0e7490", does: ["ხვდება სტუმრებს", "ნიშნავს შესვლას / no-show-ს", "ხედავს დღის ჯავშნებს"]},
+    {ka: "სტუმარი", code: "Guest", c: "#16a34a", does: ["ჯავშნის ოთახს", "ტოვებს შეფასებას ფოტოებით", "ხედავს თავის დონეს"]}
+  ],
+  catalog:    {ka: "ოთახის ტიპი", code: "RoomType"},
+  container:  {ka: "ოთახი", code: "Room", note: "მაქს. სტუმრები ოთახში"},
+  membership: {ka: "ჯავშანი", code: "Booking"},
+  schedule:   {ka: "დასუფთავების დავალება", code: "CleaningTask"},
+  attendance: {ka: "შესვლა (check-in)", code: "StayCheckIn"},
+  deliverable:{ka: "შეფასება ფოტოებით", code: "Review"},
+  rating:     {ka: "შეფასების ქულა", code: "Score", scale: "1–10"},
+  completion: {ka: "Gold დონე", code: "LoyaltyTier"},
+  reminder: "შეხსენება სტუმარს ჩამოსვლამდე 1 დღით ადრე · no-show → მენეჯერს შეტყობინება · დამლაგებელს დღის დავალებები 10:00-ზე",
+  rules: [
+    "ოთახის ტიპის სახელი უნიკალურია",
+    "ერთ email-ზე ერთი ადამიანია",
+    "სტუმრები ≤ ოთახის მაქსიმუმი · ოთახი გადამფარავ თარიღებზე ერთხელ · 1–30 ღამე · მაქსიმუმ 365 დღით ადრე",
+    "დამლაგებელი ერთ დროს ერთ ოთახში · დალაგება გასვლასა (12:00) და შესვლას (14:00) შორის",
+    "შესვლას ნიშნავს მხოლოდ რეცეფციონისტი, მხოლოდ ჯავშნის დღეს",
+    "შესვლის დღეს 23:59-მდე არ გამოჩნდა = no-show, ჯავშანი უქმდება · მენეჯერი იღებს შეტყობინებას",
+    "შეფასება — მხოლოდ დარჩენილ სტუმარს, გასვლიდან 14 დღეში · ქულა 1–10 · მაქსიმუმ 5 ფოტო",
+    "Gold: ბოლო 12 თვეში 10+ ღამე და 0 no-show → უფასო გვიანი გასვლა"
+  ],
+  out: ["გადახდები", "რესტორანი და SPA", "Booking.com-თან ინტეგრაცია"]
+},
+{
+  id: "clinic", story1: "ადმინისტრატორი ამატებს მომსახურებას", events: "მომსახურება დაემატა → ექიმის მიღების დღე გაიხსნა → პაციენტი ჩაეწერა → … → პაციენტი „სანდო“ გახდა", e: "🏥", name: "კლინიკა", brand: "MediQ", color: "#be123c",
+  tagline: "სამედიცინო მომსახურებები, ექიმების მიღების დღეები, ვიზიტზე ჩაწერა, კაბინეტები, გამოცხადება, ანალიზების ატვირთვა და შეფასება.",
+  owner: "თამარი, კლინიკის ადმინისტრატორი",
+  brief: "კლინიკაში 12 ექიმია: თერაპევტი, კარდიოლოგი, ნევროლოგი. პაციენტები ტელეფონით გვირეკავენ და ექიმთან იწერებიან. ექიმი კვირაში რამდენიმე დღეს იღებს, თითო დღეს გარკვეული რაოდენობის პაციენტს. ხშირად ერთ საათზე ორ პაციენტს ვწერთ. კაბინეტები ცოტაა და ზოგჯერ ორ ექიმს ერთი კაბინეტი ხვდება. პაციენტი აგვიანებს ან საერთოდ არ მოდის, ექიმი კი ელოდება. ექიმს უნდა, რომ ანალიზები წინასწარ ჰქონდეს. ვიზიტის მერე პაციენტს ვთხოვთ, შეგვაფასოს. კარგ პაციენტებს ონლაინ ჩაწერის უფლებას ვაძლევთ.",
+  interview: [
+    ["„ექიმი იღებს“: ზუსტად როგორ?", "ექიმს აქვს მიღების დღე: თარიღი, საათები, კაბინეტი და ადგილების რაოდენობა. მაგალითად, 10:00–14:00, 8 ადგილი, თითო 30 წუთი."],
+    ["ერთ დღეს ერთ ექიმთან ორჯერ?", "არა. ჩაწერა იხურება მიღებამდე 2 საათით ადრე."],
+    ["კაბინეტი როგორ ნაწილდება?", "კაბინეტში ერთ დროს ერთი ექიმია, ექიმი კი ერთ დროს ერთ კაბინეტში."],
+    ["„აგვიანებს“: რამდენ ხანს ელოდება ექიმი?", "10 წუთს, მერე ვიზიტი უქმდება და no-show-ად ითვლება. მე-2 no-show-ზე ადმინისტრატორი იღებს შეტყობინებას."],
+    ["ანალიზები როდემდე?", "ვიზიტამდე 24 საათით ადრე, PDF ან ფოტო, მაქსიმუმ 10 MB. მერე ექიმი ვეღარ ასწრებს ნახვას."],
+    ["შეფასება? „კარგი პაციენტი“?", "ვიზიტიდან 7 დღეში, 1–5-ით, მხოლოდ ვინც მოვიდა. „სანდო“ პაციენტი: 5 ვიზიტი და არც ერთი no-show. მას ონლაინ ჩაწერა შეუძლია."]
+  ],
+  actors: [
+    {ka: "ადმინისტრატორი", code: "Admin", c: "#d97706", does: ["ამატებს მომსახურებებს და ექიმებს", "ხსნის მიღების დღეებს", "ანაწილებს კაბინეტებს"]},
+    {ka: "ექიმი", code: "Doctor", c: "#be123c", does: ["იღებს პაციენტს", "ნიშნავს გამოცხადებას", "ხედავს ატვირთულ ანალიზებს"]},
+    {ka: "პაციენტი", code: "Patient", c: "#16a34a", does: ["ეწერება ექიმთან", "ტვირთავს ანალიზებს", "აფასებს ვიზიტს"]}
+  ],
+  catalog:    {ka: "სამედიცინო მომსახურება", code: "MedicalService"},
+  container:  {ka: "ექიმის მიღების დღე", code: "DoctorDay", note: "ადგილების რაოდენობა (მაგ. 8)"},
+  membership: {ka: "ჩაწერა ვიზიტზე", code: "Appointment"},
+  schedule:   {ka: "კაბინეტის ცვლა", code: "RoomShift"},
+  attendance: {ka: "გამოცხადება ვიზიტზე", code: "VisitAttendance"},
+  deliverable:{ka: "ანალიზების ფაილი", code: "LabResultFile"},
+  rating:     {ka: "ვიზიტის შეფასება", code: "VisitRating", scale: "1–5"},
+  completion: {ka: "„სანდო“ პაციენტი → ონლაინ ჩაწერა", code: "TrustedStatus"},
+  reminder: "შეხსენება პაციენტს: ვიზიტამდე 1 დღით ადრე და „ანალიზები ჯერ არ ატვირთე“ · მე-2 no-show → ადმინისტრატორს",
+  rules: [
+    "მომსახურების სახელი უნიკალურია",
+    "ერთ email-ზე ერთი ადამიანია",
+    "მიღების დღეზე ადგილები შეზღუდულია · პაციენტი ერთ დღეს ერთ ექიმთან ერთხელ · ჩაწერა იხურება მიღებამდე 2 სთ-ით ადრე",
+    "კაბინეტში ერთ დროს ერთი ექიმი · ექიმი ერთ დროს ერთ კაბინეტში",
+    "გამოცხადებას ნიშნავს მხოლოდ ამ ვიზიტის ექიმი · ანალიზებს ხედავს მხოლოდ ის",
+    "10 წთ-ზე მეტი დაგვიანება = no-show, ვიზიტი უქმდება · მე-2 no-show-ზე ადმინისტრატორი იღებს შეტყობინებას",
+    "ანალიზები — ვიზიტამდე 24 სთ-ით ადრე, ≤ 10 MB · შეფასება 1–5, მხოლოდ მოსულს, 7 დღეში",
+    "„სანდო“: 5 ვიზიტი და 0 no-show → ონლაინ ჩაწერა"
+  ],
+  out: ["დიაგნოზები და სამედიცინო ისტორია", "გადახდები და დაზღვევა", "აფთიაქი"]
+},
+{
   id: "tours", story1: "ოპერატორი ქმნის ტურს", events: "ტური შეიქმნა → გასვლა დაიგეგმა → ტურისტმა დაჯავშნა → … → ტურისტი „მთის მეგზური“ გახდა", e: "🏔️", name: "ტურისტული სააგენტო", brand: "GeoTrails", color: "#15803d",
   tagline: "ტურები საქართველოში: გასვლები ადგილებით, გიდები, დღის პროგრამა, დილის შემოწმება, დაზღვევა და ერთგულების სტატუსი.",
   owner: "ლევანი, სააგენტოს მფლობელი",
@@ -362,9 +458,10 @@ function home(){
   <div class="card how">
     <h2>როგორ მუშაობს</h2>
     <ol>
-      <li><b>აირჩიე ერთი</b> ხუთი სფეროდან. LMS ლექტორის მაგალითია, მისი არჩევა არ შეიძლება.</li>
+      <li><b>აირჩიე ერთი</b> შვიდი სფეროდან. LMS ლექტორის მაგალითია, მისი არჩევა არ შეიძლება.</li>
       <li>სფეროს გვერდზე წაიკითხე <b>მფლობელის სიტყვები</b> და <b>ინტერვიუ</b>. შემდეგ DDD-ით დაგეგმე პროექტი: ხედვა, ლექსიკონი, აქტორები, მოვლენები, წესები, რუკა, backlog.</li>
-      <li><b>ყოველი ლექციის საშინაო</b> = იგივე თემა შენს სფეროში. სფეროს გვერდზე ცხრილი „ლექცია → LMS → შენთან“ გეტყვის, რა გააკეთო.</li>
+      <li><b>ყოველი ლექციის საშინაო</b> = იგივე თემა შენს სფეროში. ლექტორი LB-ზე საშინაოს <b>ID</b>-ს მოგცემს (მაგ. <code>HW-08</code>). სფეროს გვერდზე ამ ID-ს ცხრილში იპოვი და ნახავ, რა გააკეთო.</li>
+      <li>⚠️ <b>ლექციას წინ ნუ გაუსწრებ.</b> მხოლოდ ის დავალება გააკეთე, რომლის ID-იც უკვე მიიღე. შემდეგი თემა ჯერ არ გისწავლია, და თუ წინ გაიქცევი, მერე კოდის თავიდან გადაწერა მოგიწევს.</li>
       <li>სფეროს ბოლომდე არ ცვლი: ერთი პროექტი, კურსის დასაწყისიდან ბოლომდე.</li>
     </ol>
   </div>
@@ -416,14 +513,16 @@ function detail(d){
 
   <div class="card" style="--a:${d.color}">
     <h2>🧭 დაგეგმე DDD-ით</h2>
+    <p style="margin:0 0 12px;color:var(--ink2)">დაგეგმვა ხდება <b>📝 დაგეგმვის ფურცელში</b> (HW-07). მას უკვე აქვს ეს სტრუქტურა: შეავსე ნაბიჯ-ნაბიჯ, ⬇ ჩამოტვირთე და ატვირთე LB-ზე. ფურცელი ბრაუზერში ინახება, ასე რომ როცა მომდევნო ლექციებზე ლექსიკონი ან წესები შეიცვლება, დაბრუნდი და განაახლე.</p>
+    <a href="${SHEET}" target="_blank" style="display:inline-block;margin:0 0 16px;background:${d.color};color:#fff;font-weight:800;border-radius:12px;padding:10px 18px;text-decoration:none">📝 დაგეგმვის ფურცელი</a>
     <ol class="steps">
-      <li><div><b>ხედვა</b> · <span>3–5 წინადადება: ვინ იყენებს, რა პრობლემას ხსნის, რა არ შედის.</span></div></li>
-      <li><div><b>ლექსიკონი</b> · <span>მფლობელის სიტყვებიდან და ინტერვიუდან ამოწერე ტერმინები. სინონიმები გააერთიანე, ბუნდოვანი სიტყვები გაყავი. ყოველ ტერმინს მიუწერე სახელი კოდში.</span></div></li>
-      <li><div><b>აქტორები</b> · <span>სამი როლი და მათი მიზნები (ზემოთ).</span></div></li>
-      <li><div><b>მოვლენები</b> · <span>მთელი პროცესი წარსულ დროში, აქტორით: „${d.events}“ (12+ მოვლენა).</span></div></li>
-      <li><div><b>წესები R1–R8</b> · <span>იპოვე ტექსტში თვითონ, მერე შეამოწმე ქვემოთ. ნომრები LMS-ის წესებს ემთხვევა, ასე რომ ყოველი ლექცია ერთსა და იმავე წესს ეხება.</span></div></li>
-      <li><div><b>დომენის რუკა</b> · <span>ცნებები და კავშირები (1 → ბევრი): <span class="mono">${d.catalog.code} → ${d.container.code} → ${d.membership.code} ← ${d.actors[2].code}</span> …</span></div></li>
-      <li><div><b>Backlog</b> · <span>15+ story რიგით. №1 ყოველთვის: „${d.story1}“ (R1).</span></div></li>
+      <li><div><b>ხედვა</b> · <span>3–5 წინადადება: ვინ იყენებს, რა პრობლემას ხსნის, რა არ შედის.</span><div class="ex">LMS: „LMS აკადემიის სასწავლო ცხოვრებას ერთ ადგილას აგროვებს… გადახდები <b>არ</b> შედის.“</div></div></li>
+      <li><div><b>ლექსიკონი</b> · <span>მფლობელის სიტყვებიდან და ინტერვიუდან ამოწერე ტერმინები. სინონიმები გააერთიანე, ბუნდოვანი სიტყვები გაყავი. ყოველ ტერმინს მიუწერე სახელი კოდში.</span><div class="ex">LMS: ჯგუფი — ვინ გადის კურსს ერთად, ერთი ლექტორით — <code>Group</code></div></div></li>
+      <li><div><b>აქტორები</b> · <span>სამი როლი, მათი მიზანი და მოქმედებები (ზემოთ).</span><div class="ex">LMS: ლექტორი — მიზანი: ასწავლოს და შეაფასოს — ატარებს ლექციას, აფასებს</div></div></li>
+      <li><div><b>მოვლენები</b> · <span>მთელი პროცესი წარსულ დროში, აქტორით, რიგით (12+): „${d.events}“.</span><div class="ex">LMS: მენეჯერი — სტუდენტი ჩაირიცხა</div></div></li>
+      <li><div><b>წესები R1–R8</b> · <span>იპოვე ტექსტში თვითონ, მერე შეამოწმე ქვემოთ. ნომრები LMS-ის წესებს ემთხვევა: ყოველი ლექცია ერთსა და იმავე წესს ეხება.</span><div class="ex">LMS: R3 — ჯგუფში მაქსიმუმ 20 სტუდენტი · გამონაკლისი: დაწყებულში მხოლოდ პირველ კვირაში</div></div></li>
+      <li><div><b>დომენის რუკა</b> · <span>ცნებები და კავშირები: <span class="mono">${d.catalog.code} → ${d.container.code} → ${d.membership.code} ← ${d.actors[2].code}</span> …</span><div class="ex">LMS: კურსი — 1 → ბევრი — ჯგუფი</div></div></li>
+      <li><div><b>Backlog</b> · <span>15+ story რიგით. №1 ყოველთვის: „${d.story1}“ (R1).</span><div class="ex">LMS: №4 — როგორც მენეჯერი, მინდა ჩავრიცხო სტუდენტი ჯგუფში, რომ… — კრიტერიუმი: ადგილი უნდა იყოს — R3</div></div></li>
     </ol>
     <details><summary>🔒 შეამოწმე წესები (ჯერ თვითონ იპოვე!)</summary>
       ${d.rules.map((r, i) => `<div class="rule"><div class="r">R${i + 1}</div><div>${r}</div></div>`).join("")}
@@ -442,21 +541,30 @@ function detail(d){
 
   <div class="card">
     <h2>🗓️ ლექცია → შენი საშინაო</h2>
-    <p style="margin:0 0 10px;color:var(--ink2)">კლასში ლექტორი LMS-ზე აჩვენებს, შენ სახლში იმავეს აკეთებ ამ სვეტის მიხედვით.</p>
-    <table><tr><th>ლექცია</th><th>თემა</th><th>LMS-ში (კლასში)</th><th>${d.name} (სახლში)</th></tr>
-    ${LECTURES.map(([n, t, f]) => `<tr><td class="lec">${n}</td><td>${t}</td><td class="lms">${f(lms)}</td><td>${f(d)}</td></tr>`).join("")}
+    <div class="warn" style="margin:0 0 12px">⚠️ <b>ლექციას წინ ნუ გაუსწრებ!</b> გააკეთე მხოლოდ ის დავალება, რომლის <b>ID</b>-იც ლექტორმა LB-ზე მოგცა. შემდეგი თემა ჯერ არ გისწავლია. თუ წინ გაიქცევი, მერე თავიდან გადაწერა მოგიწევს.</div>
+    <div class="find"><b>დავალების ID:</b><input id="hwid" placeholder="HW-08" maxlength="6"><span style="color:var(--ink2);font-size:14px">ჩაწერე LB-ზე მიღებული ID, და ის ქვემოთ მოინიშნება</span></div>
+    <table><tr><th>ID</th><th>ლექცია</th><th>LMS-ში (კლასში)</th><th>${d.name} (სახლში)</th></tr>
+    ${LECTURES.map(([id, n, t, f]) => `<tr data-id="${id}"><td class="id">${id}</td><td><span class="lec">${n}</span><br>${t}</td><td class="lms">${f(lms)}</td><td>${f(d)}</td></tr>`).join("")}
     </table>
   </div>
 
-  ${d.example ? "" : `<div class="tip">💡 თუ რამე ბუნდოვანია და ინტერვიუში პასუხი არ წერია, ის <b>შენ</b> გადაწყვიტე, როგორც დეველოპერმა, რომელიც მფლობელს ეკითხება, და ჩაწერე ლექსიკონში ან წესებში. ერთ სფეროს ხუთი სხვადასხვა სტუდენტი ხუთნაირად ააწყობს, და ეს ნორმალურია.</div>`}
+  ${d.example ? "" : `<div class="tip">💡 თუ რამე ბუნდოვანია და ინტერვიუში პასუხი არ წერია, ის <b>შენ</b> გადაწყვიტე, როგორც დეველოპერმა, რომელიც მფლობელს ეკითხება, და ჩაწერე ლექსიკონში ან წესებში. ერთ სფეროს რამდენიმე სტუდენტი სხვადასხვანაირად ააწყობს, და ეს ნორმალურია.</div>`}
   `;
+  const inp = document.getElementById("hwid");
+  const mark = v => {
+    const id = (v || "").trim().toUpperCase().replace(/^HW-?/, "HW-").replace(/^(\d)/, "HW-$1");
+    let hit = null;
+    document.querySelectorAll("tr[data-id]").forEach(tr => { const on = !!id && tr.dataset.id === id.replace(/^HW-(\d)$/, "HW-0$1"); tr.classList.toggle("hit", on); if (on) hit = tr; });
+    if (hit) hit.scrollIntoView({behavior: "smooth", block: "center"});
+  };
+  if (inp) { inp.oninput = () => mark(inp.value); const q = (location.hash.split("/")[1] || ""); if (q) { inp.value = q; setTimeout(() => mark(q), 50); } }
   const pick = document.getElementById("pick");
   if (pick) pick.onclick = () => { setMine(d.id); pick.textContent = "✓ ეს ჩემი სფეროა"; pick.classList.add("done"); };
   window.scrollTo(0, 0);
 }
 
 function route(){
-  const id = location.hash.slice(1);
+  const id = location.hash.slice(1).split("/")[0];
   const d = DOMAINS.find(x => x.id === id);
   if (d) detail(d); else home();
 }
