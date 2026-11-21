@@ -1,24 +1,26 @@
-# შენი LMS: მთლიანად Vertical Slices-ზე
+# შენი სფერო: მთლიანად Vertical Slices-ზე
 
-საშინაო · შენი LMS
+საშინაო · შენი სფერო
 
 ## მოთხოვნები
 
-- Courses: ხუთივე slice (Create · GetAll · GetById · Update · Delete)
-- **Students** და **Lecturers**: იგივე ხუთ-ხუთი slice, `Features/Students/` და `Features/Lecturers/`. R2 (Email უნიკალურია) handler-ში
+- **კატალოგი**: ხუთივე slice (Create · GetAll · GetById · Update · Delete), `Features/<კატალოგი>/`
+- **ორი როლის ადამიანები**: ხუთ-ხუთი slice, თავ-თავის საქაღალდეში · R2 handler-ში
 - თითო საქაღალდეს თავისი `…Endpoints.cs`: handler-ების რეგისტრაცია + `MapGroup`
-- `Controllers` საქაღალდე, `AddControllers()`, `MapControllers()` და Swashbuckle **აღარ არის**; მხოლოდ Scalar
+- `Controllers`, `AddControllers()`, `MapControllers()` და Swashbuckle **აღარ არის**; მხოლოდ Scalar
 
 ## ✓ მზადაა, როცა
 
-`/scalar`-ში სამი ჯგუფია (Courses · Students · Lecturers), 15 endpoint, და ყოველი პასუხი იგივეა, რაც Controller-ებით იყო
+`/scalar`-ში სამი ჯგუფია, 15 endpoint, და ყოველი პასუხი იგივეა, რაც Controller-ებით იყო
 
 ## ⭐ ბონუსი
 
-- `Program.cs` 20 ხაზზე ნაკლებია: რეგისტრაციები მხოლოდ `Add…Handlers()` და `Map…Endpoints()` გამოძახებებია
+- `Program.cs` 20 ხაზზე ნაკლებია: მხოლოდ `Add…Handlers()` და `Map…Endpoints()` გამოძახებები
 - ჩამოწერე ერთ წინადადებაში თითო handler-ის „შეცვლის მიზეზი“ (SRP). თუ ორი გამოგივიდა, slice ზედმეტად დიდია
 
 ## ამოხსნა
+
+ლექტორის LMS-ში (ნიმუში): სტუდენტების slice-ები. შენს სფეროში იგივე ფორმა იქნება, შენი სახელებით.
 
 ```csharp Features/Students/CreateStudent/CreateStudentEndpoint.cs !
 public static class CreateStudentEndpoint
