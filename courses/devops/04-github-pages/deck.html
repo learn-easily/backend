@@ -1,0 +1,453 @@
+<!-- =========================================================
+     ლექცია 4 — GitHub Pages · პირველი deploy · Pages-ის ზღვარი
+     ========================================================= -->
+
+<!-- 1. TITLE -->
+<section class="slide" data-section="შესავალი">
+  <div class="vcenter" style="max-width:860px">
+    <div class="kicker in">DevOps Crash Course · ლექცია 4</div>
+    <h1 class="in" style="--d:.15s">my-portfolio<br>→ <span class="grad">ინტერნეტში</span></h1>
+    <p class="lead in mt" style="--d:.35s">GitHub Pages — პირველი deploy. და სად მთავრდება მისი შესაძლებლობა</p>
+  </div>
+  <div class="abs" style="right:100px;top:170px">
+    <svg viewBox="0 0 460 460" width="460" height="460">
+      <g class="in" style="--d:.5s"><rect x="130" y="10" width="200" height="110" rx="18" fill="#123321" stroke="#22c55e" stroke-width="3"/><text x="230" y="62" text-anchor="middle" font-size="40">💻</text><text x="230" y="100" text-anchor="middle" class="tg b mono" font-size="18">git push</text></g>
+      <g class="in fade" style="--d:.8s"><path d="M230 120 V170" stroke="#8b6cff" stroke-width="3" class="flow"/></g>
+      <g class="in" style="--d:1s"><rect x="130" y="170" width="200" height="110" rx="18" fill="#1d1640" stroke="#8b6cff" stroke-width="3"/><text x="230" y="222" text-anchor="middle" font-size="40">🐙</text><text x="230" y="260" text-anchor="middle" class="tn b" font-size="18">GitHub Pages</text></g>
+      <g class="in fade" style="--d:1.3s"><path d="M230 280 V330" stroke="#22d3ee" stroke-width="3" class="flow"/></g>
+      <g class="in" style="--d:1.5s"><rect x="60" y="330" width="340" height="110" rx="18" fill="#0e2a33" stroke="#22d3ee" stroke-width="3"/><text x="230" y="382" text-anchor="middle" font-size="40">🌍</text><text x="230" y="420" text-anchor="middle" class="ta b mono" font-size="17">giorgi.github.io/my-portfolio</text></g>
+    </svg>
+  </div>
+</section>
+
+<lecture-review/>
+<lecture-homework-review/>
+<lecture-intro/>
+
+<!-- ================= PART 1: GITHUB PAGES ================= -->
+<section class="slide divider" data-section="1 · GitHub Pages">
+  <div class="vcenter">
+    <div class="kicker in">ნაწილი 1</div>
+    <h1 class="in" style="--d:.1s"><span class="grad">GitHub Pages</span> 📄</h1>
+    <p class="lead mt in" style="--d:.3s">საიტი ნამდვილ მისამართზე — ერთი ღილაკით</p>
+  </div>
+  <div class="big-num">01</div>
+  <aside class="study">
+## ნაწილი 1 · GitHub Pages
+
+საიტი ნამდვილ მისამართზე — ერთი ღილაკით. ეს არის ჩვენი პირველი **deploy**: კოდი ლეპტოპიდან მომხმარებლამდე მიდის.
+  </aside>
+</section>
+
+<section class="slide" data-section="1 · GitHub Pages">
+  <div class="kicker">პრობლემა</div>
+  <h2>კოდი GitHub-ზეა — <span class="c-red">საიტი კი არა</span></h2>
+  <div class="grid2">
+    <div class="card accent in left" style="--d:0.20s;--a:var(--red)"><h3>📱 მეგობარმა ლინკი გახსნა</h3>
+      <p class="mono" style="font-size:18px">github.com/giorgi/my-portfolio</p>
+      <p class="mt">და ხედავს: <b>ფაილების სიას</b>, <code class="i">index.html</code>-ის <b>კოდს</b>, README-ს.</p>
+      <p class="tiny mt">საიტს — ფერებს, სურათებს, ღილაკებს — ვერ ხედავს</p></div>
+    <div class="card accent in right" style="--d:0.40s;--a:var(--asp)"><h3>💻 localhost</h3>
+      <p class="mono" style="font-size:18px">http://127.0.0.1:5500</p>
+      <p class="mt">საიტი მუშაობს — მაგრამ <b>მხოლოდ შენს ლეპტოპზე</b>.</p>
+      <p class="tiny mt">ლეპტოპი დახურე — საიტი გაქრა. სხვა კომპიუტერიდან ეს მისამართი არ იხსნება</p></div>
+  </div>
+  <div class="callout step mt2" style="--a:var(--mvc);font-size:24px">GitHub <b>ინახავს</b> კოდს. ახლა გვინდა, რომ ის <b>აჩვენოს</b> — ამას <b>ჰოსტინგი</b> აკეთებს.</div>
+  <aside class="study">
+### პრობლემა: კოდი GitHub-ზეა — საიტი კი არა
+
+წინა ლექციებზე my-portfolio GitHub-ზე ავიტანეთ. მაგრამ თუ მეგობარს გაუგზავნი `github.com/giorgi/my-portfolio`-ს, ის დაინახავს **ფაილების სიას და კოდს** — არა საიტს.
+
+ლოკალურად (Live Server, `127.0.0.1:5500`) საიტი მუშაობს, მაგრამ მხოლოდ **შენს ლეპტოპზე**: სხვა კომპიუტერიდან ეს მისამართი არ იხსნება, ლეპტოპის დახურვისას კი საიტი ქრება.
+
+GitHub კოდს **ინახავს**. საიტის **ჩვენება** ინტერნეტში — **ჰოსტინგის** საქმეა. პირველ ლექციაზე ჰოსტინგის სახეები ვნახეთ; დღეს ყველაზე მარტივით ვიწყებთ.
+  </aside>
+</section>
+
+<section class="slide" data-section="1 · GitHub Pages">
+  <div class="kicker">გადაწყვეტა</div>
+  <h2><span class="c-net">GitHub Pages</span> — რეპო → საიტი</h2>
+  <svg viewBox="0 0 1420 250" width="1420" height="250">
+    <g class="in left" style="--d:.2s"><rect x="20" y="40" width="360" height="170" rx="20" fill="#1d1640" stroke="#8b6cff" stroke-width="3"/><text x="200" y="105" text-anchor="middle" font-size="48">📁</text><text x="200" y="150" text-anchor="middle" class="tn b" font-size="22">რეპო · main</text><text x="200" y="182" text-anchor="middle" class="tm mono" font-size="16">index.html · style.css</text></g>
+    <g class="in fade" style="--d:.5s"><path d="M380 125 H520" stroke="#8b6cff" stroke-width="3" class="flow"/></g>
+    <g class="in" style="--d:.7s"><rect x="520" y="40" width="380" height="170" rx="20" fill="#33240b" stroke="#f5a524" stroke-width="3"/><text x="710" y="105" text-anchor="middle" font-size="48">⚙️</text><text x="710" y="150" text-anchor="middle" class="to b" font-size="22">GitHub აქვეყნებს</text><text x="710" y="182" text-anchor="middle" class="tm" font-size="16">ყოველ push-ზე თავიდან</text></g>
+    <g class="in fade" style="--d:1s"><path d="M900 125 H1040" stroke="#22d3ee" stroke-width="3" class="flow"/></g>
+    <g class="in right" style="--d:1.2s"><rect x="1040" y="40" width="360" height="170" rx="20" fill="#0e2a33" stroke="#22d3ee" stroke-width="3"/><text x="1220" y="105" text-anchor="middle" font-size="48">🌍</text><text x="1220" y="150" text-anchor="middle" class="ta b" font-size="22">საიტი ინტერნეტში</text><text x="1220" y="182" text-anchor="middle" class="tm mono" font-size="15">giorgi.github.io/my-portfolio</text></g>
+  </svg>
+  <table class="t step mt" style="font-size:21px">
+    <tr><th>რას იძლევა</th><th>რა პირობით</th></tr>
+    <tr><td>🌍 საჯარო მისამართი + 🔒 HTTPS</td><td>უფასოდ — <b>public</b> რეპოსთვის</td></tr>
+    <tr><td>🔁 ავტომატური განახლება ყოველ <code class="i">git push</code>-ზე</td><td>ფაილები ერთი branch-იდან (ჩვენთან <code class="i">main</code>)</td></tr>
+    <tr><td>📄 HTML, CSS, JS, სურათები</td><td><b>მხოლოდ ფაილები</b> — ამას მეორე ნაწილში დავუბრუნდებით</td></tr>
+  </table>
+  <aside class="study">
+### GitHub Pages — რეპო → საიტი
+
+**GitHub Pages** — GitHub-ის უფასო ჰოსტინგი. ის რეპოს ერთი branch-იდან ფაილებს იღებს და აქვეყნებს მისამართზე:
+
+```plain
+https://<username>.github.io/<რეპოს-სახელი>/
+```
+
+| რას იძლევა | რა პირობით |
+|---|---|
+| საჯარო მისამართი და HTTPS | უფასოდ, **public** რეპოსთვის |
+| ავტომატური განახლება ყოველ `git push`-ზე | ფაილები ერთი branch-იდან (ჩვენთან `main`) |
+| HTML, CSS, JS, სურათები | **მხოლოდ ფაილები** |
+
+პირველი ლექციის ტერმინებით: ეს **სტატიკური ჰოსტინგია** — სერვერს შენ არ მართავ, GitHub ყველაფერს თვითონ აკეთებს. შენ მხოლოდ ფაილებს აწვდი.
+
+```terms
+deploy — კოდის გაგზავნა იქ, სადაც მომხმარებელი მას დაინახავს
+ჰოსტინგი — სერვისი, რომელიც საიტს ინტერნეტში 24/7 აჩვენებს
+```
+  </aside>
+</section>
+
+<section class="slide" data-section="1 · GitHub Pages">
+  <div class="kicker">ვაკეთებთ ერთად · ნაბიჯი 1</div>
+  <h2>Pages-ის <span class="c-api">ჩართვა</span></h2>
+  <div class="grid2" style="grid-template-columns:1fr 1fr">
+    <div class="col">
+      <div class="card in left" style="--d:0.20s"><h3>1️⃣ რეპო → ⚙ Settings</h3><p>my-portfolio-ს გვერდზე, ზედა მენიუში</p></div>
+      <div class="card in left" style="--d:0.35s"><h3>2️⃣ მარცხნივ → Pages</h3><p>განყოფილება <b>Code and automation</b></p></div>
+      <div class="card in left" style="--d:0.50s"><h3>3️⃣ Source → Deploy from a branch</h3><p>Branch: <code class="i">main</code> · Folder: <code class="i">/ (root)</code> → <b>Save</b></p></div>
+    </div>
+    <div class="col">
+      <div class="card accent in right" style="--d:0.70s;--a:var(--mvc)"><h3>⏳ ~1 წუთი</h3><p>გვერდის ზემოთ გამოჩნდება:</p>
+        <p class="mono mt" style="font-size:17px">✓ Your site is live at<br><b class="c-mvc">https://giorgi.github.io/my-portfolio/</b></p></div>
+      <div class="callout step" style="--a:var(--asp)">⚠ <code class="i">index.html</code> უნდა იყოს <b>რეპოს root-ში</b> და პატარა ასოებით — ის საიტის მთავარი გვერდია</div>
+      <div class="callout step" style="--a:var(--red)" data-with>🔒 private რეპოზე უფასო ანგარიშით Pages <b>არ ირთვება</b></div>
+    </div>
+  </div>
+  <aside class="study">
+### ნაბიჯი 1 · Pages-ის ჩართვა
+
+1. my-portfolio-ს გვერდზე GitHub-ზე → **⚙ Settings**.
+2. მარცხენა მენიუში, განყოფილებაში **Code and automation** → **Pages**.
+3. **Build and deployment → Source:** `Deploy from a branch`. **Branch:** `main`, **Folder:** `/ (root)` → **Save**.
+
+დაახლოებით ერთ წუთში გვერდის ზემოთ გამოჩნდება: **Your site is live at** `https://<username>.github.io/my-portfolio/`.
+
+```warn
+`index.html` უნდა იყოს რეპოს **root-ში** (არა რომელიმე საქაღალდეში) და დაწერილი **პატარა ასოებით** — `Index.html` არ ჩაითვლება. ეს ფაილი საიტის მთავარი გვერდია: მისამართის ბოლოს ფაილის სახელი თუ არ წერია, სერვერი `index.html`-ს აბრუნებს.
+```
+
+```note
+უფასო ანგარიშზე Pages მხოლოდ **public** რეპოსთვის მუშაობს. ამიტომ რეპოში არაფერი საიდუმლო არ უნდა იყოს — სწორედ ამიტომ ვისწავლეთ `.gitignore`.
+```
+  </aside>
+</section>
+
+<section class="slide" data-section="1 · GitHub Pages">
+  <div class="kicker">ნაბიჯი 2 · რა მოხდა კულისებში</div>
+  <h2>Actions ჩანართი — <span class="c-net">პირველი pipeline</span></h2>
+  <div class="grid2" style="grid-template-columns:1.15fr 1fr">
+    <div class="card in left" style="--d:0.20s;padding:20px 26px">
+      <p class="tiny">my-portfolio → <b>Actions</b></p>
+      <div class="row mt" style="gap:14px;align-items:center"><span style="font-size:28px">✅</span><span class="mono" style="font-size:19px"><b>pages build and deployment</b></span></div>
+      <div class="row mt" style="gap:10px;flex-wrap:wrap"><span class="pill on" style="--a:var(--mvc)">build ✓</span><span class="pill on" style="--a:var(--mvc)">deploy ✓</span><span class="pill">32s</span></div>
+      <p class="tiny mt">🟡 მიმდინარეობს · ✅ წარმატებით · ❌ შეცდომა — დააჭირე და ნახე რატომ</p>
+    </div>
+    <div class="col">
+      <div class="card accent in right" style="--d:0.40s;--a:var(--net)"><h3>⚙️ workflow</h3><p>GitHub-მა თვითონ შექმნა: <b>build</b> (ფაილების მომზადება) → <b>deploy</b> (გამოქვეყნება)</p></div>
+      <div class="callout step" style="--a:var(--mvc)">ეს <b>pipeline</b>-ია: push ავტომატურად იქცევა deploy-ად. კურსის ბოლოს ასეთს <b>თვითონ დავწერთ</b> — შენი API-სთვის</div>
+    </div>
+  </div>
+  <aside class="study">
+### ნაბიჯი 2 · Actions ჩანართი — პირველი pipeline
+
+Save-ზე დაჭერის შემდეგ GitHub-მა **workflow** გაუშვა — სახელით **pages build and deployment**. მას ნახავ რეპოს **Actions** ჩანართში.
+
+ის ორი ნაბიჯისგან შედგება:
+
+- **build** — ფაილების მომზადება გამოსაქვეყნებლად;
+- **deploy** — მათი გამოქვეყნება `github.io`-ზე.
+
+სტატუსი: 🟡 მიმდინარეობს · ✅ წარმატებით დასრულდა · ❌ შეცდომა (დააჭირე — ნახავ, რომელ ნაბიჯზე და რატომ).
+
+```terms
+workflow — ავტომატური ნაბიჯების თანმიმდევრობა, რომელსაც GitHub რაღაც მოვლენაზე (მაგ. push) უშვებს
+pipeline — გზა კოდიდან გამოქვეყნებამდე, ნაბიჯებად დაყოფილი: build → deploy
+```
+
+```tip
+ეს workflow GitHub-მა **თვითონ** შექმნა. კურსის ბოლო ლექციაზე ასეთს ჩვენ თვითონ დავწერთ — ოღონდ არა სტატიკური საიტისთვის, არამედ შენი API-სთვის, რომელიც საკუთარ სერვერზე გაეშვება.
+```
+  </aside>
+</section>
+
+<section class="slide" data-section="1 · GitHub Pages">
+  <div class="kicker">ნაბიჯი 3 · განახლება</div>
+  <h2>შეცვალე → <span class="c-mvc">push</span> → საიტი განახლდა</h2>
+  <div class="grid2" style="grid-template-columns:1.1fr 1fr">
+    <code-block lang="console" cls="in" title="Git Bash" style="--d:0.20s">
+$ git switch -c feature/about
+# index.html-ში „ჩემ შესახებ“ ბლოკი
+$ git add index.html
+$ git commit -m "Add about section"
+
+$ git switch main
+$ git merge feature/about
+$ git push
+    </code-block>
+    <div class="col">
+      <div class="row in right" style="--d:0.40s;gap:16px;align-items:center"><span class="big-emoji" style="font-size:40px">🌿</span><span style="font-size:23px">ფიჩა — <b>branch-ზე</b>, როგორც წინა ლექციაზე</span></div>
+      <div class="row in right" style="--d:0.55s;gap:16px;align-items:center"><span class="big-emoji" style="font-size:40px">🚀</span><span style="font-size:23px"><code class="i">git push</code> <b>main</b>-ში → Actions-ში ახალი deploy</span></div>
+      <div class="row in right" style="--d:0.70s;gap:16px;align-items:center"><span class="big-emoji" style="font-size:40px">🌍</span><span style="font-size:23px">~1 წუთში — ახალი ვერსია <b>ყველასთვის</b></span></div>
+      <div class="callout step" style="--a:var(--asp)">💡 <code class="i">main</code> = რაც ინტერნეტშია. ამიტომ ნახევრად დაწერილი კოდი <b>branch-ზე</b> რჩება</div>
+    </div>
+  </div>
+  <aside class="study">
+### ნაბიჯი 3 · განახლება: შეცვალე → push → საიტი განახლდა
+
+Pages-ის ჩართვა ერთხელ ხდება. მერე ყოველი `git push` `main`-ში ახალ deploy-ს უშვებს:
+
+```console Git Bash
+$ git switch -c feature/about
+# index.html-ში „ჩემ შესახებ“ ბლოკი დავამატეთ
+$ git add index.html
+$ git commit -m "Add about section"
+
+$ git switch main
+$ git merge feature/about
+$ git push
+```
+
+Actions-ში გამოჩნდება ახალი **pages build and deployment** — მწვანე ✓-ის შემდეგ ახალი ვერსია ყველასთვის ჩანს.
+
+```tip
+ახლა `main` = **რაც ინტერნეტშია**. სწორედ ამიტომ ვმუშაობთ ფიჩაზე branch-ზე: ნახევრად დაწერილი კოდი `main`-ში არ ხვდება და მომხმარებელი გატეხილ საიტს ვერ ნახავს.
+```
+  </aside>
+</section>
+
+<section class="slide" data-section="1 · GitHub Pages">
+  <div class="kicker">ტიპური შეცდომები</div>
+  <h2>რატომ <span class="c-red">არ მუშაობს?</span></h2>
+  <div class="grid3" style="gap:22px">
+    <div class="card accent in" style="--d:0.20s;--a:var(--red)"><h3>404 · There isn't a GitHub Pages site here</h3>
+      <p class="mt">Actions ჯერ არ დასრულდა — ან <code class="i">index.html</code> root-ში არ არის / <code class="i">Index.html</code> ჰქვია</p></div>
+    <div class="card accent in" style="--d:0.40s;--a:var(--asp)"><h3>🎨 CSS არ ჩაიტვირთა</h3>
+      <p class="mono mt" style="font-size:17px"><span class="c-red">href="/style.css"</span><br><span class="c-mvc">href="style.css"</span></p>
+      <p class="tiny mt">საიტი <code class="i">/my-portfolio/</code>-ში ცხოვრობს. და <code class="i">Style.css</code> ≠ <code class="i">style.css</code></p></div>
+    <div class="card accent in" style="--d:0.60s;--a:var(--net)"><h3>🕓 ძველი ვერსია ჩანს</h3>
+      <p class="mt">Actions მწვანეა? მერე <b>Ctrl + F5</b> — ბრაუზერის cache</p></div>
+  </div>
+  <div class="callout step mt2" style="--a:var(--mvc);font-size:23px">🐧 <code class="i">Style.css</code> შენს Windows-ზე მუშაობს, სერვერზე — არა: სერვერი <b>Linux</b>-ია და დიდ-პატარა ასოებს <b>განასხვავებს</b>.</div>
+  <aside class="study">
+### ტიპური შეცდომები: რატომ არ მუშაობს?
+
+| რას ხედავ | მიზეზი | გამოსავალი |
+|---|---|---|
+| **404** · There isn't a GitHub Pages site here | deploy ჯერ არ დასრულდა; ან `index.html` root-ში არ არის; ან ჰქვია `Index.html` | Actions-ში დაელოდე ✓-ს; ფაილი root-ში, პატარა ასოებით |
+| საიტი გაიხსნა, **CSS/სურათი არა** | გზა იწყება `/`-ით: `href="/style.css"` | ფარდობითი გზა: `href="style.css"` |
+| იგივე | ასოები: HTML-ში `Style.css`, ფაილი — `style.css` | სახელები ზუსტად ერთნაირად |
+| **ძველი ვერსია** ჩანს | deploy ჯერ მიდის, ან ბრაუზერს ძველი ასლი აქვს (cache) | Actions ✓ → `Ctrl + F5` |
+
+**რატომ იშლება `/style.css`?** `/`-ით დაწყებული გზა დომენის root-იდან ითვლება: `giorgi.github.io/style.css`. შენი საიტი კი ცხოვრობს `giorgi.github.io/my-portfolio/`-ში — ფაილი იქ არ არის. ფარდობითი `style.css` კი მიმდინარე გვერდის საქაღალდიდან ითვლება.
+
+```warn
+Windows-ზე `Style.css` და `style.css` ერთი და იგივე ფაილია — ამიტომ ლოკალურად ყველაფერი მუშაობს. სერვერები კი, თითქმის ყველა, **Linux**-ზე მუშაობს, სადაც ეს **ორი სხვადასხვა ფაილია**. „ჩემთან მუშაობს, სერვერზე — არა“ — DevOps-ის ყველაზე ხშირი ფრაზა. Linux-ს შემდეგ ლექციაზე ვიწყებთ.
+```
+  </aside>
+</section>
+
+<section class="slide" data-section="☕ შესვენება">
+  <div class="center">
+    <div class="big-emoji float" style="font-size:120px">☕</div>
+    <h1 class="mt">შესვენება</h1>
+    <p class="lead mt">10 წუთი · მერე — რას ვერ აკეთებს GitHub Pages</p>
+  </div>
+</section>
+
+<!-- ================= PART 2: PAGES LIMIT ================= -->
+<section class="slide divider" data-section="2 · Pages-ის ზღვარი">
+  <div class="vcenter">
+    <div class="kicker in">ნაწილი 2</div>
+    <h1 class="in" style="--d:.1s">და <span class="grad">API?</span> 🤔</h1>
+    <p class="lead mt in" style="--d:.3s">რატომ ვერ გაუშვებს GitHub Pages შენს ASP.NET API-ს</p>
+  </div>
+  <div class="big-num">02</div>
+  <aside class="study">
+## ნაწილი 2 · Pages-ის ზღვარი
+
+portfolio ინტერნეტშია. API-ის კურსზე კი LMS-ს წერ — ის ხომ ასევე უნდა გაეშვას. შეიძლება Pages-ზე?
+  </aside>
+</section>
+
+<section class="slide" data-section="2 · Pages-ის ზღვარი">
+  <div class="kicker">ექსპერიმენტი</div>
+  <h2>LMS-ის რეპო → Pages → <span class="c-red">?</span></h2>
+  <div class="grid2" style="grid-template-columns:1fr 1.1fr">
+    <div class="col">
+      <div class="card in left" style="--d:0.20s"><h3>📁 რეპოში</h3><p class="mono" style="font-size:18px">Program.cs<br>Controllers/CoursesController.cs<br>Lms.Api.csproj<br>README.md</p></div>
+      <div class="problem step" style="display:block">Pages-მა <b>index.html</b> ვერ იპოვა → აჩვენა README ან <b>404</b></div>
+      <div class="problem step" style="display:block" data-with><code class="i">/api/courses</code> → <b>404</b>. C# კოდი <b>არავინ გაუშვა</b></div>
+    </div>
+    <code-block lang="console" cls="in" title="ლოკალურად" style="--d:0.40s">
+$ dotnet run
+Now listening on: http://localhost:5080
+Application started. Press Ctrl+C to shut down.
+_
+# პროგრამა მუშაობს და ელოდება მოთხოვნებს.
+# ბრაუზერში: localhost:5080/api/courses
+#   → C# კოდი სრულდება → JSON
+    </code-block>
+  </div>
+  <div class="callout step mt" style="--a:var(--asp);font-size:23px">ლოკალურად API — <b>გაშვებული პროგრამაა</b>, რომელიც ელოდება მოთხოვნებს. Pages კი პროგრამას <b>არ უშვებს</b>.</div>
+  <aside class="study">
+### ექსპერიმენტი: LMS-ის რეპო → Pages
+
+თუ LMS-ის რეპოზე Pages-ს ჩავრთავთ:
+
+- რეპოში `index.html` არ არის — Pages აჩვენებს README-ს ან 404-ს;
+- `https://giorgi.github.io/lms/api/courses` → **404**. C# კოდი არავინ შეასრულა.
+
+ლოკალურად კი API მუშაობს:
+
+```console ლოკალურად
+$ dotnet run
+Now listening on: http://localhost:5080
+Application started. Press Ctrl+C to shut down.
+```
+
+`dotnet run`-ის შემდეგ API **გაშვებული პროგრამაა**: ის port-ს უსმენს, ელოდება მოთხოვნას, ყოველ მოთხოვნაზე შენს C# კოდს ასრულებს და მერე ისევ ელოდება. terminal-ს თუ დახურავ — API ჩერდება.
+
+GitHub Pages ასეთ პროგრამას **არ უშვებს** — ის მხოლოდ მზა ფაილებს აძლევს.
+  </aside>
+</section>
+
+<section class="slide" data-section="2 · Pages-ის ზღვარი">
+  <div class="kicker">განსხვავება</div>
+  <h2>ფაილის <span class="c-net">გაცემა</span> vs პროგრამის <span class="c-asp">გაშვება</span></h2>
+  <svg viewBox="0 0 1420 400" width="1420" height="400">
+    <g class="in left" style="--d:.2s">
+      <rect x="20" y="20" width="250" height="140" rx="18" fill="#0e2a33" stroke="#22d3ee" stroke-width="3"/><text x="145" y="80" text-anchor="middle" font-size="40">🌐</text><text x="145" y="125" text-anchor="middle" class="ta b" font-size="19">ბრაუზერი</text>
+      <path d="M270 90 H470" stroke="#8b6cff" stroke-width="3" class="flow"/><text x="370" y="72" text-anchor="middle" class="tm mono" font-size="16">GET /index.html</text>
+      <rect x="470" y="20" width="330" height="140" rx="18" fill="#1d1640" stroke="#8b6cff" stroke-width="3"/><text x="635" y="80" text-anchor="middle" font-size="40">🐙</text><text x="635" y="125" text-anchor="middle" class="tn b" font-size="19">GitHub Pages</text>
+      <text x="1000" y="80" text-anchor="middle" class="tw" font-size="22">იპოვა ფაილი → გაუგზავნა</text><text x="1000" y="118" text-anchor="middle" class="tm" font-size="18">ყველას — ზუსტად ერთი და იგივე</text>
+    </g>
+    <g class="step">
+      <rect x="20" y="230" width="250" height="140" rx="18" fill="#0e2a33" stroke="#22d3ee" stroke-width="3"/><text x="145" y="290" text-anchor="middle" font-size="40">🌐</text><text x="145" y="335" text-anchor="middle" class="ta b" font-size="19">ბრაუზერი</text>
+      <path d="M270 300 H470" stroke="#f5a524" stroke-width="3" class="flow"/><text x="370" y="282" text-anchor="middle" class="tm mono" font-size="16">GET /api/courses</text>
+      <rect x="470" y="230" width="330" height="140" rx="18" fill="#33240b" stroke="#f5a524" stroke-width="3"/><text x="635" y="290" text-anchor="middle" font-size="40">⚙️</text><text x="635" y="335" text-anchor="middle" class="to b" font-size="19">API — გაშვებული</text>
+      <path d="M800 300 H960" stroke="#22c55e" stroke-width="3" class="flow"/>
+      <rect x="960" y="230" width="230" height="140" rx="18" fill="#123321" stroke="#22c55e" stroke-width="3"/><text x="1075" y="290" text-anchor="middle" font-size="40">🗄️</text><text x="1075" y="335" text-anchor="middle" class="tg b" font-size="19">ბაზა</text>
+      <text x="1305" y="292" text-anchor="middle" class="tw" font-size="19">კოდი →</text><text x="1305" y="322" text-anchor="middle" class="tw" font-size="19">JSON</text>
+    </g>
+  </svg>
+  <div class="callout step" style="--a:var(--mvc);font-size:23px">Pages = <b>თარო ფაილებით</b>. API-ს სჭირდება <b>კომპიუტერი</b>, რომელზეც შენი პროგრამა და ბაზა 24/7 მუშაობს.</div>
+  <aside class="study">
+### ფაილის გაცემა vs პროგრამის გაშვება
+
+**GitHub Pages:** ბრაუზერი ითხოვს `index.html`-ს → Pages პოულობს ფაილს და აგზავნის. ყველა მომხმარებელი ზუსტად ერთსა და იმავე ფაილს იღებს. კოდი არ სრულდება — ეს **სტატიკური** საიტია.
+
+**API:** ბრაუზერი (ან Angular აპი) ითხოვს `/api/courses`-ს → **გაშვებული** პროგრამა იღებს მოთხოვნას, ასრულებს C# კოდს, მიმართავს **ბაზას** და პასუხს — JSON-ს — იმ წამს ქმნის. სხვადასხვა მომხმარებელს სხვადასხვა პასუხი შეიძლება მიუვიდეს.
+
+| | GitHub Pages | API |
+|---|---|---|
+| რას აკეთებს | მზა ფაილს აძლევს | კოდს ასრულებს |
+| ბაზა | არა | კი |
+| სჭირდება | ფაილები რეპოში | გაშვებული პროგრამა 24/7 |
+
+Pages = **თარო ფაილებით**. API-ს სჭირდება **კომპიუტერი**, რომელზეც შენი პროგრამა და ბაზა მუდმივად მუშაობს.
+  </aside>
+</section>
+
+<section class="slide" data-section="2 · Pages-ის ზღვარი">
+  <div class="kicker">რა გვჭირდება</div>
+  <h2>API-ს სჭირდება <span class="c-asp">საკუთარი სერვერი</span></h2>
+  <div class="grid2" style="grid-template-columns:1fr 1fr;gap:30px">
+    <div class="col">
+      <div class="row in left" style="--d:0.20s;gap:16px;align-items:center"><span class="big-emoji" style="font-size:40px">🔌</span><span style="font-size:23px">კომპიუტერი, რომელიც <b>24/7 ჩართულია</b></span></div>
+      <div class="row in left" style="--d:0.35s;gap:16px;align-items:center"><span class="big-emoji" style="font-size:40px">🌍</span><span style="font-size:23px"><b>საჯარო IP</b> — ინტერნეტიდან მისაწვდომი</span></div>
+      <div class="row in left" style="--d:0.50s;gap:16px;align-items:center"><span class="big-emoji" style="font-size:40px">🛠️</span><span style="font-size:23px">შეგიძლია <b>დააყენო</b> .NET და ბაზა</span></div>
+      <div class="row in left" style="--d:0.65s;gap:16px;align-items:center"><span class="big-emoji" style="font-size:40px">🔑</span><span style="font-size:23px"><b>შენ მართავ</b> — დისტანციურად</span></div>
+    </div>
+    <div class="col">
+      <div class="card accent in right" style="--d:0.80s;--a:var(--asp)"><h3>🏠 VPS · DigitalOcean Droplet</h3><p>პირველი ლექციიდან: <b>ნაქირავები ბინა</b> — ავეჯს და დალაგებას შენ წყვეტ</p></div>
+      <div class="card accent step" style="--a:var(--mvc)"><h3>🐧 და მასზე — Linux</h3><p>სერვერებზე Linux-ია: ეკრანი და მაუსი არ არის — <b>მხოლოდ ტერმინალი</b></p></div>
+    </div>
+  </div>
+  <div class="callout step mt" style="--a:var(--net);font-size:23px">ამიტომ შემდეგი ნაბიჯი — <b>Linux</b>: სერვერის ენა, სანამ სერვერს შევქმნით.</div>
+  <aside class="study">
+### API-ს სჭირდება საკუთარი სერვერი
+
+API-ს გასაშვებად გვჭირდება კომპიუტერი, რომელიც:
+
+- 🔌 **24/7 ჩართულია** — შენი ლეპტოპისგან განსხვავებით;
+- 🌍 აქვს **საჯარო IP** — ინტერნეტიდან მისაწვდომია;
+- 🛠️ შეგიძლია **დააყენო** მასზე რაც გინდა: .NET, ბაზა;
+- 🔑 **შენ მართავ** — დისტანციურად.
+
+ეს არის **VPS** — პირველი ლექციის ანალოგიით, „ნაქირავები ბინა“. კურსში გამოვიყენებთ **DigitalOcean Droplet**-ს.
+
+სერვერებზე თითქმის ყოველთვის **Linux** მუშაობს — ეკრანის, მაუსის და ღილაკების გარეშე, **მხოლოდ ტერმინალი**. ამიტომ, სანამ სერვერს შევქმნით, ვისწავლით მის ენას: **შემდეგი ლექცია — Linux**.
+
+```note
+GitHub Pages კი არსად გაქრება: სტატიკური საიტისთვის (portfolio, დოკუმენტაცია, landing page) ის იდეალური და უფასო გამოსავალია. სწორი ინსტრუმენტი — სწორი ამოცანისთვის.
+```
+  </aside>
+</section>
+
+<section class="slide" data-section="შეჯამება">
+  <div class="kicker">შპარგალკა</div>
+  <h2>GitHub Pages — <span class="c-api">მოკლედ</span></h2>
+  <div class="grid2" style="gap:30px">
+    <div class="card accent in" style="--d:0.20s;--a:var(--net)"><h3>📄 ჩართვა — ერთხელ</h3><p style="font-size:20px;line-height:1.8">Settings → Pages<br>Deploy from a branch<br><code class="i">main</code> · <code class="i">/ (root)</code> → Save<br>Actions → ✅</p></div>
+    <div class="card accent in" style="--d:0.40s;--a:var(--mvc)"><h3>🔁 განახლება — ყოველთვის</h3><p class="mono" style="font-size:19px;line-height:1.9">git switch -c feature/…<br>git commit<br>git switch main · git merge …<br>git push → Actions ✅</p></div>
+  </div>
+  <aside class="study">
+### შპარგალკა: GitHub Pages
+
+**ჩართვა (ერთხელ):** Settings → Pages → Source: `Deploy from a branch` → `main` / `(root)` → Save → Actions-ში ✅ → `https://<username>.github.io/<repo>/`.
+
+**განახლება (ყოველთვის):**
+
+```console Git Bash
+$ git switch -c feature/…
+$ git add . && git commit -m "…"
+$ git switch main
+$ git merge feature/…
+$ git push          # → Actions: pages build and deployment ✅
+```
+
+**თუ არ მუშაობს:** Actions მწვანეა? → `index.html` root-შია, პატარა ასოებით? → გზები ფარდობითია (`style.css`, არა `/style.css`)? → ფაილის სახელის ასოები ემთხვევა? → `Ctrl + F5`.
+  </aside>
+</section>
+
+<lecture-classwork/>
+<lecture-check/>
+
+<section class="slide" data-section="შეჯამება">
+  <div class="kicker">შეჯამება</div>
+  <h2>დღეს ვისწავლეთ</h2>
+  <div class="col" style="gap:30px;margin-top:30px">
+    <div class="row in left" style="--d:0.20s;gap:20px;align-items:center"><span class="big-emoji" style="font-size:44px">📄</span><span style="font-size:29px"><b>GitHub Pages</b> — რეპო → საიტი ნამდვილ მისამართზე, უფასოდ</span></div>
+    <div class="row in left" style="--d:0.35s;gap:20px;align-items:center"><span class="big-emoji" style="font-size:44px">🚀</span><span style="font-size:29px"><b>deploy</b> — ყოველი <code class="i">git push</code> → ახალი ვერსია; სტატუსი Actions-ში</span></div>
+    <div class="row in left" style="--d:0.50s;gap:20px;align-items:center"><span class="big-emoji" style="font-size:44px">🐧</span><span style="font-size:29px"><b>Style.css ≠ style.css</b> — სერვერი Linux-ია</span></div>
+    <div class="row in left" style="--d:0.65s;gap:20px;align-items:center"><span class="big-emoji" style="font-size:44px">⚙️</span><span style="font-size:29px"><b>API</b> — გაშვებული პროგრამაა: სჭირდება <b>საკუთარი სერვერი</b></span></div>
+  </div>
+  <p class="lead in mt" style="--d:0.85s;text-align:center">შემდეგ ლექციაზე: <b>Linux</b> — სერვერის ენა 🐧</p>
+  <aside class="study">
+## შეჯამება · დღეს ვისწავლეთ
+
+- 📄 **GitHub Pages** — რეპოს ფაილებს აქვეყნებს `username.github.io/repo`-ზე: უფასოდ, public რეპოსთვის, HTTPS-ით.
+- 🚀 **deploy** — ჩართვა ერთხელ ხდება, მერე ყოველი `git push` `main`-ში ახალ ვერსიას აქვეყნებს. სტატუსი — **Actions** ჩანართში (`pages build and deployment`).
+- 🐧 **ტიპური შეცდომები** — `index.html` root-ში და პატარა ასოებით; ფარდობითი გზები; სერვერი Linux-ია და `Style.css` ≠ `style.css`.
+- ⚙️ **API ვერ გაეშვება Pages-ზე** — ის გაშვებული პროგრამაა, რომელიც კოდს ასრულებს და ბაზას მიმართავს. სჭირდება საკუთარი სერვერი (VPS), რომელზეც Linux მუშაობს.
+
+**შემდეგ ლექციაზე:** Linux — სერვერის ენა. საშინაოში დააყენე WSL და Ubuntu — ლექციაზე უკვე დაგჭირდება.
+
+```prompt გამოცდა მეოთხე ლექციაზე
+ვსწავლობ DevOps-ს. მეოთხე ლექციაზე გავიარეთ: GitHub Pages (ჩართვა, მისამართი username.github.io/repo, განახლება git push-ით, Actions ჩანართი), ტიპური შეცდომები (404, CSS არ იტვირთება, /style.css vs style.css, დიდი და პატარა ასოები Linux-ზე, cache) და რატომ ვერ გაეშვება API GitHub Pages-ზე.
+დამისვი 7 კითხვა სათითაოდ, მარტივიდან რთულისკენ — ნაწილი პრაქტიკული სიტუაციები იყოს („საიტი გაიხსნა, მაგრამ…“). ყოველ პასუხზე შემიფასე და ამიხსენი. ბოლოს მითხარი, რა გავიმეორო. ქართულად.
+```
+
+```prompt საიტი Pages-ზე არ მუშაობს
+ჩემი სტატიკური საიტი GitHub Pages-ზე არ მუშაობს სწორად. დამეხმარე პრობლემის პოვნაში ნაბიჯ-ნაბიჯ, მარტივად და ქართულად — ჯერ დამისვი კითხვები, მერე მირჩიე გამოსავალი. რას ვხედავ: [აქ აღწერე — მაგ. 404, CSS არ ჩანს, ძველი ვერსია]. ჩემი ფაილების სია: [აქ ჩაწერე]
+```
+  </aside>
+</section>
+<lecture-homework/>
