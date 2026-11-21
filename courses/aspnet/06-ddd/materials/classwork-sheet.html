@@ -3,252 +3,252 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>06 · დირექტორის ჩანაწერი — დავალების ფურცელი</title>
+<title>დირექტორის ჩანაწერი</title>
 <style>
-:root{--bg:#f7f5f0;--card:#fff;--ink:#1f2335;--ink2:#475569;--muted:#94a3b8;--line:#e5e2da;--core:#0d9488;--net:#4f46e5;--red:#dc2626;--amber:#d97706;--green:#16a34a;--r:14px;--font:"Noto Sans Georgian","Segoe UI",system-ui,sans-serif;--mono:"JetBrains Mono",Consolas,monospace}
+:root{--bg:#f7f5f0;--card:#fff;--ink:#1f2335;--ink2:#475569;--muted:#94a3b8;--line:#e5e2da;--core:#0d9488;--net:#4f46e5;--red:#dc2626;--green:#16a34a;--r:14px;--font:"Noto Sans Georgian","Segoe UI",system-ui,sans-serif;--mono:"JetBrains Mono",Consolas,monospace}
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 var(--font)}
-.wrap{max-width:980px;margin:0 auto;padding:28px 20px 80px}
-header{display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end;justify-content:space-between;margin-bottom:18px}
+.wrap{max-width:1000px;margin:0 auto;padding:28px 20px 90px}
+header{display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end;justify-content:space-between;margin-bottom:14px}
 .kicker{font:700 13px var(--mono);color:var(--core);letter-spacing:.06em;text-transform:uppercase}
 h1{margin:4px 0 0;font-size:28px}
 h2{font-size:19px;margin:0 0 4px;display:flex;align-items:center;gap:10px}
 h2 .n{font:800 14px var(--mono);color:#fff;background:var(--a,var(--core));border-radius:8px;padding:2px 9px}
 .hint{color:var(--ink2);font-size:14px;margin:0 0 12px}
 .card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:18px 20px;margin:16px 0;box-shadow:0 4px 18px rgba(31,35,53,.05);border-top:4px solid var(--a,var(--core))}
+.how{--a:#16a34a;background:#f0fdf4}
+.how ol{margin:6px 0 0;padding-left:22px}.how li{margin:4px 0}
 input,select,textarea{font:inherit;color:var(--ink);border:1px solid #d6d3cb;border-radius:9px;padding:8px 10px;background:#fff;width:100%}
+textarea{min-height:120px;resize:vertical}
 input:focus,select:focus,textarea:focus{outline:2px solid color-mix(in srgb,var(--a,var(--core)) 40%,transparent);border-color:var(--a,var(--core))}
+input.bad,textarea.bad{border-color:#f59e0b;background:#fffbeb}
 .name{max-width:300px}
+.name.need{border-color:var(--red);background:#fef2f2}
 .note{background:#fffbeb;border:1px solid #fcd34d;border-radius:var(--r);padding:16px 20px;font-size:18px;line-height:1.9}
-.note .w{cursor:pointer;border-radius:5px;padding:1px 1px;transition:background .15s}
+.note .w{cursor:pointer;border-radius:5px;padding:1px;transition:background .15s}
 .note .w:hover{background:#fde68a}
 .note .w.on{background:#99f6e4;color:#134e4a;font-weight:700}
-.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;min-height:38px}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px;min-height:20px}
 .chip{display:inline-flex;align-items:center;gap:6px;background:#f0fdfa;border:1px solid #5eead4;color:#115e59;border-radius:999px;padding:4px 6px 4px 12px;font-weight:700}
 .chip button{border:0;background:#ccfbf1;color:#115e59;border-radius:999px;width:22px;height:22px;cursor:pointer;font-weight:800;line-height:1}
-.addterm{display:flex;gap:8px;margin-top:10px;max-width:420px;align-items:center}
-.addterm .btn{margin:0;white-space:nowrap}
+.addterm{display:flex;gap:8px;margin-top:10px;max-width:440px;align-items:center}
 .rows{display:flex;flex-direction:column;gap:8px}
 .row{display:grid;gap:8px;align-items:start}
+.row .num{font:800 15px var(--mono);color:var(--a,var(--core));padding-top:9px;text-align:center}
 .row .del{border:0;background:#fef2f2;color:var(--red);border-radius:9px;width:38px;height:40px;cursor:pointer;font-weight:800}
 .hdr{display:grid;gap:8px;font:700 12px var(--mono);color:var(--muted);text-transform:uppercase;letter-spacing:.04em;padding:0 2px}
-.add,.btn{border:1px dashed var(--a,var(--core));background:transparent;color:var(--a,var(--core));border-radius:9px;padding:7px 14px;font:700 14px var(--font);cursor:pointer;margin-top:10px}
+.add,.btn{border:1px dashed var(--a,var(--core));background:transparent;color:var(--a,var(--core));border-radius:9px;padding:7px 14px;font:700 14px var(--font);cursor:pointer;margin-top:10px;white-space:nowrap}
 .btn{border-style:solid}
-.btn.solid{background:var(--net);border-color:var(--net);color:#fff}
-.btn.danger{border-color:#fca5a5;color:var(--red)}
+.addterm .btn{margin:0}
 .status{position:sticky;bottom:12px;margin-top:24px;background:#1f2335;color:#e2e8f0;border-radius:var(--r);padding:10px 14px;display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center;box-shadow:0 10px 30px rgba(0,0,0,.2)}
-.st{font-size:14px}
-.st b{color:#fff}
-.st.ok{color:#86efac}
-.st.ok::before{content:"✓ "}
+.st{font-size:14px}.st b{color:#fff}
+.st.ok{color:#86efac}.st.ok::before{content:"✓ "}
 .st.no::before{content:"○ ";color:#94a3b8}
 .status .sp{flex:1}
-.status .btn{margin:0;padding:6px 11px;font-size:13px;color:#e2e8f0;border-color:#475569}
-.status .btn.solid{color:#fff;border-color:var(--net)}
+.status .btn{margin:0;padding:7px 13px;font-size:14px;color:#e2e8f0;border-color:#475569}
+.status .btn.solid{background:var(--green);border-color:var(--green);color:#fff}
 .done{display:none;font-weight:800;color:#86efac}
 .status.all .done{display:inline}
-.toast{position:fixed;left:50%;top:18px;transform:translateX(-50%);background:var(--green);color:#fff;padding:8px 16px;border-radius:10px;font-weight:700;opacity:0;transition:opacity .2s;pointer-events:none}
+.toast{position:fixed;left:50%;top:18px;transform:translateX(-50%);background:var(--green);color:#fff;padding:8px 16px;border-radius:10px;font-weight:700;opacity:0;transition:opacity .2s;pointer-events:none;z-index:9}
+.toast.bad{background:var(--red)}
 .toast.show{opacity:1}
-.bonus{--a:#7c3aed}
 @media (max-width:720px){.row,.hdr{grid-template-columns:1fr !important}.hdr{display:none}}
 </style>
 </head>
 <body>
 <div class="wrap">
   <header>
-    <div>
-      <div class="kicker">ASP.NET Core Web API · ლექცია 6 · კლასის დავალება</div>
-      <h1>📄 დირექტორის ჩანაწერი</h1>
-    </div>
-    <input class="name" id="who" placeholder="შენი სახელი და გვარი">
+    <div><div class="kicker" id="kicker"></div><h1 id="h1"></h1></div>
+    <input class="name" id="who" placeholder="შენი სახელი და გვარი *">
   </header>
-
-  <div class="card" style="--a:#d97706">
-    <h2>ჩანაწერი</h2>
-    <p class="hint">ორჯერ წაიკითხე: ჯერ გაიგე, რაზეა, მერე ყოველ სიტყვაზე იკითხე „ზუსტად რას ნიშნავს?“. <b>დააკლიკე სიტყვას</b>, და ის ტერმინებში დაემატება.</p>
-    <div class="note" id="note"></div>
+  <div class="card how">
+    <h2>📤 როგორ ჩავაბარო</h2>
+    <ol>
+      <li>ჩაწერე <b>სახელი და გვარი</b> (ზემოთ, მარჯვნივ) და შეავსე ფურცელი. ყველაფერი ამ ბრაუზერში თვითონ ინახება, ასე რომ გვერდი შეგიძლია დახურო და მერე დაბრუნდე.</li>
+      <li>ბოლოს დააჭირე <b>„⬇ ჩამოტვირთვა“</b> (ქვემოთ). ჩამოიტვირთება <b>HTML ფაილი</b> შენი პასუხებით.</li>
+      <li>ჩამოტვირთული ფაილი <b>ჩააბარე ლექტორს</b>, როგორც ის გეტყვის.</li>
+    </ol>
   </div>
-
-  <div class="card" style="--a:#0d9488">
-    <h2><span class="n">1</span>ტერმინები</h2>
-    <p class="hint">არსებითი სახელები, რომლებიც ბიზნესისთვის რამეს ნიშნავს. დააკლიკე ჩანაწერში ან ჩაწერე ხელით.</p>
-    <div class="chips" id="terms"></div>
-    <div class="addterm"><input id="termIn" placeholder="ახალი ტერმინი…"><button class="btn" id="termAdd">+ დამატება</button></div>
-  </div>
-
-  <div class="card" style="--a:#dc2626">
-    <h2><span class="n">2</span>ბუნდოვანი სიტყვები</h2>
-    <p class="hint">ერთი სიტყვა ორი მნიშვნელობით, ან ერთი რამ ორი სახელით. მინიმუმ <b>2</b>.</p>
-    <div class="hdr" style="grid-template-columns:1fr 1.4fr 1.4fr 38px"><span>სიტყვა</span><span>მნიშვნელობა 1</span><span>მნიშვნელობა 2</span><span></span></div>
-    <div class="rows" id="amb"></div>
-    <button class="add" data-add="amb">+ სიტყვა</button>
-  </div>
-
-  <div class="card" style="--a:#d97706">
-    <h2><span class="n">3</span>აქტორები</h2>
-    <p class="hint">ვინ რას აკეთებს ტექსტში.</p>
-    <div class="hdr" style="grid-template-columns:1fr 2.4fr 38px"><span>აქტორი</span><span>რას აკეთებს</span><span></span></div>
-    <div class="rows" id="act"></div>
-    <button class="add" data-add="act">+ აქტორი</button>
-  </div>
-
-  <div class="card" style="--a:#be123c">
-    <h2><span class="n">4</span>წესები</h2>
-    <p class="hint">რა შეიძლება და რა არა. მინიმუმ <b>3</b>. თუ წესს გამონაკლისი აქვს, ისიც ჩაწერე.</p>
-    <div class="hdr" style="grid-template-columns:52px 2fr 1.3fr 38px"><span>#</span><span>წესი</span><span>გამონაკლისი</span><span></span></div>
-    <div class="rows" id="rule"></div>
-    <button class="add" data-add="rule">+ წესი</button>
-  </div>
-
-  <div class="card" style="--a:#4f46e5">
-    <h2><span class="n">5</span>კითხვები დირექტორისთვის</h2>
-    <p class="hint">მინიმუმ <b>5</b>. თითოს მიუწერე ტექნიკა. ტექნიკური სიტყვები (ცხრილი, endpoint…) არ გამოიყენო.</p>
-    <div class="hdr" style="grid-template-columns:2.6fr 1fr 38px"><span>კითხვა</span><span>ტექნიკა</span><span></span></div>
-    <div class="rows" id="q"></div>
-    <button class="add" data-add="q">+ კითხვა</button>
-  </div>
-
-  <div class="card bonus">
-    <h2><span class="n">⭐</span>ბონუსი · User Story</h2>
-    <p class="hint">„როგორც &lt;აქტორი&gt;, მინდა &lt;მოქმედება&gt;, რომ &lt;მიზანი&gt;“ + მიღების კრიტერიუმები.</p>
-    <div class="hdr" style="grid-template-columns:1fr 1.6fr 1.6fr 1.8fr 38px"><span>როგორც</span><span>მინდა</span><span>რომ</span><span>კრიტერიუმები</span><span></span></div>
-    <div class="rows" id="us"></div>
-    <button class="add" data-add="us">+ story</button>
-  </div>
-
+  <div id="sections"></div>
   <div class="status" id="status">
-    <span class="st" id="s-amb"></span>
-    <span class="st" id="s-rule"></span>
-    <span class="st" id="s-q"></span>
+    <span id="checks" style="display:contents"></span>
     <span class="done">მზადაა 🎉</span>
     <span class="sp"></span>
-    <button class="btn solid" id="copy">კოპირება</button>
-    <button class="btn" id="dl">ჩამოტვირთვა .md</button>
-    <button class="btn danger" id="clear" title="გასუფთავება">🗑</button>
+    <button class="btn solid" id="dl">⬇ ჩამოტვირთვა</button>
+    <button class="btn" id="clear" title="ყველაფრის წაშლა">🗑</button>
   </div>
 </div>
 <div class="toast" id="toast"></div>
-
 <script>
-const NOTE = "ლექტორი ყოველი ლექციის შემდეგ ნაკადს დავალებას აძლევს და დედლაინს უწერს, ჩვეულებრივ ერთ კვირას. სტუდენტი დავალებას ფაილად ტვირთავს. დედლაინის შემდეგ სისტემამ დავალება აღარ უნდა მიიღოს. ლექტორი დავალებას 1-დან 12-მდე აფასებს. თუ მსმენელმა 6-ზე ნაკლები მიიღო, ერთხელ შეუძლია ხელახლა ჩააბაროს. ლექტორმა შეფასება კვირაში უნდა დაწეროს, თორემ მენეჯერი ნერვიულობს. ჯგუფის საშუალო ქულა ყოველთვის უნდა ჩანდეს. ხო, თუ სტუდენტს ცნობა აქვს, მენეჯერს შეუძლია დედლაინი გადაუწიოს.";
-const TECH = ["მაგალითი", "მერე?", "ყოველთვის?", "გამონაკლისი?", "ვინ?", "რატომ?", "რას ნიშნავს?"];
-const KEY = "lms-06-director-note";
-const FIELDS = {
-  amb:  {cols: "1fr 1.4fr 1.4fr 38px", f: [["word","მაგ. „დავალება“"],["m1","…ამოცანა, რომელიც ლექტორმა მისცა"],["m2","…ფაილი, რომელიც სტუდენტმა ჩააბარა"]], min: 2},
-  act:  {cols: "1fr 2.4fr 38px", f: [["who","მაგ. ლექტორი"],["does","აძლევს დავალებას, აფასებს…"]], min: 3},
-  rule: {cols: "52px 2fr 1.3fr 38px", f: [["#",""],["text","მაგ. დედლაინის შემდეგ ნამუშევარი არ მიიღება"],["exc","მაგ. ცნობით — მენეჯერი გადაწევს"]], min: 3},
-  q:    {cols: "2.6fr 1fr 38px", f: [["text","მაგ. ბოლოს ვინ ჩააბარა ხელახლა? რომელი ქულა დარჩა?"],["tech","select"]], min: 5},
-  us:   {cols: "1fr 1.6fr 1.6fr 1.8fr 38px", f: [["as","ლექტორი"],["want","შევაფასო ნამუშევარი"],["so","სტუდენტმა იცოდეს დონე"],["ac","ქულა 1–12; …"]], min: 1}
-};
+const SHEET = {"key": "lms-06-director-note", "file": "06-classwork", "kicker": "ASP.NET Core Web API · ლექცია 6 · კლასის დავალება", "title": "📄 დირექტორის ჩანაწერი", "note": "ლექტორი ყოველი ლექციის შემდეგ ნაკადს დავალებას აძლევს და დედლაინს უწერს, ჩვეულებრივ ერთ კვირას. სტუდენტი დავალებას ფაილად ტვირთავს. დედლაინის შემდეგ სისტემამ დავალება აღარ უნდა მიიღოს. ლექტორი დავალებას 1-დან 12-მდე აფასებს. თუ მსმენელმა 6-ზე ნაკლები მიიღო, ერთხელ შეუძლია ხელახლა ჩააბაროს. ლექტორმა შეფასება კვირაში უნდა დაწეროს, თორემ მენეჯერი ნერვიულობს. ჯგუფის საშუალო ქულა ყოველთვის უნდა ჩანდეს. ხო, თუ სტუდენტს ცნობა აქვს, მენეჯერს შეუძლია დედლაინი გადაუწიოს.", "noteTarget": "terms", "sections": [{"id": "note", "type": "note", "title": "ჩანაწერი", "color": "#d97706", "hint": "ორჯერ წაიკითხე: ჯერ გაიგე, რაზეა, მერე ყოველ სიტყვაზე იკითხე „ზუსტად რას ნიშნავს?“. <b>დააკლიკე სიტყვას</b>, და ის ტერმინებში დაემატება."}, {"id": "terms", "type": "chips", "n": "1", "title": "ტერმინები", "color": "#0d9488", "hint": "არსებითი სახელები, რომლებიც ბიზნესისთვის რამეს ნიშნავს. დააკლიკე ჩანაწერში ან ჩაწერე ხელით.", "placeholder": "ახალი ტერმინი…"}, {"id": "amb", "type": "rows", "n": "2", "title": "ბუნდოვანი სიტყვები", "color": "#dc2626", "hint": "ერთი სიტყვა ორი მნიშვნელობით, ან ერთი რამ ორი სახელით. მინიმუმ <b>2</b>.", "min": 2, "need": 2, "short": "ბუნდოვანი", "addLabel": "+ სიტყვა", "fields": [{"name": "word", "label": "სიტყვა", "ph": "მაგ. „დავალება“"}, {"name": "m1", "label": "მნიშვნელობა 1", "ph": "…ამოცანა, რომელიც ლექტორმა მისცა", "w": "1.4fr"}, {"name": "m2", "label": "მნიშვნელობა 2", "ph": "…ფაილი, რომელიც სტუდენტმა ჩააბარა", "w": "1.4fr"}]}, {"id": "act", "type": "rows", "n": "3", "title": "აქტორები", "color": "#d97706", "hint": "ვინ რას აკეთებს ტექსტში.", "min": 3, "addLabel": "+ აქტორი", "fields": [{"name": "who", "label": "აქტორი", "ph": "მაგ. ლექტორი"}, {"name": "does", "label": "რას აკეთებს", "ph": "აძლევს დავალებას, აფასებს…", "w": "2.4fr"}]}, {"id": "rule", "type": "rows", "n": "4", "title": "წესები", "color": "#be123c", "num": "R", "hint": "რა შეიძლება და რა არა. მინიმუმ <b>3</b>. თუ წესს გამონაკლისი აქვს, ისიც ჩაწერე.", "min": 3, "need": 3, "short": "წესები", "addLabel": "+ წესი", "fields": [{"name": "text", "label": "წესი", "ph": "მაგ. დედლაინის შემდეგ ნამუშევარი არ მიიღება", "w": "2fr"}, {"name": "exc", "label": "გამონაკლისი", "ph": "მაგ. ცნობით — მენეჯერი გადაწევს", "w": "1.3fr", "req": false}]}, {"id": "q", "type": "rows", "n": "5", "title": "კითხვები დირექტორისთვის", "color": "#4f46e5", "hint": "მინიმუმ <b>5</b>. თითოს მიუწერე ტექნიკა. ტექნიკური სიტყვები (ცხრილი, endpoint…) არ გამოიყენო.", "min": 5, "need": 5, "short": "კითხვები", "addLabel": "+ კითხვა", "fields": [{"name": "text", "label": "კითხვა", "ph": "მაგ. ბოლოს ვინ ჩააბარა ხელახლა? რომელი ქულა დარჩა?", "w": "2.6fr"}, {"name": "tech", "label": "ტექნიკა", "options": ["მაგალითი", "მერე?", "ყოველთვის?", "გამონაკლისი?", "ვინ?", "რატომ?", "რას ნიშნავს?"]}]}, {"id": "us", "type": "rows", "title": "ბონუსი · User Story", "n": "⭐", "color": "#7c3aed", "hint": "„როგორც &lt;აქტორი&gt;, მინდა &lt;მოქმედება&gt;, რომ &lt;მიზანი&gt;“ + მიღების კრიტერიუმები.", "min": 1, "addLabel": "+ story", "fields": [{"name": "as", "label": "როგორც", "ph": "ლექტორი", "w": "1fr"}, {"name": "want", "label": "მინდა", "ph": "შევაფასო ნამუშევარი", "w": "1.6fr"}, {"name": "so", "label": "რომ", "ph": "სტუდენტმა იცოდეს დონე", "w": "1.6fr"}, {"name": "ac", "label": "კრიტერიუმები", "ph": "ქულა 1–12; …", "w": "1.8fr"}]}]};
 
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const clean = w => w.replace(/[.,„“"!?:;()]/g, "").trim();
+const byId = id => document.getElementById(id);
 let state = load();
+
 function load(){
-  try { const s = JSON.parse(localStorage.getItem(KEY)); if (s) return s; } catch (e) {}
-  const s = {who:"", terms:[]};
-  for (const k in FIELDS) s[k] = Array.from({length: FIELDS[k].min}, () => ({}));
+  try { const s = JSON.parse(localStorage.getItem(SHEET.key)); if (s) return s; } catch (e) {}
+  const s = {who: ""};
+  SHEET.sections.forEach(sec => {
+    if (sec.type === "rows") s[sec.id] = Array.from({length: sec.min || 1}, () => ({}));
+    else if (sec.type === "chips") s[sec.id] = [];
+    else s[sec.id] = "";
+  });
   return s;
 }
-function save(){ try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {} status(); }
-const clean = w => w.replace(/[.,„“"!?:;]/g, "").trim();
+function save(){ try { localStorage.setItem(SHEET.key, JSON.stringify(state)); } catch (e) {} status(); }
+function toast(t, bad){ const e = byId("toast"); e.textContent = t; e.className = "toast show" + (bad ? " bad" : ""); setTimeout(() => e.className = "toast", 1800); }
+const hasTech = v => SHEET.techWords && SHEET.techWords.some(w => (v || "").toLowerCase().includes(w));
 
-// note with clickable words
-function renderNote(){
-  const note = document.getElementById("note"); note.innerHTML = "";
-  NOTE.split(/(\s+)/).forEach(part => {
-    if (/^\s+$/.test(part)) { note.append(part); return; }
-    const s = document.createElement("span"); s.className = "w"; s.textContent = part;
-    const w = clean(part);
-    if (state.terms.includes(w)) s.classList.add("on");
-    s.onclick = () => { if (!w) return; toggleTerm(w); };
-    note.append(s);
+function render(){
+  byId("kicker").textContent = SHEET.kicker; byId("h1").textContent = SHEET.title;
+  byId("who").value = state.who || "";
+  const root = byId("sections"); root.innerHTML = "";
+  SHEET.sections.forEach(sec => {
+    const c = document.createElement("div"); c.className = "card"; c.style.setProperty("--a", sec.color || "var(--core)");
+    c.innerHTML = `<h2>${sec.n ? `<span class="n">${sec.n}</span>` : ""}${sec.title}</h2>${sec.hint ? `<p class="hint">${sec.hint}</p>` : ""}`;
+    if (sec.type === "note") {
+      const note = document.createElement("div"); note.className = "note"; note.id = "note"; c.append(note);
+    } else if (sec.type === "text") {
+      const t = document.createElement("textarea"); t.placeholder = sec.placeholder || ""; t.value = state[sec.id] || "";
+      t.oninput = () => { state[sec.id] = t.value; t.classList.toggle("bad", hasTech(t.value) && sec.noTech); save(); };
+      c.append(t);
+    } else if (sec.type === "chips") {
+      const box = document.createElement("div"); box.className = "chips"; box.id = "chips-" + sec.id; c.append(box);
+      const add = document.createElement("div"); add.className = "addterm";
+      add.innerHTML = `<input placeholder="${esc(sec.placeholder || "")}"><button class="btn">+ დამატება</button>`;
+      const inp = add.querySelector("input");
+      add.querySelector("button").onclick = () => { const w = clean(inp.value); if (w && !state[sec.id].includes(w)) { state[sec.id].push(w); save(); renderChips(sec); renderNote(); } inp.value = ""; inp.focus(); };
+      inp.onkeydown = e => { if (e.key === "Enter") add.querySelector("button").click(); };
+      c.append(add);
+    } else {
+      const cols = (sec.num ? "52px " : "") + sec.fields.map(f => f.w || "1fr").join(" ") + " 38px";
+      const hdr = document.createElement("div"); hdr.className = "hdr"; hdr.style.gridTemplateColumns = cols;
+      hdr.innerHTML = (sec.num ? "<span>#</span>" : "") + sec.fields.map(f => `<span>${f.label}</span>`).join("") + "<span></span>";
+      const rows = document.createElement("div"); rows.className = "rows"; rows.id = "rows-" + sec.id;
+      const add = document.createElement("button"); add.className = "add"; add.textContent = sec.addLabel || "+ დამატება";
+      add.onclick = () => { state[sec.id].push({}); save(); renderRows(sec); };
+      c.append(hdr, rows, add);
+    }
+    root.append(c);
   });
+  SHEET.sections.forEach(sec => { if (sec.type === "rows") renderRows(sec); if (sec.type === "chips") renderChips(sec); });
+  renderNote(); status();
 }
-function toggleTerm(w){
-  const i = state.terms.indexOf(w);
-  if (i >= 0) state.terms.splice(i, 1); else state.terms.push(w);
-  save(); renderTerms(); renderNote();
-}
-function renderTerms(){
-  const box = document.getElementById("terms"); box.innerHTML = "";
-  state.terms.forEach(t => {
-    const c = document.createElement("span"); c.className = "chip"; c.textContent = t;
-    const x = document.createElement("button"); x.textContent = "×"; x.title = "წაშლა"; x.onclick = () => toggleTerm(t);
-    c.append(x); box.append(c);
-  });
-}
-document.getElementById("termAdd").onclick = () => {
-  const inp = document.getElementById("termIn"); const w = clean(inp.value);
-  if (w && !state.terms.includes(w)) { state.terms.push(w); save(); renderTerms(); renderNote(); }
-  inp.value = ""; inp.focus();
-};
-document.getElementById("termIn").addEventListener("keydown", e => { if (e.key === "Enter") document.getElementById("termAdd").click(); });
-
-// table sections
-function renderRows(k){
-  const cfg = FIELDS[k], box = document.getElementById(k); box.innerHTML = "";
-  state[k].forEach((row, idx) => {
-    const r = document.createElement("div"); r.className = "row"; r.style.gridTemplateColumns = cfg.cols;
-    cfg.f.forEach(([name, ph]) => {
+function renderRows(sec){
+  const box = byId("rows-" + sec.id); box.innerHTML = "";
+  const cols = (sec.num ? "52px " : "") + sec.fields.map(f => f.w || "1fr").join(" ") + " 38px";
+  state[sec.id].forEach((row, idx) => {
+    const r = document.createElement("div"); r.className = "row"; r.style.gridTemplateColumns = cols;
+    if (sec.num) { const n = document.createElement("div"); n.className = "num"; n.textContent = sec.num + (idx + 1); r.append(n); }
+    sec.fields.forEach(f => {
       let el;
-      if (name === "#") { el = document.createElement("div"); el.textContent = "R" + (idx + 1); el.style.cssText = "font:800 16px var(--mono);color:#be123c;padding-top:9px;text-align:center"; r.append(el); return; }
-      if (ph === "select") {
-        el = document.createElement("select");
-        el.innerHTML = '<option value="">— ტექნიკა —</option>' + TECH.map(t => `<option>${t}</option>`).join("");
-      } else { el = document.createElement("input"); if (idx === 0) el.placeholder = ph; }
-      el.value = row[name] || "";
-      el.oninput = el.onchange = () => { row[name] = el.value; save(); };
+      if (f.options) { el = document.createElement("select"); el.innerHTML = `<option value="">— ${f.label} —</option>` + f.options.map(o => `<option>${esc(o)}</option>`).join(""); }
+      else { el = document.createElement("input"); if (idx === 0 && f.ph) el.placeholder = f.ph; }
+      el.value = row[f.name] || "";
+      const mark = () => el.classList && el.classList.toggle("bad", !!(f.noTech && hasTech(el.value)));
+      mark();
+      el.oninput = el.onchange = () => { row[f.name] = el.value; mark(); save(); };
       r.append(el);
     });
     const del = document.createElement("button"); del.className = "del"; del.textContent = "×"; del.title = "წაშლა";
-    del.onclick = () => { state[k].splice(idx, 1); save(); renderRows(k); };
+    del.onclick = () => { state[sec.id].splice(idx, 1); save(); renderRows(sec); };
     r.append(del); box.append(r);
   });
 }
-document.querySelectorAll("[data-add]").forEach(b => b.onclick = () => { state[b.dataset.add].push({}); save(); renderRows(b.dataset.add); });
+function renderChips(sec){
+  const box = byId("chips-" + sec.id); box.innerHTML = "";
+  state[sec.id].forEach(t => {
+    const c = document.createElement("span"); c.className = "chip"; c.textContent = t;
+    const x = document.createElement("button"); x.textContent = "×"; x.onclick = () => toggleChip(sec, t);
+    c.append(x); box.append(c);
+  });
+}
+function toggleChip(sec, w){
+  const a = state[sec.id], i = a.indexOf(w);
+  if (i >= 0) a.splice(i, 1); else a.push(w);
+  save(); renderChips(sec); renderNote();
+}
+function renderNote(){
+  const note = byId("note"); if (!note) return;
+  const sec = SHEET.sections.find(s => s.id === SHEET.noteTarget);
+  note.innerHTML = "";
+  SHEET.note.split(/(\s+)/).forEach(part => {
+    if (/^\s+$/.test(part)) { note.append(part); return; }
+    const s = document.createElement("span"); s.className = "w"; s.textContent = part;
+    const w = clean(part);
+    if (state[sec.id].includes(w)) s.classList.add("on");
+    s.onclick = () => w && toggleChip(sec, w);
+    note.append(s);
+  });
+}
 
-// status — „✓ მზადაა, როცა“
+function filled(sec, row){ return sec.fields.filter(f => f.req !== false).every(f => (row[f.name] || "").trim()); }
+function checks(){
+  const out = [];
+  SHEET.sections.forEach(sec => {
+    if (!sec.need) return;
+    let n;
+    if (sec.type === "rows") n = state[sec.id].filter(r => filled(sec, r)).length;
+    else if (sec.type === "text") n = (state[sec.id] || "").split(/[.!?]+/).filter(x => x.trim().length > 3).length;
+    else n = state[sec.id].length;
+    out.push({ok: n >= sec.need, html: `${sec.short} <b>${Math.min(n, 99)}/${sec.need}</b>`});
+  });
+  if (SHEET.techWords) {
+    let t = 0;
+    SHEET.sections.forEach(sec => {
+      if (sec.type === "rows") sec.fields.filter(f => f.noTech).forEach(f => state[sec.id].forEach(r => { if (hasTech(r[f.name])) t++; }));
+      if (sec.type === "text" && sec.noTech && hasTech(state[sec.id])) t++;
+    });
+    out.push({ok: t === 0, html: `ტექნიკური სიტყვა <b>${t}</b>`});
+  }
+  return out;
+}
 function status(){
-  const amb = state.amb.filter(r => r.word && r.m1 && r.m2).length;
-  const rule = state.rule.filter(r => r.text).length;
-  const q = state.q.filter(r => r.text && r.tech).length;
-  const set = (id, ok, html) => { const e = document.getElementById(id); e.className = "st " + (ok ? "ok" : "no"); e.innerHTML = html; };
-  set("s-amb", amb >= 2, `ბუნდოვანი <b>${amb}/2</b> (ორივე მნიშვნელობით)`);
-  set("s-rule", rule >= 3, `წესები <b>${rule}/3</b>`);
-  set("s-q", q >= 5, `კითხვები <b>${q}/5</b> (ტექნიკით)`);
-  document.getElementById("status").classList.toggle("all", amb >= 2 && rule >= 3 && q >= 5);
+  const cs = checks();
+  byId("checks").innerHTML = cs.map(c => `<span class="st ${c.ok ? "ok" : "no"}">${c.html}</span>`).join("");
+  byId("status").classList.toggle("all", cs.every(c => c.ok));
 }
 
-// export
-function toMd(){
-  const L = [`# დირექტორის ჩანაწერი — ${state.who || "(სახელი)"}`, "", "## ტერმინები", state.terms.join(", ") || "—", "", "## ბუნდოვანი სიტყვები"];
-  state.amb.filter(r => r.word).forEach(r => L.push(`- **${r.word}**: 1) ${r.m1 || "?"} · 2) ${r.m2 || "?"}`));
-  L.push("", "## აქტორები"); state.act.filter(r => r.who).forEach(r => L.push(`- **${r.who}**: ${r.does || ""}`));
-  L.push("", "## წესები"); state.rule.filter(r => r.text).forEach((r, i) => L.push(`- R${i + 1}: ${r.text}${r.exc ? ` (გამონაკლისი: ${r.exc})` : ""}`));
-  L.push("", "## კითხვები"); state.q.filter(r => r.text).forEach(r => L.push(`- ${r.text}${r.tech ? ` _(${r.tech})_` : ""}`));
-  const us = state.us.filter(r => r.as || r.want);
-  if (us.length) { L.push("", "## User Stories"); us.forEach(r => L.push(`- როგორც **${r.as || "?"}**, მინდა **${r.want || "?"}**, რომ **${r.so || "?"}**${r.ac ? `\n  - კრიტერიუმები: ${r.ac}` : ""}`)); }
-  return L.join("\n");
+function report(){
+  const d = new Date().toLocaleString("ka-GE");
+  const parts = SHEET.sections.filter(s => s.type !== "note").map(sec => {
+    let body;
+    if (sec.type === "text") body = state[sec.id] ? `<p>${esc(state[sec.id]).replace(/\n/g, "<br>")}</p>` : "<p class='e'>—</p>";
+    else if (sec.type === "chips") body = state[sec.id].length ? `<p>${state[sec.id].map(t => `<span class="c">${esc(t)}</span>`).join(" ")}</p>` : "<p class='e'>—</p>";
+    else {
+      const rows = state[sec.id].filter(r => sec.fields.some(f => (r[f.name] || "").trim()));
+      body = rows.length ? `<table><tr>${sec.num ? "<th>#</th>" : ""}${sec.fields.map(f => `<th>${f.label}</th>`).join("")}</tr>${rows.map((r, i) => `<tr>${sec.num ? `<td><b>${sec.num}${i + 1}</b></td>` : ""}${sec.fields.map(f => `<td>${esc(r[f.name]) || "<span class='e'>—</span>"}</td>`).join("")}</tr>`).join("")}</table>` : "<p class='e'>—</p>";
+    }
+    return `<h2>${sec.n ? sec.n + " · " : ""}${sec.title}</h2>${body}`;
+  }).join("");
+  const cs = checks().map(c => `<span class="${c.ok ? "ok" : "no"}">${c.ok ? "✓" : "○"} ${c.html}</span>`).join(" · ");
+  return `<!doctype html><html lang="ka"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${esc(SHEET.title)} — ${esc(state.who)}</title><style>
+body{font:16px/1.6 "Noto Sans Georgian","Segoe UI",system-ui,sans-serif;color:#1f2335;background:#f7f5f0;margin:0}
+.w{max-width:960px;margin:0 auto;padding:28px 22px}.k{font:700 13px Consolas,monospace;color:#0d9488;text-transform:uppercase;letter-spacing:.05em}
+h1{margin:4px 0 2px}.m{color:#475569}.s{background:#1f2335;color:#e2e8f0;border-radius:12px;padding:10px 14px;margin:14px 0;font-size:14px}.s b{color:#fff}.ok{color:#86efac}.no{color:#fca5a5}
+h2{font-size:19px;margin:26px 0 8px;border-bottom:2px solid #e5e2da;padding-bottom:4px}
+table{border-collapse:collapse;width:100%;background:#fff}td,th{border:1px solid #e5e2da;padding:7px 10px;text-align:left;vertical-align:top}th{background:#f1efe9;font-size:13px}
+.c{display:inline-block;background:#f0fdfa;border:1px solid #5eead4;color:#115e59;border-radius:999px;padding:2px 10px;margin:2px;font-weight:700}.e{color:#94a3b8}
+p{background:#fff;border:1px solid #e5e2da;border-radius:10px;padding:10px 14px;margin:0}</style></head><body><div class="w">
+<div class="k">${esc(SHEET.kicker)}</div><h1>${esc(SHEET.title)}</h1><div class="m"><b>${esc(state.who)}</b> · ${esc(d)}</div><div class="s">${cs}</div>${parts}</div></body></html>`;
 }
-function toast(t){ const e = document.getElementById("toast"); e.textContent = t; e.classList.add("show"); setTimeout(() => e.classList.remove("show"), 1600); }
-document.getElementById("copy").onclick = async () => {
-  try { await navigator.clipboard.writeText(toMd()); toast("დაკოპირდა ✓"); }
-  catch (e) { const t = document.createElement("textarea"); t.value = toMd(); document.body.append(t); t.select(); document.execCommand("copy"); t.remove(); toast("დაკოპირდა ✓"); }
-};
-document.getElementById("dl").onclick = () => {
+byId("dl").onclick = () => {
+  const who = byId("who");
+  if (!state.who || !state.who.trim()) { who.classList.add("need"); who.focus(); window.scrollTo({top: 0, behavior: "smooth"}); toast("ჯერ სახელი და გვარი ჩაწერე", true); return; }
   const a = document.createElement("a");
-  a.href = URL.createObjectURL(new Blob([toMd()], {type: "text/markdown"}));
-  a.download = `06-director-note${state.who ? "-" + state.who.replace(/\s+/g, "-") : ""}.md`; a.click();
+  a.href = URL.createObjectURL(new Blob([report()], {type: "text/html"}));
+  a.download = `${SHEET.file}-${state.who.trim().replace(/\s+/g, "-")}.html`; a.click();
+  toast("ჩამოიტვირთა ✓ — ახლა ფაილი ჩააბარე");
 };
-document.getElementById("clear").onclick = () => {
+byId("clear").onclick = () => {
   if (!confirm("ყველაფერი წაიშალოს?")) return;
-  try { localStorage.removeItem(KEY); } catch (e) {}
-  state = load(); init();
+  try { localStorage.removeItem(SHEET.key); } catch (e) {}
+  state = load(); render();
 };
-const who = document.getElementById("who");
-who.oninput = () => { state.who = who.value; save(); };
-
-function init(){ who.value = state.who || ""; renderNote(); renderTerms(); Object.keys(FIELDS).forEach(renderRows); status(); }
-init();
+byId("who").oninput = e => { state.who = e.target.value; e.target.classList.remove("need"); save(); };
+render();
 </script>
 </body>
 </html>
