@@ -1,0 +1,467 @@
+<!doctype html>
+<html lang="ka">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>აირჩიე შენი სფერო — ASP.NET Core Web API</title>
+<style>
+:root{--bg:#f7f5f0;--card:#fff;--ink:#1f2335;--ink2:#475569;--muted:#94a3b8;--line:#e5e2da;--core:#0d9488;--net:#4f46e5;--red:#dc2626;--amber:#d97706;--green:#16a34a;--r:16px;--font:"Noto Sans Georgian","Segoe UI",system-ui,sans-serif;--mono:"JetBrains Mono",Consolas,monospace}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 var(--font)}
+a{color:var(--net)}
+.wrap{max-width:1080px;margin:0 auto;padding:30px 20px 80px}
+.kicker{font:700 13px var(--mono);color:var(--core);letter-spacing:.06em;text-transform:uppercase}
+h1{margin:4px 0 6px;font-size:32px;line-height:1.25}
+h2{font-size:22px;margin:0 0 10px;display:flex;align-items:center;gap:10px}
+h3{font-size:18px;margin:0 0 6px}
+.lead{font-size:18px;color:var(--ink2);margin:0 0 18px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:20px 22px;margin:18px 0;box-shadow:0 4px 18px rgba(31,35,53,.05)}
+.how ol{margin:6px 0 0;padding-left:22px}.how li{margin:6px 0}
+.mine{display:none;align-items:center;gap:12px;background:#f0fdf4;border:1px solid #86efac;border-radius:12px;padding:10px 16px;font-weight:700;color:#166534;margin:0 0 6px}
+.mine.on{display:flex}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(310px,1fr));gap:18px;margin-top:8px}
+.dom{position:relative;background:var(--card);border:1px solid var(--line);border-top:6px solid var(--a);border-radius:var(--r);padding:20px 20px 18px;box-shadow:0 4px 18px rgba(31,35,53,.06);cursor:pointer;transition:transform .15s,box-shadow .15s;text-decoration:none;color:inherit;display:flex;flex-direction:column}
+.dom:hover{transform:translateY(-3px);box-shadow:0 12px 28px rgba(31,35,53,.12)}
+.dom .e{font-size:44px;line-height:1.1}
+.dom h3{font-size:22px;margin:8px 0 0;color:var(--ink)}
+.dom .brand{font:700 14px var(--mono);color:var(--a)}
+.dom p{color:var(--ink2);margin:8px 0 12px;font-size:15px}
+.dom .tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:auto}
+.tag{font:600 13px var(--mono);background:color-mix(in srgb,var(--a) 10%,#fff);color:var(--a);border-radius:7px;padding:2px 8px}
+.badge{position:absolute;top:14px;right:14px;font:800 12px var(--mono);border-radius:999px;padding:3px 10px;background:#ede9fe;color:#5b21b6}
+.badge.ok{background:#dcfce7;color:#166534}
+.dom.example{background:repeating-linear-gradient(135deg,#fff,#fff 14px,#faf8ff 14px,#faf8ff 28px)}
+/* detail */
+.back{display:inline-block;margin-bottom:12px;font-weight:700;text-decoration:none}
+.hero{border-top:8px solid var(--a)}
+.hero .e{font-size:56px;line-height:1}
+.hero .row{display:flex;gap:18px;align-items:center;flex-wrap:wrap}
+.pick{margin-left:auto;border:0;background:var(--a);color:#fff;font:800 16px var(--font);border-radius:12px;padding:12px 20px;cursor:pointer}
+.pick.done{background:#16a34a}
+.note{background:#fffbeb;border:1px solid #fcd34d;border-radius:14px;padding:16px 20px;font-size:17px;line-height:1.85}
+.who{font:700 13px var(--mono);color:#92400e;margin-bottom:4px}
+.qa{display:flex;flex-direction:column;gap:10px}
+.q{align-self:flex-end;max-width:82%;background:#eef2ff;border:1px solid #a5b4fc;color:#312e81;border-radius:14px;padding:8px 14px}
+.a{align-self:flex-start;max-width:82%;background:#fff7ed;border:1px solid #fdba74;color:#7c2d12;border-radius:14px;padding:8px 14px}
+.q b,.a b{display:block;font:700 12px var(--mono);opacity:.7}
+.actors{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px}
+.actor{border:2px solid var(--c);border-radius:14px;padding:14px 16px;background:color-mix(in srgb,var(--c) 6%,#fff)}
+.actor .t{font-size:20px;font-weight:800;color:var(--c)}
+.actor code{font:700 14px var(--mono);color:var(--ink2)}
+.actor ul{margin:6px 0 0;padding-left:20px}.actor li{font-size:15px;color:var(--ink2)}
+table{border-collapse:collapse;width:100%;font-size:15px}
+th,td{border-bottom:1px solid var(--line);padding:9px 10px;text-align:left;vertical-align:top}
+th{font:700 12px var(--mono);color:var(--muted);text-transform:uppercase;letter-spacing:.04em;background:#faf9f6}
+td code,.mono{font:700 14px var(--mono);color:var(--core)}
+td .lms{color:var(--ink2)}
+tr.k td{background:#f0fdfa}
+.lec{font:800 14px var(--mono);color:var(--net);white-space:nowrap}
+.rule{display:grid;grid-template-columns:54px 1fr;border-bottom:1px solid var(--line)}
+.rule div{padding:8px 10px}
+.rule .r{font:800 15px var(--mono);color:var(--red);text-align:center}
+details{border:1px dashed #cbd5e1;border-radius:12px;padding:10px 14px;background:#fcfcfb;margin-top:10px}
+details summary{cursor:pointer;font-weight:800;color:var(--net)}
+details[open] summary{margin-bottom:10px}
+.steps{counter-reset:s;list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:10px}
+.steps li{counter-increment:s;display:grid;grid-template-columns:40px 1fr;gap:12px;align-items:start}
+.steps li::before{content:counter(s);display:grid;place-items:center;width:34px;height:34px;border-radius:10px;background:var(--a);color:#fff;font:800 16px var(--mono)}
+.steps b{color:var(--ink)}
+.steps span{color:var(--ink2)}
+.out{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}
+.out span{background:#fef2f2;border:1px solid #fca5a5;color:#991b1b;border-radius:999px;padding:3px 12px;font-weight:700;font-size:14px}
+.warn{background:#fef2f2;border:1px solid #fca5a5;color:#991b1b;border-radius:12px;padding:12px 16px;font-weight:600}
+.tip{background:#f0fdf4;border:1px solid #86efac;color:#166534;border-radius:12px;padding:12px 16px}
+@media (max-width:720px){.q,.a{max-width:100%}table{font-size:13px}}
+</style>
+</head>
+<body>
+<div class="wrap" id="app"></div>
+<script>
+/* ---------------------------------------------------------------
+   ყველა სფეროს ერთი და იგივე ჩონჩხი აქვს — ზუსტად ისეთი, როგორიც LMS-ს:
+   catalog (კურსი) → container (ჯგუფი, ადგილებით) → membership (ჩარიცხვა)
+   → schedule (ლექცია) → attendance (დასწრება) → deliverable (ნამუშევარი, დედლაინით)
+   → rating (შეფასება) → completion (კურსის ჩაბარება). წესები R1–R8 — იგივე ნომრებით.
+   --------------------------------------------------------------- */
+const CONCEPTS = [
+  ["catalog",    "კატალოგი",          "რას ვთავაზობთ"],
+  ["container",  "ადგილებიანი ერთეული", "ვინ ერთად, რამდენი ადგილი"],
+  ["membership", "ჩაწერა",            "ადამიანი ↔ ერთეული"],
+  ["schedule",   "განრიგი",           "როდის · სად · ვინ"],
+  ["attendance", "დასწრება",          "მოვიდა · დააგვიანა · არ მოვიდა"],
+  ["deliverable","ფაილი დედლაინით",   "ატვირთვა + ვადა"],
+  ["rating",     "შეფასება",          "ქულა — Value Object"],
+  ["completion", "დასრულების წესი",   "როდის „დასრულდა წარმატებით“"]
+];
+const LECTURES = [
+  ["06–07", "DDD · სფეროს აღმოჩენა", () => "ხედვა · ლექსიკონი · აქტორები · მოვლენები · წესები · რუკა · backlog"],
+  ["08", "პროექტი + პირველი feature (CRUD)", d => `${d.catalog.ka} — <code>${d.catalog.code}</code> CRUD · R1`],
+  ["08 🏠", "ადამიანების CRUD", d => `${d.actors.map(a => `<code>${a.code}</code>`).join(" · ")} · R2 (email)`],
+  ["09", "Layers vs VSA · Minimal API", () => "ყველა არსებული feature → slice-ები"],
+  ["10", "Rich entity + Value Object", d => `<code>${d.container.code}</code> rich entity · <code>Email</code> · <code>${d.rating.code}</code> (${d.rating.scale})`],
+  ["11", "Relationships API-ში", d => `<code>${d.catalog.code}</code> → <code>${d.container.code}</code> ← ${d.actors[1].ka}`],
+  ["12", "Aggregate + Concurrency", d => `${d.membership.ka} <code>${d.container.code}</code>-ის გავლით · ბოლო ადგილი · R3`],
+  ["13–15", "ვალიდაცია · შეცდომები · სიები", () => "შენს endpoint-ებზე: FluentValidation, ProblemDetails, pagination"],
+  ["16", "შემაჯამებელი: განრიგი", d => `${d.schedule.ka} — <code>${d.schedule.code}</code> · R4`],
+  ["17–19", "Config · Authentication · Authorization", d => `როლები: ${d.actors.map(a => a.ka).join(" · ")} · R5`],
+  ["20", "შემაჯამებელი: დასწრება", d => `${d.attendance.ka} — <code>${d.attendance.code}</code> · R6`],
+  ["22", "File upload + შეფასება", d => `${d.deliverable.ka} — <code>${d.deliverable.code}</code> · <code>${d.rating.code}</code> · R7`],
+  ["23", "HttpClient + Background jobs", d => d.reminder],
+  ["24–28", "Logging · CORS + Angular · ტესტები · Production", () => "იგივე — შენს პროექტზე"],
+  ["29", "ფინალური შემაჯამებელი", d => `${d.completion.ka} — R8`]
+];
+
+const DOMAINS = [
+{
+  id: "lms", story1: "მენეჯერი ქმნის კურსს", events: "კურსი შეიქმნა → ჯგუფი გაიხსნა → სტუდენტი ჩაირიცხა → … → კურსი ჩაბარდა", example: true, e: "🏫", name: "სასწავლო პლატფორმა", brand: "LMS", color: "#4f46e5",
+  tagline: "კურსები, ჯგუფები, ლექციები, დასწრება, დავალებები და შეფასება 1–12. ამას ლექტორი აწყობს კლასში.",
+  owner: "აკადემიის დირექტორი",
+  brief: "აკადემიაში რამდენიმე კურსი გვაქვს: ASP.NET, Angular, DevOps. ყოველ კურსს რამდენიმე ნაკადი გადის, დილის, საღამოს, ონლაინ. სტუდენტი კურსზე ირიცხება და ლექციებზე დადის. თუ ხშირად აცდენს, ლექტორმა უნდა იცოდეს. ლექტორი ყოველი ლექციის შემდეგ დავალებას აძლევს, დედლაინით. სტუდენტი დავალებას ფაილად ტვირთავს, ლექტორი აფასებს. ბოლოს ვიცით, ვინ ჩააბარა კურსი.",
+  interview: [
+    ["„კურსზე ჩაირიცხა“: ზუსტად სად ირიცხება?", "ფაქტობრივად, ჯგუფში. კურსი პროგრამაა, ჯგუფი კი ის ხალხია, ვინც მას ერთად გადის."],
+    ["ჯგუფი სავსეა. მერე?", "20-ზე მეტი არ ეტევა. მენეჯერი ახალ ჯგუფს ხსნის."],
+    ["„ხშირად აცდენს“: რამდენი?", "მე-4 გაცდენაზე ლექტორი იღებს შეტყობინებას. 15 წუთზე მეტი დაგვიანებაც გაცდენაა."],
+    ["„ჩააბარა კურსი“ რას ნიშნავს?", "საშუალო ქულა ≥ 6 და დასწრება ≥ 75%."]
+  ],
+  actors: [
+    {ka: "მენეჯერი", code: "Manager", c: "#d97706", does: ["ქმნის კურსებს და ჯგუფებს", "რიცხავს სტუდენტებს", "გეგმავს ლექციებს"]},
+    {ka: "ლექტორი", code: "Lecturer", c: "#4f46e5", does: ["ატარებს ლექციებს", "აღრიცხავს დასწრებას", "აფასებს ნამუშევრებს"]},
+    {ka: "სტუდენტი", code: "Student", c: "#16a34a", does: ["ხედავს განრიგს", "აბარებს ნამუშევრებს", "ხედავს ქულებს"]}
+  ],
+  catalog:    {ka: "კურსი", code: "Course"},
+  container:  {ka: "ჯგუფი", code: "Group", note: "≤ 20 ადგილი"},
+  membership: {ka: "ჩარიცხვა", code: "Enrollment"},
+  schedule:   {ka: "ლექცია", code: "Lecture"},
+  attendance: {ka: "დასწრება", code: "Attendance"},
+  deliverable:{ka: "ნამუშევარი დავალებაზე", code: "Submission"},
+  rating:     {ka: "შეფასება", code: "Grade", scale: "1–12"},
+  completion: {ka: "კურსის ჩაბარება", code: "CourseResult"},
+  reminder: "შეხსენება დედლაინამდე 24 სთ-ით ადრე · მე-4 გაცდენა → ლექტორს შეტყობინება",
+  rules: [
+    "კურსის სახელი უნიკალურია",
+    "ერთ email-ზე ერთი ადამიანია",
+    "ჯგუფში მაქსიმუმ 20 სტუდენტი · სტუდენტი ჯგუფში ერთხელ · დაწყებულ ჯგუფში — მხოლოდ პირველ კვირაში",
+    "ჯგუფის ლექციები დროში არ ფარავს ერთმანეთს · ლექტორი ერთ დროს ერთ ლექციაზეა",
+    "დასწრებას აღრიცხავს და აფასებს მხოლოდ ჯგუფის ლექტორი",
+    "15 წთ-ზე მეტი დაგვიანება = გაცდენა · მე-4 გაცდენაზე ლექტორი იღებს შეტყობინებას",
+    "დედლაინის შემდეგ ნამუშევარი არ მიიღება (მენეჯერს გადაწევა შეუძლია) · ქულა 1–12",
+    "კურსი ჩაბარებულია: საშუალო ≥ 6 და დასწრება ≥ 75%"
+  ],
+  out: ["გადახდები", "ხელშეკრულებები", "ჩატი"]
+},
+{
+  id: "fitness", story1: "ადმინისტრატორი ქმნის პროგრამას", events: "პროგრამა შეიქმნა → ნაკადი გაიხსნა → წევრი ჩაეწერა → … → პროგრამა დასრულდა", e: "🏋️", name: "ფიტნეს-კლუბი", brand: "FitHub", color: "#ea580c",
+  tagline: "პროგრამები, თვიური ნაკადები მწვრთნელით, ვარჯიშები დარბაზებში, მოსვლის აღრიცხვა და კვირის პროგრესი.",
+  owner: "ნინო, კლუბის მენეჯერი",
+  brief: "კლუბში პროგრამები გვაქვს: იოგა, კროსფიტი, პილატესი. ყოველ თვე პროგრამაზე ახალ კლასს ვხსნით მწვრთნელით, და დარბაზში 15 კაცზე მეტი არ ეტევა. წევრი კლასზე ეწერება და ვარჯიშებზე დადის. ვარჯიშის დაწყებიდან 10 წუთის მერე აღარ ვუშვებთ, უსაფრთხოების გამო. თუ ვინმე ხშირად აცდენს, მწვრთნელმა უნდა იცოდეს. ყოველ კვირა წევრები ფოტოს ან გაზომვებს გვიგზავნიან, მწვრთნელი კი პროგრესს აფასებს. ვინც პროგრამას კარგად დაასრულებს, შემდეგ თვეზე ფასდაკლებას ვაძლევთ. ხო, ერთი დარბაზი ერთდროულად ორ კლასს ვერ მიიღებს.",
+  interview: [
+    ["„კლასი“ რას ნიშნავს: პროგრამას, ჯგუფს თუ ერთ ვარჯიშს?", "ჯგუფს: ერთი პროგრამა, ერთი თვე, ერთი მწვრთნელი. ჩვენ მას „ნაკადს“ ვეძახით. ერთი შეხვედრა კი „ვარჯიშია“."],
+    ["ნაკადი უკვე დაიწყო. წევრი მაინც ჩაეწერება?", "პირველ კვირაში კი, მერე აღარ."],
+    ["„ხშირად აცდენს“: რამდენი?", "მე-3 გაცდენაზე მწვრთნელი იღებს შეტყობინებას. 10 წუთზე მეტი დაგვიანებაც გაცდენაა, რადგან აღარ ვუშვებთ."],
+    ["კვირის ანგარიში როდემდე? ვინ აფასებს?", "კვირა 23:59-მდე, მერე აღარ მიიღება. მწვრთნელი აფასებს 1-დან 10-მდე."],
+    ["„კარგად დაასრულა“ რას ნიშნავს?", "დასწრება ≥ 80% და პროგრესის საშუალო ≥ 7."],
+    ["ვინ გეგმავს ვარჯიშებს?", "ადმინისტრატორი. მწვრთნელი ერთ დროს ერთ დარბაზშია."]
+  ],
+  actors: [
+    {ka: "ადმინისტრატორი", code: "Admin", c: "#d97706", does: ["ქმნის პროგრამებს და ნაკადებს", "წერს წევრებს ნაკადზე", "გეგმავს ვარჯიშებს დარბაზებში"]},
+    {ka: "მწვრთნელი", code: "Trainer", c: "#ea580c", does: ["ატარებს ვარჯიშს", "აღრიცხავს მოსვლას", "აფასებს კვირის პროგრესს"]},
+    {ka: "წევრი", code: "Member", c: "#16a34a", does: ["ხედავს განრიგს", "ტვირთავს კვირის ანგარიშს", "ხედავს პროგრესს"]}
+  ],
+  catalog:    {ka: "პროგრამა", code: "Program"},
+  container:  {ka: "ნაკადი", code: "Cohort", note: "≤ 15 ადგილი"},
+  membership: {ka: "ჩაწერა", code: "Signup"},
+  schedule:   {ka: "ვარჯიში დარბაზში", code: "Workout"},
+  attendance: {ka: "მოსვლა", code: "CheckIn"},
+  deliverable:{ka: "კვირის ანგარიში (ფოტო / გაზომვები)", code: "ProgressReport"},
+  rating:     {ka: "პროგრესის ქულა", code: "ProgressScore", scale: "1–10"},
+  completion: {ka: "პროგრამის წარმატებით დასრულება → ფასდაკლება", code: "ProgramResult"},
+  reminder: "შეხსენება კვირა საღამოს: „ანგარიში ჯერ არ ატვირთე“ · მე-3 გაცდენა → მწვრთნელს შეტყობინება",
+  rules: [
+    "პროგრამის სახელი უნიკალურია",
+    "ერთ email-ზე ერთი ადამიანია",
+    "ნაკადში მაქსიმუმ 15 წევრი · წევრი ნაკადზე ერთხელ · დაწყებულ ნაკადზე — მხოლოდ პირველ კვირაში",
+    "დარბაზში ერთ დროს ერთი ვარჯიში · მწვრთნელი ერთ დროს ერთ ვარჯიშზე",
+    "მოსვლას აღრიცხავს და პროგრესს აფასებს მხოლოდ ნაკადის მწვრთნელი",
+    "10 წთ-ზე მეტი დაგვიანება = გაცდენა (აღარ უშვებენ) · მე-3 გაცდენაზე მწვრთნელი იღებს შეტყობინებას",
+    "კვირის ანგარიში — კვირა 23:59-მდე, მერე აღარ მიიღება · ქულა 1–10",
+    "პროგრამა წარმატებით დასრულდა: დასწრება ≥ 80% და საშუალო ≥ 7 → ფასდაკლება შემდეგ თვეზე"
+  ],
+  out: ["გადახდები და აბონემენტები", "კვების გეგმა", "მაღაზია"]
+},
+{
+  id: "driving", story1: "მენეჯერი ქმნის კატეგორიის კურსს", events: "კურსი შეიქმნა → ჯგუფი გაიხსნა → მოსწავლე დარეგისტრირდა → … → გამოცდაზე დაიშვა", e: "🚗", name: "ავტოსკოლა", brand: "DriveRight", color: "#0284c7",
+  tagline: "კატეგორიების კურსები, თეორიის ჯგუფები, პრაქტიკული გაკვეთილები ინსტრუქტორთან, სამედიცინო ცნობა და გამოცდაზე დაშვება.",
+  owner: "გიორგი, ავტოსკოლის დირექტორი",
+  brief: "B და A კატეგორიებს ვასწავლით. ყოველ თვე თეორიის ჯგუფს ვხსნით, კლასში 25 ადგილია. მოსწავლე ირიცხება, თეორიაზე დადის და პარალელურად პრაქტიკულ გაკვეთილებს გადის ინსტრუქტორთან. ინსტრუქტორს თავისი მანქანა აქვს: ერთ მანქანაზე ერთდროულად ორ გაკვეთილს ვერ ჩავნიშნავთ. თუ მოსწავლე გაკვეთილზე არ მოვიდა, ინსტრუქტორი ტყუილად ელოდება, ამას ვერ ვიტანთ. ყოველ გაკვეთილს ინსტრუქტორი აფასებს. სამედიცინო ცნობა აუცილებელია: მის გარეშე მანქანაში არ ჯდება. გამოცდაზე მაშინ ვუშვებთ, როცა მზადაა.",
+  interview: [
+    ["„მზადაა“ რას ნიშნავს?", "მინიმუმ 30 პრაქტიკული გაკვეთილი, ინსტრუქტორის საშუალო შეფასება ≥ 7 (1–10-დან), თეორიაზე დასწრება ≥ 75% და დადასტურებული ცნობა."],
+    ["ცნობა როდემდე უნდა მოიტანოს?", "რეგისტრაციიდან 14 დღეში, ფაილად. მის გარეშე პრაქტიკული გაკვეთილი არ ინიშნება."],
+    ["„არ მოვიდა“: რამდენ ხანს ელოდება ინსტრუქტორი?", "15 წუთს, მერე გაკვეთილი იწვება და გაცდენად ითვლება. მე-2 გაცდენაზე მენეჯერი იღებს შეტყობინებას."],
+    ["დღეში რამდენი გაკვეთილი შეიძლება?", "მოსწავლეს მაქსიმუმ 2."],
+    ["ასაკი მნიშვნელოვანია?", "B კატეგორიაზე 17 წლიდან, A-ზე 16-იდან."],
+    ["დაწყებულ თეორიის ჯგუფში ჩარიცხვა?", "პირველ კვირაში კი."]
+  ],
+  actors: [
+    {ka: "მენეჯერი", code: "Manager", c: "#d97706", does: ["ქმნის კურსებს და ჯგუფებს", "არეგისტრირებს მოსწავლეს, ამოწმებს ცნობას", "ნიშნავს პრაქტიკულ გაკვეთილებს"]},
+    {ka: "ინსტრუქტორი", code: "Instructor", c: "#0284c7", does: ["ატარებს გაკვეთილს", "აღრიცხავს გამოცხადებას", "აფასებს გაკვეთილს"]},
+    {ka: "მოსწავლე", code: "Learner", c: "#16a34a", does: ["ხედავს განრიგს", "ტვირთავს სამედიცინო ცნობას", "ხედავს შეფასებებს და დაშვებას"]}
+  ],
+  catalog:    {ka: "კატეგორიის კურსი", code: "LicenseCourse"},
+  container:  {ka: "თეორიის ჯგუფი", code: "TheoryGroup", note: "≤ 25 ადგილი"},
+  membership: {ka: "რეგისტრაცია", code: "Registration"},
+  schedule:   {ka: "პრაქტიკული გაკვეთილი (ინსტრუქტორი + მანქანა)", code: "DrivingLesson"},
+  attendance: {ka: "გამოცხადება", code: "LessonAttendance"},
+  deliverable:{ka: "სამედიცინო ცნობა", code: "MedicalCertificate"},
+  rating:     {ka: "გაკვეთილის შეფასება", code: "LessonScore", scale: "1–10"},
+  completion: {ka: "გამოცდაზე დაშვება", code: "ExamEligibility"},
+  reminder: "შეხსენება: ცნობის ვადა 3 დღეში იწურება · გაკვეთილამდე 2 სთ · მე-2 გაცდენა → მენეჯერს შეტყობინება",
+  rules: [
+    "კურსის სახელი უნიკალურია",
+    "ერთ email-ზე ერთი ადამიანია",
+    "ჯგუფში მაქსიმუმ 25 · მოსწავლე ჯგუფში ერთხელ · დაწყებულში — პირველ კვირაში · ასაკი: B — 17+, A — 16+",
+    "ინსტრუქტორი და მანქანა ერთ დროს ერთ გაკვეთილზე · მოსწავლეს დღეში მაქსიმუმ 2 გაკვეთილი",
+    "გამოცხადებას აღრიცხავს და გაკვეთილს აფასებს მხოლოდ ამ გაკვეთილის ინსტრუქტორი",
+    "15 წთ-ზე მეტი დაგვიანება = გაცდენა, გაკვეთილი იწვება · მე-2 გაცდენაზე მენეჯერი იღებს შეტყობინებას",
+    "ცნობა — რეგისტრაციიდან 14 დღეში; ცნობის გარეშე პრაქტიკული არ ინიშნება · გაკვეთილის ქულა 1–10",
+    "გამოცდაზე დაშვება: ≥ 30 გაკვეთილი, საშუალო ≥ 7, თეორიაზე დასწრება ≥ 75%, ცნობა დადასტურებულია"
+  ],
+  out: ["გადახდები", "სახელმწიფო გამოცდაზე რეგისტრაცია", "მანქანების სერვისი"]
+},
+{
+  id: "events", story1: "ორგანიზატორი ქმნის კონფერენციას", events: "კონფერენცია შეიქმნა → ვორქშოპი დაემატა → მონაწილე დარეგისტრირდა → … → სერტიფიკატი გაიცა", e: "🎤", name: "ტექ-კონფერენციები", brand: "TechMeet", color: "#db2777",
+  tagline: "კონფერენციები, ვორქშოპები ოთახებში, რეგისტრაცია, check-in, სპიკერის სლაიდები და სერტიფიკატი.",
+  owner: "მარიამი, ორგანიზატორი",
+  brief: "წელიწადში რამდენიმე ტექ-კონფერენციას ვაწყობთ. თითოეულზე ბევრი ვორქშოპია, ყოველი თავის ოთახში და თავის სპიკერთან, ოთახებს კი სხვადასხვა ზომა აქვს. მონაწილე წინასწარ რეგისტრირდება. პოპულარული ვორქშოპები წამებში ივსება და ზედმეტი ადამიანი არ უნდა ჩაეწეროს. სპიკერები სლაიდებს ბოლო წუთს აგზავნიან, და ეს თავის ტკივილია. მონაწილეები ვორქშოპს აფასებენ. ვინც ბევრს დაესწრო, სერტიფიკატს ვაძლევთ.",
+  interview: [
+    ["რეგისტრაცია კონფერენციაზეა თუ ვორქშოპზე?", "ვორქშოპზე. კონფერენცია მხოლოდ ჩარჩოა: სახელი, თარიღები, ადგილი."],
+    ["ვორქშოპი ერთი შეხვედრაა?", "ზოგი კი, ზოგი ორდღიანია. ყოველ ნაწილს „სესიას“ ვეძახით, თავისი ოთახით და დროით."],
+    ["რეგისტრაცია როდემდე?", "ვორქშოპის დაწყებამდე ერთი დღით ადრე. დროში გადამფარავ ორ ვორქშოპზე ერთი ადამიანი ვერ ჩაეწერება."],
+    ["„ბოლო წუთი“: როდემდე უნდა სლაიდები?", "სესიამდე 48 საათით ადრე. მერე აღარ ვიღებთ."],
+    ["ვინ აკეთებს check-in-ს?", "სპიკერი, თავის ოთახში. 20 წუთზე მეტი დაგვიანება ნიშნავს, რომ არ დაესწრო. მე-2 no-show-ზე მე ვიღებ შეტყობინებას."],
+    ["ვინ აფასებს და როგორ? სერტიფიკატი როდის?", "მხოლოდ ის, ვინც დაესწრო, 1–5-ით, სესიიდან 3 დღეში. სერტიფიკატი, თუ თავისი სესიების ≥ 75%-ს დაესწრო."]
+  ],
+  actors: [
+    {ka: "ორგანიზატორი", code: "Organizer", c: "#d97706", does: ["ქმნის კონფერენციებს და ვორქშოპებს", "ნიშნავს სპიკერებს", "გეგმავს სესიებს ოთახებში"]},
+    {ka: "სპიკერი", code: "Speaker", c: "#db2777", does: ["ტვირთავს სლაიდებს", "აკეთებს check-in-ს თავის სესიაზე", "ხედავს შეფასებებს"]},
+    {ka: "მონაწილე", code: "Attendee", c: "#16a34a", does: ["რეგისტრირდება ვორქშოპებზე", "ხედავს თავის განრიგს", "აფასებს სესიას"]}
+  ],
+  catalog:    {ka: "კონფერენცია", code: "Conference"},
+  container:  {ka: "ვორქშოპი", code: "Workshop", note: "ადგილები = ოთახის ზომა"},
+  membership: {ka: "რეგისტრაცია", code: "Registration"},
+  schedule:   {ka: "სესია ოთახში", code: "Session"},
+  attendance: {ka: "check-in", code: "CheckIn"},
+  deliverable:{ka: "სპიკერის სლაიდები", code: "SlideDeck"},
+  rating:     {ka: "სესიის შეფასება", code: "SessionRating", scale: "1–5"},
+  completion: {ka: "სერტიფიკატი", code: "Certificate"},
+  reminder: "შეხსენება სპიკერს: სლაიდების ვადა 24 სთ-ში · მონაწილეს: სესია ხვალ · მე-2 no-show → ორგანიზატორს",
+  rules: [
+    "კონფერენციის სახელი უნიკალურია",
+    "ერთ email-ზე ერთი ადამიანია",
+    "ვორქშოპში ადგილები = ოთახის ზომა · მონაწილე ერთხელ · რეგისტრაცია იხურება დაწყებამდე 1 დღით",
+    "ოთახში ერთ დროს ერთი სესია · სპიკერი ერთ ადგილას · მონაწილე დროში გადამფარავ ვორქშოპებზე ვერ დარეგისტრირდება",
+    "check-in-ს აკეთებს და სლაიდებს ტვირთავს მხოლოდ ამ ვორქშოპის სპიკერი",
+    "20 წთ-ზე მეტი დაგვიანება = არ დაესწრო · მე-2 no-show-ზე ორგანიზატორი იღებს შეტყობინებას",
+    "სლაიდები — სესიამდე 48 სთ-ით ადრე · შეფასება 1–5, მხოლოდ დამსწრე, 3 დღეში",
+    "სერტიფიკატი: დაესწრო თავისი სესიების ≥ 75%-ს"
+  ],
+  out: ["ბილეთების გაყიდვა", "სპონსორები", "ონლაინ სტრიმინგი"]
+},
+{
+  id: "restaurant", story1: "მენეჯერი ამატებს რესტორანს", events: "რესტორანი დაემატა → მაგიდა დაემატა → სტუმარმა დაჯავშნა → … → სტუმარი VIP გახდა", e: "🍽️", name: "რესტორნის ჯავშნები", brand: "TableTime", color: "#b45309",
+  tagline: "რესტორნების ქსელი: მაგიდები, ჯავშნები 2 საათით, თანამშრომლების ცვლები, no-show, შეფასება ფოტოთი და VIP.",
+  owner: "დავითი, რესტორნების ქსელის მფლობელი",
+  brief: "სამი რესტორანი გვაქვს და ჯავშნები ჯერ რვეულში იწერება. სტუმარი მაგიდას კონკრეტულ დროზე ჯავშნის. პარასკევ საღამოს ბოლო მაგიდისთვის ორი სტუმარი ერთდროულად რეკავს, და ერთ მაგიდას ორჯერ ვაძლევთ. ზოგი სტუმარი უბრალოდ არ მოდის და მაგიდა ცარიელი დგას. ჰოსტი ხვდება სტუმრებს და ნიშნავს, ვინ მოვიდა. სტუმრებს შეფასების დატოვება და ფოტოს ატვირთვა უნდათ. რეგულარ სტუმრებს VIP-ს ვაძლევთ. ცვლებს მენეჯერი აწყობს.",
+  interview: [
+    ["ჯავშანი რამდენ ხანს გრძელდება?", "2 საათს. ამ დროში მაგიდა სხვას არ ეძლევა. დაჯავშნა შეიძლება მაქსიმუმ 30 დღით ადრე."],
+    ["6 კაცი 4-ადგილიან მაგიდაზე?", "არა: სტუმრების რაოდენობა ადგილებზე მეტი არ უნდა იყოს."],
+    ["„არ მოდის“: რამდენ ხანს ელოდებით?", "15 წუთს, მერე ჯავშანი უქმდება და no-show-ად ითვლება. მე-2 no-show-ზე მენეჯერი იღებს შეტყობინებას და სტუმარს შემდეგ ჯავშანზე დეპოზიტი სჭირდება."],
+    ["შეფასებას ვინ ტოვებს?", "მხოლოდ ვინც მოვიდა, ვიზიტიდან 7 დღეში, 1–5-ით. ფოტო არასავალდებულოა, მაქსიმუმ 5 MB."],
+    ["VIP რას ნიშნავს?", "ბოლო 3 თვეში 10 ვიზიტი და არც ერთი no-show."],
+    ["ცვლები როგორ ეწყობა?", "თანამშრომელი ერთ დროს ერთ ცვლაზეა, ცვლა მაქსიმუმ 12 საათია."]
+  ],
+  actors: [
+    {ka: "მენეჯერი", code: "Manager", c: "#d97706", does: ["მართავს თავის რესტორანს და მაგიდებს", "აწყობს ცვლებს", "ხედავს no-show-ებს"]},
+    {ka: "ჰოსტი", code: "Host", c: "#b45309", does: ["ხვდება სტუმრებს", "ნიშნავს მოსვლას / no-show-ს", "ხედავს დღის ჯავშნებს"]},
+    {ka: "სტუმარი", code: "Guest", c: "#16a34a", does: ["ჯავშნის მაგიდას", "ტოვებს შეფასებას ფოტოთი", "ხედავს თავის VIP სტატუსს"]}
+  ],
+  catalog:    {ka: "რესტორანი", code: "Restaurant"},
+  container:  {ka: "მაგიდა", code: "Table", note: "ადგილების რაოდენობა"},
+  membership: {ka: "ჯავშანი", code: "Reservation"},
+  schedule:   {ka: "თანამშრომლის ცვლა", code: "Shift"},
+  attendance: {ka: "სტუმრის მოსვლა", code: "Arrival"},
+  deliverable:{ka: "შეფასება ფოტოთი", code: "Review"},
+  rating:     {ka: "შეფასების ქულა", code: "Stars", scale: "1–5"},
+  completion: {ka: "VIP სტატუსი", code: "VipStatus"},
+  reminder: "შეხსენება სტუმარს ჯავშნამდე 3 სთ-ით ადრე · მე-2 no-show → მენეჯერს შეტყობინება",
+  rules: [
+    "რესტორნის სახელი უნიკალურია",
+    "ერთ email-ზე ერთი ადამიანია",
+    "სტუმრები ≤ მაგიდის ადგილები · მაგიდა ერთ დროს (2 სთ) ერთ ჯავშანზე · დაჯავშნა მაქსიმუმ 30 დღით ადრე",
+    "თანამშრომელი ერთ დროს ერთ ცვლაზე · ცვლა მაქსიმუმ 12 სთ",
+    "მოსვლას ნიშნავს მხოლოდ ამ რესტორნის ჰოსტი · მენეჯერი მხოლოდ თავის რესტორანს მართავს",
+    "15 წთ-ზე მეტი დაგვიანება = no-show, მაგიდა თავისუფლდება · მე-2 no-show-ზე მენეჯერი იღებს შეტყობინებას და შემდეგ ჯავშანს დეპოზიტი სჭირდება",
+    "შეფასება — მხოლოდ მოსულ სტუმარს, ვიზიტიდან 7 დღეში · ქულა 1–5 · ფოტო ≤ 5 MB",
+    "VIP: ბოლო 3 თვეში 10 ვიზიტი და 0 no-show"
+  ],
+  out: ["შეკვეთები და მენიუ", "გადახდები", "მიტანა"]
+},
+{
+  id: "tours", story1: "ოპერატორი ქმნის ტურს", events: "ტური შეიქმნა → გასვლა დაიგეგმა → ტურისტმა დაჯავშნა → … → ტურისტი „მთის მეგზური“ გახდა", e: "🏔️", name: "ტურისტული სააგენტო", brand: "GeoTrails", color: "#15803d",
+  tagline: "ტურები საქართველოში: გასვლები ადგილებით, გიდები, დღის პროგრამა, დილის შემოწმება, დაზღვევა და ერთგულების სტატუსი.",
+  owner: "ლევანი, სააგენტოს მფლობელი",
+  brief: "ტურებს ვაწყობთ საქართველოში: ყაზბეგი, სვანეთი, თუშეთი. ერთ ტურს თვეში რამდენიმე გასვლა აქვს. მიკროავტობუსში 18 ადგილია. ტურისტი გასვლას ჯავშნის. ყოველ გასვლას გიდი ახლავს, და გიდი ერთდროულად ორ ტურზე ვერ იქნება. ყოველ დღეს თავისი პროგრამა აქვს: სად მივდივართ და რომელ საათზე. დილით გიდი ამოწმებს, ყველა მოვიდა თუ არა: ერთხელ ავტობუსი კაცის გარეშე წავიდა. დაზღვევა სავალდებულოა. ტურის მერე გიდს აფასებენ. ერთგულ ტურისტებს ფასდაკლება ეკუთვნით.",
+  interview: [
+    ["„გასვლა“ რას ნიშნავს?", "ტური კონკრეტულ თარიღებში, თავისი გიდით და ავტობუსით."],
+    ["ჯავშნის გაუქმება შეიძლება?", "გასვლამდე 72 საათით ადრე კი, მერე აღარ."],
+    ["დილის შემოწმება: რამდენ ხანს ელოდებით?", "15 წუთს. მერე ავტობუსი მიდის, ტურისტი „არ გამოცხადდა“, ოპერატორი კი მაშინვე იღებს შეტყობინებას."],
+    ["დაზღვევა როდემდე?", "გასვლამდე 48 საათით ადრე უნდა ატვირთოს პოლისი (PDF ან ფოტო), თორემ ჯავშანი უქმდება."],
+    ["შეფასება?", "ტურის დასრულებიდან 14 დღეში, გიდს 1–5-ით."],
+    ["„ერთგული ტურისტი“ ვინაა?", "ვისაც 3 დასრულებული ტური აქვს და ყველა დღეს გამოცხადდა. ის „მთის მეგზური“ ხდება და 10% ფასდაკლებას იღებს."]
+  ],
+  actors: [
+    {ka: "ოპერატორი", code: "Operator", c: "#d97706", does: ["ქმნის ტურებს და გასვლებს", "ნიშნავს გიდს", "წერს დღის პროგრამას"]},
+    {ka: "გიდი", code: "Guide", c: "#15803d", does: ["ატარებს გასვლას", "აკეთებს დილის შემოწმებას", "ხედავს თავის შეფასებებს"]},
+    {ka: "ტურისტი", code: "Traveler", c: "#0284c7", does: ["ჯავშნის გასვლას", "ტვირთავს დაზღვევას", "აფასებს გიდს"]}
+  ],
+  catalog:    {ka: "ტური", code: "Tour"},
+  container:  {ka: "გასვლა", code: "Departure", note: "≤ 18 ადგილი"},
+  membership: {ka: "ჯავშანი", code: "Booking"},
+  schedule:   {ka: "დღის აქტივობა", code: "Activity"},
+  attendance: {ka: "დილის შემოწმება", code: "RollCall"},
+  deliverable:{ka: "დაზღვევის პოლისი", code: "InsurancePolicy"},
+  rating:     {ka: "გიდის შეფასება", code: "GuideRating", scale: "1–5"},
+  completion: {ka: "„მთის მეგზური“ სტატუსი", code: "LoyaltyStatus"},
+  reminder: "შეხსენება: დაზღვევის ვადა 24 სთ-ში · გასვლამდე ერთი დღით ადრე · „არ გამოცხადდა“ → ოპერატორს მაშინვე",
+  rules: [
+    "ტურის სახელი უნიკალურია",
+    "ერთ email-ზე ერთი ადამიანია",
+    "გასვლაზე მაქსიმუმ 18 ადგილი · ტურისტი გასვლაზე ერთხელ · გაუქმება მხოლოდ გასვლამდე 72 სთ-ით ადრე",
+    "გასვლის აქტივობები დროში არ ფარავს ერთმანეთს · გიდი ერთ დროს ერთ გასვლაზე",
+    "გამოცხადებას ნიშნავს მხოლოდ ამ გასვლის გიდი",
+    "15 წთ-ზე მეტი დაგვიანება = არ გამოცხადდა · ოპერატორი მაშინვე იღებს შეტყობინებას",
+    "დაზღვევა — გასვლამდე 48 სთ-ით ადრე, თორემ ჯავშანი უქმდება · გიდის შეფასება 1–5, ტურიდან 14 დღეში",
+    "„მთის მეგზური“: 3 დასრულებული ტური, ყველა დღეს გამოცხადებული → 10% ფასდაკლება"
+  ],
+  out: ["გადახდები", "სასტუმროების დაჯავშნა", "ტრანსპორტის მართვა"]
+}
+];
+
+const KEY = "aspnet-my-domain";
+const getMine = () => { try { return localStorage.getItem(KEY); } catch (e) { return null; } };
+const setMine = id => { try { localStorage.setItem(KEY, id); } catch (e) {} };
+const app = document.getElementById("app");
+
+function home(){
+  const mine = DOMAINS.find(d => d.id === getMine());
+  document.title = "აირჩიე შენი სფერო — ASP.NET Core Web API";
+  app.innerHTML = `
+  <div class="kicker">ASP.NET Core Web API · საშინაო პროექტი</div>
+  <h1>აირჩიე შენი სფერო</h1>
+  <p class="lead">კლასში ლექტორი <b>LMS</b>-ს აწყობს. შენ სახლში <b>იგივეს</b> აკეთებ, ოღონდ <b>შენს</b> სფეროში. ასე ყოველ ლექციაზე ერთსა და იმავე თემას ორ სხვადასხვა ბიზნესში დაინახავ და იფიქრებ, ნაცვლად კოპირებისა.</p>
+  <div class="mine ${mine ? "on" : ""}">✓ შენი სფერო: ${mine ? `${mine.e} ${mine.name} · <a href="#${mine.id}">გახსნა →</a>` : ""}</div>
+  <div class="card how">
+    <h2>როგორ მუშაობს</h2>
+    <ol>
+      <li><b>აირჩიე ერთი</b> ხუთი სფეროდან. LMS ლექტორის მაგალითია, მისი არჩევა არ შეიძლება.</li>
+      <li>სფეროს გვერდზე წაიკითხე <b>მფლობელის სიტყვები</b> და <b>ინტერვიუ</b>. შემდეგ DDD-ით დაგეგმე პროექტი: ხედვა, ლექსიკონი, აქტორები, მოვლენები, წესები, რუკა, backlog.</li>
+      <li><b>ყოველი ლექციის საშინაო</b> = იგივე თემა შენს სფეროში. სფეროს გვერდზე ცხრილი „ლექცია → LMS → შენთან“ გეტყვის, რა გააკეთო.</li>
+      <li>სფეროს ბოლომდე არ ცვლი: ერთი პროექტი, კურსის დასაწყისიდან ბოლომდე.</li>
+    </ol>
+  </div>
+  <div class="grid">
+    ${DOMAINS.map(d => `
+    <a class="dom ${d.example ? "example" : ""}" href="#${d.id}" style="--a:${d.color}">
+      ${d.example ? `<span class="badge">ლექტორის მაგალითი</span>` : (d.id === getMine() ? `<span class="badge ok">✓ შენი</span>` : "")}
+      <div class="e">${d.e}</div>
+      <div class="brand">${d.brand}</div>
+      <h3>${d.name}</h3>
+      <p>${d.tagline}</p>
+      <div class="tags">${[d.catalog, d.container, d.schedule, d.rating].map(c => `<span class="tag">${c.code}</span>`).join("")}</div>
+    </a>`).join("")}
+  </div>`;
+  window.scrollTo(0, 0);
+}
+
+function detail(d){
+  document.title = `${d.name} — ${d.brand}`;
+  const mine = getMine() === d.id;
+  const lms = DOMAINS[0];
+  app.innerHTML = `
+  <a class="back" href="#">← ყველა სფერო</a>
+  <div class="card hero" style="--a:${d.color}">
+    <div class="row">
+      <div class="e">${d.e}</div>
+      <div><div class="kicker" style="color:${d.color}">${d.brand}${d.example ? " · ლექტორის მაგალითი" : ""}</div><h1>${d.name}</h1></div>
+      ${d.example ? "" : `<button class="pick ${mine ? "done" : ""}" id="pick" style="--a:${d.color}">${mine ? "✓ ეს ჩემი სფეროა" : "ამას ვირჩევ"}</button>`}
+    </div>
+    <p class="lead" style="margin:10px 0 0">${d.tagline}</p>
+  </div>
+  ${d.example ? `<div class="warn">ამას ლექტორი აწყობს კლასში, ის მხოლოდ მაგალითია. შენ <a href="#">აირჩიე სხვა სფერო</a> და იგივე გზა შენით გაიარე.</div>` : ""}
+
+  <div class="card">
+    <h2>📄 მფლობელის სიტყვები</h2>
+    <p style="margin:0 0 10px;color:var(--ink2)">ასე ლაპარაკობს ბიზნესი: ბუნდოვნად, სინონიმებით, წესები კი შუა წინადადებაშია დამალული. წაიკითხე ორჯერ, როგორც 06 ლექციაზე.</p>
+    <div class="note"><div class="who">${d.owner}:</div>„${d.brief}“</div>
+  </div>
+
+  <div class="card">
+    <h2>💬 ინტერვიუ: დაზუსტებული კითხვები</h2>
+    <div class="qa">${d.interview.map(([q, a]) => `<div class="q"><b>დეველოპერი</b>${q}</div><div class="a"><b>${d.owner.split(",")[0]}</b>${a}</div>`).join("")}</div>
+  </div>
+
+  <div class="card">
+    <h2>🧑‍🤝‍🧑 აქტორები</h2>
+    <div class="actors">${d.actors.map(a => `<div class="actor" style="--c:${a.c}"><div class="t">${a.ka}</div><code>${a.code}</code><ul>${a.does.map(x => `<li>${x}</li>`).join("")}</ul></div>`).join("")}</div>
+  </div>
+
+  <div class="card" style="--a:${d.color}">
+    <h2>🧭 დაგეგმე DDD-ით</h2>
+    <ol class="steps">
+      <li><div><b>ხედვა</b> · <span>3–5 წინადადება: ვინ იყენებს, რა პრობლემას ხსნის, რა არ შედის.</span></div></li>
+      <li><div><b>ლექსიკონი</b> · <span>მფლობელის სიტყვებიდან და ინტერვიუდან ამოწერე ტერმინები. სინონიმები გააერთიანე, ბუნდოვანი სიტყვები გაყავი. ყოველ ტერმინს მიუწერე სახელი კოდში.</span></div></li>
+      <li><div><b>აქტორები</b> · <span>სამი როლი და მათი მიზნები (ზემოთ).</span></div></li>
+      <li><div><b>მოვლენები</b> · <span>მთელი პროცესი წარსულ დროში, აქტორით: „${d.events}“ (12+ მოვლენა).</span></div></li>
+      <li><div><b>წესები R1–R8</b> · <span>იპოვე ტექსტში თვითონ, მერე შეამოწმე ქვემოთ. ნომრები LMS-ის წესებს ემთხვევა, ასე რომ ყოველი ლექცია ერთსა და იმავე წესს ეხება.</span></div></li>
+      <li><div><b>დომენის რუკა</b> · <span>ცნებები და კავშირები (1 → ბევრი): <span class="mono">${d.catalog.code} → ${d.container.code} → ${d.membership.code} ← ${d.actors[2].code}</span> …</span></div></li>
+      <li><div><b>Backlog</b> · <span>15+ story რიგით. №1 ყოველთვის: „${d.story1}“ (R1).</span></div></li>
+    </ol>
+    <details><summary>🔒 შეამოწმე წესები (ჯერ თვითონ იპოვე!)</summary>
+      ${d.rules.map((r, i) => `<div class="rule"><div class="r">R${i + 1}</div><div>${r}</div></div>`).join("")}
+      <div style="margin-top:10px"><b>არ შედის:</b><div class="out">${d.out.map(o => `<span>${o}</span>`).join("")}</div></div>
+    </details>
+  </div>
+
+  <div class="card">
+    <h2>🔁 LMS ↔ ${d.name}: ცნებები</h2>
+    <p style="margin:0 0 10px;color:var(--ink2)">ყოველ LMS-ის ცნებას შენს სფეროში თავისი წყვილი აქვს. ლექციაზე LMS-ს რომ ხედავ, აქ ნახე, რა არის ის შენთან.</p>
+    <table><tr><th>ცნება</th><th>LMS</th><th>${d.name}</th></tr>
+    ${CONCEPTS.map(([k, ka, hint]) => `<tr><td><b>${ka}</b><br><span style="color:var(--muted);font-size:13px">${hint}</span></td><td class="lms">${lms[k].ka}<br><code>${lms[k].code}</code>${lms[k].note ? `<br><small>${lms[k].note}</small>` : ""}${k === "rating" ? ` · ${lms.rating.scale}` : ""}</td><td><b>${d[k].ka}</b><br><code>${d[k].code}</code>${d[k].note ? `<br><small>${d[k].note}</small>` : ""}${k === "rating" ? ` · ${d.rating.scale}` : ""}</td></tr>`).join("")}
+    <tr><td><b>როლები</b></td><td class="lms">${lms.actors.map(a => a.ka).join(" · ")}</td><td><b>${d.actors.map(a => a.ka).join(" · ")}</b></td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h2>🗓️ ლექცია → შენი საშინაო</h2>
+    <p style="margin:0 0 10px;color:var(--ink2)">კლასში ლექტორი LMS-ზე აჩვენებს, შენ სახლში იმავეს აკეთებ ამ სვეტის მიხედვით.</p>
+    <table><tr><th>ლექცია</th><th>თემა</th><th>LMS-ში (კლასში)</th><th>${d.name} (სახლში)</th></tr>
+    ${LECTURES.map(([n, t, f]) => `<tr><td class="lec">${n}</td><td>${t}</td><td class="lms">${f(lms)}</td><td>${f(d)}</td></tr>`).join("")}
+    </table>
+  </div>
+
+  ${d.example ? "" : `<div class="tip">💡 თუ რამე ბუნდოვანია და ინტერვიუში პასუხი არ წერია, ის <b>შენ</b> გადაწყვიტე, როგორც დეველოპერმა, რომელიც მფლობელს ეკითხება, და ჩაწერე ლექსიკონში ან წესებში. ერთ სფეროს ხუთი სხვადასხვა სტუდენტი ხუთნაირად ააწყობს, და ეს ნორმალურია.</div>`}
+  `;
+  const pick = document.getElementById("pick");
+  if (pick) pick.onclick = () => { setMine(d.id); pick.textContent = "✓ ეს ჩემი სფეროა"; pick.classList.add("done"); };
+  window.scrollTo(0, 0);
+}
+
+function route(){
+  const id = location.hash.slice(1);
+  const d = DOMAINS.find(x => x.id === id);
+  if (d) detail(d); else home();
+}
+window.addEventListener("hashchange", route);
+route();
+</script>
+</body>
+</html>
