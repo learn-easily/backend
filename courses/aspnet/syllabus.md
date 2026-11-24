@@ -1,12 +1,12 @@
 # ASP.NET Core Web API
 
-**ტექნოლოგიები:** .NET 10, ASP.NET Core Web API (Controllers → Minimal API), EF Core 10, SQL Server (DevOps-ის Docker-ის ლექციის შემდეგ PostgreSQL), Scalar / OpenAPI, Angular, Claude Code
+**ტექნოლოგიები:** .NET 10, ASP.NET Core Web API (Controllers → Minimal API), EF Core 10, PostgreSQL (Docker-ში — SQL-ის კურსიდან ნაცნობი), Scalar / OpenAPI, Angular, Claude Code
 
 **პროექტი:** 01–05 — ShopApi (კლასში) და LibraryApi (სტუდენტები). 06-დან — **LMS** (კურსები, ჯგუფები, სტუდენტები, ლექტორები, ლექციები, დასწრება, დავალებები, ქულები), რომელსაც ლექტორი კლასში აწყობს; სტუდენტი იმავე თემებს სახლში თავის არჩეულ სფეროში წერს. ბოლოს LMS-ს Angular-ის frontend ემატება და DevOps-ის კურსში სრული აპლიკაცია სერვერზე იშვება.
 
 | დანიშნულება | Package |
 | --- | --- |
-| ბაზა | `Microsoft.EntityFrameworkCore.SqlServer`, `Microsoft.EntityFrameworkCore.Tools` |
+| ბაზა | `Npgsql.EntityFrameworkCore.PostgreSQL`, `Microsoft.EntityFrameworkCore.Tools` |
 | Mapping | `Riok.Mapperly` |
 | API დოკუმენტაცია | `Microsoft.AspNetCore.OpenApi`, `Scalar.AspNetCore` |
 | ვალიდაცია | `FluentValidation` |
@@ -58,19 +58,19 @@ API-ის აწყობის ორი გზა და მათი შე�
 
 ### 04. Dependency Injection და DbContext
 
-API-ს ნამდვილ ბაზას ვუერთებთ (EF Core); IoC და DI Container; რეგისტრაცია და lifetime-ები: Singleton, Scoped, Transient; DataContext Controller-ში.
+API-ს ნამდვილ ბაზას ვუერთებთ (EF Core — კურსიდან ნაცნობი, ახლა DI-ით); IoC და DI Container; რეგისტრაცია და lifetime-ები: Singleton, Scoped, Transient; DataContext Controller-ში.
 
 📚 აუხსნის, ვინ ქმნის ობიექტებს და რატომ: IoC და DI Container
 📚 გაარჩევს Singleton, Scoped და Transient lifetime-ებს
 📚 მიუერთებს API-ს ნამდვილ ბაზას EF Core-ით
 🛠 ShopApi | `DataContext` + `DbSet<Product>` · რეგისტრაცია `Program.cs`-ში
-🛠 მიგრაცია და SQL Server ბაზა
+🛠 მიგრაცია და PostgreSQL ბაზა (Docker)
 🛠 `ProductsController` სტატიკური სიის ნაცვლად `DataContext`-ით
 
 
 ### 05. Async / Await API-ში
 
-რატომ „იჭედება“ სერვერი სინქრონულ კოდზე; Thread pool; async/await EF Core-ის მეთოდებით (`ToListAsync`, `SaveChangesAsync`); async endpoint-ები.
+async/await-ის საფუძვლები C#-იდან ნაცნობია — აქ: რატომ „იჭედება“ სერვერი სინქრონულ კოდზე, როცა ერთდროულად ბევრი მოთხოვნაა; Thread pool; async/await EF Core-ის მეთოდებით (`ToListAsync`, `SaveChangesAsync`); async endpoint-ები.
 
 📚 აუხსნის, რატომ „იჭედება“ სერვერი სინქრონულ კოდზე (thread pool)
 📚 დაწერს async endpoint-ებს EF Core-ის async მეთოდებით
@@ -109,7 +109,7 @@ LMS-ის პროექტი; story №1 „მენეჯერი ქმ�
 
 📚 გადააქცევს story-ს კოდად: სახელები ლექსიკონიდან, შემოწმებები წესებიდან
 📚 დაინახავს, რა გვტკივა „ყველაფერი Controller-ში“ მიდგომაში
-🛠 LMS | პროექტი `Lms.Api`, `DataContext`, SQL Server, მიგრაციები
+🛠 LMS | პროექტი `Lms.Api`, `DataContext`, PostgreSQL, მიგრაციები
 🛠 `Course` (Title, Description, DurationWeeks 1–52) · `CoursesController` — სრული CRUD
 🛠 R1: კურსის სახელი უნიკალურია → 409
 🛠 `Student` და `Lecturer` (FirstName, LastName, Email) — CRUD · R2: Email უნიკალურია → 409
@@ -194,7 +194,7 @@ Layers და Vertical Slice Architecture; SRP და DIP; slice: Request · Han
 
 ### 14. Authentication და Configuration
 
-**პრობლემა:** API ყველასთვის ღიაა, story-ებს კი აქტორი ჰყავს („მენეჯერი ქმნის კურსს“); JWT-ს გასაღები და ვადა კოდში არ უნდა ეწეროს. **თემები:** `appsettings` და environment-ები; Options pattern (`JwtOptions`, `ValidateOnStart`); User Secrets; ანგარიშები — სტუდენტს და ლექტორს მენეჯერი ქმნის (თვითრეგისტრაცია არ არის), პირველი მენეჯერი seed-ით; პაროლის hash Argon2id-ით; login → JWT; JWT შემოწმება (`AddJwtBearer`), claims; `UseAuthentication` pipeline-ში; 401 ProblemDetails-ით. **LMS:** ანგარიშები სამ როლზე, login.
+**პრობლემა:** API ყველასთვის ღიაა, story-ებს კი აქტორი ჰყავს („მენეჯერი ქმნის კურსს“); JWT-ს გასაღები და ვადა კოდში არ უნდა ეწეროს. **თემები:** `appsettings` და environment-ები; Options pattern (`JwtOptions`, `ValidateOnStart`); User Secrets; ანგარიშები — სტუდენტს და ლექტორს მენეჯერი ქმნის (თვითრეგისტრაცია არ არის), პირველი მენეჯერი seed-ით; პაროლის hash Argon2id-ით (C#-ში PBKDF2 გამოვიყენეთ — რატომ არის Argon2id უფრო ძლიერი); login → JWT; JWT შემოწმება (`AddJwtBearer`), claims; `UseAuthentication` pipeline-ში; 401 ProblemDetails-ით. **LMS:** ანგარიშები სამ როლზე, login.
 
 📚 გამოიყენებს Configuration-ს და Options pattern-ს; შეინახავს საიდუმლოს User Secrets-ში
 📚 შეინახავს პაროლს უსაფრთხოდ (Argon2id)
@@ -265,7 +265,7 @@ Layers და Vertical Slice Architecture; SRP და DIP; slice: Request · Han
 
 ### 19. Background Jobs და კურსის დასრულება
 
-**პრობლემა:** ზოგი საქმე მოთხოვნის გარეშე უნდა მოხდეს: დედლაინის შეხსენება, ლექტორის გაფრთხილება მე-4 გაცდენაზე. **თემები:** `BackgroundService` და `PeriodicTimer`; Scoped სერვისი background-ში (`IServiceScopeFactory`); შეტყობინებები ბაზაში და email-ით SMTP-ზე (MailKit, `SmtpOptions`); R6-ის მეორე ნაწილი; R8 (კურსი ჩაბარებულია: საშუალო ≥ 6 და დასწრება ≥ 75%). **LMS:** შეტყობინებები (ბაზა + email), კურსის დასრულება.
+**პრობლემა:** ზოგი საქმე მოთხოვნის გარეშე უნდა მოხდეს: დედლაინის შეხსენება, ლექტორის გაფრთხილება მე-4 გაცდენაზე. **თემები:** `BackgroundService` და `PeriodicTimer`; Scoped სერვისი background-ში (`IServiceScopeFactory`); შეტყობინებები ბაზაში და email-ით (MailKit C#-იდან ნაცნობია — აქ `SmtpOptions`-ით და ფონურად); R6-ის მეორე ნაწილი; R8 (კურსი ჩაბარებულია: საშუალო ≥ 6 და დასწრება ≥ 75%). **LMS:** შეტყობინებები (ბაზა + email), კურსის დასრულება.
 
 📚 დაწერს ფონურ სამუშაოს `BackgroundService`-ით
 📚 გამოიყენებს Scoped სერვისს (DataContext) background-ში `IServiceScopeFactory`-ით
@@ -304,7 +304,7 @@ Layers და Vertical Slice Architecture; SRP და DIP; slice: Request · Han
 
 ### 22. HttpClient და Resilience
 
-**პრობლემა:** მენეჯერი ლექციას დღესასწაულზე ნიშნავს; დღესასწაულების სიას ხელით ვერ ვწერთ — ის გარე API-დან მოდის, და გარე სერვისი შეიძლება ნელი იყოს ან გაითიშოს. **თემები:** რატომ არა `new HttpClient()` (socket exhaustion, DNS); `IHttpClientFactory` და typed client; BaseAddress Options-ით; `GetFromJsonAsync`, `CancellationToken`; გარე სერვისის შეცდომა → `Result`, ჩვენი API არ ვარდება; resilience: retry, timeout, circuit breaker (`AddStandardResilienceHandler`); პასუხის ქეში Redis-ში. **LMS:** ლექცია დღესასწაულზე არ ინიშნება.
+**პრობლემა:** მენეჯერი ლექციას დღესასწაულზე ნიშნავს; დღესასწაულების სიას ხელით ვერ ვწერთ — ის გარე API-დან მოდის, და გარე სერვისი შეიძლება ნელი იყოს ან გაითიშოს. **თემები:** `HttpClient` C#-იდან ნაცნობია — აქ: რატომ არა `new HttpClient()` სერვერზე (socket exhaustion, DNS); `IHttpClientFactory` და typed client; BaseAddress Options-ით; `GetFromJsonAsync`, `CancellationToken`; გარე სერვისის შეცდომა → `Result`, ჩვენი API არ ვარდება; resilience: retry, timeout, circuit breaker (`AddStandardResilienceHandler`); პასუხის ქეში Redis-ში. **LMS:** ლექცია დღესასწაულზე არ ინიშნება.
 
 📚 გამოიძახებს გარე API-ს სწორად: `IHttpClientFactory`, typed client
 📚 დაიცავს საკუთარ API-ს გარე სერვისის შეცდომებისგან (Result, timeout)
@@ -318,7 +318,7 @@ Layers და Vertical Slice Architecture; SRP და DIP; slice: Request · Han
 
 ### 23. Unit ტესტები
 
-**პრობლემა:** ყოველი ცვლილების შემდეგ ყველა წესის ხელით შემოწმება Scalar-ში შეუძლებელია; Claude Code-ის კოდის review-ს მტკიცებულება სჭირდება. **თემები:** რა არის unit ტესტი და რას ვტესტავთ; xUnit: `[Fact]`, `[Theory]`, Arrange-Act-Assert; დომენის წესების ტესტი (Result-ის შემოწმება); `FakeTimeProvider` დროზე დამოკიდებული წესებისთვის; fake დამოკიდებულება (HolidaysClient); ტესტის სახელები და სტრუქტურა. **LMS:** ტესტ-პროექტი, დომენის წესების ტესტები.
+**პრობლემა:** ყოველი ცვლილების შემდეგ ყველა წესის ხელით შემოწმება Scalar-ში შეუძლებელია; Claude Code-ის კოდის review-ს მტკიცებულება სჭირდება. **თემები:** xUnit და Arrange-Act-Assert C#-იდან ნაცნობია — მოკლე გამეორება; რას ვტესტავთ API-ში; დომენის წესების ტესტი (Result-ის შემოწმება); `FakeTimeProvider` დროზე დამოკიდებული წესებისთვის; fake დამოკიდებულება (HolidaysClient); ტესტის სახელები და სტრუქტურა. **LMS:** ტესტ-პროექტი, დომენის წესების ტესტები.
 
 📚 დაწერს unit ტესტს xUnit-ით (Arrange-Act-Assert, `[Fact]`, `[Theory]`)
 📚 შეამოწმებს დომენის წესებს და დროზე დამოკიდებულ წესს `FakeTimeProvider`-ით
