@@ -411,9 +411,9 @@ HOME_CSS = '''#home{position:fixed;left:12px;top:10px;z-index:41;font:600 13px v
 padding:6px 10px;border-radius:8px;opacity:0;transition:opacity .25s}
 #home:hover,#home:focus-visible{opacity:1;background:rgba(0,0,0,.05)}
 :fullscreen #home{display:none}
-#themebtn{position:fixed;right:16px;top:10px;z-index:41;font:700 15px var(--font);line-height:1;color:var(--ink2);background:var(--card);border:1px solid var(--line2);
-border-radius:10px;padding:6px 9px;cursor:pointer;opacity:.55;transition:opacity .25s}
-#themebtn:hover,#themebtn:focus-visible{opacity:1}#help{right:64px}
+#themebtn{position:fixed;right:16px;top:12px;z-index:41;font:700 14px var(--font);line-height:1.25;color:var(--ink2);background:var(--card);
+border:1px solid var(--line2);border-radius:10px;padding:7px 10px;cursor:pointer;opacity:.85;box-shadow:var(--shadow)}
+#themebtn:hover,#themebtn:focus-visible{opacity:1}#help{right:68px;top:20px}
 :fullscreen #themebtn{opacity:0}:fullscreen #themebtn:hover{opacity:1}
 html[data-theme=dark] #home:hover{background:rgba(255,255,255,.06)}
 ''' + THEME_BTN_CSS
@@ -505,7 +505,7 @@ def write_study(out, course, meta, num, deck_title, study, materials):
     for k, v in {'{{TITLE}}': esc(meta['title']), '{{COURSE}}': esc(course['title']), '{{NUM}}': str(num),
                  '{{DECK_TITLE_JSON}}': json.dumps(deck_title, ensure_ascii=False), '{{TOC}}': ''.join(toc),
                  '{{BODY}}': '\n'.join(body), '{{MATERIALS}}': mats, '{{TOKEN_CSS}}': TOKEN_CSS, '{{FONTS}}': FONTS,
-                 '{{THEME_HEAD}}': THEME_HEAD, '{{THEME_BTN}}': THEME_BTN, '{{THEME_BTN_CSS}}': THEME_BTN_CSS}.items():
+                 '{{THEME_HEAD}}': THEME_HEAD, '{{THEME_BTN_STUDY}}': THEME_BTN.replace('class="themebtn"', 'class="themebtn btn"'), '{{THEME_BTN_CSS}}': THEME_BTN_CSS}.items():
         page = page.replace(k, v)
     write_page(out / 'study.html', themeify(page), encrypt=False)
 
