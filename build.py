@@ -538,6 +538,9 @@ def write_lms_pages(cdir, course, briefs, titles):
     for i, num in enumerate(nums):
         f = src_dir / f'{num:02d}.md'
         text = f.read_text() if f.exists() else ''
+        if re.search(r'^🆕', text, re.M):   # 🆕 — ცალკე, ახალი პროექტი: წინა ლექციების ფაილები აღარ ითვლება
+            state = {}
+            text = re.sub(r'^🆕.*\n?', '', text, flags=re.M)
         b = briefs[num]
         parts = [f'<div class="k">{esc(course["title"])} · ლექცია {num:02d}</div><h1>{md_inline(titles.get(num, ""))}</h1>']
         if b.get('learn'):
