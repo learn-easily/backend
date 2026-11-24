@@ -64,9 +64,9 @@ Layers და Vertical Slice Architecture; SRP და DIP; slice: Request · Han
 
 ### 11. Aggregate და Concurrency
 
-**პრობლემა:** R3 მთელ ჯგუფს ეხება; handler-ში დაწერილ შემოწმებას სხვა slice გვერდს აუვლის, ორი ერთდროული მოთხოვნა კი 20-ადგილიან ჯგუფში 21-ე სტუდენტს რიცხავს. **თემები:** Aggregate და Aggregate Root (`Group` → `Enrollment`), ცვლილება მხოლოდ root-ით, `DbSet` შვილზე არ არის; 400 vs 409; Cascade aggregate-ის შიგნით, Restrict გარეთ (ჯგუფიანი კურსის წაშლა → 409); დავიწყებული `Include` და Repository pattern DDD-ში — რას ხსნის, როდის ღირს (კოდში 15-ში); race condition (ცოცხალი ცდა); pessimistic vs optimistic; `rowversion` + `DbUpdateConcurrencyException` → 409; unique index. **LMS:** ჩარიცხვა ჯგუფში (R3).
+**პრობლემა:** R3 მთელ ჯგუფს ეხება; handler-ში დაწერილ შემოწმებას სხვა slice გვერდს აუვლის, ორი ერთდროული მოთხოვნა კი 20-ადგილიან ჯგუფში 21-ე სტუდენტს რიცხავს. **თემები:** Aggregate და Aggregate Root (`Group` → `Enrollment`), ცვლილება მხოლოდ root-ით, `DbSet` შვილზე არ არის; 400 vs 409; Cascade aggregate-ის შიგნით, Restrict გარეთ (ჯგუფიანი კურსის წაშლა → 409); დავიწყებული `Include` და Repository pattern DDD-ში — რას ხსნის, როდის ღირს (კოდში 17-ში); race condition (ცოცხალი ცდა); pessimistic vs optimistic; `rowversion` + `DbUpdateConcurrencyException` → 409; unique index. **LMS:** ჩარიცხვა ჯგუფში (R3).
 
-## პასუხები, შეცდომები და pipeline (3 ლექცია)
+## პასუხები, შეცდომები და pipeline (2 ლექცია)
 
 ### 12. Middleware, Pipeline და Logging
 
@@ -76,27 +76,31 @@ Layers და Vertical Slice Architecture; SRP და DIP; slice: Request · Han
 
 **პრობლემა:** ყოველი handler თვითონ წყვეტს სტატუსს და შეცდომის ფორმას; exception → stack trace, არარსებული მისამართი → ცარიელი 404 — frontend-ს ხუთი სხვადასხვა ფორმის გარჩევა უწევს. **თემები:** ProblemDetails (RFC 9457) — ერთი ფორმა ყველა შეცდომაზე, წყაროს მიუხედავად; `ErrorType` (Validation, NotFound, Conflict…) → სტატუსი ერთ ადგილას; `ResultExtensions`: `ToOk()`, `ToCreated(uri)`, `ToNoContent()`, შეცდომა → ProblemDetails; `AddProblemDetails`, `IExceptionHandler` + `UseExceptionHandler` (500 დეტალების გარეშე production-ში, ლოგი), `UseStatusCodePages` (404/405); concurrency ერთ ადგილას. **LMS:** ყველა handler ResultExtensions-ზე · try/catch handler-ებში აღარ არის.
 
-### 14. ვალიდაცია და MediatR
+## უსაფრთხოება (2 ლექცია)
+
+### 14. Authentication და Configuration
+
+**პრობლემა:** API ყველასთვის ღიაა, story-ებს კი აქტორი ჰყავს („მენეჯერი ქმნის კურსს“); JWT-ს გასაღები და ვადა კოდში არ უნდა ეწეროს. **თემები:** `appsettings` და environment-ები; Options pattern (`JwtOptions`, `ValidateOnStart`); User Secrets; ანგარიშები — სტუდენტს და ლექტორს მენეჯერი ქმნის (თვითრეგისტრაცია არ არის), პირველი მენეჯერი seed-ით; პაროლის hash Argon2id-ით; login → JWT; JWT შემოწმება (`AddJwtBearer`), claims; `UseAuthentication` pipeline-ში; 401 ProblemDetails-ით. **LMS:** ანგარიშები სამ როლზე, login.
+
+### 15. Authorization
+
+**პრობლემა:** შესულ მომხმარებელს ყველაფრის გაკეთება არ უნდა შეეძლოს: კურსს, ჯგუფს და ჩარიცხვას მხოლოდ მენეჯერი აკეთებს. **თემები:** როლები და policy-ები; `RequireAuthorization` ჯგუფებზე და endpoint-ებზე; მიმდინარე მომხმარებელი handler-ში (claims → `CurrentUser`); resource-based authorization — R5 („მხოლოდ ამ ჯგუფის ლექტორი“) მოთხოვნით, რომელიც მომდევნო feature-ებში გამოიყენება; 403 ProblemDetails-ით. **LMS:** policy-ები ყველა არსებულ endpoint-ზე.
+
+## ვალიდაცია და MediatR (1 ლექცია)
+
+### 16. ვალიდაცია და MediatR
 
 **პრობლემა:** ვალიდაცია (ცარიელი ველები, ფორმატი, სიგრძე) entity-მდე უნდა მოხდეს და ყველა ველის შეცდომა ერთად უნდა დაბრუნდეს; validator-ის ხელით გამოძახება ყველა handler-ში მეორდება. **თემები:** FluentValidation (წესები, შეცდომები ველების მიხედვით → ValidationProblem); MediatR 12.x: `IRequest`, `IRequestHandler`, `ISender` — slice-ები MediatR-ზე; pipeline behavior: `ValidationBehavior` და `LoggingBehavior` ერთ ადგილას; middleware vs pipeline behavior: რომელი რისთვის. **LMS:** validator-ები ყველა Create/Update-ზე · ყველა slice MediatR-ზე.
 
-## LMS-ის დასრულება (5 ლექცია)
+## LMS-ის დასრულება (3 ლექცია)
 
-### 15. განრიგი და დასწრება + Claude Code
+### 17. განრიგი და დასწრება + Claude Code
 
-**პრობლემა:** ჯგუფის aggregate იზრდება (ლექციები, დასწრება) და მას ბევრი handler ტვირთავს — ყველგან სწორი `Include` სჭირდება; feature-ები მეორდება ნაცნობი pattern-ით. **თემები:** `IGroupRepository` ხელით (`GetAsync`, `Add`), Enroll მასზე; R4 (ლექციები დროში არ ფარავს ერთმანეთს — ჯგუფის წესი; ლექტორი ერთ დროს ერთ ლექციაზე — handler-ის წესი); R6 (15 წთ-ზე მეტი დაგვიანება = გაცდენა); Claude Code: `CLAUDE.md` (VSA, MediatR, Result, aggregate მხოლოდ Repository-ით), პირველი slice ხელით → დანარჩენს AI წერს → review; სია pagination-ით (Skip/Take, `PagedResponse`). **LMS:** განრიგი და დასწრება.
-
-### 16. Authentication და Configuration
-
-**პრობლემა:** API ყველასთვის ღიაა; JWT-ს გასაღები და ვადა კოდში არ უნდა ეწეროს. **თემები:** `appsettings` და environment-ები; Options pattern (`JwtOptions`, `ValidateOnStart`); User Secrets; ანგარიშები და პაროლის hash Argon2id-ით; login → JWT გაცემა; JWT შემოწმება (`AddJwtBearer`), claims, `RequireAuthorization`; 401 ProblemDetails-ით. **LMS:** ანგარიშები სამ როლზე (მენეჯერი, ლექტორი, სტუდენტი), login.
-
-### 17. Authorization
-
-**პრობლემა:** შესული მომხმარებელი ყველაფერს ვერ უნდა აკეთებდეს; ლექტორის როლი საკმარისი არ არის — ჯგუფი მისი უნდა იყოს. **თემები:** როლები და policy-ები; resource-based authorization: R5 („დასწრებას აღრიცხავს და აფასებს მხოლოდ ამ ჯგუფის ლექტორი“); მიმდინარე მომხმარებელი handler-ში (claims); 403 ProblemDetails-ით. **LMS:** policy-ები ყველა endpoint-ზე · R5 დასწრებაზე.
+**პრობლემა:** ჯგუფის aggregate იზრდება (ლექციები, დასწრება) და მას ბევრი handler ტვირთავს — ყველგან სწორი `Include` სჭირდება; feature-ები მეორდება ნაცნობი pattern-ით. **თემები:** `IGroupRepository` ხელით (`GetAsync`, `Add`), Enroll მასზე; R4 (ლექციები დროში არ ფარავს ერთმანეთს — ჯგუფის წესი; ლექტორი ერთ დროს ერთ ლექციაზე — handler-ის წესი); R6 (15 წთ-ზე მეტი დაგვიანება = გაცდენა); R5 პირველივე slice-იდან — დასწრებას მხოლოდ ჯგუფის ლექტორი აღრიცხავს; Claude Code: `CLAUDE.md` (VSA, MediatR, Result, aggregate მხოლოდ Repository-ით, ყველა endpoint policy-ით), პირველი slice ხელით → დანარჩენს AI წერს → review; სია pagination-ით (Skip/Take, `PagedResponse`). **LMS:** განრიგი და დასწრება.
 
 ### 18. ფაილები, დრო და შეფასება
 
-**პრობლემა:** სტუდენტი ნამუშევარს ფაილად აბარებს; დედლაინის წესი დროზეა დამოკიდებული და `DateTime.UtcNow`-ით შეუმოწმებელია. **თემები:** დავალებები; ფაილის ატვირთვა (`IFormFile`, ზომა და ტიპი, შენახვა) და ჩამოტვირთვა; `TimeProvider` (`DateTime.UtcNow`-ის ნაცვლად); R7 (დედლაინის შემდეგ არ მიიღება, მენეჯერს გადაწევა შეუძლია; ქულა 1–12 — Value Object). **LMS:** დავალებები, ნამუშევრის ატვირთვა, შეფასება.
+**პრობლემა:** სტუდენტი ნამუშევარს ფაილად აბარებს; დედლაინის წესი დროზეა დამოკიდებული და `DateTime.UtcNow`-ით შეუმოწმებელია. **თემები:** დავალებები; ფაილის ატვირთვა (`IFormFile`, ზომა და ტიპი, შენახვა) და ჩამოტვირთვა; `TimeProvider` (`DateTime.UtcNow`-ის ნაცვლად); R7 (დედლაინის შემდეგ არ მიიღება, მენეჯერს გადაწევა შეუძლია; ქულა 1–12 — Value Object). **LMS:** დავალებები, ნამუშევრის ატვირთვა (მხოლოდ საკუთარი), შეფასება (R5: მხოლოდ ჯგუფის ლექტორი).
 
 ### 19. Background Jobs და კურსის დასრულება
 

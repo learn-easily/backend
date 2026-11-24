@@ -5,7 +5,8 @@
 # courses/<კურსი>/course.json — {"title", "order"}: ერთი კურსი = ერთი ჩანართი მთავარ გვერდზე (C#, EF Core, ASP.NET, SQL, DevOps)
 # ლექციის საქაღალდე courses/<კურსი>/<NN-slug>/:
 #   deck.html       სლაიდები. ყოველ სლაიდში შეიძლება <aside class="study">…markdown…</aside> — სტუდენტის ახსნა
-#   lecture.json    {"title", "why", "outcomes": [...], "review": [{"q", "a"}, ...], "starts_series": true?}
+#   lecture.json    {"title", "why", "outcomes": [...], "review": [{"q", "a"}, ...], "starts_series": true?,
+#                    "brief": {"learn": [...], "build": [...], "project": "LMS"}?}   ← ქარდის ⓘ drawer: რას ვისწავლით / რას ვწერთ პროექტში
 #   classwork.md    კლასში დავალება            homework.md    საშინაო (+ "## ამოხსნა" — ჩანს მხოლოდ შემდეგ ლექციაზე)
 #   materials/      ფაილები ჩამოსატვირთად
 # courses/<კურსი>/syllabus.md — კურსის სილაბუსი → /<კურსი>/syllabus.html (მთავარ გვერდზე „📄 სილაბუსი“)
@@ -395,7 +396,7 @@ def build_lecture(course, cdir, ldir, meta, prev):
     if has_study:
         write_study(out, course, meta, num, title, study, materials)
     print(f'  {cdir.name}/{ldir.name}: {len(slides)} slides' + (f', study {sum(1 for s in study if s["html"])} blocks' if has_study else ''))
-    return {'num': num, 'slug': ldir.name, 'title': meta['title'], 'slides': len(slides), 'materials': materials, 'study': has_study}, []
+    return {'num': num, 'slug': ldir.name, 'title': meta['title'], 'slides': len(slides), 'materials': materials, 'study': has_study, 'brief': meta.get('brief')}, []
 
 def write_study(out, course, meta, num, deck_title, study, materials):
     blocks = []   # [{slides:[n..], title, section, html}]

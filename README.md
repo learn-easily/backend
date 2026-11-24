@@ -15,7 +15,7 @@ courses/
   <კურსი>/course.json        {"title", "order"} — ერთი კურსი = ერთი ჩანართი მთავარ გვერდზე
   <კურსი>/<NN-slug>/
     deck.html                სლაიდები; ყოველ სლაიდში — <aside class="study"> (სტუდენტის ახსნა, markdown)
-    lecture.json             {"title", "why", "outcomes", "review"}
+    lecture.json             {"title", "why", "outcomes", "review", "brief"} — brief: ქარდის ⓘ (რას ვისწავლით / რას ვწერთ პროექტში)
     classwork.md             კლასში დავალება
     homework.md              საშინაო (+ ამოხსნა, რომელიც მხოლოდ შემდეგ ლექციაზე ჩანს)
     materials/               არასავალდებულო — ფაილები ჩამოსატვირთად (მაგ. SQL)
