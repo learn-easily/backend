@@ -1,0 +1,1344 @@
+<style>
+i.codestep{display:none}
+.mono{font-family:var(--mono)}
+.opt{display:flex;gap:16px;align-items:flex-start;background:#fff;border:1px solid var(--line);border-left:6px solid var(--a);border-radius:12px;padding:12px 18px;box-shadow:var(--shadow)}
+.opt .n{font:800 26px var(--mono);color:var(--a);line-height:1}
+.opt h3{font-size:20px;margin-bottom:3px}
+.opt p{font-size:17px}
+.flowrow{display:flex;align-items:center;gap:12px}
+.fbox{flex:1;border-radius:14px;padding:12px 14px;border:2px solid var(--a);background:color-mix(in srgb,var(--a) 8%,#fff);text-align:center}
+.fbox .e{font-size:30px;line-height:1.2}
+.fbox .l{font-size:19px;font-weight:800;color:var(--ink)}
+.fbox .s{font:14px var(--mono);color:var(--muted)}
+.farrow{font:800 24px var(--mono);color:var(--muted)}
+/* railway: success / failure tracks */
+.rail{display:grid;grid-template-columns:120px repeat(3,1fr);gap:10px 12px;align-items:center}
+.rail .lbl{font:800 15px var(--mono)}
+.rail .st{border-radius:10px;padding:10px;text-align:center;font:700 16px var(--mono);background:#fff;border:2px solid var(--a)}
+.rail .ok{--a:#16a34a;color:#166534}
+.rail .bad{--a:var(--red);color:#991b1b;background:color-mix(in srgb,var(--red) 8%,#fff)}
+.rail .drop{text-align:center;font:800 22px var(--mono);color:var(--red)}
+/* entity vs value object */
+.idcard{background:#fff;border:1px solid var(--line);border-radius:14px;padding:12px 16px;box-shadow:var(--shadow);font:600 16px/1.6 var(--mono);color:var(--ink2)}
+.idcard .h{font:800 15px var(--mono);color:var(--a);margin-bottom:4px}
+.idcard b{color:var(--ink)}
+.eq{font:800 28px var(--mono);text-align:center}
+.reason{display:flex;gap:10px;align-items:center;border-radius:10px;padding:8px 12px;background:#fff;border:1px solid var(--line);font-size:17px;color:var(--ink2);box-shadow:var(--shadow)}
+.reason b.k{font:800 14px var(--mono);color:#fff;background:var(--a);border-radius:6px;padding:2px 8px}
+.scalar{background:#fff;border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);overflow:hidden}
+.scalar .row1{display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid var(--line)}
+.scalar .verb{display:inline-block;font:800 13px var(--mono);color:#fff;background:#16a34a;border-radius:6px;padding:2px 8px}
+.scalar .url{font:700 16px var(--mono);color:var(--ink)}
+.scalar .box{margin:10px 14px;background:#0f172a;color:#e2e8f0;border-radius:10px;padding:10px 14px;font:500 14px/1.6 var(--mono);white-space:pre}
+.scalar .res{margin:0 14px 12px;font:700 15px var(--mono)}
+</style>
+<!-- =========================================================
+     ლექცია 10 — Rich Entity, Value Object და Result
+     ფერები: entity = core · Result = net (ლურჯი) · Value Object = ნარინჯისფერი · Group = teal · პრობლემა = წითელი
+     ========================================================= -->
+
+<section class="slide" data-section="შესავალი">
+  <div class="vcenter" style="max-width:760px">
+    <div class="kicker in" style="color:var(--core)">ASP.NET Core Web API · ლექცია 10</div>
+    <h1 class="in" style="--d:.15s">Entity, რომელიც<br><span class="grad">თავს იცავს</span></h1>
+    <p class="lead in mt" style="--d:.35s"><b>Rich Entity</b> · <b>Result</b> · <b>Value Object</b> · ახალი feature: <b>ჯგუფები</b></p>
+  </div>
+  <div class="abs" style="right:90px;top:210px;width:520px">
+    <code-block lang="csharp" cls="sm" title="Domain/Course.cs" style="--d:.5s">
+var result = Course.Create("", null, 60);
+
+result.IsFailure   // true
+result.Error.Code  // "Course.TitleRequired"
+    </code-block>
+    <p class="tiny in" style="--d:.9s;text-align:center;margin-top:14px">არასწორი კურსი ვეღარ შეიქმნება — <b>არსად</b></p>
+  </div>
+</section>
+<lecture-review/>
+<lecture-homework-review/>
+<lecture-intro/>
+<section class="slide" data-section="დღის თემა">
+  <div class="kicker">სადაც შევჩერდით</div>
+  <h2>წესები ისევ <span class="c-red">გაბნეულია</span></h2>
+  <div class="grid3" style="grid-template-columns:1fr 1fr 1fr;gap:18px;align-items:start">
+    <div class="opt step" style="--a:var(--red)"><span class="n">1</span><div><h3>ორჯერ ერთი წესი</h3><p>„1–52 კვირა“ — CreateCourse-შიც და UpdateCourse-შიც</p></div></div>
+    <div class="opt step" style="--a:var(--red)"><span class="n">2</span><div><h3>Email ოთხგან</h3><p><code class="i">Trim().ToLowerInvariant()</code> — Student და Lecturer, Create და Update</p></div></div>
+    <div class="opt step" style="--a:var(--red)"><span class="n">3</span><div><h3>არავინ იცავს</h3><p><code class="i">course.DurationWeeks = -5;</code> — კომპილირდება და ინახება</p></div></div>
+  </div>
+  <div class="callout step mt" style="--a:var(--core)">VSA-მ ფაილები დაალაგა, მაგრამ <b>წესების ადგილი</b> არ შეცვლილა. დღეს წესებს <b>entity-ში</b> გადავიტანთ</div>
+  <aside class="study">
+### სადაც შევჩერდით
+
+09-ის საშინაოს ბოლოს ერთი კითხვა დარჩა: **Create-ისა და Update-ის შემოწმებები ისევ მეორდება. VSA-მ ეს რატომ ვერ მოაგვარა?**
+
+VSA ფაილებს feature-ის მიხედვით ალაგებს, წესების ადგილს კი არ ცვლის. დღეს LMS-ში სამი პრობლემა გვაქვს:
+
+1. **ერთი წესი ორჯერ.** „ხანგრძლივობა 1–52 კვირა“ CreateCourse-შიც წერია და UpdateCourse-შიც. თუ ბიზნესი იტყვის „ახლა 1–40“, ორივე უნდა შეცვალო და ერთი შეიძლება დაგავიწყდეს.
+2. **Email ოთხ ადგილას სუფთავდება.** `Trim().ToLowerInvariant()` Student-ის და Lecturer-ის Create-შიც და Update-შიც.
+3. **entity-ს არავინ იცავს.** ნებისმიერ კოდს შეუძლია დაწეროს `course.DurationWeeks = -5;`: კომპილირდება, ბაზაშიც ჩაიწერება.
+
+დღეს წესებს მათ ნამდვილ ადგილას გადავიტანთ: **entity-ში** და **Value Object-ში**.
+  </aside>
+</section>
+
+<!-- ================= PART 1 ================= -->
+<section class="slide divider" data-section="1 · Rich Entity">
+  <div class="vcenter">
+    <div class="kicker in">ნაწილი 1</div>
+    <h1 class="in" style="--d:.1s"><span class="grad">Rich</span> Entity</h1>
+    <p class="lead mt in" style="--d:.3s">მონაცემების ყუთიდან — წესების მცველამდე</p>
+  </div>
+  <div class="big-num">01</div>
+  <aside class="study">
+## ნაწილი 1 · Rich Entity
+
+ჯერ ვნახავთ, რატომ არის ჩვენი `Course` „ცარიელი ყუთი“ და როგორ ვაქციოთ ის კლასად, რომელიც საკუთარ წესებს თვითონ იცავს.
+  </aside>
+</section>
+<section class="slide" data-section="1 · Rich Entity">
+  <div class="kicker">პრობლემა კოდში</div>
+  <h2>ანემიური entity — <span class="c-red">ყველას შეუძლია ყველაფერი</span></h2>
+  <div class="grid2" style="grid-template-columns:1fr 1.15fr;gap:28px;align-items:start">
+    <code-block id="an" lang="csharp" cls="sm" title="Entities/Course.cs">
+public class Course
+{
+    public Guid Id { get; set; }
+    public string Title { get; set; } = string.Empty;
+    public string? Description { get; set; }
+    public int DurationWeeks { get; set; }
+    public DateTime CreatedAt { get; set; }
+}
+    </code-block>
+    <div class="col" style="gap:12px">
+      <code-block lang="csharp" cls="sm step" title="სადმე სხვა handler-ში…">
+var course = await _db.Courses.FindAsync(id);
+course.Title = "";
+course.DurationWeeks = -5;
+await _db.SaveChangesAsync();   // ✅ ინახება
+      </code-block>
+      <div class="problem step" style="font-size:19px">კომპილერი ჩუმადაა, ბაზა იღებს. წესი მხოლოდ <b>იმ handler-ში</b> მოქმედებს, სადაც დავწერეთ</div>
+      <div class="callout step" style="--a:var(--muted);font-size:17px"><b>ანემიური</b> (anemic) entity — მხოლოდ <code class="i">get; set;</code>, ქცევა და წესები გარეთაა</div>
+    </div>
+  </div>
+  <aside class="study">
+### ანემიური entity
+
+ჩვენი `Course` ასეთია:
+
+```csharp Entities/Course.cs
+public class Course
+{
+    public Guid Id { get; set; }
+    public string Title { get; set; } = string.Empty;
+    public string? Description { get; set; }
+    public int DurationWeeks { get; set; }
+    public DateTime CreatedAt { get; set; }
+}
+```
+
+ყველა თვისებას `public set` აქვს. ეს ნიშნავს, რომ ნებისმიერ კოდს, ნებისმიერ handler-ში, შეუძლია ჩაწეროს რაც უნდა:
+
+```csharp
+var course = await _db.Courses.FindAsync(id);
+course.Title = "";
+course.DurationWeeks = -5;
+await _db.SaveChangesAsync();   // ინახება
+```
+
+კომპილერი არაფერს ამბობს, ბაზა იღებს. „1–52 კვირა“ მხოლოდ იმ handler-ში მოქმედებს, სადაც დავწერეთ. ახალი handler-ის ავტორს შეიძლება არც კი სცოდნოდა, რომ ასეთი წესი არსებობს.
+
+ასეთ entity-ს **ანემიური** ჰქვია: მასში მხოლოდ მონაცემებია, ქცევა და წესები კი სხვაგანაა.
+
+```terms
+ანემიური entity (anemic) — მხოლოდ get; set; თვისებები; წესები და ქცევა entity-ს გარეთაა
+```
+  </aside>
+</section>
+<section class="slide" data-section="1 · Rich Entity">
+  <div class="kicker">გამოსავალი</div>
+  <h2>Rich entity — <span class="grad">ცვლილება მხოლოდ კარიდან</span></h2>
+  <div class="grid2" style="grid-template-columns:1.25fr 1fr;gap:28px;align-items:start">
+    <code-block id="re" lang="csharp" cls="xs" title="Entities/Course.cs">
+public class Course
+{
+    public Guid Id { get; private set; }
+    public string Title { get; private set; } = string.Empty;
+    public string? Description { get; private set; }
+    public int DurationWeeks { get; private set; }
+    public DateTime CreatedAt { get; private set; }
+
+    private Course() { }   // EF Core-ისთვის
+
+    public static ??? Create(string title, string? description, int durationWeeks)
+    {
+        // 1. შეამოწმე წესები
+        // 2. შექმენი კურსი
+    }
+
+    public ??? Update(string title, string? description, int durationWeeks)
+    {
+        // 1. შეამოწმე წესები
+        // 2. შეცვალე
+    }
+}
+    </code-block>
+    <div class="col" style="gap:12px">
+      <i class="codestep" data-for="re" data-lines="3-7"></i>
+      <div class="reason step" data-with style="--a:var(--core)"><b class="k">1</b><span><code class="i">private set</code> — გარედან წაიკითხავ, <b>ვერ შეცვლი</b></span></div>
+      <i class="codestep" data-for="re" data-lines="9"></i>
+      <div class="reason step" data-with style="--a:var(--core)"><b class="k">2</b><span><code class="i">private</code> constructor — <code class="i">new Course()</code> გარედან აღარ შეიძლება · EF-ს მაინც შეუძლია</span></div>
+      <i class="codestep" data-for="re" data-lines="11-15"></i>
+      <div class="reason step" data-with style="--a:var(--core)"><b class="k">3</b><span>შექმნა მხოლოდ <code class="i">Create</code>-ით — <b>factory method</b></span></div>
+      <i class="codestep" data-for="re" data-lines="17-21"></i>
+      <div class="reason step" data-with style="--a:var(--core)"><b class="k">4</b><span>ცვლილება მხოლოდ მეთოდით — <code class="i">Update</code></span></div>
+      <div class="callout step" style="--a:var(--red);font-size:18px">კითხვა: წესი დაირღვა. <b>რა დააბრუნოს</b> <code class="i">Create</code>-მა?</div>
+    </div>
+  </div>
+  <aside class="study">
+### Rich entity: ცვლილება მხოლოდ „კარიდან“
+
+**Rich entity** (მდიდარი entity) თავის მონაცემებს თვითონ იცავს. ამისთვის ოთხი რამ ვცვალეთ:
+
+1. **`private set`.** თვისებას გარედან წაიკითხავ (`course.Title`), მაგრამ ვერ შეცვლი. `course.DurationWeeks = -5;` აღარ კომპილირდება.
+2. **`private` constructor.** `new Course { ... }` გარედან აღარ შეიძლება. EF Core-ს მაინც შეუძლია მისი გამოძახება, როცა ბაზიდან კითხულობს: მას private constructor-იც „ხედავს“.
+3. **შექმნა მხოლოდ `Create`-ით.** ეს static მეთოდია, რომელიც ჯერ წესს ამოწმებს და მხოლოდ მერე ქმნის ობიექტს. ასეთ მეთოდს **factory method** ჰქვია.
+4. **ცვლილება მხოლოდ მეთოდით.** `Update` ჯერ წესს ამოწმებს, მერე ცვლის.
+
+ასე წესი **ერთ ადგილას** იწერება და ყველა handler, ახალიც, ავტომატურად ემორჩილება მას.
+
+ერთი კითხვა დარჩა: თუ წესი დაირღვა, **რა დააბრუნოს `Create`-მა?** ამაზე შემდეგ ნაწილში.
+
+```terms
+Rich entity — entity, რომელიც თავის წესებს თვითონ იცავს: private set, ცვლილება მხოლოდ მეთოდებით
+Factory method — static მეთოდი (Create), რომელიც ობიექტს ქმნის მხოლოდ მაშინ, თუ წესი დაცულია
+```
+  </aside>
+</section>
+
+<!-- ================= PART 2 ================= -->
+<section class="slide divider" data-section="2 · Result">
+  <div class="vcenter">
+    <div class="kicker in">ნაწილი 2</div>
+    <h1 class="in" style="--d:.1s"><span class="grad">Result</span> pattern</h1>
+    <p class="lead mt in" style="--d:.3s">შეცდომა, როგორც ჩვეულებრივი შედეგი</p>
+  </div>
+  <div class="big-num">02</div>
+  <aside class="study">
+## ნაწილი 2 · Result pattern
+
+`Create`-მა ან კურსი უნდა დააბრუნოს, ან ახსნა, რატომ ვერ შექმნა. ამის ორი გზა არსებობს: exception და Result. ვნახოთ ორივე და ავირჩიოთ.
+  </aside>
+</section>
+<section class="slide" data-section="2 · Result">
+  <div class="kicker">ორი გზა</div>
+  <h2>exception <span class="muted">თუ</span> <span class="c-net">Result</span>?</h2>
+  <div class="grid2" style="grid-template-columns:1fr 1fr;gap:28px;align-items:start">
+    <div class="col step" style="gap:10px">
+      <code-block lang="csharp" cls="sm" title="❌ exception">
+if (durationWeeks is < 1 or > 52)
+    throw new ArgumentException("1–52 კვირა");
+      </code-block>
+      <div class="reason" style="--a:var(--red)"><b class="k">?</b>ხელმოწერა (<code class="i">Course Create(...)</code>) <b>არ ამბობს</b>, რომ შეიძლება ჩავარდეს</div>
+      <div class="reason" style="--a:var(--red)"><b class="k">?</b>თუ handler-მა არ დაიჭირა → <b>500</b>, თუმცა ბრალი კლიენტისაა (400)</div>
+      <div class="reason" style="--a:var(--red)"><b class="k">?</b>exception ძვირია და „მოულოდნელისთვის“ შეიქმნა</div>
+    </div>
+    <div class="col step" style="gap:10px">
+      <code-block lang="csharp" cls="sm" title="✅ Result">
+if (durationWeeks is < 1 or > 52)
+    return Result<Course>.Failure(CourseErrors.InvalidDuration);
+      </code-block>
+      <div class="reason" style="--a:#16a34a"><b class="k">✓</b>ხელმოწერა <code class="i">Result&lt;Course&gt;</code> — <b>ჩანს</b>, რომ შეიძლება ჩავარდეს</div>
+      <div class="reason" style="--a:#16a34a"><b class="k">✓</b>handler <b>იძულებულია</b> შეამოწმოს და თვითონ წყვეტს: 400, 404, 409</div>
+      <div class="reason" style="--a:#16a34a"><b class="k">✓</b>ჩვეულებრივი <code class="i">return</code> — არაფერი „ფრინავს“</div>
+    </div>
+  </div>
+  <div class="callout step mt" style="--a:var(--net)"><b>მოსალოდნელი</b> შეცდომა (ცარიელი სახელი) → <b>Result</b> · <b>მოულოდნელი</b> (ბაზა გაითიშა, ბაგი) → <b>exception</b></div>
+  <aside class="study">
+### exception თუ Result?
+
+**exception-ით:**
+
+```csharp
+if (durationWeeks is < 1 or > 52)
+    throw new ArgumentException("ხანგრძლივობა 1-დან 52 კვირამდეა");
+```
+
+სამი პრობლემა აქვს:
+
+- მეთოდის ხელმოწერა `Course Create(...)` **არ ამბობს**, რომ შეიძლება ჩავარდეს. ამას მხოლოდ კოდის წაკითხვით გაიგებ.
+- თუ handler-მა `try/catch` დაავიწყდა, კლიენტი **500**-ს მიიღებს („სერვერის შეცდომა“), თუმცა ბრალი მისია და სწორი პასუხი **400**-ია.
+- exception შეიქმნა **მოულოდნელი** სიტუაციებისთვის და შედარებით ძვირია. ცარიელი სახელი მოულოდნელი არ არის: მომხმარებლები ამას ყოველდღე აკეთებენ.
+
+**Result-ით:**
+
+```csharp
+if (durationWeeks is < 1 or > 52)
+    return Result<Course>.Failure(CourseErrors.InvalidDuration);
+```
+
+- ხელმოწერა `Result<Course> Create(...)` თვითონ ამბობს: „შეიძლება კურსი მოგცე, შეიძლება შეცდომა“.
+- handler-ი შედეგს ამოწმებს და **თვითონ წყვეტს**, რა უპასუხოს: 400, 404 თუ 409.
+- ჩვეულებრივი `return`-ია, არაფერი „ფრინავს“.
+
+**წესი:** მოსალოდნელი, ბიზნესის შეცდომა → **Result**. მოულოდნელი (ბაზა გაითიშა, კოდში ბაგი) → **exception**.
+
+```terms
+Result pattern — მეთოდი აბრუნებს ან მნიშვნელობას (წარმატება), ან შეცდომას (Error), exception-ის სროლის ნაცვლად
+```
+  </aside>
+</section>
+<section class="slide" data-section="2 · Result">
+  <div class="kicker">როგორ მიედინება</div>
+  <h2>ორი <span class="grad">ლიანდაგი</span></h2>
+  <div class="rail step" style="margin-top:18px">
+    <span class="lbl" style="color:#166534">✅ წარმატება</span>
+    <div class="st ok">Email.Create</div><div class="st ok">Student.Create</div><div class="st ok">R2 · ბაზა → 201</div>
+    <span></span><div class="drop">↓</div><div class="drop">↓</div><div class="drop">↓</div>
+    <span class="lbl" style="color:#991b1b">❌ შეცდომა</span>
+    <div class="st bad">400 · არასწორი Email</div><div class="st bad">400 · სახელი ცარიელია</div><div class="st bad">409 · Email დაკავებულია</div>
+  </div>
+  <div class="grid2 mt" style="grid-template-columns:1fr 1fr;gap:24px">
+    <div class="callout step" style="--a:#16a34a;font-size:18px">ყოველი ნაბიჯი გადადის შემდეგზე <b>მხოლოდ წარმატებისას</b></div>
+    <div class="callout step" style="--a:var(--red);font-size:18px">პირველივე შეცდომა <b>გადაჰყავს</b> ქვედა ლიანდაგზე — და პასუხი მზადაა</div>
+  </div>
+  <aside class="study">
+### ორი ლიანდაგი
+
+Result-ს ხშირად „რკინიგზას“ ადარებენ (Railway-Oriented Programming). გვაქვს ორი ლიანდაგი:
+
+- **ზედა, წარმატების:** `Email.Create` → `Student.Create` → R2-ის შემოწმება ბაზაში → შენახვა → **201**;
+- **ქვედა, შეცდომის:** თუ რომელიმე ნაბიჯი ჩავარდა, მატარებელი ქვედა ლიანდაგზე გადადის და დანარჩენ ნაბიჯებს აღარ გადის. კლიენტი იღებს ზუსტად იმ შეცდომას, რომელიც მოხდა: **400** ან **409**.
+
+handler-ში ეს უბრალო `if (result.IsFailure) return ...;`-ებით იწერება, ზედიზედ.
+  </aside>
+</section>
+<section class="slide" data-section="2 · Result">
+  <div class="kicker">კოდი</div>
+  <h2><span class="c-net">Result</span>, <span class="c-net">Result&lt;T&gt;</span> და <span class="c-net">Error</span></h2>
+  <div class="grid2" style="grid-template-columns:1.35fr 1fr;gap:26px;align-items:start">
+    <code-block id="rs" lang="csharp" cls="xs" title="Common/Result.cs">
+public record Error(string Code, string Message)
+{
+    public static readonly Error None = new("", "");
+}
+
+public class Result
+{
+    public bool IsSuccess { get; }
+    public bool IsFailure => !IsSuccess;
+    public Error Error { get; }
+
+    protected Result(bool isSuccess, Error error)
+    {
+        IsSuccess = isSuccess;
+        Error = error;
+    }
+
+    public static Result Success() => new(true, Error.None);
+    public static Result Failure(Error error) => new(false, error);
+}
+
+public class Result<T> : Result
+{
+    private readonly T? _value;
+
+    private Result(T? value, bool isSuccess, Error error) : base(isSuccess, error)
+    {
+        _value = value;
+    }
+
+    public T Value => IsSuccess
+        ? _value!
+        : throw new InvalidOperationException("შეცდომას მნიშვნელობა არ აქვს");
+
+    public static Result<T> Success(T value) => new(value, true, Error.None);
+    public static new Result<T> Failure(Error error) => new(default, false, error);
+}
+    </code-block>
+    <div class="col" style="gap:12px">
+      <i class="codestep" data-for="rs" data-lines="1-4"></i>
+      <div class="reason step" data-with style="--a:var(--net)"><b class="k">Error</b><span><b>Code</b> — პროგრამისთვის (<code class="i">Course.TitleRequired</code>) · <b>Message</b> — ადამიანისთვის</span></div>
+      <i class="codestep" data-for="rs" data-lines="6-20"></i>
+      <div class="reason step" data-with style="--a:var(--net)"><b class="k">Result</b><span>მნიშვნელობის გარეშე — <code class="i">Update</code>-ისთვის</span></div>
+      <i class="codestep" data-for="rs" data-lines="22-36"></i>
+      <div class="reason step" data-with style="--a:var(--net)"><b class="k">Result&lt;T&gt;</b><span>მნიშვნელობით — <code class="i">Create</code>-ისთვის</span></div>
+      <i class="codestep" data-for="rs" data-lines="31-33"></i>
+      <div class="callout step" data-with style="--a:var(--red);font-size:17px">შეცდომის <code class="i">Value</code> წაკითხვა = <b>ბაგი</b> → exception</div>
+      <div class="callout step" style="--a:var(--muted);font-size:17px">package არ გვჭირდება — <b>35 ხაზი</b>, ყველა ჩანს</div>
+    </div>
+  </div>
+  <aside class="study">
+### Result, Result&lt;T&gt; და Error
+
+ეს ერთი ფაილია, `Common/Result.cs`. package არ გვჭირდება: 35 ხაზია და ყველა ხაზი ჩანს.
+
+```csharp Common/Result.cs
+namespace Lms.Api.Common;
+
+public record Error(string Code, string Message)
+{
+    public static readonly Error None = new("", "");
+}
+
+public class Result
+{
+    public bool IsSuccess { get; }
+    public bool IsFailure => !IsSuccess;
+    public Error Error { get; }
+
+    protected Result(bool isSuccess, Error error)
+    {
+        IsSuccess = isSuccess;
+        Error = error;
+    }
+
+    public static Result Success() => new(true, Error.None);
+    public static Result Failure(Error error) => new(false, error);
+}
+
+public class Result<T> : Result
+{
+    private readonly T? _value;
+
+    private Result(T? value, bool isSuccess, Error error) : base(isSuccess, error)
+    {
+        _value = value;
+    }
+
+    public T Value => IsSuccess
+        ? _value!
+        : throw new InvalidOperationException("შეცდომას მნიშვნელობა არ აქვს");
+
+    public static Result<T> Success(T value) => new(value, true, Error.None);
+    public static new Result<T> Failure(Error error) => new(default, false, error);
+}
+```
+
+- **`Error`** ორი ველისგან შედგება: **Code** პროგრამისთვისაა (მაგ. frontend-ი `Course.TitleRequired`-ზე სწორ ველს გაწითლებს), **Message** ადამიანისთვის. `Error.None` წარმატების შემთხვევაში დგას, რომ `Error` არასოდეს იყოს `null`.
+- **`Result`** მნიშვნელობის გარეშეა: მაგალითად `Update`, რომელსაც დასაბრუნებელი არაფერი აქვს, მხოლოდ „გამოვიდა / არ გამოვიდა“.
+- **`Result<T>`** მნიშვნელობითაა: `Create` აბრუნებს `Result<Course>`-ს.
+- constructor-ები დახურულია: ობიექტს მხოლოდ `Success` ან `Failure` ქმნის, ამიტომ „წარმატება შეცდომით“ ვერ შეიქმნება.
+- შეცდომის `Value`-ს წაკითხვა exception-ს ისვრის. ეს მოულოდნელი სიტუაციაა: კოდში ბაგია, რადგან `IsFailure` არ შეამოწმე.
+
+```note
+`new` სიტყვა `Failure`-ზე იმიტომ წერია, რომ მემკვიდრე კლასში იგივე სახელის მეთოდს ვქმნით, ოღონდ სხვა დასაბრუნებელი ტიპით (`Result<T>`). კომპილერს ვეუბნებით: „ვიცი, რომ მშობლის მეთოდს ვფარავ“.
+```
+  </aside>
+</section>
+<section class="slide" data-section="2 · Result">
+  <div class="kicker">Course + Result</div>
+  <h2>წესი <span class="grad">ერთ ადგილას</span></h2>
+  <div class="grid2" style="grid-template-columns:1.4fr 1fr;gap:26px;align-items:start">
+    <code-block id="cr" lang="csharp" cls="xs" title="Entities/Course.cs">
+public static Result<Course> Create(string title, string? description, int durationWeeks)
+{
+    var check = Validate(title, durationWeeks);
+    if (check.IsFailure)
+        return Result<Course>.Failure(check.Error);
+
+    var course = new Course
+    {
+        Id = Guid.CreateVersion7(),
+        Title = title.Trim(),
+        Description = description?.Trim(),
+        DurationWeeks = durationWeeks,
+        CreatedAt = DateTime.UtcNow
+    };
+    return Result<Course>.Success(course);
+}
+
+public Result Update(string title, string? description, int durationWeeks)
+{
+    var check = Validate(title, durationWeeks);
+    if (check.IsFailure)
+        return check;
+
+    Title = title.Trim();
+    Description = description?.Trim();
+    DurationWeeks = durationWeeks;
+    return Result.Success();
+}
+
+private static Result Validate(string title, int durationWeeks)
+{
+    if (string.IsNullOrWhiteSpace(title))
+        return Result.Failure(CourseErrors.TitleRequired);
+    if (durationWeeks is < MinWeeks or > MaxWeeks)
+        return Result.Failure(CourseErrors.InvalidDuration);
+    return Result.Success();
+}
+    </code-block>
+    <div class="col" style="gap:12px">
+      <i class="codestep" data-for="cr" data-lines="30-37"></i>
+      <div class="reason step" data-with style="--a:var(--core)"><b class="k">1</b><span>წესი <b>ერთხელ</b> — <code class="i">Validate</code></span></div>
+      <i class="codestep" data-for="cr" data-lines="1-16"></i>
+      <div class="reason step" data-with style="--a:var(--core)"><b class="k">2</b><span><code class="i">Create</code> — შეამოწმა, მერე შექმნა · <code class="i">Guid.CreateVersion7()</code></span></div>
+      <i class="codestep" data-for="cr" data-lines="18-28"></i>
+      <div class="reason step" data-with style="--a:var(--core)"><b class="k">3</b><span><code class="i">Update</code> — იგივე წესი, <b>ერთი ხაზი</b></span></div>
+      <code-block lang="csharp" cls="xs step" title="Entities/CourseErrors.cs">
+public static class CourseErrors
+{
+    public static readonly Error TitleRequired = new(
+        "Course.TitleRequired", "კურსის სახელი სავალდებულოა");
+    public static readonly Error InvalidDuration = new(
+        "Course.InvalidDuration", "ხანგრძლივობა 1-დან 52 კვირამდეა");
+    public static readonly Error TitleTaken = new(
+        "Course.TitleTaken", "ამ სახელით კურსი უკვე არსებობს");
+}
+      </code-block>
+    </div>
+  </div>
+  <aside class="study">
+### Course + Result
+
+```csharp Entities/Course.cs
+using Lms.Api.Common;
+
+namespace Lms.Api.Entities;
+
+public class Course
+{
+    public const int MinWeeks = 1;
+    public const int MaxWeeks = 52;
+
+    public Guid Id { get; private set; }
+    public string Title { get; private set; } = string.Empty;
+    public string? Description { get; private set; }
+    public int DurationWeeks { get; private set; }
+    public DateTime CreatedAt { get; private set; }
+
+    private Course() { }   // EF Core-ისთვის
+
+    public static Result<Course> Create(string title, string? description, int durationWeeks)
+    {
+        var check = Validate(title, durationWeeks);
+        if (check.IsFailure)
+            return Result<Course>.Failure(check.Error);
+
+        var course = new Course
+        {
+            Id = Guid.CreateVersion7(),
+            Title = title.Trim(),
+            Description = description?.Trim(),
+            DurationWeeks = durationWeeks,
+            CreatedAt = DateTime.UtcNow
+        };
+        return Result<Course>.Success(course);
+    }
+
+    public Result Update(string title, string? description, int durationWeeks)
+    {
+        var check = Validate(title, durationWeeks);
+        if (check.IsFailure)
+            return check;
+
+        Title = title.Trim();
+        Description = description?.Trim();
+        DurationWeeks = durationWeeks;
+        return Result.Success();
+    }
+
+    private static Result Validate(string title, int durationWeeks)
+    {
+        if (string.IsNullOrWhiteSpace(title))
+            return Result.Failure(CourseErrors.TitleRequired);
+        if (durationWeeks is < MinWeeks or > MaxWeeks)
+            return Result.Failure(CourseErrors.InvalidDuration);
+        return Result.Success();
+    }
+}
+```
+
+```csharp Entities/CourseErrors.cs
+using Lms.Api.Common;
+
+namespace Lms.Api.Entities;
+
+public static class CourseErrors
+{
+    public static readonly Error TitleRequired = new(
+        "Course.TitleRequired", "კურსის სახელი სავალდებულოა");
+    public static readonly Error InvalidDuration = new(
+        "Course.InvalidDuration", "ხანგრძლივობა 1-დან 52 კვირამდეა");
+    public static readonly Error TitleTaken = new(
+        "Course.TitleTaken", "ამ სახელით კურსი უკვე არსებობს");
+}
+```
+
+- „1–52 კვირა“ ახლა **ერთ ადგილას** წერია, `Validate`-ში. `Create` და `Update` ორივე მას იძახებს.
+- 1 და 52 კონსტანტებად გავიტანეთ (`MinWeeks`, `MaxWeeks`): რიცხვს სახელი აქვს და ერთ ადგილას იცვლება.
+- **შეცდომები ერთ კლასშია**, `CourseErrors`. ასე ერთი და იგივე შეცდომა ყველგან ერთნაირი კოდით და ტექსტით ბრუნდება.
+- **Id ახლა entity თვითონ ქმნის**: `Guid.CreateVersion7()` (.NET 9+) ახალი სტანდარტის Guid-ია, რომელიც დროით ლაგდება და ბაზის ინდექსისთვის უკეთესია. კურსს Id შენახვამდეც აქვს.
+- object initializer (`new Course { Title = ... }`) კლასის შიგნით მუშაობს: `private set` მხოლოდ **გარედან** კრძალავს ჩაწერას.
+  </aside>
+</section>
+<section class="slide" data-section="2 · Result">
+  <div class="kicker">handler-ი ახლა</div>
+  <h2>handler <span class="grad">თხელდება</span>: შეამოწმე Result, უპასუხე</h2>
+  <div class="grid2" style="grid-template-columns:1.4fr 1fr;gap:26px;align-items:start">
+    <code-block id="hc" lang="csharp" cls="xs" title="Features/Courses/CreateCourse/CreateCourseHandler.cs">
+public async Task<IResult> HandleAsync(CreateCourseRequest request)
+{
+    var result = Course.Create(request.Title, request.Description, request.DurationWeeks);
+    if (result.IsFailure)
+        return Results.BadRequest(result.Error);
+
+    var course = result.Value;
+    if (await _db.Courses.AnyAsync(c => c.Title == course.Title))
+        return Results.Conflict(CourseErrors.TitleTaken);
+
+    _db.Courses.Add(course);
+    await _db.SaveChangesAsync();
+    return Results.Created($"/api/courses/{course.Id}", course.ToResponse());
+}
+    </code-block>
+    <div class="col" style="gap:12px">
+      <i class="codestep" data-for="hc" data-lines="3-5"></i>
+      <div class="reason step" data-with style="--a:var(--core)"><b class="k">1</b><span>წესები — entity-ში · შეცდომა → <b>400</b></span></div>
+      <i class="codestep" data-for="hc" data-lines="7-9"></i>
+      <div class="reason step" data-with style="--a:var(--red)"><b class="k">2</b><span><b>R1</b> handler-ში რჩება → <b>409</b></span></div>
+      <div class="callout step" style="--a:var(--net);font-size:17px">R1-ს სხვა კურსები სჭირდება, ანუ <b>ბაზა</b>. entity მხოლოდ <b>საკუთარ</b> მდგომარეობას იცავს</div>
+      <code-block lang="json" cls="xs step" title="400 · პასუხი">
+{
+  "code": "Course.InvalidDuration",
+  "message": "ხანგრძლივობა 1-დან 52 კვირამდეა"
+}
+      </code-block>
+    </div>
+  </div>
+  <aside class="study">
+### handler-ი თხელდება
+
+```csharp Features/Courses/CreateCourse/CreateCourseHandler.cs
+public async Task<IResult> HandleAsync(CreateCourseRequest request)
+{
+    var result = Course.Create(request.Title, request.Description, request.DurationWeeks);
+    if (result.IsFailure)
+        return Results.BadRequest(result.Error);
+
+    var course = result.Value;
+    if (await _db.Courses.AnyAsync(c => c.Title == course.Title))
+        return Results.Conflict(CourseErrors.TitleTaken);
+
+    _db.Courses.Add(course);
+    await _db.SaveChangesAsync();
+    return Results.Created($"/api/courses/{course.Id}", course.ToResponse());
+}
+```
+
+handler-ში აღარც `IsNullOrWhiteSpace`-ია და აღარც „1–52“. ის ორ რამეს აკეთებს: **ეკითხება entity-ს** და **პასუხს HTTP-ად თარგმნის**.
+
+- **წესები entity-შია.** `Create` ჩავარდა → **400** და კლიენტი იღებს `Error`-ს: `code` და `message`.
+- **R1 handler-ში რჩება.** „სახელი უნიკალურია“ შესამოწმებლად **სხვა კურსები** სჭირდება, ანუ ბაზა. entity მხოლოდ **საკუთარ** მდგომარეობას იცავს და ბაზაზე არაფერი იცის. ეს მნიშვნელოვანი წესია: entity არ იძახებს DataContext-ს.
+- R1-ის შემოწმება `Create`-ის **შემდეგ** მოდის: ასე `course.Title` უკვე გასუფთავებულია (`Trim`).
+
+```csharp Features/Courses/UpdateCourse/UpdateCourseHandler.cs
+public async Task<IResult> HandleAsync(Guid id, UpdateCourseRequest request)
+{
+    var course = await _db.Courses.FindAsync(id);
+    if (course is null)
+        return Results.NotFound();
+
+    var result = course.Update(request.Title, request.Description, request.DurationWeeks);
+    if (result.IsFailure)
+        return Results.BadRequest(result.Error);
+
+    if (await _db.Courses.AnyAsync(c => c.Title == course.Title && c.Id != id))
+        return Results.Conflict(CourseErrors.TitleTaken);
+
+    await _db.SaveChangesAsync();
+    return Results.NoContent();
+}
+```
+
+```tip
+ყოველ handler-ში `if (result.IsFailure) return Results.BadRequest(...)` ცოტა მეორდება. ეს შეგნებულად ასეა: ჯერ ხელით უნდა ნახოთ, როგორ ითარგმნება Result HTTP-ად. 13 ლექციაზე ამას ერთ ადგილას გადავიტანთ.
+```
+  </aside>
+</section>
+
+<section class="slide" data-section="შესვენება">
+  <div class="center">
+    <div class="big-emoji in" style="font-size:120px">☕</div>
+    <h1 class="in" style="--d:.15s">10 წუთი</h1>
+    <p class="lead in" style="--d:.3s">შემდეგ: <b style="color:#ea580c">Value Object</b> + ახალი feature: <b class="c-net">ჯგუფები</b></p>
+  </div>
+</section>
+
+<!-- ================= PART 3 ================= -->
+<section class="slide divider" data-section="3 · Value Object">
+  <div class="vcenter">
+    <div class="kicker in">ნაწილი 3</div>
+    <h1 class="in" style="--d:.1s"><span class="grad">Value Object</span></h1>
+    <p class="lead mt in" style="--d:.3s">Email — უბრალო string აღარ არის</p>
+  </div>
+  <div class="big-num">03</div>
+  <aside class="study">
+## ნაწილი 3 · Value Object
+
+ახლა მეორე პრობლემა: Email ოთხ ადგილას სუფთავდება და მოწმდება. ის `string`-ია, ამიტომ ნებისმიერი სტრიქონი შეიძლება იყოს. ვაქციოთ საკუთარ ტიპად.
+  </aside>
+</section>
+<section class="slide" data-section="3 · Value Object">
+  <div class="kicker">პრობლემა</div>
+  <h2>Email — <span class="c-red">ნებისმიერი string</span></h2>
+  <div class="grid2" style="grid-template-columns:1.1fr 1fr;gap:28px;align-items:start">
+    <div class="col" style="gap:10px">
+      <code-block lang="csharp" cls="xs" title="CreateStudentHandler · UpdateStudentHandler · CreateLecturerHandler · UpdateLecturerHandler">
+if (string.IsNullOrWhiteSpace(request.Email))
+    return Results.BadRequest("Email სავალდებულოა");
+
+var email = request.Email.Trim().ToLowerInvariant();
+      </code-block>
+      <div class="reason step" style="--a:var(--red)"><b class="k">×4</b><span>ერთი და იგივე <b>ოთხ</b> handler-ში</span></div>
+      <div class="reason step" style="--a:var(--red)"><b class="k">?</b><span><code class="i">"გიორგი"</code> — Email-ად ინახება, ფორმატს არავინ ამოწმებს</span></div>
+    </div>
+    <div class="col" style="gap:12px">
+      <code-block lang="csharp" cls="sm step" title="Entities/Student.cs">
+public string Email { get; set; }
+      </code-block>
+      <div class="problem step" style="font-size:19px">ტიპი <code class="i">string</code> არაფერს გვპირდება: შემოწმებულია? გასუფთავებული? <b>არ ვიცით</b></div>
+      <div class="callout step" style="--a:#ea580c;font-size:18px">იდეა: <b>საკუთარი ტიპი</b> <code class="i">Email</code>. თუ ცვლადი <code class="i">Email</code>-ია — ის <b>უკვე სწორია</b></div>
+    </div>
+  </div>
+  <aside class="study">
+### Email — ნებისმიერი string
+
+ოთხ handler-ში (Student და Lecturer, Create და Update) ერთი და იგივე წერია:
+
+```csharp
+if (string.IsNullOrWhiteSpace(request.Email))
+    return Results.BadRequest("Email სავალდებულოა");
+
+var email = request.Email.Trim().ToLowerInvariant();
+```
+
+და ფორმატს მაინც არავინ ამოწმებს: `"გიორგი"` Email-ად შეინახება.
+
+მთავარი პრობლემა ტიპშია. `public string Email` არაფერს გვპირდება: ეს სტრიქონი შემოწმებულია? გასუფთავებული? ცარიელი ხომ არ არის? ამას ვერ გაიგებ, სანამ ყველა handler-ს არ წაიკითხავ.
+
+**იდეა:** Email-ს საკუთარი ტიპი მივცეთ. თუ ცვლადის ტიპი `Email`-ია, ის **უკვე** შემოწმებული და გასუფთავებულია, სხვაგვარად ვერ შეიქმნებოდა.
+
+```terms
+Primitive obsession — როცა ბიზნესის ცნებას (Email, ქულა, ფული) უბრალო string-ით ან int-ით ვწერთ და მისი წესები ყველგან იფანტება
+```
+  </aside>
+</section>
+<section class="slide" data-section="3 · Value Object">
+  <div class="kicker">Entity vs Value Object</div>
+  <h2>ვინ <span class="c-core">არის</span> თუ რა <span style="color:#ea580c">ღირს</span>?</h2>
+  <div class="grid2" style="grid-template-columns:1fr 1fr;gap:30px;align-items:start">
+    <div class="col step" style="gap:10px">
+      <div class="tiny" style="font:800 16px var(--mono);color:var(--core)">Entity — Id აქვს</div>
+      <div class="flowrow">
+        <div class="idcard" style="--a:var(--core)"><div class="h">Student</div>Id: <b>7f3a…</b><br>გიორგი ბერიძე</div>
+        <span class="eq c-red">≠</span>
+        <div class="idcard" style="--a:var(--core)"><div class="h">Student</div>Id: <b>c91e…</b><br>გიორგი ბერიძე</div>
+      </div>
+      <p class="small">ერთნაირი სახელი — მაინც <b>ორი ადამიანი</b>. სახელი შეიცვლება — ადამიანი იგივე რჩება</p>
+    </div>
+    <div class="col step" style="gap:10px">
+      <div class="tiny" style="font:800 16px var(--mono);color:#ea580c">Value Object — Id არ აქვს</div>
+      <div class="flowrow">
+        <div class="idcard" style="--a:#ea580c"><div class="h">Email</div><b>giorgi@lms.ge</b></div>
+        <span class="eq" style="color:#16a34a">=</span>
+        <div class="idcard" style="--a:#ea580c"><div class="h">Email</div><b>giorgi@lms.ge</b></div>
+      </div>
+      <p class="small">ერთნაირი მნიშვნელობა = <b>ერთი და იგივე</b>. შეცვლა = <b>ახალი</b> Email</p>
+    </div>
+  </div>
+  <div class="callout step mt" style="--a:#ea580c">C#-ში ამისთვის მზა ინსტრუმენტი გვაქვს: <code class="i">record</code> — მნიშვნელობით ადარებს</div>
+  <aside class="study">
+### Entity vs Value Object
+
+DDD-ში ობიექტები ორ ჯგუფად იყოფა:
+
+| | **Entity** | **Value Object** |
+|---|---|---|
+| რით განსხვავდება | **Id-ით** | **მნიშვნელობით** |
+| მაგალითი | Student, Course, Group | Email, ქულა (1–12), ფული, მისამართი |
+| ორი ერთნაირი მონაცემით | **ორი სხვადასხვაა** (ორი გიორგი ბერიძე = ორი ადამიანი) | **ერთი და იგივეა** (`giorgi@lms.ge` = `giorgi@lms.ge`) |
+| ცვლილება | იგივე ობიექტი იცვლება (სახელი შეიცვალა, სტუდენტი იგივეა) | ახალი იქმნება (სხვა Email = სხვა მნიშვნელობა) |
+
+Value Object-ს **Id არ აქვს** და **არ იცვლება** (immutable). თუ სტუდენტს Email შეეცვალა, ძველ Email-ს არ ვასწორებთ: ახალ `Email`-ს ვქმნით და სტუდენტს ვაძლევთ.
+
+C#-ში ამისთვის მზა ინსტრუმენტი გვაქვს: **`record`**. ის ობიექტებს მნიშვნელობით ადარებს, `class` კი მიმართვით (reference).
+
+```terms
+Value Object — ობიექტი Id-ის გარეშე, რომელიც მნიშვნელობით დარდება და არ იცვლება (Email, ქულა, ფული)
+Immutable — შექმნის შემდეგ არ იცვლება
+```
+  </aside>
+</section>
+<section class="slide" data-section="3 · Value Object">
+  <div class="kicker">კოდი</div>
+  <h2><span style="color:#ea580c">Email</span> — ერთხელ შემოწმდი, ყველგან ენდე</h2>
+  <div class="grid2" style="grid-template-columns:1.4fr 1fr;gap:26px;align-items:start">
+    <code-block id="em" lang="csharp" cls="xs" title="Entities/Email.cs">
+public sealed record Email
+{
+    public const int MaxLength = 200;
+
+    public string Value { get; }
+
+    private Email(string value)
+    {
+        Value = value;
+    }
+
+    public static Result<Email> Create(string? input)
+    {
+        if (string.IsNullOrWhiteSpace(input))
+            return Result<Email>.Failure(EmailErrors.Required);
+
+        var value = input.Trim().ToLowerInvariant();
+        if (value.Length > MaxLength ||
+            !MailAddress.TryCreate(value, out var address) ||
+            address.Address != value)
+            return Result<Email>.Failure(EmailErrors.Invalid);
+
+        return Result<Email>.Success(new Email(value));
+    }
+
+    // ბაზიდან წაკითხვისთვის: იქ მხოლოდ შემოწმებული Email ხვდება
+    public static Email FromDatabase(string value) => new(value);
+
+    public override string ToString() => Value;
+}
+    </code-block>
+    <div class="col" style="gap:12px">
+      <i class="codestep" data-for="em" data-lines="1"></i>
+      <div class="reason step" data-with style="--a:#ea580c"><b class="k">1</b><span><code class="i">record</code> — მნიშვნელობით ადარებს · <code class="i">sealed</code> — მემკვიდრე არ ჰყავს</span></div>
+      <i class="codestep" data-for="em" data-lines="5-10"></i>
+      <div class="reason step" data-with style="--a:#ea580c"><b class="k">2</b><span>მხოლოდ <code class="i">get</code> · private constructor</span></div>
+      <i class="codestep" data-for="em" data-lines="12-24"></i>
+      <div class="reason step" data-with style="--a:#ea580c"><b class="k">3</b><span>გასუფთავება + ფორმატი — <b>ერთადერთი</b> ადგილი</span></div>
+      <i class="codestep" data-for="em" data-lines="26-27"></i>
+      <div class="reason step" data-with style="--a:#ea580c"><b class="k">4</b><span><code class="i">FromDatabase</code> — EF-ისთვის, შემოწმების გარეშე</span></div>
+    </div>
+  </div>
+  <aside class="study">
+### Email Value Object
+
+```csharp Entities/Email.cs
+using System.Net.Mail;
+using Lms.Api.Common;
+
+namespace Lms.Api.Entities;
+
+public sealed record Email
+{
+    public const int MaxLength = 200;
+
+    public string Value { get; }
+
+    private Email(string value)
+    {
+        Value = value;
+    }
+
+    public static Result<Email> Create(string? input)
+    {
+        if (string.IsNullOrWhiteSpace(input))
+            return Result<Email>.Failure(EmailErrors.Required);
+
+        var value = input.Trim().ToLowerInvariant();
+        if (value.Length > MaxLength ||
+            !MailAddress.TryCreate(value, out var address) ||
+            address.Address != value)
+            return Result<Email>.Failure(EmailErrors.Invalid);
+
+        return Result<Email>.Success(new Email(value));
+    }
+
+    // ბაზიდან წაკითხვისთვის: იქ მხოლოდ შემოწმებული Email ხვდება
+    public static Email FromDatabase(string value) => new(value);
+
+    public override string ToString() => Value;
+}
+```
+
+```csharp Entities/EmailErrors.cs
+public static class EmailErrors
+{
+    public static readonly Error Required = new("Email.Required", "Email სავალდებულოა");
+    public static readonly Error Invalid = new("Email.Invalid", "Email-ის ფორმატი არასწორია");
+}
+```
+
+- **`record`** ორ Email-ს მნიშვნელობით ადარებს: `Email.Create("A@lms.ge ").Value == Email.Create("a@lms.ge").Value` → `true`.
+- **`sealed`**: ამ კლასს მემკვიდრე არ ეყოლება, Email-ის წესებს ვერავინ „გადაუვლის“.
+- **მხოლოდ `get`** და **private constructor**: `Email` იქმნება მხოლოდ `Create`-ით, და შექმნის შემდეგ არ იცვლება.
+- **`MailAddress.TryCreate`** .NET-ის ჩაშენებული შემოწმებაა: `"გიორგი"` აღარ გაივლის. `address.Address != value` ამოწმებს, რომ სტრიქონში ზედმეტი არაფერია (მაგ. `"გიორგი <g@lms.ge>"`).
+- **`FromDatabase`** EF Core-ისთვისაა: ბაზაში მხოლოდ `Create`-ით შემოწმებული Email ხვდება, ამიტომ წაკითხვისას ხელახლა აღარ ვამოწმებთ.
+  </aside>
+</section>
+<section class="slide" data-section="3 · Value Object">
+  <div class="kicker">Student + EF Core</div>
+  <h2><code class="i" style="font-size:.9em">Email</code> ტიპად — ბაზაში <span class="grad">სტრიქონად</span></h2>
+  <div class="grid2" style="grid-template-columns:1fr 1fr;gap:24px;align-items:start">
+    <div class="col" style="gap:12px">
+      <code-block id="st" lang="csharp" cls="xs" title="Entities/Student.cs">
+public Email Email { get; private set; } = null!;
+
+public static Result<Student> Create(string firstName, string lastName, Email email)
+{
+    if (string.IsNullOrWhiteSpace(firstName) || string.IsNullOrWhiteSpace(lastName))
+        return Result<Student>.Failure(StudentErrors.NameRequired);
+
+    return Result<Student>.Success(new Student
+    {
+        Id = Guid.CreateVersion7(),
+        FirstName = firstName.Trim(),
+        LastName = lastName.Trim(),
+        Email = email,
+        CreatedAt = DateTime.UtcNow
+    });
+}
+      </code-block>
+      <div class="callout step" style="--a:#ea580c;font-size:17px">პარამეტრი <code class="i">Email email</code> — Student მას <b>აღარ ამოწმებს</b>: ტიპი უკვე იძლევა გარანტიას</div>
+    </div>
+    <div class="col" style="gap:12px">
+      <code-block id="cf" lang="csharp" cls="xs step" title="Data/DataContext.cs">
+modelBuilder.Entity<Student>(student =>
+{
+    student.Property(s => s.Email)
+        .HasConversion(
+            email => email.Value,
+            value => Email.FromDatabase(value))
+        .HasMaxLength(Email.MaxLength);
+    student.HasIndex(s => s.Email).IsUnique();
+});
+      </code-block>
+      <div class="flowrow step">
+        <div class="fbox" style="--a:#ea580c"><div class="l">Email</div><div class="s">C#</div></div><span class="farrow">⇄</span>
+        <div class="fbox" style="--a:#d97706"><div class="l">nvarchar(200)</div><div class="s">ბაზა</div></div>
+      </div>
+      <div class="callout step" style="--a:var(--muted);font-size:17px">ცხრილი <b>არ იცვლება</b> — იგივე სვეტი. Migration მხოლოდ private set-ს ვერ „ხედავს“</div>
+    </div>
+  </div>
+  <aside class="study">
+### Student იყენებს Email-ს, EF ინახავს სტრიქონად
+
+```csharp Entities/Student.cs
+public class Student
+{
+    public Guid Id { get; private set; }
+    public string FirstName { get; private set; } = string.Empty;
+    public string LastName { get; private set; } = string.Empty;
+    public Email Email { get; private set; } = null!;
+    public DateTime CreatedAt { get; private set; }
+
+    private Student() { }   // EF Core-ისთვის
+
+    public static Result<Student> Create(string firstName, string lastName, Email email)
+    {
+        if (string.IsNullOrWhiteSpace(firstName) || string.IsNullOrWhiteSpace(lastName))
+            return Result<Student>.Failure(StudentErrors.NameRequired);
+
+        return Result<Student>.Success(new Student
+        {
+            Id = Guid.CreateVersion7(),
+            FirstName = firstName.Trim(),
+            LastName = lastName.Trim(),
+            Email = email,
+            CreatedAt = DateTime.UtcNow
+        });
+    }
+
+    public Result Update(string firstName, string lastName, Email email)
+    {
+        if (string.IsNullOrWhiteSpace(firstName) || string.IsNullOrWhiteSpace(lastName))
+            return Result.Failure(StudentErrors.NameRequired);
+
+        FirstName = firstName.Trim();
+        LastName = lastName.Trim();
+        Email = email;
+        return Result.Success();
+    }
+}
+```
+
+`Create` პარამეტრად `Email`-ს იღებს, არა `string`-ს. ამიტომ Student-ს Email-ის შემოწმება აღარ სჭირდება: არასწორი `Email` ობიექტი უბრალოდ ვერ შეიქმნებოდა. `= null!` კომპილერს ეუბნება: „ვიცი, რომ constructor-ში არ ვავსებ, EF ან `Create` შეავსებს“.
+
+**EF Core-მა არ იცის, როგორ შეინახოს `Email`.** ვასწავლით `HasConversion`-ით: C#-იდან ბაზაში `email.Value` (სტრიქონი), ბაზიდან C#-ში `Email.FromDatabase(value)`.
+
+```csharp Data/DataContext.cs · OnModelCreating
+modelBuilder.Entity<Student>(student =>
+{
+    student.Property(s => s.Email)
+        .HasConversion(
+            email => email.Value,
+            value => Email.FromDatabase(value))
+        .HasMaxLength(Email.MaxLength);
+    student.HasIndex(s => s.Email).IsUnique();
+});
+```
+
+ცხრილი იგივე რჩება: `Email nvarchar(200)`, unique index-ით. ძებნაც ჩვეულებრივად მუშაობს: `_db.Students.AnyAsync(s => s.Email == email)`. EF `email`-ს თვითონ გადააქცევს სტრიქონად.
+
+```csharp Features/Students/CreateStudent/CreateStudentHandler.cs
+public async Task<IResult> HandleAsync(CreateStudentRequest request)
+{
+    var email = Email.Create(request.Email);
+    if (email.IsFailure)
+        return Results.BadRequest(email.Error);
+
+    var result = Student.Create(request.FirstName, request.LastName, email.Value);
+    if (result.IsFailure)
+        return Results.BadRequest(result.Error);
+
+    var student = result.Value;
+    if (await _db.Students.AnyAsync(s => s.Email == student.Email))
+        return Results.Conflict(StudentErrors.EmailTaken);
+
+    _db.Students.Add(student);
+    await _db.SaveChangesAsync();
+    return Results.Created($"/api/students/{student.Id}", student.ToResponse());
+}
+```
+
+Mapper-ში პასუხისთვის სტრიქონი გვჭირდება: `student.Email.Value`.
+
+```warn
+Lecturer-ს ზუსტად იგივე ცვლილება სჭირდება: `Email` ტიპი, `HasConversion`, rich `Create`/`Update`. ეს საშინაოში შენს სფეროში გაიმეორებ.
+```
+  </aside>
+</section>
+
+<!-- ================= PART 4 ================= -->
+<section class="slide divider" data-section="4 · ჯგუფები">
+  <div class="vcenter">
+    <div class="kicker in">ნაწილი 4</div>
+    <h1 class="in" style="--d:.1s">ახალი feature: <span class="grad">ჯგუფი</span></h1>
+    <p class="lead mt in" style="--d:.3s">story: „მენეჯერი ხსნის ჯგუფს“</p>
+  </div>
+  <div class="big-num">04</div>
+  <aside class="study">
+## ნაწილი 4 · ახალი feature: ჯგუფი
+
+07 ლექციაზე ბიზნესმა გვითხრა: სტუდენტი კურსზე კი არა, **ჯგუფში** ირიცხება. კურსი პროგრამაა, ჯგუფი კი ის ხალხია, ვინც მას ერთად გადის: ერთი ლექტორით, დაწყების თარიღით და ადგილების ლიმიტით (≤ 20). ახლა ჯგუფს თავიდანვე rich entity-დ ვწერთ.
+  </aside>
+</section>
+<section class="slide" data-section="4 · ჯგუფები">
+  <div class="kicker">Group · rich entity თავიდანვე</div>
+  <h2>ჯგუფის <span class="grad">წესები</span> — ჯგუფშივე</h2>
+  <div class="grid2" style="grid-template-columns:1.45fr 1fr;gap:26px;align-items:start">
+    <code-block id="gr" lang="csharp" cls="xs" title="Entities/Group.cs">
+public class Group
+{
+    public const int MaxCapacity = 20;
+
+    public Guid Id { get; private set; }
+    public Guid CourseId { get; private set; }
+    public Guid LecturerId { get; private set; }
+    public string Name { get; private set; } = string.Empty;
+    public DateOnly StartDate { get; private set; }
+    public int Capacity { get; private set; }
+
+    private Group() { }
+
+    public static Result<Group> Create(Guid courseId, Guid lecturerId, string name,
+        DateOnly startDate, int capacity, DateOnly today)
+    {
+        if (string.IsNullOrWhiteSpace(name))
+            return Result<Group>.Failure(GroupErrors.NameRequired);
+        if (capacity is < 1 or > MaxCapacity)
+            return Result<Group>.Failure(GroupErrors.InvalidCapacity);
+        if (startDate < today)
+            return Result<Group>.Failure(GroupErrors.StartInPast);
+
+        return Result<Group>.Success(new Group
+        {
+            Id = Guid.CreateVersion7(),
+            CourseId = courseId,
+            LecturerId = lecturerId,
+            Name = name.Trim(),
+            StartDate = startDate,
+            Capacity = capacity
+        });
+    }
+}
+    </code-block>
+    <div class="col" style="gap:12px">
+      <i class="codestep" data-for="gr" data-lines="6-7"></i>
+      <div class="reason step" data-with style="--a:#0d9488"><b class="k">1</b><span>კურსი და ლექტორი — <b>Id-ით</b> · ურთიერთობები 11-ში</span></div>
+      <i class="codestep" data-for="gr" data-lines="9"></i>
+      <div class="reason step" data-with style="--a:#0d9488"><b class="k">2</b><span><code class="i">DateOnly</code> — მხოლოდ თარიღი, საათის გარეშე</span></div>
+      <i class="codestep" data-for="gr" data-lines="19-22"></i>
+      <div class="reason step" data-with style="--a:#0d9488"><b class="k">3</b><span>≤ 20 ადგილი · წარსულში ვერ დაიწყება</span></div>
+      <i class="codestep" data-for="gr" data-lines="15"></i>
+      <div class="callout step" data-with style="--a:var(--net);font-size:17px"><code class="i">today</code> — პარამეტრად: entity საათს <b>არ კითხულობს</b>, handler აწვდის</div>
+    </div>
+  </div>
+  <aside class="study">
+### Group: rich entity თავიდანვე
+
+```csharp Entities/Group.cs
+using Lms.Api.Common;
+
+namespace Lms.Api.Entities;
+
+public class Group
+{
+    public const int MaxCapacity = 20;
+
+    public Guid Id { get; private set; }
+    public Guid CourseId { get; private set; }
+    public Guid LecturerId { get; private set; }
+    public string Name { get; private set; } = string.Empty;
+    public DateOnly StartDate { get; private set; }
+    public int Capacity { get; private set; }
+
+    private Group() { }   // EF Core-ისთვის
+
+    public static Result<Group> Create(Guid courseId, Guid lecturerId, string name,
+        DateOnly startDate, int capacity, DateOnly today)
+    {
+        if (string.IsNullOrWhiteSpace(name))
+            return Result<Group>.Failure(GroupErrors.NameRequired);
+        if (capacity is < 1 or > MaxCapacity)
+            return Result<Group>.Failure(GroupErrors.InvalidCapacity);
+        if (startDate < today)
+            return Result<Group>.Failure(GroupErrors.StartInPast);
+
+        return Result<Group>.Success(new Group
+        {
+            Id = Guid.CreateVersion7(),
+            CourseId = courseId,
+            LecturerId = lecturerId,
+            Name = name.Trim(),
+            StartDate = startDate,
+            Capacity = capacity
+        });
+    }
+}
+```
+
+```csharp Entities/GroupErrors.cs
+public static class GroupErrors
+{
+    public static readonly Error NameRequired = new("Group.NameRequired", "ჯგუფის სახელი სავალდებულოა");
+    public static readonly Error InvalidCapacity = new("Group.InvalidCapacity", "ჯგუფში 1-დან 20 ადგილამდეა");
+    public static readonly Error StartInPast = new("Group.StartInPast", "ჯგუფი წარსულში ვერ დაიწყება");
+    public static readonly Error CourseNotFound = new("Group.CourseNotFound", "კურსი ვერ მოიძებნა");
+    public static readonly Error LecturerNotFound = new("Group.LecturerNotFound", "ლექტორი ვერ მოიძებნა");
+}
+```
+
+- **კურსი და ლექტორი Id-ით.** ჯგუფი ინახავს `CourseId`-ს და `LecturerId`-ს. Navigation property-ებს (`group.Course.Title`) და ბაზის ურთიერთობებს 11 ლექციაზე დავამატებთ.
+- **`DateOnly`**: ჯგუფი დღეში იწყება, საათს მნიშვნელობა არ აქვს. EF Core SQL Server-ში მას `date` სვეტად ინახავს.
+- **`today` პარამეტრად.** entity საათს თვითონ არ კითხულობს (`DateTime.UtcNow`), handler აწვდის. ასე წესი („წარსულში ვერ დაიწყება“) ნებისმიერ თარიღზე შემოწმებადია. 18 ლექციაზე ამისთვის `TimeProvider`-ს გამოვიყენებთ.
+- **„ჯგუფი სავსეა“ ჯერ არ არის.** ჩარიცხვა (R3) 12 ლექციის თემაა.
+  </aside>
+</section>
+<section class="slide" data-section="4 · ჯგუფები">
+  <div class="kicker">slice · CreateGroup</div>
+  <h2>ბაზა → <span class="c-red">404</span> · entity → <span class="c-red">400</span> · <span class="grad">201</span></h2>
+  <div class="grid2" style="grid-template-columns:1.4fr 1fr;gap:26px;align-items:start">
+    <code-block id="cg" lang="csharp" cls="xs" title="Features/Groups/CreateGroup/CreateGroupHandler.cs">
+public async Task<IResult> HandleAsync(CreateGroupRequest request)
+{
+    if (!await _db.Courses.AnyAsync(c => c.Id == request.CourseId))
+        return Results.NotFound(GroupErrors.CourseNotFound);
+    if (!await _db.Lecturers.AnyAsync(l => l.Id == request.LecturerId))
+        return Results.NotFound(GroupErrors.LecturerNotFound);
+
+    var today = DateOnly.FromDateTime(DateTime.UtcNow);
+    var result = Group.Create(request.CourseId, request.LecturerId, request.Name,
+        request.StartDate, request.Capacity, today);
+    if (result.IsFailure)
+        return Results.BadRequest(result.Error);
+
+    var group = result.Value;
+    _db.Groups.Add(group);
+    await _db.SaveChangesAsync();
+    return Results.Created($"/api/groups/{group.Id}", group.ToResponse());
+}
+    </code-block>
+    <div class="col" style="gap:12px">
+      <code-block lang="csharp" cls="xs step" title="CreateGroupRequest.cs · GroupResponse.cs">
+public record CreateGroupRequest(Guid CourseId, Guid LecturerId,
+    string Name, DateOnly StartDate, int Capacity);
+
+public record GroupResponse(Guid Id, Guid CourseId, Guid LecturerId,
+    string Name, DateOnly StartDate, int Capacity);
+      </code-block>
+      <div class="callout step" style="--a:var(--muted);font-size:17px">Program.cs: <code class="i">AddGroupHandlers()</code> · <code class="i">MapGroupEndpoints()</code> · DataContext: <code class="i">DbSet&lt;Group&gt; Groups</code></div>
+      <code-block lang="bash" cls="xs step" title="Package Manager Console">
+Add-Migration AddGroups
+Update-Database
+      </code-block>
+    </div>
+  </div>
+  <aside class="study">
+### CreateGroup slice
+
+```csharp Features/Groups/CreateGroup/CreateGroupRequest.cs
+public record CreateGroupRequest(Guid CourseId, Guid LecturerId,
+    string Name, DateOnly StartDate, int Capacity);
+```
+
+```csharp Features/Groups/CreateGroup/CreateGroupHandler.cs
+public class CreateGroupHandler
+{
+    private readonly DataContext _db;
+
+    public CreateGroupHandler(DataContext db)
+    {
+        _db = db;
+    }
+
+    public async Task<IResult> HandleAsync(CreateGroupRequest request)
+    {
+        if (!await _db.Courses.AnyAsync(c => c.Id == request.CourseId))
+            return Results.NotFound(GroupErrors.CourseNotFound);
+        if (!await _db.Lecturers.AnyAsync(l => l.Id == request.LecturerId))
+            return Results.NotFound(GroupErrors.LecturerNotFound);
+
+        var today = DateOnly.FromDateTime(DateTime.UtcNow);
+        var result = Group.Create(request.CourseId, request.LecturerId, request.Name,
+            request.StartDate, request.Capacity, today);
+        if (result.IsFailure)
+            return Results.BadRequest(result.Error);
+
+        var group = result.Value;
+        _db.Groups.Add(group);
+        await _db.SaveChangesAsync();
+        return Results.Created($"/api/groups/{group.Id}", group.ToResponse());
+    }
+}
+```
+
+```csharp Features/Groups/GroupEndpoints.cs
+public static class GroupEndpoints
+{
+    public static void AddGroupHandlers(this IServiceCollection services)
+    {
+        services.AddScoped<CreateGroupHandler>();
+        services.AddScoped<GetGroupByIdHandler>();
+    }
+
+    public static void MapGroupEndpoints(this IEndpointRouteBuilder app)
+    {
+        var group = app.MapGroup("/api/groups").WithTags("Groups");
+        CreateGroupEndpoint.Map(group);
+        GetGroupByIdEndpoint.Map(group);
+    }
+}
+```
+
+handler-ის თანმიმდევრობა:
+
+1. **არსებობს კურსი და ლექტორი?** ეს ბაზის კითხვაა, ამიტომ handler-შია → **404**.
+2. **ჯგუფის საკუთარი წესები** (სახელი, 1–20 ადგილი, თარიღი) → entity → **400**.
+3. შენახვა → **201**.
+
+DataContext-ს `public DbSet<Group> Groups => Set<Group>();` ემატება, მერე `Add-Migration AddGroups` და `Update-Database`. `GetGroupById` slice ზუსტად ისეთივეა, როგორიც `GetCourseById`.
+  </aside>
+</section>
+<section class="slide" data-section="4 · ჯგუფები">
+  <div class="kicker">ვცდით Scalar-ში</div>
+  <h2>სამი მოთხოვნა — <span class="grad">სამი პასუხი</span></h2>
+  <div class="grid3" style="grid-template-columns:1fr 1fr 1fr;gap:16px;align-items:start">
+    <div class="scalar step">
+      <div class="row1"><span class="verb">POST</span><span class="url">/api/groups</span></div>
+      <div class="box">"name": "NET-01",
+"startDate": "2026-12-07",
+"capacity": 25</div>
+      <div class="res c-red">400 · Group.InvalidCapacity</div>
+    </div>
+    <div class="scalar step">
+      <div class="row1"><span class="verb">POST</span><span class="url">/api/groups</span></div>
+      <div class="box">"courseId": "00000000-…",
+"name": "NET-01",
+"capacity": 18</div>
+      <div class="res c-red">404 · Group.CourseNotFound</div>
+    </div>
+    <div class="scalar step">
+      <div class="row1"><span class="verb">POST</span><span class="url">/api/groups</span></div>
+      <div class="box">"name": "NET-01",
+"startDate": "2026-12-07",
+"capacity": 18</div>
+      <div class="res" style="color:#16a34a">201 · Created</div>
+    </div>
+  </div>
+  <div class="callout step mt" style="--a:var(--core)">ყოველ შეცდომას <b>კოდი</b> აქვს — frontend-ს ტექსტის „გარჩევა“ არ სჭირდება</div>
+  <aside class="study">
+### ვცდით Scalar-ში
+
+| მოთხოვნა | პასუხი |
+|---|---|
+| `capacity: 25` | **400** · `Group.InvalidCapacity` |
+| არარსებული `courseId` | **404** · `Group.CourseNotFound` |
+| `startDate` გუშინ | **400** · `Group.StartInPast` |
+| ყველაფერი სწორია | **201** · ჯგუფი და მისი Id |
+
+ყოველ შეცდომას აქვს **კოდი**. frontend-ს ქართული ტექსტის „გარჩევა“ არ სჭირდება: კოდით იცის, რომელი ველი გააწითლოს.
+  </aside>
+</section>
+<section class="slide" data-section="საშინაოსთვის">
+  <div class="kicker">გაჭედე?</div>
+  <h2>ხშირი შეცდომები</h2>
+  <table class="t" style="font-size:16px">
+    <tr><th style="width:40%">რას ხედავ</th><th style="width:28%">მიზეზი</th><th>გამოსწორება</th></tr>
+    <tr class="step fade"><td class="mono" style="font-size:14px">The property 'Student.Email' could not be mapped because it is of type 'Email'</td><td>EF-მა არ იცის, როგორ შეინახოს Email</td><td><code class="i">HasConversion(...)</code> OnModelCreating-ში</td></tr>
+    <tr class="step fade"><td class="mono" style="font-size:14px">'Course.Course()' is inaccessible due to its protection level</td><td>სადმე ისევ <code class="i">new Course { … }</code> წერია (მაგ. Mapper-ის ToEntity)</td><td><code class="i">Course.Create(...)</code> · ToEntity წაშალე</td></tr>
+    <tr class="step fade"><td class="mono" style="font-size:14px">The property or indexer 'Title' cannot be used… the set accessor is inaccessible</td><td>handler-ი თვისებას პირდაპირ ცვლის</td><td><code class="i">course.Update(...)</code></td></tr>
+    <tr class="step fade"><td class="mono" style="font-size:14px">InvalidOperationException: შეცდომას მნიშვნელობა არ აქვს</td><td><code class="i">.Value</code> წაიკითხე <code class="i">IsFailure</code>-ის შემოწმებამდე</td><td>ჯერ <code class="i">if (result.IsFailure) return …</code></td></tr>
+  </table>
+  <aside class="study">
+### ხშირი შეცდომები
+
+| რას ხედავ | მიზეზი და გამოსწორება |
+|---|---|
+| `The property 'Student.Email' could not be mapped because it is of type 'Email'` | EF-მა არ იცის, როგორ შეინახოს Email → `HasConversion` OnModelCreating-ში |
+| `'Course.Course()' is inaccessible due to its protection level` | სადმე ისევ `new Course { ... }` წერია, ხშირად Mapper-ის `ToEntity`-ში → `Course.Create(...)`, `ToEntity` წაშალე |
+| `The property or indexer 'Title' cannot be used in this context because the set accessor is inaccessible` | handler-ი თვისებას პირდაპირ ცვლის → `course.Update(...)` |
+| `InvalidOperationException: შეცდომას მნიშვნელობა არ აქვს` | `.Value` წაიკითხე `IsFailure`-ის შემოწმებამდე → ჯერ `if (result.IsFailure) return ...;` |
+
+```prompt Rich entity — შეამოწმე ჩემი კოდი
+ვსწავლობ ASP.NET Core Web API-ს (.NET 10) და DDD-ს. ჩემი entity-ები rich-ად გადავაკეთე: private set, private constructor, static Create, Update მეთოდი, შეცდომა Result-ით (Result / Result<T> / Error(Code, Message)), exception-ის გარეშე. Email Value Object-ია (sealed record).
+აი ჩემი კოდი: [ჩასვი entity, Errors კლასი და handler]
+შეამოწმე: შეიძლება თუ არა entity-ის გარედან არასწორ მდგომარეობაში ჩაგდება? რომელი წესი უნდა იყოს entity-ში და რომელი handler-ში (ბაზის საჭიროებით)? მზა კოდი ნუ დამიწერე, მიმითითე და ამიხსენი რატომ. ქართულად.
+```
+  </aside>
+</section>
+<lecture-check/>
+<section class="slide" data-section="შეჯამება">
+  <div class="kicker in" style="color:var(--core)">დღეს</div>
+  <h2 class="in" style="--d:.1s">წესი ცხოვრობს <span class="grad">იქ, სადაც მონაცემი</span></h2>
+  <div class="grid2" style="grid-template-columns:1fr 1.05fr;gap:36px;align-items:start">
+    <div class="col" style="gap:16px">
+      <div class="card accent step" style="--a:var(--mvc)"><h3><span class="ico">🧠</span>დაიმახსოვრე</h3><ul class="clean small"><li><b>Rich entity</b> — private set · Create · Update</li><li>მოსალოდნელი შეცდომა → <b>Result</b> · მოულოდნელი → exception</li><li>entity — საკუთარი წესები · <b>ბაზის</b> წესი (R1, R2) — handler</li><li><b>Value Object</b> — Id-ის გარეშე, მნიშვნელობით · <code class="i">record</code></li><li>EF: <code class="i">HasConversion</code></li></ul></div>
+      <div class="card accent step" style="--a:var(--pink)"><h3><span class="ico">🏠</span>საშინაოზე</h3><p class="small"><b>შენი სფერო</b> — rich entity-ები, <code class="i">Email</code> და შენი „ჯგუფი“</p></div>
+    </div>
+    <div class="col step" data-with style="gap:12px">
+      <div class="flowrow">
+        <div class="fbox" style="--a:#ea580c"><div class="l">Email.Create</div></div><span class="farrow">→</span>
+        <div class="fbox" style="--a:var(--core)"><div class="l">Student.Create</div></div><span class="farrow">→</span>
+        <div class="fbox" style="--a:#0d9488"><div class="l">handler</div><div class="s">ბაზა · HTTP</div></div>
+      </div>
+      <code-block lang="csharp" cls="sm" title="ყოველ ნაბიჯზე">
+if (result.IsFailure)
+    return Results.BadRequest(result.Error);
+      </code-block>
+    </div>
+  </div>
+  <aside class="study">
+## შეჯამება · წესი ცხოვრობს იქ, სადაც მონაცემი
+
+1. **ანემიური entity** მხოლოდ მონაცემებია: ნებისმიერ კოდს შეუძლია მისი არასწორ მდგომარეობაში ჩაგდება.
+2. **Rich entity** თავის წესებს თვითონ იცავს: `private set`, `private` constructor, შექმნა `Create`-ით, ცვლილება მეთოდებით (`Update`).
+3. **Result pattern:** მოსალოდნელი ბიზნეს-შეცდომა ბრუნდება `Result`-ით (`Error`: Code + Message), exception-ის გარეშე. exception მოულოდნელისთვისაა.
+4. **entity მხოლოდ საკუთარ მდგომარეობას იცავს.** წესები, რომლებსაც ბაზა სჭირდება (R1: სახელი უნიკალურია, R2: Email უნიკალურია, „კურსი არსებობს“), handler-ში რჩება.
+5. **Value Object**-ს Id არ აქვს, მნიშვნელობით დარდება და არ იცვლება. C#-ში: `sealed record`. `Email` ერთხელ მოწმდება და ყველგან სანდოა.
+6. EF Core Value Object-ს `HasConversion`-ით ინახავს ჩვეულებრივ სვეტად.
+7. **Group** თავიდანვე rich entity-ა: ≤ 20 ადგილი, წარსულში ვერ დაიწყება. `today` handler-იდან მოდის.
+
+```prompt DDD-ის საფუძვლები — გასაუბრებისთვის
+ვემზადები .NET Junior გასაუბრებისთვის. დამისვი კითხვები: anemic vs rich domain model, factory method, Result pattern vs exceptions (როდის რომელი), Entity vs Value Object (მაგალითებით), C# record და მნიშვნელობით შედარება, EF Core value conversion, რომელი წესი ეკუთვნის entity-ს და რომელი handler-ს.
+სათითაოდ დასვი, დაელოდე ჩემს პასუხს, შემიფასე და აუხსენი, რა გამომრჩა. 8 კითხვა. ქართულად.
+```
+  </aside>
+</section>
+<lecture-homework/>
