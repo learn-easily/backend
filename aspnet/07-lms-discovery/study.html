@@ -1,0 +1,646 @@
+<!doctype html>
+<html lang="ka"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>📖 LMS-ის აღმოჩენა: ენა, აქტორები, პროცესები, წესები — კონსპექტი</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Georgian:wght@400;600;700;800&family=JetBrains+Mono:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#fbf8f3;--card:#fff;--ink:#1e2132;--ink2:#3b3f54;--muted:#7b8096;--line:#e6dfd2;--accent:#6d28d9;--accent-soft:#f3effe;--teal:#0d9488;
+  --green:#15803d;--amber:#b45309;--mono:"JetBrains Mono",ui-monospace,monospace;--sans:"Noto Sans Georgian",system-ui,sans-serif}
+*{box-sizing:border-box}
+html{scroll-padding-top:76px}
+body{margin:0;background:var(--bg);color:var(--ink);font:17.5px/1.75 var(--sans);-webkit-font-smoothing:antialiased}
+a{color:var(--accent)}
+/* top bar */
+.top{position:sticky;top:0;z-index:10;display:flex;align-items:center;gap:14px;padding:10px 20px;background:rgba(251,248,243,.92);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.top .back{font:600 14px var(--mono);color:var(--muted);text-decoration:none;white-space:nowrap}
+.top .back:hover{color:var(--ink)}
+.top .ttl{flex:1;min-width:0;font-weight:700;font-size:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.top .ttl small{font:500 13px var(--mono);color:var(--muted);margin-right:8px}
+.btn{font:700 14px var(--sans);text-decoration:none;border-radius:10px;padding:7px 14px;white-space:nowrap;border:1px solid var(--line);color:var(--ink);background:var(--card);cursor:pointer}
+.btn.play{background:var(--accent);border-color:var(--accent);color:#fff}
+.live{display:none;align-items:center;gap:8px;font:600 13px var(--mono);color:var(--teal);background:#e6f6f4;border:1px solid #bfe7e2;border-radius:999px;padding:5px 12px;cursor:pointer}
+.live.on{display:flex}
+.live .dot{width:8px;height:8px;border-radius:50%;background:var(--teal);animation:pulse 1.6s infinite}
+.live.off{color:var(--muted);background:var(--card);border-color:var(--line)}.live.off .dot{background:var(--muted);animation:none}
+@keyframes pulse{50%{opacity:.3}}
+/* layout */
+.wrap{display:grid;grid-template-columns:230px minmax(0,1000px);gap:44px;justify-content:center;padding:32px 28px 120px}
+nav.toc{position:sticky;top:84px;align-self:start;font-size:14px;line-height:1.45}
+nav.toc .h{font:700 12px var(--mono);color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px}
+nav.toc a{display:block;color:var(--ink2);text-decoration:none;padding:6px 10px;border-left:2px solid var(--line)}
+nav.toc a:hover{color:var(--accent)}
+nav.toc a.cur{color:var(--accent);border-left-color:var(--accent);font-weight:700}
+nav.toc .mats{margin-top:22px;display:flex;flex-direction:column;gap:6px}
+nav.toc .mats a{border:0;padding:2px 0;font:500 13px var(--mono);color:var(--teal);word-break:break-all}
+header.hero{margin-bottom:8px}
+header.hero .k{font:600 14px var(--mono);color:var(--accent)}
+header.hero h1{font-size:38px;line-height:1.2;margin:6px 0 10px;letter-spacing:-.01em}
+header.hero p{color:var(--muted);margin:0;font-size:15.5px}
+header.hero kbd{font:500 12px var(--mono);border:1px solid var(--line);border-radius:5px;padding:0 5px;background:var(--card)}
+h2.sec{font-size:15px;font:700 13px var(--mono);color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin:48px 0 6px;padding-top:18px;border-top:1px solid var(--line)}
+/* blocks */
+.blk{position:relative;padding:14px 0 6px 22px;margin-left:-22px;border-left:3px solid transparent;transition:border-color .3s,background .3s;border-radius:0 12px 12px 0}
+.blk.cur{border-left-color:var(--accent);background:linear-gradient(90deg,var(--accent-soft),transparent 70%)}
+.anchor{position:absolute;top:0}
+.bh{display:flex;align-items:baseline;justify-content:space-between;gap:12px}
+.bh h3{font-size:22px;line-height:1.35;margin:4px 0 6px}
+.chip{flex:none;font:600 12px var(--mono);color:var(--muted);text-decoration:none;border:1px solid var(--line);border-radius:999px;padding:2px 10px;background:var(--card)}
+.chip:hover{color:var(--accent);border-color:var(--accent)}
+.blk h2{font-size:26px;line-height:1.3;margin:6px 0 10px}
+.blk h3:not(.bh h3){font-size:19px;margin:22px 0 6px}
+.blk h4{font-size:17px;margin:18px 0 4px}
+.blk p{margin:10px 0}
+.blk ul,.blk ol{padding-left:24px;margin:8px 0}
+.blk li{margin:4px 0}
+.blk strong{color:var(--ink)}
+.blk :not(pre)>code{font:600 .86em var(--mono);background:#f1ece3;border-radius:6px;padding:1px 6px;color:#5b21b6}
+.blk table{border-collapse:collapse;margin:14px 0;font-size:15.5px;width:100%;display:block;overflow-x:auto}
+.blk th,.blk td{border:1px solid var(--line);padding:8px 12px;text-align:left;vertical-align:top}
+.blk th{background:#f6f1e8}
+/* code */
+.codebox{margin:14px 0;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:#fffdf9}
+.codebox .ch,.prompt .ph{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:6px 8px 6px 14px;font:600 12.5px var(--mono);color:var(--muted);background:#f6f1e8;border-bottom:1px solid var(--line)}
+.copy{font:600 12px var(--mono);border:1px solid var(--line);background:var(--card);color:var(--ink2);border-radius:7px;padding:3px 10px;cursor:pointer}
+.copy:hover{border-color:var(--ink)}
+.copy.ok{color:var(--green);border-color:var(--green)}
+pre.code{margin:0;padding:12px 0;overflow-x:auto;font:14px/1.65 var(--mono)}
+pre.code .ln{display:block;padding:0 16px;white-space:pre}
+.code .ttl{background:var(--bg2);color:var(--muted)}
+.code .ln.hl{background:rgba(109,40,217,.07);box-shadow:inset 3px 0 0 var(--net)}
+.code .ln.dim{opacity:.42}
+.code .k,.code .kd,.code .kn,.code .kr,.code .kc{color:#7c3aed}
+.code .kt{color:#2563eb}
+.code .s,.code .s1,.code .s2,.code .sa,.code .se,.code .si,.code .sd{color:#15803d}
+.code .c,.code .c1,.code .cm,.code .cp,.code .ch{color:#8b8fa3}
+.code .m,.code .mi,.code .mf,.code .mh{color:#c2410c}
+.code .nf,.code .fm{color:#1d4ed8}
+.code .nc,.code .nn,.code .nt,.code .nd{color:#b45309}
+.code .na{color:#7c3aed} .code .nb{color:#0e7490}
+.code .o,.code .p{color:#64748b}
+.code .nv,.code .nx{color:var(--ink)}
+.code .go{color:#64748b}
+/* prompt */
+.prompt{margin:16px 0;border:1px solid #ddd2fb;border-radius:12px;overflow:hidden;background:var(--accent-soft)}
+.prompt .ph{background:#ebe3fd;border-color:#ddd2fb;color:var(--accent)}
+.prompt .pb{padding:12px 16px;white-space:pre-wrap;font-size:15.5px;line-height:1.6;color:var(--ink2)}
+/* self check */
+.selfcheck{margin:16px 0;border:1px solid #cfe9d6;border-radius:12px;background:#f3fbf5;padding:12px 16px}
+.selfcheck .sh{font-weight:700;color:var(--green);margin-bottom:6px}
+.selfcheck .sh small{font-weight:400;color:var(--muted);font-size:13.5px;margin-left:6px}
+.selfcheck details{border-top:1px solid #dcefe1;padding:8px 0}
+.selfcheck summary{cursor:pointer;font-weight:600;list-style:none;padding-left:26px;position:relative}
+.selfcheck summary::-webkit-details-marker{display:none}
+.selfcheck summary::before{content:"?";position:absolute;left:0;top:2px;width:18px;height:18px;border-radius:50%;background:var(--green);color:#fff;font:700 12px/18px var(--mono);text-align:center}
+.selfcheck details[open] summary::before{content:"✓"}
+.selfcheck .ans{padding:6px 0 2px 26px;color:var(--ink2)}
+/* terms */
+.terms{margin:16px 0;border:1px solid var(--line);border-radius:12px;background:var(--card);padding:12px 16px}
+.terms .th{font-weight:700;margin-bottom:6px}
+.terms dl{display:grid;grid-template-columns:max-content 1fr;gap:6px 18px;margin:0}
+.terms dt{font:600 14.5px var(--mono);color:var(--accent)}
+.terms dd{margin:0;color:var(--ink2)}
+/* callouts */
+.callout{display:flex;gap:12px;margin:14px 0;padding:12px 16px;border-radius:12px;border:1px solid var(--line);background:var(--card)}
+.callout .ci{font-size:20px;line-height:1.6}
+.callout>div>p:first-child{margin-top:0}.callout>div>p:last-child{margin-bottom:0}
+.callout.warn{background:#fff8eb;border-color:#f6dfb5}
+.callout.note{background:#eef5ff;border-color:#cfe0fb}
+@media (max-width:980px){
+  .wrap{grid-template-columns:minmax(0,1fr);gap:0;padding:20px 16px 100px}
+  nav.toc{position:static;margin-bottom:12px}
+  nav.toc details{border:1px solid var(--line);border-radius:12px;background:var(--card);padding:8px 12px}
+  nav.toc details>summary{cursor:pointer;font-weight:700}
+  nav.toc .h{display:none}
+  header.hero h1{font-size:30px}
+  .blk{padding-left:14px;margin-left:-14px}
+  .top .ttl small{display:none}
+  .terms dl{grid-template-columns:1fr}.terms dd{margin-bottom:8px}
+}
+@media (min-width:981px){nav.toc details>summary{display:none}}
+@media print{.top,nav.toc,.copy,.chip,.live{display:none}.wrap{display:block;padding:0}.selfcheck details{display:block}.blk.cur{background:none}}
+</style></head>
+<body>
+<div class="top">
+  <a class="back" href="../../">← ლექციები</a>
+  <div class="ttl"><small>ASP.NET · 7</small>LMS-ის აღმოჩენა: ენა, აქტორები, პროცესები, წესები</div>
+  <button class="live" id="live" type="button" title="ჩართული: ტექსტი პრეზენტაციას მიჰყვება"><span class="dot"></span><span class="lt">მიჰყვება სლაიდებს</span></button>
+  <a class="btn play" href="index.html">▶ პრეზენტაცია</a>
+</div>
+<div class="wrap">
+  <nav class="toc"><details id="tocd"><summary>სარჩევი</summary><div class="h">სარჩევი</div><a href="#sec-1">გამეორება</a><a href="#sec-2">საშინაოს განხილვა</a><a href="#sec-3">დღის თემა</a><a href="#sec-4">1 · ენა</a><a href="#sec-5">2 · აქტორები</a><a href="#sec-6">3 · პროცესები</a><a href="#sec-7">4 · წესები</a><a href="#sec-8">5 · რუკა და backlog</a><a href="#sec-9">შენი სფერო</a><a href="#sec-10">შეჯამება</a><a href="#sec-11">საშინაო</a><div class="mats"><a href="materials/domains.html" download>📎 domains.html</a><a href="materials/homework-sheet.html" download>📎 homework-sheet.html</a></div></details></nav>
+  <main>
+    <header class="hero">
+      <div class="k">📖 კონსპექტი · ASP.NET · ლექცია 7</div>
+      <h1>LMS-ის აღმოჩენა: ენა, აქტორები, პროცესები, წესები</h1>
+      <p>წაიკითხე ლექციის შემდეგ, ან პრეზენტაციასთან ერთად: პრეზენტაციაში დააჭირე <kbd>P</kbd> და ეს გვერდი სლაიდებს გაჰყვება. კოდი და AI-ს პრომპტები კოპირდება ერთი დაჭერით.</p>
+    </header>
+    <h2 class="sec" id="sec-1">გამეორება</h2>
+<article class="blk" data-slides="1,2"><span class="anchor" id="s-1"></span><span class="anchor" id="s-2"></span><div class="bh"><h3>გავიხსენოთ წინა ლექცია</h3><a class="chip" href="index.html#/1" data-go="1" title="პრეზენტაციაში გახსნა">სლაიდი 1</a></div>
+<p>ლექცია 6 — <strong>DDD: ბიზნესის ენიდან კოდამდე</strong>. ახალ თემამდე ვამოწმებთ, რა დაგვამახსოვრდა. ჯერ თვითონ უპასუხე, მერე გახსენი პასუხი. თუ რომელიმე გაგიჭირდა, <a href="../06-ddd/study.html">წინა ლექციის კონსპექტს</a> გადახედე.</p>
+<div class="selfcheck"><div class="sh">✅ შეამოწმე თავი <small>დაფიქრდი, მერე გახსენი პასუხი</small></div><details><summary>რა არის Domain და ვინ არის Domain Expert?</summary><div class="ans">Domain არის ბიზნესის სფერო, რომლისთვისაც პროგრამას ვწერთ (სწავლება, ბანკი, მაღაზია) · Domain Expert ის ადამიანია, ვინც ამ ბიზნესს შიგნიდან იცნობს (დირექტორი, მენეჯერი, ლექტორი)</div></details><details><summary>რა არის Ubiquitous Language და სად უნდა ჩანდეს?</summary><div class="ans">ბიზნესისა და დეველოპერის საერთო ენა: ერთი სიტყვა, ერთი მნიშვნელობა · ჩანს საუბარში, ლექსიკონში და კოდში (class-ების, endpoint-ების და მეთოდების სახელებში)</div></details><details><summary>რატომ არის ცუდი კითხვა „რა ფუნქციები გინდათ?“ და რით შევცვალოთ?</summary><div class="ans">ბიზნესი ამაზე სურვილების ბუნდოვან სიას აბრუნებს · ჯობს ვკითხოთ კონკრეტული მაგალითი („ბოლოს როდის მოხდა?“), შემდეგ „მერე რა ხდება?“, „ყოველთვის?“, „ვინ აკეთებს?“, „რატომ?“</div></details><details><summary>რა პრობლემაა, როცა ერთ სიტყვას ორი მნიშვნელობა აქვს? მაგალითი LMS-იდან</summary><div class="ans">ორივე მხარეს ჰგონია, რომ ერთმანეთს ეთანხმება, და კოდი სხვა რამეს აკეთებს · მაგ. „დავალება“ ზოგისთვის ლექტორის მიცემული ამოცანაა (Assignment), ზოგისთვის სტუდენტის ჩაბარებული ნამუშევარი (Submission)</div></details><details><summary>ბიზნესის წინადადებაში რა ხდება class, რა endpoint და რა შემოწმება?</summary><div class="ans">არსებითი სახელი → class (Submission) · ზმნა/მოქმედება → endpoint ან მეთოდი (Grade) · წესი („1-დან 12-მდე“) → შემოწმება; თუ ირღვევა → შეცდომის პასუხი (400 / 409)</div></details><details><summary>რა არის user story და მიღების კრიტერიუმი?</summary><div class="ans">„როგორც &lt;აქტორი&gt;, მინდა &lt;მოქმედება&gt;, რომ &lt;მიზანი&gt;“: ერთი სამუშაო ბიზნესის ენაზე · მიღების კრიტერიუმები ის წესებია, რომელთა შესრულების შემდეგ story მზად ითვლება</div></details></div></article>
+<h2 class="sec" id="sec-2">საშინაოს განხილვა</h2>
+<article class="blk" data-slides="3"><span class="anchor" id="s-3"></span><div class="bh"><h3>საშინაოს განხილვა</h3><a class="chip" href="index.html#/3" data-go="3" title="პრეზენტაციაში გახსნა">სლაიდი 3</a></div>
+<p>წინა ლექციის საშინაო: <strong>ჩემი LMS: პირველი საუბრისთვის მზადება</strong>. ქვემოთ არის ერთ-ერთი სწორი ამოხსნა. შენი კოდი შეიძლება სხვანაირად იყოს დაწერილი — მთავარია, მოთხოვნები სრულდებოდეს.</p>
+<h3>მოთხოვნები</h3>
+<ul>
+<li>ყველაფერი შეავსე <a href="../06-ddd/materials/homework-sheet.html">📝 საშინაოს ფურცელში</a> → <strong>⬇ ჩამოტვირთვა</strong> → HTML ფაილი <strong>ატვირთე LB-ზე</strong></li>
+<li><strong>ხედვა</strong> 3–5 წინადადებით: ვინ იყენებს, რა პრობლემას ხსნის, რა <strong>არ</strong> შედის</li>
+<li><strong>ლექსიკონი</strong>: 10 ტერმინი: განმარტება ბიზნესის ენაზე + სახელი კოდში</li>
+<li><strong>2 ორმნიშვნელოვანი სიტყვა</strong> (LB-დან ან აკადემიიდან) და შენი გადაწყვეტილება</li>
+<li><strong>12 კითხვა</strong> დირექტორისთვის, თითოს თავისი ტექნიკით</li>
+</ul>
+<h3>ამოხსნა</h3>
+<p>ეს ერთ-ერთი შესაძლო ვარიანტია: შენი ლექსიკონი და კითხვები შეიძლება სხვანაირი იყოს. მთავარია, ყოველ სიტყვას ერთი მნიშვნელობა ჰქონდეს.</p>
+<div class="codebox"><div class="ch"><span>ლექსიკონი (ნაწილი)</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln">კურსი (Course) — სასწავლო პროგრამა: რას ვასწავლით (მაგ. „ASP.NET Web API“)</span><span class="ln">ჯგუფი (Group) — კონკრეტული სტუდენტები, რომლებიც კურსს ერთად გადიან</span><span class="ln">ჩარიცხვა (Enrollment) — სტუდენტის მიღება კონკრეტულ ჯგუფში</span><span class="ln">ლექცია (Lecture) — ჯგუფის ერთი შეხვედრა განრიგში, თარიღით</span><span class="ln">დასწრება (Attendance) — სტუდენტი ლექციაზე იყო, დააგვიანა თუ გააცდინა</span><span class="ln">გაცდენა (Absence) — არ მოვიდა ან 15 წუთზე მეტი დააგვიანა</span><span class="ln">დავალება (Assignment) — ამოცანა, რომელსაც ლექტორი ჯგუფს აძლევს დედლაინით</span><span class="ln">ნამუშევარი (Submission) — სტუდენტის ჩაბარებული ფაილი კონკრეტულ დავალებაზე</span><span class="ln">შეფასება (Grade) — ლექტორის ქულა ნამუშევარზე, მთელი რიცხვი 1-დან 12-მდე</span><span class="ln">დედლაინი (Deadline) — თარიღი, რომლის შემდეგაც ნამუშევარი აღარ მიიღება</span></code></pre></div>
+<p><strong>ხედვა (მაგალითი):</strong> LMS აკადემიის სასწავლო ცხოვრებას ერთ ადგილას აგროვებს. მენეჯერი ქმნის კურსებს და ჯგუფებს და რიცხავს სტუდენტებს. ლექტორი ატარებს ლექციებს, აღრიცხავს დასწრებას და აფასებს ნამუშევრებს. სტუდენტი ხედავს განრიგს, აბარებს დავალებებს და ხედავს თავის შეფასებებს. გადახდები და ხელშეკრულებები LMS-ში <strong>არ</strong> შედის.</p>
+<p><strong>ორმნიშვნელოვანი სიტყვები:</strong> „დავალება“ ორად გაიყო: <strong>Assignment</strong> (ამოცანა) და <strong>Submission</strong> (ნამუშევარი). „კურსი“ და „ჯგუფი“ ცალ-ცალკე ცნებებია: „კურსზე ჩარიცხვა“ სინამდვილეში <strong>ჯგუფში</strong> ჩარიცხვაა.</p>
+<p><strong>კითხვები (ნაწილი):</strong></p>
+<ul>
+<li><em>მაგალითი:</em> ბოლოს როდის ჩააბარა ვინმემ დავალება დედლაინის შემდეგ? რა ქენით?</li>
+<li><em>მერე?</em> ლექტორმა ნამუშევარი შეაფასა. მერე რა ხდება? სტუდენტი რას ხედავს?</li>
+<li><em>ყოველთვის?</em> ჯგუფში ყოველთვის ერთი ლექტორია?</li>
+<li><em>ვინ?</em> ვინ რიცხავს სტუდენტს ჯგუფში? ვინ რიცხავს მას ჯგუფიდან?</li>
+<li><em>რატომ?</em> რატომ უნდა ჩანდეს ჯგუფის საშუალო ქულა? ვინ უყურებს მას?</li>
+</ul>
+<div class="selfcheck"><div class="sh">✅ შეამოწმე თავი <small>დაფიქრდი, მერე გახსენი პასუხი</small></div><details><summary>რატომ არ წერია ლექსიკონში „ცხრილი“, „Controller“ ან „ბაზა“?</summary><div class="ans">ლექსიკონი ბიზნესის ენაა: დირექტორს უნდა შეეძლოს მისი წაკითხვა და შემოწმება. ტექნიკური დეტალი მერე, კოდში ჩნდება</div></details><details><summary>რატომ გავყავით „დავალება“ ორ ტერმინად?</summary><div class="ans">ამოცანა (ერთი ჯგუფისთვის, დედლაინით) და ნამუშევარი (ერთი სტუდენტის ფაილი, შეფასებით) სხვადასხვა რამაა: ერთ დავალებას ბევრი ნამუშევარი აქვს</div></details></div></article>
+<h2 class="sec" id="sec-3">დღის თემა</h2>
+<article class="blk" data-slides="4"><span class="anchor" id="s-4"></span><div class="bh"><h3>დღის თემა: LMS-ის აღმოჩენა: ენა, აქტორები, პროცესები, წესები</h3><a class="chip" href="index.html#/4" data-go="4" title="პრეზენტაციაში გახსნა">სლაიდი 4</a></div>
+<p>წინა ლექციაზე ვისწავლეთ, როგორ ვესაუბროთ ბიზნესს და რატომ გვჭირდება საერთო ენა. დღეს ამ მეთოდს ჩვენს პროექტზე ვიყენებთ. LMS-ს ლექტორი კლასში აწყობს, თქვენ კი სახლში იგივე გზას საკუთარ სფეროში გაივლით: ფიტნესი, ავტოსკოლა, კონფერენციები, რესტორანი, სასტუმრო, კლინიკა ან ტურები. კოდის პირველ ხაზამდე უნდა ვიცოდეთ, რა სიტყვებით ვლაპარაკობთ, ვინ იყენებს სისტემას, რა ხდება მასში და რა წესებს ემორჩილება. დღის ბოლოს გვექნება დომენის რუკა და backlog, საიდანაც შემდეგ ლექციაზე პირველ feature-ს დავწერთ.</p>
+<p><strong>ლექციის ბოლოს შეძლებ:</strong></p>
+<ul>
+<li>LMS-ის საერთო ლექსიკონის დადგენა: კურსი, ჯგუფი, ჩარიცხვა, ლექცია, დასწრება, დავალება, ნამუშევარი, შეფასება</li>
+<li>აქტორებისა და მათი მიზნების ამოცნობა: მენეჯერი, ლექტორი, სტუდენტი</li>
+<li>პროცესების ჩაწერა მოვლენებად, წარსულ დროში, და წესების პოვნა მათში</li>
+<li>დომენის რუკის დახატვა და backlog-ის შედგენა რიგითობით</li>
+<li>საკუთარი სფეროს არჩევა და მისი დაგეგმვა იმავე გზით</li>
+</ul></article>
+<article class="blk" data-slides="5"><span class="anchor" id="s-5"></span><div class="bh"><h3>LMS: სისტემა, რომელსაც უკვე იცნობთ</h3><a class="chip" href="index.html#/5" data-go="5" title="პრეზენტაციაში გახსნა">სლაიდი 5</a></div>
+<p>აქედან კურსის ბოლომდე ყველა ახალი თემა ერთ პროექტში შემოდის: <strong>LMS</strong> (Learning Management System), სასწავლო პლატფორმაში. მასში არის კურსები, ჯგუფები, სტუდენტები, ლექტორები, ლექციები, დასწრება, დავალებები და შეფასება 1-დან 12-მდე.</p>
+<p>ეს დომენი კარგად იცით: LB-ზე ყოველდღე ხედავთ განრიგს, დასწრებას, აბარებთ დავალებებს და იღებთ ქულებს. ამიტომ დირექტორის ყოველი სიტყვა თქვენთვისაც ნაცნობია.</p>
+<p><strong>როგორ ვმუშაობთ:</strong></p>
+<ul>
+<li><strong>კლასში</strong> LMS-ს ლექტორი აწყობს, თემა თემაზე. თქვენ უყურებთ, სვამთ კითხვებს და კამათობთ.</li>
+<li><strong>სახლში</strong> თითოეული <strong>საკუთარ სფეროს</strong> აწყობს: ფიტნეს-კლუბს, ავტოსკოლას, კონფერენციებს, რესტორნის ან სასტუმროს ჯავშნებს, კლინიკას ან ტურისტულ სააგენტოს. ყოველი საშინაო დღის თემაა შენს სფეროში. LMS-ს არ აწყობ: მაშინ ლექტორის კოდს უბრალოდ გადაიწერდი, სხვა სფეროში კი იგივე თემაზე თვითონ მოგიწევს ფიქრი. სფეროს ამ ლექციის ბოლოს აირჩევ.</li>
+</ul>
+<p>დღეს კოდი არ არის. 06 ლექციაზე ვნახეთ, რომ ყველაზე ძვირი შეცდომა არასწორად გაგებული ბიზნესია. დღეს LMS-ის ბიზნესს ვიგებთ: ენას, აქტორებს, პროცესებს და წესებს. დღის ბოლოს გვექნება <strong>დომენის რუკა</strong> და <strong>backlog</strong>, სამუშაოების სია, საიდანაც შემდეგ ლექციაზე პირველ feature-ს დავწერთ.</p></article>
+<h2 class="sec" id="sec-4">1 · ენა</h2>
+<article class="blk" data-slides="6"><span class="anchor" id="s-6"></span><div class="bh"><h3>ნაწილი 1 · LMS-ის ენა</h3><a class="chip" href="index.html#/6" data-go="6" title="პრეზენტაციაში გახსნა">სლაიდი 6</a></div>
+<p>საშინაოში ყველამ თავისი ლექსიკონი დაწერა. ახლა ვნახავთ, რატომ არის ეს პრობლემა, და ერთ, საერთო ლექსიკონს შევთანხმდებით.</p></article>
+<article class="blk" data-slides="7"><span class="anchor" id="s-7"></span><div class="bh"><h3>30 ლექსიკონი, 30 სხვადასხვა LMS</h3><a class="chip" href="index.html#/7" data-go="7" title="პრეზენტაციაში გახსნა">სლაიდი 7</a></div>
+<p>საშინაოში ყველამ ლექსიკონი დაწერა. შევადაროთ სამი ნაშრომი:</p>
+<ul>
+<li>ნიკა: „<strong>კურსი</strong>: სტუდენტები, რომლებიც ერთად სწავლობენ.“</li>
+<li>ანა: „<strong>ნაკადი</strong>: სტუდენტები, რომლებიც ერთად სწავლობენ.“</li>
+<li>გიო: „<strong>ჯგუფი</strong>: სტუდენტები, რომლებიც ერთად სწავლობენ.“</li>
+</ul>
+<p>ერთ ცნებას სამი სხვადასხვა სიტყვა ჰქვია. ნიკასთან „კურსი“ კიდევ ორ რამეს ნიშნავს: პროგრამასაც და ჯგუფსაც. ეს სამი ადამიანი ერთ პროექტზე ერთად ვერ იმუშავებს, რადგან სინამდვილეში სამ სხვადასხვა LMS-ზე ლაპარაკობენ.</p>
+<p>ამოხსნა 06 ლექციიდან ვიცით: <strong>ერთი ლექსიკონი</strong>. სიტყვას კი ბიზნესი ირჩევს, ამიტომ ჯერ დირექტორს ვეკითხებით.</p></article>
+<article class="blk" data-slides="8"><span class="anchor" id="s-8"></span><div class="bh"><h3>„კურსზე ჩაირიცხა“: სად ჩაირიცხა?</h3><a class="chip" href="index.html#/8" data-go="8" title="პრეზენტაციაში გახსნა">სლაიდი 8</a></div>
+<p>06 ლექციის კითხვებს LMS-ზე ვიყენებთ:</p>
+<blockquote>
+<p><strong>დეველოპერი:</strong> როცა ამბობთ „კურსზე ჩაირიცხა“, ზუსტად სად ირიცხება? <em>(რას ნიშნავს?)</em>
+<strong>დირექტორი:</strong> ASP.NET-ის კურსზე.
+<strong>დეველოპერი:</strong> ASP.NET-ს ახლა რამდენი ჯგუფი გადის? <em>(მაგალითი)</em>
+<strong>დირექტორი:</strong> სამი: დილის, საღამოს და ონლაინ.
+<strong>დეველოპერი:</strong> სტუდენტი სამივეში დადის? <em>(ყოველთვის?)</em>
+<strong>დირექტორი:</strong> არა, ერთში. ჰო… ფაქტობრივად, ჯგუფში ირიცხება.
+<strong>დეველოპერი:</strong> ჯგუფი სავსეა. მერე? <em>(მერე?)</em>
+<strong>დირექტორი:</strong> 20-ზე მეტი არ ეტევა. მენეჯერი ახალ ჯგუფს ხსნის.</p>
+</blockquote>
+<p>რა ვიპოვეთ:</p>
+<ul>
+<li><strong>კურსი</strong> პროგრამაა (რას ვასწავლით), <strong>ჯგუფი</strong> კი ადამიანები, რომლებიც მას ერთად გადიან.</li>
+<li><strong>ჩარიცხვა</strong> ჯგუფში ხდება და არა კურსზე. დირექტორი ამბობდა „კურსზე“, თუმცა თვითონაც ჯგუფს გულისხმობდა.</li>
+<li><strong>წესი:</strong> ჯგუფს ადგილების ლიმიტი აქვს.</li>
+<li><strong>აქტორი:</strong> ჯგუფს მენეჯერი ხსნის.</li>
+</ul>
+<p>ოთხი კითხვით მივიღეთ ორი ზუსტი ტერმინი, ერთი წესი და ერთი აქტორი.</p></article>
+<article class="blk" data-slides="9"><span class="anchor" id="s-9"></span><div class="bh"><h3>LMS-ის ლექსიკონი</h3><a class="chip" href="index.html#/9" data-go="9" title="პრეზენტაციაში გახსნა">სლაიდი 9</a></div>
+<p>კლასის საერთო ლექსიკონი. თქვენს LMS-შიც ზუსტად ეს სიტყვები გამოიყენება:</p>
+<table>
+<thead>
+<tr>
+<th>ტერმინი</th>
+<th>კოდში</th>
+<th>რას ნიშნავს</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>კურსი</td>
+<td><code>Course</code></td>
+<td>სასწავლო პროგრამა: <strong>რას</strong> ვასწავლით (მაგ. „ASP.NET Web API“)</td>
+</tr>
+<tr>
+<td>ჯგუფი</td>
+<td><code>Group</code></td>
+<td>ვინ გადის კურსს <strong>ერთად</strong>: ერთი ლექტორი, ადგილების ლიმიტი, დაწყების თარიღი</td>
+</tr>
+<tr>
+<td>ჩარიცხვა</td>
+<td><code>Enrollment</code></td>
+<td>სტუდენტის მიღება <strong>ჯგუფში</strong></td>
+</tr>
+<tr>
+<td>ლექცია</td>
+<td><code>Lecture</code></td>
+<td>ჯგუფის ერთი შეხვედრა, თარიღით და დროით</td>
+</tr>
+<tr>
+<td>დასწრება</td>
+<td><code>Attendance</code></td>
+<td>სტუდენტი ერთ ლექციაზე: იყო · დააგვიანა · გააცდინა</td>
+</tr>
+<tr>
+<td>დავალება</td>
+<td><code>Assignment</code></td>
+<td>ამოცანა, რომელიც ლექტორმა ჯგუფს მისცა, დედლაინით</td>
+</tr>
+<tr>
+<td>ნამუშევარი</td>
+<td><code>Submission</code></td>
+<td>სტუდენტის ჩაბარებული ფაილი ერთ დავალებაზე</td>
+</tr>
+<tr>
+<td>შეფასება</td>
+<td><code>Grade</code></td>
+<td>ქულა ნამუშევარზე: მთელი რიცხვი 1-დან 12-მდე</td>
+</tr>
+<tr>
+<td>სტუდენტი · ლექტორი · მენეჯერი</td>
+<td><code>Student</code> · <code>Lecturer</code> · <code>Manager</code></td>
+<td>ადამიანები, რომლებიც სისტემას იყენებენ</td>
+</tr>
+</tbody>
+</table>
+<p><strong>აღარ ვიყენებთ:</strong> „ნაკადი“ (= ჯგუფი), „მსმენელი“ და „მოსწავლე“ (= სტუდენტი), „კურსზე ჩარიცხვა“ (ჩარიცხვა ჯგუფში ხდება).</p>
+<p><strong>LMS-ში არ შედის:</strong> გადახდები, ხელშეკრულებები, ჩატი. ამასაც ვწერთ: საზღვარი ცხადია და პროექტი უსასრულოდ არ იზრდება.</p>
+<div class="callout tip"><span class="ci">👉</span><div><p>ლექსიკონი ცოცხალი დოკუმენტია. როცა ახალ სიტყვას შეხვდებით ან ძველი ბუნდოვანი აღმოჩნდება, ჯერ ლექსიკონი სწორდება, მერე კოდი.</p></div></div>
+<div class="terms"><div class="th">📘 ტერმინები</div><dl><dt>LMS (Learning Management System)</dt><dd>სასწავლო პროცესის მართვის სისტემა</dd><dt>Scope (საზღვარი)</dt><dd>რა შედის პროექტში და რა არა</dd></dl></div></article>
+<h2 class="sec" id="sec-5">2 · აქტორები</h2>
+<article class="blk" data-slides="10"><span class="anchor" id="s-10"></span><div class="bh"><h3>ნაწილი 2 · აქტორები</h3><a class="chip" href="index.html#/10" data-go="10" title="პრეზენტაციაში გახსნა">სლაიდი 10</a></div>
+<p>ენა გვაქვს. ახლა ვიგებთ, ვინ იყენებს სისტემას და რა უნდა თითოეულს.</p></article>
+<article class="blk" data-slides="11"><span class="anchor" id="s-11"></span><div class="bh"><h3>სამი როლი, სამი მიზანი</h3><a class="chip" href="index.html#/11" data-go="11" title="პრეზენტაციაში გახსნა">სლაიდი 11</a></div>
+<p><strong>აქტორი</strong> ის არის, ვინც სისტემაში რამეს აკეთებს. LMS-ს სამი აქტორი ჰყავს:</p>
+<table>
+<thead>
+<tr>
+<th>აქტორი</th>
+<th>მიზანი</th>
+<th>რას აკეთებს</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>🧑‍💼 <strong>მენეჯერი</strong></td>
+<td>სწავლა ორგანიზებული იყოს</td>
+<td>ქმნის კურსებს, ხსნის ჯგუფებს და ნიშნავს ლექტორს, რიცხავს სტუდენტებს, გეგმავს ლექციებს, გადაწევს დედლაინს</td>
+</tr>
+<tr>
+<td>🧑‍🏫 <strong>ლექტორი</strong></td>
+<td>ასწავლოს და შეაფასოს</td>
+<td>ატარებს ლექციებს, აღრიცხავს დასწრებას, აძლევს დავალებებს, აფასებს ნამუშევრებს</td>
+</tr>
+<tr>
+<td>🧑‍🎓 <strong>სტუდენტი</strong></td>
+<td>ისწავლოს და კურსი დაასრულოს</td>
+<td>ხედავს განრიგს, აბარებს ნამუშევრებს, ხედავს თავის ქულებს და დასწრებას</td>
+</tr>
+</tbody>
+</table>
+<p><strong>მიზანი</strong> მნიშვნელოვანია: ის გვეუბნება, <strong>რატომ</strong> სჭირდება აქტორს მოქმედება. მოგვიანებით ეს user story-ის „რომ …“ ნაწილი ხდება.</p>
+<p>ზოგჯერ თვითონ <strong>სისტემაც</strong> მოქმედებს: მაგალითად, დედლაინამდე სტუდენტს შეხსენებას უგზავნის. მას ცალკე „აქტორად“ ვწერთ.</p>
+<div class="callout warn"><span class="ci">⚠️</span><div><p>ხშირი შეცდომაა, რომ ყველაფერს „ადმინს“ მივაწერთ: „ადმინი ქმნის, ადმინი აფასებს, ადმინი აღრიცხავს“. ასე ვკარგავთ ინფორმაციას: ვინ რის უფლებას ფლობს. LMS-ში ნიშანს <strong>მხოლოდ ლექტორი</strong> წერს და არა მენეჯერი. ეს წესი მოგვიანებით უფლებების ლექციაზე გამოგვადგება.</p></div></div>
+<div class="terms"><div class="th">📘 ტერმინები</div><dl><dt>აქტორი (Actor)</dt><dd>ვინც სისტემაში მოქმედებს: ადამიანის როლი ან თვითონ სისტემა</dd></dl></div></article>
+<h2 class="sec" id="sec-6">3 · პროცესები</h2>
+<article class="blk" data-slides="12"><span class="anchor" id="s-12"></span><div class="bh"><h3>ნაწილი 3 · პროცესები</h3><a class="chip" href="index.html#/12" data-go="12" title="პრეზენტაციაში გახსნა">სლაიდი 12</a></div>
+<p>ვიცით, <strong>ვინ</strong> იყენებს სისტემას. ახლა ვიგებთ, <strong>რა ხდება</strong> მასში და რა რიგით.</p></article>
+<article class="blk" data-slides="13"><span class="anchor" id="s-13"></span><div class="bh"><h3>ფუნქციების სია რიგს არ აჩვენებს</h3><a class="chip" href="index.html#/13" data-go="13" title="პრეზენტაციაში გახსნა">სლაიდი 13</a></div>
+<p>სია „დასწრება, ქულები, ჯგუფები, განრიგი, დავალებები“ ბევრს არაფერს გვეუბნება. რა არის პირველი? რა რას ელოდება? ვინ აკეთებს?</p>
+<p>ამიტომ პროცესს <strong>მოვლენებად</strong> ვწერთ. მოვლენა ფაქტია, რომელიც უკვე <strong>მოხდა</strong>. ის <strong>წარსულ დროში</strong> იწერება და ყოველ მოვლენას თავისი აქტორი ჰყავს:</p>
+<ol>
+<li><strong>მენეჯერი:</strong> კურსი შეიქმნა → ჯგუფი გაიხსნა → ლექტორი დაინიშნა</li>
+<li><strong>მენეჯერი:</strong> სტუდენტი ჩაირიცხა → ლექცია დაიგეგმა</li>
+<li><strong>ლექტორი:</strong> ლექცია ჩატარდა → დასწრება აღირიცხა → დავალება მიეცა</li>
+<li><strong>სტუდენტი:</strong> ნამუშევარი ჩაბარდა</li>
+<li><strong>ლექტორი:</strong> ნამუშევარი შეფასდა</li>
+<li><strong>სისტემა:</strong> შეხსენება გაიგზავნა</li>
+<li><strong>მენეჯერი:</strong> კურსი დასრულდა</li>
+</ol>
+<p>რატომ წარსულ დროში? ფაქტს ბიზნესი ადვილად ამოწმებს: „კი, ასე ხდება“ ან „არა, ჯერ ლექტორი ინიშნება და მერე იხსნება ჯგუფი“. ასევე ჩანს <strong>რიგი</strong>: დასწრება ვერ აღირიცხება, სანამ ლექცია არ ჩატარდა, ლექცია კი ვერ ჩატარდება, სანამ ჯგუფი არ გაიხსნა.</p>
+<div class="callout note"><span class="ci">💡</span><div><p>ამ ტექნიკის სრულ ვერსიას <strong>Event Storming</strong> ჰქვია: გუნდი და ბიზნესი კედელზე ფერად სტიკერებს აკრავენ და მოვლენებს რიგზე ალაგებენ. ჩვენ მის მარტივ ვერსიას ვიყენებთ: მოვლენა, აქტორი, რიგი.</p></div></div>
+<div class="terms"><div class="th">📘 ტერმინები</div><dl><dt>მოვლენა (Event)</dt><dd>ფაქტი, რომელიც სისტემაში მოხდა; იწერება წარსულ დროში: „სტუდენტი ჩაირიცხა“</dd></dl></div></article>
+<article class="blk" data-slides="14,15"><span class="anchor" id="s-14"></span><span class="anchor" id="s-15"></span><div class="bh"><h3>„სტუდენტი ჩაირიცხა“, ნაბიჯ-ნაბიჯ</h3><a class="chip" href="index.html#/14" data-go="14" title="პრეზენტაციაში გახსნა">სლაიდი 14</a></div>
+<p>ერთი მოვლენის უკან ხშირად მთელი პროცესი იმალება. გავშალოთ „სტუდენტი ჩაირიცხა“:</p>
+<ol>
+<li>მენეჯერი ირჩევს ჯგუფს და სტუდენტს.</li>
+<li>ჯგუფში ადგილი არის? <em>თუ არ არის, მერე?</em></li>
+<li>სტუდენტი ამ ჯგუფში უკვე ხომ არ არის? <em>ყოველთვის ასეა?</em></li>
+<li>ჯგუფი უკვე დაწყებულია? <em>გამონაკლისი?</em></li>
+<li>სტუდენტი ჩაირიცხა და ჯგუფის სიაში ჩანს.</li>
+</ol>
+<p>ყოველ ნაბიჯზე დირექტორს კითხვა დავუსვით. პასუხები:</p>
+<ul>
+<li>ჯგუფი სავსეა → ჩარიცხვა <strong>არ</strong> ხდება; მენეჯერი ახალ ჯგუფს ხსნის. რიგი (waitlist) არ არის.</li>
+<li>ერთ ჯგუფში ორჯერ ჩარიცხვა → <strong>არ</strong> შეიძლება.</li>
+<li>დაწყებულ ჯგუფში ჩარიცხვა → <strong>შეიძლება</strong>, მაგრამ მხოლოდ პირველ კვირაში.</li>
+</ul>
+<p>ერთ მოვლენაში სამი წესი აღმოჩნდა. ასე პოულობს „მერე?“, „ყოველთვის?“ და „გამონაკლისი?“ წესებს, რომლებსაც ბიზნესი თავისით არასდროს გეტყვის: მისთვის ისინი თავისთავად ცხადია.</p></article>
+<h2 class="sec" id="sec-7">4 · წესები</h2>
+<article class="blk" data-slides="16"><span class="anchor" id="s-16"></span><div class="bh"><h3>ნაწილი 4 · წესები</h3><a class="chip" href="index.html#/16" data-go="16" title="პრეზენტაციაში გახსნა">სლაიდი 16</a></div>
+<p>პროცესებში უკვე ბევრი წესი ვიპოვეთ. ახლა მათ ერთ სიაში ვაგროვებთ, ვნომრავთ და ვამოწმებთ, რომ სურვილი წესში არ აგვერიოს.</p></article>
+<article class="blk" data-slides="17"><span class="anchor" id="s-17"></span><div class="bh"><h3>რვა წესი, ნომრებით</h3><a class="chip" href="index.html#/17" data-go="17" title="პრეზენტაციაში გახსნა">სლაიდი 17</a></div>
+<p>LMS-ის წესები ბიზნესის ენაზე. ნომრები იმიტომ გვჭირდება, რომ მერე story-ებსა და კოდში მარტივად მივუთითოთ: „R3-ს ამოწმებს“.</p>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>წესი</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>R1</strong></td>
+<td>კურსის სახელი უნიკალურია</td>
+</tr>
+<tr>
+<td><strong>R2</strong></td>
+<td>ერთ email-ზე ერთი ადამიანია (სტუდენტი ან ლექტორი)</td>
+</tr>
+<tr>
+<td><strong>R3</strong></td>
+<td>ჯგუფს ადგილების ლიმიტი აქვს · სტუდენტი ჯგუფში ერთხელ ირიცხება · დაწყებულ ჯგუფში ჩარიცხვა მხოლოდ პირველ კვირაშია შესაძლებელი</td>
+</tr>
+<tr>
+<td><strong>R4</strong></td>
+<td>ერთი ჯგუფის ლექციები დროში არ ფარავს ერთმანეთს · ლექტორი ერთ დროს მხოლოდ ერთ ლექციაზეა</td>
+</tr>
+<tr>
+<td><strong>R5</strong></td>
+<td>დასწრებას აღრიცხავს და ნამუშევარს აფასებს მხოლოდ ამ ჯგუფის ლექტორი</td>
+</tr>
+<tr>
+<td><strong>R6</strong></td>
+<td>15 წუთზე მეტი დაგვიანება გაცდენაა · მე-4 გაცდენაზე ლექტორი შეტყობინებას იღებს</td>
+</tr>
+<tr>
+<td><strong>R7</strong></td>
+<td>დედლაინის შემდეგ ნამუშევარი არ მიიღება (მენეჯერს დედლაინის გადაწევა შეუძლია) · ქულა მთელი რიცხვია 1-დან 12-მდე</td>
+</tr>
+<tr>
+<td><strong>R8</strong></td>
+<td>კურსი ჩაბარებულია, თუ საშუალო ქულა ≥ 6 და დასწრება ≥ 75%</td>
+</tr>
+</tbody>
+</table>
+<p><strong>წესი თუ სურვილი?</strong></p>
+<ul>
+<li><strong>წესი</strong> ყოველთვის მოქმედებს, მისი დარღვევა არ შეიძლება და შემოწმებაც შეიძლება. „ქულა 1-დან 12-მდეა“ წესია: 13 არასწორია.</li>
+<li><strong>სურვილი</strong> არ მოწმდება: „სისტემა მარტივი იყოს“, „ლამაზი იყოს“. ეს მნიშვნელოვანია, მაგრამ წესი არ არის: კოდში მას ვერ შეამოწმებ.</li>
+</ul>
+<div class="selfcheck"><div class="sh">✅ შეამოწმე თავი <small>დაფიქრდი, მერე გახსენი პასუხი</small></div><details><summary>„სისტემა სწრაფი უნდა იყოს“ — წესია?</summary><div class="ans">ასე ჩაწერილი არა: შემოწმება შეუძლებელია. თუ ბიზნესს ჰკითხავ „რამდენად სწრაფი?“ და პასუხია „გვერდი 2 წამში უნდა გაიხსნას“, მაშინ შემოწმებადი მოთხოვნა ხდება</div></details><details><summary>R5 რომელ აქტორს ეხება და რას კრძალავს?</summary><div class="ans">ლექტორს: დასწრებას და ქულას მხოლოდ თავის ჯგუფში წერს. სხვა ლექტორს და მენეჯერსაც ეს ეკრძალებათ</div></details></div></article>
+<h2 class="sec" id="sec-8">5 · რუკა და backlog</h2>
+<article class="blk" data-slides="18"><span class="anchor" id="s-18"></span><div class="bh"><h3>ნაწილი 5 · დომენის რუკა და backlog</h3><a class="chip" href="index.html#/18" data-go="18" title="პრეზენტაციაში გახსნა">სლაიდი 18</a></div>
+<p>ენა, აქტორები, პროცესები და წესები გვაქვს. ახლა ყველაფერს ერთ სურათზე ვხატავთ (დომენის რუკა) და სამუშაოების რიგს ვადგენთ (backlog).</p></article>
+<article class="blk" data-slides="19"><span class="anchor" id="s-19"></span><div class="bh"><h3>LMS ერთ სურათზე: დომენის რუკა</h3><a class="chip" href="index.html#/19" data-go="19" title="პრეზენტაციაში გახსნა">სლაიდი 19</a></div>
+<p><strong>დომენის რუკა</strong> ბიზნესის ცნებებს და მათ კავშირებს ერთ სურათზე აჩვენებს:</p>
+<ul>
+<li><strong>ლექტორი</strong> 1 → ბევრი <strong>ჯგუფი</strong>: ერთ ლექტორს რამდენიმე ჯგუფი ჰყავს, ჯგუფს კი ერთი ლექტორი.</li>
+<li><strong>კურსი</strong> 1 → ბევრი <strong>ჯგუფი</strong>: ASP.NET-ს სამი ჯგუფი გადის.</li>
+<li><strong>ჯგუფი</strong> 1 → ბევრი <strong>ჩარიცხვა</strong> ← 1 <strong>სტუდენტი</strong>: სტუდენტი და ჯგუფი ჩარიცხვით უკავშირდება ერთმანეთს. ერთ სტუდენტს რამდენიმე ჯგუფი შეიძლება ჰქონდეს (სხვადასხვა კურსზე), ჯგუფს კი ბევრი სტუდენტი ჰყავს.</li>
+<li><strong>ჯგუფი</strong> 1 → ბევრი <strong>ლექცია</strong> → ბევრი <strong>დასწრება</strong> (თითო სტუდენტზე, თითო ლექციაზე).</li>
+<li><strong>ჯგუფი</strong> 1 → ბევრი <strong>დავალება</strong> → ბევრი <strong>ნამუშევარი</strong> (თითო სტუდენტზე, თითო დავალებაზე).</li>
+</ul>
+<p><strong>ჯგუფი</strong> რუკის ცენტრია: თითქმის ყველაფერი მას უკავშირდება. ეს შემთხვევითი არ არის. ბიზნესის წესების უმეტესობა (ადგილები, ლექციები, ლექტორის უფლებები) ჯგუფის გარშემოა, და მოგვიანებით კოდშიც ამას ვიგრძნობთ.</p>
+<div class="callout warn"><span class="ci">⚠️</span><div><p>დომენის რუკა <strong>ბაზის სქემა არ არის</strong>. მასზე არ წერია ცხრილები, სვეტები, ტიპები ან Id-ები. რუკას დირექტორი კითხულობს და ამოწმებს: „კი, ჯგუფს ერთი ლექტორი ჰყავს“. კოდი და ბაზა მისგან მოგვიანებით გამოვა, ერთი story ერთ ჯერზე.</p></div></div>
+<div class="terms"><div class="th">📘 ტერმინები</div><dl><dt>დომენის რუკა (Domain Map)</dt><dd>ბიზნესის ცნებები და მათი კავშირები ერთ სურათზე, ბიზნესის ენაზე</dd></dl></div></article>
+<article class="blk" data-slides="20"><span class="anchor" id="s-20"></span><div class="bh"><h3>Backlog: სამუშაოს რიგი</h3><a class="chip" href="index.html#/20" data-go="20" title="პრეზენტაციაში გახსნა">სლაიდი 20</a></div>
+<p>მოვლენებიდან და წესებიდან ვადგენთ <strong>backlog</strong>-ს. ეს user story-ების სიაა, რიგზე დალაგებული:</p>
+<table>
+<thead>
+<tr>
+<th>№</th>
+<th>Story</th>
+<th>წესები</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td><strong>მენეჯერი ქმნის კურსს</strong>, რომ მასზე ჯგუფები გახსნას</td>
+<td>R1</td>
+</tr>
+<tr>
+<td>2</td>
+<td>მენეჯერი ამატებს სტუდენტს და ლექტორს</td>
+<td>R2</td>
+</tr>
+<tr>
+<td>3</td>
+<td>მენეჯერი ხსნის ჯგუფს და ნიშნავს ლექტორს</td>
+<td>ლიმიტი &gt; 0</td>
+</tr>
+<tr>
+<td>4</td>
+<td>მენეჯერი რიცხავს სტუდენტს ჯგუფში</td>
+<td>R3</td>
+</tr>
+<tr>
+<td>5</td>
+<td>მენეჯერი გეგმავს ჯგუფის ლექციებს</td>
+<td>R4</td>
+</tr>
+<tr>
+<td>6</td>
+<td>სტუდენტი ხედავს თავის განრიგს</td>
+<td>—</td>
+</tr>
+<tr>
+<td>7</td>
+<td>ლექტორი აღრიცხავს დასწრებას</td>
+<td>R5 · R6</td>
+</tr>
+<tr>
+<td>8</td>
+<td>ლექტორი აძლევს დავალებას დედლაინით</td>
+<td>—</td>
+</tr>
+<tr>
+<td>9</td>
+<td>სტუდენტი აბარებს ნამუშევარს</td>
+<td>R7</td>
+</tr>
+<tr>
+<td>10</td>
+<td>ლექტორი აფასებს ნამუშევარს</td>
+<td>R5 · R7</td>
+</tr>
+<tr>
+<td>11</td>
+<td>სტუდენტი ხედავს, ჩააბარა თუ არა კურსი</td>
+<td>R8</td>
+</tr>
+</tbody>
+</table>
+<p><strong>როგორ ვალაგებთ?</strong> <strong>დამოკიდებულებით</strong>: ჯერ ის, რის გარეშეც სხვა ვერ იმუშავებს. შეფასებას ნამუშევარი სჭირდება, ნამუშევარს დავალება, დავალებას ჯგუფი, ჯგუფს კურსი. №1 კი არაფერს ელოდება, ამიტომ მისით ვიწყებთ.</p>
+<p><strong>Story №1-ის მიღების კრიტერიუმები:</strong></p>
+<ul>
+<li>სახელი სავალდებულოა;</li>
+<li>სახელი უნიკალურია (R1);</li>
+<li>ხანგრძლივობა 1-დან 52 კვირამდეა.</li>
+</ul>
+<p>შემდეგ ლექციაზე სწორედ ამ story-ით ვიწყებთ კოდს.</p>
+<div class="prompt"><div class="ph"><span>🤖 შეამოწმე ჩემი backlog</span><button class="copy" type="button">კოპირება</button></div><div class="pb">ვაწყობ სასწავლო პლატფორმას (LMS: კურსი, ჯგუფი, ჩარიცხვა, ლექცია, დასწრება, დავალება, ნამუშევარი, შეფასება 1–12; აქტორები: მენეჯერი, ლექტორი, სტუდენტი). აქ არის ჩემი backlog: [ჩასვი]
+შეამოწმე: სწორია თუ არა რიგი (რომელი story რომელს ელოდება)? აქვს თუ არა ყველას აქტორი, მოქმედება და მიზანი? რომელ story-ს აკლია მიღების კრიტერიუმი? მზა backlog არ დამიწერო, მხოლოდ მიმითითე. ქართულად.</div></div></article>
+<h2 class="sec" id="sec-9">შენი სფერო</h2>
+<article class="blk" data-slides="21"><span class="anchor" id="s-21"></span><div class="bh"><h3>აირჩიე შენი სფერო</h3><a class="chip" href="index.html#/21" data-go="21" title="პრეზენტაციაში გახსნა">სლაიდი 21</a></div>
+<p>კლასში ლექტორი <strong>LMS</strong>-ს აწყობს. შენ სახლში <strong>იგივე გზას</strong> გადიხარ, ოღონდ <strong>საკუთარ სფეროში</strong>. ასე ყოველ თემას ორ სხვადასხვა ბიზნესზე დაინახავ და იფიქრებ, ნაცვლად ლექტორის კოდის გადაწერისა.</p>
+<p><strong>სფეროები</strong> (<a href="materials/domains.html">🧭 სფეროების გვერდი</a>):</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>სფერო</th>
+<th>კატალოგი → ადგილებიანი ერთეული</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>🏫</td>
+<td>LMS: ლექტორის მაგალითი, მისი არჩევა არ შეიძლება</td>
+<td><code>Course</code> → <code>Group</code></td>
+</tr>
+<tr>
+<td>🏋️</td>
+<td>ფიტნეს-კლუბი · FitHub</td>
+<td><code>Program</code> → <code>Cohort</code></td>
+</tr>
+<tr>
+<td>🚗</td>
+<td>ავტოსკოლა · DriveRight</td>
+<td><code>LicenseCourse</code> → <code>TheoryGroup</code></td>
+</tr>
+<tr>
+<td>🎤</td>
+<td>ტექ-კონფერენციები · TechMeet</td>
+<td><code>Conference</code> → <code>Workshop</code></td>
+</tr>
+<tr>
+<td>🍽️</td>
+<td>რესტორნის ჯავშნები · TableTime</td>
+<td><code>Restaurant</code> → <code>Table</code></td>
+</tr>
+<tr>
+<td>🏨</td>
+<td>სასტუმროს ჯავშნები · StayEasy</td>
+<td><code>RoomType</code> → <code>Room</code></td>
+</tr>
+<tr>
+<td>🏥</td>
+<td>კლინიკა · MediQ</td>
+<td><code>MedicalService</code> → <code>DoctorDay</code></td>
+</tr>
+<tr>
+<td>🏔️</td>
+<td>ტურისტული სააგენტო · GeoTrails</td>
+<td><code>Tour</code> → <code>Departure</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>როგორ:</strong></p>
+<ol>
+<li>აირჩიე <strong>ერთი</strong> შვიდიდან. სფეროს კურსის ბოლომდე აღარ ცვლი.</li>
+<li>სფეროს გვერდზე წაიკითხე <strong>მფლობელის სიტყვები</strong> და <strong>ინტერვიუ</strong> და დაგეგმე პროექტი DDD-ით, ზუსტად ისე, როგორც დღეს LMS-ზე გავაკეთეთ.</li>
+<li><strong>ყოველი ლექციის საშინაო = დღის თემა შენს სფეროში.</strong> ლექტორი LB-ზე საშინაოს <strong>ID</strong>-ს მოგცემს (მაგ. <code>HW-08</code>). სფეროს გვერდზე ამ ID-ს ცხრილში იპოვი და ნახავ, რა არის შენთან ის, რასაც კლასში LMS-ზე ვხედავთ.</li>
+<li>⚠️ <strong>ლექციას წინ ნუ გაუსწრებ.</strong> მხოლოდ ის დავალება გააკეთე, რომლის ID-იც უკვე მიიღე. შემდეგი თემა ჯერ არ გისწავლია და მერე თავიდან გადაწერა მოგიწევს.</li>
+</ol>
+<p>ყველა სფეროს LMS-ის იგივე ჩონჩხი აქვს (კატალოგი → ადგილებიანი ერთეული → ჩაწერა → განრიგი → დასწრება → ფაილი დედლაინით → შეფასება → დასრულების წესი) და იგივე ნომრის წესები R1–R8. ამიტომ ყოველი ლექცია შენს სფეროში პირდაპირ გამოიყენება.</p></article>
+<h2 class="sec" id="sec-10">შეჯამება</h2>
+<article class="blk" data-slides="22"><span class="anchor" id="s-22"></span><div class="bh"><h3>შეამოწმე, რა დაგამახსოვრდა</h3><a class="chip" href="index.html#/22" data-go="22" title="პრეზენტაციაში გახსნა">სლაიდი 22</a></div>
+<p>ეს კითხვები შემდეგი ლექციის დასაწყისშიც დაისმება.</p>
+<div class="selfcheck"><div class="sh">✅ შეამოწმე თავი <small>დაფიქრდი, მერე გახსენი პასუხი</small></div><details><summary>ვინ არიან LMS-ის აქტორები და რა უნდა თითოეულს?</summary><div class="ans">მენეჯერი: კურსები, ჯგუფები, ჩარიცხვა · ლექტორი: ლექციები, დასწრება, დავალებები, შეფასება · სტუდენტი: განრიგი, ნამუშევრის ჩაბარება, საკუთარი ქულები და დასწრება</div></details><details><summary>რატომ ვწერთ პროცესს მოვლენებად და წარსულ დროში („სტუდენტი ჩაირიცხა“)?</summary><div class="ans">მოვლენა ფაქტია, რომელიც უკვე მოხდა: ბიზნესს მისი შემოწმება ადვილად შეუძლია და რიგითობაც ჩანს · ყოველ მოვლენას ჰყავს აქტორი და ხშირად მასთან წესია</div></details><details><summary>„კურსი“ და „ჯგუფი“: რა განსხვავებაა?</summary><div class="ans">კურსი სასწავლო პროგრამაა (რას ვასწავლით) · ჯგუფი არის სტუდენტები, რომლებიც კურსს ერთად გადიან, კონკრეტული ლექტორით და განრიგით · სტუდენტი ჯგუფში ირიცხება</div></details><details><summary>რა არის დომენის რუკა და რით განსხვავდება ბაზის სქემისგან?</summary><div class="ans">ბიზნესის ცნებები და მათი კავშირები ბიზნესის ენაზე · მას დირექტორი კითხულობს და ამოწმებს · ცხრილები, სვეტები და ტიპები მასში არ არის; კოდი და ბაზა მისგან მოგვიანებით გამოდის</div></details><details><summary>რა რიგით ვალაგებთ backlog-ს?</summary><div class="ans">დამოკიდებულებისა და მნიშვნელობის მიხედვით: ჯერ ის, რის გარეშეც სხვა ვერ იმუშავებს (კურსი → ჯგუფი → ჩარიცხვა → ლექცია → დასწრება…)</div></details><details><summary>რატომ ვწერთ, რა არ შედის LMS-ში?</summary><div class="ans">საზღვარი ცხადი ხდება: გადახდები, ხელშეკრულებები, ჩატი არ ვაკეთებთ · ასე პროექტი არ იზრდება უსასრულოდ და ბიზნესიც იცის, რას მიიღებს</div></details></div></article>
+<article class="blk" data-slides="23"><span class="anchor" id="s-23"></span><div class="bh"><h3>შეჯამება · ბიზნესი გავიგეთ, კოდისთვის მზად ვართ</h3><a class="chip" href="index.html#/23" data-go="23" title="პრეზენტაციაში გახსნა">სლაიდი 23</a></div>
+<p><strong>დაიმახსოვრე:</strong></p>
+<ol>
+<li><strong>ლექსიკონი:</strong> კურსი პროგრამაა, ჯგუფი კი ადამიანები, რომლებიც მას ერთად გადიან. ჩარიცხვა ჯგუფში ხდება. „ნაკადი“, „მსმენელი“ და „მოსწავლე“ აღარ გამოიყენება.</li>
+<li><strong>აქტორები:</strong> მენეჯერი, ლექტორი, სტუდენტი, ზოგჯერ თვითონ სისტემაც. ყოველ მოქმედებას თავისი აქტორი აქვს და ყველაფერი „ადმინს“ არ ეკუთვნის.</li>
+<li><strong>პროცესები მოვლენებად:</strong> წარსულ დროში, აქტორით და რიგზე. ერთი მოვლენის გაშლა (მერე? ყოველთვის? გამონაკლისი?) წესებს აჩენს.</li>
+<li><strong>წესები R1–R8:</strong> შემოწმებადია და დარღვევა არ შეიძლება. სურვილი („მარტივი იყოს“) წესი არ არის.</li>
+<li><strong>დომენის რუკა:</strong> ბიზნესის ცნებები და კავშირები. ის ბაზის სქემა არ არის. ჯგუფი რუკის ცენტრია.</li>
+<li><strong>Backlog:</strong> story-ები დამოკიდებულების რიგით. №1 „მენეჯერი ქმნის კურსს“ შემდეგი ლექციის თემაა.</li>
+<li><strong>შენი სფერო:</strong> სახლში იგივე გზას საკუთარ სფეროში გადიხარ. ლექციის თემა LMS-ში კლასშია, შენს სფეროში კი სახლში.</li>
+</ol></article>
+<h2 class="sec" id="sec-11">საშინაო</h2>
+<article class="blk" data-slides="24"><span class="anchor" id="s-24"></span><div class="bh"><h3>საშინაო დავალება: ჩემი სფერო: ლექსიკონი, რუკა და backlog</h3><a class="chip" href="index.html#/24" data-go="24" title="პრეზენტაციაში გახსნა">სლაიდი 24</a></div>
+<p>საშინაო · HW-07 · შენი სფერო</p>
+<h3>მოთხოვნები</h3>
+<ul>
+<li>აირჩიე სფერო <a href="../07-lms-discovery/materials/domains.html">🧭 სფეროების გვერდზე</a> (LMS არა) → შეავსე <a href="../07-lms-discovery/materials/homework-sheet.html">📝 დაგეგმვის ფურცელი</a> → <strong>⬇ ჩამოტვირთვა</strong> → HTML <strong>ატვირთე LB-ზე</strong></li>
+<li><strong>ხედვა</strong> და <strong>ლექსიკონი</strong> (10+ ტერმინი, სახელით კოდში)</li>
+<li><strong>მოვლენები</strong> (12+, რიგით, აქტორით) · <strong>წესები R1–R8</strong></li>
+<li><strong>დომენის რუკა</strong> (6+ კავშირი) · <strong>backlog</strong> (15+ story, რიგით, კრიტერიუმებით)</li>
+</ul>
+<h3>📤 როგორ ჩავაბარო</h3>
+<ol>
+<li>გახსენი <a href="../07-lms-discovery/materials/domains.html">🧭 სფეროების გვერდი</a>, აირჩიე სფერო და წაიკითხე მფლობელის სიტყვები და ინტერვიუ.</li>
+<li>გახსენი <a href="../07-lms-discovery/materials/homework-sheet.html">📝 საშინაოს ფურცელი</a>. ზემოთ აირჩიე იგივე სფერო, ჩაწერე სახელი და გვარი და შეავსე. ქვედა ზოლი გაჩვენებს, რა აკლია.</li>
+<li>დააჭირე <strong>⬇ ჩამოტვირთვა</strong>: ჩამოიტვირთება HTML ფაილი (<code>07-homework-სახელი-გვარი.html</code>).</li>
+<li>ეს ფაილი <strong>ატვირთე LB-ზე</strong>.</li>
+</ol>
+<h3>✓ მზადაა, როცა</h3>
+<p>backlog-ის №1 არაფერს ელოდება, ხოლო ლექსიკონში და რუკაზე ცხრილის ან სვეტის სახელი არ წერია</p>
+<h3>⭐ ბონუსი</h3>
+<ul>
+<li>3 რამ, რაც შენს პროექტში <strong>არ</strong> შედის, და რატომ</li>
+<li>3 კითხვა, რომელსაც მფლობელს კიდევ დაუსვამდი</li>
+</ul></article>
+  </main>
+</div>
+<script>
+const DECK = "ASP.NET · 7 — LMS-ის აღმოჩენა: ენა, აქტორები, პროცესები, წესები";
+if (matchMedia('(min-width:981px)').matches) document.getElementById('tocd').open = true;
+const blocks = [...document.querySelectorAll('.blk')];
+const tocLinks = [...document.querySelectorAll('nav.toc a[href^="#sec-"]')];
+const secOf = b => { let e = b; while (e && !(e.matches && e.matches('h2.sec'))) e = e.previousElementSibling; return e; };
+function mark(b, toc_only) {
+  if (!toc_only) blocks.forEach(x => x.classList.toggle('cur', x === b));
+  const s = b && secOf(b); tocLinks.forEach(a => a.classList.toggle('cur', s && a.getAttribute('href') === '#' + s.id));
+}
+const blockFor = n => blocks.find(b => b.dataset.slides.split(',').includes(String(n)));
+
+// copy buttons (code: one line per .ln)
+document.addEventListener('click', e => {
+  const btn = e.target.closest('.copy'); if (!btn) return;
+  const box = btn.closest('.codebox, .prompt');
+  const text = box.matches('.prompt') ? box.querySelector('.pb').textContent : [...box.querySelectorAll('.ln')].map(l => l.textContent).join('\n');
+  navigator.clipboard.writeText(text).then(() => { btn.textContent = '✓ დაკოპირდა'; btn.classList.add('ok'); setTimeout(() => { btn.textContent = 'კოპირება'; btn.classList.remove('ok'); }, 1600); });
+});
+
+// live mode: opened from the deck with P — follow the projector
+const live = new URLSearchParams(location.search).has('live');
+let follow = true, bc = null;
+const liveBtn = document.getElementById('live');
+if (live) {
+  try { bc = new BroadcastChannel('deck-' + DECK); } catch (e) {}
+  liveBtn.classList.add('on');
+  liveBtn.onclick = () => { follow = !follow; liveBtn.classList.toggle('off', !follow); liveBtn.querySelector('.lt').textContent = follow ? 'მიჰყვება სლაიდებს' : 'თავისუფლად ვკითხულობ'; };
+  if (bc) {
+    bc.onmessage = ({ data }) => {
+      if (data.t !== 'state' || !follow) return;
+      const b = blockFor(data.i + 1); if (!b || b.classList.contains('cur')) return;
+      mark(b); b.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    };
+    bc.postMessage({ t: 'hello' });
+  }
+  document.addEventListener('click', e => {   // slide chip → move the projector deck
+    const c = e.target.closest('.chip[data-go]'); if (!c || !bc) return;
+    e.preventDefault(); bc.postMessage({ t: 'go', n: +c.dataset.go - 1 });
+  });
+}
+// deep link #s-12
+const h = location.hash.match(/^#s-(\d+)$/);
+if (h) { const b = blockFor(+h[1]); if (b) { mark(b); setTimeout(() => b.scrollIntoView({ block: 'start' }), 50); } }
+// highlight section in the TOC while reading
+const io = new IntersectionObserver(es => es.forEach(x => { if (x.isIntersecting && !(live && follow)) mark(x.target, true); }), { rootMargin: '-30% 0px -60% 0px' });
+blocks.forEach(b => io.observe(b));
+</script>
+</body></html>

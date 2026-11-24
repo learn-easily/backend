@@ -1,0 +1,493 @@
+<!doctype html>
+<html lang="ka"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>📖 პირობები — if, else, switch — კონსპექტი</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Georgian:wght@400;600;700;800&family=JetBrains+Mono:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#fbf8f3;--card:#fff;--ink:#1e2132;--ink2:#3b3f54;--muted:#7b8096;--line:#e6dfd2;--accent:#6d28d9;--accent-soft:#f3effe;--teal:#0d9488;
+  --green:#15803d;--amber:#b45309;--mono:"JetBrains Mono",ui-monospace,monospace;--sans:"Noto Sans Georgian",system-ui,sans-serif}
+*{box-sizing:border-box}
+html{scroll-padding-top:76px}
+body{margin:0;background:var(--bg);color:var(--ink);font:17.5px/1.75 var(--sans);-webkit-font-smoothing:antialiased}
+a{color:var(--accent)}
+/* top bar */
+.top{position:sticky;top:0;z-index:10;display:flex;align-items:center;gap:14px;padding:10px 20px;background:rgba(251,248,243,.92);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.top .back{font:600 14px var(--mono);color:var(--muted);text-decoration:none;white-space:nowrap}
+.top .back:hover{color:var(--ink)}
+.top .ttl{flex:1;min-width:0;font-weight:700;font-size:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.top .ttl small{font:500 13px var(--mono);color:var(--muted);margin-right:8px}
+.btn{font:700 14px var(--sans);text-decoration:none;border-radius:10px;padding:7px 14px;white-space:nowrap;border:1px solid var(--line);color:var(--ink);background:var(--card);cursor:pointer}
+.btn.play{background:var(--accent);border-color:var(--accent);color:#fff}
+.live{display:none;align-items:center;gap:8px;font:600 13px var(--mono);color:var(--teal);background:#e6f6f4;border:1px solid #bfe7e2;border-radius:999px;padding:5px 12px;cursor:pointer}
+.live.on{display:flex}
+.live .dot{width:8px;height:8px;border-radius:50%;background:var(--teal);animation:pulse 1.6s infinite}
+.live.off{color:var(--muted);background:var(--card);border-color:var(--line)}.live.off .dot{background:var(--muted);animation:none}
+@keyframes pulse{50%{opacity:.3}}
+/* layout */
+.wrap{display:grid;grid-template-columns:230px minmax(0,1000px);gap:44px;justify-content:center;padding:32px 28px 120px}
+nav.toc{position:sticky;top:84px;align-self:start;font-size:14px;line-height:1.45}
+nav.toc .h{font:700 12px var(--mono);color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px}
+nav.toc a{display:block;color:var(--ink2);text-decoration:none;padding:6px 10px;border-left:2px solid var(--line)}
+nav.toc a:hover{color:var(--accent)}
+nav.toc a.cur{color:var(--accent);border-left-color:var(--accent);font-weight:700}
+nav.toc .mats{margin-top:22px;display:flex;flex-direction:column;gap:6px}
+nav.toc .mats a{border:0;padding:2px 0;font:500 13px var(--mono);color:var(--teal);word-break:break-all}
+header.hero{margin-bottom:8px}
+header.hero .k{font:600 14px var(--mono);color:var(--accent)}
+header.hero h1{font-size:38px;line-height:1.2;margin:6px 0 10px;letter-spacing:-.01em}
+header.hero p{color:var(--muted);margin:0;font-size:15.5px}
+header.hero kbd{font:500 12px var(--mono);border:1px solid var(--line);border-radius:5px;padding:0 5px;background:var(--card)}
+h2.sec{font-size:15px;font:700 13px var(--mono);color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin:48px 0 6px;padding-top:18px;border-top:1px solid var(--line)}
+/* blocks */
+.blk{position:relative;padding:14px 0 6px 22px;margin-left:-22px;border-left:3px solid transparent;transition:border-color .3s,background .3s;border-radius:0 12px 12px 0}
+.blk.cur{border-left-color:var(--accent);background:linear-gradient(90deg,var(--accent-soft),transparent 70%)}
+.anchor{position:absolute;top:0}
+.bh{display:flex;align-items:baseline;justify-content:space-between;gap:12px}
+.bh h3{font-size:22px;line-height:1.35;margin:4px 0 6px}
+.chip{flex:none;font:600 12px var(--mono);color:var(--muted);text-decoration:none;border:1px solid var(--line);border-radius:999px;padding:2px 10px;background:var(--card)}
+.chip:hover{color:var(--accent);border-color:var(--accent)}
+.blk h2{font-size:26px;line-height:1.3;margin:6px 0 10px}
+.blk h3:not(.bh h3){font-size:19px;margin:22px 0 6px}
+.blk h4{font-size:17px;margin:18px 0 4px}
+.blk p{margin:10px 0}
+.blk ul,.blk ol{padding-left:24px;margin:8px 0}
+.blk li{margin:4px 0}
+.blk strong{color:var(--ink)}
+.blk :not(pre)>code{font:600 .86em var(--mono);background:#f1ece3;border-radius:6px;padding:1px 6px;color:#5b21b6}
+.blk table{border-collapse:collapse;margin:14px 0;font-size:15.5px;width:100%;display:block;overflow-x:auto}
+.blk th,.blk td{border:1px solid var(--line);padding:8px 12px;text-align:left;vertical-align:top}
+.blk th{background:#f6f1e8}
+/* code */
+.codebox{margin:14px 0;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:#fffdf9}
+.codebox .ch,.prompt .ph{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:6px 8px 6px 14px;font:600 12.5px var(--mono);color:var(--muted);background:#f6f1e8;border-bottom:1px solid var(--line)}
+.copy{font:600 12px var(--mono);border:1px solid var(--line);background:var(--card);color:var(--ink2);border-radius:7px;padding:3px 10px;cursor:pointer}
+.copy:hover{border-color:var(--ink)}
+.copy.ok{color:var(--green);border-color:var(--green)}
+pre.code{margin:0;padding:12px 0;overflow-x:auto;font:14px/1.65 var(--mono)}
+pre.code .ln{display:block;padding:0 16px;white-space:pre}
+.code .ttl{background:var(--bg2);color:var(--muted)}
+.code .ln.hl{background:rgba(109,40,217,.07);box-shadow:inset 3px 0 0 var(--net)}
+.code .ln.dim{opacity:.42}
+.code .k,.code .kd,.code .kn,.code .kr,.code .kc{color:#7c3aed}
+.code .kt{color:#2563eb}
+.code .s,.code .s1,.code .s2,.code .sa,.code .se,.code .si,.code .sd{color:#15803d}
+.code .c,.code .c1,.code .cm,.code .cp,.code .ch{color:#8b8fa3}
+.code .m,.code .mi,.code .mf,.code .mh{color:#c2410c}
+.code .nf,.code .fm{color:#1d4ed8}
+.code .nc,.code .nn,.code .nt,.code .nd{color:#b45309}
+.code .na{color:#7c3aed} .code .nb{color:#0e7490}
+.code .o,.code .p{color:#64748b}
+.code .nv,.code .nx{color:var(--ink)}
+.code .go{color:#64748b}
+/* prompt */
+.prompt{margin:16px 0;border:1px solid #ddd2fb;border-radius:12px;overflow:hidden;background:var(--accent-soft)}
+.prompt .ph{background:#ebe3fd;border-color:#ddd2fb;color:var(--accent)}
+.prompt .pb{padding:12px 16px;white-space:pre-wrap;font-size:15.5px;line-height:1.6;color:var(--ink2)}
+/* self check */
+.selfcheck{margin:16px 0;border:1px solid #cfe9d6;border-radius:12px;background:#f3fbf5;padding:12px 16px}
+.selfcheck .sh{font-weight:700;color:var(--green);margin-bottom:6px}
+.selfcheck .sh small{font-weight:400;color:var(--muted);font-size:13.5px;margin-left:6px}
+.selfcheck details{border-top:1px solid #dcefe1;padding:8px 0}
+.selfcheck summary{cursor:pointer;font-weight:600;list-style:none;padding-left:26px;position:relative}
+.selfcheck summary::-webkit-details-marker{display:none}
+.selfcheck summary::before{content:"?";position:absolute;left:0;top:2px;width:18px;height:18px;border-radius:50%;background:var(--green);color:#fff;font:700 12px/18px var(--mono);text-align:center}
+.selfcheck details[open] summary::before{content:"✓"}
+.selfcheck .ans{padding:6px 0 2px 26px;color:var(--ink2)}
+/* terms */
+.terms{margin:16px 0;border:1px solid var(--line);border-radius:12px;background:var(--card);padding:12px 16px}
+.terms .th{font-weight:700;margin-bottom:6px}
+.terms dl{display:grid;grid-template-columns:max-content 1fr;gap:6px 18px;margin:0}
+.terms dt{font:600 14.5px var(--mono);color:var(--accent)}
+.terms dd{margin:0;color:var(--ink2)}
+/* callouts */
+.callout{display:flex;gap:12px;margin:14px 0;padding:12px 16px;border-radius:12px;border:1px solid var(--line);background:var(--card)}
+.callout .ci{font-size:20px;line-height:1.6}
+.callout>div>p:first-child{margin-top:0}.callout>div>p:last-child{margin-bottom:0}
+.callout.warn{background:#fff8eb;border-color:#f6dfb5}
+.callout.note{background:#eef5ff;border-color:#cfe0fb}
+@media (max-width:980px){
+  .wrap{grid-template-columns:minmax(0,1fr);gap:0;padding:20px 16px 100px}
+  nav.toc{position:static;margin-bottom:12px}
+  nav.toc details{border:1px solid var(--line);border-radius:12px;background:var(--card);padding:8px 12px}
+  nav.toc details>summary{cursor:pointer;font-weight:700}
+  nav.toc .h{display:none}
+  header.hero h1{font-size:30px}
+  .blk{padding-left:14px;margin-left:-14px}
+  .top .ttl small{display:none}
+  .terms dl{grid-template-columns:1fr}.terms dd{margin-bottom:8px}
+}
+@media (min-width:981px){nav.toc details>summary{display:none}}
+@media print{.top,nav.toc,.copy,.chip,.live{display:none}.wrap{display:block;padding:0}.selfcheck details{display:block}.blk.cur{background:none}}
+</style></head>
+<body>
+<div class="top">
+  <a class="back" href="../../">← ლექციები</a>
+  <div class="ttl"><small>C# · 2</small>პირობები — if, else, switch</div>
+  <button class="live" id="live" type="button" title="ჩართული: ტექსტი პრეზენტაციას მიჰყვება"><span class="dot"></span><span class="lt">მიჰყვება სლაიდებს</span></button>
+  <a class="btn play" href="index.html">▶ პრეზენტაცია</a>
+</div>
+<div class="wrap">
+  <nav class="toc"><details id="tocd"><summary>სარჩევი</summary><div class="h">სარჩევი</div><a href="#sec-1">შესავალი</a><a href="#sec-2">გამეორება</a><a href="#sec-3">საშინაოს განხილვა</a><a href="#sec-4">დღის თემა</a><a href="#sec-5">შესავალი</a><a href="#sec-6">1 · bool და შედარება</a><a href="#sec-7">2 · if / else</a><a href="#sec-8">3 · switch</a><a href="#sec-9">4 · თამაში</a><a href="#sec-10">პრაქტიკა</a><a href="#sec-11">შეჯამება</a><a href="#sec-12">საშინაო</a><div class="mats"></div></details></nav>
+  <main>
+    <header class="hero">
+      <div class="k">📖 კონსპექტი · C# · ლექცია 2</div>
+      <h1>პირობები — if, else, switch</h1>
+      <p>წაიკითხე ლექციის შემდეგ, ან პრეზენტაციასთან ერთად: პრეზენტაციაში დააჭირე <kbd>P</kbd> და ეს გვერდი სლაიდებს გაჰყვება. კოდი და AI-ს პრომპტები კოპირდება ერთი დაჭერით.</p>
+    </header>
+    <h2 class="sec" id="sec-1">შესავალი</h2>
+<article class="blk" data-slides="1"><span class="anchor" id="s-1"></span><div class="bh"><h3>პროგრამა იღებს გადაწყვეტილებას</h3><a class="chip" href="index.html#/1" data-go="1" title="პრეზენტაციაში გახსნა">სლაიდი 1</a></div><h1>პირობები — პროგრამა იღებს გადაწყვეტილებას</h1>
+<p>წინა ლექციაზე პროგრამა ყოველთვის ერთსა და იმავეს აკეთებდა — ზემოდან ქვემოთ, ხაზ-ხაზ. დღეს ის ისწავლის <strong>არჩევანს</strong>: თუ ასეა — ეს გააკეთე, თუ არა — სხვა.</p></article>
+<h2 class="sec" id="sec-2">გამეორება</h2>
+<article class="blk" data-slides="2"><span class="anchor" id="s-2"></span><div class="bh"><h3>გავიხსენოთ წინა ლექცია</h3><a class="chip" href="index.html#/2" data-go="2" title="პრეზენტაციაში გახსნა">სლაიდი 2</a></div>
+<p>ლექცია 1 — <strong>C#-ის სამყარო — ცვლადები და კონსოლი</strong>. ახალ თემამდე ვამოწმებთ, რა დაგვამახსოვრდა. ჯერ თვითონ უპასუხე, მერე გახსენი პასუხი. თუ რომელიმე გაგიჭირდა, <a href="../01-csharp-basics/study.html">წინა ლექციის კონსპექტს</a> გადახედე.</p>
+<div class="selfcheck"><div class="sh">✅ შეამოწმე თავი <small>დაფიქრდი, მერე გახსენი პასუხი</small></div><details><summary>რას დაბეჭდავს <code>Console.WriteLine(7 / 2);</code>?</summary><div class="ans">3 — int / int = int, ნაშთი იკარგება</div></details><details><summary>რა განსხვავებაა <code>'A'</code>-სა და <code>"A"</code>-ს შორის?</summary><div class="ans"><code>'A'</code> — char, ერთი სიმბოლო · <code>"A"</code> — string, ტექსტი</div></details><details><summary><code>int score = 10; score = "ათი";</code> — რა მოხდება?</summary><div class="ans">შეცდომა: ცვლადის ტიპი სამუდამოა, int-ში ტექსტი ვერ ჩაიდება</div></details><details><summary><code>Console.ReadLine()</code> რა ტიპს აბრუნებს?</summary><div class="ans">ყოველთვის string → რიცხვისთვის <code>int.Parse</code></div></details><details><summary>როგორ ჩავსვათ ცვლადი ტექსტში?</summary><div class="ans"><code>$"გამარჯობა, {name}!"</code> — ბრჭყალების წინ <code>$</code>, ცვლადი <code>{ }</code>-ში</div></details></div></article>
+<h2 class="sec" id="sec-3">საშინაოს განხილვა</h2>
+<article class="blk" data-slides="3"><span class="anchor" id="s-3"></span><div class="bh"><h3>საშინაოს განხილვა</h3><a class="chip" href="index.html#/3" data-go="3" title="პრეზენტაციაში გახსნა">სლაიდი 3</a></div>
+<p>წინა ლექციის საშინაო: <strong>ჯიბის კალკულატორი</strong>. ქვემოთ არის ერთ-ერთი სწორი ამოხსნა. შენი კოდი შეიძლება სხვანაირად იყოს დაწერილი — მთავარია, მოთხოვნები სრულდებოდეს.</p>
+<h3>მოთხოვნები</h3>
+<ul>
+<li><strong>Visual Studio 2026</strong> Community დააინსტალირე: ☑ .NET desktop development, ☑ ASP.NET and web development</li>
+<li>ახალი Console App: <strong>PocketCalculator</strong></li>
+<li>ჰკითხე ორი მთელი რიცხვი და დაბეჭდე: ჯამი, სხვაობა, ნამრავლი, განაყოფი <strong>ათწილადით</strong> (<code>7 / 2</code> → <code>3.5</code>) და ნაშთი</li>
+<li>ყოველი პასუხი სხვა ფერით (<code>Console.ForegroundColor</code>)</li>
+<li>მეორე ნაწილი: ჰკითხე ასაკი წლებში → დაბეჭდე, დაახლოებით რამდენი დღის, საათის და წუთის ხარ</li>
+<li>კლასის დავალებები, რაც ვერ მოასწარი — ⭐ → ⭐⭐⭐</li>
+</ul>
+<h3>ამოხსნა</h3>
+<div class="codebox"><div class="ch"><span>Program.cs</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="n">Console</span><span class="p">.</span><span class="n">OutputEncoding</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">System</span><span class="p">.</span><span class="n">Text</span><span class="p">.</span><span class="n">Encoding</span><span class="p">.</span><span class="n">UTF8</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="n">Console</span><span class="p">.</span><span class="n">Write</span><span class="p">(</span><span class="s">"პირველი რიცხვი: "</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="kt">int</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kt">int</span><span class="p">.</span><span class="n">Parse</span><span class="p">(</span><span class="n">Console</span><span class="p">.</span><span class="n">ReadLine</span><span class="p">(</span><span class="p">)</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="n">Console</span><span class="p">.</span><span class="n">Write</span><span class="p">(</span><span class="s">"მეორე რიცხვი: "</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="kt">int</span><span class="w"> </span><span class="n">b</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kt">int</span><span class="p">.</span><span class="n">Parse</span><span class="p">(</span><span class="n">Console</span><span class="p">.</span><span class="n">ReadLine</span><span class="p">(</span><span class="p">)</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="n">Console</span><span class="p">.</span><span class="n">ForegroundColor</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ConsoleColor</span><span class="p">.</span><span class="n">Green</span><span class="p">;</span></span><span class="ln"><span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="s">$"{a} + {b} = {a + b}"</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="n">Console</span><span class="p">.</span><span class="n">ForegroundColor</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ConsoleColor</span><span class="p">.</span><span class="n">Cyan</span><span class="p">;</span></span><span class="ln"><span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="s">$"{a} - {b} = {a - b}"</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="n">Console</span><span class="p">.</span><span class="n">ForegroundColor</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ConsoleColor</span><span class="p">.</span><span class="n">Yellow</span><span class="p">;</span></span><span class="ln"><span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="s">$"{a} * {b} = {a * b}"</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="n">Console</span><span class="p">.</span><span class="n">ForegroundColor</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ConsoleColor</span><span class="p">.</span><span class="n">Magenta</span><span class="p">;</span></span><span class="ln"><span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="s">$"{a} / {b} = {a * 1.0 / b}"</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="n">Console</span><span class="p">.</span><span class="n">ForegroundColor</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ConsoleColor</span><span class="p">.</span><span class="n">Red</span><span class="p">;</span></span><span class="ln"><span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="s">$"{a} % {b} = {a % b}"</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="n">Console</span><span class="p">.</span><span class="n">ResetColor</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span></code></pre></div>
+<div class="codebox"><div class="ch"><span>ასაკი დღეებში</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="n">Console</span><span class="p">.</span><span class="n">Write</span><span class="p">(</span><span class="s">"რამდენი წლის ხარ? "</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="kt">int</span><span class="w"> </span><span class="n">years</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kt">int</span><span class="p">.</span><span class="n">Parse</span><span class="p">(</span><span class="n">Console</span><span class="p">.</span><span class="n">ReadLine</span><span class="p">(</span><span class="p">)</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="kt">int</span><span class="w"> </span><span class="n">days</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">years</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">365</span><span class="p">;</span></span><span class="ln"><span class="kt">int</span><span class="w"> </span><span class="n">hours</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">days</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">24</span><span class="p">;</span></span><span class="ln"><span class="kt">int</span><span class="w"> </span><span class="n">minutes</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">hours</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">60</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="s">$"≈ {days} დღე, {hours} საათი, {minutes} წუთი"</span><span class="p">)</span><span class="p">;</span></span></code></pre></div>
+<div class="callout note"><span class="ci">💡</span><div><p><code>a * 1.0 / b</code> — <code>1.0</code>-ზე გამრავლება <code>a</code>-ს ათწილადად აქცევს <strong>გაყოფამდე</strong>, ამიტომ <code>int / int</code> აღარაა და <code>3.5</code> გამოდის. ზუსტად ის ხრიკია, რაც ლექციაზე ნახე: <code>7.0 / 2</code>. თუ <code>a / b * 1.0</code> დაწერ, ჯერ გაიყოფა (<code>3</code>) და მერე გამრავლდება — <code>3</code>.</p></div></div></article>
+<h2 class="sec" id="sec-4">დღის თემა</h2>
+<article class="blk" data-slides="4"><span class="anchor" id="s-4"></span><div class="bh"><h3>დღის თემა: პირობები — if, else, switch</h3><a class="chip" href="index.html#/4" data-go="4" title="პრეზენტაციაში გახსნა">სლაიდი 4</a></div>
+<p>წინა ლექციის პროგრამა ყოველთვის ერთსა და იმავეს აკეთებდა — <code>2030</code> წელს დაბადებულსაც კი უთვლიდა ასაკს. ნამდვილი აპი კი სულ ამოწმებს: პაროლი სწორია? ფული საკმარისია? თამაში დამთავრდა? დღეს პროგრამა ისწავლის გადაწყვეტილების მიღებას — და ბოლოს საკუთარ ტექსტურ თამაშს დავწერთ.</p>
+<p><strong>ლექციის ბოლოს შეძლებ:</strong></p>
+<ul>
+<li>შედარება და <code>bool</code>: <code>==</code>, <code>!=</code>, <code>&gt;</code>, <code>&lt;=</code>, <code>&amp;&amp;</code>, <code>||</code>, <code>!</code></li>
+<li><code>if</code> / <code>else if</code> / <code>else</code>, ჩადგმული <code>if</code> და ტექსტის შედარება</li>
+<li><code>? :</code>, <code>switch</code> და თანამედროვე switch expression — რომელი როდის</li>
+<li>რით განსხვავდება C#-ის პირობები JS-ისგან</li>
+</ul></article>
+<h2 class="sec" id="sec-5">შესავალი</h2>
+<article class="blk" data-slides="5"><span class="anchor" id="s-5"></span><div class="bh"><h3>პრობლემა: პროგრამა ყოველთვის ერთნაირად იქცევა</h3><a class="chip" href="index.html#/5" data-go="5" title="პრეზენტაციაში გახსნა">სლაიდი 5</a></div>
+<p>წინა ლექციის ანკეტაში დაბადების წლად <code>2030</code> რომ შეიყვანო, პროგრამა მშვიდად დაგიწერს: „შენ ხარ -4 წლის“. ის <strong>ვერაფერს ამოწმებს</strong> — უბრალოდ ითვლის.</p>
+<p>ნამდვილი აპები კი სულ ამოწმებენ:</p>
+<ul>
+<li>🔐 პაროლი სწორია? → შემოუშვი · არა → „არასწორი პაროლი“</li>
+<li>💳 ბალანსი საკმარისია? → გადაიხადე · არა → უარი</li>
+<li>🎮 სიცოცხლე 0-ია? → Game Over · არა → თამაში გრძელდება</li>
+</ul>
+<p>Backend-ის ნახევარი სწორედ ესაა: <strong>შეამოწმე → გადაწყვიტე</strong>. ყოველ კითხვას პასუხად აქვს „კი“ ან „არა“ — და ამისთვის C#-ში სპეციალური ტიპი გვაქვს: <code>bool</code>.</p></article>
+<h2 class="sec" id="sec-6">1 · bool და შედარება</h2>
+<article class="blk" data-slides="6"><span class="anchor" id="s-6"></span><div class="bh"><h3>ნაწილი 1 · bool და შედარება</h3><a class="chip" href="index.html#/6" data-go="6" title="პრეზენტაციაში გახსნა">სლაიდი 6</a></div>
+<p>ყოველი გადაწყვეტილება იწყება კითხვით, რომლის პასუხია <code>true</code> ან <code>false</code>.</p></article>
+<article class="blk" data-slides="7"><span class="anchor" id="s-7"></span><div class="bh"><h3>შედარება აბრუნებს bool-ს</h3><a class="chip" href="index.html#/7" data-go="7" title="პრეზენტაციაში გახსნა">სლაიდი 7</a></div>
+<div class="codebox"><div class="ch"><span>Program.cs</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="kt">int</span><span class="w"> </span><span class="n">age</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">16</span><span class="p">;</span></span><span class="ln"><span class="kt">string</span><span class="w"> </span><span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"ნიკა"</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="kt">bool</span><span class="w"> </span><span class="n">isAdult</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">age</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="mi">18</span><span class="p">;</span></span><span class="ln"><span class="kt">bool</span><span class="w"> </span><span class="n">isSixteen</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">age</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">16</span><span class="p">;</span></span><span class="ln"><span class="kt">bool</span><span class="w"> </span><span class="n">isNotAna</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">name</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="s">"ანა"</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="n">isAdult</span><span class="p">)</span><span class="p">;</span><span class="w">     </span><span class="c1">// False</span></span><span class="ln"><span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="n">isSixteen</span><span class="p">)</span><span class="p">;</span><span class="w">   </span><span class="c1">// True</span></span><span class="ln"><span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="n">isNotAna</span><span class="p">)</span><span class="p">;</span><span class="w">    </span><span class="o">/</span><span class="o">/</span><span class="w"> </span><span class="n">True</span></span></code></pre></div>
+<p><code>age &gt;= 18</code> — ეს <strong>კითხვაა</strong>, და მისი პასუხი (<code>true</code> ან <code>false</code>) <code>bool</code> ცვლადში ჩაიდება.</p>
+<table>
+<thead>
+<tr>
+<th>ოპერატორი</th>
+<th>კითხვა</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>==</code></td>
+<td>ტოლია?</td>
+</tr>
+<tr>
+<td><code>!=</code></td>
+<td>არ უდრის?</td>
+</tr>
+<tr>
+<td><code>&gt;</code> <code>&lt;</code></td>
+<td>მეტია? ნაკლებია?</td>
+</tr>
+<tr>
+<td><code>&gt;=</code> <code>&lt;=</code></td>
+<td>მეტია ან ტოლი? ნაკლები ან ტოლი?</td>
+</tr>
+</tbody>
+</table>
+<div class="callout warn"><span class="ci">⚠️</span><div><p><code>=</code> — „ჩადე“ (მინიჭება). <code>==</code> — „ტოლია?“ (შედარება). ორი სულ სხვა რამ!</p></div></div></article>
+<article class="blk" data-slides="8"><span class="anchor" id="s-8"></span><div class="bh"><h3>და, ან, არა: &amp;&amp; · || · !</h3><a class="chip" href="index.html#/8" data-go="8" title="პრეზენტაციაში გახსნა">სლაიდი 8</a></div>
+<div class="codebox"><div class="ch"><span>✈️ ფრენა</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="kt">bool</span><span class="w"> </span><span class="n">hasTicket</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">true</span><span class="p">;</span></span><span class="ln"><span class="kt">bool</span><span class="w"> </span><span class="n">hasPassport</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">false</span><span class="p">;</span></span><span class="ln"><span class="kt">bool</span><span class="w"> </span><span class="n">isVip</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">true</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="kt">bool</span><span class="w"> </span><span class="n">canFly</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">hasTicket</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">hasPassport</span><span class="p">;</span><span class="w">   </span><span class="c1">// False</span></span><span class="ln"><span class="kt">bool</span><span class="w"> </span><span class="n">fastLane</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">isVip</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">hasTicket</span><span class="p">;</span><span class="w">       </span><span class="c1">// True</span></span><span class="ln"><span class="kt">bool</span><span class="w"> </span><span class="n">noTicket</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">!</span><span class="n">hasTicket</span><span class="p">;</span><span class="w">               </span><span class="o">/</span><span class="o">/</span><span class="w"> </span><span class="n">False</span></span></code></pre></div>
+<ul>
+<li><code>&amp;&amp;</code> — <strong>და</strong>: true, როცა <strong>ორივე</strong> true-ა.</li>
+<li><code>||</code> — <strong>ან</strong>: true, როცა <strong>ერთი მაინც</strong> true-ა.</li>
+<li><code>!</code> — <strong>არა</strong>: აბრუნებს — true ↔ false.</li>
+</ul>
+<p>JS-ში ზუსტად ასე იყო.</p></article>
+<h2 class="sec" id="sec-7">2 · if / else</h2>
+<article class="blk" data-slides="9"><span class="anchor" id="s-9"></span><div class="bh"><h3>ნაწილი 2 · if / else: პროგრამა იღებს გადაწყვეტილებას</h3><a class="chip" href="index.html#/9" data-go="9" title="პრეზენტაციაში გახსნა">სლაიდი 9</a></div>
+<p>აქ JS-ის ცოდნა თითქმის სრულად გამოგადგება.</p></article>
+<article class="blk" data-slides="10"><span class="anchor" id="s-10"></span><div class="bh"><h3>if — 95% იგივეა</h3><a class="chip" href="index.html#/10" data-go="10" title="პრეზენტაციაში გახსნა">სლაიდი 10</a></div>
+<div class="codebox"><div class="ch"><span>JavaScript</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="kd">let</span><span class="w"> </span><span class="nx">age</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">17</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">age</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="mf">18</span><span class="p">)</span><span class="w"> </span><span class="p">{</span></span><span class="ln"><span class="w">  </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">"შეგიძლია მართვის მოწმობის აღება"</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span></span><span class="ln"><span class="w">  </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">"ჯერ ადრეა"</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="p">}</span></span></code></pre></div>
+<div class="codebox"><div class="ch"><span>C#</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="kt">int</span><span class="w"> </span><span class="n">age</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">17</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">age</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="mi">18</span><span class="p">)</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="s">"შეგიძლია მართვის მოწმობის აღება"</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="p">}</span></span><span class="ln"><span class="k">else</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="s">"ჯერ ადრეა"</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="p">}</span></span></code></pre></div>
+<p>განსხვავება მხოლოდ: <code>int</code> (<code>let</code>-ის ნაცვლად), <code>Console.WriteLine</code> და ფრჩხილები ახალ ხაზზე. ლოგიკა — იგივე.</p>
+<table>
+<thead>
+<tr>
+<th>ოპერატორი</th>
+<th>მნიშვნელობა</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>==</code> · <code>!=</code></td>
+<td>ტოლია · არ უდრის</td>
+</tr>
+<tr>
+<td><code>&gt;</code> <code>&lt;</code> <code>&gt;=</code> <code>&lt;=</code></td>
+<td>შედარება</td>
+</tr>
+</tbody>
+</table>
+<p>ლოგიკური: <code>&amp;&amp;</code> — და, <code>||</code> — ან, <code>!</code> — არა.</p></article>
+<article class="blk" data-slides="11"><span class="anchor" id="s-11"></span><div class="bh"><h3>ის 5%: სამი რამ, რაც JS-ისგან განსხვავდება</h3><a class="chip" href="index.html#/11" data-go="11" title="პრეზენტაციაში გახსნა">სლაიდი 11</a></div>
+<ol>
+<li>⚖️ <strong><code>===</code> არ არის.</strong> JS-ში <code>"5" == 5</code> → <code>true</code> 😬, ამიტომ <code>===</code>-ს წერდი. C#-ში ტიპები მკაცრია — <code>==</code> საკმარისია, <code>"5" == 5</code> კი საერთოდ არ კომპილირდება.</li>
+<li>🚫 <strong>Truthy / Falsy არ არის.</strong> JS: <code>if (count)</code> ✅ · C#: <code>if (count)</code> ❌ — პირობა მხოლოდ <code>bool</code> შეიძლება იყოს: <code>if (count &gt; 0)</code>.</li>
+<li>🧱 <strong>ფრჩხილები</strong> — C#-ში <code>{</code> ჩვეულებრივ ახალ ხაზზე იწერება (სტილია, არა წესი).</li>
+</ol>
+<p>სამივე ერთსა და იმავეს ამბობს: C# მკაცრია — და ამით გიცავს.</p></article>
+<article class="blk" data-slides="12"><span class="anchor" id="s-12"></span><div class="bh"><h3>ქულა → შეფასება</h3><a class="chip" href="index.html#/12" data-go="12" title="პრეზენტაციაში გახსნა">სლაიდი 12</a></div>
+<div class="codebox"><div class="ch"><span>Program.cs</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="n">Console</span><span class="p">.</span><span class="n">Write</span><span class="p">(</span><span class="s">"შეიყვანე ქულა (1-10): "</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="kt">int</span><span class="w"> </span><span class="n">score</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kt">int</span><span class="p">.</span><span class="n">Parse</span><span class="p">(</span><span class="n">Console</span><span class="p">.</span><span class="n">ReadLine</span><span class="p">(</span><span class="p">)</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">score</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="mi">9</span><span class="p">)</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="s">"ფრიადი! 🌟"</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="p">}</span></span><span class="ln"><span class="k">else</span><span class="w"> </span><span class="nf">if</span><span class="w"> </span><span class="p">(</span><span class="n">score</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="mi">7</span><span class="p">)</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="s">"კარგი"</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="p">}</span></span><span class="ln"><span class="k">else</span><span class="w"> </span><span class="nf">if</span><span class="w"> </span><span class="p">(</span><span class="n">score</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="mi">5</span><span class="p">)</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="s">"საშუალო"</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="p">}</span></span><span class="ln"><span class="k">else</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="s">"მეტი ვარჯიში გვჭირდება"</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="p">}</span></span></code></pre></div>
+<p>შემოწმება <strong>ზემოდან იწყება</strong> და <strong>ჩერდება პირველ სწორ პირობაზე</strong>. ქულა 8: <code>8 &gt;= 9</code> ✗ → <code>8 &gt;= 7</code> ✓ → „კარგი“ → stop.</p></article>
+<article class="blk" data-slides="13"><span class="anchor" id="s-13"></span><div class="bh"><h3>🎢 ატრაქციონზე შეგიშვებენ?</h3><a class="chip" href="index.html#/13" data-go="13" title="პრეზენტაციაში გახსნა">სლაიდი 13</a></div>
+<p>წესი: სიმაღლე მინიმუმ 130 სმ <strong>და</strong> (ასაკი 12+ <strong>ან</strong> მშობელთან ერთად).</p>
+<div class="codebox"><div class="ch"><span>Program.cs</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="kt">int</span><span class="w"> </span><span class="n">age</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">11</span><span class="p">;</span></span><span class="ln"><span class="kt">int</span><span class="w"> </span><span class="n">height</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">135</span><span class="p">;</span></span><span class="ln"><span class="kt">bool</span><span class="w"> </span><span class="n">withParent</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">true</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">height</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="mi">130</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="p">(</span><span class="n">age</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="mi">12</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">withParent</span><span class="p">)</span><span class="p">)</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="s">"მობრძანდით!"</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="p">}</span></span><span class="ln"><span class="k">else</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="s">"სამწუხაროდ, ჯერ ვერა"</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="p">}</span></span></code></pre></div>
+<ul>
+<li><code>&amp;&amp;</code> — ორივე უნდა იყოს <code>true</code>. <code>||</code> — საკმარისია ერთი.</li>
+<li>ფრჩხილები — ჯერ შიგნით მოწმდება, როგორც მათემატიკაში.</li>
+<li><code>135 ≥ 130</code> ✓ · (<code>11 ≥ 12</code> ✗ <code>||</code> <code>true</code> ✓) → მობრძანდით!</li>
+</ul>
+<div class="selfcheck"><div class="sh">✅ შეამოწმე თავი <small>დაფიქრდი, მერე გახსენი პასუხი</small></div><details><summary>withParent = false — რა დაიბეჭდება?</summary><div class="ans">„სამწუხაროდ, ჯერ ვერა“ — ფრჩხილში ორივე false-ია, ამიტომ მთელი პირობა false</div></details></div></article>
+<article class="blk" data-slides="14"><span class="anchor" id="s-14"></span><div class="bh"><h3>🏧 ბანკომატი — if-ის შიგნით if</h3><a class="chip" href="index.html#/14" data-go="14" title="პრეზენტაციაში გახსნა">სლაიდი 14</a></div>
+<div class="codebox"><div class="ch"><span>Program.cs</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="kt">int</span><span class="w"> </span><span class="n">pin</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1234</span><span class="p">;</span></span><span class="ln"><span class="kt">decimal</span><span class="w"> </span><span class="n">balance</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">150m</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="n">Console</span><span class="p">.</span><span class="n">Write</span><span class="p">(</span><span class="s">"PIN: "</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="kt">int</span><span class="w"> </span><span class="n">enteredPin</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kt">int</span><span class="p">.</span><span class="n">Parse</span><span class="p">(</span><span class="n">Console</span><span class="p">.</span><span class="n">ReadLine</span><span class="p">(</span><span class="p">)</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">enteredPin</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">pin</span><span class="p">)</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="n">Console</span><span class="p">.</span><span class="n">Write</span><span class="p">(</span><span class="s">"თანხა: "</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="kt">decimal</span><span class="w"> </span><span class="n">amount</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kt">decimal</span><span class="p">.</span><span class="n">Parse</span><span class="p">(</span><span class="n">Console</span><span class="p">.</span><span class="n">ReadLine</span><span class="p">(</span><span class="p">)</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">amount</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">balance</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="p">{</span></span><span class="ln"><span class="w">        </span><span class="n">balance</span><span class="w"> </span><span class="o">-=</span><span class="w"> </span><span class="n">amount</span><span class="p">;</span></span><span class="ln"><span class="w">        </span><span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="s">$"✅ აიღე {amount} ₾. დარჩა {balance} ₾"</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="p">}</span></span><span class="ln"><span class="w">    </span><span class="k">else</span></span><span class="ln"><span class="w">    </span><span class="p">{</span></span><span class="ln"><span class="w">        </span><span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="s">"❌ არასაკმარისი თანხა"</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="p">}</span></span><span class="ln"><span class="p">}</span></span><span class="ln"><span class="k">else</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="s">"❌ არასწორი PIN"</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="p">}</span></span></code></pre></div>
+<ul>
+<li>ჯერ PIN მოწმდება. არასწორია? თანხას საერთოდ არ ვკითხულობთ.</li>
+<li>მეორე კითხვა („თანხა საკმარისია?“) მხოლოდ პირველის შემდეგ ისმება — ამას ჰქვია <strong>ჩადგმული if</strong>.</li>
+<li><code>decimal.Parse</code> — <code>int.Parse</code>-ის მსგავსი, ოღონდ ფულს (<code>decimal</code>) კითხულობს.</li>
+<li><code>balance -= amount</code> — იგივეა, რაც <code>balance = balance - amount</code>.</li>
+</ul>
+<div class="callout tip"><span class="ci">👉</span><div><p>ჩადგმული if-ის დროს ფრჩხილებს <code>{ }</code> და შეწევას ყურადღებით მიხედე — ასე ჩანს, რომელი <code>else</code> რომელ <code>if</code>-ს ეკუთვნის.</p></div></div></article>
+<article class="blk" data-slides="15"><span class="anchor" id="s-15"></span><div class="bh"><h3>ტექსტის შედარება: string-ები if-ში</h3><a class="chip" href="index.html#/15" data-go="15" title="პრეზენტაციაში გახსნა">სლაიდი 15</a></div>
+<div class="codebox"><div class="ch"><span>Program.cs</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="n">Console</span><span class="p">.</span><span class="n">Write</span><span class="p">(</span><span class="s">"გიყვარს პროგრამირება? (კი/არა) "</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="kt">string</span><span class="w"> </span><span class="n">answer</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Console</span><span class="p">.</span><span class="n">ReadLine</span><span class="p">(</span><span class="p">)</span><span class="p">.</span><span class="n">ToLower</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">answer</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s">"კი"</span><span class="p">)</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="s">"ჩვენი ადამიანი! 💜"</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="p">}</span></span><span class="ln"><span class="k">else</span><span class="w"> </span><span class="nf">if</span><span class="w"> </span><span class="p">(</span><span class="n">answer</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s">"არა"</span><span class="p">)</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="s">"ჯერ... 😉"</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="p">}</span></span><span class="ln"><span class="k">else</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="s">"კი ან არა დაწერე"</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="p">}</span></span></code></pre></div>
+<ul>
+<li><code>==</code> ტექსტს ასო-ასო ადარებს — ზუსტად როგორც JS-ში.</li>
+<li><code>"Yes" == "yes"</code> → <code>False</code>: დიდი და პატარა ასო განსხვავდება. <strong><code>.ToLower()</code></strong> მთელ ტექსტს პატარა ასოებად აქცევს (JS-ში <code>toLowerCase()</code>).</li>
+<li>ბოლო <code>else</code> იჭერს ყველაფერს, რაც არ ველოდით — ყოველთვის იფიქრე „რა მოხდება, თუ რამე სხვას შეიყვანს?“</li>
+</ul></article>
+<h2 class="sec" id="sec-8">3 · switch</h2>
+<article class="blk" data-slides="16"><span class="anchor" id="s-16"></span><div class="bh"><h3>ნაწილი 3 · ბევრი ვარიანტი: ? : და switch</h3><a class="chip" href="index.html#/16" data-go="16" title="პრეზენტაციაში გახსნა">სლაიდი 16</a></div>
+<p>როცა <code>else if</code>-ების ჯაჭვი ზედმეტად გრძელდება, C#-ს მოკლე გზები აქვს.</p></article>
+<article class="blk" data-slides="17"><span class="anchor" id="s-17"></span><div class="bh"><h3>კიდევ ორი იარაღი: ternary და switch</h3><a class="chip" href="index.html#/17" data-go="17" title="პრეზენტაციაში გახსნა">სლაიდი 17</a></div>
+<div class="codebox"><div class="ch"><span>ლუწი თუ კენტი</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="n">Console</span><span class="p">.</span><span class="n">Write</span><span class="p">(</span><span class="s">"რიცხვი: "</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="kt">int</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kt">int</span><span class="p">.</span><span class="n">Parse</span><span class="p">(</span><span class="n">Console</span><span class="p">.</span><span class="n">ReadLine</span><span class="p">(</span><span class="p">)</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="kt">string</span><span class="w"> </span><span class="n">kind</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="o">%</span><span class="w"> </span><span class="mi">2</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="s">"ლუწი"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s">"კენტი"</span><span class="p">;</span></span><span class="ln"><span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="s">$"{n} — {kind}"</span><span class="p">)</span><span class="p">;</span></span></code></pre></div>
+<p><strong>Ternary</strong> — მოკლე if: <code>პირობა ? თუ კი : თუ არა</code>. ზუსტად JS-ის მსგავსი. <code>% 2 == 0</code> → იყოფა 2-ზე.</p>
+<div class="codebox"><div class="ch"><span>კვირის დღე</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="kt">int</span><span class="w"> </span><span class="n">day</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kt">int</span><span class="p">.</span><span class="n">Parse</span><span class="p">(</span><span class="n">Console</span><span class="p">.</span><span class="n">ReadLine</span><span class="p">(</span><span class="p">)</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="k">switch</span><span class="w"> </span><span class="p">(</span><span class="n">day</span><span class="p">)</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="k">case</span><span class="w"> </span><span class="mi">6</span><span class="p">:</span></span><span class="ln"><span class="w">    </span><span class="k">case</span><span class="w"> </span><span class="mi">7</span><span class="p">:</span></span><span class="ln"><span class="w">        </span><span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="s">"შაბათ-კვირა! 🎉"</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">        </span><span class="k">break</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="k">default</span><span class="p">:</span></span><span class="ln"><span class="w">        </span><span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="s">"სასწავლო დღე"</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">        </span><span class="k">break</span><span class="p">;</span></span><span class="ln"><span class="p">}</span></span></code></pre></div>
+<p><strong>switch</strong> — როცა ერთ ცვლადს ბევრ მნიშვნელობას ადარებ. <code>break</code> დაგავიწყდა? JS ჩუმად გადადის შემდეგ case-ზე; C# — შეცდომას გაჩვენებს.</p></article>
+<article class="blk" data-slides="18"><span class="anchor" id="s-18"></span><div class="bh"><h3>🧮 კალკულატორი — switch ტექსტზე</h3><a class="chip" href="index.html#/18" data-go="18" title="პრეზენტაციაში გახსნა">სლაიდი 18</a></div>
+<div class="codebox"><div class="ch"><span>Program.cs</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="n">Console</span><span class="p">.</span><span class="n">Write</span><span class="p">(</span><span class="s">"პირველი რიცხვი: "</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="kt">double</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kt">double</span><span class="p">.</span><span class="n">Parse</span><span class="p">(</span><span class="n">Console</span><span class="p">.</span><span class="n">ReadLine</span><span class="p">(</span><span class="p">)</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="n">Console</span><span class="p">.</span><span class="n">Write</span><span class="p">(</span><span class="s">"ოპერაცია (+ - * /): "</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="kt">string</span><span class="w"> </span><span class="n">op</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Console</span><span class="p">.</span><span class="n">ReadLine</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="n">Console</span><span class="p">.</span><span class="n">Write</span><span class="p">(</span><span class="s">"მეორე რიცხვი: "</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="kt">double</span><span class="w"> </span><span class="n">b</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kt">double</span><span class="p">.</span><span class="n">Parse</span><span class="p">(</span><span class="n">Console</span><span class="p">.</span><span class="n">ReadLine</span><span class="p">(</span><span class="p">)</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="k">switch</span><span class="w"> </span><span class="p">(</span><span class="n">op</span><span class="p">)</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="k">case</span><span class="w"> </span><span class="s">"+"</span><span class="p">:</span></span><span class="ln"><span class="w">        </span><span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="s">$"= {a + b}"</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">        </span><span class="k">break</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="k">case</span><span class="w"> </span><span class="s">"-"</span><span class="p">:</span></span><span class="ln"><span class="w">        </span><span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="s">$"= {a - b}"</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">        </span><span class="k">break</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="k">case</span><span class="w"> </span><span class="s">"*"</span><span class="p">:</span></span><span class="ln"><span class="w">        </span><span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="s">$"= {a * b}"</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">        </span><span class="k">break</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="k">case</span><span class="w"> </span><span class="s">"/"</span><span class="p">:</span></span><span class="ln"><span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">b</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="s">"0-ზე გაყოფა არ შეიძლება!"</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">        </span><span class="k">else</span><span class="w"> </span><span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="s">$"= {a / b}"</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">        </span><span class="k">break</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="k">default</span><span class="p">:</span></span><span class="ln"><span class="w">        </span><span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="s">"უცნობი ოპერაცია"</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">        </span><span class="k">break</span><span class="p">;</span></span><span class="ln"><span class="p">}</span></span></code></pre></div>
+<ul>
+<li>ოპერაცია ტექსტია (<code>"+"</code>), ამიტომ <code>case "+":</code> — switch ტექსტზეც მუშაობს.</li>
+<li>რიცხვები <code>double</code>-ია (<code>double.Parse</code>), რომ <code>7 / 2</code> იყოს <code>3.5</code>.</li>
+<li><code>case</code>-ის შიგნით ჩვეულებრივი <code>if</code> შეიძლება. 0-ზე გაყოფას <strong>გაყოფამდე</strong> ვამოწმებთ.</li>
+<li><code>if</code>-ს ერთი ბრძანებისთვის <code>{ }</code> შეიძლება არ დაუწერო — მაგრამ ორი ბრძანება რომ დაამატო, ფრჩხილები აუცილებლად დაგჭირდება.</li>
+<li><code>default</code> — ყველა სხვა შემთხვევა, როგორც ბოლო <code>else</code>.</li>
+</ul></article>
+<article class="blk" data-slides="19"><span class="anchor" id="s-19"></span><div class="bh"><h3>switch expression — მოკლე და სუფთა</h3><a class="chip" href="index.html#/19" data-go="19" title="პრეზენტაციაში გახსნა">სლაიდი 19</a></div>
+<p>თანამედროვე C#-ის ფორმა — JS-ში ასეთი რამ არ არის. გამოიყენე, როცა ერთი ცვლადიდან <strong>ერთი მნიშვნელობა</strong> უნდა მიიღო.</p>
+<div class="codebox"><div class="ch"><span>კვირის დღე</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="kt">int</span><span class="w"> </span><span class="n">day</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kt">int</span><span class="p">.</span><span class="n">Parse</span><span class="p">(</span><span class="n">Console</span><span class="p">.</span><span class="n">ReadLine</span><span class="p">(</span><span class="p">)</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="kt">string</span><span class="w"> </span><span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">day</span><span class="w"> </span><span class="k">switch</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="mi">1</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="s">"ორშაბათი"</span><span class="p">,</span></span><span class="ln"><span class="w">    </span><span class="mi">2</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="s">"სამშაბათი"</span><span class="p">,</span></span><span class="ln"><span class="w">    </span><span class="mi">3</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="s">"ოთხშაბათი"</span><span class="p">,</span></span><span class="ln"><span class="w">    </span><span class="mi">4</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="s">"ხუთშაბათი"</span><span class="p">,</span></span><span class="ln"><span class="w">    </span><span class="mi">5</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="s">"პარასკევი"</span><span class="p">,</span></span><span class="ln"><span class="w">    </span><span class="mi">6</span><span class="w"> </span><span class="k">or</span><span class="w"> </span><span class="mi">7</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="s">"შაბათ-კვირა 🎉"</span><span class="p">,</span></span><span class="ln"><span class="w">    </span><span class="n">_</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="s">"ასეთი დღე არ არსებობს"</span></span><span class="ln"><span class="p">}</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="n">name</span><span class="p">)</span><span class="p">;</span></span></code></pre></div>
+<ul>
+<li>ცვლადი <strong>წინ</strong> იწერება, მერე <code>switch</code> — შედეგი პირდაპირ ცვლადში ჩაიდება.</li>
+<li><code>=&gt;</code> — „მაშინ შედეგია…“. <code>or</code> — რამდენიმე მნიშვნელობა. <code>_</code> — ყველა სხვა შემთხვევა (როგორც <code>default</code>).</li>
+<li>ყოველ სტრიქონს ბოლოში მძიმე, მთელს — <code>};</code>.</li>
+</ul>
+<p>შედარებაც შეიძლება — ქულა → შეფასება 7 ხაზში, 19-ის ნაცვლად:</p>
+<div class="codebox"><div class="ch"><span>ქულა → შეფასება</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="kt">string</span><span class="w"> </span><span class="n">grade</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">score</span><span class="w"> </span><span class="k">switch</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="o">&gt;=</span><span class="w"> </span><span class="mi">9</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="s">"ფრიადი 🌟"</span><span class="p">,</span></span><span class="ln"><span class="w">    </span><span class="o">&gt;=</span><span class="w"> </span><span class="mi">7</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="s">"კარგი"</span><span class="p">,</span></span><span class="ln"><span class="w">    </span><span class="o">&gt;=</span><span class="w"> </span><span class="mi">5</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="s">"საშუალო"</span><span class="p">,</span></span><span class="ln"><span class="w">    </span><span class="n">_</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="s">"მეტი ვარჯიში გვჭირდება"</span></span><span class="ln"><span class="p">}</span><span class="p">;</span></span></code></pre></div>
+<p>ზემოდან ქვემოთ მოწმდება და პირველივე სწორზე ჩერდება — ზუსტად როგორც <code>else if</code>-ების ჯაჭვი.</p></article>
+<article class="blk" data-slides="20"><span class="anchor" id="s-20"></span><div class="bh"><h3>როდის რომელი?</h3><a class="chip" href="index.html#/20" data-go="20" title="პრეზენტაციაში გახსნა">სლაიდი 20</a></div>
+<table>
+<thead>
+<tr>
+<th>იარაღი</th>
+<th>როდის</th>
+<th>მაგალითი</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>if / else</code></td>
+<td>ნებისმიერი პირობა, და/ან-ით</td>
+<td>🎢 ატრაქციონი, 🏧 ბანკომატი</td>
+</tr>
+<tr>
+<td><code>? :</code></td>
+<td>ორი ვარიანტიდან ერთი მნიშვნელობა</td>
+<td>ლუწი / კენტი</td>
+</tr>
+<tr>
+<td><code>switch</code></td>
+<td>ერთი ცვლადი, ბევრი ვარიანტი, თითოში რამდენიმე ბრძანება</td>
+<td>🧮 კალკულატორი</td>
+</tr>
+<tr>
+<td><code>x switch { }</code></td>
+<td>ერთი ცვლადი → ერთი მნიშვნელობა</td>
+<td>კვირის დღე, შეფასება</td>
+</tr>
+</tbody>
+</table>
+<p>ყველაფერი <code>if</code>-ითაც შეიძლება. დანარჩენი სამი კოდს მოკლეს და გასაგებს ხდის.</p></article>
+<h2 class="sec" id="sec-9">4 · თამაში</h2>
+<article class="blk" data-slides="21"><span class="anchor" id="s-21"></span><div class="bh"><h3>ნაწილი 4 · ყველაფერი ერთად: ტექსტური თავგადასავალი</h3><a class="chip" href="index.html#/21" data-go="21" title="პრეზენტაციაში გახსნა">სლაიდი 21</a></div>
+<p>მოთამაშე ირჩევს — პროგრამა წყვეტს, რა მოხდება. ასე იწყებოდა 80-იანი წლების პირველი კომპიუტერული თამაშები.</p></article>
+<article class="blk" data-slides="22"><span class="anchor" id="s-22"></span><div class="bh"><h3>🌲 მინი-თამაში: დაკარგული ტყეში</h3><a class="chip" href="index.html#/22" data-go="22" title="პრეზენტაციაში გახსნა">სლაიდი 22</a></div>
+<div class="codebox"><div class="ch"><span>Program.cs</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="n">Console</span><span class="p">.</span><span class="n">OutputEncoding</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">System</span><span class="p">.</span><span class="n">Text</span><span class="p">.</span><span class="n">Encoding</span><span class="p">.</span><span class="n">UTF8</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="s">"🌲 ტყეში დაიკარგე. წინ ორი ბილიკია."</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="n">Console</span><span class="p">.</span><span class="n">Write</span><span class="p">(</span><span class="s">"1 — მდინარისკენ · 2 — მღვიმისკენ: "</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="kt">string</span><span class="w"> </span><span class="n">path</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Console</span><span class="p">.</span><span class="n">ReadLine</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">path</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s">"1"</span><span class="p">)</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="n">Console</span><span class="p">.</span><span class="n">Write</span><span class="p">(</span><span class="s">"🌊 მდინარე. 1 — გადაცურვა · 2 — ხიდის ძებნა: "</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="kt">string</span><span class="w"> </span><span class="n">choice</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Console</span><span class="p">.</span><span class="n">ReadLine</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="kt">string</span><span class="w"> </span><span class="n">ending</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">choice</span><span class="w"> </span><span class="k">switch</span></span><span class="ln"><span class="w">    </span><span class="p">{</span></span><span class="ln"><span class="w">        </span><span class="s">"1"</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="s">"🐊 მდინარეში ნიანგი იყო... Game Over"</span><span class="p">,</span></span><span class="ln"><span class="w">        </span><span class="s">"2"</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="s">"🌉 ხიდი იპოვე და სოფელში მიხვედი! 🏆"</span><span class="p">,</span></span><span class="ln"><span class="w">        </span><span class="n">_</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="s">"🤷 ვერ გადაწყვიტე... ისევ ტყეში ხარ"</span></span><span class="ln"><span class="w">    </span><span class="p">}</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="n">ending</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="p">}</span></span><span class="ln"><span class="k">else</span><span class="w"> </span><span class="nf">if</span><span class="w"> </span><span class="p">(</span><span class="n">path</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s">"2"</span><span class="p">)</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="n">Console</span><span class="p">.</span><span class="n">Write</span><span class="p">(</span><span class="s">"🦇 მღვიმე ბნელია. ფანარი გაქვს? (კი/არა): "</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="kt">bool</span><span class="w"> </span><span class="n">hasLight</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Console</span><span class="p">.</span><span class="n">ReadLine</span><span class="p">(</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s">"კი"</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="n">hasLight</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="s">"💎 განძი იპოვე! 🏆"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s">"🕳️ ორმოში ჩავარდი... Game Over"</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="p">}</span></span><span class="ln"><span class="k">else</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="s">"ასეთი ბილიკი არ არის 🤔"</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="p">}</span></span></code></pre></div>
+<p>აქ დღევანდელი ყველა იარაღია:</p>
+<ul>
+<li><strong><code>if / else if / else</code></strong> — პირველი არჩევანი: მდინარე, მღვიმე თუ არასწორი პასუხი.</li>
+<li><strong>switch expression</strong> — მდინარის სამი დასასრული.</li>
+<li><strong><code>bool hasLight = Console.ReadLine() == "კი";</code></strong> — შედარების პასუხი პირდაპირ bool-ში.</li>
+<li><strong><code>? :</code></strong> — ორი დასასრულიდან ერთი.</li>
+</ul>
+<div class="prompt"><div class="ph"><span>🤖 თავგადასავლის გაგრძელება</span><button class="copy" type="button">კოპირება</button></div><div class="pb">ვსწავლობ C#-ს. დავწერე ტექსტური თამაში if/else-ით, switch-ით და switch expression-ით (ციკლები და მასივები ჯერ არ ვიცი).
+მომეცი 3 იდეა, როგორ გავაგრძელო სიუჟეტი (ახალი ოთახი, ნივთი, მტერი), და თითოეულისთვის მხოლოდ მინიშნება, მზა კოდის გარეშე. მე დავწერ და შენ შემიმოწმებ. ქართულად.</div></div></article>
+<h2 class="sec" id="sec-10">პრაქტიკა</h2>
+<article class="blk" data-slides="23"><span class="anchor" id="s-23"></span><div class="bh"><h3>კლასში დავალება: დავალებები — აირჩიე დონე</h3><a class="chip" href="index.html#/23" data-go="23" title="პრეზენტაციაში გახსნა">სლაიდი 23</a></div>
+<p>დაიწყე ⭐-დან და ზევით აიწიე</p>
+<h3>ნაბიჯები</h3>
+<ul>
+<li>⭐ <strong>რიცხვის პასპორტი</strong> — შეიყვანე რიცხვი → დაბეჭდე: დადებითია, უარყოფითი თუ ნული, და ლუწია თუ კენტი</li>
+<li>⭐⭐ <strong>კინოს ბილეთი</strong> — ჰკითხე ასაკი. 6-მდე — უფასო, 18-მდე — 8 ₾, 65+ — 6 ₾, დანარჩენი — 12 ₾. დაწერე <strong>switch expression</strong>-ით</li>
+<li>⭐⭐ <strong>შესვლა</strong> — ჰკითხე მომხმარებლის სახელი და პაროლი. სწორი წყვილი: <code>admin</code> / <code>1234</code>. სახელი არასწორია → „ასეთი მომხმარებელი არ არსებობს“, პაროლი არასწორია → „არასწორი პაროლი“</li>
+</ul>
+<h3>✓ მზადაა, როცა</h3>
+<p>ყოველი ვარიანტი სცადე და თითოეულზე სწორი ტექსტი იბეჭდება — საზღვრებიც: <code>0</code>, <code>6</code>, <code>18</code>, <code>65</code></p>
+<h3>⭐ ბონუსი</h3>
+<ul>
+<li>⭐⭐⭐ <strong>ნაკიანი წელი</strong> — წელი ნაკიანია, თუ 4-ზე იყოფა და 100-ზე არა — <strong>ან</strong> 400-ზე იყოფა. შეამოწმე: 2024 ✓, 1900 ✗, 2000 ✓</li>
+<li>🏆 თავგადასავალს დაამატე მესამე ბილიკი საკუთარი დასასრულებით</li>
+</ul>
+<h3>💡 მინიშნება</h3>
+<p>„იყოფა 4-ზე“ = <code>year % 4 == 0</code>. ბილეთში რიგი მნიშვნელოვანია: <code>&lt; 6 =&gt; …</code> უნდა იყოს <code>&lt; 18</code>-მდე. „შესვლაში“ ჩადგმული if დაგჭირდება: ჯერ სახელი, მერე პაროლი.</p></article>
+<h2 class="sec" id="sec-11">შეჯამება</h2>
+<article class="blk" data-slides="24"><span class="anchor" id="s-24"></span><div class="bh"><h3>📸 JS → C# · პირობები</h3><a class="chip" href="index.html#/24" data-go="24" title="პრეზენტაციაში გახსნა">სლაიდი 24</a></div>
+<table>
+<thead>
+<tr>
+<th>JavaScript</th>
+<th>C#</th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>a === b</code></td>
+<td><code>a == b</code></td>
+<td>შედარება</td>
+</tr>
+<tr>
+<td><code>if (count) { }</code></td>
+<td><code>if (count &gt; 0) { }</code></td>
+<td>პირობა — მხოლოდ bool</td>
+</tr>
+<tr>
+<td><code>s.toLowerCase()</code></td>
+<td><code>s.ToLower()</code></td>
+<td>პატარა ასოები</td>
+</tr>
+<tr>
+<td><code>case 1:</code> break-ის გარეშე გადადის</td>
+<td><code>case 1: … break;</code></td>
+<td>break სავალდებულოა</td>
+</tr>
+<tr>
+<td>— არ არის —</td>
+<td><code>x switch { 1 =&gt; "…", _ =&gt; "…" }</code></td>
+<td>switch expression</td>
+</tr>
+</tbody>
+</table>
+<p>და / ან / არა — <code>&amp;&amp;</code> · <code>||</code> · <code>!</code> — JS-ის იგივეა ✓</p></article>
+<article class="blk" data-slides="25"><span class="anchor" id="s-25"></span><div class="bh"><h3>შეამოწმე, რა დაგამახსოვრდა</h3><a class="chip" href="index.html#/25" data-go="25" title="პრეზენტაციაში გახსნა">სლაიდი 25</a></div>
+<p>ეს კითხვები შემდეგი ლექციის დასაწყისშიც დაისმება.</p>
+<div class="selfcheck"><div class="sh">✅ შეამოწმე თავი <small>დაფიქრდი, მერე გახსენი პასუხი</small></div><details><summary><code>int count = 3; if (count) { … }</code> — რა მოხდება?</summary><div class="ans">შეცდომა: პირობა მხოლოდ bool შეიძლება იყოს → <code>if (count &gt; 0)</code></div></details><details><summary>რა განსხვავებაა <code>=</code>-სა და <code>==</code>-ს შორის?</summary><div class="ans"><code>=</code> — ჩადე (მინიჭება) · <code>==</code> — ტოლია? (შედარება, აბრუნებს bool-ს)</div></details><details><summary><code>true &amp;&amp; false</code> და <code>true || false</code> — რა გამოვა?</summary><div class="ans"><code>&amp;&amp;</code> → false (ორივე უნდა იყოს true) · <code>||</code> → true (საკმარისია ერთი)</div></details><details><summary>ქულა 8-ზე <code>if (score &gt;= 5) … else if (score &gt;= 7) …</code> — რომელი შესრულდება?</summary><div class="ans">პირველი (<code>&gt;= 5</code>) — if პირველივე სწორ პირობაზე ჩერდება, ამიტომ რიგს აქვს მნიშვნელობა</div></details><details><summary>switch expression-ში რას ნიშნავს <code>_</code>?</summary><div class="ans">„ყველა სხვა შემთხვევა“ — იგივე, რაც <code>default</code></div></details></div></article>
+<article class="blk" data-slides="26"><span class="anchor" id="s-26"></span><div class="bh"><h3>შეჯამება · პროგრამამ ისწავლა არჩევანის გაკეთება</h3><a class="chip" href="index.html#/26" data-go="26" title="პრეზენტაციაში გახსნა">სლაიდი 26</a></div>
+<p><strong>დაიმახსოვრე:</strong></p>
+<ol>
+<li>შედარება (<code>==</code>, <code>!=</code>, <code>&gt;</code>, <code>&lt;</code>…) აბრუნებს <strong>bool</strong>-ს. <code>=</code> — ჩადე, <code>==</code> — ტოლია?</li>
+<li><code>if</code> / <code>else if</code> / <code>else</code> — ზემოდან ქვემოთ მოწმდება და <strong>პირველივე</strong> სწორ პირობაზე ჩერდება. პირობა — მხოლოდ bool.</li>
+<li><code>switch</code> — ერთი ცვლადი, ბევრი ვარიანტი; <code>break</code> სავალდებულოა. <strong>switch expression</strong> — როცა შედეგი ერთი მნიშვნელობაა; <code>_</code> = ყველა სხვა.</li>
+</ol>
+<h3>⏭️ შემდეგ ლექციაზე</h3>
+<p>ციკლები — გამეორება, და მასივები — ბევრი მონაცემი ერთ ცვლადში.</p></article>
+<h2 class="sec" id="sec-12">საშინაო</h2>
+<article class="blk" data-slides="27"><span class="anchor" id="s-27"></span><div class="bh"><h3>საშინაო დავალება: საკუთარი თავგადასავალი</h3><a class="chip" href="index.html#/27" data-go="27" title="პრეზენტაციაში გახსნა">სლაიდი 27</a></div>
+<p>სიუჟეტი შენზეა — სტრუქტურა ჩვენზე</p>
+<h3>მოთხოვნები</h3>
+<ul>
+<li>ახალი Console App: <strong>MyAdventure</strong>. შენი სიუჟეტი (კოსმოსი, ზომბები, ფეხბურთის ფინალი — რაც გინდა)</li>
+<li>მინიმუმ <strong>2 დონის</strong> არჩევანი: პირველ არჩევანს მოსდევს მეორე (ჩადგმული <code>if</code>)</li>
+<li>მინიმუმ <strong>4 სხვადასხვა დასასრული</strong></li>
+<li>გამოიყენე სამივე: <code>if / else if / else</code>, <code>switch</code> ან switch expression, და <code>? :</code></li>
+<li>არასწორ პასუხზე („5“ ან „ბანანი“) პროგრამა გასაგებ შეტყობინებას ბეჭდავს — ბოლო <code>else</code> ან <code>_</code></li>
+<li>თამაშის ბოლოს — ქულა: მოგება = 100, წაგება = 0, <code>$"…"</code>-ით დაბეჭდილი</li>
+</ul>
+<h3>✓ მზადაა, როცა</h3>
+<p>ყველა დასასრული გაიარე და თითოეული სწორად იბეჭდება; არასწორ შეყვანაზე პროგრამა არ ჩავარდა</p>
+<h3>⭐ ბონუსი</h3>
+<ul>
+<li>დაამატე „ინვენტარი“: თამაშის დასაწყისში ჰკითხე, რას იღებს თან (ფანარი / ხმალი / რუკა), და ეს მოგვიანებით შედეგს ცვლის</li>
+</ul></article>
+  </main>
+</div>
+<script>
+const DECK = "C# · 2 — პირობები — if, else, switch";
+if (matchMedia('(min-width:981px)').matches) document.getElementById('tocd').open = true;
+const blocks = [...document.querySelectorAll('.blk')];
+const tocLinks = [...document.querySelectorAll('nav.toc a[href^="#sec-"]')];
+const secOf = b => { let e = b; while (e && !(e.matches && e.matches('h2.sec'))) e = e.previousElementSibling; return e; };
+function mark(b, toc_only) {
+  if (!toc_only) blocks.forEach(x => x.classList.toggle('cur', x === b));
+  const s = b && secOf(b); tocLinks.forEach(a => a.classList.toggle('cur', s && a.getAttribute('href') === '#' + s.id));
+}
+const blockFor = n => blocks.find(b => b.dataset.slides.split(',').includes(String(n)));
+
+// copy buttons (code: one line per .ln)
+document.addEventListener('click', e => {
+  const btn = e.target.closest('.copy'); if (!btn) return;
+  const box = btn.closest('.codebox, .prompt');
+  const text = box.matches('.prompt') ? box.querySelector('.pb').textContent : [...box.querySelectorAll('.ln')].map(l => l.textContent).join('\n');
+  navigator.clipboard.writeText(text).then(() => { btn.textContent = '✓ დაკოპირდა'; btn.classList.add('ok'); setTimeout(() => { btn.textContent = 'კოპირება'; btn.classList.remove('ok'); }, 1600); });
+});
+
+// live mode: opened from the deck with P — follow the projector
+const live = new URLSearchParams(location.search).has('live');
+let follow = true, bc = null;
+const liveBtn = document.getElementById('live');
+if (live) {
+  try { bc = new BroadcastChannel('deck-' + DECK); } catch (e) {}
+  liveBtn.classList.add('on');
+  liveBtn.onclick = () => { follow = !follow; liveBtn.classList.toggle('off', !follow); liveBtn.querySelector('.lt').textContent = follow ? 'მიჰყვება სლაიდებს' : 'თავისუფლად ვკითხულობ'; };
+  if (bc) {
+    bc.onmessage = ({ data }) => {
+      if (data.t !== 'state' || !follow) return;
+      const b = blockFor(data.i + 1); if (!b || b.classList.contains('cur')) return;
+      mark(b); b.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    };
+    bc.postMessage({ t: 'hello' });
+  }
+  document.addEventListener('click', e => {   // slide chip → move the projector deck
+    const c = e.target.closest('.chip[data-go]'); if (!c || !bc) return;
+    e.preventDefault(); bc.postMessage({ t: 'go', n: +c.dataset.go - 1 });
+  });
+}
+// deep link #s-12
+const h = location.hash.match(/^#s-(\d+)$/);
+if (h) { const b = blockFor(+h[1]); if (b) { mark(b); setTimeout(() => b.scrollIntoView({ block: 'start' }), 50); } }
+// highlight section in the TOC while reading
+const io = new IntersectionObserver(es => es.forEach(x => { if (x.isIntersecting && !(live && follow)) mark(x.target, true); }), { rootMargin: '-30% 0px -60% 0px' });
+blocks.forEach(b => io.observe(b));
+</script>
+</body></html>

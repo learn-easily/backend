@@ -1,0 +1,265 @@
+<!doctype html>
+<html lang="ka">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ჩემი სფერო: დაგეგმვის ფურცელი</title>
+<style>
+:root{--bg:#f7f5f0;--card:#fff;--ink:#1f2335;--ink2:#475569;--muted:#94a3b8;--line:#e5e2da;--core:#0d9488;--net:#4f46e5;--red:#dc2626;--green:#16a34a;--r:14px;--font:"Noto Sans Georgian","Segoe UI",system-ui,sans-serif;--mono:"JetBrains Mono",Consolas,monospace}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 var(--font)}
+.wrap{max-width:1000px;margin:0 auto;padding:28px 20px 90px}
+header{display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end;justify-content:space-between;margin-bottom:14px}
+.kicker{font:700 13px var(--mono);color:var(--core);letter-spacing:.06em;text-transform:uppercase}
+h1{margin:4px 0 0;font-size:28px}
+h2{font-size:19px;margin:0 0 4px;display:flex;align-items:center;gap:10px}
+h2 .n{font:800 14px var(--mono);color:#fff;background:var(--a,var(--core));border-radius:8px;padding:2px 9px}
+.hint{color:var(--ink2);font-size:14px;margin:0 0 12px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:18px 20px;margin:16px 0;box-shadow:0 4px 18px rgba(31,35,53,.05);border-top:4px solid var(--a,var(--core))}
+.how{--a:#16a34a;background:#f0fdf4}
+.how ol{margin:6px 0 0;padding-left:22px}.how li{margin:4px 0}
+input,select,textarea{font:inherit;color:var(--ink);border:1px solid #d6d3cb;border-radius:9px;padding:8px 10px;background:#fff;width:100%}
+textarea{min-height:120px;resize:vertical}
+input:focus,select:focus,textarea:focus{outline:2px solid color-mix(in srgb,var(--a,var(--core)) 40%,transparent);border-color:var(--a,var(--core))}
+input.bad,textarea.bad{border-color:#f59e0b;background:#fffbeb}
+.name{max-width:300px}
+.name.need{border-color:var(--red);background:#fef2f2}
+.note{background:#fffbeb;border:1px solid #fcd34d;border-radius:var(--r);padding:16px 20px;font-size:18px;line-height:1.9}
+.note .w{cursor:pointer;border-radius:5px;padding:1px;transition:background .15s}
+.note .w:hover{background:#fde68a}
+.note .w.on{background:#99f6e4;color:#134e4a;font-weight:700}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px;min-height:20px}
+.chip{display:inline-flex;align-items:center;gap:6px;background:#f0fdfa;border:1px solid #5eead4;color:#115e59;border-radius:999px;padding:4px 6px 4px 12px;font-weight:700}
+.chip button{border:0;background:#ccfbf1;color:#115e59;border-radius:999px;width:22px;height:22px;cursor:pointer;font-weight:800;line-height:1}
+.addterm{display:flex;gap:8px;margin-top:10px;max-width:440px;align-items:center}
+.rows{display:flex;flex-direction:column;gap:8px}
+.row{display:grid;gap:8px;align-items:start}
+.row .num{font:800 15px var(--mono);color:var(--a,var(--core));padding-top:9px;text-align:center}
+.row .del{border:0;background:#fef2f2;color:var(--red);border-radius:9px;width:38px;height:40px;cursor:pointer;font-weight:800}
+.hdr{display:grid;gap:8px;font:700 12px var(--mono);color:var(--muted);text-transform:uppercase;letter-spacing:.04em;padding:0 2px}
+.add,.btn{border:1px dashed var(--a,var(--core));background:transparent;color:var(--a,var(--core));border-radius:9px;padding:7px 14px;font:700 14px var(--font);cursor:pointer;margin-top:10px;white-space:nowrap}
+.btn{border-style:solid}
+.addterm .btn{margin:0}
+.status{position:sticky;bottom:12px;margin-top:24px;background:#1f2335;color:#e2e8f0;border-radius:var(--r);padding:10px 14px;display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center;box-shadow:0 10px 30px rgba(0,0,0,.2)}
+.st{font-size:14px}.st b{color:#fff}
+.st.ok{color:#86efac}.st.ok::before{content:"✓ "}
+.st.no::before{content:"○ ";color:#94a3b8}
+.status .sp{flex:1}
+.status .btn{margin:0;padding:7px 13px;font-size:14px;color:#e2e8f0;border-color:#475569}
+.status .btn.solid{background:var(--green);border-color:var(--green);color:#fff}
+.done{display:none;font-weight:800;color:#86efac}
+.status.all .done{display:inline}
+.toast{position:fixed;left:50%;top:18px;transform:translateX(-50%);background:var(--green);color:#fff;padding:8px 16px;border-radius:10px;font-weight:700;opacity:0;transition:opacity .2s;pointer-events:none;z-index:9}
+.toast.bad{background:var(--red)}
+.toast.show{opacity:1}
+@media (max-width:720px){.row,.hdr{grid-template-columns:1fr !important}.hdr{display:none}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div><div class="kicker" id="kicker"></div><h1 id="h1"></h1></div>
+    <input class="name" id="who" placeholder="შენი სახელი და გვარი *">
+  </header>
+  <div class="card how">
+    <h2>📤 როგორ ჩავაბარო</h2>
+    <ol>
+      <li>ჩაწერე <b>სახელი და გვარი</b> (ზემოთ, მარჯვნივ) და შეავსე ფურცელი. ყველაფერი ამ ბრაუზერში თვითონ ინახება, ასე რომ გვერდი შეგიძლია დახურო და მერე დაბრუნდე.</li>
+      <li>ბოლოს დააჭირე <b>„⬇ ჩამოტვირთვა“</b> (ქვემოთ). ჩამოიტვირთება <b>HTML ფაილი</b> შენი პასუხებით.</li>
+      <li>ჩამოტვირთული ფაილი <b>ატვირთე LB-ზე</b>, საშინაო დავალებაში.</li>
+    </ol>
+  </div>
+  <div id="sections"></div>
+  <div class="status" id="status">
+    <span id="checks" style="display:contents"></span>
+    <span class="done">მზადაა 🎉</span>
+    <span class="sp"></span>
+    <button class="btn solid" id="dl">⬇ ჩამოტვირთვა</button>
+    <button class="btn" id="clear" title="ყველაფრის წაშლა">🗑</button>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+<script>
+const SHEET = {"key": "aspnet-07-homework", "file": "07-homework", "kicker": "ASP.NET Core Web API · ლექცია 7 · საშინაო · HW-07", "title": "🧭 ჩემი სფერო: დაგეგმვის ფურცელი", "domainIds": ["fitness", "driving", "events", "restaurant", "hotel", "clinic", "tours"], "techWords": ["ცხრილ", "controller", "ბაზ", "endpoint", "api", "სვეტ", "dto", "entity", "json", "sql"], "sections": [{"id": "domain", "type": "select", "n": "0", "title": "ჩემი სფერო", "color": "#16a34a", "need": 1, "short": "სფერო", "placeholder": "აირჩიე სფერო", "options": ["🏋️ ფიტნეს-კლუბი · FitHub", "🚗 ავტოსკოლა · DriveRight", "🎤 ტექ-კონფერენციები · TechMeet", "🍽️ რესტორნის ჯავშნები · TableTime", "🏨 სასტუმროს ჯავშნები · StayEasy", "🏥 კლინიკა · MediQ", "🏔️ ტურისტული სააგენტო · GeoTrails"], "hint": "ის, რაც <a href=\"domains.html\" target=\"_blank\">სფეროების გვერდზე</a> აირჩიე. LMS არ შეიძლება: მას ლექტორი აწყობს."}, {"id": "vision", "type": "text", "n": "1", "title": "ხედვა", "color": "#0d9488", "noTech": true, "need": 3, "short": "ხედვა", "hint": "3–5 წინადადება: <b>ვინ</b> იყენებს, <b>რა პრობლემას</b> ხსნის, რა <b>არ</b> შედის."}, {"id": "gl", "type": "rows", "n": "2", "title": "ლექსიკონი", "color": "#0d9488", "hint": "მინიმუმ <b>10</b> ტერმინი მფლობელის სიტყვებიდან და ინტერვიუდან. განმარტება ბიზნესის ენაზე + სახელი კოდში.", "min": 10, "need": 10, "short": "ლექსიკონი", "addLabel": "+ ტერმინი", "fields": [{"name": "term", "label": "ტერმინი", "ph": "ნაკადი"}, {"name": "def", "label": "განმარტება", "ph": "ერთი პროგრამის ჯგუფი, ერთი თვე, ერთი მწვრთნელი", "w": "2.6fr", "noTech": true}, {"name": "code", "label": "კოდში", "ph": "Cohort", "w": ".9fr"}]}, {"id": "act", "type": "rows", "n": "3", "title": "აქტორები", "color": "#d97706", "hint": "სამი როლი და მათი მიზანი.", "min": 3, "need": 3, "short": "აქტორები", "addLabel": "+ აქტორი", "fields": [{"name": "who", "label": "აქტორი", "ph": "მწვრთნელი"}, {"name": "goal", "label": "მიზანი", "ph": "წევრებმა პროგრესი გააკეთონ", "w": "1.5fr"}, {"name": "does", "label": "რას აკეთებს", "ph": "ატარებს ვარჯიშს, აღრიცხავს მოსვლას…", "w": "2fr"}]}, {"id": "ev", "type": "rows", "n": "4", "title": "მოვლენები", "color": "#ca8a04", "num": "#", "hint": "მთელი პროცესი <b>რიგით</b>, წარსულ დროში, აქტორით. მინიმუმ <b>12</b>.", "min": 12, "need": 12, "short": "მოვლენები", "addLabel": "+ მოვლენა", "fields": [{"name": "who", "label": "აქტორი", "ph": "ადმინისტრატორი"}, {"name": "ev", "label": "მოვლენა (წარსულ დროში)", "ph": "ნაკადი გაიხსნა", "w": "2.4fr", "noTech": true}]}, {"id": "rule", "type": "rows", "n": "5", "title": "წესები R1–R8", "color": "#be123c", "num": "R", "hint": "ბიზნესის ენაზე, ნომრები LMS-ის წესებს ემთხვევა (R1 უნიკალური სახელი, R2 email, R3 ადგილები…). მინიმუმ <b>8</b>.", "min": 8, "need": 8, "short": "წესები", "addLabel": "+ წესი", "fields": [{"name": "text", "label": "წესი", "ph": "ნაკადში მაქსიმუმ 15 წევრი", "w": "2.4fr", "noTech": true}, {"name": "exc", "label": "გამონაკლისი", "ph": "", "w": "1.2fr", "req": false}]}, {"id": "map", "type": "rows", "n": "6", "title": "დომენის რუკა: კავშირები", "color": "#7c3aed", "hint": "ცნებები და კავშირები, მაგ. „პროგრამა 1 → ბევრი ნაკადი“. მინიმუმ <b>6</b>. ცხრილის/სვეტის სახელები არა.", "min": 6, "need": 6, "short": "რუკა", "addLabel": "+ კავშირი", "fields": [{"name": "a", "label": "ცნება", "ph": "პროგრამა"}, {"name": "rel", "label": "კავშირი", "options": ["1 → ბევრი", "ბევრი → 1", "ბევრი ↔ ბევრი (შუაში ცნებით)", "1 → 1"]}, {"name": "b", "label": "ცნება", "ph": "ნაკადი"}]}, {"id": "bl", "type": "rows", "n": "7", "title": "Backlog", "color": "#4f46e5", "num": "№", "hint": "მინიმუმ <b>15</b> story, <b>რიგით</b>: №1 არაფერს ელოდება. თითოს კრიტერიუმები და წესები (R…).", "min": 15, "need": 15, "short": "backlog", "addLabel": "+ story", "fields": [{"name": "as", "label": "როგორც", "ph": "ადმინისტრატორი", "w": ".9fr"}, {"name": "want", "label": "მინდა", "ph": "შევქმნა პროგრამა", "w": "1.4fr"}, {"name": "so", "label": "რომ", "ph": "მასზე ნაკადები გავხსნა", "w": "1.4fr"}, {"name": "ac", "label": "კრიტერიუმები", "ph": "სახელი უნიკალურია…", "w": "1.6fr", "req": false}, {"name": "r", "label": "წესი", "ph": "R1", "w": ".5fr", "req": false}]}, {"id": "out", "type": "text", "n": "⭐", "title": "ბონუსი: რა არ შედის + ღია კითხვები", "color": "#7c3aed", "hint": "3 რამ, რაც შენს პროექტში <b>არ</b> შედის, და 3 კითხვა, რომელსაც მფლობელს კიდევ დაუსვამდი."}]};
+
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const clean = w => w.replace(/[.,„“"!?:;()]/g, "").trim();
+const byId = id => document.getElementById(id);
+let state = load();
+
+function load(){
+  try { const s = JSON.parse(localStorage.getItem(SHEET.key)); if (s) return s; } catch (e) {}
+  const s = {who: ""};
+  SHEET.sections.forEach(sec => {
+    if (sec.type === "select" && SHEET.domainIds) { try { const i = SHEET.domainIds.indexOf(localStorage.getItem("aspnet-my-domain")); if (i >= 0) { s[sec.id] = sec.options[i]; return; } } catch (e) {} }
+    if (sec.type === "rows") s[sec.id] = Array.from({length: sec.min || 1}, () => ({}));
+    else if (sec.type === "chips") s[sec.id] = [];
+    else if (sec.type === "select") s[sec.id] = "";
+    else s[sec.id] = "";
+  });
+  return s;
+}
+function save(){ try { localStorage.setItem(SHEET.key, JSON.stringify(state)); } catch (e) {} status(); }
+function toast(t, bad){ const e = byId("toast"); e.textContent = t; e.className = "toast show" + (bad ? " bad" : ""); setTimeout(() => e.className = "toast", 1800); }
+const hasTech = v => SHEET.techWords && SHEET.techWords.some(w => (v || "").toLowerCase().includes(w));
+
+function render(){
+  byId("kicker").textContent = SHEET.kicker; byId("h1").textContent = SHEET.title;
+  byId("who").value = state.who || "";
+  const root = byId("sections"); root.innerHTML = "";
+  SHEET.sections.forEach(sec => {
+    const c = document.createElement("div"); c.className = "card"; c.style.setProperty("--a", sec.color || "var(--core)");
+    c.innerHTML = `<h2>${sec.n ? `<span class="n">${sec.n}</span>` : ""}${sec.title}</h2>${sec.hint ? `<p class="hint">${sec.hint}</p>` : ""}`;
+    if (sec.type === "select") {
+      const sel = document.createElement("select"); sel.style.maxWidth = "520px"; sel.style.fontWeight = "700";
+      sel.innerHTML = `<option value="">— ${sec.placeholder || "აირჩიე"} —</option>` + sec.options.map(o => `<option>${esc(o)}</option>`).join("");
+      sel.value = state[sec.id] || "";
+      sel.onchange = () => { state[sec.id] = sel.value; save(); };
+      c.append(sel);
+      if (sec.link) { const a = document.createElement("p"); a.className = "hint"; a.style.margin = "10px 0 0"; a.innerHTML = sec.link; c.append(a); }
+    } else if (sec.type === "note") {
+      const note = document.createElement("div"); note.className = "note"; note.id = "note"; c.append(note);
+    } else if (sec.type === "text") {
+      const t = document.createElement("textarea"); t.placeholder = sec.placeholder || ""; t.value = state[sec.id] || "";
+      t.oninput = () => { state[sec.id] = t.value; t.classList.toggle("bad", hasTech(t.value) && sec.noTech); save(); };
+      c.append(t);
+    } else if (sec.type === "chips") {
+      const box = document.createElement("div"); box.className = "chips"; box.id = "chips-" + sec.id; c.append(box);
+      const add = document.createElement("div"); add.className = "addterm";
+      add.innerHTML = `<input placeholder="${esc(sec.placeholder || "")}"><button class="btn">+ დამატება</button>`;
+      const inp = add.querySelector("input");
+      add.querySelector("button").onclick = () => { const w = clean(inp.value); if (w && !state[sec.id].includes(w)) { state[sec.id].push(w); save(); renderChips(sec); renderNote(); } inp.value = ""; inp.focus(); };
+      inp.onkeydown = e => { if (e.key === "Enter") add.querySelector("button").click(); };
+      c.append(add);
+    } else {
+      const cols = (sec.num ? "52px " : "") + sec.fields.map(f => f.w || "1fr").join(" ") + " 38px";
+      const hdr = document.createElement("div"); hdr.className = "hdr"; hdr.style.gridTemplateColumns = cols;
+      hdr.innerHTML = (sec.num ? "<span>#</span>" : "") + sec.fields.map(f => `<span>${f.label}</span>`).join("") + "<span></span>";
+      const rows = document.createElement("div"); rows.className = "rows"; rows.id = "rows-" + sec.id;
+      const add = document.createElement("button"); add.className = "add"; add.textContent = sec.addLabel || "+ დამატება";
+      add.onclick = () => { state[sec.id].push({}); save(); renderRows(sec); };
+      c.append(hdr, rows, add);
+    }
+    root.append(c);
+  });
+  SHEET.sections.forEach(sec => { if (sec.type === "rows") renderRows(sec); if (sec.type === "chips") renderChips(sec); });
+  renderNote(); status();
+}
+function renderRows(sec){
+  const box = byId("rows-" + sec.id); box.innerHTML = "";
+  const cols = (sec.num ? "52px " : "") + sec.fields.map(f => f.w || "1fr").join(" ") + " 38px";
+  state[sec.id].forEach((row, idx) => {
+    const r = document.createElement("div"); r.className = "row"; r.style.gridTemplateColumns = cols;
+    if (sec.num) { const n = document.createElement("div"); n.className = "num"; n.textContent = sec.num + (idx + 1); r.append(n); }
+    sec.fields.forEach(f => {
+      let el;
+      if (f.options) { el = document.createElement("select"); el.innerHTML = `<option value="">— ${f.label} —</option>` + f.options.map(o => `<option>${esc(o)}</option>`).join(""); }
+      else { el = document.createElement("input"); if (idx === 0 && f.ph) el.placeholder = f.ph; }
+      el.value = row[f.name] || "";
+      const mark = () => el.classList && el.classList.toggle("bad", !!(f.noTech && hasTech(el.value)));
+      mark();
+      el.oninput = el.onchange = () => { row[f.name] = el.value; mark(); save(); };
+      r.append(el);
+    });
+    const del = document.createElement("button"); del.className = "del"; del.textContent = "×"; del.title = "წაშლა";
+    del.onclick = () => { state[sec.id].splice(idx, 1); save(); renderRows(sec); };
+    r.append(del); box.append(r);
+  });
+}
+function renderChips(sec){
+  const box = byId("chips-" + sec.id); box.innerHTML = "";
+  state[sec.id].forEach(t => {
+    const c = document.createElement("span"); c.className = "chip"; c.textContent = t;
+    const x = document.createElement("button"); x.textContent = "×"; x.onclick = () => toggleChip(sec, t);
+    c.append(x); box.append(c);
+  });
+}
+function toggleChip(sec, w){
+  const a = state[sec.id], i = a.indexOf(w);
+  if (i >= 0) a.splice(i, 1); else a.push(w);
+  save(); renderChips(sec); renderNote();
+}
+function renderNote(){
+  const note = byId("note"); if (!note) return;
+  const sec = SHEET.sections.find(s => s.id === SHEET.noteTarget);
+  note.innerHTML = "";
+  SHEET.note.split(/(\s+)/).forEach(part => {
+    if (/^\s+$/.test(part)) { note.append(part); return; }
+    const s = document.createElement("span"); s.className = "w"; s.textContent = part;
+    const w = clean(part);
+    if (state[sec.id].includes(w)) s.classList.add("on");
+    s.onclick = () => w && toggleChip(sec, w);
+    note.append(s);
+  });
+}
+
+function filled(sec, row){ return sec.fields.filter(f => f.req !== false).every(f => (row[f.name] || "").trim()); }
+function checks(){
+  const out = [];
+  SHEET.sections.forEach(sec => {
+    if (!sec.need) return;
+    let n;
+    if (sec.type === "rows") n = state[sec.id].filter(r => filled(sec, r)).length;
+    else if (sec.type === "select") n = state[sec.id] ? 1 : 0;
+    else if (sec.type === "text") n = (state[sec.id] || "").split(/[.!?]+/).filter(x => x.trim().length > 3).length;
+    else n = state[sec.id].length;
+    out.push({ok: n >= sec.need, html: `${sec.short} <b>${Math.min(n, 99)}/${sec.need}</b>`});
+  });
+  if (SHEET.techWords) {
+    let t = 0;
+    SHEET.sections.forEach(sec => {
+      if (sec.type === "rows") sec.fields.filter(f => f.noTech).forEach(f => state[sec.id].forEach(r => { if (hasTech(r[f.name])) t++; }));
+      if (sec.type === "text" && sec.noTech && hasTech(state[sec.id])) t++;
+    });
+    out.push({ok: t === 0, html: `ტექნიკური სიტყვა <b>${t}</b>`});
+  }
+  return out;
+}
+function status(){
+  const cs = checks();
+  byId("checks").innerHTML = cs.map(c => `<span class="st ${c.ok ? "ok" : "no"}">${c.html}</span>`).join("");
+  byId("status").classList.toggle("all", cs.every(c => c.ok));
+}
+
+function report(){
+  const d = new Date().toLocaleString("ka-GE");
+  const parts = SHEET.sections.filter(s => s.type !== "note").map(sec => {
+    let body;
+    if (sec.type === "select") body = `<p><b>${esc(state[sec.id]) || "—"}</b></p>`;
+    else if (sec.type === "text") body = state[sec.id] ? `<p>${esc(state[sec.id]).replace(/\n/g, "<br>")}</p>` : "<p class='e'>—</p>";
+    else if (sec.type === "chips") body = state[sec.id].length ? `<p>${state[sec.id].map(t => `<span class="c">${esc(t)}</span>`).join(" ")}</p>` : "<p class='e'>—</p>";
+    else {
+      const rows = state[sec.id].filter(r => sec.fields.some(f => (r[f.name] || "").trim()));
+      body = rows.length ? `<table><tr>${sec.num ? "<th>#</th>" : ""}${sec.fields.map(f => `<th>${f.label}</th>`).join("")}</tr>${rows.map((r, i) => `<tr>${sec.num ? `<td><b>${sec.num}${i + 1}</b></td>` : ""}${sec.fields.map(f => `<td>${esc(r[f.name]) || "<span class='e'>—</span>"}</td>`).join("")}</tr>`).join("")}</table>` : "<p class='e'>—</p>";
+    }
+    return `<h2>${sec.n ? sec.n + " · " : ""}${sec.title}</h2>${body}`;
+  }).join("");
+  const cs = checks().map(c => `<span class="${c.ok ? "ok" : "no"}">${c.ok ? "✓" : "○"} ${c.html}</span>`).join(" · ");
+  return `<!doctype html><html lang="ka"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${esc(SHEET.title)} — ${esc(state.who)}</title><style>
+body{font:16px/1.6 "Noto Sans Georgian","Segoe UI",system-ui,sans-serif;color:#1f2335;background:#f7f5f0;margin:0}
+.w{max-width:960px;margin:0 auto;padding:28px 22px}.k{font:700 13px Consolas,monospace;color:#0d9488;text-transform:uppercase;letter-spacing:.05em}
+h1{margin:4px 0 2px}.m{color:#475569}.s{background:#1f2335;color:#e2e8f0;border-radius:12px;padding:10px 14px;margin:14px 0;font-size:14px}.s b{color:#fff}.ok{color:#86efac}.no{color:#fca5a5}
+h2{font-size:19px;margin:26px 0 8px;border-bottom:2px solid #e5e2da;padding-bottom:4px}
+table{border-collapse:collapse;width:100%;background:#fff}td,th{border:1px solid #e5e2da;padding:7px 10px;text-align:left;vertical-align:top}th{background:#f1efe9;font-size:13px}
+.c{display:inline-block;background:#f0fdfa;border:1px solid #5eead4;color:#115e59;border-radius:999px;padding:2px 10px;margin:2px;font-weight:700}.e{color:#94a3b8}
+p{background:#fff;border:1px solid #e5e2da;border-radius:10px;padding:10px 14px;margin:0}</style></head><body><div class="w">
+<div class="k">${esc(SHEET.kicker)}</div><h1>${esc(SHEET.title)}</h1><div class="m"><b>${esc(state.who)}</b> · ${esc(d)}</div><div class="s">${cs}</div>${parts}</div></body></html>`;
+}
+byId("dl").onclick = () => {
+  const who = byId("who");
+  if (!state.who || !state.who.trim()) { who.classList.add("need"); who.focus(); window.scrollTo({top: 0, behavior: "smooth"}); toast("ჯერ სახელი და გვარი ჩაწერე", true); return; }
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(new Blob([report()], {type: "text/html"}));
+  a.download = `${SHEET.file}-${state.who.trim().replace(/\s+/g, "-")}.html`; a.click();
+  toast("ჩამოიტვირთა ✓ — ახლა ფაილი ჩააბარე");
+};
+byId("clear").onclick = () => {
+  if (!confirm("ყველაფერი წაიშალოს?")) return;
+  try { localStorage.removeItem(SHEET.key); } catch (e) {}
+  state = load(); render();
+};
+byId("who").oninput = e => { state.who = e.target.value; e.target.classList.remove("need"); save(); };
+render();
+</script>
+</body>
+</html>

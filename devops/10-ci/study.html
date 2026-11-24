@@ -1,0 +1,480 @@
+<!doctype html>
+<html lang="ka"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>📖 CI/CD — თეორია და CI პრაქტიკაში — კონსპექტი</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Georgian:wght@400;600;700;800&family=JetBrains+Mono:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#fbf8f3;--card:#fff;--ink:#1e2132;--ink2:#3b3f54;--muted:#7b8096;--line:#e6dfd2;--accent:#6d28d9;--accent-soft:#f3effe;--teal:#0d9488;
+  --green:#15803d;--amber:#b45309;--mono:"JetBrains Mono",ui-monospace,monospace;--sans:"Noto Sans Georgian",system-ui,sans-serif}
+*{box-sizing:border-box}
+html{scroll-padding-top:76px}
+body{margin:0;background:var(--bg);color:var(--ink);font:17.5px/1.75 var(--sans);-webkit-font-smoothing:antialiased}
+a{color:var(--accent)}
+/* top bar */
+.top{position:sticky;top:0;z-index:10;display:flex;align-items:center;gap:14px;padding:10px 20px;background:rgba(251,248,243,.92);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.top .back{font:600 14px var(--mono);color:var(--muted);text-decoration:none;white-space:nowrap}
+.top .back:hover{color:var(--ink)}
+.top .ttl{flex:1;min-width:0;font-weight:700;font-size:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.top .ttl small{font:500 13px var(--mono);color:var(--muted);margin-right:8px}
+.btn{font:700 14px var(--sans);text-decoration:none;border-radius:10px;padding:7px 14px;white-space:nowrap;border:1px solid var(--line);color:var(--ink);background:var(--card);cursor:pointer}
+.btn.play{background:var(--accent);border-color:var(--accent);color:#fff}
+.live{display:none;align-items:center;gap:8px;font:600 13px var(--mono);color:var(--teal);background:#e6f6f4;border:1px solid #bfe7e2;border-radius:999px;padding:5px 12px;cursor:pointer}
+.live.on{display:flex}
+.live .dot{width:8px;height:8px;border-radius:50%;background:var(--teal);animation:pulse 1.6s infinite}
+.live.off{color:var(--muted);background:var(--card);border-color:var(--line)}.live.off .dot{background:var(--muted);animation:none}
+@keyframes pulse{50%{opacity:.3}}
+/* layout */
+.wrap{display:grid;grid-template-columns:230px minmax(0,1000px);gap:44px;justify-content:center;padding:32px 28px 120px}
+nav.toc{position:sticky;top:84px;align-self:start;font-size:14px;line-height:1.45}
+nav.toc .h{font:700 12px var(--mono);color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px}
+nav.toc a{display:block;color:var(--ink2);text-decoration:none;padding:6px 10px;border-left:2px solid var(--line)}
+nav.toc a:hover{color:var(--accent)}
+nav.toc a.cur{color:var(--accent);border-left-color:var(--accent);font-weight:700}
+nav.toc .mats{margin-top:22px;display:flex;flex-direction:column;gap:6px}
+nav.toc .mats a{border:0;padding:2px 0;font:500 13px var(--mono);color:var(--teal);word-break:break-all}
+header.hero{margin-bottom:8px}
+header.hero .k{font:600 14px var(--mono);color:var(--accent)}
+header.hero h1{font-size:38px;line-height:1.2;margin:6px 0 10px;letter-spacing:-.01em}
+header.hero p{color:var(--muted);margin:0;font-size:15.5px}
+header.hero kbd{font:500 12px var(--mono);border:1px solid var(--line);border-radius:5px;padding:0 5px;background:var(--card)}
+h2.sec{font-size:15px;font:700 13px var(--mono);color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin:48px 0 6px;padding-top:18px;border-top:1px solid var(--line)}
+/* blocks */
+.blk{position:relative;padding:14px 0 6px 22px;margin-left:-22px;border-left:3px solid transparent;transition:border-color .3s,background .3s;border-radius:0 12px 12px 0}
+.blk.cur{border-left-color:var(--accent);background:linear-gradient(90deg,var(--accent-soft),transparent 70%)}
+.anchor{position:absolute;top:0}
+.bh{display:flex;align-items:baseline;justify-content:space-between;gap:12px}
+.bh h3{font-size:22px;line-height:1.35;margin:4px 0 6px}
+.chip{flex:none;font:600 12px var(--mono);color:var(--muted);text-decoration:none;border:1px solid var(--line);border-radius:999px;padding:2px 10px;background:var(--card)}
+.chip:hover{color:var(--accent);border-color:var(--accent)}
+.blk h2{font-size:26px;line-height:1.3;margin:6px 0 10px}
+.blk h3:not(.bh h3){font-size:19px;margin:22px 0 6px}
+.blk h4{font-size:17px;margin:18px 0 4px}
+.blk p{margin:10px 0}
+.blk ul,.blk ol{padding-left:24px;margin:8px 0}
+.blk li{margin:4px 0}
+.blk strong{color:var(--ink)}
+.blk :not(pre)>code{font:600 .86em var(--mono);background:#f1ece3;border-radius:6px;padding:1px 6px;color:#5b21b6}
+.blk table{border-collapse:collapse;margin:14px 0;font-size:15.5px;width:100%;display:block;overflow-x:auto}
+.blk th,.blk td{border:1px solid var(--line);padding:8px 12px;text-align:left;vertical-align:top}
+.blk th{background:#f6f1e8}
+/* code */
+.codebox{margin:14px 0;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:#fffdf9}
+.codebox .ch,.prompt .ph{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:6px 8px 6px 14px;font:600 12.5px var(--mono);color:var(--muted);background:#f6f1e8;border-bottom:1px solid var(--line)}
+.copy{font:600 12px var(--mono);border:1px solid var(--line);background:var(--card);color:var(--ink2);border-radius:7px;padding:3px 10px;cursor:pointer}
+.copy:hover{border-color:var(--ink)}
+.copy.ok{color:var(--green);border-color:var(--green)}
+pre.code{margin:0;padding:12px 0;overflow-x:auto;font:14px/1.65 var(--mono)}
+pre.code .ln{display:block;padding:0 16px;white-space:pre}
+.code .ttl{background:var(--bg2);color:var(--muted)}
+.code .ln.hl{background:rgba(109,40,217,.07);box-shadow:inset 3px 0 0 var(--net)}
+.code .ln.dim{opacity:.42}
+.code .k,.code .kd,.code .kn,.code .kr,.code .kc{color:#7c3aed}
+.code .kt{color:#2563eb}
+.code .s,.code .s1,.code .s2,.code .sa,.code .se,.code .si,.code .sd{color:#15803d}
+.code .c,.code .c1,.code .cm,.code .cp,.code .ch{color:#8b8fa3}
+.code .m,.code .mi,.code .mf,.code .mh{color:#c2410c}
+.code .nf,.code .fm{color:#1d4ed8}
+.code .nc,.code .nn,.code .nt,.code .nd{color:#b45309}
+.code .na{color:#7c3aed} .code .nb{color:#0e7490}
+.code .o,.code .p{color:#64748b}
+.code .nv,.code .nx{color:var(--ink)}
+.code .go{color:#64748b}
+/* prompt */
+.prompt{margin:16px 0;border:1px solid #ddd2fb;border-radius:12px;overflow:hidden;background:var(--accent-soft)}
+.prompt .ph{background:#ebe3fd;border-color:#ddd2fb;color:var(--accent)}
+.prompt .pb{padding:12px 16px;white-space:pre-wrap;font-size:15.5px;line-height:1.6;color:var(--ink2)}
+/* self check */
+.selfcheck{margin:16px 0;border:1px solid #cfe9d6;border-radius:12px;background:#f3fbf5;padding:12px 16px}
+.selfcheck .sh{font-weight:700;color:var(--green);margin-bottom:6px}
+.selfcheck .sh small{font-weight:400;color:var(--muted);font-size:13.5px;margin-left:6px}
+.selfcheck details{border-top:1px solid #dcefe1;padding:8px 0}
+.selfcheck summary{cursor:pointer;font-weight:600;list-style:none;padding-left:26px;position:relative}
+.selfcheck summary::-webkit-details-marker{display:none}
+.selfcheck summary::before{content:"?";position:absolute;left:0;top:2px;width:18px;height:18px;border-radius:50%;background:var(--green);color:#fff;font:700 12px/18px var(--mono);text-align:center}
+.selfcheck details[open] summary::before{content:"✓"}
+.selfcheck .ans{padding:6px 0 2px 26px;color:var(--ink2)}
+/* terms */
+.terms{margin:16px 0;border:1px solid var(--line);border-radius:12px;background:var(--card);padding:12px 16px}
+.terms .th{font-weight:700;margin-bottom:6px}
+.terms dl{display:grid;grid-template-columns:max-content 1fr;gap:6px 18px;margin:0}
+.terms dt{font:600 14.5px var(--mono);color:var(--accent)}
+.terms dd{margin:0;color:var(--ink2)}
+/* callouts */
+.callout{display:flex;gap:12px;margin:14px 0;padding:12px 16px;border-radius:12px;border:1px solid var(--line);background:var(--card)}
+.callout .ci{font-size:20px;line-height:1.6}
+.callout>div>p:first-child{margin-top:0}.callout>div>p:last-child{margin-bottom:0}
+.callout.warn{background:#fff8eb;border-color:#f6dfb5}
+.callout.note{background:#eef5ff;border-color:#cfe0fb}
+@media (max-width:980px){
+  .wrap{grid-template-columns:minmax(0,1fr);gap:0;padding:20px 16px 100px}
+  nav.toc{position:static;margin-bottom:12px}
+  nav.toc details{border:1px solid var(--line);border-radius:12px;background:var(--card);padding:8px 12px}
+  nav.toc details>summary{cursor:pointer;font-weight:700}
+  nav.toc .h{display:none}
+  header.hero h1{font-size:30px}
+  .blk{padding-left:14px;margin-left:-14px}
+  .top .ttl small{display:none}
+  .terms dl{grid-template-columns:1fr}.terms dd{margin-bottom:8px}
+}
+@media (min-width:981px){nav.toc details>summary{display:none}}
+@media print{.top,nav.toc,.copy,.chip,.live{display:none}.wrap{display:block;padding:0}.selfcheck details{display:block}.blk.cur{background:none}}
+</style></head>
+<body>
+<div class="top">
+  <a class="back" href="../../">← ლექციები</a>
+  <div class="ttl"><small>DevOps · 10</small>CI/CD — თეორია და CI პრაქტიკაში</div>
+  <button class="live" id="live" type="button" title="ჩართული: ტექსტი პრეზენტაციას მიჰყვება"><span class="dot"></span><span class="lt">მიჰყვება სლაიდებს</span></button>
+  <a class="btn play" href="index.html">▶ პრეზენტაცია</a>
+</div>
+<div class="wrap">
+  <nav class="toc"><details id="tocd"><summary>სარჩევი</summary><div class="h">სარჩევი</div><a href="#sec-1">გამეორება</a><a href="#sec-2">საშინაოს განხილვა</a><a href="#sec-3">დღის თემა</a><a href="#sec-4">1 · CI/CD</a><a href="#sec-5">2 · CI</a><a href="#sec-6">შეჯამება</a><a href="#sec-7">პრაქტიკა</a><a href="#sec-8">შეჯამება</a><a href="#sec-9">საშინაო</a><div class="mats"></div></details></nav>
+  <main>
+    <header class="hero">
+      <div class="k">📖 კონსპექტი · DevOps · ლექცია 10</div>
+      <h1>CI/CD — თეორია და CI პრაქტიკაში</h1>
+      <p>წაიკითხე ლექციის შემდეგ, ან პრეზენტაციასთან ერთად: პრეზენტაციაში დააჭირე <kbd>P</kbd> და ეს გვერდი სლაიდებს გაჰყვება. კოდი და AI-ს პრომპტები კოპირდება ერთი დაჭერით.</p>
+    </header>
+    <h2 class="sec" id="sec-1">გამეორება</h2>
+<article class="blk" data-slides="1,2"><span class="anchor" id="s-1"></span><span class="anchor" id="s-2"></span><div class="bh"><h3>გავიხსენოთ წინა ლექცია</h3><a class="chip" href="index.html#/1" data-go="1" title="პრეზენტაციაში გახსნა">სლაიდი 1</a></div>
+<p>ლექცია 9 — <strong>დომენი, HTTPS და საიდუმლოებები</strong>. ახალ თემამდე ვამოწმებთ, რა დაგვამახსოვრდა. ჯერ თვითონ უპასუხე, მერე გახსენი პასუხი. თუ რომელიმე გაგიჭირდა, <a href="../09-domain-https-secrets/study.html">წინა ლექციის კონსპექტს</a> გადახედე.</p>
+<div class="selfcheck"><div class="sh">✅ შეამოწმე თავი <small>დაფიქრდი, მერე გახსენი პასუხი</small></div><details><summary>A და CNAME ჩანაწერი — რა განსხვავებაა?</summary><div class="ans">A — სახელი → IP მისამართი (<code>api.giorgi.ge → 164.90.12.34</code>). CNAME — სახელი → სხვა სახელი (<code>www → giorgi.ge</code>), რომლის IP-საც მერე DNS თვითონ პოულობს</div></details><details><summary>ერთ სერვერზე, ერთ port 443-ზე სამი საიტია. როგორ იცის Nginx-მა, რომელი აჩვენოს?</summary><div class="ans">ბრაუზერი მოთხოვნაში აგზავნის დომენს (<code>Host</code> header). Nginx მას <code>server_name</code>-ს ადარებს და შესაბამის server block-ს ირჩევს</div></details><details><summary>რას აკეთებს <code>certbot --nginx</code>?</summary><div class="ans">Let's Encrypt-ისგან იღებს უფასო სერტიფიკატს (ამოწმებს, რომ დომენი შენს სერვერზეა), Nginx-ის კონფიგს უმატებს <code>listen 443 ssl</code>-ს და HTTP → HTTPS redirect-ს, და აწყობს ავტომატურ განახლებას</div></details><details><summary>Let's Encrypt-ის სერტიფიკატი 90 დღეა. ყოველ 3 თვეში ხელით უნდა განვაახლო?</summary><div class="ans">არა — certbot-ის timer დღეში ორჯერ ამოწმებს და ვადის ამოწურვამდე 30 დღით ადრე თვითონ აახლებს. შემოწმება: <code>sudo certbot renew --dry-run</code></div></details><details><summary>JWT გასაღები სად ინახება შენთან და სად სერვერზე?</summary><div class="ans">შენთან — <code>dotnet user-secrets</code>-ში (პროექტის საქაღალდის გარეთ). სერვერზე — <code>.env</code>-ში (<code>chmod 600</code>), საიდანაც Compose მას <code>Jwt__Key</code> ცვლადად გადასცემს. Git-ში — არასოდეს</div></details><details><summary>API Nginx-ის უკანაა და HTTPS-ით იხსნება, მაგრამ აპს ჰგონია, რომ მოთხოვნა <code>http</code>-ით მოვიდა. რატომ და როგორ ვასწორებთ?</summary><div class="ans">HTTPS Nginx-ზე მთავრდება, API-ს უკვე <code>http</code> სწვდება. Nginx ორიგინალს <code>X-Forwarded-Proto</code>-ში წერს; აპი მას წაიკითხავს, თუ ჩართულია <code>ASPNETCORE_FORWARDEDHEADERS_ENABLED=true</code></div></details></div></article>
+<h2 class="sec" id="sec-2">საშინაოს განხილვა</h2>
+<article class="blk" data-slides="3"><span class="anchor" id="s-3"></span><div class="bh"><h3>საშინაოს განხილვა</h3><a class="chip" href="index.html#/3" data-go="3" title="პრეზენტაციაში გახსნა">სლაიდი 3</a></div>
+<p>წინა ლექციის საშინაო: <strong>API და Angular — ქვედომენებზე, HTTPS-ით</strong>. ქვემოთ არის ერთ-ერთი სწორი ამოხსნა. შენი კოდი შეიძლება სხვანაირად იყოს დაწერილი — მთავარია, მოთხოვნები სრულდებოდეს.</p>
+<h3>მოთხოვნები</h3>
+<ul>
+<li><code>lms-api</code> → <code>api.&lt;domain&gt;</code>, <code>app</code> → <code>app.&lt;domain&gt;</code> (<code>listen 80</code> + <code>server_name</code>) → <code>certbot --nginx</code></li>
+<li>ufw: წაშალეთ <code>8080/tcp</code>, <code>8081/tcp</code>, <code>Nginx HTTP</code></li>
+<li><code>.env</code>-ში <code>JWT_KEY</code> (<code>openssl rand</code>) → compose: <code>Jwt__Key</code> და <code>ASPNETCORE_FORWARDEDHEADERS_ENABLED</code></li>
+<li>Angular: <code>apiUrl: 'https://api.&lt;domain&gt;'</code> → <code>ng build</code> → <code>rsync</code></li>
+</ul>
+<h3>ამოხსნა</h3>
+<div class="codebox"><div class="ch"><span>/etc/nginx/sites-available/lms-api</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="k">server</span><span class="w"> </span><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="kn">listen</span><span class="w"> </span><span class="mi">80</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="kn">server_name</span><span class="w"> </span><span class="s">api.giorgi.ge</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="kn">location</span><span class="w"> </span><span class="s">/</span><span class="w"> </span><span class="p">{</span></span><span class="ln"><span class="w">        </span><span class="kn">proxy_pass</span><span class="w"> </span><span class="s">http://127.0.0.1:5000</span><span class="p">;</span></span><span class="ln"><span class="w">        </span><span class="kn">proxy_http_version</span><span class="w"> </span><span class="mi">1</span><span class="s">.1</span><span class="p">;</span></span><span class="ln"><span class="w">        </span><span class="kn">proxy_set_header</span><span class="w"> </span><span class="s">Host</span><span class="w"> </span><span class="nv">$host</span><span class="p">;</span></span><span class="ln"><span class="w">        </span><span class="kn">proxy_set_header</span><span class="w"> </span><span class="s">X-Forwarded-For</span><span class="w"> </span><span class="nv">$proxy_add_x_forwarded_for</span><span class="p">;</span></span><span class="ln"><span class="w">        </span><span class="kn">proxy_set_header</span><span class="w"> </span><span class="s">X-Forwarded-Proto</span><span class="w"> </span><span class="nv">$scheme</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="p">}</span></span><span class="ln"><span class="p">}</span></span></code></pre></div>
+<div class="codebox"><div class="ch"><span>Termius · lms-server</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="gp">$ </span>sudo<span class="w"> </span>nginx<span class="w"> </span>-t<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>sudo<span class="w"> </span>systemctl<span class="w"> </span>reload<span class="w"> </span>nginx</span><span class="ln"><span class="gp">$ </span>sudo<span class="w"> </span>certbot<span class="w"> </span>--nginx<span class="w"> </span>-d<span class="w"> </span>api.giorgi.ge<span class="w"> </span>-d<span class="w"> </span>app.giorgi.ge</span><span class="ln"><span class="gp">$ </span>sudo<span class="w"> </span>ufw<span class="w"> </span>delete<span class="w"> </span>allow<span class="w"> </span><span class="m">8080</span>/tcp</span><span class="ln"><span class="gp">$ </span>sudo<span class="w"> </span>ufw<span class="w"> </span>delete<span class="w"> </span>allow<span class="w"> </span><span class="m">8081</span>/tcp</span><span class="ln"><span class="gp">$ </span>sudo<span class="w"> </span>ufw<span class="w"> </span>delete<span class="w"> </span>allow<span class="w"> </span><span class="s1">'Nginx HTTP'</span></span><span class="ln"><span class="gp">$ </span><span class="nb">echo</span><span class="w"> </span><span class="s2">"</span><span class="s2">JWT_KEY=</span><span class="k">$(</span>openssl<span class="w"> </span>rand<span class="w"> </span>-base64<span class="w"> </span><span class="m">64</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>tr<span class="w"> </span>-d<span class="w"> </span><span class="s1">'\n'</span><span class="k">)</span><span class="s2">"</span><span class="w"> </span>&gt;&gt;<span class="w"> </span>~/lms/.env</span></code></pre></div>
+<div class="codebox"><div class="ch"><span>compose.yaml — api</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="nt">environment</span><span class="p">:</span></span><span class="ln"><span class="w">  </span><span class="nt">ASPNETCORE_ENVIRONMENT</span><span class="p">:</span><span class="w"> </span><span class="l">${ASPNETCORE_ENVIRONMENT:-Production}</span></span><span class="ln"><span class="w">  </span><span class="nt">ASPNETCORE_FORWARDEDHEADERS_ENABLED</span><span class="p">:</span><span class="w"> </span><span class="s">"</span><span class="s">true</span><span class="s">"</span></span><span class="ln"><span class="w">  </span><span class="nt">ConnectionStrings__Default</span><span class="p">:</span><span class="w"> </span><span class="s">"</span><span class="s">Host=db;Database=lms;Username=lms;Password=${DB_PASSWORD}</span><span class="s">"</span></span><span class="ln"><span class="w">  </span><span class="nt">Jwt__Key</span><span class="p">:</span><span class="w"> </span><span class="l">${JWT_KEY}</span></span></code></pre></div>
+<p><code>tr -d '\n'</code> — <code>openssl</code>-ის შედეგიდან ხაზის გადატანებს შლის, რომ გასაღები <code>.env</code>-ში ერთ ხაზზე ჩაიწეროს.</p></article>
+<h2 class="sec" id="sec-3">დღის თემა</h2>
+<article class="blk" data-slides="4"><span class="anchor" id="s-4"></span><div class="bh"><h3>დღის თემა: CI/CD — თეორია და CI პრაქტიკაში</h3><a class="chip" href="index.html#/4" data-go="4" title="პრეზენტაციაში გახსნა">სლაიდი 4</a></div>
+<p>LMS დომენზეა, HTTPS-ით, კონტეინერებში. მაგრამ ყოველი განახლება ჯერ კიდევ ხელით ხდება, და <code>main</code>-ში შეიძლება ისეთი კოდი მოხვდეს, რომელიც არც კი იკომპილირდება — ამას სერვერზე, deploy-ის დროს გაიგებ. დღეს ვნახავთ მთლიან სურათს: რა არის CI/CD, რა ნაბიჯებისგან შედგება pipeline და რატომ მუშაობს ასე ყველა თანამედროვე გუნდი. პრაქტიკაში კი ვწერთ CI-ს GitHub Actions-ით: ყოველ Pull Request-ზე LMS აეწყობა და ტესტებს გაივლის. CD — შემდეგ ლექციაზე.</p>
+<p><strong>ლექციის ბოლოს შეძლებ:</strong></p>
+<ul>
+<li>CI/CD-ის ახსნა: pipeline-ის ნაბიჯები build → test → artifact → deploy</li>
+<li>Continuous Integration, Continuous Delivery და Continuous Deployment-ის გარჩევა და CI/CD-ის პრინციპები</li>
+<li>GitHub Actions-ის ცნებები და პირველი workflow: trigger, job, runner, step, <code>uses</code> და <code>run</code></li>
+<li>CI ყოველ Pull Request-ზე: restore → build → test, და ჩავარდნილი CI-ის მიზეზის პოვნა ლოგით</li>
+<li>branch protection — <code>main</code>-ში მხოლოდ მწვანე PR</li>
+</ul></article>
+<h2 class="sec" id="sec-4">1 · CI/CD</h2>
+<article class="blk" data-slides="5"><span class="anchor" id="s-5"></span><div class="bh"><h3>ნაწილი 1 · CI/CD — რა არის და რატომ</h3><a class="chip" href="index.html#/5" data-go="5" title="პრეზენტაციაში გახსნა">სლაიდი 5</a></div>
+<p>მე-2 ლექციაზე Actions ჩანართში პირველი pipeline ვნახეთ — <code>pages build and deployment</code>, რომელიც GitHub-მა თვითონ შექმნა. დღეს ვხედავთ მთლიან სურათს: რა არის CI/CD, რა ნაბიჯებისგან შედგება და რატომ მუშაობს ასე ყველა თანამედროვე გუნდი. მერე პრაქტიკაში ვწერთ CI-ს; CD — შემდეგ ლექციაზე.</p></article>
+<article class="blk" data-slides="6"><span class="anchor" id="s-6"></span><div class="bh"><h3>პრობლემა: ყოველი განახლება — ხელით</h3><a class="chip" href="index.html#/6" data-go="6" title="პრეზენტაციაში გახსნა">სლაიდი 6</a></div>
+<p>მე-8 ლექციის შემდეგ LMS-ის განახლება ასე გამოიყურება:</p>
+<div class="codebox"><div class="ch"><span>ყოველ ჯერზე</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="gp">$ </span>git<span class="w"> </span>push</span><span class="ln"><span class="gp"># </span>Termius<span class="w"> </span>→<span class="w"> </span>lms-server</span><span class="ln"><span class="gp">$ </span><span class="nb">cd</span><span class="w"> </span>~/lms</span><span class="ln"><span class="gp">$ </span>git<span class="w"> </span>pull</span><span class="ln"><span class="gp">$ </span>docker<span class="w"> </span>compose<span class="w"> </span>up<span class="w"> </span>-d<span class="w"> </span>--build</span></code></pre></div>
+<ul>
+<li>😴 დაგავიწყდა — სერვერზე ძველი ვერსიაა;</li>
+<li>💥 <code>main</code>-ში მოხვდა კოდი, რომელიც არც კი იკომპილირდება — deploy ჩავარდება;</li>
+<li>👥 გუნდში ხუთი ადამიანია — ყველას სერვერზე SSH წვდომა ჰქონდეს?</li>
+<li>🐢 build 1 GB RAM-იან სერვერზე — ნელი და სახიფათო.</li>
+</ul>
+<p><strong>CI (Continuous Integration)</strong> — ყოველი ცვლილება <strong>ავტომატურად მოწმდება</strong> (build, ტესტები), სანამ <code>main</code>-ში მოხვდება.
+<strong>CD (Continuous Deployment)</strong> — <code>main</code>-ის ყოველი ცვლილება <strong>ავტომატურად</strong> გადის სერვერზე.</p>
+<p>ორივეს GitHub Actions აკეთებს — ზუსტად იმ ნაბიჯებით, რასაც აქამდე ხელით ვაკეთებდით. დღეს ვხედავთ მთლიან სურათს და პრაქტიკაში ვწერთ <strong>CI</strong>-ს: <code>main</code>-ში მხოლოდ შემოწმებული კოდი უნდა მოხვდეს. შემდეგ ლექციაზე — <strong>CD</strong> პრაქტიკაში: შემოწმებულ კოდს სერვერზე ავტომატურად გავიტანთ.</p></article>
+<article class="blk" data-slides="7"><span class="anchor" id="s-7"></span><div class="bh"><h3>pipeline — commit-იდან production-მდე</h3><a class="chip" href="index.html#/7" data-go="7" title="პრეზენტაციაში გახსნა">სლაიდი 7</a></div>
+<p><strong>pipeline</strong> — ავტომატური ნაბიჯების ჯაჭვი, რომელსაც ყოველი ცვლილება გადის, სანამ მომხმარებლამდე მივა:</p>
+<table>
+<thead>
+<tr>
+<th>ნაბიჯი</th>
+<th>რას აკეთებს</th>
+<th>ჩვენთან</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>commit · PR</strong></td>
+<td>ცვლილება Git-ში</td>
+<td><code>feature/...</code> → Pull Request</td>
+</tr>
+<tr>
+<td><strong>build</strong></td>
+<td>კოდი იკომპილირდება?</td>
+<td><code>dotnet build</code></td>
+</tr>
+<tr>
+<td><strong>test</strong></td>
+<td>კოდი სწორად მუშაობს?</td>
+<td><code>dotnet test</code></td>
+</tr>
+<tr>
+<td><strong>artifact</strong></td>
+<td>გასაშვებად მზა „პაკეტი“</td>
+<td>Docker image</td>
+</tr>
+<tr>
+<td><strong>deploy</strong></td>
+<td>artifact სერვერზე</td>
+<td><code>docker compose pull &amp;&amp; up -d</code></td>
+</tr>
+<tr>
+<td><strong>production</strong></td>
+<td>მომხმარებელი ახალ ვერსიას ხედავს</td>
+<td><code>https://api.giorgi.ge</code></td>
+</tr>
+</tbody>
+</table>
+<p>ჯაჭვი ორ ნაწილად იყოფა:</p>
+<ul>
+<li><strong>CI (Continuous Integration)</strong> — build და test <strong>ყოველ</strong> ცვლილებაზე, <code>main</code>-ში შერწყმამდე. პასუხობს კითხვას: „კოდი სწორია?“</li>
+<li><strong>CD (Continuous Delivery / Deployment)</strong> — შემოწმებული კოდიდან artifact-ის შექმნა და მისი გატანა სერვერზე. პასუხობს კითხვას: „კოდი მომხმარებელთანაა?“</li>
+</ul>
+<p>მთავარი წესი: <strong>ნებისმიერ ნაბიჯზე შეცდომა pipeline-ს აჩერებს.</strong> ტესტი ჩავარდა — image არ აეწყობა და deploy არ მოხდება. ამიტომ გატეხილი კოდი production-მდე ვერ აღწევს.</p>
+<div class="terms"><div class="th">📘 ტერმინები</div><dl><dt>pipeline</dt><dd>ავტომატური ნაბიჯების ჯაჭვი: build → test → artifact → deploy</dd><dt>artifact</dt><dd>pipeline-ის შედეგი, გასაშვებად მზა: ჩვენთან Docker image</dd><dt>production</dt><dd>„ცოცხალი“ გარემო, რომელსაც ნამდვილი მომხმარებლები იყენებენ</dd></dl></div></article>
+<article class="blk" data-slides="8,9"><span class="anchor" id="s-8"></span><span class="anchor" id="s-9"></span><div class="bh"><h3>CI · Continuous Delivery · Continuous Deployment</h3><a class="chip" href="index.html#/8" data-go="8" title="პრეზენტაციაში გახსნა">სლაიდი 8</a></div>
+<p>„CD“ ორ რამეს ნიშნავს, და ინტერვიუზე ამ განსხვავებას ხშირად კითხულობენ:</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>რა ხდება ავტომატურად</th>
+<th>ვინ წყვეტს production-ს</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Continuous Integration</strong></td>
+<td>build + test ყოველ ცვლილებაზე</td>
+<td>—</td>
+</tr>
+<tr>
+<td><strong>Continuous Delivery</strong></td>
+<td>build, test და artifact; <code>main</code> ყოველთვის გასაშვებად მზადაა</td>
+<td><strong>ადამიანი</strong> — ღილაკით (მაგ. ბანკები, სადაც გამოშვებას ამოწმებენ)</td>
+</tr>
+<tr>
+<td><strong>Continuous Deployment</strong></td>
+<td>ყველაფერი, production-ის ჩათვლით</td>
+<td><strong>pipeline</strong> — merge-ის შემდეგ თვითონ</td>
+</tr>
+</tbody>
+</table>
+<p>ჩვენ LMS-ისთვის <strong>Continuous Deployment</strong>-ს ვაკეთებთ: merge <code>main</code>-ში = ახალი ვერსია სერვერზე.</p>
+<p><strong>პრინციპები, რომლებზეც CI/CD დგას:</strong></p>
+<ul>
+<li>🐜 <strong>პატარა, ხშირი ცვლილებები.</strong> ერთდღიანი branch და პატარა PR. თვის განმავლობაში დაგროვილი დიდი merge — conflict-ები და „რომელმა ცვლილებამ გატეხა?“.</li>
+<li>⚡ <strong>სწრაფი პასუხი.</strong> შეცდომა უნდა გამოჩნდეს წუთებში, PR-ზე — და არა მაშინ, როცა მომხმარებელი მოგწერს.</li>
+<li>🏗️ <strong>ერთხელ აეწყობა — ყველგან ერთი.</strong> image ერთხელ იწყობა, და ზუსტად ის მიდის სერვერზე. სერვერზე ხელახლა აწყობა = რისკი, რომ სხვა რამ აეწყოს.</li>
+<li>🤖 <strong>ყველაფერი კოდით.</strong> pipeline YAML ფაილია რეპოში — მისი ცვლილებაც PR-ით და review-თი გადის.</li>
+</ul>
+<div class="selfcheck"><div class="sh">✅ შეამოწმე თავი <small>დაფიქრდი, მერე გახსენი პასუხი</small></div><details><summary>რა განსხვავებაა Continuous Delivery-სა და Continuous Deployment-ს შორის?</summary><div class="ans">Delivery: კოდი ყოველთვის მზადაა გასაშვებად, production-ში გატანას ადამიანი წყვეტს ღილაკით. Deployment: merge-ის შემდეგ production-ში ავტომატურად მიდის</div></details></div></article>
+<h2 class="sec" id="sec-5">2 · CI</h2>
+<article class="blk" data-slides="10"><span class="anchor" id="s-10"></span><div class="bh"><h3>ნაწილი 2 · GitHub Actions და CI</h3><a class="chip" href="index.html#/10" data-go="10" title="პრეზენტაციაში გახსნა">სლაიდი 10</a></div>
+<p>თეორია ვიცით. ახლა ვნახავთ, როგორ მუშაობს GitHub Actions ყველაზე მარტივ მაგალითზე, და მერე ვწერთ ნამდვილ CI-ს: ყოველ Pull Request-ზე LMS უნდა აეწყოს და ტესტები გაიაროს.</p></article>
+<article class="blk" data-slides="11"><span class="anchor" id="s-11"></span><div class="bh"><h3>ცნებები: workflow · trigger · job · runner · step</h3><a class="chip" href="index.html#/11" data-go="11" title="პრეზენტაციაში გახსნა">სლაიდი 11</a></div>
+<table>
+<thead>
+<tr>
+<th>ცნება</th>
+<th>რა არის</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>workflow</strong></td>
+<td>YAML ფაილი რეპოს <code>.github/workflows/</code> საქაღალდეში</td>
+</tr>
+<tr>
+<td><strong>trigger</strong> (<code>on:</code>)</td>
+<td><strong>როდის</strong> გაეშვას: <code>push</code>, <code>pull_request</code>, ხელით (<code>workflow_dispatch</code>), განრიგით</td>
+</tr>
+<tr>
+<td><strong>job</strong></td>
+<td>ნაბიჯების ჯგუფი, რომელიც ერთ მანქანაზე სრულდება</td>
+</tr>
+<tr>
+<td><strong>runner</strong> (<code>runs-on:</code>)</td>
+<td>ეს მანქანა: GitHub-ის <strong>ვირტუალური Ubuntu</strong>, ყოველ გაშვებაზე ახალი და სუფთა</td>
+</tr>
+<tr>
+<td><strong>step</strong></td>
+<td>ერთი ნაბიჯი: <code>uses:</code> — მზა action, <code>run:</code> — ბრძანება ტერმინალში</td>
+</tr>
+<tr>
+<td><strong>action</strong></td>
+<td>მზა „ბლოკი“ (<code>actions/checkout@v4</code>) — <code>მფლობელი/სახელი@ვერსია</code>, როგორც NuGet პაკეტი</td>
+</tr>
+</tbody>
+</table>
+<p><strong>runner = ცარიელი სერვერი.</strong> მასზე შენი კოდი არ არის — ამიტომ პირველი ნაბიჯი ყოველთვის <code>actions/checkout</code> (რეპოს ჩამოტვირთვა). .NET SDK არ არის — <code>actions/setup-dotnet</code>. ეს ზუსტად ის, რასაც მე-6 ლექციაზე სერვერზე ხელით ვაკეთებდით, ოღონდ ყოველ ჯერზე ავტომატურად.</p>
+<div class="callout note"><span class="ci">💡</span><div><p>public რეპოებისთვის GitHub-ის runner-ები უფასოა; private-ისთვის — თვეში შეზღუდული წუთები.</p></div></div></article>
+<article class="blk" data-slides="12"><span class="anchor" id="s-12"></span><div class="bh"><h3>პირველი workflow — რა ხდება runner-ზე?</h3><a class="chip" href="index.html#/12" data-go="12" title="პრეზენტაციაში გახსნა">სლაიდი 12</a></div>
+<p>სანამ LMS-ისთვის CI-ს დავწერთ, ვნახოთ, როგორ მუშაობს workflow ყველაზე მარტივ მაგალითზე. რეპოში ვქმნით ფაილს <code>.github/workflows/hello.yml</code>:</p>
+<div class="codebox"><div class="ch"><span>.github/workflows/hello.yml</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">Hello</span></span><span class="ln"> </span><span class="ln"><span class="nt">on</span><span class="p">:</span></span><span class="ln"><span class="w">  </span><span class="nt">push</span><span class="p">:</span></span><span class="ln"><span class="w">  </span><span class="nt">workflow_dispatch</span><span class="p">:</span></span><span class="ln"> </span><span class="ln"><span class="nt">jobs</span><span class="p">:</span></span><span class="ln"><span class="w">  </span><span class="nt">hello</span><span class="p">:</span></span><span class="ln"><span class="w">    </span><span class="nt">runs-on</span><span class="p">:</span><span class="w"> </span><span class="l">ubuntu-latest</span></span><span class="ln"><span class="w">    </span><span class="nt">steps</span><span class="p">:</span></span><span class="ln"><span class="w">      </span><span class="p">-</span><span class="w"> </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="l">echo</span><span class="l"> </span><span class="l">"გამარჯობა,</span><span class="l"> </span><span class="l">$GITHUB_ACTOR"</span></span><span class="ln"><span class="w">      </span><span class="p">-</span><span class="w"> </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="l">uname</span><span class="l"> </span><span class="l">-a</span><span class="l"> </span><span class="l">&amp;&amp;</span><span class="l"> </span><span class="l">whoami</span></span><span class="ln"><span class="w">      </span><span class="p">-</span><span class="w"> </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="l">ls</span><span class="l"> </span><span class="l">-la</span></span><span class="ln"><span class="w">      </span><span class="p">-</span><span class="w"> </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l">actions/checkout@v4</span></span><span class="ln"><span class="w">      </span><span class="p">-</span><span class="w"> </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="l">ls</span><span class="l"> </span><span class="l">-la</span></span></code></pre></div>
+<ul>
+<li><code>on: push</code> — ყოველ push-ზე ნებისმიერ branch-ში; <code>workflow_dispatch</code> — Actions ჩანართში ჩნდება ღილაკი <strong>Run workflow</strong>, ხელით გასაშვებად;</li>
+<li><code>run:</code> — ჩვეულებრივი Linux ბრძანება, ზუსტად ისე, როგორც Termius-ში;</li>
+<li>პირველი <code>ls -la</code> <strong>ცარიელს</strong> აჩვენებს: runner ახალი, სუფთა მანქანაა, შენი კოდი მასზე ჯერ არ არის;</li>
+<li><code>actions/checkout@v4</code> რეპოს ჩამოტვირთავს — მეორე <code>ls -la</code> უკვე ფაილებს აჩვენებს.</li>
+</ul>
+<p>push → <strong>Actions</strong> ჩანართი → <strong>Hello</strong> → job <strong>hello</strong> → ყოველი step-ის ლოგი ცალკე იხსნება.</p>
+<div class="callout warn"><span class="ci">⚠️</span><div><p>YAML-ში შეწევა (indentation) მნიშვნელობას ცვლის — ის აჩვენებს, რა რას ეკუთვნის. მხოლოდ <strong>space</strong>-ები, Tab — არასოდეს. <code>-</code> სიის ელემენტია: ყოველი step <code>-</code>-ით იწყება. თუ workflow Actions-ში საერთოდ არ გამოჩნდა — ჯერ შეამოწმე, ფაილი ზუსტად <code>.github/workflows/</code>-შია და YAML სწორადაა შეწეული.</p></div></div>
+<div class="selfcheck"><div class="sh">✅ შეამოწმე თავი <small>დაფიქრდი, მერე გახსენი პასუხი</small></div><details><summary>რატომ აჩვენებს პირველი <code>ls -la</code> ცარიელ საქაღალდეს?</summary><div class="ans">runner ყოველ გაშვებაზე ახალი, სუფთა ვირტუალური მანქანაა — შენი კოდი იქ <code>actions/checkout</code>-მდე არ არის</div></details></div></article>
+<article class="blk" data-slides="13"><span class="anchor" id="s-13"></span><div class="bh"><h3>build საკმარისი არ არის — ტესტი</h3><a class="chip" href="index.html#/13" data-go="13" title="პრეზენტაციაში გახსნა">სლაიდი 13</a></div>
+<p><code>dotnet build</code> ამოწმებს, რომ კოდი <strong>იკომპილირდება</strong>. მაგრამ კოდი, რომელიც იკომპილირდება, შეიძლება არასწორად მუშაობდეს: კურსზე ტევადობაზე მეტი სტუდენტი ჩაეწეროს, ფასი არასწორად დაითვალოს. ამას <strong>ტესტი</strong> ამოწმებს — პატარა მეთოდი, რომელიც შენს კოდს იძახებს და შედეგს ამოწმებს.</p>
+<p>ტესტების სრული თემა ცალკე საკითხია. CI-სთვის ერთი ტესტიც საკმარისია, რომ ნახო, როგორ აჩერებს ის გატეხილ კოდს:</p>
+<div class="codebox"><div class="ch"><span>ტერმინალი · solution-ის საქაღალდე</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="gp">$ </span>dotnet<span class="w"> </span>new<span class="w"> </span>xunit<span class="w"> </span>-n<span class="w"> </span>Lms.Tests</span><span class="ln"><span class="gp">$ </span>dotnet<span class="w"> </span>sln<span class="w"> </span>add<span class="w"> </span>Lms.Tests</span><span class="ln"><span class="gp">$ </span>dotnet<span class="w"> </span>add<span class="w"> </span>Lms.Tests<span class="w"> </span>reference<span class="w"> </span>Lms.Api</span><span class="ln"><span class="gp">$ </span>dotnet<span class="w"> </span><span class="nb">test</span></span></code></pre></div>
+<div class="codebox"><div class="ch"><span>Lms.Tests/CourseTests.cs</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="k">public</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">CourseTests</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="na">[Fact]</span></span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="k">void</span><span class="w"> </span><span class="nf">Enroll_WhenCourseIsFull_ReturnsFalse</span><span class="p">(</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="p">{</span></span><span class="ln"><span class="w">        </span><span class="kt">var</span><span class="w"> </span><span class="n">course</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">Course</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">Title</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"DevOps"</span><span class="p">,</span><span class="w"> </span><span class="n">Capacity</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="p">}</span><span class="p">;</span></span><span class="ln"><span class="w">        </span><span class="n">course</span><span class="p">.</span><span class="n">Enroll</span><span class="p">(</span><span class="n">Guid</span><span class="p">.</span><span class="n">NewGuid</span><span class="p">(</span><span class="p">)</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="w">        </span><span class="kt">var</span><span class="w"> </span><span class="n">enrolled</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">course</span><span class="p">.</span><span class="n">Enroll</span><span class="p">(</span><span class="n">Guid</span><span class="p">.</span><span class="n">NewGuid</span><span class="p">(</span><span class="p">)</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="w">        </span><span class="n">Assert</span><span class="p">.</span><span class="n">False</span><span class="p">(</span><span class="n">enrolled</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="p">}</span></span><span class="ln"><span class="p">}</span></span></code></pre></div>
+<ul>
+<li><code>[Fact]</code> — ეს მეთოდი ტესტია; xUnit მას თვითონ პოულობს და უშვებს;</li>
+<li>ტესტი სამი ნაწილისგანაა: <strong>მომზადება</strong> (კურსი 1 ადგილით, ერთი სტუდენტი უკვე ჩაწერილია) → <strong>მოქმედება</strong> (მეორე სტუდენტის ჩაწერა) → <strong>შემოწმება</strong> (<code>Assert.False</code> — ჩაწერა არ უნდა მოხდეს).</li>
+</ul>
+<div class="callout note"><span class="ci">💡</span><div><p><code>Course</code> და <code>Enroll</code> — მაგალითია. შენს პროექტში აიღე ნებისმიერი მეთოდი, რომელიც რაღაცას ითვლის ან ამოწმებს, და დაუწერე ერთი ტესტი. თუ ტესტი ბაზას ან HTTP-ს არ ეხება, ის წამის ნაწილში სრულდება — CI-ისთვის სწორედ ასეთი გვჭირდება.</p></div></div></article>
+<article class="blk" data-slides="14"><span class="anchor" id="s-14"></span><div class="bh"><h3>ნაბიჯი 1 · ci.yml — ყოველ Pull Request-ზე</h3><a class="chip" href="index.html#/14" data-go="14" title="პრეზენტაციაში გახსნა">სლაიდი 14</a></div>
+<div class="codebox"><div class="ch"><span>.github/workflows/ci.yml</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">CI</span></span><span class="ln"> </span><span class="ln"><span class="nt">on</span><span class="p">:</span></span><span class="ln"><span class="w">  </span><span class="nt">pull_request</span><span class="p">:</span></span><span class="ln"><span class="w">    </span><span class="nt">branches</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="nv">main</span><span class="p">]</span></span><span class="ln"> </span><span class="ln"><span class="nt">jobs</span><span class="p">:</span></span><span class="ln"><span class="w">  </span><span class="nt">build</span><span class="p">:</span></span><span class="ln"><span class="w">    </span><span class="nt">runs-on</span><span class="p">:</span><span class="w"> </span><span class="l">ubuntu-latest</span></span><span class="ln"><span class="w">    </span><span class="nt">steps</span><span class="p">:</span></span><span class="ln"><span class="w">      </span><span class="p">-</span><span class="w"> </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l">actions/checkout@v4</span></span><span class="ln"><span class="w">      </span><span class="p">-</span><span class="w"> </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l">actions/setup-dotnet@v4</span></span><span class="ln"><span class="w">        </span><span class="nt">with</span><span class="p">:</span></span><span class="ln"><span class="w">          </span><span class="nt">dotnet-version</span><span class="p">:</span><span class="w"> </span><span class="s">'</span><span class="s">10.0.x</span><span class="s">'</span></span><span class="ln"><span class="w">      </span><span class="p">-</span><span class="w"> </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="l">dotnet</span><span class="l"> </span><span class="l">restore</span></span><span class="ln"><span class="w">      </span><span class="p">-</span><span class="w"> </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="l">dotnet</span><span class="l"> </span><span class="l">build</span><span class="l"> </span><span class="l">--no-restore</span><span class="l"> </span><span class="l">-c</span><span class="l"> </span><span class="l">Release</span></span><span class="ln"><span class="w">      </span><span class="p">-</span><span class="w"> </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="l">dotnet</span><span class="l"> </span><span class="l">test</span><span class="l"> </span><span class="l">--no-build</span><span class="l"> </span><span class="l">-c</span><span class="l"> </span><span class="l">Release</span></span></code></pre></div>
+<ul>
+<li><code>on: pull_request</code> → <code>branches: [main]</code> — ყოველ PR-ზე, რომელიც <code>main</code>-ში უნდა შეირწყას (და მის ყოველ ახალ push-ზე);</li>
+<li><code>jobs: build:</code> — ერთი job, სახელით <code>build</code> (ეს სახელი branch protection-ში დაგვჭირდება);</li>
+<li><code>with:</code> — action-ის პარამეტრები; <code>10.0.x</code> — .NET 10-ის უახლესი patch;</li>
+<li><code>--no-restore</code> / <code>--no-build</code> — წინა ნაბიჯი უკვე გაკეთდა, თავიდან აღარ ვაკეთებთ.</li>
+</ul>
+<p>push → Actions ჩანართში ჩანს გაშვება: ყოველი step-ის ლოგი, ხანგრძლივობა, შეცდომა. PR-ის გვერდზე კი — ❌ ან ✅.</p>
+<div class="callout tip"><span class="ci">👉</span><div><p>შეადარე ხელით deploy-ს (მე-6 ლექცია): იქაც restore → build → publish ვაკეთებდით, ოღონდ სერვერზე და ხელით. CI იგივე ბრძანებებია, ოღონდ ყოველ PR-ზე, ავტომატურად და სუფთა მანქანაზე.</p></div></div></article>
+<article class="blk" data-slides="15"><span class="anchor" id="s-15"></span><div class="bh"><h3>განზრახ ვამტვრევთ: ❌ → ✅</h3><a class="chip" href="index.html#/15" data-go="15" title="პრეზენტაციაში გახსნა">სლაიდი 15</a></div>
+<p>CI-ს აზრი მაშინ ჩანს, როცა ის <strong>აჩერებს</strong> რაღაცას. ამიტომ განზრახ ვამტვრევთ:</p>
+<ol>
+<li>branch <code>feature/break-enroll</code> → <code>Enroll</code>-ში ტევადობის შემოწმებას ვშლით → commit → push → <strong>Pull Request</strong>;</li>
+<li>PR-ის გვერდზე: <strong>CI / build — Failing</strong> ❌;</li>
+<li><strong>Details</strong> → ლოგი:</li>
+</ol>
+<div class="codebox"><div class="ch"><span>Actions → CI → build → Run dotnet test</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="go">  Enroll_WhenCourseIsFull_ReturnsFalse [FAIL]</span></span><span class="ln"><span class="go">    Assert.False() Failure</span></span><span class="ln"><span class="go">    Expected: False</span></span><span class="ln"><span class="go">    Actual:   True</span></span><span class="ln"><span class="go">Failed!  - Failed: 1, Passed: 0</span></span></code></pre></div>
+<p>ლოგი ყველაფერს ამბობს: <strong>რომელი</strong> ტესტი ჩავარდა, <strong>რა</strong> ელოდა (<code>False</code>) და <strong>რა</strong> მიიღო (<code>True</code>), და ფაილის რომელ ხაზზე.</p>
+<ol start="4">
+<li>ვასწორებთ → push <strong>იმავე branch-ზე</strong> → CI თავისით ეშვება თავიდან → ✅.</li>
+</ol>
+<div class="terms"><div class="th">📘 ტერმინები</div><dl><dt>exit code</dt><dd>რიცხვი, რომლითაც პროგრამა მთავრდება: 0 = წარმატება, სხვა = შეცდომა. Actions ყოველი step-ის exit code-ს ამოწმებს და შეცდომაზე job-ს აჩერებს</dd></dl></div>
+<div class="callout tip"><span class="ci">👉</span><div><p>CI ჩავარდა? თანმიმდევრობა ყოველთვის ერთია: <strong>რომელ step-ზე</strong> → მისი ლოგის <strong>ბოლო ხაზები</strong> → იგივე ბრძანება <strong>შენთან</strong> (<code>dotnet build</code>, <code>dotnet test</code>). თუ შენთან მუშაობს და CI-ზე არა — ეძებე განსხვავება გარემოში: .NET-ის ვერსია, ფაილის სახელის ასოები (Linux!), ფაილი, რომელიც <code>.gitignore</code>-შია.</p></div></div></article>
+<article class="blk" data-slides="16"><span class="anchor" id="s-16"></span><div class="bh"><h3>ნაბიჯი 2 · branch protection: main — მხოლოდ მწვანე PR-ით</h3><a class="chip" href="index.html#/16" data-go="16" title="პრეზენტაციაში გახსნა">სლაიდი 16</a></div>
+<p>CI სასარგებლოა მხოლოდ მაშინ, თუ წითელ PR-ს <strong>ვერ</strong> შეურწყავ. ამას <strong>branch protection</strong> აკეთებს.</p>
+<p>რეპოს <strong>Settings → Rules → Rulesets → New branch ruleset</strong> (ძველ ინტერფეისში: Settings → Branches → Add branch protection rule):</p>
+<ul>
+<li><strong>Target branches:</strong> <code>main</code> (Include default branch);</li>
+<li>✓ <strong>Require a pull request before merging</strong> — პირდაპირ push <code>main</code>-ში აკრძალულია;</li>
+<li>✓ <strong>Require status checks to pass</strong> → დაამატე <code>build</code> (ჩვენი CI job-ის სახელი).</li>
+</ul>
+<div class="callout warn"><span class="ci">⚠️</span><div><p><code>build</code> სიაში მხოლოდ მას შემდეგ ჩნდება, რაც CI ერთხელ მაინც გაეშვა. ამიტომ ჯერ PR და CI, მერე — ruleset.</p></div></div>
+<p>ამიერიდან გზა ერთია — ის, რაც მე-2 ლექციაზე branch-ებით დავიწყეთ:</p>
+<ol>
+<li><code>feature/...</code> branch → <code>git push</code>;</li>
+<li><strong>Pull Request</strong> GitHub-ზე — ცვლილების აღწერა;</li>
+<li><strong>CI</strong> ავტომატურად აწყობს კოდს → ❌ ან ✅;</li>
+<li><strong>review</strong> — გუნდელი კითხულობს კოდს, წერს კომენტარებს;</li>
+<li><strong>merge</strong> <code>main</code>-ში → შემდეგ ლექციაზე აქედან ავტომატური deploy დაიწყება (CD).</li>
+</ol>
+<div class="codebox"><div class="ch"><span>WSL</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="gp">$ </span>git<span class="w"> </span>push<span class="w"> </span>origin<span class="w"> </span>main</span></code></pre></div>
+<div class="callout tip"><span class="ci">👉</span><div><p>Pull Request-ში review გუნდურ მუშაობაში ერთ-ერთი ყველაზე მნიშვნელოვანი ჩვევაა — junior-ისთვის მის კოდზე დაწერილი კომენტარი ყველაზე სწრაფი სწავლაა.</p></div></div></article>
+<h2 class="sec" id="sec-6">შეჯამება</h2>
+<article class="blk" data-slides="17"><span class="anchor" id="s-17"></span><div class="bh"><h3>შპარგალკა: CI</h3><a class="chip" href="index.html#/17" data-go="17" title="პრეზენტაციაში გახსნა">სლაიდი 17</a></div>
+<p><strong>workflow-ის ჩონჩხი:</strong> <code>.github/workflows/*.yml</code> → <code>on</code> (როდის) → <code>jobs</code> → <code>runs-on: ubuntu-latest</code> → <code>steps</code> (<code>uses</code> — მზა action, <code>run</code> — ბრძანება).</p>
+<p><strong>CI-ის ნაბიჯები .NET-ისთვის:</strong> <code>actions/checkout@v4</code> → <code>actions/setup-dotnet@v4</code> (<code>10.0.x</code>) → <code>dotnet restore</code> → <code>dotnet build --no-restore -c Release</code> → <code>dotnet test --no-build -c Release</code>.</p>
+<p><strong>გზა <code>main</code>-მდე:</strong> branch → push → Pull Request → CI ❌ → ლოგი → გასწორება → push → CI ✅ → review → merge.</p>
+<p><strong>თუ არ მუშაობს:</strong> workflow არ ჩანს → ფაილი <code>.github/workflows/</code>-შია? YAML-ში Tab ხომ არ არის? → step წითელია → მისი ლოგის ბოლო ხაზები → იგივე ბრძანება შენთან.</p></article>
+<h2 class="sec" id="sec-7">პრაქტიკა</h2>
+<article class="blk" data-slides="18"><span class="anchor" id="s-18"></span><div class="bh"><h3>კლასში დავალება: CI — ყოველ Pull Request-ზე</h3><a class="chip" href="index.html#/18" data-go="18" title="პრეზენტაციაში გახსნა">სლაიდი 18</a></div>
+<p>დავალება · ტესტი + ci.yml + branch protection</p>
+<h3>ნაბიჯები</h3>
+<ul>
+<li><code>Lms.Tests</code> (xUnit) პროექტი solution-ში და ერთი ტესტი თქვენი პროექტის ნებისმიერ მეთოდზე → <code>dotnet test</code> შენთან მწვანეა</li>
+<li><code>.github/workflows/ci.yml</code>: <code>on: pull_request</code> → checkout → setup-dotnet <code>10.0.x</code> → <code>restore</code> → <code>build</code> → <code>test</code></li>
+<li>branch <code>feature/ci</code> → push → PR → CI ✅</li>
+<li><strong>Settings → Rules → Rulesets</strong> (<code>main</code>): Require a pull request · Require status checks → <code>build</code></li>
+<li>branch <code>feature/ci-break</code> → ტესტი განზრახ გატეხეთ → PR → ❌ → ლოგში იპოვეთ, რა ჩავარდა → გაასწორეთ → push → ✅ → merge</li>
+</ul>
+<h3>✓ მზადაა, როცა</h3>
+<p>Actions-ში ჩანს ერთი წითელი და ერთი მწვანე გაშვება, წითელ PR-ზე Merge ღილაკი დაბლოკილი იყო, <code>main</code>-ში პირდაპირ push უარყოფილია</p>
+<h3>⭐ ბონუსი</h3>
+<ul>
+<li>README-ში CI-ის badge: Actions → CI → ⋯ → <strong>Create status badge</strong> → ჩასვით README-ში</li>
+</ul>
+<h3>💡 მინიშნება</h3>
+<div class="codebox"><div class="ch"><span>yaml</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="nt">on</span><span class="p">:</span></span><span class="ln"><span class="w">  </span><span class="nt">pull_request</span><span class="p">:</span></span><span class="ln"><span class="w">    </span><span class="nt">branches</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="nv">main</span><span class="p">]</span></span></code></pre></div>
+<p>ფაილი ზუსტად <code>.github/workflows/</code> საქაღალდეში უნდა იყოს. YAML-ში — მხოლოდ space-ები, არა Tab. <code>build</code> Rulesets-ის სიაში მხოლოდ მაშინ ჩნდება, როცა CI ერთხელ მაინც გაეშვა.</p></article>
+<h2 class="sec" id="sec-8">შეჯამება</h2>
+<article class="blk" data-slides="19"><span class="anchor" id="s-19"></span><div class="bh"><h3>შეამოწმე, რა დაგამახსოვრდა</h3><a class="chip" href="index.html#/19" data-go="19" title="პრეზენტაციაში გახსნა">სლაიდი 19</a></div>
+<p>ეს კითხვები შემდეგი ლექციის დასაწყისშიც დაისმება.</p>
+<div class="selfcheck"><div class="sh">✅ შეამოწმე თავი <small>დაფიქრდი, მერე გახსენი პასუხი</small></div><details><summary>CI და CD — რა განსხვავებაა?</summary><div class="ans">CI (Continuous Integration) — ყოველი ცვლილების ავტომატური შემოწმება (build, ტესტები) <code>main</code>-ში შერწყმამდე. CD (Continuous Deployment) — <code>main</code>-ის ყოველი ცვლილების ავტომატური გაშვება სერვერზე</div></details><details><summary>Continuous Delivery და Continuous Deployment — რა განსხვავებაა?</summary><div class="ans">Delivery: <code>main</code> ყოველთვის მზადაა გასაშვებად, production-ში გატანას ადამიანი წყვეტს ღილაკით. Deployment: merge-ის შემდეგ ახალი ვერსია production-ში ავტომატურად მიდის — ჩვენ LMS-ისთვის ამას ვაკეთებთ</div></details><details><summary>pipeline-ში ტესტი ჩავარდა. რა მოხდება შემდეგ ნაბიჯებზე?</summary><div class="ans">pipeline ჩერდება: artifact (image) არ აეწყობა და deploy არ მოხდება — გატეხილი კოდი production-მდე ვერ მივა</div></details><details><summary><code>uses:</code> და <code>run:</code> — რა განსხვავებაა step-ში?</summary><div class="ans"><code>uses</code> — მზა action-ის გამოყენება (მაგ. <code>actions/checkout@v4</code>), <code>run</code> — ბრძანება runner-ის ტერმინალში (მაგ. <code>dotnet build</code>)</div></details><details><summary>workflow-ში პირველი <code>ls -la</code> ცარიელს აჩვენებს. რატომ?</summary><div class="ans">runner ყოველ გაშვებაზე ახალი, სუფთა ვირტუალური Ubuntu-ა — შენი კოდი მასზე მხოლოდ <code>actions/checkout</code>-ის შემდეგ ჩნდება</div></details><details><summary>რატომ არ ეყოფა CI-ს მხოლოდ <code>dotnet build</code>?</summary><div class="ans">build ამოწმებს, რომ კოდი იკომპილირდება, მაგრამ არა — რომ სწორად მუშაობს. ამას <code>dotnet test</code> ამოწმებს: ჩავარდნილი ტესტი CI-ს წითლად აქცევს</div></details><details><summary>PR-ზე CI წითელია, შენთან კი ყველაფერი მუშაობს. რას შეამოწმებ?</summary><div class="ans">რომელ step-ზე ჩავარდა და მისი ლოგის ბოლო ხაზები; მერე — გარემოს განსხვავება: .NET-ის ვერსია, ფაილის სახელის დიდი/პატარა ასოები (runner Linux-ია), ფაილი, რომელიც <code>.gitignore</code>-შია</div></details><details><summary>რას იძლევა branch protection <code>main</code>-ზე?</summary><div class="ans"><code>main</code>-ში პირდაპირ push აღარ შეიძლება — მხოლოდ Pull Request-ით, და merge მხოლოდ მაშინ, როცა CI მწვანეა</div></details></div></article>
+<article class="blk" data-slides="20"><span class="anchor" id="s-20"></span><div class="bh"><h3>შეჯამება · დღეს ვისწავლეთ</h3><a class="chip" href="index.html#/20" data-go="20" title="პრეზენტაციაში გახსნა">სლაიდი 20</a></div>
+<ul>
+<li>🔁 <strong>CI/CD</strong> — pipeline: commit → build → test → artifact → deploy → production; ნებისმიერ ნაბიჯზე შეცდომა მას აჩერებს. CI — „კოდი სწორია?“, CD — „კოდი მომხმარებელთანაა?“. Continuous <strong>Delivery</strong> — production-ს ადამიანი წყვეტს ღილაკით; Continuous <strong>Deployment</strong> — merge-ის შემდეგ ავტომატურად. პრინციპები: პატარა ცვლილებები, სწრაფი პასუხი, ერთხელ აეწყობა, ყველაფერი კოდით.</li>
+<li>⚙️ <strong>GitHub Actions</strong> — <code>.github/workflows/*.yml</code>: trigger (<code>on</code>), job, runner (<code>runs-on: ubuntu-latest</code>), steps (<code>uses</code> / <code>run</code>).</li>
+<li>🖥️ <strong>runner</strong> — GitHub-ის სუფთა ვირტუალური Ubuntu, ყოველ გაშვებაზე ახალი: კოდი მხოლოდ <code>actions/checkout</code>-ის შემდეგ ჩნდება, .NET — <code>actions/setup-dotnet</code>-ის შემდეგ.</li>
+<li>🧪 <strong>CI</strong> — <code>ci.yml</code> ყოველ PR-ზე: checkout → setup-dotnet → restore → build → test. ჩავარდნისას: რომელი step → ლოგის ბოლო ხაზები → იგივე ბრძანება შენთან.</li>
+<li>🛡️ <strong>branch protection</strong> — <code>main</code>-ში პირდაპირ push აღარ შეიძლება, merge — მხოლოდ მწვანე CI-ით.</li>
+</ul>
+<p><strong>შემდეგ ლექციაზე:</strong> CI ამოწმებს — მაგრამ სერვერზე განახლება ისევ ხელით ხდება. CD-ით merge-ის შემდეგ LMS სერვერზე თვითონ ავა.</p>
+<div class="prompt"><div class="ph"><span>🤖 გამოცდა მეათე ლექციაზე</span><button class="copy" type="button">კოპირება</button></div><div class="pb">ვსწავლობ DevOps-ს. მეათე ლექციაზე გავიარეთ CI/CD-ის თეორია (pipeline, build/test/artifact/deploy, CI vs Continuous Delivery vs Continuous Deployment, პრინციპები) და GitHub Actions-ით CI: workflow, on (push, pull_request, workflow_dispatch), jobs, runs-on, runner როგორც სუფთა მანქანა, steps (uses და run), actions/checkout, actions/setup-dotnet, YAML-ის შეწევა, xUnit ტესტი, dotnet build/test CI-ში, exit code, ჩავარდნილი CI-ის ლოგის კითხვა, branch protection (rulesets, required status checks).
+დამისვი 7 კითხვა სათითაოდ, მარტივიდან რთულისკენ — ნაწილი სიტუაციური იყოს („PR-ზე CI წითელია, შენთან კი ყველაფერი მუშაობს. რას შეამოწმებ?“). ყოველ პასუხზე შემიფასე და ამიხსენი. ბოლოს მითხარი, რა გავიმეორო. ქართულად.</div></div>
+<div class="prompt"><div class="ph"><span>🤖 GitHub Actions-ის workflow ჩავარდა</span><button class="copy" type="button">კოპირება</button></div><div class="pb">ჩემი GitHub Actions workflow ჩავარდა. დამეხმარე მიზეზის პოვნაში ნაბიჯ-ნაბიჯ, მარტივად და ქართულად. workflow ფაილი: [აქ ჩასვი, საიდუმლოებების გარეშე]. რომელ step-ზე ჩავარდა და მისი ლოგის ბოლო ხაზები: [აქ]</div></div></article>
+<h2 class="sec" id="sec-9">საშინაო</h2>
+<article class="blk" data-slides="21"><span class="anchor" id="s-21"></span><div class="bh"><h3>საშინაო დავალება: ტესტები და CI badge</h3><a class="chip" href="index.html#/21" data-go="21" title="პრეზენტაციაში გახსნა">სლაიდი 21</a></div>
+<p>LMS-ის რეპო მზადაა CD-სთვის — შემდეგ ლექციაზე merge-ის შემდეგ deploy თვითონ მოხდება</p>
+<h3>მოთხოვნები</h3>
+<ul>
+<li>კიდევ 2 ტესტი თქვენი პროექტის მეთოდებზე — თითოეული <strong>ცალკე PR</strong>-ით, CI ✅-ით</li>
+<li>README-ში CI badge — ის <code>main</code>-ის სტატუსს აჩვენებს</li>
+<li><code>ci.yml</code>-ში დაამატეთ <code>workflow_dispatch</code> — CI Actions-იდან ხელითაც ეშვებოდეს</li>
+</ul>
+<h3>✓ მზადაა, როცა</h3>
+<p><code>main</code>-ში ორი ახალი merge-ი PR-ებით, ორივეზე CI მწვანეა, README-ში badge მწვანეა</p>
+<h3>⭐ ბონუსი</h3>
+<ul>
+<li>ერთ-ერთი ტესტი <code>[Theory]</code> + <code>[InlineData]</code>-ით — ერთი ტესტი რამდენიმე მონაცემზე</li>
+</ul></article>
+  </main>
+</div>
+<script>
+const DECK = "DevOps · 10 — CI/CD — თეორია და CI პრაქტიკაში";
+if (matchMedia('(min-width:981px)').matches) document.getElementById('tocd').open = true;
+const blocks = [...document.querySelectorAll('.blk')];
+const tocLinks = [...document.querySelectorAll('nav.toc a[href^="#sec-"]')];
+const secOf = b => { let e = b; while (e && !(e.matches && e.matches('h2.sec'))) e = e.previousElementSibling; return e; };
+function mark(b, toc_only) {
+  if (!toc_only) blocks.forEach(x => x.classList.toggle('cur', x === b));
+  const s = b && secOf(b); tocLinks.forEach(a => a.classList.toggle('cur', s && a.getAttribute('href') === '#' + s.id));
+}
+const blockFor = n => blocks.find(b => b.dataset.slides.split(',').includes(String(n)));
+
+// copy buttons (code: one line per .ln)
+document.addEventListener('click', e => {
+  const btn = e.target.closest('.copy'); if (!btn) return;
+  const box = btn.closest('.codebox, .prompt');
+  const text = box.matches('.prompt') ? box.querySelector('.pb').textContent : [...box.querySelectorAll('.ln')].map(l => l.textContent).join('\n');
+  navigator.clipboard.writeText(text).then(() => { btn.textContent = '✓ დაკოპირდა'; btn.classList.add('ok'); setTimeout(() => { btn.textContent = 'კოპირება'; btn.classList.remove('ok'); }, 1600); });
+});
+
+// live mode: opened from the deck with P — follow the projector
+const live = new URLSearchParams(location.search).has('live');
+let follow = true, bc = null;
+const liveBtn = document.getElementById('live');
+if (live) {
+  try { bc = new BroadcastChannel('deck-' + DECK); } catch (e) {}
+  liveBtn.classList.add('on');
+  liveBtn.onclick = () => { follow = !follow; liveBtn.classList.toggle('off', !follow); liveBtn.querySelector('.lt').textContent = follow ? 'მიჰყვება სლაიდებს' : 'თავისუფლად ვკითხულობ'; };
+  if (bc) {
+    bc.onmessage = ({ data }) => {
+      if (data.t !== 'state' || !follow) return;
+      const b = blockFor(data.i + 1); if (!b || b.classList.contains('cur')) return;
+      mark(b); b.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    };
+    bc.postMessage({ t: 'hello' });
+  }
+  document.addEventListener('click', e => {   // slide chip → move the projector deck
+    const c = e.target.closest('.chip[data-go]'); if (!c || !bc) return;
+    e.preventDefault(); bc.postMessage({ t: 'go', n: +c.dataset.go - 1 });
+  });
+}
+// deep link #s-12
+const h = location.hash.match(/^#s-(\d+)$/);
+if (h) { const b = blockFor(+h[1]); if (b) { mark(b); setTimeout(() => b.scrollIntoView({ block: 'start' }), 50); } }
+// highlight section in the TOC while reading
+const io = new IntersectionObserver(es => es.forEach(x => { if (x.isIntersecting && !(live && follow)) mark(x.target, true); }), { rootMargin: '-30% 0px -60% 0px' });
+blocks.forEach(b => io.observe(b));
+</script>
+</body></html>

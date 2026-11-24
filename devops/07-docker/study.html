@@ -1,0 +1,594 @@
+<!doctype html>
+<html lang="ka"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>📖 Docker — აპი გარემოსთან ერთად — კონსპექტი</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Georgian:wght@400;600;700;800&family=JetBrains+Mono:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#fbf8f3;--card:#fff;--ink:#1e2132;--ink2:#3b3f54;--muted:#7b8096;--line:#e6dfd2;--accent:#6d28d9;--accent-soft:#f3effe;--teal:#0d9488;
+  --green:#15803d;--amber:#b45309;--mono:"JetBrains Mono",ui-monospace,monospace;--sans:"Noto Sans Georgian",system-ui,sans-serif}
+*{box-sizing:border-box}
+html{scroll-padding-top:76px}
+body{margin:0;background:var(--bg);color:var(--ink);font:17.5px/1.75 var(--sans);-webkit-font-smoothing:antialiased}
+a{color:var(--accent)}
+/* top bar */
+.top{position:sticky;top:0;z-index:10;display:flex;align-items:center;gap:14px;padding:10px 20px;background:rgba(251,248,243,.92);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.top .back{font:600 14px var(--mono);color:var(--muted);text-decoration:none;white-space:nowrap}
+.top .back:hover{color:var(--ink)}
+.top .ttl{flex:1;min-width:0;font-weight:700;font-size:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.top .ttl small{font:500 13px var(--mono);color:var(--muted);margin-right:8px}
+.btn{font:700 14px var(--sans);text-decoration:none;border-radius:10px;padding:7px 14px;white-space:nowrap;border:1px solid var(--line);color:var(--ink);background:var(--card);cursor:pointer}
+.btn.play{background:var(--accent);border-color:var(--accent);color:#fff}
+.live{display:none;align-items:center;gap:8px;font:600 13px var(--mono);color:var(--teal);background:#e6f6f4;border:1px solid #bfe7e2;border-radius:999px;padding:5px 12px;cursor:pointer}
+.live.on{display:flex}
+.live .dot{width:8px;height:8px;border-radius:50%;background:var(--teal);animation:pulse 1.6s infinite}
+.live.off{color:var(--muted);background:var(--card);border-color:var(--line)}.live.off .dot{background:var(--muted);animation:none}
+@keyframes pulse{50%{opacity:.3}}
+/* layout */
+.wrap{display:grid;grid-template-columns:230px minmax(0,1000px);gap:44px;justify-content:center;padding:32px 28px 120px}
+nav.toc{position:sticky;top:84px;align-self:start;font-size:14px;line-height:1.45}
+nav.toc .h{font:700 12px var(--mono);color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px}
+nav.toc a{display:block;color:var(--ink2);text-decoration:none;padding:6px 10px;border-left:2px solid var(--line)}
+nav.toc a:hover{color:var(--accent)}
+nav.toc a.cur{color:var(--accent);border-left-color:var(--accent);font-weight:700}
+nav.toc .mats{margin-top:22px;display:flex;flex-direction:column;gap:6px}
+nav.toc .mats a{border:0;padding:2px 0;font:500 13px var(--mono);color:var(--teal);word-break:break-all}
+header.hero{margin-bottom:8px}
+header.hero .k{font:600 14px var(--mono);color:var(--accent)}
+header.hero h1{font-size:38px;line-height:1.2;margin:6px 0 10px;letter-spacing:-.01em}
+header.hero p{color:var(--muted);margin:0;font-size:15.5px}
+header.hero kbd{font:500 12px var(--mono);border:1px solid var(--line);border-radius:5px;padding:0 5px;background:var(--card)}
+h2.sec{font-size:15px;font:700 13px var(--mono);color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin:48px 0 6px;padding-top:18px;border-top:1px solid var(--line)}
+/* blocks */
+.blk{position:relative;padding:14px 0 6px 22px;margin-left:-22px;border-left:3px solid transparent;transition:border-color .3s,background .3s;border-radius:0 12px 12px 0}
+.blk.cur{border-left-color:var(--accent);background:linear-gradient(90deg,var(--accent-soft),transparent 70%)}
+.anchor{position:absolute;top:0}
+.bh{display:flex;align-items:baseline;justify-content:space-between;gap:12px}
+.bh h3{font-size:22px;line-height:1.35;margin:4px 0 6px}
+.chip{flex:none;font:600 12px var(--mono);color:var(--muted);text-decoration:none;border:1px solid var(--line);border-radius:999px;padding:2px 10px;background:var(--card)}
+.chip:hover{color:var(--accent);border-color:var(--accent)}
+.blk h2{font-size:26px;line-height:1.3;margin:6px 0 10px}
+.blk h3:not(.bh h3){font-size:19px;margin:22px 0 6px}
+.blk h4{font-size:17px;margin:18px 0 4px}
+.blk p{margin:10px 0}
+.blk ul,.blk ol{padding-left:24px;margin:8px 0}
+.blk li{margin:4px 0}
+.blk strong{color:var(--ink)}
+.blk :not(pre)>code{font:600 .86em var(--mono);background:#f1ece3;border-radius:6px;padding:1px 6px;color:#5b21b6}
+.blk table{border-collapse:collapse;margin:14px 0;font-size:15.5px;width:100%;display:block;overflow-x:auto}
+.blk th,.blk td{border:1px solid var(--line);padding:8px 12px;text-align:left;vertical-align:top}
+.blk th{background:#f6f1e8}
+/* code */
+.codebox{margin:14px 0;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:#fffdf9}
+.codebox .ch,.prompt .ph{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:6px 8px 6px 14px;font:600 12.5px var(--mono);color:var(--muted);background:#f6f1e8;border-bottom:1px solid var(--line)}
+.copy{font:600 12px var(--mono);border:1px solid var(--line);background:var(--card);color:var(--ink2);border-radius:7px;padding:3px 10px;cursor:pointer}
+.copy:hover{border-color:var(--ink)}
+.copy.ok{color:var(--green);border-color:var(--green)}
+pre.code{margin:0;padding:12px 0;overflow-x:auto;font:14px/1.65 var(--mono)}
+pre.code .ln{display:block;padding:0 16px;white-space:pre}
+.code .ttl{background:var(--bg2);color:var(--muted)}
+.code .ln.hl{background:rgba(109,40,217,.07);box-shadow:inset 3px 0 0 var(--net)}
+.code .ln.dim{opacity:.42}
+.code .k,.code .kd,.code .kn,.code .kr,.code .kc{color:#7c3aed}
+.code .kt{color:#2563eb}
+.code .s,.code .s1,.code .s2,.code .sa,.code .se,.code .si,.code .sd{color:#15803d}
+.code .c,.code .c1,.code .cm,.code .cp,.code .ch{color:#8b8fa3}
+.code .m,.code .mi,.code .mf,.code .mh{color:#c2410c}
+.code .nf,.code .fm{color:#1d4ed8}
+.code .nc,.code .nn,.code .nt,.code .nd{color:#b45309}
+.code .na{color:#7c3aed} .code .nb{color:#0e7490}
+.code .o,.code .p{color:#64748b}
+.code .nv,.code .nx{color:var(--ink)}
+.code .go{color:#64748b}
+/* prompt */
+.prompt{margin:16px 0;border:1px solid #ddd2fb;border-radius:12px;overflow:hidden;background:var(--accent-soft)}
+.prompt .ph{background:#ebe3fd;border-color:#ddd2fb;color:var(--accent)}
+.prompt .pb{padding:12px 16px;white-space:pre-wrap;font-size:15.5px;line-height:1.6;color:var(--ink2)}
+/* self check */
+.selfcheck{margin:16px 0;border:1px solid #cfe9d6;border-radius:12px;background:#f3fbf5;padding:12px 16px}
+.selfcheck .sh{font-weight:700;color:var(--green);margin-bottom:6px}
+.selfcheck .sh small{font-weight:400;color:var(--muted);font-size:13.5px;margin-left:6px}
+.selfcheck details{border-top:1px solid #dcefe1;padding:8px 0}
+.selfcheck summary{cursor:pointer;font-weight:600;list-style:none;padding-left:26px;position:relative}
+.selfcheck summary::-webkit-details-marker{display:none}
+.selfcheck summary::before{content:"?";position:absolute;left:0;top:2px;width:18px;height:18px;border-radius:50%;background:var(--green);color:#fff;font:700 12px/18px var(--mono);text-align:center}
+.selfcheck details[open] summary::before{content:"✓"}
+.selfcheck .ans{padding:6px 0 2px 26px;color:var(--ink2)}
+/* terms */
+.terms{margin:16px 0;border:1px solid var(--line);border-radius:12px;background:var(--card);padding:12px 16px}
+.terms .th{font-weight:700;margin-bottom:6px}
+.terms dl{display:grid;grid-template-columns:max-content 1fr;gap:6px 18px;margin:0}
+.terms dt{font:600 14.5px var(--mono);color:var(--accent)}
+.terms dd{margin:0;color:var(--ink2)}
+/* callouts */
+.callout{display:flex;gap:12px;margin:14px 0;padding:12px 16px;border-radius:12px;border:1px solid var(--line);background:var(--card)}
+.callout .ci{font-size:20px;line-height:1.6}
+.callout>div>p:first-child{margin-top:0}.callout>div>p:last-child{margin-bottom:0}
+.callout.warn{background:#fff8eb;border-color:#f6dfb5}
+.callout.note{background:#eef5ff;border-color:#cfe0fb}
+@media (max-width:980px){
+  .wrap{grid-template-columns:minmax(0,1fr);gap:0;padding:20px 16px 100px}
+  nav.toc{position:static;margin-bottom:12px}
+  nav.toc details{border:1px solid var(--line);border-radius:12px;background:var(--card);padding:8px 12px}
+  nav.toc details>summary{cursor:pointer;font-weight:700}
+  nav.toc .h{display:none}
+  header.hero h1{font-size:30px}
+  .blk{padding-left:14px;margin-left:-14px}
+  .top .ttl small{display:none}
+  .terms dl{grid-template-columns:1fr}.terms dd{margin-bottom:8px}
+}
+@media (min-width:981px){nav.toc details>summary{display:none}}
+@media print{.top,nav.toc,.copy,.chip,.live{display:none}.wrap{display:block;padding:0}.selfcheck details{display:block}.blk.cur{background:none}}
+</style></head>
+<body>
+<div class="top">
+  <a class="back" href="../../">← ლექციები</a>
+  <div class="ttl"><small>DevOps · 7</small>Docker — აპი გარემოსთან ერთად</div>
+  <button class="live" id="live" type="button" title="ჩართული: ტექსტი პრეზენტაციას მიჰყვება"><span class="dot"></span><span class="lt">მიჰყვება სლაიდებს</span></button>
+  <a class="btn play" href="index.html">▶ პრეზენტაცია</a>
+</div>
+<div class="wrap">
+  <nav class="toc"><details id="tocd"><summary>სარჩევი</summary><div class="h">სარჩევი</div><a href="#sec-1">გამეორება</a><a href="#sec-2">საშინაოს განხილვა</a><a href="#sec-3">დღის თემა</a><a href="#sec-4">1 · კონტეინერი</a><a href="#sec-5">2 · Dockerfile</a><a href="#sec-6">შეჯამება</a><a href="#sec-7">პრაქტიკა</a><a href="#sec-8">შეჯამება</a><a href="#sec-9">საშინაო</a><div class="mats"></div></details></nav>
+  <main>
+    <header class="hero">
+      <div class="k">📖 კონსპექტი · DevOps · ლექცია 7</div>
+      <h1>Docker — აპი გარემოსთან ერთად</h1>
+      <p>წაიკითხე ლექციის შემდეგ, ან პრეზენტაციასთან ერთად: პრეზენტაციაში დააჭირე <kbd>P</kbd> და ეს გვერდი სლაიდებს გაჰყვება. კოდი და AI-ს პრომპტები კოპირდება ერთი დაჭერით.</p>
+    </header>
+    <h2 class="sec" id="sec-1">გამეორება</h2>
+<article class="blk" data-slides="1,2"><span class="anchor" id="s-1"></span><span class="anchor" id="s-2"></span><div class="bh"><h3>გავიხსენოთ წინა ლექცია</h3><a class="chip" href="index.html#/1" data-go="1" title="პრეზენტაციაში გახსნა">სლაიდი 1</a></div>
+<p>ლექცია 6 — <strong>LMS API სერვერზე — ხელით</strong>. ახალ თემამდე ვამოწმებთ, რა დაგვამახსოვრდა. ჯერ თვითონ უპასუხე, მერე გახსენი პასუხი. თუ რომელიმე გაგიჭირდა, <a href="../06-api-manual-deploy/study.html">წინა ლექციის კონსპექტს</a> გადახედე.</p>
+<div class="selfcheck"><div class="sh">✅ შეამოწმე თავი <small>დაფიქრდი, მერე გახსენი პასუხი</small></div><details><summary>რატომ ვაყენებთ სერვერზე <code>aspnetcore-runtime</code> და არა SDK-ს?</summary><div class="ans">სერვერზე კოდს არ ვწერთ და არ ვაკომპილირებთ — მხოლოდ მზა (publish-ებულ) აპს ვუშვებთ. runtime ამისთვის საკმარისია და SDK-ზე ბევრად პატარაა</div></details><details><summary>რას აკეთებს <code>dotnet publish -c Release -o ./publish</code>?</summary><div class="ans">აპს Release რეჟიმში აკომპილირებს და გასაშვებად საჭირო ყველა ფაილს (<code>.dll</code>, <code>appsettings.json</code>…) ერთ საქაღალდეში — <code>publish</code>-ში — აგროვებს</div></details><details><summary>systemd სერვისში რას აკეთებს <code>Restart=always</code>?</summary><div class="ans">თუ API crash-დება, systemd მას რამდენიმე წამში თავიდან რთავს. <code>enable</code>-თან ერთად API სერვერის reboot-ის შემდეგაც ავტომატურად ირთვება</div></details><details><summary>რა არის reverse proxy და რატომ არ ვხსნით Kestrel-ს პირდაპირ ინტერნეტში?</summary><div class="ans">Nginx იღებს მოთხოვნას და <code>proxy_pass</code>-ით გადასცემს API-ს, რომელიც მხოლოდ <code>127.0.0.1</code>-ზე უსმენს. Nginx ერთ IP-ზე ბევრ აპს ემსახურება, მოგვიანებით HTTPS-ს ამუშავებს და ლოგებს წერს</div></details><details><summary>ბრაუზერი აბრუნებს 502 Bad Gateway. რას ნიშნავს და სად ეძებ მიზეზს?</summary><div class="ans">Nginx მუშაობს, მაგრამ API-მ არ უპასუხა — ის გაჩერებულია ან crash-დება. <code>systemctl status lms-api</code> და <code>journalctl -u lms-api -n 50</code></div></details><details><summary>როგორ აწვდის systemd API-ს connection string-ს და რატომ ვწერთ <code>__</code>-ს?</summary><div class="ans"><code>Environment=</code> ხაზით გარემოს ცვლადად. ASP.NET Core <code>ConnectionStrings__Default</code>-ს კითხულობს, როგორც <code>ConnectionStrings:Default</code>-ს — <code>__</code> JSON-ის ჩადგმულ დონეს ნიშნავს</div></details></div></article>
+<h2 class="sec" id="sec-2">საშინაოს განხილვა</h2>
+<article class="blk" data-slides="3"><span class="anchor" id="s-3"></span><div class="bh"><h3>საშინაოს განხილვა</h3><a class="chip" href="index.html#/3" data-go="3" title="პრეზენტაციაში გახსნა">სლაიდი 3</a></div>
+<p>წინა ლექციის საშინაო: <strong>API — სერვისად და Nginx-ის უკან</strong>. ქვემოთ არის ერთ-ერთი სწორი ამოხსნა. შენი კოდი შეიძლება სხვანაირად იყოს დაწერილი — მთავარია, მოთხოვნები სრულდებოდეს.</p>
+<h3>მოთხოვნები</h3>
+<ul>
+<li><code>lms-api.service</code> (<code>Restart=always</code>, URL, connection string) → <code>daemon-reload</code> → <code>enable --now</code></li>
+<li>Nginx: <code>listen 8081</code> + <code>proxy_pass http://127.0.0.1:5000</code> → <code>ufw allow 8081/tcp</code></li>
+<li>crash-ის ტესტი: <code>kill -9 &lt;PID&gt;</code> → 5 წამში ისევ <code>running</code></li>
+<li>README-ში — ყველა ნაბიჯი, რაც პროექტის გასაშვებად გადადგით</li>
+</ul>
+<h3>ამოხსნა</h3>
+<div class="codebox"><div class="ch"><span>/etc/systemd/system/lms-api.service</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="k">[Unit]</span></span><span class="ln"><span class="na">Description</span><span class="o">=</span><span class="s">LMS API</span></span><span class="ln"><span class="na">After</span><span class="o">=</span><span class="s">network.target postgresql.service</span></span><span class="ln"> </span><span class="ln"><span class="k">[Service]</span></span><span class="ln"><span class="na">WorkingDirectory</span><span class="o">=</span><span class="s">/var/www/lms-api</span></span><span class="ln"><span class="na">ExecStart</span><span class="o">=</span><span class="s">/usr/bin/dotnet /var/www/lms-api/Lms.Api.dll</span></span><span class="ln"><span class="na">Restart</span><span class="o">=</span><span class="s">always</span></span><span class="ln"><span class="na">RestartSec</span><span class="o">=</span><span class="s">5</span></span><span class="ln"><span class="na">User</span><span class="o">=</span><span class="s">www-data</span></span><span class="ln"><span class="na">Environment</span><span class="o">=</span><span class="s">ASPNETCORE_ENVIRONMENT=Production</span></span><span class="ln"><span class="na">Environment</span><span class="o">=</span><span class="s">ASPNETCORE_URLS=http://127.0.0.1:5000</span></span><span class="ln"><span class="na">Environment</span><span class="o">=</span><span class="s">"</span><span class="s">ConnectionStrings__Default=Host=localhost;Database=lms;Username=lms;Password=Str0ng!Pass</span><span class="s">"</span></span><span class="ln"> </span><span class="ln"><span class="k">[Install]</span></span><span class="ln"><span class="na">WantedBy</span><span class="o">=</span><span class="s">multi-user.target</span></span></code></pre></div>
+<div class="codebox"><div class="ch"><span>Termius · lms-server</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="gp">$ </span>sudo<span class="w"> </span>systemctl<span class="w"> </span>daemon-reload</span><span class="ln"><span class="gp">$ </span>sudo<span class="w"> </span>systemctl<span class="w"> </span><span class="nb">enable</span><span class="w"> </span>--now<span class="w"> </span>lms-api</span><span class="ln"><span class="gp">$ </span>systemctl<span class="w"> </span>status<span class="w"> </span>lms-api</span><span class="ln"><span class="go">● lms-api.service - LMS API</span></span><span class="ln"><span class="go">     Active: active (running)</span></span></code></pre></div>
+<div class="codebox"><div class="ch"><span>/etc/nginx/sites-available/lms-api</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="k">server</span><span class="w"> </span><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="kn">listen</span><span class="w"> </span><span class="mi">8081</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="kn">server_name</span><span class="w"> </span><span class="s">_</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="kn">location</span><span class="w"> </span><span class="s">/</span><span class="w"> </span><span class="p">{</span></span><span class="ln"><span class="w">        </span><span class="kn">proxy_pass</span><span class="w"> </span><span class="s">http://127.0.0.1:5000</span><span class="p">;</span></span><span class="ln"><span class="w">        </span><span class="kn">proxy_http_version</span><span class="w"> </span><span class="mi">1</span><span class="s">.1</span><span class="p">;</span></span><span class="ln"><span class="w">        </span><span class="kn">proxy_set_header</span><span class="w"> </span><span class="s">Host</span><span class="w"> </span><span class="nv">$host</span><span class="p">;</span></span><span class="ln"><span class="w">        </span><span class="kn">proxy_set_header</span><span class="w"> </span><span class="s">X-Forwarded-For</span><span class="w"> </span><span class="nv">$proxy_add_x_forwarded_for</span><span class="p">;</span></span><span class="ln"><span class="w">        </span><span class="kn">proxy_set_header</span><span class="w"> </span><span class="s">X-Forwarded-Proto</span><span class="w"> </span><span class="nv">$scheme</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="p">}</span></span><span class="ln"><span class="p">}</span></span></code></pre></div>
+<div class="codebox"><div class="ch"><span>Termius · lms-server</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="gp">$ </span>sudo<span class="w"> </span>ln<span class="w"> </span>-s<span class="w"> </span>/etc/nginx/sites-available/lms-api<span class="w"> </span>/etc/nginx/sites-enabled/</span><span class="ln"><span class="gp">$ </span>sudo<span class="w"> </span>nginx<span class="w"> </span>-t<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>sudo<span class="w"> </span>systemctl<span class="w"> </span>reload<span class="w"> </span>nginx</span></code></pre></div></article>
+<h2 class="sec" id="sec-3">დღის თემა</h2>
+<article class="blk" data-slides="4"><span class="anchor" id="s-4"></span><div class="bh"><h3>დღის თემა: Docker — აპი გარემოსთან ერთად</h3><a class="chip" href="index.html#/4" data-go="4" title="პრეზენტაციაში გახსნა">სლაიდი 4</a></div>
+<p>წინა ლექციაზე LMS-ის გასაშვებად 10-ზე მეტი ნაბიჯი დაგვჭირდა: სწორი runtime, ბაზის დაყენება, ცვლადები… ახალ სერვერზე ან გუნდელის კომპიუტერზე — ყველაფერი თავიდან, და „ჩემთან მუშაობს“. Docker აპს მთელ გარემოსთან ერთად ერთ „ყუთში“ — კონტეინერში — ალაგებს, რომელიც ყველგან ერთნაირად ეშვება. დღეს PostgreSQL-ს ერთი ბრძანებით გავუშვებთ და LMS-ს Dockerfile-ს დავუწერთ.</p>
+<p><strong>ლექციის ბოლოს შეძლებ:</strong></p>
+<ul>
+<li>ახსნა, რა არის image და container (კლასი და ობიექტი) და რით განსხვავდება კონტეინერი ვირტუალური მანქანისგან</li>
+<li>მზა image-ის გაშვება: <code>docker run</code> — port-ები, გარემოს ცვლადები, volume</li>
+<li>კონტეინერების მართვა: <code>ps</code>, <code>logs</code>, <code>exec</code>, <code>stop</code>, <code>rm</code></li>
+<li>LMS-ის multi-stage Dockerfile-ის დაწერა და <code>.dockerignore</code></li>
+<li>საკუთარი image-ის აწყობა <code>docker build</code>-ით და გაშვება</li>
+</ul></article>
+<h2 class="sec" id="sec-4">1 · კონტეინერი</h2>
+<article class="blk" data-slides="5"><span class="anchor" id="s-5"></span><div class="bh"><h3>ნაწილი 1 · რა არის კონტეინერი</h3><a class="chip" href="index.html#/5" data-go="5" title="პრეზენტაციაში გახსნა">სლაიდი 5</a></div>
+<p>იდეა, ტერმინები და პირველი სასარგებლო კონტეინერი — PostgreSQL ინსტალაციის გარეშე.</p></article>
+<article class="blk" data-slides="6"><span class="anchor" id="s-6"></span><div class="bh"><h3>პრობლემა: „ჩემთან მუშაობს“ — სერვერზე არა</h3><a class="chip" href="index.html#/6" data-go="6" title="პრეზენტაციაში გახსნა">სლაიდი 6</a></div>
+<p>ერთი და იგივე LMS სამ ადგილას:</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>შენი ლეპტოპი</th>
+<th>გუნდელის ლეპტოპი</th>
+<th>სერვერი</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>OS</td>
+<td>Windows 11</td>
+<td>macOS</td>
+<td>Ubuntu 24.04</td>
+</tr>
+<tr>
+<td>.NET</td>
+<td>10.0.3 SDK</td>
+<td>9 SDK</td>
+<td>10.0.1 runtime</td>
+</tr>
+<tr>
+<td>ბაზა</td>
+<td>SQL Server LocalDB</td>
+<td>PostgreSQL 15</td>
+<td>PostgreSQL 16, ხელით დაყენებული</td>
+</tr>
+</tbody>
+</table>
+<p>ყოველ ადგილას გარემო ცოტა სხვანაირია — და ყოველი განსხვავება შეიძლება „უცნაური“ შეცდომის მიზეზი გახდეს. წინა ლექციაზე სერვერის მოსამზადებლად 10-ზე მეტი ხელით ნაბიჯი დაგვჭირდა.</p>
+<p><strong>ანალოგია.</strong> 1950-იანებამდე გემზე ტვირთს ცალ-ცალკე ტვირთავდნენ — ტომრები, კასრები, ყუთები — და ყოველ პორტში სხვანაირად. მერე გამოიგონეს <strong>სტანდარტული საზღვაო კონტეინერი</strong>: შიგნით რაც არ უნდა იყოს, გარედან ყველა ერთნაირია — ერთნაირად იტვირთება ნებისმიერ გემზე, მატარებელზე, სატვირთოზე.</p>
+<p>Docker იგივეს აკეთებს პროგრამებისთვის.</p></article>
+<article class="blk" data-slides="7"><span class="anchor" id="s-7"></span><div class="bh"><h3>image = კლასი · container = ობიექტი</h3><a class="chip" href="index.html#/7" data-go="7" title="პრეზენტაციაში გახსნა">სლაიდი 7</a></div>
+<p>C#-ში უკვე იცი ეს იდეა:</p>
+<div class="codebox"><div class="ch"><span>C#</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="k">class</span><span class="w"> </span><span class="nc">Course</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">.</span><span class="p">.</span><span class="p">.</span><span class="w"> </span><span class="p">}</span><span class="w">            </span><span class="c1">// შაბლონი</span></span><span class="ln"><span class="kt">var</span><span class="w"> </span><span class="n">c1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">Course</span><span class="p">(</span><span class="p">)</span><span class="p">;</span><span class="w">          </span><span class="c1">// ეგზემპლარი</span></span><span class="ln"><span class="kt">var</span><span class="w"> </span><span class="n">c2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">Course</span><span class="p">(</span><span class="p">)</span><span class="p">;</span><span class="w">          </span><span class="o">/</span><span class="o">/</span><span class="w"> </span><span class="n">კიდევ</span><span class="w"> </span><span class="n">ერთი</span><span class="p">,</span><span class="w"> </span><span class="n">დამოუკიდებელი</span></span></code></pre></div>
+<p>Docker-ში:</p>
+<table>
+<thead>
+<tr>
+<th>ტერმინი</th>
+<th>რა არის</th>
+<th>C# ანალოგია</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>image</strong></td>
+<td>აპი + runtime + საჭირო ფაილები, „გაყინული“ — მხოლოდ წასაკითხი შაბლონი</td>
+<td>კლასი</td>
+</tr>
+<tr>
+<td><strong>container</strong></td>
+<td>image-იდან <strong>გაშვებული</strong> ეგზემპლარი: საკუთარი იზოლირებული ფაილებით, ქსელით, პროცესებით</td>
+<td>ობიექტი</td>
+</tr>
+<tr>
+<td><strong>registry</strong></td>
+<td>image-ების საცავი, საიდანაც <code>docker</code> მათ ჩამოტვირთავს</td>
+<td>NuGet</td>
+</tr>
+</tbody>
+</table>
+<p>ცნობილი registry-ები: <strong>Docker Hub</strong> (<code>postgres</code>, <code>nginx</code>, <code>redis</code>...), <strong>mcr.microsoft.com</strong> (Microsoft-ის .NET image-ები), <strong>GHCR</strong> (GitHub-ის — მე-11 ლექციაზე გამოვიყენებთ).</p>
+<p>image-ის სახელი: <code>postgres:17</code> — <code>სახელი:tag</code>, სადაც tag ჩვეულებრივ ვერსიაა. <code>latest</code> — ნაგულისხმევი tag.</p></article>
+<article class="blk" data-slides="8"><span class="anchor" id="s-8"></span><div class="bh"><h3>კონტეინერი vs ვირტუალური მანქანა</h3><a class="chip" href="index.html#/8" data-go="8" title="პრეზენტაციაში გახსნა">სლაიდი 8</a></div>
+<p><strong>ვირტუალური მანქანა</strong> (VM — მაგ. ჩვენი Droplet) — მთელი კომპიუტერის იმიტაცია: თავისი სრული OS-ით. ყოველი VM რამდენიმე GB-ია და ჩართვას წუთები სჭირდება.</p>
+<p><strong>კონტეინერი</strong> მთელ OS-ს არ შეიცავს: ყველა კონტეინერი ერთ საერთო Linux-ის <strong>ბირთვს</strong> იყენებს, თითოეულს კი მხოლოდ საკუთარი ფაილები, ბიბლიოთეკები და აპი აქვს. ამიტომ კონტეინერი MB-ებია და <strong>წამებში</strong> ირთვება.</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>VM</th>
+<th>კონტეინერი</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>შეიცავს</td>
+<td>მთელ OS-ს</td>
+<td>აპს და მის ფაილებს</td>
+</tr>
+<tr>
+<td>ზომა</td>
+<td>GB-ები</td>
+<td>MB-ები</td>
+</tr>
+<tr>
+<td>ჩართვა</td>
+<td>წუთები</td>
+<td>წამები</td>
+</tr>
+<tr>
+<td>იზოლაცია</td>
+<td>ძალიან ძლიერი</td>
+<td>ძლიერი, საკმარისი აპებისთვის</td>
+</tr>
+</tbody>
+</table>
+<p>ისინი ერთმანეთს არ ცვლის: ჩვენ Droplet-ზე (VM) <strong>კონტეინერებს</strong> გავუშვებთ.</p>
+<div class="callout note"><span class="ci">💡</span><div><p>Windows-ზე Docker Desktop კონტეინერებს WSL 2-ის Linux-ში უშვებს — სწორედ ამიტომ გჭირდებოდათ virtualization BIOS-ში.</p></div></div></article>
+<article class="blk" data-slides="9"><span class="anchor" id="s-9"></span><div class="bh"><h3>ნაბიჯი 1 · PostgreSQL — ერთი ბრძანებით</h3><a class="chip" href="index.html#/9" data-go="9" title="პრეზენტაციაში გახსნა">სლაიდი 9</a></div>
+<p>ჯერ შემოწმება — Docker Desktop ჩართულია და მუშაობს:</p>
+<div class="codebox"><div class="ch"><span>WSL</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="gp">$ </span>docker<span class="w"> </span>run<span class="w"> </span>hello-world</span></code></pre></div>
+<p>ახლა — წინა ლექციის „PostgreSQL-ის დაყენება + user + ბაზა“, ერთი ბრძანებით:</p>
+<div class="codebox"><div class="ch"><span>WSL</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="gp">$ </span>docker<span class="w"> </span>run<span class="w"> </span>-d<span class="w"> </span>--name<span class="w"> </span>lms-db<span class="w"> </span><span class="se">\</span></span><span class="ln"><span class="w">    </span>-e<span class="w"> </span><span class="nv">POSTGRES_USER</span><span class="o">=</span>lms<span class="w"> </span><span class="se">\</span></span><span class="ln"><span class="w">    </span>-e<span class="w"> </span><span class="nv">POSTGRES_PASSWORD</span><span class="o">=</span>dev<span class="w"> </span><span class="se">\</span></span><span class="ln"><span class="w">    </span>-e<span class="w"> </span><span class="nv">POSTGRES_DB</span><span class="o">=</span>lms<span class="w"> </span><span class="se">\</span></span><span class="ln"><span class="w">    </span>-p<span class="w"> </span><span class="m">5432</span>:5432<span class="w"> </span><span class="se">\</span></span><span class="ln"><span class="w">    </span>-v<span class="w"> </span>lms-data:/var/lib/postgresql/data<span class="w"> </span><span class="se">\</span></span></code></pre></div>
+<table>
+<thead>
+<tr>
+<th>ნაწილი</th>
+<th>რას ნიშნავს</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>-d</code></td>
+<td>detached — ფონზე, terminal-ი თავისუფალი რჩება</td>
+</tr>
+<tr>
+<td><code>--name lms-db</code></td>
+<td>სახელი, რომლითაც კონტეინერს მივმართავთ</td>
+</tr>
+<tr>
+<td><code>-e POSTGRES_USER=lms</code> …</td>
+<td>გარემოს ცვლადები: image პირველ გაშვებაზე თვითონ ქმნის user-ს, პაროლს და ბაზას</td>
+</tr>
+<tr>
+<td><code>-p 5432:5432</code></td>
+<td><code>ჰოსტის-port:კონტეინერის-port</code> — შენი კომპიუტერის 5432 → კონტეინერის 5432</td>
+</tr>
+<tr>
+<td><code>-v lms-data:/var/lib/postgresql/data</code></td>
+<td>volume — სადაც PostgreSQL მონაცემებს ინახავს (იხ. შემდეგი სლაიდები)</td>
+</tr>
+<tr>
+<td><code>postgres:17</code></td>
+<td>image Docker Hub-იდან, ვერსია 17</td>
+</tr>
+</tbody>
+</table>
+<p>პირველად Docker image-ს ჩამოტვირთავს (pull), შემდეგ ჯერზე — უკვე ლოკალურად აქვს.</p>
+<div class="codebox"><div class="ch"><span>WSL</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="gp">$ </span>docker<span class="w"> </span>ps</span><span class="ln"><span class="go">CONTAINER ID  IMAGE        STATUS        PORTS                   NAMES</span></span></code></pre></div>
+<p>LMS-ის connection string ლოკალურად: <code>Host=localhost;Database=lms;Username=lms;Password=dev</code> → <code>dotnet ef database update</code> → <code>dotnet run</code>. ბაზა მზადაა — ინსტალაციის გარეშე.</p></article>
+<article class="blk" data-slides="10"><span class="anchor" id="s-10"></span><div class="bh"><h3>ნაბიჯი 2 · კონტეინერების მართვა</h3><a class="chip" href="index.html#/10" data-go="10" title="პრეზენტაციაში გახსნა">სლაიდი 10</a></div>
+<div class="codebox"><div class="ch"><span>WSL</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="gp">$ </span>docker<span class="w"> </span>ps<span class="w">                     </span><span class="c1"># მუშა კონტეინერები</span></span><span class="ln"><span class="gp">$ </span>docker<span class="w"> </span>ps<span class="w"> </span>-a<span class="w">                  </span><span class="c1"># ყველა, გაჩერებულებიც</span></span><span class="ln"><span class="gp">$ </span>docker<span class="w"> </span>logs<span class="w"> </span>-f<span class="w"> </span>lms-db<span class="w">         </span><span class="c1"># ლოგი ცოცხლად (Ctrl+C — გამოსვლა)</span></span><span class="ln"><span class="gp">$ </span>docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>-it<span class="w"> </span>lms-db<span class="w"> </span>psql<span class="w"> </span>-U<span class="w"> </span>lms<span class="w">     </span><span class="c1"># ბრძანება კონტეინერის შიგნით</span></span><span class="ln"><span class="gp">$ </span>docker<span class="w"> </span>stop<span class="w"> </span>lms-db<span class="w">            </span><span class="c1"># გაჩერება</span></span><span class="ln"><span class="gp">$ </span>docker<span class="w"> </span>start<span class="w"> </span>lms-db<span class="w">           </span><span class="c1"># ჩართვა</span></span><span class="ln"><span class="gp">$ </span>docker<span class="w"> </span>rm<span class="w"> </span>-f<span class="w"> </span>lms-db<span class="w">           </span><span class="c1"># წაშლა (-f: გაჩერებულიც და მუშაც)</span></span></code></pre></div>
+<table>
+<thead>
+<tr>
+<th>ბრძანება</th>
+<th>ანალოგია უკვე ნასწავლიდან</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>docker ps</code></td>
+<td><code>ps aux</code> / <code>systemctl status</code></td>
+</tr>
+<tr>
+<td><code>docker logs -f</code></td>
+<td><code>journalctl -u … -f</code></td>
+</tr>
+<tr>
+<td><code>docker exec -it &lt;name&gt; bash</code></td>
+<td><code>ssh</code> — „შესვლა“ კონტეინერში</td>
+</tr>
+<tr>
+<td><code>docker stop</code> / <code>start</code></td>
+<td><code>systemctl stop</code> / <code>start</code></td>
+</tr>
+</tbody>
+</table>
+<p><code>exec -it</code>: <code>-i</code> — შეყვანა ღიაა, <code>-t</code> — ტერმინალი. <code>docker exec -it lms-db bash</code> — Linux-ის ტერმინალი კონტეინერის შიგნით (<code>exit</code> — გამოსვლა).</p></article>
+<article class="blk" data-slides="11,12"><span class="anchor" id="s-11"></span><span class="anchor" id="s-12"></span><div class="bh"><h3>volume — კონტეინერი ქრება, მონაცემები რჩება</h3><a class="chip" href="index.html#/11" data-go="11" title="პრეზენტაციაში გახსნა">სლაიდი 11</a></div>
+<p>კონტეინერის ფაილები <strong>დროებითია</strong>: <code>docker rm</code> — და ყველაფერი, რაც კონტეინერის შიგნით შეიქმნა, ქრება. აპისთვის ეს კარგია (ახალი ვერსია = ახალი კონტეინერი, სუფთა). <strong>ბაზისთვის</strong> — კატასტროფა.</p>
+<p><strong>volume</strong> — Docker-ის მიერ მართული საცავი დისკზე, რომელიც კონტეინერის შიგნით საქაღალდედ ჩანს:</p>
+<div class="codebox"><div class="ch"><span>plain</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln">-v lms-data:/var/lib/postgresql/data</span><span class="ln">   ↑ volume     ↑ საქაღალდე კონტეინერში, სადაც PostgreSQL მონაცემებს წერს</span></code></pre></div>
+<p>ექსპერიმენტი:</p>
+<div class="codebox"><div class="ch"><span>WSL</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="gp">$ </span>docker<span class="w"> </span>rm<span class="w"> </span>-f<span class="w"> </span>lms-db</span><span class="ln"><span class="gp">$ </span>docker<span class="w"> </span>run<span class="w"> </span>-d<span class="w"> </span>--name<span class="w"> </span>lms-db<span class="w"> </span>...<span class="w"> </span>-v<span class="w"> </span>lms-data:/var/lib/postgresql/data<span class="w"> </span>postgres:17</span><span class="ln"><span class="gp">$ </span>docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>-it<span class="w"> </span>lms-db<span class="w"> </span>psql<span class="w"> </span>-U<span class="w"> </span>lms<span class="w"> </span>-c<span class="w"> </span><span class="s1">'SELECT * FROM "Courses";'</span></span></code></pre></div>
+<div class="codebox"><div class="ch"><span>WSL</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="gp">$ </span>docker<span class="w"> </span>volume<span class="w"> </span>ls<span class="w">              </span><span class="c1"># ყველა volume</span></span></code></pre></div>
+<div class="callout warn"><span class="ci">⚠️</span><div><p>ბაზის კონტეინერს <strong>ყოველთვის</strong> volume სჭირდება. volume-ის გარეშე <code>docker rm</code> (ან სერვერზე კონტეინერის განახლება) = ბაზა წაიშალა.</p></div></div></article>
+<h2 class="sec" id="sec-5">2 · Dockerfile</h2>
+<article class="blk" data-slides="13"><span class="anchor" id="s-13"></span><div class="bh"><h3>ნაწილი 2 · Dockerfile LMS-სთვის</h3><a class="chip" href="index.html#/13" data-go="13" title="პრეზენტაციაში გახსნა">სლაიდი 13</a></div>
+<p><code>postgres:17</code> ვიღაცამ ააწყო. LMS-ის image ჩვენ თვითონ უნდა ავაწყოთ — <strong>Dockerfile</strong>-ით: ტექსტური „რეცეპტით“, რომელშიც ნაბიჯ-ნაბიჯ წერია, როგორ.</p></article>
+<article class="blk" data-slides="14"><span class="anchor" id="s-14"></span><div class="bh"><h3>ნაბიჯი 3 · Dockerfile: ორი ეტაპი</h3><a class="chip" href="index.html#/14" data-go="14" title="პრეზენტაციაში გახსნა">სლაიდი 14</a></div>
+<p>LMS-ის რეპოს root-ში (იქ, სადაც <code>.sln</code>-ია) — ფაილი <code>Dockerfile</code> (გაფართოების გარეშე):</p>
+<div class="codebox"><div class="ch"><span>Dockerfile</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="c"># ── ეტაპი 1: build (SDK) ──</span></span><span class="ln"><span class="k">FROM</span><span class="w"> </span><span class="s">mcr.microsoft.com/dotnet/sdk:10.0</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="s">build</span></span><span class="ln"><span class="k">WORKDIR</span><span class="w"> </span><span class="s">/src</span></span><span class="ln"><span class="k">COPY</span><span class="w"> </span>Lms.Api/Lms.Api.csproj<span class="w"> </span>Lms.Api/</span><span class="ln"><span class="k">RUN</span><span class="w"> </span>dotnet<span class="w"> </span>restore<span class="w"> </span>Lms.Api/Lms.Api.csproj</span><span class="ln"><span class="k">COPY</span><span class="w"> </span>.<span class="w"> </span>.</span><span class="ln"><span class="k">RUN</span><span class="w"> </span>dotnet<span class="w"> </span>publish<span class="w"> </span>Lms.Api/Lms.Api.csproj<span class="w"> </span>-c<span class="w"> </span>Release<span class="w"> </span>-o<span class="w"> </span>/app/publish</span><span class="ln"> </span><span class="ln"><span class="c"># ── ეტაპი 2: runtime (მხოლოდ გაშვება) ──</span></span><span class="ln"><span class="k">FROM</span><span class="w"> </span><span class="s">mcr.microsoft.com/dotnet/aspnet:10.0</span></span><span class="ln"><span class="k">WORKDIR</span><span class="w"> </span><span class="s">/app</span></span><span class="ln"><span class="k">COPY</span><span class="w"> </span>--from<span class="o">=</span>build<span class="w"> </span>/app/publish<span class="w"> </span>.</span><span class="ln"><span class="k">USER</span><span class="w"> </span><span class="s">$APP_UID</span></span><span class="ln"><span class="k">EXPOSE</span><span class="w"> </span><span class="s">8080</span></span><span class="ln"><span class="k">ENTRYPOINT</span><span class="w"> </span><span class="p">[</span><span class="s2">"dotnet"</span><span class="p">,</span><span class="w"> </span><span class="s2">"Lms.Api.dll"</span><span class="p">]</span></span></code></pre></div>
+<table>
+<thead>
+<tr>
+<th>ინსტრუქცია</th>
+<th>რას აკეთებს</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>FROM &lt;image&gt; AS build</code></td>
+<td>საწყისი image; <code>AS</code> — ეტაპის სახელი</td>
+</tr>
+<tr>
+<td><code>WORKDIR /src</code></td>
+<td>მიმდინარე საქაღალდე image-ის შიგნით (არ არსებობს — შეიქმნება)</td>
+</tr>
+<tr>
+<td><code>COPY &lt;შენთან&gt; &lt;image-ში&gt;</code></td>
+<td>ფაილების კოპირება</td>
+</tr>
+<tr>
+<td><code>RUN &lt;ბრძანება&gt;</code></td>
+<td>ბრძანება <strong>აწყობისას</strong> (<code>restore</code>, <code>publish</code>)</td>
+</tr>
+<tr>
+<td><code>COPY --from=build</code></td>
+<td>ფაილები <strong>წინა ეტაპიდან</strong></td>
+</tr>
+<tr>
+<td><code>USER $APP_UID</code></td>
+<td>.NET-ის image-ში მზა არა-root user <code>app</code></td>
+</tr>
+<tr>
+<td><code>EXPOSE 8080</code></td>
+<td>დოკუმენტაცია: აპი 8080-ს უსმენს (.NET image-ის ნაგულისხმევი port)</td>
+</tr>
+<tr>
+<td><code>ENTRYPOINT</code></td>
+<td>ბრძანება, რომელიც <strong>კონტეინერის ჩართვისას</strong> სრულდება</td>
+</tr>
+</tbody>
+</table>
+<p><strong>რატომ ორი ეტაპი (multi-stage)?</strong> აწყობას <strong>SDK</strong> სჭირდება (დიდია), გაშვებას — მხოლოდ <strong>runtime</strong> (წინა ლექციის იგივე იდეა). საბოლოო image მხოლოდ მეორე ეტაპია: მასში არ არის SDK და შენი საწყისი კოდი — ის პატარაა და უსაფრთხო.</p>
+<div class="callout note"><span class="ci">💡</span><div><p><code>Lms.Api</code> — პროექტის საქაღალდე და სახელი. შენი თუ სხვაა, შეცვალე. თუ რამდენიმე პროექტია (მაგ. ცალკე class library), <code>COPY</code> ყველა <code>.csproj</code>-ისთვის დაამატე, ან უბრალოდ <code>COPY . .</code> → <code>restore</code>.</p></div></div></article>
+<article class="blk" data-slides="15"><span class="anchor" id="s-15"></span><div class="bh"><h3>ნაბიჯი 4 · ფენები და .dockerignore</h3><a class="chip" href="index.html#/15" data-go="15" title="პრეზენტაციაში გახსნა">სლაიდი 15</a></div>
+<p><strong>ფენები (layers).</strong> Dockerfile-ის ყოველი ინსტრუქცია ქმნის <strong>ფენას</strong> და Docker მას ქეშავს. თუ ფენის შემავალი არ შეცვლილა, Docker მას ხელახლა აღარ ასრულებს:</p>
+<div class="codebox"><div class="ch"><span>docker build — მეორედ, კოდის ცვლილების შემდეგ</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln">① COPY Lms.Api/Lms.Api.csproj      ✓ CACHED</span><span class="ln">② RUN dotnet restore               ✓ CACHED   ← NuGet პაკეტები აღარ იტვირთება</span><span class="ln">③ COPY . .                         ↻ კოდი შეიცვალა</span><span class="ln">④ RUN dotnet publish               ↻</span></code></pre></div>
+<p>ამიტომ ჯერ <strong>მხოლოდ</strong> <code>.csproj</code>-ს ვაკოპირებთ და <code>restore</code>-ს ვუშვებთ: პაკეტები იშვიათად იცვლება, კოდი — ხშირად. <code>COPY . .</code> რომ პირველი ყოფილიყო, კოდის ყოველი ცვლილება <code>restore</code>-ს თავიდან გაუშვებდა.</p>
+<p><strong><code>.dockerignore</code></strong> — როგორც <code>.gitignore</code>, ოღონდ <code>docker build</code>-ისთვის: ეს ფაილები build-ში არ გადაიგზავნება.</p>
+<div class="codebox"><div class="ch"><span>.dockerignore</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln">**/bin/</span><span class="ln">**/obj/</span><span class="ln">.git/</span><span class="ln">.vs/</span><span class="ln">.vscode/</span><span class="ln">*.user</span></code></pre></div>
+<p>ლოკალური <code>bin/</code> და <code>obj/</code> image-ში არ გვინდა — <code>publish</code> თავისას შექმნის. ნაკლები ფაილი = სწრაფი build და სუფთა image.</p></article>
+<article class="blk" data-slides="16"><span class="anchor" id="s-16"></span><div class="bh"><h3>ნაბიჯი 5 · build და run</h3><a class="chip" href="index.html#/16" data-go="16" title="პრეზენტაციაში გახსნა">სლაიდი 16</a></div>
+<div class="codebox"><div class="ch"><span>WSL · LMS-ის რეპო</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="gp">$ </span>docker<span class="w"> </span>build<span class="w"> </span>-t<span class="w"> </span>lms-api<span class="w"> </span>.</span><span class="ln"><span class="go">[+] Building 48.2s (14/14) FINISHED</span></span><span class="ln"><span class="go"> =&gt; [build 4/6] RUN dotnet restore ...</span></span><span class="ln"><span class="go"> =&gt; [build 6/6] RUN dotnet publish ...</span></span></code></pre></div>
+<ul>
+<li><code>-t lms-api</code> — image-ის სახელი (tag-ის გარეშე → <code>latest</code>);</li>
+<li><code>.</code> — <strong>build context</strong>: საქაღალდე, სადაც Dockerfile და კოდია.</li>
+</ul>
+<div class="codebox"><div class="ch"><span>WSL</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="gp">$ </span>docker<span class="w"> </span>run<span class="w"> </span>-d<span class="w"> </span>--name<span class="w"> </span>lms-api<span class="w"> </span>-p<span class="w"> </span><span class="m">8080</span>:8080<span class="w"> </span><span class="se">\</span></span><span class="ln"><span class="w">    </span>-e<span class="w"> </span><span class="nv">ASPNETCORE_ENVIRONMENT</span><span class="o">=</span>Development<span class="w"> </span><span class="se">\</span></span><span class="ln"><span class="w">    </span>-e<span class="w"> </span><span class="nv">ConnectionStrings__Default</span><span class="o">=</span><span class="s2">"Host=host.docker.internal;Database=lms;Username=lms;Password=dev"</span><span class="w"> </span><span class="se">\</span></span><span class="ln"><span class="w">    </span>lms-api</span><span class="ln"> </span><span class="ln"><span class="gp">$ </span>docker<span class="w"> </span>logs<span class="w"> </span>-f<span class="w"> </span>lms-api</span></code></pre></div>
+<p>ბრაუზერში <code>http://localhost:8080/swagger</code> — LMS, <strong>კონტეინერიდან</strong>. 🎉</p>
+<p><strong><code>host.docker.internal</code></strong> — რატომ არა <code>localhost</code>? კონტეინერისთვის <code>localhost</code> <strong>თვითონ კონტეინერია</strong> — მასში PostgreSQL არ არის. <code>host.docker.internal</code> — Docker Desktop-ის სპეციალური სახელი შენი კომპიუტერისთვის, სადაც <code>lms-db</code>-ის port 5432 გახსნილია.</p>
+<p><code>ASPNETCORE_ENVIRONMENT=Development</code> — რომ Swagger ჩანდეს. ნაგულისხმევად კონტეინერში Production-ია.</p></article>
+<article class="blk" data-slides="17"><span class="anchor" id="s-17"></span><div class="bh"><h3>რა მივიღეთ — და რა აკლია</h3><a class="chip" href="index.html#/17" data-go="17" title="პრეზენტაციაში გახსნა">სლაიდი 17</a></div>
+<p><strong>✅ მივიღეთ:</strong></p>
+<ul>
+<li>.NET runtime აღარსად გვჭირდება — ის <strong>image-შია</strong>, ზუსტად სწორი ვერსიით;</li>
+<li>PostgreSQL — ერთი ბრძანებით, ინსტალაციის და <code>psql</code>-ში ხელით user-ების შექმნის გარეშე;</li>
+<li>ერთი და იგივე image მუშაობს ნებისმიერ კომპიუტერზე, სადაც Docker-ია — „ჩემთან მუშაობს“ = „ყველგან მუშაობს“.</li>
+</ul>
+<p><strong>😩 რა აკლია:</strong></p>
+<ul>
+<li>ორი <code>docker run</code>, თითოეულში 6-7 ოფცია — ზეპირად, ყოველ ჯერზე;</li>
+<li>API ბაზას <code>host.docker.internal</code>-ით, „შემოვლით“ პოულობს;</li>
+<li>თუ API ბაზაზე ადრე ჩაირთო, ბაზა ჯერ მზად არ არის → API ვარდება.</li>
+</ul>
+<p>შემდეგ ლექციაზე ეს ყველაფერი ერთ ფაილში — <strong><code>compose.yaml</code></strong> — ჩაიწერება და ერთი ბრძანებით გაეშვება. ჯერ შენს კომპიუტერზე, მერე — სერვერზე.</p></article>
+<h2 class="sec" id="sec-6">შეჯამება</h2>
+<article class="blk" data-slides="18"><span class="anchor" id="s-18"></span><div class="bh"><h3>შპარგალკა: Docker</h3><a class="chip" href="index.html#/18" data-go="18" title="პრეზენტაციაში გახსნა">სლაიდი 18</a></div>
+<p><strong>🏗️ image</strong></p>
+<table>
+<thead>
+<tr>
+<th>ბრძანება</th>
+<th>რას აკეთებს</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>docker build -t lms-api .</code></td>
+<td>image Dockerfile-იდან</td>
+</tr>
+<tr>
+<td><code>docker images</code></td>
+<td>ლოკალური image-ები და ზომები</td>
+</tr>
+<tr>
+<td><code>docker pull postgres:17</code></td>
+<td>image-ის ჩამოტვირთვა</td>
+</tr>
+<tr>
+<td><code>docker rmi lms-api</code></td>
+<td>image-ის წაშლა</td>
+</tr>
+</tbody>
+</table>
+<p><strong>📦 container</strong></p>
+<table>
+<thead>
+<tr>
+<th>ბრძანება</th>
+<th>რას აკეთებს</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>docker run -d --name X -p H:C -e K=V -v vol:/path image</code></td>
+<td>გაშვება</td>
+</tr>
+<tr>
+<td><code>docker ps</code> / <code>ps -a</code></td>
+<td>მუშა / ყველა</td>
+</tr>
+<tr>
+<td><code>docker logs -f X</code></td>
+<td>ლოგი</td>
+</tr>
+<tr>
+<td><code>docker exec -it X bash</code></td>
+<td>ტერმინალი შიგნით</td>
+</tr>
+<tr>
+<td><code>docker stop</code> / <code>start</code> / <code>rm -f X</code></td>
+<td>მართვა</td>
+</tr>
+</tbody>
+</table>
+<p><strong>💾 volume:</strong> <code>-v name:/path</code> — მონაცემები კონტეინერის გარეთ; <code>docker volume ls</code>; <code>docker volume rm</code> — ⚠ შლის მონაცემებს.</p>
+<p><strong>Dockerfile:</strong> <code>FROM</code> · <code>WORKDIR</code> · <code>COPY</code> · <code>RUN</code> · <code>COPY --from</code> · <code>USER</code> · <code>EXPOSE</code> · <code>ENTRYPOINT</code>; <code>.dockerignore</code>.</p></article>
+<h2 class="sec" id="sec-7">პრაქტიკა</h2>
+<article class="blk" data-slides="19"><span class="anchor" id="s-19"></span><div class="bh"><h3>კლასში დავალება: PostgreSQL — ერთი ბრძანებით</h3><a class="chip" href="index.html#/19" data-go="19" title="პრეზენტაციაში გახსნა">სლაიდი 19</a></div>
+<p>დავალება · პირველი კონტეინერები</p>
+<h3>ნაბიჯები</h3>
+<ul>
+<li><code>docker --version</code> → <code>docker run hello-world</code></li>
+<li>PostgreSQL კონტეინერი <code>lms-db</code>: user/პაროლი/ბაზა <code>lms</code>, port <code>5432</code>, volume <code>lms-data</code></li>
+<li>თქვენი პროექტის <code>appsettings.Development.json</code> → <code>Host=localhost;...</code> → <code>dotnet ef database update</code> → <code>dotnet run</code> → Swagger-ით დაამატეთ ჩანაწერი</li>
+<li><code>docker exec -it lms-db psql -U lms</code> → <code>SELECT * FROM "Courses";</code></li>
+</ul>
+<h3>✓ მზადაა, როცა</h3>
+<p><code>docker ps</code> აჩვენებს <code>lms-db</code>-ს, პროექტი ლოკალურად მუშაობს ამ ბაზასთან, ჩანაწერი ჩანს <code>psql</code>-ში</p>
+<h3>⭐ ბონუსი</h3>
+<ul>
+<li><code>docker rm -f lms-db</code> → იგივე <code>docker run</code> თავიდან → ჩანაწერი ისევ იქაა? ახსენით, რატომ</li>
+</ul>
+<h3>💡 მინიშნება</h3>
+<div class="codebox"><div class="ch"><span>bash</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln">docker<span class="w"> </span>run<span class="w"> </span>-d<span class="w"> </span>--name<span class="w"> </span>lms-db<span class="w"> </span><span class="se">\</span></span><span class="ln"><span class="w">  </span>-e<span class="w"> </span><span class="nv">POSTGRES_USER</span><span class="o">=</span>lms<span class="w"> </span>-e<span class="w"> </span><span class="nv">POSTGRES_PASSWORD</span><span class="o">=</span>dev<span class="w"> </span>-e<span class="w"> </span><span class="nv">POSTGRES_DB</span><span class="o">=</span>lms<span class="w"> </span><span class="se">\</span></span><span class="ln"><span class="w">  </span>-p<span class="w"> </span><span class="m">5432</span>:5432<span class="w"> </span>-v<span class="w"> </span>lms-data:/var/lib/postgresql/data<span class="w"> </span><span class="se">\</span></span><span class="ln"><span class="w">  </span>postgres:17</span></code></pre></div>
+<p><code>docker logs lms-db</code> — თუ რამე არ მუშაობს, ჯერ ლოგი.</p></article>
+<h2 class="sec" id="sec-8">შეჯამება</h2>
+<article class="blk" data-slides="20"><span class="anchor" id="s-20"></span><div class="bh"><h3>შეამოწმე, რა დაგამახსოვრდა</h3><a class="chip" href="index.html#/20" data-go="20" title="პრეზენტაციაში გახსნა">სლაიდი 20</a></div>
+<p>ეს კითხვები შემდეგი ლექციის დასაწყისშიც დაისმება.</p>
+<div class="selfcheck"><div class="sh">✅ შეამოწმე თავი <small>დაფიქრდი, მერე გახსენი პასუხი</small></div><details><summary>image და container — რა განსხვავებაა?</summary><div class="ans">image — შაბლონი (როგორც კლასი C#-ში): აპი + runtime + ყველა ფაილი, მხოლოდ წასაკითხად. container — image-იდან გაშვებული ეგზემპლარი (როგორც ობიექტი). ერთი image-იდან ბევრი container შეიძლება</div></details><details><summary><code>-p 8080:8080</code>-ში რომელი რიცხვი რას ნიშნავს?</summary><div class="ans"><code>ჰოსტის-port:კონტეინერის-port</code> — შენი კომპიუტერის 8080-ზე მოსული მოთხოვნა კონტეინერის შიგნით 8080-ზე მიდის</div></details><details><summary>PostgreSQL-ის კონტეინერი წავშალე. მონაცემები დაიკარგა?</summary><div class="ans">თუ volume (<code>-v lms-data:/var/lib/postgresql/data</code>) იყო მიბმული — არა, მონაცემები volume-ში რჩება და ახალი კონტეინერი მათ დაინახავს. volume-ის გარეშე — კი, ყველაფერი წაიშალა</div></details><details><summary>რატომ აქვს Dockerfile-ს ორი <code>FROM</code> (multi-stage)?</summary><div class="ans">პირველი ეტაპი (<code>sdk</code>) აპს აწყობს — მას SDK სჭირდება. მეორე (<code>aspnet</code>) მხოლოდ მზა ფაილებს იღებს და runtime-ზე უშვებს — საბოლოო image ბევრად პატარა და უსაფრთხოა, მასში SDK და კოდი არ არის</div></details><details><summary>რატომ ვაკოპირებთ ჯერ მხოლოდ <code>.csproj</code>-ს და ვუშვებთ <code>restore</code>-ს, მერე დანარჩენს?</summary><div class="ans">Docker ყოველ ნაბიჯს (layer) ქეშავს. თუ <code>.csproj</code> არ შეცვლილა, <code>restore</code> ქეშიდან აიღება — კოდის ცვლილებისას build ბევრად სწრაფია</div></details><details><summary>რისთვის არის <code>.dockerignore</code>?</summary><div class="ans">build-ში არ გადაიგზავნოს ზედმეტი: <code>bin/</code>, <code>obj/</code>, <code>.git</code>, <code>.vs</code> — build სწრაფია, image სუფთა, და ლოკალური საიდუმლოებები image-ში არ ხვდება</div></details></div></article>
+<article class="blk" data-slides="21"><span class="anchor" id="s-21"></span><div class="bh"><h3>შეჯამება · დღეს ვისწავლეთ</h3><a class="chip" href="index.html#/21" data-go="21" title="პრეზენტაციაში გახსნა">სლაიდი 21</a></div>
+<ul>
+<li>📦 <strong>კონტეინერი</strong> — აპი მთელ გარემოსთან ერთად; ყველგან ერთნაირად ეშვება. <strong>image</strong> — შაბლონი (კლასი), <strong>container</strong> — გაშვებული ეგზემპლარი (ობიექტი), <strong>registry</strong> — image-ების საცავი.</li>
+<li>🖥️ <strong>კონტეინერი ≠ VM</strong> — საერთო ბირთვი, MB-ები, წამები.</li>
+<li>🐘 <strong><code>docker run</code></strong> — <code>-d</code>, <code>--name</code>, <code>-p ჰოსტი:კონტეინერი</code>, <code>-e</code>, <code>-v</code>; მართვა — <code>ps</code>, <code>logs</code>, <code>exec</code>, <code>stop</code>, <code>rm</code>.</li>
+<li>💾 <strong>volume</strong> — მონაცემები კონტეინერის გარეთ; ბაზას ყოველთვის.</li>
+<li>🏗️ <strong>Dockerfile</strong> — multi-stage (<code>sdk</code> აწყობს, <code>aspnet</code> უშვებს), <code>.csproj</code> ცალკე ქეშისთვის, <code>.dockerignore</code>, <code>USER $APP_UID</code>.</li>
+<li>🔗 <strong><code>host.docker.internal</code></strong> — კონტეინერიდან შენი კომპიუტერი; ეს „შემოვლითი გზაა“ — Compose მას გამოასწორებს.</li>
+</ul>
+<div class="prompt"><div class="ph"><span>🤖 გამოცდა მეშვიდე ლექციაზე</span><button class="copy" type="button">კოპირება</button></div><div class="pb">ვსწავლობ DevOps-ს. მეშვიდე ლექციაზე გავიარეთ Docker: image vs container (კლასი და ობიექტი), registry, კონტეინერი vs VM, docker run (-d, --name, -p, -e, -v), ps/logs/exec/stop/rm, volume, multi-stage Dockerfile .NET 10 API-სთვის (sdk → aspnet, FROM, WORKDIR, COPY, RUN, COPY --from, USER, EXPOSE, ENTRYPOINT), ფენები და ქეში, .dockerignore, docker build, host.docker.internal.
+დამისვი 8 კითხვა სათითაოდ, მარტივიდან რთულისკენ — ნაწილი სიტუაციური იყოს („ბაზის კონტეინერი წავშალე, რა დაემართა მონაცემებს?“). ყოველ პასუხზე შემიფასე და ამიხსენი. ბოლოს მითხარი, რა გავიმეორო. ქართულად.</div></div>
+<div class="prompt"><div class="ph"><span>🤖 ჩემი Dockerfile-ის განხილვა</span><button class="copy" type="button">კოპირება</button></div><div class="pb">ვსწავლობ Docker-ს. ეს არის ჩემი Dockerfile ASP.NET Core (.NET 10) API-სთვის. ამიხსენი ქართულად, რას აკეთებს თითოეული ხაზი, და მითხარი, რა შეიძლება გაუმჯობესდეს (ზომა, ქეში, უსაფრთხოება) — მარტივად, ახალბედასთვის. Dockerfile: [აქ ჩასვი]</div></div></article>
+<h2 class="sec" id="sec-9">საშინაო</h2>
+<article class="blk" data-slides="22"><span class="anchor" id="s-22"></span><div class="bh"><h3>საშინაო დავალება: შენი API კონტეინერში</h3><a class="chip" href="index.html#/22" data-go="22" title="პრეზენტაციაში გახსნა">სლაიდი 22</a></div>
+<p>Dockerfile — შემდეგ ლექციაზე მას სერვერზე გავუშვებთ</p>
+<h3>მოთხოვნები</h3>
+<ul>
+<li>პროექტის root-ში: multi-stage <code>Dockerfile</code> (<code>sdk:10.0</code> → <code>aspnet:10.0</code>) და <code>.dockerignore</code></li>
+<li><code>docker build -t lms-api .</code> → გაშვება <code>-p 8080:8080</code>, <code>host.docker.internal</code>-ით <code>lms-db</code>-ზე, <code>Development</code>-ით</li>
+<li><code>Dockerfile</code> და <code>.dockerignore</code> → GitHub</li>
+</ul>
+<h3>✓ მზადაა, როცა</h3>
+<p><code>docker ps</code> — <code>lms-db</code> და <code>lms-api</code>, Swagger კონტეინერიდან ბაზის მონაცემებს აჩვენებს</p>
+<h3>⭐ ბონუსი</h3>
+<ul>
+<li><code>docker images</code>-ში შეადარეთ <code>mcr.microsoft.com/dotnet/sdk:10.0</code> და <code>lms-api</code>-ს ზომები — ახსენით, რატომ არის საბოლოო image ბევრად პატარა</li>
+</ul></article>
+  </main>
+</div>
+<script>
+const DECK = "DevOps · 7 — Docker — აპი გარემოსთან ერთად";
+if (matchMedia('(min-width:981px)').matches) document.getElementById('tocd').open = true;
+const blocks = [...document.querySelectorAll('.blk')];
+const tocLinks = [...document.querySelectorAll('nav.toc a[href^="#sec-"]')];
+const secOf = b => { let e = b; while (e && !(e.matches && e.matches('h2.sec'))) e = e.previousElementSibling; return e; };
+function mark(b, toc_only) {
+  if (!toc_only) blocks.forEach(x => x.classList.toggle('cur', x === b));
+  const s = b && secOf(b); tocLinks.forEach(a => a.classList.toggle('cur', s && a.getAttribute('href') === '#' + s.id));
+}
+const blockFor = n => blocks.find(b => b.dataset.slides.split(',').includes(String(n)));
+
+// copy buttons (code: one line per .ln)
+document.addEventListener('click', e => {
+  const btn = e.target.closest('.copy'); if (!btn) return;
+  const box = btn.closest('.codebox, .prompt');
+  const text = box.matches('.prompt') ? box.querySelector('.pb').textContent : [...box.querySelectorAll('.ln')].map(l => l.textContent).join('\n');
+  navigator.clipboard.writeText(text).then(() => { btn.textContent = '✓ დაკოპირდა'; btn.classList.add('ok'); setTimeout(() => { btn.textContent = 'კოპირება'; btn.classList.remove('ok'); }, 1600); });
+});
+
+// live mode: opened from the deck with P — follow the projector
+const live = new URLSearchParams(location.search).has('live');
+let follow = true, bc = null;
+const liveBtn = document.getElementById('live');
+if (live) {
+  try { bc = new BroadcastChannel('deck-' + DECK); } catch (e) {}
+  liveBtn.classList.add('on');
+  liveBtn.onclick = () => { follow = !follow; liveBtn.classList.toggle('off', !follow); liveBtn.querySelector('.lt').textContent = follow ? 'მიჰყვება სლაიდებს' : 'თავისუფლად ვკითხულობ'; };
+  if (bc) {
+    bc.onmessage = ({ data }) => {
+      if (data.t !== 'state' || !follow) return;
+      const b = blockFor(data.i + 1); if (!b || b.classList.contains('cur')) return;
+      mark(b); b.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    };
+    bc.postMessage({ t: 'hello' });
+  }
+  document.addEventListener('click', e => {   // slide chip → move the projector deck
+    const c = e.target.closest('.chip[data-go]'); if (!c || !bc) return;
+    e.preventDefault(); bc.postMessage({ t: 'go', n: +c.dataset.go - 1 });
+  });
+}
+// deep link #s-12
+const h = location.hash.match(/^#s-(\d+)$/);
+if (h) { const b = blockFor(+h[1]); if (b) { mark(b); setTimeout(() => b.scrollIntoView({ block: 'start' }), 50); } }
+// highlight section in the TOC while reading
+const io = new IntersectionObserver(es => es.forEach(x => { if (x.isIntersecting && !(live && follow)) mark(x.target, true); }), { rootMargin: '-30% 0px -60% 0px' });
+blocks.forEach(b => io.observe(b));
+</script>
+</body></html>

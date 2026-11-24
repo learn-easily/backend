@@ -1,0 +1,485 @@
+<!doctype html>
+<html lang="ka"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>📖 LMS: პროექტის აწყობა და პირველი feature — კონსპექტი</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Georgian:wght@400;600;700;800&family=JetBrains+Mono:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#fbf8f3;--card:#fff;--ink:#1e2132;--ink2:#3b3f54;--muted:#7b8096;--line:#e6dfd2;--accent:#6d28d9;--accent-soft:#f3effe;--teal:#0d9488;
+  --green:#15803d;--amber:#b45309;--mono:"JetBrains Mono",ui-monospace,monospace;--sans:"Noto Sans Georgian",system-ui,sans-serif}
+*{box-sizing:border-box}
+html{scroll-padding-top:76px}
+body{margin:0;background:var(--bg);color:var(--ink);font:17.5px/1.75 var(--sans);-webkit-font-smoothing:antialiased}
+a{color:var(--accent)}
+/* top bar */
+.top{position:sticky;top:0;z-index:10;display:flex;align-items:center;gap:14px;padding:10px 20px;background:rgba(251,248,243,.92);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.top .back{font:600 14px var(--mono);color:var(--muted);text-decoration:none;white-space:nowrap}
+.top .back:hover{color:var(--ink)}
+.top .ttl{flex:1;min-width:0;font-weight:700;font-size:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.top .ttl small{font:500 13px var(--mono);color:var(--muted);margin-right:8px}
+.btn{font:700 14px var(--sans);text-decoration:none;border-radius:10px;padding:7px 14px;white-space:nowrap;border:1px solid var(--line);color:var(--ink);background:var(--card);cursor:pointer}
+.btn.play{background:var(--accent);border-color:var(--accent);color:#fff}
+.live{display:none;align-items:center;gap:8px;font:600 13px var(--mono);color:var(--teal);background:#e6f6f4;border:1px solid #bfe7e2;border-radius:999px;padding:5px 12px;cursor:pointer}
+.live.on{display:flex}
+.live .dot{width:8px;height:8px;border-radius:50%;background:var(--teal);animation:pulse 1.6s infinite}
+.live.off{color:var(--muted);background:var(--card);border-color:var(--line)}.live.off .dot{background:var(--muted);animation:none}
+@keyframes pulse{50%{opacity:.3}}
+/* layout */
+.wrap{display:grid;grid-template-columns:230px minmax(0,1000px);gap:44px;justify-content:center;padding:32px 28px 120px}
+nav.toc{position:sticky;top:84px;align-self:start;font-size:14px;line-height:1.45}
+nav.toc .h{font:700 12px var(--mono);color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px}
+nav.toc a{display:block;color:var(--ink2);text-decoration:none;padding:6px 10px;border-left:2px solid var(--line)}
+nav.toc a:hover{color:var(--accent)}
+nav.toc a.cur{color:var(--accent);border-left-color:var(--accent);font-weight:700}
+nav.toc .mats{margin-top:22px;display:flex;flex-direction:column;gap:6px}
+nav.toc .mats a{border:0;padding:2px 0;font:500 13px var(--mono);color:var(--teal);word-break:break-all}
+header.hero{margin-bottom:8px}
+header.hero .k{font:600 14px var(--mono);color:var(--accent)}
+header.hero h1{font-size:38px;line-height:1.2;margin:6px 0 10px;letter-spacing:-.01em}
+header.hero p{color:var(--muted);margin:0;font-size:15.5px}
+header.hero kbd{font:500 12px var(--mono);border:1px solid var(--line);border-radius:5px;padding:0 5px;background:var(--card)}
+h2.sec{font-size:15px;font:700 13px var(--mono);color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin:48px 0 6px;padding-top:18px;border-top:1px solid var(--line)}
+/* blocks */
+.blk{position:relative;padding:14px 0 6px 22px;margin-left:-22px;border-left:3px solid transparent;transition:border-color .3s,background .3s;border-radius:0 12px 12px 0}
+.blk.cur{border-left-color:var(--accent);background:linear-gradient(90deg,var(--accent-soft),transparent 70%)}
+.anchor{position:absolute;top:0}
+.bh{display:flex;align-items:baseline;justify-content:space-between;gap:12px}
+.bh h3{font-size:22px;line-height:1.35;margin:4px 0 6px}
+.chip{flex:none;font:600 12px var(--mono);color:var(--muted);text-decoration:none;border:1px solid var(--line);border-radius:999px;padding:2px 10px;background:var(--card)}
+.chip:hover{color:var(--accent);border-color:var(--accent)}
+.blk h2{font-size:26px;line-height:1.3;margin:6px 0 10px}
+.blk h3:not(.bh h3){font-size:19px;margin:22px 0 6px}
+.blk h4{font-size:17px;margin:18px 0 4px}
+.blk p{margin:10px 0}
+.blk ul,.blk ol{padding-left:24px;margin:8px 0}
+.blk li{margin:4px 0}
+.blk strong{color:var(--ink)}
+.blk :not(pre)>code{font:600 .86em var(--mono);background:#f1ece3;border-radius:6px;padding:1px 6px;color:#5b21b6}
+.blk table{border-collapse:collapse;margin:14px 0;font-size:15.5px;width:100%;display:block;overflow-x:auto}
+.blk th,.blk td{border:1px solid var(--line);padding:8px 12px;text-align:left;vertical-align:top}
+.blk th{background:#f6f1e8}
+/* code */
+.codebox{margin:14px 0;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:#fffdf9}
+.codebox .ch,.prompt .ph{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:6px 8px 6px 14px;font:600 12.5px var(--mono);color:var(--muted);background:#f6f1e8;border-bottom:1px solid var(--line)}
+.copy{font:600 12px var(--mono);border:1px solid var(--line);background:var(--card);color:var(--ink2);border-radius:7px;padding:3px 10px;cursor:pointer}
+.copy:hover{border-color:var(--ink)}
+.copy.ok{color:var(--green);border-color:var(--green)}
+pre.code{margin:0;padding:12px 0;overflow-x:auto;font:14px/1.65 var(--mono)}
+pre.code .ln{display:block;padding:0 16px;white-space:pre}
+.code .ttl{background:var(--bg2);color:var(--muted)}
+.code .ln.hl{background:rgba(109,40,217,.07);box-shadow:inset 3px 0 0 var(--net)}
+.code .ln.dim{opacity:.42}
+.code .k,.code .kd,.code .kn,.code .kr,.code .kc{color:#7c3aed}
+.code .kt{color:#2563eb}
+.code .s,.code .s1,.code .s2,.code .sa,.code .se,.code .si,.code .sd{color:#15803d}
+.code .c,.code .c1,.code .cm,.code .cp,.code .ch{color:#8b8fa3}
+.code .m,.code .mi,.code .mf,.code .mh{color:#c2410c}
+.code .nf,.code .fm{color:#1d4ed8}
+.code .nc,.code .nn,.code .nt,.code .nd{color:#b45309}
+.code .na{color:#7c3aed} .code .nb{color:#0e7490}
+.code .o,.code .p{color:#64748b}
+.code .nv,.code .nx{color:var(--ink)}
+.code .go{color:#64748b}
+/* prompt */
+.prompt{margin:16px 0;border:1px solid #ddd2fb;border-radius:12px;overflow:hidden;background:var(--accent-soft)}
+.prompt .ph{background:#ebe3fd;border-color:#ddd2fb;color:var(--accent)}
+.prompt .pb{padding:12px 16px;white-space:pre-wrap;font-size:15.5px;line-height:1.6;color:var(--ink2)}
+/* self check */
+.selfcheck{margin:16px 0;border:1px solid #cfe9d6;border-radius:12px;background:#f3fbf5;padding:12px 16px}
+.selfcheck .sh{font-weight:700;color:var(--green);margin-bottom:6px}
+.selfcheck .sh small{font-weight:400;color:var(--muted);font-size:13.5px;margin-left:6px}
+.selfcheck details{border-top:1px solid #dcefe1;padding:8px 0}
+.selfcheck summary{cursor:pointer;font-weight:600;list-style:none;padding-left:26px;position:relative}
+.selfcheck summary::-webkit-details-marker{display:none}
+.selfcheck summary::before{content:"?";position:absolute;left:0;top:2px;width:18px;height:18px;border-radius:50%;background:var(--green);color:#fff;font:700 12px/18px var(--mono);text-align:center}
+.selfcheck details[open] summary::before{content:"✓"}
+.selfcheck .ans{padding:6px 0 2px 26px;color:var(--ink2)}
+/* terms */
+.terms{margin:16px 0;border:1px solid var(--line);border-radius:12px;background:var(--card);padding:12px 16px}
+.terms .th{font-weight:700;margin-bottom:6px}
+.terms dl{display:grid;grid-template-columns:max-content 1fr;gap:6px 18px;margin:0}
+.terms dt{font:600 14.5px var(--mono);color:var(--accent)}
+.terms dd{margin:0;color:var(--ink2)}
+/* callouts */
+.callout{display:flex;gap:12px;margin:14px 0;padding:12px 16px;border-radius:12px;border:1px solid var(--line);background:var(--card)}
+.callout .ci{font-size:20px;line-height:1.6}
+.callout>div>p:first-child{margin-top:0}.callout>div>p:last-child{margin-bottom:0}
+.callout.warn{background:#fff8eb;border-color:#f6dfb5}
+.callout.note{background:#eef5ff;border-color:#cfe0fb}
+@media (max-width:980px){
+  .wrap{grid-template-columns:minmax(0,1fr);gap:0;padding:20px 16px 100px}
+  nav.toc{position:static;margin-bottom:12px}
+  nav.toc details{border:1px solid var(--line);border-radius:12px;background:var(--card);padding:8px 12px}
+  nav.toc details>summary{cursor:pointer;font-weight:700}
+  nav.toc .h{display:none}
+  header.hero h1{font-size:30px}
+  .blk{padding-left:14px;margin-left:-14px}
+  .top .ttl small{display:none}
+  .terms dl{grid-template-columns:1fr}.terms dd{margin-bottom:8px}
+}
+@media (min-width:981px){nav.toc details>summary{display:none}}
+@media print{.top,nav.toc,.copy,.chip,.live{display:none}.wrap{display:block;padding:0}.selfcheck details{display:block}.blk.cur{background:none}}
+</style></head>
+<body>
+<div class="top">
+  <a class="back" href="../../">← ლექციები</a>
+  <div class="ttl"><small>ASP.NET · 8</small>LMS: პროექტის აწყობა და პირველი feature</div>
+  <button class="live" id="live" type="button" title="ჩართული: ტექსტი პრეზენტაციას მიჰყვება"><span class="dot"></span><span class="lt">მიჰყვება სლაიდებს</span></button>
+  <a class="btn play" href="index.html">▶ პრეზენტაცია</a>
+</div>
+<div class="wrap">
+  <nav class="toc"><details id="tocd"><summary>სარჩევი</summary><div class="h">სარჩევი</div><a href="#sec-1">გამეორება</a><a href="#sec-2">საშინაოს განხილვა</a><a href="#sec-3">დღის თემა</a><a href="#sec-4">1 · პროექტი</a><a href="#sec-5">2 · Course და ბაზა</a><a href="#sec-6">3 · DTO და Mapper</a><a href="#sec-7">4 · CoursesController</a><a href="#sec-8">5 · რა გვაწუხებს</a><a href="#sec-9">საშინაოსთვის</a><a href="#sec-10">შეჯამება</a><a href="#sec-11">საშინაო</a><div class="mats"></div></details></nav>
+  <main>
+    <header class="hero">
+      <div class="k">📖 კონსპექტი · ASP.NET · ლექცია 8</div>
+      <h1>LMS: პროექტის აწყობა და პირველი feature</h1>
+      <p>წაიკითხე ლექციის შემდეგ, ან პრეზენტაციასთან ერთად: პრეზენტაციაში დააჭირე <kbd>P</kbd> და ეს გვერდი სლაიდებს გაჰყვება. კოდი და AI-ს პრომპტები კოპირდება ერთი დაჭერით.</p>
+    </header>
+    <h2 class="sec" id="sec-1">გამეორება</h2>
+<article class="blk" data-slides="1,2"><span class="anchor" id="s-1"></span><span class="anchor" id="s-2"></span><div class="bh"><h3>გავიხსენოთ წინა ლექცია</h3><a class="chip" href="index.html#/1" data-go="1" title="პრეზენტაციაში გახსნა">სლაიდი 1</a></div>
+<p>ლექცია 7 — <strong>LMS-ის აღმოჩენა: ენა, აქტორები, პროცესები, წესები</strong>. ახალ თემამდე ვამოწმებთ, რა დაგვამახსოვრდა. ჯერ თვითონ უპასუხე, მერე გახსენი პასუხი. თუ რომელიმე გაგიჭირდა, <a href="../07-lms-discovery/study.html">წინა ლექციის კონსპექტს</a> გადახედე.</p>
+<div class="selfcheck"><div class="sh">✅ შეამოწმე თავი <small>დაფიქრდი, მერე გახსენი პასუხი</small></div><details><summary>ვინ არიან LMS-ის აქტორები და რა უნდა თითოეულს?</summary><div class="ans">მენეჯერი: კურსები, ჯგუფები, ჩარიცხვა · ლექტორი: ლექციები, დასწრება, დავალებები, შეფასება · სტუდენტი: განრიგი, ნამუშევრის ჩაბარება, საკუთარი ქულები და დასწრება</div></details><details><summary>რატომ ვწერთ პროცესს მოვლენებად და წარსულ დროში („სტუდენტი ჩაირიცხა“)?</summary><div class="ans">მოვლენა ფაქტია, რომელიც უკვე მოხდა: ბიზნესს მისი შემოწმება ადვილად შეუძლია და რიგითობაც ჩანს · ყოველ მოვლენას ჰყავს აქტორი და ხშირად მასთან წესია</div></details><details><summary>„კურსი“ და „ჯგუფი“: რა განსხვავებაა?</summary><div class="ans">კურსი სასწავლო პროგრამაა (რას ვასწავლით) · ჯგუფი არის სტუდენტები, რომლებიც კურსს ერთად გადიან, კონკრეტული ლექტორით და განრიგით · სტუდენტი ჯგუფში ირიცხება</div></details><details><summary>რა არის დომენის რუკა და რით განსხვავდება ბაზის სქემისგან?</summary><div class="ans">ბიზნესის ცნებები და მათი კავშირები ბიზნესის ენაზე · მას დირექტორი კითხულობს და ამოწმებს · ცხრილები, სვეტები და ტიპები მასში არ არის; კოდი და ბაზა მისგან მოგვიანებით გამოდის</div></details><details><summary>რა რიგით ვალაგებთ backlog-ს?</summary><div class="ans">დამოკიდებულებისა და მნიშვნელობის მიხედვით: ჯერ ის, რის გარეშეც სხვა ვერ იმუშავებს (კურსი → ჯგუფი → ჩარიცხვა → ლექცია → დასწრება…)</div></details><details><summary>რატომ ვწერთ, რა არ შედის LMS-ში?</summary><div class="ans">საზღვარი ცხადი ხდება: გადახდები, ხელშეკრულებები, ჩატი არ ვაკეთებთ · ასე პროექტი არ იზრდება უსასრულოდ და ბიზნესიც იცის, რას მიიღებს</div></details></div></article>
+<h2 class="sec" id="sec-2">საშინაოს განხილვა</h2>
+<article class="blk" data-slides="3"><span class="anchor" id="s-3"></span><div class="bh"><h3>საშინაოს განხილვა</h3><a class="chip" href="index.html#/3" data-go="3" title="პრეზენტაციაში გახსნა">სლაიდი 3</a></div>
+<p>წინა ლექციის საშინაო: <strong>ჩემი სფერო: ლექსიკონი, რუკა და backlog</strong>. ქვემოთ არის ერთ-ერთი სწორი ამოხსნა. შენი კოდი შეიძლება სხვანაირად იყოს დაწერილი — მთავარია, მოთხოვნები სრულდებოდეს.</p>
+<h3>მოთხოვნები</h3>
+<ul>
+<li>აირჩიე სფერო <a href="../07-lms-discovery/materials/domains.html">🧭 სფეროების გვერდზე</a> (LMS არა) → შეავსე <a href="../07-lms-discovery/materials/homework-sheet.html">📝 დაგეგმვის ფურცელი</a> → <strong>⬇ ჩამოტვირთვა</strong> → HTML <strong>ატვირთე LB-ზე</strong></li>
+<li><strong>ხედვა</strong> და <strong>ლექსიკონი</strong> (10+ ტერმინი, სახელით კოდში)</li>
+<li><strong>მოვლენები</strong> (12+, რიგით, აქტორით) · <strong>წესები R1–R8</strong></li>
+<li><strong>დომენის რუკა</strong> (6+ კავშირი) · <strong>backlog</strong> (15+ story, რიგით, კრიტერიუმებით)</li>
+</ul>
+<h3>ამოხსნა</h3>
+<p>ლექტორის LMS-ის backlog ნიმუშად. შენს სფეროში იგივე ფორმა და რიგი იქნება, ოღონდ შენი სიტყვებით. მთავარია რიგითობა: ყოველი story მხოლოდ იმას ეყრდნობა, რაც მის ზემოთაა.</p>
+<div class="codebox"><div class="ch"><span>Backlog (პირველი 10)</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"> 1. მენეჯერი ქმნის კურსს                      — R1 სახელი უნიკალურია</span><span class="ln"> 2. მენეჯერი ამატებს ლექტორს და სტუდენტს     — R2 email უნიკალურია</span><span class="ln"> 3. მენეჯერი ხსნის ჯგუფს და ნიშნავს ლექტორს  — ადგილების რაოდენობა &gt; 0</span><span class="ln"> 4. მენეჯერი რიცხავს სტუდენტს ჯგუფში          — R3 ადგილი · ერთხელ</span><span class="ln"> 5. მენეჯერი გეგმავს ჯგუფის ლექციებს          — R4 დრო არ ფარავს</span><span class="ln"> 6. სტუდენტი ხედავს თავის განრიგს</span><span class="ln"> 7. ლექტორი აღრიცხავს დასწრებას               — R5 მხოლოდ თავისი ჯგუფი · R6</span><span class="ln"> 8. ლექტორი აძლევს დავალებას დედლაინით</span><span class="ln"> 9. სტუდენტი აბარებს ნამუშევარს               — R7 დედლაინამდე</span><span class="ln">10. ლექტორი აფასებს ნამუშევარს                — R5 · R7 ქულა 1–12</span></code></pre></div>
+<p><strong>რუკის კავშირები:</strong> კურსი 1 → ბევრი ჯგუფი · ლექტორი 1 → ბევრი ჯგუფი · ჯგუფი 1 → ბევრი ჩარიცხვა ← 1 სტუდენტი · ჯგუფი 1 → ბევრი ლექცია · ლექცია 1 → ბევრი დასწრება (თითო სტუდენტზე) · ჯგუფი 1 → ბევრი დავალება · დავალება 1 → ბევრი ნამუშევარი (თითო სტუდენტზე).</p>
+<div class="selfcheck"><div class="sh">✅ შეამოწმე თავი <small>დაფიქრდი, მერე გახსენი პასუხი</small></div><details><summary>რატომ არის „მენეჯერი ქმნის კურსს“ პირველი და არა „ლექტორი აფასებს ნამუშევარს“?</summary><div class="ans">შეფასებას სჭირდება ნამუშევარი → დავალება → ჯგუფი → კურსი. კურსი არაფერს ელოდება, ამიტომ მისგან ვიწყებთ</div></details><details><summary>სტუდენტი და ჯგუფი პირდაპირ რატომ არ არის დაკავშირებული?</summary><div class="ans">მათ შორის ჩარიცხვაა: ერთ სტუდენტს რამდენიმე ჯგუფი შეიძლება ჰქონდეს, ჯგუფს ბევრი სტუდენტი. ჩარიცხვას თავისი მონაცემიც აქვს (როდის ჩაირიცხა, აქტიურია თუ გაირიცხა)</div></details></div></article>
+<h2 class="sec" id="sec-3">დღის თემა</h2>
+<article class="blk" data-slides="4"><span class="anchor" id="s-4"></span><div class="bh"><h3>დღის თემა: LMS: პროექტის აწყობა და პირველი feature</h3><a class="chip" href="index.html#/4" data-go="4" title="პრეზენტაციაში გახსნა">სლაიდი 4</a></div>
+<p>ბიზნესი გავიგეთ: გვაქვს ლექსიკონი, წესები და backlog. ახლა პირველ story-ს ვაქცევთ კოდად: „მენეჯერი ქმნის კურსს“. ამას იმ გზით ვაკეთებთ, რომელიც ShopApi-დან და LibraryApi-დან უკვე იცით: Controller, DataContext, DTO, Mapper, async. ახალი ის არის, რომ ყოველი სახელი ლექსიკონიდან მოდის, ყოველი შემოწმება კი backlog-ის წესიდან. ლექციის ბოლოს ვნახავთ, რა იწყებს ტკივილს ამ ნაცნობ გზაში, როცა პროექტი იზრდება.</p>
+<p><strong>ლექციის ბოლოს შეძლებ:</strong></p>
+<ul>
+<li>user story-იდან endpoint-ების სიის შედგენა: მისამართი, მეთოდი, სტატუს კოდები</li>
+<li>LMS-ის პროექტის აწყობა: Course entity, DataContext, connection string, მიგრაცია</li>
+<li>Courses CRUD: DTO, Mapper, async Controller, R1 წესი: 400 vs 409</li>
+<li>იმის დანახვა, რატომ იწყებს ეს გზა ტკივილს პროექტის ზრდასთან ერთად</li>
+</ul></article>
+<article class="blk" data-slides="5"><span class="anchor" id="s-5"></span><div class="bh"><h3>Story-დან endpoint-ებამდე</h3><a class="chip" href="index.html#/5" data-go="5" title="პრეზენტაციაში გახსნა">სლაიდი 5</a></div>
+<p>backlog-ის პირველი story:</p>
+<blockquote>
+<p>როგორც <strong>მენეჯერი</strong>, მინდა <strong>შევქმნა კურსი</strong>, რომ მასზე ჯგუფები გავხსნა.</p>
+</blockquote>
+<p><strong>კრიტერიუმები:</strong> სახელი სავალდებულოა · სახელი უნიკალურია (R1) · ხანგრძლივობა 1-დან 52 კვირამდეა.</p>
+<p>მენეჯერს კურსის შექმნის გარდა მისი ნახვა, შეცვლა და წაშლაც დასჭირდება. REST-ის წესებით (02 ლექცია) ეს ხუთ endpoint-ად იქცევა:</p>
+<table>
+<thead>
+<tr>
+<th>მეთოდი</th>
+<th>მისამართი</th>
+<th>პასუხები</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>POST</code></td>
+<td><code>/api/courses</code></td>
+<td>201 შეიქმნა · 400 არასწორი მონაცემი · 409 ასეთი სახელი უკვე არის</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/api/courses</code></td>
+<td>200 სია</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/api/courses/{id}</code></td>
+<td>200 · 404 არ არსებობს</td>
+</tr>
+<tr>
+<td><code>PUT</code></td>
+<td><code>/api/courses/{id}</code></td>
+<td>204 · 400 · 404 · 409</td>
+</tr>
+<tr>
+<td><code>DELETE</code></td>
+<td><code>/api/courses/{id}</code></td>
+<td>204 · 404</td>
+</tr>
+</tbody>
+</table>
+<p>ყოველი კრიტერიუმი სტატუს კოდად იქცა: „სავალდებულოა“ და „1–52“ → <strong>400</strong>, „უნიკალურია“ → <strong>409</strong>. კოდის წერამდე უკვე ვიცით, რა უნდა დააბრუნოს თითოეულმა endpoint-მა.</p></article>
+<h2 class="sec" id="sec-4">1 · პროექტი</h2>
+<article class="blk" data-slides="6"><span class="anchor" id="s-6"></span><div class="bh"><h3>ნაწილი 1 · Lms.Api</h3><a class="chip" href="index.html#/6" data-go="6" title="პრეზენტაციაში გახსნა">სლაიდი 6</a></div>
+<p>ახალ პროექტს ვქმნით და ShopApi-ის ნაცნობ სტრუქტურას ვაწყობთ. ეს პროექტი კურსის ბოლომდე გაგვყვება.</p></article>
+<article class="blk" data-slides="7"><span class="anchor" id="s-7"></span><div class="bh"><h3>ახალი პროექტი + 5 პაკეტი</h3><a class="chip" href="index.html#/7" data-go="7" title="პრეზენტაციაში გახსნა">სლაიდი 7</a></div>
+<p>ნაბიჯები ShopApi-დან უკვე ნაცნობია:</p>
+<ol>
+<li><strong>Create a new project</strong> → <strong>ASP.NET Core Web API</strong>.</li>
+<li><strong>Project name:</strong> <code>Lms.Api</code>. ეს სახელი namespace-ებშიც გამოჩნდება: <code>Lms.Api.Entities</code>, <code>Lms.Api.Data</code> და ა.შ.</li>
+<li><strong>Framework:</strong> .NET 10.0 · <strong>Authentication:</strong> None (ავთენტიფიკაციას მოგვიანებით ჩვენ თვითონ დავწერთ).</li>
+<li>✓ Configure for HTTPS · ✓ Enable OpenAPI support · ✓ <strong>Use controllers</strong>.</li>
+</ol>
+<p><strong>პაკეტები</strong> (Manage NuGet Packages, ყველა ერთი ვერსიით, 10.0.x):</p>
+<ul>
+<li><code>Microsoft.EntityFrameworkCore</code></li>
+<li><code>Microsoft.EntityFrameworkCore.SqlServer</code></li>
+<li><code>Microsoft.EntityFrameworkCore.Tools</code>: <code>Add-Migration</code>, <code>Update-Database</code></li>
+<li><code>Microsoft.EntityFrameworkCore.Design</code></li>
+<li><code>Swashbuckle.AspNetCore</code>: Swagger UI</li>
+</ul>
+<div class="callout note"><span class="ci">💡</span><div><p>ჯერჯერობით Controller-ებს ვიყენებთ, ზუსტად ისე, როგორც ShopApi-ში. ეს განზრახ არის: პირველი feature ნაცნობი გზით უნდა დავწეროთ, რომ მერე მისი ნაკლიც დავინახოთ.</p></div></div></article>
+<article class="blk" data-slides="8"><span class="anchor" id="s-8"></span><div class="bh"><h3>საქაღალდეები, როგორც ShopApi-ში</h3><a class="chip" href="index.html#/8" data-go="8" title="პრეზენტაციაში გახსნა">სლაიდი 8</a></div>
+<table>
+<thead>
+<tr>
+<th>საქაღალდე</th>
+<th>რა არის შიგნით</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Controllers</code></td>
+<td>HTTP: მისამართები, მეთოდები, პასუხები</td>
+</tr>
+<tr>
+<td><code>Data</code></td>
+<td><code>DataContext</code>: კავშირი ბაზასთან</td>
+</tr>
+<tr>
+<td><code>Dtos</code></td>
+<td>რა შემოდის მოთხოვნაში და რა გადის პასუხში</td>
+</tr>
+<tr>
+<td><code>Entities</code></td>
+<td>ბაზის ცხრილების კლასები</td>
+</tr>
+<tr>
+<td><code>Mappers</code></td>
+<td>Entity ⇄ DTO გადაყვანა</td>
+</tr>
+<tr>
+<td><code>Migrations</code></td>
+<td>EF Core თვითონ ქმნის</td>
+</tr>
+</tbody>
+</table>
+<p><strong>სახელები ლექსიკონიდან მოდის:</strong> <code>Course</code>, <code>Group</code>, <code>Enrollment</code>. არა <code>Item</code>, <code>Data1</code> ან <code>StudentCourse</code>. 06 ლექციაზე ვნახეთ, რომ სახელი ბიზნესის ენით უნდა იყოს.</p>
+<p>ამ სტრუქტურაში საქაღალდე <strong>ტექნიკურ როლს</strong> ნიშნავს: ყველა Controller ერთად, ყველა DTO ერთად, ყველა Mapper ერთად. ShopApi-ში ეს კარგად მუშაობდა. ლექციის ბოლოს ვნახავთ, რა ემართება ამ სტრუქტურას, როცა პროექტი იზრდება.</p></article>
+<h2 class="sec" id="sec-5">2 · Course და ბაზა</h2>
+<article class="blk" data-slides="9"><span class="anchor" id="s-9"></span><div class="bh"><h3>ნაწილი 2 · Course და ბაზა</h3><a class="chip" href="index.html#/9" data-go="9" title="პრეზენტაციაში გახსნა">სლაიდი 9</a></div>
+<p>პირველი entity, DataContext და მიგრაცია. ბოლოს ბაზაში ცხრილი <code>Courses</code> გვექნება.</p></article>
+<article class="blk" data-slides="10"><span class="anchor" id="s-10"></span><div class="bh"><h3>Course entity და DataContext</h3><a class="chip" href="index.html#/10" data-go="10" title="პრეზენტაციაში გახსნა">სლაიდი 10</a></div>
+<div class="codebox"><div class="ch"><span>Entities/Course.cs</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="k">namespace</span><span class="w"> </span><span class="nn">Lms.Api.Entities</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="k">public</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">Course</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="n">Guid</span><span class="w"> </span><span class="n">Id</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">get</span><span class="p">;</span><span class="w"> </span><span class="k">set</span><span class="p">;</span><span class="w"> </span><span class="p">}</span></span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="n">Title</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">get</span><span class="p">;</span><span class="w"> </span><span class="k">set</span><span class="p">;</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kt">string</span><span class="p">.</span><span class="n">Empty</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="kt">string?</span><span class="w"> </span><span class="n">Description</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">get</span><span class="p">;</span><span class="w"> </span><span class="k">set</span><span class="p">;</span><span class="w"> </span><span class="p">}</span></span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">DurationWeeks</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">get</span><span class="p">;</span><span class="w"> </span><span class="k">set</span><span class="p">;</span><span class="w"> </span><span class="p">}</span></span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="n">DateTime</span><span class="w"> </span><span class="n">CreatedAt</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">get</span><span class="p">;</span><span class="w"> </span><span class="k">set</span><span class="p">;</span><span class="w"> </span><span class="p">}</span></span><span class="ln"><span class="p">}</span></span></code></pre></div>
+<ul>
+<li><code>Title</code> და <code>DurationWeeks</code> story-დან მოდის: „სახელი“ და „ხანგრძლივობა კვირებში“. სახელი ისე ავარჩიეთ, რომ ერთეული (კვირა) თვითონ ჩანდეს: <code>Duration</code>-ს ვერ მიხვდები, დღეებშია თუ თვეებში.</li>
+<li><code>string?</code> აღწერისთვის: კითხვის ნიშანი ნიშნავს, რომ აღწერა შეიძლება არ იყოს (<code>null</code>). სახელი კი სავალდებულოა, ამიტომ <code>string</code>, საწყისი მნიშვნელობით <code>string.Empty</code>.</li>
+<li><code>CreatedAt</code>: როდის შეიქმნა. ბიზნესს ხშირად სჭირდება („ახალი კურსები ზემოთ“).</li>
+</ul>
+<div class="codebox"><div class="ch"><span>Data/DataContext.cs</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="k">using</span><span class="w"> </span><span class="nn">Lms.Api.Entities</span><span class="p">;</span></span><span class="ln"><span class="k">using</span><span class="w"> </span><span class="nn">Microsoft.EntityFrameworkCore</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="k">namespace</span><span class="w"> </span><span class="nn">Lms.Api.Data</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="k">public</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">DataContext</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">DbContext</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="nf">DataContext</span><span class="p">(</span><span class="n">DbContextOptions</span><span class="o">&lt;</span><span class="n">DataContext</span><span class="o">&gt;</span><span class="w"> </span><span class="n">options</span><span class="p">)</span></span><span class="ln"><span class="w">        </span><span class="p">:</span><span class="w"> </span><span class="k">base</span><span class="p">(</span><span class="n">options</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">}</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="n">DbSet</span><span class="o">&lt;</span><span class="n">Course</span><span class="o">&gt;</span><span class="w"> </span><span class="n">Courses</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">get</span><span class="p">;</span><span class="w"> </span><span class="k">set</span><span class="p">;</span><span class="w"> </span><span class="p">}</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="k">protected</span><span class="w"> </span><span class="k">override</span><span class="w"> </span><span class="k">void</span><span class="w"> </span><span class="nf">OnModelCreating</span><span class="p">(</span><span class="n">ModelBuilder</span><span class="w"> </span><span class="n">modelBuilder</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="p">{</span></span><span class="ln"><span class="w">        </span><span class="n">modelBuilder</span><span class="p">.</span><span class="n">Entity</span><span class="o">&lt;</span><span class="n">Course</span><span class="o">&gt;</span><span class="p">(</span><span class="n">course</span><span class="w"> </span><span class="o">=&gt;</span></span><span class="ln"><span class="w">        </span><span class="p">{</span></span><span class="ln"><span class="w">            </span><span class="n">course</span><span class="p">.</span><span class="n">Property</span><span class="p">(</span><span class="n">c</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">c</span><span class="p">.</span><span class="n">Title</span><span class="p">)</span><span class="p">.</span><span class="n">HasMaxLength</span><span class="p">(</span><span class="mi">100</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">            </span><span class="n">course</span><span class="p">.</span><span class="n">HasIndex</span><span class="p">(</span><span class="n">c</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">c</span><span class="p">.</span><span class="n">Title</span><span class="p">)</span><span class="p">.</span><span class="n">IsUnique</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">        </span><span class="p">}</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="p">}</span></span><span class="ln"><span class="p">}</span></span></code></pre></div>
+<p><code>OnModelCreating</code>-ში ბაზას ორ რამეს ვეუბნებით:</p>
+<ul>
+<li><code>HasMaxLength(100)</code>: სვეტი <code>nvarchar(100)</code> იქნება და არა <code>nvarchar(max)</code>.</li>
+<li><code>HasIndex(c =&gt; c.Title).IsUnique()</code>: <strong>unique index</strong>. ბაზა ორ ერთნაირ სახელს არ ჩაწერს. ეს არის <strong>R1</strong> ბაზის დონეზე.</li>
+</ul>
+<div class="callout note"><span class="ci">💡</span><div><p>R1-ს კოდშიც შევამოწმებთ, Controller-ში. რატომ ორჯერ? ეს ნაწილ 4-ში ვნახავთ.</p></div></div></article>
+<article class="blk" data-slides="11,12"><span class="anchor" id="s-11"></span><span class="anchor" id="s-12"></span><div class="bh"><h3>Program.cs, appsettings, Migration</h3><a class="chip" href="index.html#/11" data-go="11" title="პრეზენტაციაში გახსნა">სლაიდი 11</a></div>
+<div class="codebox"><div class="ch"><span>Program.cs</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="k">using</span><span class="w"> </span><span class="nn">Lms.Api.Data</span><span class="p">;</span></span><span class="ln"><span class="k">using</span><span class="w"> </span><span class="nn">Microsoft.EntityFrameworkCore</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="kt">var</span><span class="w"> </span><span class="n">builder</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">WebApplication</span><span class="p">.</span><span class="n">CreateBuilder</span><span class="p">(</span><span class="n">args</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="n">builder</span><span class="p">.</span><span class="n">Services</span><span class="p">.</span><span class="n">AddControllers</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="n">builder</span><span class="p">.</span><span class="n">Services</span><span class="p">.</span><span class="n">AddOpenApi</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="n">builder</span><span class="p">.</span><span class="n">Services</span><span class="p">.</span><span class="n">AddSwaggerGen</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="n">builder</span><span class="p">.</span><span class="n">Services</span><span class="p">.</span><span class="n">AddDbContext</span><span class="o">&lt;</span><span class="n">DataContext</span><span class="o">&gt;</span><span class="p">(</span><span class="n">options</span><span class="w"> </span><span class="o">=&gt;</span></span><span class="ln"><span class="w">    </span><span class="n">options</span><span class="p">.</span><span class="n">UseSqlServer</span><span class="p">(</span><span class="n">builder</span><span class="p">.</span><span class="n">Configuration</span><span class="p">.</span><span class="n">GetConnectionString</span><span class="p">(</span><span class="s">"Default"</span><span class="p">)</span><span class="p">)</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="kt">var</span><span class="w"> </span><span class="n">app</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">builder</span><span class="p">.</span><span class="n">Build</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">app</span><span class="p">.</span><span class="n">Environment</span><span class="p">.</span><span class="n">IsDevelopment</span><span class="p">(</span><span class="p">)</span><span class="p">)</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="n">app</span><span class="p">.</span><span class="n">MapOpenApi</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="n">app</span><span class="p">.</span><span class="n">UseSwagger</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="n">app</span><span class="p">.</span><span class="n">UseSwaggerUI</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="p">}</span></span><span class="ln"> </span><span class="ln"><span class="n">app</span><span class="p">.</span><span class="n">UseHttpsRedirection</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="n">app</span><span class="p">.</span><span class="n">MapControllers</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="n">app</span><span class="p">.</span><span class="n">Run</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span></code></pre></div>
+<div class="codebox"><div class="ch"><span>appsettings.json</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">  </span><span class="nt">"ConnectionStrings"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="nt">"Default"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Server=(localdb)\\MSSQLLocalDB;Database=LmsDb;Trusted_Connection=True;TrustServerCertificate=True"</span></span><span class="ln"><span class="w">  </span><span class="p">},</span></span><span class="ln"><span class="w">  </span><span class="nt">"Logging"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="err">.</span><span class="err">.</span><span class="err">.</span><span class="w"> </span><span class="p">},</span></span><span class="ln"><span class="w">  </span><span class="nt">"AllowedHosts"</span><span class="p">:</span><span class="w"> </span><span class="s2">"*"</span></span><span class="ln"><span class="p">}</span></span></code></pre></div>
+<p>ყველაფერი 04 ლექციიდან ნაცნობია: <code>AddDbContext</code> DataContext-ს Container-ში Scoped-ად არეგისტრირებს, connection string კი appsettings.json-იდან მოდის.</p>
+<p><strong>მიგრაცია</strong> (Tools → NuGet Package Manager → Package Manager Console):</p>
+<div class="codebox"><div class="ch"><span>Package Manager Console</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln">Add-Migration InitialCreate</span><span class="ln">Update-Database</span></code></pre></div>
+<p>SQL Server Object Explorer-ში ჩანს: ბაზა <code>LmsDb</code>, ცხრილი <code>Courses</code> და index <code>IX_Courses_Title</code>.</p></article>
+<h2 class="sec" id="sec-6">3 · DTO და Mapper</h2>
+<article class="blk" data-slides="13"><span class="anchor" id="s-13"></span><div class="bh"><h3>ნაწილი 3 · DTO და Mapper</h3><a class="chip" href="index.html#/13" data-go="13" title="პრეზენტაციაში გახსნა">სლაიდი 13</a></div>
+<p>03 ლექციიდან ვიცით: entity-ს გარეთ არ ვაჩენთ. შემოსვლისთვის და გასვლისთვის ცალკე DTO გვჭირდება, გადაყვანისთვის კი Mapper.</p></article>
+<article class="blk" data-slides="14"><span class="anchor" id="s-14"></span><div class="bh"><h3>სამი record და CourseMapper</h3><a class="chip" href="index.html#/14" data-go="14" title="პრეზენტაციაში გახსნა">სლაიდი 14</a></div>
+<div class="codebox"><div class="ch"><span>Dtos/CourseDtos.cs</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="k">namespace</span><span class="w"> </span><span class="nn">Lms.Api.Dtos</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="k">public</span><span class="w"> </span><span class="k">record</span><span class="w"> </span><span class="nf">CreateCourseRequest</span><span class="p">(</span></span><span class="ln"><span class="w">    </span><span class="kt">string</span><span class="w"> </span><span class="n">Title</span><span class="p">,</span><span class="w"> </span><span class="kt">string?</span><span class="w"> </span><span class="n">Description</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">DurationWeeks</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="k">public</span><span class="w"> </span><span class="k">record</span><span class="w"> </span><span class="nf">UpdateCourseRequest</span><span class="p">(</span></span><span class="ln"><span class="w">    </span><span class="kt">string</span><span class="w"> </span><span class="n">Title</span><span class="p">,</span><span class="w"> </span><span class="kt">string?</span><span class="w"> </span><span class="n">Description</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">DurationWeeks</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="k">public</span><span class="w"> </span><span class="k">record</span><span class="w"> </span><span class="nf">CourseResponse</span><span class="p">(</span></span><span class="ln"><span class="w">    </span><span class="n">Guid</span><span class="w"> </span><span class="n">Id</span><span class="p">,</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="n">Title</span><span class="p">,</span><span class="w"> </span><span class="kt">string?</span><span class="w"> </span><span class="n">Description</span><span class="p">,</span></span><span class="ln"><span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">DurationWeeks</span><span class="p">,</span><span class="w"> </span><span class="n">DateTime</span><span class="w"> </span><span class="n">CreatedAt</span><span class="p">)</span><span class="p">;</span></span></code></pre></div>
+<ul>
+<li><strong>Request-ებში Id არ არის</strong>: Id-ს EF Core ქმნის (Guid). კლიენტი მას არ გვიგზავნის.</li>
+<li><strong>CreatedAt</strong> არც Request-შია: მას Mapper წერს. კლიენტს არ ვენდობით, როცა საქმე დროს ეხება.</li>
+</ul>
+<div class="codebox"><div class="ch"><span>Mappers/CourseMapper.cs</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="k">public</span><span class="w"> </span><span class="k">static</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">CourseMapper</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="k">static</span><span class="w"> </span><span class="n">CourseResponse</span><span class="w"> </span><span class="nf">ToResponse</span><span class="p">(</span><span class="k">this</span><span class="w"> </span><span class="n">Course</span><span class="w"> </span><span class="n">course</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="p">{</span></span><span class="ln"><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="nf">CourseResponse</span><span class="p">(</span><span class="n">course</span><span class="p">.</span><span class="n">Id</span><span class="p">,</span><span class="w"> </span><span class="n">course</span><span class="p">.</span><span class="n">Title</span><span class="p">,</span></span><span class="ln"><span class="w">            </span><span class="n">course</span><span class="p">.</span><span class="n">Description</span><span class="p">,</span><span class="w"> </span><span class="n">course</span><span class="p">.</span><span class="n">DurationWeeks</span><span class="p">,</span><span class="w"> </span><span class="n">course</span><span class="p">.</span><span class="n">CreatedAt</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="p">}</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="k">static</span><span class="w"> </span><span class="n">Course</span><span class="w"> </span><span class="nf">ToEntity</span><span class="p">(</span><span class="k">this</span><span class="w"> </span><span class="n">CreateCourseRequest</span><span class="w"> </span><span class="n">request</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="p">{</span></span><span class="ln"><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">Course</span></span><span class="ln"><span class="w">        </span><span class="p">{</span></span><span class="ln"><span class="w">            </span><span class="n">Title</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">request</span><span class="p">.</span><span class="n">Title</span><span class="p">.</span><span class="n">Trim</span><span class="p">(</span><span class="p">)</span><span class="p">,</span></span><span class="ln"><span class="w">            </span><span class="n">Description</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">request</span><span class="p">.</span><span class="n">Description</span><span class="p">,</span></span><span class="ln"><span class="w">            </span><span class="n">DurationWeeks</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">request</span><span class="p">.</span><span class="n">DurationWeeks</span><span class="p">,</span></span><span class="ln"><span class="w">            </span><span class="n">CreatedAt</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">DateTime</span><span class="p">.</span><span class="n">UtcNow</span></span><span class="ln"><span class="w">        </span><span class="p">}</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="p">}</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="k">static</span><span class="w"> </span><span class="k">void</span><span class="w"> </span><span class="nf">UpdateFrom</span><span class="p">(</span><span class="k">this</span><span class="w"> </span><span class="n">Course</span><span class="w"> </span><span class="n">course</span><span class="p">,</span><span class="w"> </span><span class="n">UpdateCourseRequest</span><span class="w"> </span><span class="n">request</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="p">{</span></span><span class="ln"><span class="w">        </span><span class="n">course</span><span class="p">.</span><span class="n">Title</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">request</span><span class="p">.</span><span class="n">Title</span><span class="p">.</span><span class="n">Trim</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">        </span><span class="n">course</span><span class="p">.</span><span class="n">Description</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">request</span><span class="p">.</span><span class="n">Description</span><span class="p">;</span></span><span class="ln"><span class="w">        </span><span class="n">course</span><span class="p">.</span><span class="n">DurationWeeks</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">request</span><span class="p">.</span><span class="n">DurationWeeks</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="p">}</span></span><span class="ln"><span class="p">}</span></span></code></pre></div>
+<p><code>Trim()</code> სახელის თავში და ბოლოში ჰარებს აცილებს: „ ASP.NET “ და „ASP.NET“ ერთი და იგივე სახელია. თუ ამას არ გავაკეთებთ, R1 (უნიკალური სახელი) ჰარის ერთი დამატებით გვერდს აუვლის.</p>
+<div class="callout note"><span class="ci">💡</span><div><p>03 ლექციაზე Mapperly-იც ვნახეთ. LMS-ში Mapper-ს ხელით ვწერთ: ის მოკლეა და ყველა ხაზი ჩანს. თუ შენს LMS-ში Mapperly გირჩევნია, ესეც სწორია.</p></div></div></article>
+<h2 class="sec" id="sec-7">4 · CoursesController</h2>
+<article class="blk" data-slides="15"><span class="anchor" id="s-15"></span><div class="bh"><h3>ნაწილი 4 · CoursesController</h3><a class="chip" href="index.html#/15" data-go="15" title="პრეზენტაციაში გახსნა">სლაიდი 15</a></div>
+<p>ხუთი endpoint, ყველა async (05 ლექცია). განსაკუთრებულ ყურადღებას Create-ს ვაქცევთ: მასში ყველა კრიტერიუმი მოწმდება.</p></article>
+<article class="blk" data-slides="16"><span class="anchor" id="s-16"></span><div class="bh"><h3>GetAll და GetById</h3><a class="chip" href="index.html#/16" data-go="16" title="პრეზენტაციაში გახსნა">სლაიდი 16</a></div>
+<div class="codebox"><div class="ch"><span>Controllers/CoursesController.cs</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="na">[ApiController]</span></span><span class="ln"><span class="na">[Route("api/courses")]</span></span><span class="ln"><span class="k">public</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">CoursesController</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">ControllerBase</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="k">private</span><span class="w"> </span><span class="k">readonly</span><span class="w"> </span><span class="n">DataContext</span><span class="w"> </span><span class="n">_db</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="nf">CoursesController</span><span class="p">(</span><span class="n">DataContext</span><span class="w"> </span><span class="n">db</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="p">{</span></span><span class="ln"><span class="w">        </span><span class="n">_db</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">db</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="p">}</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="na">[HttpGet]</span></span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="n">Task</span><span class="o">&lt;</span><span class="n">IActionResult</span><span class="o">&gt;</span><span class="w"> </span><span class="n">GetAll</span><span class="p">(</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="p">{</span></span><span class="ln"><span class="w">        </span><span class="kt">var</span><span class="w"> </span><span class="n">courses</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="n">_db</span><span class="p">.</span><span class="n">Courses</span></span><span class="ln"><span class="w">            </span><span class="p">.</span><span class="n">OrderBy</span><span class="p">(</span><span class="n">c</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">c</span><span class="p">.</span><span class="n">Title</span><span class="p">)</span></span><span class="ln"><span class="w">            </span><span class="p">.</span><span class="n">ToListAsync</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="nf">Ok</span><span class="p">(</span><span class="n">courses</span><span class="p">.</span><span class="n">Select</span><span class="p">(</span><span class="n">c</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">c</span><span class="p">.</span><span class="n">ToResponse</span><span class="p">(</span><span class="p">)</span><span class="p">)</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="p">}</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="na">[HttpGet("{id:guid}")]</span></span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="n">Task</span><span class="o">&lt;</span><span class="n">IActionResult</span><span class="o">&gt;</span><span class="w"> </span><span class="n">GetById</span><span class="p">(</span><span class="n">Guid</span><span class="w"> </span><span class="n">id</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="p">{</span></span><span class="ln"><span class="w">        </span><span class="kt">var</span><span class="w"> </span><span class="n">course</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="n">_db</span><span class="p">.</span><span class="n">Courses</span><span class="p">.</span><span class="n">FindAsync</span><span class="p">(</span><span class="n">id</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">course</span><span class="w"> </span><span class="k">is</span><span class="w"> </span><span class="k">null</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">NotFound</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="nf">Ok</span><span class="p">(</span><span class="n">course</span><span class="p">.</span><span class="n">ToResponse</span><span class="p">(</span><span class="p">)</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="p">}</span></span><span class="ln"><span class="p">}</span></span></code></pre></div>
+<ul>
+<li>DataContext-ს Controller-ი <strong>constructor-ით</strong> ითხოვს: Container მას თვითონ ქმნის და მიაწვდის (04).</li>
+<li><code>OrderBy</code> SQL-ში <code>ORDER BY</code>-ად იქცევა. ბაზაში მოთხოვნა მხოლოდ <code>ToListAsync</code>-ზე მიდის (05).</li>
+<li>გარეთ მხოლოდ <code>CourseResponse</code> გადის, entity არასდროს (03).</li>
+</ul></article>
+<article class="blk" data-slides="17"><span class="anchor" id="s-17"></span><div class="bh"><h3>R1-ის გარეშე: ორჯერ „ASP.NET“ → 500</h3><a class="chip" href="index.html#/17" data-go="17" title="პრეზენტაციაში გახსნა">სლაიდი 17</a></div>
+<p>Create-ის პირველი ვერსია შემოწმებების გარეშე:</p>
+<div class="codebox"><div class="ch"><span>Create · პირველი ვერსია</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="na">[HttpPost]</span></span><span class="ln"><span class="k">public</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="n">Task</span><span class="o">&lt;</span><span class="n">IActionResult</span><span class="o">&gt;</span><span class="w"> </span><span class="n">Create</span><span class="p">(</span><span class="n">CreateCourseRequest</span><span class="w"> </span><span class="n">request</span><span class="p">)</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="kt">var</span><span class="w"> </span><span class="n">course</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">request</span><span class="p">.</span><span class="n">ToEntity</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="n">_db</span><span class="p">.</span><span class="n">Courses</span><span class="p">.</span><span class="n">Add</span><span class="p">(</span><span class="n">course</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="k">await</span><span class="w"> </span><span class="n">_db</span><span class="p">.</span><span class="n">SaveChangesAsync</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nf">CreatedAtAction</span><span class="p">(</span><span class="k">nameof</span><span class="p">(</span><span class="n">GetById</span><span class="p">)</span><span class="p">,</span></span><span class="ln"><span class="w">        </span><span class="k">new</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">course</span><span class="p">.</span><span class="n">Id</span><span class="w"> </span><span class="p">}</span><span class="p">,</span><span class="w"> </span><span class="n">course</span><span class="p">.</span><span class="n">ToResponse</span><span class="p">(</span><span class="p">)</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="p">}</span></span></code></pre></div>
+<p>Swagger-ში ვაგზავნით „ASP.NET“-ს ორჯერ:</p>
+<ol>
+<li>პირველი → <strong>201 Created</strong>.</li>
+<li>მეორე → <strong>500 Internal Server Error</strong>: <code>DbUpdateException: Cannot insert duplicate key row … with unique index 'IX_Courses_Title'</code>.</li>
+</ol>
+<p>რა მოხდა:</p>
+<ul>
+<li>✓ <strong>ბაზამ დაგვიცვა</strong>: unique index-მა დუბლიკატი არ ჩაწერა.</li>
+<li>✗ <strong>კლიენტმა 500 მიიღო</strong>, ანუ „სერვერი გაფუჭდა“, თუმცა არაფერი გაფუჭებულა. მენეჯერმა არ იცის, რა შეცდომა დაუშვა და რა გააკეთოს.</li>
+<li>✗ <strong>ცარიელი სახელი და 0 კვირა</strong> ბაზამ უპრობლემოდ ჩაწერა. ასეთი კურსი ბიზნესში არ არსებობს.</li>
+</ul>
+<p>ბაზა ბოლო დაცვაა, მაგრამ კლიენტს გასაგებ პასუხს ვერ მისცემს. ეს კოდის საქმეა.</p></article>
+<article class="blk" data-slides="18"><span class="anchor" id="s-18"></span><div class="bh"><h3>Create: 400, 409, 201</h3><a class="chip" href="index.html#/18" data-go="18" title="პრეზენტაციაში გახსნა">სლაიდი 18</a></div>
+<p>story-ის ყოველი კრიტერიუმი კოდში ერთ შემოწმებად იქცა:</p>
+<div class="codebox"><div class="ch"><span>Controllers/CoursesController.cs · Create</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="na">[HttpPost]</span></span><span class="ln"><span class="k">public</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="n">Task</span><span class="o">&lt;</span><span class="n">IActionResult</span><span class="o">&gt;</span><span class="w"> </span><span class="n">Create</span><span class="p">(</span><span class="n">CreateCourseRequest</span><span class="w"> </span><span class="n">request</span><span class="p">)</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="kt">string</span><span class="p">.</span><span class="n">IsNullOrWhiteSpace</span><span class="p">(</span><span class="n">request</span><span class="p">.</span><span class="n">Title</span><span class="p">)</span><span class="p">)</span></span><span class="ln"><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="nf">BadRequest</span><span class="p">(</span><span class="s">"კურსის სახელი სავალდებულოა"</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">request</span><span class="p">.</span><span class="n">DurationWeeks</span><span class="w"> </span><span class="k">is</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="k">or</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">52</span><span class="p">)</span></span><span class="ln"><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="nf">BadRequest</span><span class="p">(</span><span class="s">"ხანგრძლივობა 1-დან 52 კვირამდეა"</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="kt">var</span><span class="w"> </span><span class="n">title</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">request</span><span class="p">.</span><span class="n">Title</span><span class="p">.</span><span class="n">Trim</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="k">await</span><span class="w"> </span><span class="n">_db</span><span class="p">.</span><span class="n">Courses</span><span class="p">.</span><span class="n">AnyAsync</span><span class="p">(</span><span class="n">c</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">c</span><span class="p">.</span><span class="n">Title</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">title</span><span class="p">)</span><span class="p">)</span></span><span class="ln"><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="nf">Conflict</span><span class="p">(</span><span class="s">$"კურსი „{title}“ უკვე არსებობს"</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="kt">var</span><span class="w"> </span><span class="n">course</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">request</span><span class="p">.</span><span class="n">ToEntity</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="n">_db</span><span class="p">.</span><span class="n">Courses</span><span class="p">.</span><span class="n">Add</span><span class="p">(</span><span class="n">course</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="k">await</span><span class="w"> </span><span class="n">_db</span><span class="p">.</span><span class="n">SaveChangesAsync</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nf">CreatedAtAction</span><span class="p">(</span><span class="k">nameof</span><span class="p">(</span><span class="n">GetById</span><span class="p">)</span><span class="p">,</span></span><span class="ln"><span class="w">        </span><span class="k">new</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">course</span><span class="p">.</span><span class="n">Id</span><span class="w"> </span><span class="p">}</span><span class="p">,</span><span class="w"> </span><span class="n">course</span><span class="p">.</span><span class="n">ToResponse</span><span class="p">(</span><span class="p">)</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="p">}</span></span></code></pre></div>
+<p><strong>400 თუ 409?</strong></p>
+<table>
+<thead>
+<tr>
+<th>კოდი</th>
+<th>როდის</th>
+<th>მაგალითი</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>400</strong> Bad Request</td>
+<td>მოთხოვნა <strong>თვითონ</strong> არასწორია: სხვა მონაცემის ნახვა არ გვჭირდება</td>
+<td>ცარიელი სახელი, 0 კვირა</td>
+</tr>
+<tr>
+<td><strong>409</strong> Conflict</td>
+<td>მოთხოვნა სწორია, მაგრამ სისტემის <strong>ახლანდელ მდგომარეობას</strong> ეწინააღმდეგება</td>
+<td>ასეთი სახელით კურსი უკვე არსებობს (R1)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>რატომ ვამოწმებთ R1-ს ორჯერ?</strong> <code>AnyAsync</code> კლიენტს გასაგებ 409-ს უბრუნებს. Unique index კი ბოლო დაცვაა: თუ ორი მენეჯერი ზუსტად ერთ დროს ერთ სახელს გაგზავნის, ორივე მოთხოვნამ <code>AnyAsync</code> შეიძლება ერთად გაიაროს, და ბაზა მეორეს მაინც არ ჩაწერს. ასეთ „ერთდროულობას“ მოგვიანებით ცალკე ლექციაზე განვიხილავთ.</p>
+<div class="callout tip"><span class="ci">👉</span><div><p><code>[ApiController]</code>-ი <code>null</code> სახელს თვითონ იჭერს და ავტომატურ 400-ს აბრუნებს, რადგან <code>Title</code> არის <code>string</code> და არა <code>string?</code>. მაგრამ <code>""</code> და <code>"   "</code> <code>null</code> არ არის. ამიტომ <code>IsNullOrWhiteSpace</code> მაინც გვჭირდება.</p></div></div></article>
+<article class="blk" data-slides="19"><span class="anchor" id="s-19"></span><div class="bh"><h3>Update და Delete</h3><a class="chip" href="index.html#/19" data-go="19" title="პრეზენტაციაში გახსნა">სლაიდი 19</a></div>
+<div class="codebox"><div class="ch"><span>Controllers/CoursesController.cs</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="na">[HttpPut("{id:guid}")]</span></span><span class="ln"><span class="k">public</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="n">Task</span><span class="o">&lt;</span><span class="n">IActionResult</span><span class="o">&gt;</span><span class="w"> </span><span class="n">Update</span><span class="p">(</span><span class="n">Guid</span><span class="w"> </span><span class="n">id</span><span class="p">,</span><span class="w"> </span><span class="n">UpdateCourseRequest</span><span class="w"> </span><span class="n">request</span><span class="p">)</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="kt">string</span><span class="p">.</span><span class="n">IsNullOrWhiteSpace</span><span class="p">(</span><span class="n">request</span><span class="p">.</span><span class="n">Title</span><span class="p">)</span><span class="p">)</span></span><span class="ln"><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="nf">BadRequest</span><span class="p">(</span><span class="s">"კურსის სახელი სავალდებულოა"</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">request</span><span class="p">.</span><span class="n">DurationWeeks</span><span class="w"> </span><span class="k">is</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="k">or</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">52</span><span class="p">)</span></span><span class="ln"><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="nf">BadRequest</span><span class="p">(</span><span class="s">"ხანგრძლივობა 1-დან 52 კვირამდეა"</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="kt">var</span><span class="w"> </span><span class="n">course</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="n">_db</span><span class="p">.</span><span class="n">Courses</span><span class="p">.</span><span class="n">FindAsync</span><span class="p">(</span><span class="n">id</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">course</span><span class="w"> </span><span class="k">is</span><span class="w"> </span><span class="k">null</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">NotFound</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="kt">var</span><span class="w"> </span><span class="n">title</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">request</span><span class="p">.</span><span class="n">Title</span><span class="p">.</span><span class="n">Trim</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="k">await</span><span class="w"> </span><span class="n">_db</span><span class="p">.</span><span class="n">Courses</span><span class="p">.</span><span class="n">AnyAsync</span><span class="p">(</span><span class="n">c</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">c</span><span class="p">.</span><span class="n">Title</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">title</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">c</span><span class="p">.</span><span class="n">Id</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">id</span><span class="p">)</span><span class="p">)</span></span><span class="ln"><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="nf">Conflict</span><span class="p">(</span><span class="s">$"კურსი „{title}“ უკვე არსებობს"</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="n">course</span><span class="p">.</span><span class="n">UpdateFrom</span><span class="p">(</span><span class="n">request</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="k">await</span><span class="w"> </span><span class="n">_db</span><span class="p">.</span><span class="n">SaveChangesAsync</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nf">NoContent</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="p">}</span></span><span class="ln"> </span><span class="ln"><span class="na">[HttpDelete("{id:guid}")]</span></span><span class="ln"><span class="k">public</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="n">Task</span><span class="o">&lt;</span><span class="n">IActionResult</span><span class="o">&gt;</span><span class="w"> </span><span class="n">Delete</span><span class="p">(</span><span class="n">Guid</span><span class="w"> </span><span class="n">id</span><span class="p">)</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="kt">var</span><span class="w"> </span><span class="n">course</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="n">_db</span><span class="p">.</span><span class="n">Courses</span><span class="p">.</span><span class="n">FindAsync</span><span class="p">(</span><span class="n">id</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">course</span><span class="w"> </span><span class="k">is</span><span class="w"> </span><span class="k">null</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">NotFound</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="n">_db</span><span class="p">.</span><span class="n">Courses</span><span class="p">.</span><span class="n">Remove</span><span class="p">(</span><span class="n">course</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="k">await</span><span class="w"> </span><span class="n">_db</span><span class="p">.</span><span class="n">SaveChangesAsync</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nf">NoContent</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="p">}</span></span></code></pre></div>
+<p><strong><code>c.Id != id</code></strong> Update-ში აუცილებელია. თუ მენეჯერი მხოლოდ აღწერას ცვლის და სახელს იგივეს ტოვებს, <code>AnyAsync(c =&gt; c.Title == title)</code> <strong>თავის თავს</strong> იპოვის და 409-ს დააბრუნებს. ჩვენ ვეძებთ <strong>სხვა</strong> კურსს იმავე სახელით.</p>
+<p>შენიშვნა: სახელისა და ხანგრძლივობის ორი შემოწმება მეორედ დავწერეთ, Create-ში და Update-ში. ეს პირველი ნიშანია, რომ რაღაც ისე არ არის. ამას ბოლო ნაწილში დავუბრუნდებით.</p>
+<div class="selfcheck"><div class="sh">✅ შეამოწმე თავი <small>დაფიქრდი, მერე გახსენი პასუხი</small></div><details><summary>რატომ არ მოწმდება Delete-ში წესები?</summary><div class="ans">ამ ეტაპზე კურსის წაშლას წესი არ აქვს. როცა კურსს ჯგუფები ექნება, დირექტორს უნდა ვკითხოთ: „ჯგუფებიანი კურსის წაშლა შეიძლება?“ ეს ახალი წესი იქნება</div></details></div></article>
+<h2 class="sec" id="sec-8">5 · რა გვაწუხებს</h2>
+<article class="blk" data-slides="20"><span class="anchor" id="s-20"></span><div class="bh"><h3>ნაცნობი გზის ფასი</h3><a class="chip" href="index.html#/20" data-go="20" title="პრეზენტაციაში გახსნა">სლაიდი 20</a></div>
+<p>კოდი მუშაობს: ხუთივე endpoint, ყველა კრიტერიუმი. მაგრამ დავაკვირდეთ, რა მოხდება, როცა backlog-ის კიდევ 10 story დაემატება.</p>
+<p><strong>1. ერთი feature 3–4 საქაღალდეშია გაბნეული.</strong> „კურსის შექმნა“ რომ შეცვალო (მაგალითად, ახალი ველი დაემატა), უნდა შეხვიდე <code>Controllers/CoursesController.cs</code>-ში, <code>Dtos/CourseDtos.cs</code>-ში, <code>Mappers/CourseMapper.cs</code>-ში და ხშირად <code>Entities/Course.cs</code>-შიც. ოთხი ფაილი, ოთხი საქაღალდე, ერთი ცვლილებისთვის.</p>
+<p><strong>2. Controller იზრდება.</strong> <code>CoursesController</code> უკვე ~90 ხაზია. ჯგუფებს, ჩარიცხვას, ლექციებს, დასწრებას თავისი Controller-ები ექნება, თითოეულში ათობით endpoint და ასობით ხაზი. როცა ორი დეველოპერი ერთსა და იმავე Controller-ზე მუშაობს, ერთმანეთის ცვლილებებს ეჯახებიან.</p>
+<p><strong>3. HTTP და ბიზნესის წესები ერთ მეთოდშია.</strong> R1 და „1–52 კვირა“ Controller-ის მეთოდშია ჩაწერილი, Update-ში კი მეორედ. წესი ბიზნესს ეკუთვნის, HTTP კი მხოლოდ გზაა, რომლითაც მოთხოვნა მოდის.</p>
+<p>ეს პრობლემები ShopApi-ში არ ჩანდა, რადგან ის პატარა იყო. LMS-ში აუცილებლად გამოჩნდება. შემდეგ ლექციაზე ამას <strong>არქიტექტურით</strong> მოვაგვარებთ: ვიფიქრებთ, სად რა უნდა იდოს და რატომ.</p></article>
+<h2 class="sec" id="sec-9">საშინაოსთვის</h2>
+<article class="blk" data-slides="21"><span class="anchor" id="s-21"></span><div class="bh"><h3>ხშირი შეცდომები</h3><a class="chip" href="index.html#/21" data-go="21" title="პრეზენტაციაში გახსნა">სლაიდი 21</a></div>
+<table>
+<thead>
+<tr>
+<th>რას ხედავ</th>
+<th>მიზეზი და გამოსწორება</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Unable to create a 'DbContext' of type 'DataContext'</code></td>
+<td><code>Add-Migration</code> DataContext-ს ვერ პოულობს → შეამოწმე <code>AddDbContext</code> Program.cs-ში და რომ Startup project <code>Lms.Api</code>-ია</td>
+</tr>
+<tr>
+<td><code>A network-related or instance-specific error…</code></td>
+<td>connection string არასწორია → JSON-ში <code>(localdb)\\MSSQLLocalDB</code>: <strong>ორი</strong> <code>\\</code></td>
+</tr>
+<tr>
+<td><code>Cannot insert duplicate key row … IX_Courses_Title</code> (500)</td>
+<td><code>AnyAsync</code> შემოწმება აკლია ან <code>SaveChangesAsync</code>-ის შემდეგაა → შეამოწმე <strong>მანამდე</strong> და დააბრუნე <code>Conflict()</code></td>
+</tr>
+<tr>
+<td>PUT-ზე 409, თუმცა სახელი არ შეგიცვლია</td>
+<td>კურსი თავის თავს პოულობს → <code>&amp;&amp; c.Id != id</code></td>
+</tr>
+<tr>
+<td><code>'DbSet&lt;Course&gt;' does not contain a definition for 'AnyAsync'</code></td>
+<td><code>using Microsoft.EntityFrameworkCore;</code> აკლია</td>
+</tr>
+</tbody>
+</table>
+<div class="prompt"><div class="ph"><span>🤖 როცა რამე არ მუშაობს</span><button class="copy" type="button">კოპირება</button></div><div class="pb">ვაწყობ ASP.NET Core Web API-ს (.NET 10, Controllers, EF Core, SQL Server LocalDB). პროექტი: სასწავლო პლატფორმა LMS, entity Course (Guid Id, Title — unique index, DurationWeeks).
+პრობლემა: [აღწერე]
+შეცდომის ტექსტი: [ჩასვი]
+ჩემი კოდი: [ჩასვი]
+ჯერ ამიხსენი, რას ნიშნავს შეცდომა და სად ვეძებო. მზა კოდი ნუ დამიწერე.</div></div></article>
+<h2 class="sec" id="sec-10">შეჯამება</h2>
+<article class="blk" data-slides="22"><span class="anchor" id="s-22"></span><div class="bh"><h3>შეამოწმე, რა დაგამახსოვრდა</h3><a class="chip" href="index.html#/22" data-go="22" title="პრეზენტაციაში გახსნა">სლაიდი 22</a></div>
+<p>ეს კითხვები შემდეგი ლექციის დასაწყისშიც დაისმება.</p>
+<div class="selfcheck"><div class="sh">✅ შეამოწმე თავი <small>დაფიქრდი, მერე გახსენი პასუხი</small></div><details><summary>backlog-ის რომელი story-ით დავიწყეთ და რატომ?</summary><div class="ans">„მენეჯერი ქმნის კურსს“: ის არაფერს ელოდება, დანარჩენი კი (ჯგუფი, ჩარიცხვა, ლექცია…) კურსზეა დამოკიდებული</div></details><details><summary>რატომ ვამოწმებთ სახელის უნიკალურობას კოდშიც (<code>AnyAsync</code>) და ბაზაშიც (unique index)?</summary><div class="ans">კოდი კლიენტს გასაგებ 409-ს უბრუნებს · ბაზა ბოლო დაცვაა: ორი ერთდროული მოთხოვნა რომ შემოწმებას ერთად გაიაროს, დუბლიკატი მაინც არ ჩაიწერება</div></details><details><summary>400 Bad Request და 409 Conflict: როდის რომელი?</summary><div class="ans">400: მოთხოვნა თავისთავად არასწორია (ცარიელი სახელი, 0 კვირა) · 409: მოთხოვნა სწორია, მაგრამ სისტემის ახლანდელ მდგომარეობას ეწინააღმდეგება (ასეთი კურსი უკვე არსებობს)</div></details><details><summary>Update-ში უნიკალურობის შემოწმებას რატომ აქვს <code>c.Id != id</code>?</summary><div class="ans">რომ კურსი თავის თავს არ შეეჯახოს: სახელის შეუცვლელად სხვა ველის შეცვლისას 409 არ უნდა მივიღოთ</div></details><details><summary>საიდან მოდის <code>Course</code>, <code>Title</code>, <code>DurationWeeks</code> სახელები?</summary><div class="ans">ლექსიკონიდან და story-ის კრიტერიუმებიდან: კოდში ბიზნესის სიტყვებს ვიყენებთ (Ubiquitous Language)</div></details><details><summary>რა პრობლემები დარჩა ნაცნობ გზაში, როცა პროექტი იზრდება?</summary><div class="ans">ერთი feature 4 საქაღალდეშია გაბნეული · Controller-ი ყოველ ახალ endpoint-ზე იზრდება · HTTP და ბიზნესის წესები ერთ მეთოდშია ერთად</div></details></div></article>
+<article class="blk" data-slides="23"><span class="anchor" id="s-23"></span><div class="bh"><h3>შეჯამება · Story №1 მზადაა</h3><a class="chip" href="index.html#/23" data-go="23" title="პრეზენტაციაში გახსნა">სლაიდი 23</a></div>
+<p><strong>დაიმახსოვრე:</strong></p>
+<ol>
+<li>კოდამდე story-ს <strong>endpoint-ებად და სტატუს კოდებად</strong> ვშლით: ყოველი კრიტერიუმი რომელიმე პასუხად იქცევა.</li>
+<li>ყოველი სახელი (<code>Course</code>, <code>Title</code>, <code>DurationWeeks</code>) <strong>ლექსიკონიდან და story-დან</strong> მოდის.</li>
+<li><strong>400</strong>: მოთხოვნა თვითონ არასწორია. <strong>409</strong>: მოთხოვნა სწორია, მაგრამ სისტემის მდგომარეობას ეწინააღმდეგება.</li>
+<li><strong>R1</strong> ორ ადგილას მოწმდება: <code>AnyAsync</code> კლიენტს გასაგებ 409-ს აძლევს, unique index კი ბოლო დაცვაა.</li>
+<li>Update-ში უნიკალურობა <code>c.Id != id</code>-ით მოწმდება.</li>
+<li>ნაცნობ გზას სამი ტკივილი აქვს: feature 3–4 საქაღალდეშია გაბნეული, Controller იზრდება, ბიზნესის წესები კი HTTP-ის კოდშია და მეორდება. ეს შემდეგი ლექციის თემაა.</li>
+<li><strong>საშინაო შენს სფეროში:</strong> იგივე გზა, შენი კატალოგით და შენი ადამიანებით. რა არის შენთან „კურსი“ და „სტუდენტი“, <a href="../07-lms-discovery/materials/domains.html">სფეროს გვერდზე</a> ნახავ.</li>
+</ol></article>
+<h2 class="sec" id="sec-11">საშინაო</h2>
+<article class="blk" data-slides="24"><span class="anchor" id="s-24"></span><div class="bh"><h3>საშინაო დავალება: შენი სფერო: პროექტი, კატალოგი და ადამიანები</h3><a class="chip" href="index.html#/24" data-go="24" title="პრეზენტაციაში გახსნა">სლაიდი 24</a></div>
+<p>საშინაო · HW-08 · შენი სფერო · backlog №1–2</p>
+<h3>მოთხოვნები</h3>
+<ul>
+<li>პროექტი <strong><code>&lt;სფერო&gt;.Api</code></strong> (მაგ. <code>FitHub.Api</code>): Controllers, DataContext, SQL Server, მიგრაციები. სახელები <a href="../07-lms-discovery/materials/domains.html">სფეროს ცხრილიდან</a></li>
+<li><strong>კატალოგი</strong> (შენი „კურსი“): სრული CRUD · <strong>R1</strong> სახელი უნიკალურია → <strong>409</strong> · ცარიელი ან არასწორი → <strong>400</strong></li>
+<li><strong>ორი როლის ადამიანები</strong> (შენი „სტუდენტი“ და „ლექტორი“): FirstName, LastName, Email · <strong>R2</strong> → <strong>409</strong> · სრული CRUD</li>
+<li>ყველგან async, DTO + Mapper, <code>Guid</code> Id</li>
+</ul>
+<h3>✓ მზადაა, როცა</h3>
+<p>Swagger-ში იგივე სახელით მეორე კატალოგის ჩანაწერი და იგივე Email-ით მეორე ადამიანი <strong>409</strong>-ს აბრუნებს, Update-ისას საკუთარი სახელის ან Email-ის შენარჩუნება კი 409-ს <strong>არ</strong> აბრუნებს</p>
+<h3>⭐ ბონუსი</h3>
+<ul>
+<li>Email შენახვამდე გაასუფთავე: <code>Trim()</code> + <code>ToLowerInvariant()</code></li>
+<li>R2 ზუსტად წაიკითხე: „ერთ email-ზე <strong>ერთი ადამიანი</strong>“. შეიძლება თუ არა ორი სხვადასხვა როლის ადამიანს ერთი email ჰქონდეს? რა უნდა შეამოწმო?</li>
+</ul></article>
+  </main>
+</div>
+<script>
+const DECK = "ASP.NET · 8 — LMS: პროექტის აწყობა და პირველი feature";
+if (matchMedia('(min-width:981px)').matches) document.getElementById('tocd').open = true;
+const blocks = [...document.querySelectorAll('.blk')];
+const tocLinks = [...document.querySelectorAll('nav.toc a[href^="#sec-"]')];
+const secOf = b => { let e = b; while (e && !(e.matches && e.matches('h2.sec'))) e = e.previousElementSibling; return e; };
+function mark(b, toc_only) {
+  if (!toc_only) blocks.forEach(x => x.classList.toggle('cur', x === b));
+  const s = b && secOf(b); tocLinks.forEach(a => a.classList.toggle('cur', s && a.getAttribute('href') === '#' + s.id));
+}
+const blockFor = n => blocks.find(b => b.dataset.slides.split(',').includes(String(n)));
+
+// copy buttons (code: one line per .ln)
+document.addEventListener('click', e => {
+  const btn = e.target.closest('.copy'); if (!btn) return;
+  const box = btn.closest('.codebox, .prompt');
+  const text = box.matches('.prompt') ? box.querySelector('.pb').textContent : [...box.querySelectorAll('.ln')].map(l => l.textContent).join('\n');
+  navigator.clipboard.writeText(text).then(() => { btn.textContent = '✓ დაკოპირდა'; btn.classList.add('ok'); setTimeout(() => { btn.textContent = 'კოპირება'; btn.classList.remove('ok'); }, 1600); });
+});
+
+// live mode: opened from the deck with P — follow the projector
+const live = new URLSearchParams(location.search).has('live');
+let follow = true, bc = null;
+const liveBtn = document.getElementById('live');
+if (live) {
+  try { bc = new BroadcastChannel('deck-' + DECK); } catch (e) {}
+  liveBtn.classList.add('on');
+  liveBtn.onclick = () => { follow = !follow; liveBtn.classList.toggle('off', !follow); liveBtn.querySelector('.lt').textContent = follow ? 'მიჰყვება სლაიდებს' : 'თავისუფლად ვკითხულობ'; };
+  if (bc) {
+    bc.onmessage = ({ data }) => {
+      if (data.t !== 'state' || !follow) return;
+      const b = blockFor(data.i + 1); if (!b || b.classList.contains('cur')) return;
+      mark(b); b.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    };
+    bc.postMessage({ t: 'hello' });
+  }
+  document.addEventListener('click', e => {   // slide chip → move the projector deck
+    const c = e.target.closest('.chip[data-go]'); if (!c || !bc) return;
+    e.preventDefault(); bc.postMessage({ t: 'go', n: +c.dataset.go - 1 });
+  });
+}
+// deep link #s-12
+const h = location.hash.match(/^#s-(\d+)$/);
+if (h) { const b = blockFor(+h[1]); if (b) { mark(b); setTimeout(() => b.scrollIntoView({ block: 'start' }), 50); } }
+// highlight section in the TOC while reading
+const io = new IntersectionObserver(es => es.forEach(x => { if (x.isIntersecting && !(live && follow)) mark(x.target, true); }), { rootMargin: '-30% 0px -60% 0px' });
+blocks.forEach(b => io.observe(b));
+</script>
+</body></html>

@@ -1,0 +1,763 @@
+<!doctype html>
+<html lang="ka"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>📖 DDD: ბიზნესის ენიდან კოდამდე — კონსპექტი</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Georgian:wght@400;600;700;800&family=JetBrains+Mono:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#fbf8f3;--card:#fff;--ink:#1e2132;--ink2:#3b3f54;--muted:#7b8096;--line:#e6dfd2;--accent:#6d28d9;--accent-soft:#f3effe;--teal:#0d9488;
+  --green:#15803d;--amber:#b45309;--mono:"JetBrains Mono",ui-monospace,monospace;--sans:"Noto Sans Georgian",system-ui,sans-serif}
+*{box-sizing:border-box}
+html{scroll-padding-top:76px}
+body{margin:0;background:var(--bg);color:var(--ink);font:17.5px/1.75 var(--sans);-webkit-font-smoothing:antialiased}
+a{color:var(--accent)}
+/* top bar */
+.top{position:sticky;top:0;z-index:10;display:flex;align-items:center;gap:14px;padding:10px 20px;background:rgba(251,248,243,.92);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.top .back{font:600 14px var(--mono);color:var(--muted);text-decoration:none;white-space:nowrap}
+.top .back:hover{color:var(--ink)}
+.top .ttl{flex:1;min-width:0;font-weight:700;font-size:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.top .ttl small{font:500 13px var(--mono);color:var(--muted);margin-right:8px}
+.btn{font:700 14px var(--sans);text-decoration:none;border-radius:10px;padding:7px 14px;white-space:nowrap;border:1px solid var(--line);color:var(--ink);background:var(--card);cursor:pointer}
+.btn.play{background:var(--accent);border-color:var(--accent);color:#fff}
+.live{display:none;align-items:center;gap:8px;font:600 13px var(--mono);color:var(--teal);background:#e6f6f4;border:1px solid #bfe7e2;border-radius:999px;padding:5px 12px;cursor:pointer}
+.live.on{display:flex}
+.live .dot{width:8px;height:8px;border-radius:50%;background:var(--teal);animation:pulse 1.6s infinite}
+.live.off{color:var(--muted);background:var(--card);border-color:var(--line)}.live.off .dot{background:var(--muted);animation:none}
+@keyframes pulse{50%{opacity:.3}}
+/* layout */
+.wrap{display:grid;grid-template-columns:230px minmax(0,1000px);gap:44px;justify-content:center;padding:32px 28px 120px}
+nav.toc{position:sticky;top:84px;align-self:start;font-size:14px;line-height:1.45}
+nav.toc .h{font:700 12px var(--mono);color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px}
+nav.toc a{display:block;color:var(--ink2);text-decoration:none;padding:6px 10px;border-left:2px solid var(--line)}
+nav.toc a:hover{color:var(--accent)}
+nav.toc a.cur{color:var(--accent);border-left-color:var(--accent);font-weight:700}
+nav.toc .mats{margin-top:22px;display:flex;flex-direction:column;gap:6px}
+nav.toc .mats a{border:0;padding:2px 0;font:500 13px var(--mono);color:var(--teal);word-break:break-all}
+header.hero{margin-bottom:8px}
+header.hero .k{font:600 14px var(--mono);color:var(--accent)}
+header.hero h1{font-size:38px;line-height:1.2;margin:6px 0 10px;letter-spacing:-.01em}
+header.hero p{color:var(--muted);margin:0;font-size:15.5px}
+header.hero kbd{font:500 12px var(--mono);border:1px solid var(--line);border-radius:5px;padding:0 5px;background:var(--card)}
+h2.sec{font-size:15px;font:700 13px var(--mono);color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin:48px 0 6px;padding-top:18px;border-top:1px solid var(--line)}
+/* blocks */
+.blk{position:relative;padding:14px 0 6px 22px;margin-left:-22px;border-left:3px solid transparent;transition:border-color .3s,background .3s;border-radius:0 12px 12px 0}
+.blk.cur{border-left-color:var(--accent);background:linear-gradient(90deg,var(--accent-soft),transparent 70%)}
+.anchor{position:absolute;top:0}
+.bh{display:flex;align-items:baseline;justify-content:space-between;gap:12px}
+.bh h3{font-size:22px;line-height:1.35;margin:4px 0 6px}
+.chip{flex:none;font:600 12px var(--mono);color:var(--muted);text-decoration:none;border:1px solid var(--line);border-radius:999px;padding:2px 10px;background:var(--card)}
+.chip:hover{color:var(--accent);border-color:var(--accent)}
+.blk h2{font-size:26px;line-height:1.3;margin:6px 0 10px}
+.blk h3:not(.bh h3){font-size:19px;margin:22px 0 6px}
+.blk h4{font-size:17px;margin:18px 0 4px}
+.blk p{margin:10px 0}
+.blk ul,.blk ol{padding-left:24px;margin:8px 0}
+.blk li{margin:4px 0}
+.blk strong{color:var(--ink)}
+.blk :not(pre)>code{font:600 .86em var(--mono);background:#f1ece3;border-radius:6px;padding:1px 6px;color:#5b21b6}
+.blk table{border-collapse:collapse;margin:14px 0;font-size:15.5px;width:100%;display:block;overflow-x:auto}
+.blk th,.blk td{border:1px solid var(--line);padding:8px 12px;text-align:left;vertical-align:top}
+.blk th{background:#f6f1e8}
+/* code */
+.codebox{margin:14px 0;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:#fffdf9}
+.codebox .ch,.prompt .ph{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:6px 8px 6px 14px;font:600 12.5px var(--mono);color:var(--muted);background:#f6f1e8;border-bottom:1px solid var(--line)}
+.copy{font:600 12px var(--mono);border:1px solid var(--line);background:var(--card);color:var(--ink2);border-radius:7px;padding:3px 10px;cursor:pointer}
+.copy:hover{border-color:var(--ink)}
+.copy.ok{color:var(--green);border-color:var(--green)}
+pre.code{margin:0;padding:12px 0;overflow-x:auto;font:14px/1.65 var(--mono)}
+pre.code .ln{display:block;padding:0 16px;white-space:pre}
+.code .ttl{background:var(--bg2);color:var(--muted)}
+.code .ln.hl{background:rgba(109,40,217,.07);box-shadow:inset 3px 0 0 var(--net)}
+.code .ln.dim{opacity:.42}
+.code .k,.code .kd,.code .kn,.code .kr,.code .kc{color:#7c3aed}
+.code .kt{color:#2563eb}
+.code .s,.code .s1,.code .s2,.code .sa,.code .se,.code .si,.code .sd{color:#15803d}
+.code .c,.code .c1,.code .cm,.code .cp,.code .ch{color:#8b8fa3}
+.code .m,.code .mi,.code .mf,.code .mh{color:#c2410c}
+.code .nf,.code .fm{color:#1d4ed8}
+.code .nc,.code .nn,.code .nt,.code .nd{color:#b45309}
+.code .na{color:#7c3aed} .code .nb{color:#0e7490}
+.code .o,.code .p{color:#64748b}
+.code .nv,.code .nx{color:var(--ink)}
+.code .go{color:#64748b}
+/* prompt */
+.prompt{margin:16px 0;border:1px solid #ddd2fb;border-radius:12px;overflow:hidden;background:var(--accent-soft)}
+.prompt .ph{background:#ebe3fd;border-color:#ddd2fb;color:var(--accent)}
+.prompt .pb{padding:12px 16px;white-space:pre-wrap;font-size:15.5px;line-height:1.6;color:var(--ink2)}
+/* self check */
+.selfcheck{margin:16px 0;border:1px solid #cfe9d6;border-radius:12px;background:#f3fbf5;padding:12px 16px}
+.selfcheck .sh{font-weight:700;color:var(--green);margin-bottom:6px}
+.selfcheck .sh small{font-weight:400;color:var(--muted);font-size:13.5px;margin-left:6px}
+.selfcheck details{border-top:1px solid #dcefe1;padding:8px 0}
+.selfcheck summary{cursor:pointer;font-weight:600;list-style:none;padding-left:26px;position:relative}
+.selfcheck summary::-webkit-details-marker{display:none}
+.selfcheck summary::before{content:"?";position:absolute;left:0;top:2px;width:18px;height:18px;border-radius:50%;background:var(--green);color:#fff;font:700 12px/18px var(--mono);text-align:center}
+.selfcheck details[open] summary::before{content:"✓"}
+.selfcheck .ans{padding:6px 0 2px 26px;color:var(--ink2)}
+/* terms */
+.terms{margin:16px 0;border:1px solid var(--line);border-radius:12px;background:var(--card);padding:12px 16px}
+.terms .th{font-weight:700;margin-bottom:6px}
+.terms dl{display:grid;grid-template-columns:max-content 1fr;gap:6px 18px;margin:0}
+.terms dt{font:600 14.5px var(--mono);color:var(--accent)}
+.terms dd{margin:0;color:var(--ink2)}
+/* callouts */
+.callout{display:flex;gap:12px;margin:14px 0;padding:12px 16px;border-radius:12px;border:1px solid var(--line);background:var(--card)}
+.callout .ci{font-size:20px;line-height:1.6}
+.callout>div>p:first-child{margin-top:0}.callout>div>p:last-child{margin-bottom:0}
+.callout.warn{background:#fff8eb;border-color:#f6dfb5}
+.callout.note{background:#eef5ff;border-color:#cfe0fb}
+@media (max-width:980px){
+  .wrap{grid-template-columns:minmax(0,1fr);gap:0;padding:20px 16px 100px}
+  nav.toc{position:static;margin-bottom:12px}
+  nav.toc details{border:1px solid var(--line);border-radius:12px;background:var(--card);padding:8px 12px}
+  nav.toc details>summary{cursor:pointer;font-weight:700}
+  nav.toc .h{display:none}
+  header.hero h1{font-size:30px}
+  .blk{padding-left:14px;margin-left:-14px}
+  .top .ttl small{display:none}
+  .terms dl{grid-template-columns:1fr}.terms dd{margin-bottom:8px}
+}
+@media (min-width:981px){nav.toc details>summary{display:none}}
+@media print{.top,nav.toc,.copy,.chip,.live{display:none}.wrap{display:block;padding:0}.selfcheck details{display:block}.blk.cur{background:none}}
+</style></head>
+<body>
+<div class="top">
+  <a class="back" href="../../">← ლექციები</a>
+  <div class="ttl"><small>ASP.NET · 6</small>DDD: ბიზნესის ენიდან კოდამდე</div>
+  <button class="live" id="live" type="button" title="ჩართული: ტექსტი პრეზენტაციას მიჰყვება"><span class="dot"></span><span class="lt">მიჰყვება სლაიდებს</span></button>
+  <a class="btn play" href="index.html">▶ პრეზენტაცია</a>
+</div>
+<div class="wrap">
+  <nav class="toc"><details id="tocd"><summary>სარჩევი</summary><div class="h">სარჩევი</div><a href="#sec-1">გამეორება</a><a href="#sec-2">საშინაოს განხილვა</a><a href="#sec-3">დღის თემა</a><a href="#sec-4">1 · რა არის DDD</a><a href="#sec-5">2 · Ubiquitous Language</a><a href="#sec-6">3 · საუბარი ბიზნესთან</a><a href="#sec-7">4 · საუბრიდან კოდამდე</a><a href="#sec-8">პრაქტიკა</a><a href="#sec-9">შეჯამება</a><a href="#sec-10">საშინაო</a><div class="mats"><a href="materials/homework-sheet.html" download>📎 homework-sheet.html</a></div></details></nav>
+  <main>
+    <header class="hero">
+      <div class="k">📖 კონსპექტი · ASP.NET · ლექცია 6</div>
+      <h1>DDD: ბიზნესის ენიდან კოდამდე</h1>
+      <p>წაიკითხე ლექციის შემდეგ, ან პრეზენტაციასთან ერთად: პრეზენტაციაში დააჭირე <kbd>P</kbd> და ეს გვერდი სლაიდებს გაჰყვება. კოდი და AI-ს პრომპტები კოპირდება ერთი დაჭერით.</p>
+    </header>
+    <h2 class="sec" id="sec-1">გამეორება</h2>
+<article class="blk" data-slides="1,2"><span class="anchor" id="s-1"></span><span class="anchor" id="s-2"></span><div class="bh"><h3>გავიხსენოთ წინა ლექცია</h3><a class="chip" href="index.html#/1" data-go="1" title="პრეზენტაციაში გახსნა">სლაიდი 1</a></div>
+<p>ლექცია 5 — <strong>Async / Await API-ში</strong>. ახალ თემამდე ვამოწმებთ, რა დაგვამახსოვრდა. ჯერ თვითონ უპასუხე, მერე გახსენი პასუხი. თუ რომელიმე გაგიჭირდა, <a href="../05-async-await/study.html">წინა ლექციის კონსპექტს</a> გადახედე.</p>
+<div class="selfcheck"><div class="sh">✅ შეამოწმე თავი <small>დაფიქრდი, მერე გახსენი პასუხი</small></div><details><summary>რას აკეთებს ნაკადი (thread) სინქრონულ კოდში, სანამ ბაზა პასუხობს?</summary><div class="ans">არაფერს — დგას და ელოდება (blocking); ამ დროს სხვა მოთხოვნას ვერ ემსახურება</div></details><details><summary>რა არის <code>Task&lt;T&gt;</code>?</summary><div class="ans">დაპირება: ოპერაცია მიმდინარეობს და ბოლოს T ტიპის შედეგს მოგვცემს (როგორც ფუდ-კორტის პეიჯერი)</div></details><details><summary>რა ხდება <code>await</code>-ზე?</summary><div class="ans">მეთოდი „პაუზაზე“ დგება, ნაკადი აუზში ბრუნდება · შედეგი რომ მოვა, მეთოდი გრძელდება — შეიძლება სხვა ნაკადზე</div></details><details><summary>async ერთ მოთხოვნას აჩქარებს?</summary><div class="ans">არა — სერვერს მეტი ერთდროული მომხმარებლის ატანას აძლევს იგივე ნაკადებით (scalability)</div></details><details><summary>როდის არ გვჭირდება async?</summary><div class="ans">როცა მეთოდი გარეთ არაფერს ელოდება — გამოთვლა, mapping, ვალიდაცია (CPU-bound)</div></details><details><summary>რა არის ცუდი <code>.Result</code>-ში და <code>async void</code>-ში?</summary><div class="ans"><code>.Result</code> ნაკადს ისევ ბლოკავს · <code>async void</code>-ს ვერავინ დაელოდება — ASP.NET Core მოთხოვნას და DataContext-ს ადრე ხურავს</div></details></div></article>
+<h2 class="sec" id="sec-2">საშინაოს განხილვა</h2>
+<article class="blk" data-slides="3"><span class="anchor" id="s-3"></span><div class="bh"><h3>საშინაოს განხილვა</h3><a class="chip" href="index.html#/3" data-go="3" title="პრეზენტაციაში გახსნა">სლაიდი 3</a></div>
+<p>წინა ლექციის საშინაო: <strong>LibraryApi — წევრები და გატანები async-ზე</strong>. ქვემოთ არის ერთ-ერთი სწორი ამოხსნა. შენი კოდი შეიძლება სხვანაირად იყოს დაწერილი — მთავარია, მოთხოვნები სრულდებოდეს.</p>
+<h3>მოთხოვნები</h3>
+<ul>
+<li>MembersController — ყველა endpoint async (Email-ის შემოწმება — <code>AnyAsync</code>; Argon2 ჰეში რჩება სინქრონული)</li>
+<li>LoansController — <code>POST /api/loans</code>: სამი შემოწმება async-ით → 201 · 404 · 409</li>
+<li><code>GET /api/loans</code> — <code>ToListAsync</code> · მთელ პროექტში არც ერთი <code>ToList()</code>, <code>Find()</code>, <code>Any()</code>, <code>SaveChanges()</code></li>
+<li>არც ერთი <code>.Result</code>, <code>.Wait()</code> ან <code>async void</code></li>
+</ul>
+<h3>ამოხსნა</h3>
+<div class="codebox"><div class="ch"><span>Controllers/LoansController.cs · Create</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="na">[HttpPost]</span></span><span class="ln"><span class="k">public</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="n">Task</span><span class="o">&lt;</span><span class="n">IActionResult</span><span class="o">&gt;</span><span class="w"> </span><span class="n">Create</span><span class="p">(</span><span class="n">CreateLoanRequest</span><span class="w"> </span><span class="n">request</span><span class="p">)</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="k">await</span><span class="w"> </span><span class="n">_db</span><span class="p">.</span><span class="n">Books</span><span class="p">.</span><span class="n">FindAsync</span><span class="p">(</span><span class="n">request</span><span class="p">.</span><span class="n">BookId</span><span class="p">)</span><span class="w"> </span><span class="k">is</span><span class="w"> </span><span class="k">null</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">NotFound</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="k">await</span><span class="w"> </span><span class="n">_db</span><span class="p">.</span><span class="n">Members</span><span class="p">.</span><span class="n">FindAsync</span><span class="p">(</span><span class="n">request</span><span class="p">.</span><span class="n">MemberId</span><span class="p">)</span><span class="w"> </span><span class="k">is</span><span class="w"> </span><span class="k">null</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">NotFound</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="k">await</span><span class="w"> </span><span class="n">_db</span><span class="p">.</span><span class="n">Loans</span><span class="p">.</span><span class="n">AnyAsync</span><span class="p">(</span><span class="n">l</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">l</span><span class="p">.</span><span class="n">BookId</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">request</span><span class="p">.</span><span class="n">BookId</span><span class="p">)</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">Conflict</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="kt">var</span><span class="w"> </span><span class="n">loan</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">Loan</span></span><span class="ln"><span class="w">    </span><span class="p">{</span></span><span class="ln"><span class="w">        </span><span class="n">BookId</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">request</span><span class="p">.</span><span class="n">BookId</span><span class="p">,</span></span><span class="ln"><span class="w">        </span><span class="n">MemberId</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">request</span><span class="p">.</span><span class="n">MemberId</span><span class="p">,</span></span><span class="ln"><span class="w">        </span><span class="n">LoanedAt</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">DateTime</span><span class="p">.</span><span class="n">UtcNow</span></span><span class="ln"><span class="w">    </span><span class="p">}</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="n">_db</span><span class="p">.</span><span class="n">Loans</span><span class="p">.</span><span class="n">Add</span><span class="p">(</span><span class="n">loan</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="k">await</span><span class="w"> </span><span class="n">_db</span><span class="p">.</span><span class="n">SaveChangesAsync</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nf">Created</span><span class="p">(</span><span class="s">$"/api/loans/{loan.Id}"</span><span class="p">,</span><span class="w"> </span><span class="n">ToResponse</span><span class="p">(</span><span class="n">loan</span><span class="p">)</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="p">}</span></span></code></pre></div>
+<div class="codebox"><div class="ch"><span>Controllers/LoansController.cs · GetAll</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="na">[HttpGet]</span></span><span class="ln"><span class="k">public</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="n">Task</span><span class="o">&lt;</span><span class="n">IActionResult</span><span class="o">&gt;</span><span class="w"> </span><span class="n">GetAll</span><span class="p">(</span><span class="n">CancellationToken</span><span class="w"> </span><span class="n">cancellationToken</span><span class="p">)</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="kt">var</span><span class="w"> </span><span class="n">loans</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="n">_db</span><span class="p">.</span><span class="n">Loans</span><span class="p">.</span><span class="n">ToListAsync</span><span class="p">(</span><span class="n">cancellationToken</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nf">Ok</span><span class="p">(</span><span class="n">loans</span><span class="p">.</span><span class="n">Select</span><span class="p">(</span><span class="n">ToResponse</span><span class="p">)</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="p">}</span></span></code></pre></div>
+<div class="codebox"><div class="ch"><span>Controllers/MembersController.cs · Create</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="na">[HttpPost]</span></span><span class="ln"><span class="k">public</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="n">Task</span><span class="o">&lt;</span><span class="n">IActionResult</span><span class="o">&gt;</span><span class="w"> </span><span class="n">Create</span><span class="p">(</span><span class="n">CreateMemberRequest</span><span class="w"> </span><span class="n">request</span><span class="p">)</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="k">await</span><span class="w"> </span><span class="n">_db</span><span class="p">.</span><span class="n">Members</span><span class="p">.</span><span class="n">AnyAsync</span><span class="p">(</span><span class="n">m</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">m</span><span class="p">.</span><span class="n">Email</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">request</span><span class="p">.</span><span class="n">Email</span><span class="p">)</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">Conflict</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="kt">var</span><span class="w"> </span><span class="n">member</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">request</span><span class="p">.</span><span class="n">ToEntity</span><span class="p">(</span><span class="p">)</span><span class="p">;</span><span class="w">   </span><span class="c1">// Argon2 ჰეში — სინქრონულად, გამოთვლაა</span></span><span class="ln"><span class="w">    </span><span class="n">_db</span><span class="p">.</span><span class="n">Members</span><span class="p">.</span><span class="n">Add</span><span class="p">(</span><span class="n">member</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="k">await</span><span class="w"> </span><span class="n">_db</span><span class="p">.</span><span class="n">SaveChangesAsync</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nf">CreatedAtAction</span><span class="p">(</span><span class="k">nameof</span><span class="p">(</span><span class="n">GetById</span><span class="p">)</span><span class="p">,</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">member</span><span class="p">.</span><span class="n">Id</span><span class="w"> </span><span class="p">}</span><span class="p">,</span><span class="w"> </span><span class="n">member</span><span class="p">.</span><span class="n">ToResponse</span><span class="p">(</span><span class="p">)</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="p">}</span></span></code></pre></div>
+<div class="selfcheck"><div class="sh">✅ შეამოწმე თავი <small>დაფიქრდი, მერე გახსენი პასუხი</small></div><details><summary>რატომ არ ვწერთ Argon2-ის ჰეშირებისთვის await-ს?</summary><div class="ans">ჰეშირება გამოთვლაა (CPU-bound) — სალოდინო არაფერია, ნაკადი ნამდვილად მუშაობს. async-ს მისთვის არაფერი აქვს მოსაცემი</div></details><details><summary><code>loans.Select(ToResponse)</code> — აქ რატომ არ არის await?</summary><div class="ans"><code>ToListAsync</code>-ის შემდეგ სია უკვე მეხსიერებაშია — Select ჩვეულებრივი LINQ-ია, ბაზაში აღარ მიდის</div></details></div>
+<div class="callout note"><span class="ci">💡</span><div><p>MembersController-ის Create-ში შენი mapping და ჰეშირება შეიძლება სხვაგვარად იყოს დაწერილი (მაგ. ჰეში Controller-ში). მთავარი: ბაზასთან ყველა მიმართვა — <code>await</code> + Async, ჰეში — ჩვეულებრივად.</p></div></div></article>
+<h2 class="sec" id="sec-3">დღის თემა</h2>
+<article class="blk" data-slides="4"><span class="anchor" id="s-4"></span><div class="bh"><h3>დღის თემა: DDD: ბიზნესის ენიდან კოდამდე</h3><a class="chip" href="index.html#/4" data-go="4" title="პრეზენტაციაში გახსნა">სლაიდი 4</a></div>
+<p>აქამდე ჩვენ თვითონ ვწყვეტდით, რა უნდა გაეკეთებინა პროგრამას: ShopApi და LibraryApi მარტივი იყო. ნამდვილ პროექტში ამოცანას ბიზნესი იძლევა: დირექტორი, მენეჯერი, ლექტორი. ისინი ჩვენს ენაზე არ ლაპარაკობენ. ყველაზე ძვირი შეცდომა ის კოდია, რომელიც უნაკლოდ მუშაობს, მაგრამ სხვა რამეს აკეთებს, ვიდრე ბიზნესს უნდოდა. დღეს DDD-ის საფუძველს ვისწავლით: როგორ შევქმნათ ბიზნესთან საერთო ენა, რა კითხვები დავუსვათ და როგორ გადავიტანოთ ნათქვამი კოდში. ამ გზით მომდევნო ლექციებში LMS-ს ავაწყობთ.</p>
+<p><strong>ლექციის ბოლოს შეძლებ:</strong></p>
+<ul>
+<li>ახსნა, რა არის Domain, Domain Expert და DDD და როდის ღირს მისი გამოყენება</li>
+<li>Ubiquitous Language: ბუნდოვანი სიტყვების პოვნა და ლექსიკონის შედგენა, რომლის სიტყვებიც კოდშიც ჩანს</li>
+<li>ბიზნესთან საუბარი სწორი კითხვებით: მაგალითი, „მერე?“, „ყოველთვის?“, „ვინ?“, „რატომ?“</li>
+<li>ბიზნესის წინადადების გადატანა კოდში (class, endpoint, შემოწმება) და user story-ის დაწერა</li>
+</ul></article>
+<article class="blk" data-slides="5"><span class="anchor" id="s-5"></span><div class="bh"><h3>„პროგრამა მუშაობს. მე სხვა რამ მინდოდა.“</h3><a class="chip" href="index.html#/5" data-go="5" title="პრეზენტაციაში გახსნა">სლაიდი 5</a></div>
+<p>აკადემიის დირექტორმა დეველოპერს უთხრა: „სტუდენტს 3 გაცდენაზე მეტი არ უნდა ჰქონდეს.“ დეველოპერმა ორ კვირაში დაწერა ფუნქცია: მე-4 გაცდენაზე სტუდენტის ანგარიში იბლოკება.</p>
+<p>შედეგი:</p>
+<ol>
+<li>სტუდენტმა ანამ ჯგუფში ვეღარ შეიხედა: მასალა, დავალებები, ყველაფერი ჩაიკეტა.</li>
+<li>დირექტორი გაბრაზდა: „ვინ გთხოვა ბლოკი? მე მინდოდა, ლექტორმა გაიგოს და დაურეკოს.“</li>
+</ol>
+<p>კოდში შეცდომა არ არის: ის კომპილირდება, მუშაობს და ზუსტად იმას აკეთებს, რაც დეველოპერმა ჩაიფიქრა. პრობლემა ისაა, რომ დეველოპერმა <strong>სხვა რამ გაიგო</strong>, ვიდრე დირექტორმა თქვა.</p>
+<p>ეს პროგრამირების ყველაზე ძვირი შეცდომაა. syntax-ის შეცდომას კომპილატორი გვიჩვენებს, ამ შეცდომას კი არავინ, სანამ ბიზნესი არ დაინახავს. დღევანდელი ლექცია სწორედ ამაზეა: როგორ გავიგოთ ბიზნესი სწორად, სანამ კოდს დავწერთ.</p></article>
+<h2 class="sec" id="sec-4">1 · რა არის DDD</h2>
+<article class="blk" data-slides="6"><span class="anchor" id="s-6"></span><div class="bh"><h3>ნაწილი 1 · რა არის DDD</h3><a class="chip" href="index.html#/6" data-go="6" title="პრეზენტაციაში გახსნა">სლაიდი 6</a></div>
+<p>ჯერ ვნახავთ, როგორ გამოიყურება „გაუგებრობა“ კოდში. შემდეგ გავეცნობით DDD-ს, მიდგომას, რომელიც სწორედ ამ პრობლემას ებრძვის, და იმასაც, როდის ღირს მისი გამოყენება.</p></article>
+<article class="blk" data-slides="7"><span class="anchor" id="s-7"></span><div class="bh"><h3>კოდი სწორია, წესი არასწორია</h3><a class="chip" href="index.html#/7" data-go="7" title="პრეზენტაციაში გახსნა">სლაიდი 7</a></div>
+<div class="codebox"><div class="ch"><span>AttendanceController.cs · Mark</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="kt">var</span><span class="w"> </span><span class="n">student</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="n">_db</span><span class="p">.</span><span class="n">Students</span><span class="p">.</span><span class="n">FindAsync</span><span class="p">(</span><span class="n">request</span><span class="p">.</span><span class="n">StudentId</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">student</span><span class="w"> </span><span class="k">is</span><span class="w"> </span><span class="k">null</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">NotFound</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">request</span><span class="p">.</span><span class="n">IsPresent</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="n">student</span><span class="p">.</span><span class="n">Absences</span><span class="o">++</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="c1">// დირექტორი: „3 გაცდენაზე მეტი არ უნდა ჰქონდეს“</span></span><span class="ln"><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">student</span><span class="p">.</span><span class="n">Absences</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">3</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="n">student</span><span class="p">.</span><span class="n">IsBlocked</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">true</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="k">await</span><span class="w"> </span><span class="n">_db</span><span class="p">.</span><span class="n">SaveChangesAsync</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="k">return</span><span class="w"> </span><span class="nf">NoContent</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span></code></pre></div>
+<p>ამ კოდში ყველაფერი ნაცნობია: <code>FindAsync</code>, <code>NotFound</code>, <code>SaveChangesAsync</code>. ის უშეცდომოდ მუშაობს. მაგრამ დეველოპერმა სიტყვა „არ უნდა ჰქონდეს“ <strong>აკრძალვად</strong> გაიგო და ბლოკი დაწერა.</p>
+<p>ბიზნესი კი სამ რამეს გულისხმობდა:</p>
+<ol>
+<li><strong>გაცდენა</strong> მხოლოდ „არ მოვიდა“ არ არის: 15 წუთზე მეტი დაგვიანებაც გაცდენად ითვლება.</li>
+<li>მე-4 გაცდენაზე <strong>ლექტორი იღებს შეტყობინებას</strong> და სტუდენტს უკავშირდება.</li>
+<li>ბლოკი <strong>არასდროს</strong> ხდება: სწავლა გრძელდება.</li>
+</ol>
+<p>ამ სამიდან კოდში არც ერთი არ არის, რადგან არავის უკითხავს. დეველოპერმა სიტყვები გაიგონა, მაგრამ მათი <strong>მნიშვნელობა</strong> არ გაარკვია.</p></article>
+<article class="blk" data-slides="8"><span class="anchor" id="s-8"></span><div class="bh"><h3>Domain, Domain Expert, DDD</h3><a class="chip" href="index.html#/8" data-go="8" title="პრეზენტაციაში გახსნა">სლაიდი 8</a></div>
+<ul>
+<li><strong>Domain</strong> (დომენი) ბიზნესის სფეროა, რომლისთვისაც პროგრამას ვწერთ: სწავლება, ბანკი, მაღაზია, საავადმყოფო. ჩვენი დომენი <strong>სწავლების მართვაა</strong>: კურსები, ჯგუფები, ლექციები, დავალებები.</li>
+<li><strong>Domain Expert</strong> ადამიანია, ვინც ამ ბიზნესს შიგნიდან იცნობს: დირექტორი, მენეჯერი, ლექტორი. ის პროგრამირებას არ იცის, სამაგიეროდ იცის <strong>წესები</strong>: როდის ითვლება გაცდენა, ვინ რიცხავს სტუდენტს, როდის შეიძლება დავალების ხელახლა ჩაბარება.</li>
+<li><strong>DDD</strong> (Domain-Driven Design) მიდგომაა, რომლის დროსაც პროექტს <strong>ბიზნესიდან</strong> ვიწყებთ და არა ცხრილებიდან ან ტექნოლოგიიდან. ჯერ ვიგებთ, როგორ მუშაობს ბიზნესი, შემდეგ კი კოდი ამ სურათს იმეორებს.</li>
+</ul>
+<p>DDD-ს ორი მხარე აქვს:</p>
+<table>
+<thead>
+<tr>
+<th>მხარე</th>
+<th>რას აკეთებს</th>
+<th>ჩვენთან</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>ბიზნესის მხარე</strong></td>
+<td>საერთო ენა, პროცესები, წესები: ვინ რას აკეთებს და რატომ</td>
+<td>დღეს და შემდეგ ლექციაზე სრულად</td>
+</tr>
+<tr>
+<td><strong>კოდის მხარე</strong></td>
+<td>იგივე ენა და წესები class-ებში, endpoint-ებში, შემოწმებებში</td>
+<td>დღეს საფუძველი, დანარჩენი თანდათან</td>
+</tr>
+</tbody>
+</table>
+<div class="callout note"><span class="ci">💡</span><div><p>DDD ბიბლიოთეკა ან NuGet პაკეტი არ არის: ის აზროვნების წესია. მას ვერ „დააინსტალირებ“, მაგრამ შეგიძლია მიჰყვე.</p></div></div>
+<div class="terms"><div class="th">📘 ტერმინები</div><dl><dt>Domain</dt><dd>ბიზნესის სფერო, რომლისთვისაც პროგრამას ვწერთ</dd><dt>Domain Expert</dt><dd>ბიზნესის მცოდნე ადამიანი (დირექტორი, მენეჯერი, ლექტორი)</dd><dt>DDD (Domain-Driven Design)</dt><dd>პროექტის დაგეგმვა და აწყობა ბიზნესიდან დაწყებით</dd></dl></div></article>
+<article class="blk" data-slides="9"><span class="anchor" id="s-9"></span><div class="bh"><h3>როდის ღირს DDD</h3><a class="chip" href="index.html#/9" data-go="9" title="პრეზენტაციაში გახსნა">სლაიდი 9</a></div>
+<p>DDD ყველა პროექტს არ სჭირდება.</p>
+<ul>
+<li><strong>მარტივი CRUD</strong>: „შეინახე, აჩვენე, წაშალე“, წესები თითქმის არ არის. მაგალითად, კონტაქტების წიგნი ან LibraryApi-ის პირველი ვერსია. აქ DDD ზედმეტია: ჩვეულებრივი Controller და DbContext საკმარისია.</li>
+<li><strong>ბევრი წესი და ბევრი ადამიანი</strong>: სისტემაში სხვადასხვა როლის ადამიანი მუშაობს და ბევრი წესი მოქმედებს. LMS ზუსტად ასეთია: ჯგუფში ადგილები შეზღუდულია, დედლაინის შემდეგ ნამუშევარი აღარ მიიღება, შეფასება 1-დან 12-მდეა, გაცდენებს ითვლიან, ხელახლა ჩაბარებას კი თავისი პირობები აქვს. აქ DDD ღირს.</li>
+</ul>
+<p>საზომი ცხრილების რაოდენობა არ არის. მთავარია, <strong>რამდენი წესია ბიზნესში</strong> და რამდენად ძვირია მათი არასწორად გაგება.</p>
+<div class="selfcheck"><div class="sh">✅ შეამოწმე თავი <small>დაფიქრდი, მერე გახსენი პასუხი</small></div><details><summary>ონლაინ ბლოგი: პოსტის დაწერა, ჩვენება, წაშლა. DDD ღირს?</summary><div class="ans">ნაკლებად: წესები თითქმის არ არის, ჩვეულებრივი CRUD საკმარისია</div></details><details><summary>ბანკის სესხების სისტემა (განაკვეთები, ვადები, ჯარიმები, დამტკიცება). DDD ღირს?</summary><div class="ans">კი: ბევრი წესია და შეცდომა ძვირი ჯდება</div></details></div></article>
+<h2 class="sec" id="sec-5">2 · Ubiquitous Language</h2>
+<article class="blk" data-slides="10"><span class="anchor" id="s-10"></span><div class="bh"><h3>ნაწილი 2 · Ubiquitous Language</h3><a class="chip" href="index.html#/10" data-go="10" title="პრეზენტაციაში გახსნა">სლაიდი 10</a></div>
+<p>გაცდენის ისტორიაში პრობლემა სიტყვებში იყო. ახლა ვნახავთ, როგორ ერევა სიტყვები ერთმანეთში, როგორ ჩანს ეს კოდში და როგორ ვაწესრიგებთ მას.</p></article>
+<article class="blk" data-slides="11"><span class="anchor" id="s-11"></span><div class="bh"><h3>ერთი სიტყვა, ორი მნიშვნელობა</h3><a class="chip" href="index.html#/11" data-go="11" title="პრეზენტაციაში გახსნა">სლაიდი 11</a></div>
+<p>ყოველდღიურ საუბარში ერთსა და იმავე სიტყვას სხვადასხვა რამეს ვუწოდებთ და ვერც ვამჩნევთ. LMS-ში ამის მაგალითები LB-დანაც კარგად იცით:</p>
+<ul>
+<li><strong>„კურსი“</strong> მენეჯერისთვის პროგრამაა („ASP.NET Web API“, რომელიც ყოველ სემესტრში მეორდება). სტუდენტისთვის „ჩემი კურსი“ მისი <strong>ჯგუფია</strong>: კონკრეტული ლექტორი, კონკრეტული განრიგი.</li>
+<li><strong>„დავალება“</strong> ლექტორისთვის ამოცანაა, რომელიც ჯგუფს მისცა. სტუდენტისთვის კი ფაილია, რომელიც ჩააბარა.</li>
+<li><strong>„სტუდენტი“, „მსმენელი“, „მოსწავლე“</strong>: სამი სიტყვა ერთი ადამიანისთვის? ბიზნესისთვის ეს ერთი და იგივეა, დეველოპერი კი შეიძლება სამ სხვადასხვა რამედ ჩათვალოს.</li>
+</ul>
+<p>ყველაზე საშიში ისაა, რომ საუბარში ამას ვერავინ ამჩნევს: ორივე მხარეს <strong>ჰგონია</strong>, რომ ერთმანეთს ეთანხმება. განსხვავება მხოლოდ მაშინ ჩანს, როცა კოდი უკვე დაწერილია.</p>
+<div class="callout tip"><span class="ci">👉</span><div><p>ერთი სიტყვა შეიძლება მართლა სხვადასხვა რამეს ნიშნავდეს სხვადასხვა განყოფილებაში. მაგალითად, „სტუდენტი“ ბუღალტერიისთვის გადამხდელია, სასწავლო ნაწილისთვის კი ის, ვინც ლექციებზე დადის. დიდ სისტემებში ასეთ საზღვრებს <strong>Bounded Context</strong> ჰქვია. ჩვენი LMS ერთ კონტექსტში (სწავლება) დარჩება, ამიტომ ამაზე ახლა მეტს არ ვილაპარაკებთ.</p></div></div></article>
+<article class="blk" data-slides="12"><span class="anchor" id="s-12"></span><div class="bh"><h3>რას ნიშნავს ეს კოდი?</h3><a class="chip" href="index.html#/12" data-go="12" title="პრეზენტაციაში გახსნა">სლაიდი 12</a></div>
+<div class="codebox"><div class="ch"><span>StudentCourse.cs</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="k">public</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">StudentCourse</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="n">Guid</span><span class="w"> </span><span class="n">Id</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">get</span><span class="p">;</span><span class="w"> </span><span class="k">set</span><span class="p">;</span><span class="w"> </span><span class="p">}</span></span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="n">Guid</span><span class="w"> </span><span class="n">StudentId</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">get</span><span class="p">;</span><span class="w"> </span><span class="k">set</span><span class="p">;</span><span class="w"> </span><span class="p">}</span></span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="n">Guid</span><span class="w"> </span><span class="n">CourseId</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">get</span><span class="p">;</span><span class="w"> </span><span class="k">set</span><span class="p">;</span><span class="w"> </span><span class="p">}</span></span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">Status</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">get</span><span class="p">;</span><span class="w"> </span><span class="k">set</span><span class="p">;</span><span class="w"> </span><span class="p">}</span></span><span class="ln"><span class="p">}</span></span></code></pre></div>
+<div class="codebox"><div class="ch"><span>StudentCoursesController.cs</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="na">[HttpPut("{id:guid}/status")]</span></span><span class="ln"><span class="k">public</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="n">Task</span><span class="o">&lt;</span><span class="n">IActionResult</span><span class="o">&gt;</span><span class="w"> </span><span class="n">UpdateStatus</span><span class="p">(</span><span class="n">Guid</span><span class="w"> </span><span class="n">id</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">status</span><span class="p">)</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="kt">var</span><span class="w"> </span><span class="n">sc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="n">_db</span><span class="p">.</span><span class="n">StudentCourses</span><span class="p">.</span><span class="n">FindAsync</span><span class="p">(</span><span class="n">id</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">sc</span><span class="w"> </span><span class="k">is</span><span class="w"> </span><span class="k">null</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">NotFound</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="n">sc</span><span class="p">.</span><span class="n">Status</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">status</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="k">await</span><span class="w"> </span><span class="n">_db</span><span class="p">.</span><span class="n">SaveChangesAsync</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nf">NoContent</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="p">}</span></span></code></pre></div>
+<p>კოდი მუშაობს, მაგრამ კითხვები რჩება:</p>
+<ul>
+<li><strong><code>StudentCourse</code></strong>: ეს ჩარიცხვაა? ჯგუფია? თუ უბრალოდ ორი ცხრილის „შემაერთებელი“? სახელი <strong>ცხრილების</strong> ენით არის დარქმეული და არა ბიზნესის ენით.</li>
+<li><strong><code>CourseId</code></strong>: სტუდენტი კურსზე ირიცხება თუ კონკრეტულ <strong>ჯგუფში</strong>? ერთ კურსს ბევრი ჯგუფი აქვს, ამიტომ ეს კავშირი შეიძლება საერთოდ არასწორი იყოს.</li>
+<li><strong><code>Status = 3</code></strong>: რა მოხდა? სტუდენტმა კურსი დაასრულა? გაირიცხა? შეჩერდა? ეს მხოლოდ იმ დეველოპერის თავშია, ვინც კოდი დაწერა.</li>
+<li><strong><code>UpdateStatus</code></strong>: რომელ მოქმედებას აკეთებს მომხმარებელი? „სტატუსის განახლება“ ბიზნესში არავის უთქვამს.</li>
+</ul>
+<p>ასეთ კოდს დირექტორი ვერ წაიკითხავს. ახალი დეველოპერიც ვერ გაიგებს, რა ხდება, თუ ძველს არ ჰკითხავს.</p></article>
+<article class="blk" data-slides="13"><span class="anchor" id="s-13"></span><div class="bh"><h3>ლექსიკონი: Ubiquitous Language</h3><a class="chip" href="index.html#/13" data-go="13" title="პრეზენტაციაში გახსნა">სლაიდი 13</a></div>
+<p>ამოხსნა მარტივია: <strong>ბიზნესთან ერთად ვადგენთ ლექსიკონს</strong>. ყოველ მნიშვნელოვან სიტყვას ერთი, ზუსტი მნიშვნელობა აქვს.</p>
+<table>
+<thead>
+<tr>
+<th>ტერმინი</th>
+<th>კოდში</th>
+<th>რას ნიშნავს</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>კურსი</td>
+<td><code>Course</code></td>
+<td>სასწავლო პროგრამა: <strong>რას</strong> ვასწავლით</td>
+</tr>
+<tr>
+<td>ჯგუფი</td>
+<td><code>Group</code></td>
+<td>სტუდენტები, რომლებიც კურსს <strong>ერთად</strong> გადიან</td>
+</tr>
+<tr>
+<td>ჩარიცხვა</td>
+<td><code>Enrollment</code></td>
+<td>სტუდენტის მიღება <strong>ჯგუფში</strong></td>
+</tr>
+<tr>
+<td>გარიცხვა</td>
+<td><code>Withdraw</code></td>
+<td>სტუდენტი ჯგუფს ტოვებს სწავლის დასრულებამდე</td>
+</tr>
+<tr>
+<td>სტუდენტი</td>
+<td><code>Student</code></td>
+<td>„მსმენელი“ და „მოსწავლე“ <strong>აღარ</strong> ვიყენებთ</td>
+</tr>
+</tbody>
+</table>
+<p>ამ ენას DDD-ში <strong>Ubiquitous Language</strong> ჰქვია („ყველგან არსებული ენა“). სამი წესი:</p>
+<ol>
+<li><strong>ერთი სიტყვა, ერთი მნიშვნელობა.</strong> სინონიმებს ვაქრობთ: „სტუდენტი“ რჩება, „მსმენელი“ და „მოსწავლე“ ქრება.</li>
+<li><strong>სიტყვას ბიზნესი ირჩევს.</strong> დეველოპერი მას არ იგონებს და არ „ალამაზებს“. თუ დირექტორი „ჩარიცხვას“ ამბობს, კოდშიც ჩარიცხვაა (<code>Enrollment</code>) და არა <code>StudentCourse</code>.</li>
+<li><strong>ენა ყველგანაა</strong>: საუბარში, დოკუმენტებში, ტესტებში და <strong>კოდში</strong>: class-ების, property-ების, endpoint-ების სახელებში.</li>
+</ol>
+<p>ლექსიკონი ცოცხალი დოკუმენტია: ყოველ საუბარზე ივსება და სწორდება.</p>
+<div class="terms"><div class="th">📘 ტერმინები</div><dl><dt>Ubiquitous Language</dt><dd>ბიზნესისა და დეველოპერის საერთო ენა; ერთი სიტყვა, ერთი მნიშვნელობა, ყველგან (კოდშიც)</dd><dt>ლექსიკონი (Glossary)</dt><dd>ტერმინების სია განმარტებით, რომელსაც ბიზნესი ამოწმებს</dd></dl></div></article>
+<article class="blk" data-slides="14"><span class="anchor" id="s-14"></span><div class="bh"><h3>კოდი ლექსიკონის სიტყვებით</h3><a class="chip" href="index.html#/14" data-go="14" title="პრეზენტაციაში გახსნა">სლაიდი 14</a></div>
+<p>იგივე ფუნქციონალი, ოღონდ ბიზნესის ენით:</p>
+<div class="codebox"><div class="ch"><span>Enrollment.cs</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="k">public</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">Enrollment</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="n">Guid</span><span class="w"> </span><span class="n">Id</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">get</span><span class="p">;</span><span class="w"> </span><span class="k">set</span><span class="p">;</span><span class="w"> </span><span class="p">}</span></span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="n">Guid</span><span class="w"> </span><span class="n">StudentId</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">get</span><span class="p">;</span><span class="w"> </span><span class="k">set</span><span class="p">;</span><span class="w"> </span><span class="p">}</span></span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="n">Guid</span><span class="w"> </span><span class="n">GroupId</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">get</span><span class="p">;</span><span class="w"> </span><span class="k">set</span><span class="p">;</span><span class="w"> </span><span class="p">}</span></span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="n">EnrollmentStatus</span><span class="w"> </span><span class="n">Status</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">get</span><span class="p">;</span><span class="w"> </span><span class="k">set</span><span class="p">;</span><span class="w"> </span><span class="p">}</span></span><span class="ln"><span class="p">}</span></span><span class="ln"> </span><span class="ln"><span class="k">public</span><span class="w"> </span><span class="k">enum</span><span class="w"> </span><span class="n">EnrollmentStatus</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">Active</span><span class="p">,</span><span class="w"> </span><span class="n">Withdrawn</span><span class="p">,</span><span class="w"> </span><span class="n">Completed</span><span class="w"> </span><span class="p">}</span></span></code></pre></div>
+<div class="codebox"><div class="ch"><span>EnrollmentsController.cs</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="na">[HttpPost("{id:guid}/withdraw")]</span></span><span class="ln"><span class="k">public</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="n">Task</span><span class="o">&lt;</span><span class="n">IActionResult</span><span class="o">&gt;</span><span class="w"> </span><span class="n">Withdraw</span><span class="p">(</span><span class="n">Guid</span><span class="w"> </span><span class="n">id</span><span class="p">)</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="kt">var</span><span class="w"> </span><span class="n">enrollment</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="n">_db</span><span class="p">.</span><span class="n">Enrollments</span><span class="p">.</span><span class="n">FindAsync</span><span class="p">(</span><span class="n">id</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">enrollment</span><span class="w"> </span><span class="k">is</span><span class="w"> </span><span class="k">null</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">NotFound</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="n">enrollment</span><span class="p">.</span><span class="n">Status</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">EnrollmentStatus</span><span class="p">.</span><span class="n">Withdrawn</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="k">await</span><span class="w"> </span><span class="n">_db</span><span class="p">.</span><span class="n">SaveChangesAsync</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nf">NoContent</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="p">}</span></span></code></pre></div>
+<p>რა შეიცვალა:</p>
+<table>
+<thead>
+<tr>
+<th>ადრე</th>
+<th>ახლა</th>
+<th>რატომ</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>StudentCourse</code></td>
+<td><code>Enrollment</code></td>
+<td>ლექსიკონის სიტყვა „ჩარიცხვა“</td>
+</tr>
+<tr>
+<td><code>CourseId</code></td>
+<td><code>GroupId</code></td>
+<td>სტუდენტი ჯგუფში ირიცხება, არა კურსზე</td>
+</tr>
+<tr>
+<td><code>int Status</code> (1, 2, 3)</td>
+<td><code>enum EnrollmentStatus</code></td>
+<td><code>Withdrawn</code> თავისით ხსნის, რა მოხდა</td>
+</tr>
+<tr>
+<td><code>PUT …/status</code> + <code>UpdateStatus(int)</code></td>
+<td><code>POST …/withdraw</code> + <code>Withdraw()</code></td>
+<td>endpoint ბიზნესის <strong>მოქმედებაა</strong>: „გარიცხვა“</td>
+</tr>
+</tbody>
+</table>
+<p>C#-ის არც ერთი ახალი ცნება არ გამოგვიყენებია: class, enum, Controller, async ყველა ნაცნობია. შეიცვალა მხოლოდ <strong>სახელები</strong>, და კოდი გასაგები გახდა. დირექტორი C#-ს ვერ წაიკითხავს, მაგრამ class-ებისა და endpoint-ების სახელებს წაიკითხავს და იტყვის: „კი, ეს არის“ ან „არა, ასე არ ხდება“.</p>
+<div class="callout note"><span class="ci">💡</span><div><p><code>POST /api/enrollments/{id}/withdraw</code> REST-ის ჩვეულებრივ CRUD-ს არ ჰგავს: ეს <strong>მოქმედების</strong> endpoint-ია. როცა მოქმედება უბრალოდ „ველის შეცვლა“ კი არა, ბიზნესის ცალკე ნაბიჯია (გარიცხვა, შეფასება, ჩაბარება), მას თავისი სახელი ეკუთვნის.</p></div></div>
+<div class="selfcheck"><div class="sh">✅ შეამოწმე თავი <small>დაფიქრდი, მერე გახსენი პასუხი</small></div><details><summary>რატომ ჯობს <code>enum EnrollmentStatus</code> ვიდრე <code>int Status</code>?</summary><div class="ans"><code>Withdrawn</code> სიტყვაა ლექსიკონიდან და თვითონ ამბობს, რა მოხდა. <code>3</code> კი არაფერს ნიშნავს, თუ კოდის ავტორს არ ჰკითხე</div></details><details><summary>ვინ ირჩევს სიტყვას: <code>Enrollment</code> თუ <code>StudentCourse</code>?</summary><div class="ans">ბიზნესი. დეველოპერი მის სიტყვას კოდში ინგლისურად ჩაწერს</div></details></div></article>
+<article class="blk" data-slides="15"><span class="anchor" id="s-15"></span><div class="bh"><h3>ერთი სიტყვა, სხვა სფეროში სხვა მნიშვნელობა</h3><a class="chip" href="index.html#/15" data-go="15" title="პრეზენტაციაში გახსნა">სლაიდი 15</a></div>
+<p>ერთი და იგივე სიტყვა სხვადასხვა ბიზნესში სხვადასხვა რამეს ნიშნავს: სხვა წესებით, სხვა რიცხვებით, სხვა ადამიანებით.</p>
+<table>
+<thead>
+<tr>
+<th>სიტყვა</th>
+<th>ერთ სფეროში</th>
+<th>მეორეში</th>
+<th>მესამეში</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>„შეფასება“</strong></td>
+<td>🏫 LMS: ლექტორის ქულა ნამუშევარზე, 1–12</td>
+<td>🏋️ ფიტნესი: მწვრთნელის ქულა კვირის პროგრესზე, 1–10</td>
+<td>🍽️ რესტორანი: სტუმრის ვარსკვლავები, 1–5</td>
+</tr>
+<tr>
+<td><strong>„რეგისტრაცია“</strong></td>
+<td>🏫 LMS: ჩარიცხვა ჯგუფში, მთელი კურსით</td>
+<td>🎤 კონფერენცია: ადგილი ერთ ვორქშოპზე, იხურება 1 დღით ადრე</td>
+<td>🚗 ავტოსკოლა: მოსწავლის მიღება, ასაკი და ცნობა მოწმდება</td>
+</tr>
+<tr>
+<td><strong>„სესია“</strong></td>
+<td>🎤 კონფერენცია: ვორქშოპის ნაწილი, ოთახით და დროით</td>
+<td>🏋️ ფიტნესი: ერთი ვარჯიში</td>
+<td>💻 ვებ-აპლიკაცია: მომხმარებლის შესვლა</td>
+</tr>
+<tr>
+<td><strong>„კლასი“</strong></td>
+<td>🏫 სკოლა: ოთახი ან მოსწავლეების ჯგუფი</td>
+<td>🏋️ ფიტნესი: ჯგუფური ვარჯიშის ნაკადი</td>
+<td>⌨️ C#: <code>class</code>, სულ სხვა რამ</td>
+</tr>
+</tbody>
+</table>
+<p><strong>რა გამოდის აქედან:</strong></p>
+<ul>
+<li>სიტყვის მნიშვნელობას <strong>ერთი პროექტიდან მეორეში ნუ წაიღებ</strong>. თუ LMS-ში „შეფასება“ 1–12-ია, ეს არ ნიშნავს, რომ რესტორანშიც ასეა. იქ შეიძლება ვარსკვლავები იყოს, თანაც შეფასებას სტუმარი აკეთებს და არა თანამშრომელი.</li>
+<li><strong>ყოველ სფეროს თავისი ლექსიკონი აქვს.</strong> ახალ პროექტში ლექსიკონს თავიდან ვადგენთ, Domain Expert-თან ერთად.</li>
+<li>კოდშიც ასეა: LMS-ის <code>Grade</code> და რესტორნის <code>Stars</code> სხვადასხვა წესის მქონე სხვადასხვა ცნებაა. ამიტომ სახელიც სხვაა.</li>
+</ul>
+<div class="callout note"><span class="ci">💡</span><div><p>ეს ერთი კომპანიის შიგნითაც ხდება: „სტუდენტი“ ბუღალტერიისთვის გადამხდელია, სასწავლო ნაწილისთვის კი ის, ვინც ლექციებზე დადის. დიდ სისტემებში ასეთ საზღვრებს <strong>Bounded Context</strong> ჰქვია: საზღვარი, რომლის შიგნითაც სიტყვას ერთი მნიშვნელობა აქვს.</p></div></div>
+<div class="selfcheck"><div class="sh">✅ შეამოწმე თავი <small>დაფიქრდი, მერე გახსენი პასუხი</small></div><details><summary>LMS-ში „შეფასება“ მთელი რიცხვია 1-დან 12-მდე. შეგიძლია ეს წესი ფიტნეს-კლუბის პროექტში გადაიტანო?</summary><div class="ans">არა: ჯერ ფიტნეს-კლუბის მფლობელს უნდა ჰკითხო. შეიძლება იქ 1–10 იყოს, ან საერთოდ სხვა რამ აფასებდნენ. სიტყვა ერთია, ბიზნესი სხვა</div></details></div></article>
+<h2 class="sec" id="sec-6">3 · საუბარი ბიზნესთან</h2>
+<article class="blk" data-slides="16"><span class="anchor" id="s-16"></span><div class="bh"><h3>ნაწილი 3 · როგორ ვესაუბრებით ბიზნესს</h3><a class="chip" href="index.html#/16" data-go="16" title="პრეზენტაციაში გახსნა">სლაიდი 16</a></div>
+<p>ლექსიკონი თავისით არ ჩნდება: მას საუბარში ვაგროვებთ. მთავარი უნარი <strong>კითხვის დასმაა</strong>. ვნახავთ, რომელი კითხვა არ მუშაობს, რომელი მუშაობს, და ერთ საუბარს ნაბიჯ-ნაბიჯ გავივლით.</p></article>
+<article class="blk" data-slides="17"><span class="anchor" id="s-17"></span><div class="bh"><h3>„რა ფუნქციები გინდათ?“</h3><a class="chip" href="index.html#/17" data-go="17" title="პრეზენტაციაში გახსნა">სლაიდი 17</a></div>
+<p>ეს პირველი კითხვაა, რაც თავში მოგვდის, და ყველაზე ნაკლებად სასარგებლო:</p>
+<blockquote>
+<p><strong>დეველოპერი:</strong> „მითხარით, რა ფუნქციები უნდა ჰქონდეს სისტემას?“
+<strong>დირექტორი:</strong> „მარტივი უნდა იყოს. დასწრება, ქულები… ყველაფერი, რაც LB-ს აქვს. და ლამაზი.“</p>
+</blockquote>
+<p>რა მივიღეთ? <strong>სურვილების სია</strong>: ბუნდოვანი, წესების გარეშე. „დასწრება“ რას ნიშნავს? ვინ აღრიცხავს? რა ხდება გაცდენაზე? არაფერი ვიცით.</p>
+<p>რატომ ხდება ასე? დირექტორი <strong>ფუნქციებით არ ფიქრობს</strong>: „ფუნქცია“ დეველოპერის სიტყვაა. დირექტორი თავის სამუშაო დღეს ცხოვრობს: ვინ მოვიდა, ვინ დააგვიანა, ვის რა ქულა აქვს, რომელ მშობელს დაურეკა. ამიტომ კითხვებიც მისი დღის შესახებ უნდა დავსვათ.</p></article>
+<article class="blk" data-slides="18"><span class="anchor" id="s-18"></span><div class="bh"><h3>ექვსი კითხვა, რომელიც მუშაობს</h3><a class="chip" href="index.html#/18" data-go="18" title="პრეზენტაციაში გახსნა">სლაიდი 18</a></div>
+<table>
+<thead>
+<tr>
+<th>კითხვა</th>
+<th>მაგალითი</th>
+<th>რას გვაძლევს</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>🔎 <strong>მაგალითი</strong></td>
+<td>„ბოლოს როდის მოხდა? როგორ იყო?“</td>
+<td>ნამდვილ შემთხვევას ზოგადი სურვილის ნაცვლად</td>
+</tr>
+<tr>
+<td>➡️ <strong>მერე?</strong></td>
+<td>„და მერე რა ხდება?“</td>
+<td><strong>პროცესს</strong> ბოლომდე, ნაბიჯ-ნაბიჯ</td>
+</tr>
+<tr>
+<td>♾️ <strong>ყოველთვის?</strong></td>
+<td>„ყოველთვის ასეა?“</td>
+<td><strong>წესს</strong></td>
+</tr>
+<tr>
+<td>🚧 <strong>გამონაკლისი?</strong></td>
+<td>„როდის არ არის ასე?“</td>
+<td>წესის საზღვრებს</td>
+</tr>
+<tr>
+<td>🧑 <strong>ვინ?</strong></td>
+<td>„ვინ აკეთებს? ვინ წყვეტს?“</td>
+<td><strong>აქტორს</strong> (როლს)</td>
+</tr>
+<tr>
+<td>🎯 <strong>რატომ?</strong></td>
+<td>„რატომ გჭირდებათ?“</td>
+<td>ნამდვილ <strong>მიზანს</strong> მოთხოვნის უკან</td>
+</tr>
+</tbody>
+</table>
+<p>ყველაზე ძლიერი პირველია, <strong>მაგალითი</strong>. ადამიანს უჭირს უპასუხოს კითხვას „როგორ მუშაობს დასწრება?“, მაგრამ ადვილად გიამბობს, რა მოხდა გასულ ხუთშაბათს.</p>
+<p><strong>არ გააკეთო:</strong></p>
+<ul>
+<li><strong>ტექნიკური სიტყვები.</strong> „ცხრილი“, „endpoint“, „სტატუსი“ დირექტორს არაფერს ეუბნება და დააბნევს.</li>
+<li><strong>მზა ამოხსნის შეთავაზება.</strong> „ბლოკს ხომ არ დავამატებთ?“ ადამიანი ხშირად უბრალოდ დაგეთანხმება, თუმცა ეს სულაც არ უნდოდა.</li>
+<li><strong>პასუხის გამოცნობა.</strong> თუ არ იცი, იკითხე. პასუხი <strong>მისი სიტყვებით</strong> ჩაიწერე და არ „გადათარგმნო“.</li>
+</ul>
+<div class="prompt"><div class="ph"><span>🤖 ვივარჯიშოთ საუბარში</span><button class="copy" type="button">კოპირება</button></div><div class="pb">ვსწავლობ, როგორ დავუსვა კითხვები ბიზნესს პროგრამის დაწერამდე (DDD, Ubiquitous Language). ითამაშე სასწავლო აკადემიის დირექტორის როლი, რომელსაც სასწავლო პლატფორმა (LMS) სჭირდება. პასუხები მოკლე და ცოტა ბუნდოვანი იყოს, როგორც ნამდვილ ცხოვრებაში. ტექნიკური სიტყვები არ იცი.
+მე დაგისვამ კითხვებს. 10 კითხვის შემდეგ როლიდან გამოდი და შემიფასე: რომელი კითხვა იყო კარგი, რომელი არა და რა წესები ან ბუნდოვანი სიტყვები გამომრჩა. ქართულად.</div></div></article>
+<article class="blk" data-slides="19,20"><span class="anchor" id="s-19"></span><span class="anchor" id="s-20"></span><div class="bh"><h3>ერთი საუბარი: რა იყო „3 გაცდენა“ სინამდვილეში?</h3><a class="chip" href="index.html#/19" data-go="19" title="პრეზენტაციაში გახსნა">სლაიდი 19</a></div>
+<p>დავუბრუნდეთ ლექციის დასაწყისის ისტორიას. ასე უნდა წასულიყო საუბარი:</p>
+<blockquote>
+<p><strong>დეველოპერი:</strong> რას ნიშნავს „გაცდენა“? <em>(რას ნიშნავს?)</em>
+<strong>დირექტორი:</strong> სტუდენტი ლექციაზე არ მოვიდა.
+<strong>დეველოპერი:</strong> თუ 20 წუთით დააგვიანა? <em>(გამონაკლისი?)</em>
+<strong>დირექტორი:</strong> 15 წუთზე მეტი — ესეც გაცდენაა.
+<strong>დეველოპერი:</strong> ბოლოს ვის ჰქონდა 3-ზე მეტი? რა მოხდა? <em>(მაგალითი)</em>
+<strong>დირექტორი:</strong> გასულ თვეს ანას. ლექტორმა დაურეკა, გავარკვიეთ.
+<strong>დეველოპერი:</strong> ანას სწავლა შეუჩერეთ? <em>(მერე?)</em>
+<strong>დირექტორი:</strong> არა! უბრალოდ ლექტორმა დროზე უნდა გაიგოს.</p>
+</blockquote>
+<p>ოთხმა კითხვამ მოგვცა:</p>
+<table>
+<thead>
+<tr>
+<th>რა</th>
+<th>რა ვიპოვეთ</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>ტერმინი</strong></td>
+<td>გაცდენა = არ მოვიდა <strong>ან</strong> 15 წუთზე მეტი დააგვიანა</td>
+</tr>
+<tr>
+<td><strong>აქტორი</strong></td>
+<td>ლექტორი: ის უკავშირდება სტუდენტს</td>
+</tr>
+<tr>
+<td><strong>პროცესი</strong></td>
+<td>მე-4 გაცდენა → ლექტორი იღებს შეტყობინებას</td>
+</tr>
+<tr>
+<td><strong>წესი</strong></td>
+<td>სწავლა არ ჩერდება, ბლოკი არ არის</td>
+</tr>
+</tbody>
+</table>
+<p>ოთხმა კითხვამ ხუთი წუთი წაიღო. ამით თავიდან ავიცილეთ ორი კვირის არასწორი სამუშაო და გაბრაზებული დირექტორი.</p>
+<div class="terms"><div class="th">📘 ტერმინები</div><dl><dt>აქტორი (Actor)</dt><dd>ვინც სისტემაში რამეს აკეთებს: სტუდენტი, ლექტორი, მენეჯერი</dd><dt>პროცესი</dt><dd>ნაბიჯების რიგი: „რა ხდება და მერე რა ხდება“</dd><dt>წესი (Business Rule)</dt><dd>რა შეიძლება და რა არა: „15 წუთზე მეტი დაგვიანება = გაცდენა“</dd></dl></div>
+<div class="selfcheck"><div class="sh">✅ შეამოწმე თავი <small>დაფიქრდი, მერე გახსენი პასუხი</small></div><details><summary>დეველოპერმა ჰკითხა: „ბლოკი ხომ არ დავამატოთ 3 გაცდენაზე?“ რა არის ამაში ცუდი?</summary><div class="ans">ეს მზა ამოხსნის შეთავაზებაა: დირექტორი შეიძლება უბრალოდ დაეთანხმოს. ჯობს ჰკითხო, რა მოხდა ბოლოს, როცა ვინმეს ბევრი გაცდენა ჰქონდა</div></details></div></article>
+<h2 class="sec" id="sec-7">4 · საუბრიდან კოდამდე</h2>
+<article class="blk" data-slides="21"><span class="anchor" id="s-21"></span><div class="bh"><h3>ნაწილი 4 · საუბრიდან კოდამდე</h3><a class="chip" href="index.html#/21" data-go="21" title="პრეზენტაციაში გახსნა">სლაიდი 21</a></div>
+<p>საუბარი გვაქვს, ლექსიკონიც. ახლა ვნახავთ მთელ გზას საუბრიდან კოდამდე, როგორ გადაიქცევა ბიზნესის წინადადება C#-ად და როგორ ვწერთ სამუშაოს სიას (backlog-ს).</p></article>
+<article class="blk" data-slides="22"><span class="anchor" id="s-22"></span><div class="bh"><h3>გზა საუბრიდან კოდამდე</h3><a class="chip" href="index.html#/22" data-go="22" title="პრეზენტაციაში გახსნა">სლაიდი 22</a></div>
+<p>DDD-ით პროექტის დაგეგმვა ასე გამოიყურება:</p>
+<ol>
+<li><strong>საუბარი</strong>: კითხვები და მაგალითები Domain Expert-თან.</li>
+<li><strong>ლექსიკონი</strong>: ყოველი ტერმინი ერთი მნიშვნელობით.</li>
+<li><strong>აქტორები და პროცესები</strong>: ვინ რას აკეთებს და რა რიგით.</li>
+<li><strong>წესები</strong>: რა შეიძლება და რა არა.</li>
+<li><strong>Backlog</strong>: სამუშაოების სია user story-ების სახით.</li>
+<li><strong>კოდი</strong>: ერთ ჯერზე ერთ story-ს ვწერთ.</li>
+</ol>
+<p>კოდი ბოლოა და ყველაზე ძვირი გამოსასწორებელიც. ლექსიკონში სიტყვის შეცვლას ერთი წუთი სჭირდება, დაწერილ class-ში, ბაზაში, endpoint-ებსა და Frontend-ში კი შეიძლება მთელი დღე დასჭირდეს.</p>
+<p>ეს გზა <strong>ერთხელ არ გაივლება</strong>. ახალი კითხვა ახალ წესს აჩენს, ლექსიკონი სწორდება და მასთან ერთად კოდიც. DDD-ში ეს ნორმალურია: ბიზნესს პროექტის განმავლობაში უკეთ ვიცნობთ.</p></article>
+<article class="blk" data-slides="23"><span class="anchor" id="s-23"></span><div class="bh"><h3>ბიზნესის წინადადებაში კოდი იმალება</h3><a class="chip" href="index.html#/23" data-go="23" title="პრეზენტაციაში გახსნა">სლაიდი 23</a></div>
+<p>ავიღოთ ერთი წინადადება ლექსიკონიდან:</p>
+<blockquote>
+<p>„<strong>ლექტორი</strong> <strong>აფასებს</strong> ჩაბარებულ <strong>ნამუშევარს</strong> <strong>1-დან 12-მდე</strong>.“</p>
+</blockquote>
+<p>ყოველი ნაწილი კოდში თავის ადგილს პოულობს:</p>
+<table>
+<thead>
+<tr>
+<th>წინადადებაში</th>
+<th>მაგალითი</th>
+<th>კოდში</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>არსებითი სახელი</strong> (ტერმინი)</td>
+<td>ნამუშევარი</td>
+<td>class: <code>Submission</code></td>
+</tr>
+<tr>
+<td><strong>მოქმედება</strong> (ზმნა)</td>
+<td>აფასებს</td>
+<td>endpoint / მეთოდი: <code>POST /api/submissions/{id}/grade</code> → <code>Grade()</code></td>
+</tr>
+<tr>
+<td><strong>წესი</strong></td>
+<td>1-დან 12-მდე</td>
+<td>შემოწმება: <code>if (grade is &lt; 1 or &gt; 12)</code></td>
+</tr>
+<tr>
+<td><strong>წესი დაირღვა</strong></td>
+<td>ქულა 15</td>
+<td>შეცდომის პასუხი: <code>400 BadRequest</code> (ან <code>409 Conflict</code>, როცა მოქმედება ახლა შეუძლებელია)</td>
+</tr>
+<tr>
+<td><strong>აქტორი</strong></td>
+<td>ლექტორი</td>
+<td>ვის შეუძლია ამის გაკეთება (უფლებებს მოგვიანებით ვისწავლით)</td>
+</tr>
+</tbody>
+</table>
+<p>ეს მეთოდი ყოველ წინადადებაზე მუშაობს. ლექსიკონი და წესები მზად რომ გაქვს, კოდის დიდი ნაწილი უკვე „დაწერილია“: სახელები და შემოწმებები ბიზნესმა გიკარნახა.</p>
+<div class="selfcheck"><div class="sh">✅ შეამოწმე თავი <small>დაფიქრდი, მერე გახსენი პასუხი</small></div><details><summary>„მენეჯერი რიცხავს სტუდენტს ჯგუფში, თუ ჯგუფში ადგილი არის.“ რა არის აქ class, რა მოქმედება და რა წესი?</summary><div class="ans">class: <code>Enrollment</code> (ჩარიცხვა) · მოქმედება: ჩარიცხვა → <code>POST /api/groups/{id}/enrollments</code> · წესი: ადგილი უნდა იყოს; თუ არ არის → <code>409 Conflict</code> · აქტორი: მენეჯერი</div></details></div></article>
+<article class="blk" data-slides="24"><span class="anchor" id="s-24"></span><div class="bh"><h3>დემო: წინადადება C#-ში</h3><a class="chip" href="index.html#/24" data-go="24" title="პრეზენტაციაში გახსნა">სლაიდი 24</a></div>
+<p>ბიზნესის წინადადება: <strong>„ლექტორი აფასებს ჩაბარებულ ნამუშევარს 1-დან 12-მდე.“</strong> ყველაფერი, რაც აქ წერია, უკვე ნაცნობია: class, DTO (03 ლექცია), Controller, async (05 ლექცია).</p>
+<div class="codebox"><div class="ch"><span>Submission.cs</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="k">public</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">Submission</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="n">Guid</span><span class="w"> </span><span class="n">Id</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">get</span><span class="p">;</span><span class="w"> </span><span class="k">set</span><span class="p">;</span><span class="w"> </span><span class="p">}</span></span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="n">Guid</span><span class="w"> </span><span class="n">AssignmentId</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">get</span><span class="p">;</span><span class="w"> </span><span class="k">set</span><span class="p">;</span><span class="w"> </span><span class="p">}</span></span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="n">Guid</span><span class="w"> </span><span class="n">StudentId</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">get</span><span class="p">;</span><span class="w"> </span><span class="k">set</span><span class="p">;</span><span class="w"> </span><span class="p">}</span></span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="n">DateTime</span><span class="w"> </span><span class="n">SubmittedAt</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">get</span><span class="p">;</span><span class="w"> </span><span class="k">set</span><span class="p">;</span><span class="w"> </span><span class="p">}</span></span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="kt">int?</span><span class="w"> </span><span class="n">Grade</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">get</span><span class="p">;</span><span class="w"> </span><span class="k">set</span><span class="p">;</span><span class="w"> </span><span class="p">}</span></span><span class="ln"><span class="p">}</span></span></code></pre></div>
+<div class="codebox"><div class="ch"><span>Dtos/GradeSubmissionRequest.cs</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="k">public</span><span class="w"> </span><span class="k">record</span><span class="w"> </span><span class="nf">GradeSubmissionRequest</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">Grade</span><span class="p">)</span><span class="p">;</span></span></code></pre></div>
+<div class="codebox"><div class="ch"><span>Controllers/SubmissionsController.cs · Grade</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="na">[HttpPost("{id:guid}/grade")]</span></span><span class="ln"><span class="k">public</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="n">Task</span><span class="o">&lt;</span><span class="n">IActionResult</span><span class="o">&gt;</span><span class="w"> </span><span class="n">Grade</span><span class="p">(</span><span class="n">Guid</span><span class="w"> </span><span class="n">id</span><span class="p">,</span><span class="w"> </span><span class="n">GradeSubmissionRequest</span><span class="w"> </span><span class="n">request</span><span class="p">)</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">request</span><span class="p">.</span><span class="n">Grade</span><span class="w"> </span><span class="k">is</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="k">or</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">12</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">BadRequest</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="kt">var</span><span class="w"> </span><span class="n">submission</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="n">_db</span><span class="p">.</span><span class="n">Submissions</span><span class="p">.</span><span class="n">FindAsync</span><span class="p">(</span><span class="n">id</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">submission</span><span class="w"> </span><span class="k">is</span><span class="w"> </span><span class="k">null</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">NotFound</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="n">submission</span><span class="p">.</span><span class="n">Grade</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">request</span><span class="p">.</span><span class="n">Grade</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="k">await</span><span class="w"> </span><span class="n">_db</span><span class="p">.</span><span class="n">SaveChangesAsync</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nf">NoContent</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="p">}</span></span></code></pre></div>
+<p>ხაზ-ხაზ ბიზნესის ენით:</p>
+<ul>
+<li><strong><code>Submission</code></strong> = ნამუშევარი. ლექსიკონში „დავალება“ ორად გავყავით: <code>Assignment</code> (ამოცანა) და <code>Submission</code> (ნამუშევარი). ამიტომ ნამუშევარს <code>AssignmentId</code> აქვს: ის კონკრეტულ დავალებაზეა ჩაბარებული.</li>
+<li><strong><code>int? Grade</code></strong>: <code>?</code> ნიშნავს, რომ ქულა შეიძლება ჯერ არ იყოს (<code>null</code>). ბიზნესის ენაზე: „ნამუშევარი ჯერ შეუფასებელია“.</li>
+<li><strong><code>POST …/grade</code></strong> + <strong><code>Grade()</code></strong>: მოქმედება „აფასებს“ endpoint-ად იქცა.</li>
+<li><strong><code>if (request.Grade is &lt; 1 or &gt; 12) return BadRequest();</code></strong>: წესი „1-დან 12-მდე“ შემოწმებად იქცა. დარღვევისას <code>400 Bad Request</code>. <code>is &lt; 1 or &gt; 12</code> C#-ის pattern-ია და ნიშნავს „1-ზე ნაკლები ან 12-ზე მეტი“.</li>
+</ul>
+<div class="callout note"><span class="ci">💡</span><div><p>ახლა წესი Controller-შია, რადგან სხვა ადგილი ჯერ არ გვისწავლია. ეს მუშაობს, მაგრამ თუ ქულას სხვაგანაც ვცვლით, შემოწმების დავიწყება ადვილია. მომდევნო ლექციებში წესებს მათ სწორ ადგილს ვუპოვით. დღეს მთავარია, რომ <strong>წესი ბიზნესიდან მოვიდა</strong> და კოდში ზუსტად მისი სიტყვებით ჩანს.</p></div></div></article>
+<article class="blk" data-slides="25"><span class="anchor" id="s-25"></span><div class="bh"><h3>User Story: სამუშაო ბიზნესის ენაზე</h3><a class="chip" href="index.html#/25" data-go="25" title="პრეზენტაციაში გახსნა">სლაიდი 25</a></div>
+<p>საუბრიდან, ლექსიკონიდან და წესებიდან სამუშაოების სიას ვადგენთ: <strong>backlog</strong>-ს. ყოველი სამუშაო <strong>user story</strong>-ის ფორმით იწერება:</p>
+<blockquote>
+<p>როგორც <strong>&lt;აქტორი&gt;</strong>, მინდა <strong>&lt;მოქმედება&gt;</strong>, რომ <strong>&lt;მიზანი&gt;</strong>.</p>
+</blockquote>
+<p>მაგალითი:</p>
+<blockquote>
+<p>როგორც <strong>ლექტორი</strong>, მინდა <strong>ჩაბარებული ნამუშევარი შევაფასო</strong>, რომ <strong>სტუდენტმა იცოდეს თავისი დონე</strong>.</p>
+</blockquote>
+<p>user story-ს სამი ნაწილი აქვს, და სამივე მნიშვნელოვანია:</p>
+<ul>
+<li><strong>აქტორი</strong>: ვისთვის ვაკეთებთ (ლექსიკონიდან).</li>
+<li><strong>მოქმედება</strong>: რა უნდა შეეძლოს (კოდში endpoint-ი გახდება).</li>
+<li><strong>მიზანი</strong>: რატომ. თუ მიზანს ვერ წერ, იქნებ ეს სამუშაო საერთოდ არ არის საჭირო?</li>
+</ul>
+<p>story-ს ემატება <strong>მიღების კრიტერიუმები</strong> (Acceptance Criteria): წესები, რომელთა შესრულების შემდეგ story მზად ითვლება.</p>
+<ul>
+<li>ქულა მთელი რიცხვია 1-დან 12-მდე;</li>
+<li>ფასდება მხოლოდ ჩაბარებული ნამუშევარი;</li>
+<li>სტუდენტი ქულას მაშინვე ხედავს.</li>
+</ul>
+<p>ეს კრიტერიუმები პირდაპირ კოდის შემოწმებებად გადაიქცევა, მოგვიანებით კი ტესტებადაც.</p>
+<p><strong>Backlog</strong> ყველა story-ის სიაა, მნიშვნელობის მიხედვით დალაგებული: ყველაზე საჭირო ზემოთაა. LMS-ის backlog-ს შემდეგ ლექციაზე ერთად შევადგენთ.</p>
+<div class="terms"><div class="th">📘 ტერმინები</div><dl><dt>User Story</dt><dd>ერთი სამუშაო ბიზნესის ენაზე: „როგორც &lt;აქტორი&gt;, მინდა &lt;მოქმედება&gt;, რომ &lt;მიზანი&gt;“</dd><dt>მიღების კრიტერიუმები (Acceptance Criteria)</dt><dd>წესები, რომლებიც story-ის დასრულებისთვის უნდა შესრულდეს</dd><dt>Backlog</dt><dd>ყველა story-ის სია, მნიშვნელობის მიხედვით დალაგებული</dd></dl></div>
+<div class="prompt"><div class="ph"><span>🤖 User story-ის შემოწმება</span><button class="copy" type="button">კოპირება</button></div><div class="pb">ვსწავლობ user story-ების წერას (DDD-ის კურსი, სასწავლო პლატფორმა LMS). აქ არის ჩემი story და მიღების კრიტერიუმები: [ჩასვი]
+შეამოწმე: არის თუ არა აქტორი, მოქმედება და მიზანი? კრიტერიუმები შემოწმებადია? არის თუ არა ტექნიკური სიტყვები, რომლებიც ბიზნესის ენაში არ უნდა იყოს? მზა ვარიანტი არ დამიწერო, მხოლოდ მიმითითე, რა გავასწორო. ქართულად.</div></div></article>
+<h2 class="sec" id="sec-8">პრაქტიკა</h2>
+<article class="blk" data-slides="26,27"><span class="anchor" id="s-26"></span><span class="anchor" id="s-27"></span><div class="bh"><h3>ნაწილი 5 · ერთად წავიკითხოთ</h3><a class="chip" href="index.html#/26" data-go="26" title="პრეზენტაციაში გახსნა">სლაიდი 26</a></div>
+<p>დირექტორმა LMS-ის ერთ ნაწილზე, დავალებებსა და შეფასებაზე, მოკლე ჩანაწერი დაგვიტოვა. ერთად წავიკითხავთ, როგორც დეველოპერები: ვიპოვით ტერმინებს, ბუნდოვან სიტყვებს, აქტორებს, წესებს, და მოვამზადებთ კითხვებს.</p></article>
+<article class="blk" data-slides="28"><span class="anchor" id="s-28"></span><div class="bh"><h3>როგორ ვკითხულობთ ჩანაწერს: პირველი წინადადება</h3><a class="chip" href="index.html#/28" data-go="28" title="პრეზენტაციაში გახსნა">სლაიდი 28</a></div>
+<blockquote>
+<p>„<strong>ლექტორი</strong> <strong>ყოველი ლექციის შემდეგ</strong> <strong>ნაკადს</strong> <strong>დავალებას</strong> <strong>აძლევს</strong> და <strong>დედლაინს</strong> უწერს, <strong>ჩვეულებრივ ერთ კვირას</strong>.“</p>
+</blockquote>
+<p>ერთ წინადადებაში ამდენი რამ იმალება:</p>
+<table>
+<thead>
+<tr>
+<th>რა</th>
+<th>ტექსტში</th>
+<th>რას ნიშნავს</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>აქტორი</strong></td>
+<td>ლექტორი</td>
+<td>ვინ აკეთებს: წინადადების „ვინ“</td>
+</tr>
+<tr>
+<td><strong>პროცესი</strong></td>
+<td>ყოველი ლექციის შემდეგ</td>
+<td>რიგი: ლექცია ჩატარდა → დავალება მიეცა. კითხვა: <strong>ყოველთვის?</strong> ყველა ლექციის შემდეგ?</td>
+</tr>
+<tr>
+<td><strong>ბუნდოვანი</strong></td>
+<td>ნაკადს</td>
+<td>ლექსიკონში „ჯგუფი“ გვაქვს: ერთი რამ, ორი სახელი</td>
+</tr>
+<tr>
+<td><strong>ტერმინი</strong></td>
+<td>დავალებას</td>
+<td>აქ <strong>ამოცანაა</strong>, რომელიც ლექტორმა მისცა. მეორე წინადადებაში იგივე სიტყვა სხვა რამეს ნიშნავს!</td>
+</tr>
+<tr>
+<td><strong>მოქმედება</strong></td>
+<td>აძლევს</td>
+<td>ზმნა მომავალში endpoint-ი გახდება. story: „ლექტორი აძლევს დავალებას…“</td>
+</tr>
+<tr>
+<td><strong>ტერმინი</strong></td>
+<td>დედლაინს</td>
+<td>თარიღი, რომლის შემდეგაც… რა? პასუხი მესამე წინადადებაშია</td>
+</tr>
+<tr>
+<td><strong>წესი?</strong></td>
+<td>ჩვეულებრივ ერთ კვირას</td>
+<td>„ჩვეულებრივ“ ნიშნავს, რომ ყოველთვის ასე არ არის. კითხვები: ვინ წყვეტს დედლაინს? როდის არის სხვა?</td>
+</tr>
+</tbody>
+</table>
+<p><strong>მეთოდი, რომელსაც ყოველ წინადადებაზე იმეორებ:</strong></p>
+<ol>
+<li><strong>ვინ?</strong> → აქტორი.</li>
+<li><strong>რას აკეთებს?</strong> (ზმნა) → მოქმედება.</li>
+<li><strong>რას?</strong> (არსებითი სახელი) → ტერმინი. შეამოწმე ლექსიკონში: იგივე სიტყვაა? იგივე მნიშვნელობაა?</li>
+<li><strong>როდის? რა რიგით?</strong> → პროცესი.</li>
+<li>სიტყვები <strong>„ყოველთვის“, „ჩვეულებრივ“, „არ შეიძლება“, „უნდა“</strong> → წესი, და მასთან ერთად კითხვა.</li>
+</ol>
+<p>დანარჩენი შვიდი წინადადება ამავე მეთოდით გაიარე. რა უნდა გეპოვა, შემდეგ სლაიდზეა.</p></article>
+<article class="blk" data-slides="29"><span class="anchor" id="s-29"></span><div class="bh"><h3>ერთად გავიაროთ: რა ვიპოვეთ</h3><a class="chip" href="index.html#/29" data-go="29" title="პრეზენტაციაში გახსნა">სლაიდი 29</a></div>
+<p><strong>ბუნდოვანი სიტყვები:</strong></p>
+<ul>
+<li><strong>„დავალება“</strong> ტექსტში სამ რამეს ნიშნავს: ლექტორი დავალებას „აძლევს“ (ამოცანა), სტუდენტი დავალებას „ტვირთავს“ (ფაილი), ლექტორი დავალებას „აფასებს“ (ფაილს, არა ამოცანას). ამოხსნა: ორი ტერმინი, <strong>Assignment</strong> (ამოცანა) და <strong>Submission</strong> (ნამუშევარი).</li>
+<li><strong>ნაკადი</strong> და <strong>ჯგუფი</strong> ერთი რამაა, ორი სახელით. <strong>სტუდენტი</strong> და <strong>მსმენელიც</strong>. ვირჩევთ ერთს: „ჯგუფი“ და „სტუდენტი“.</li>
+<li><strong>„კვირაში“</strong>: დედლაინიდან ერთი კვირის განმავლობაში თუ ჩაბარებიდან? კალენდარული კვირა თუ 7 დღე?</li>
+<li><strong>„ჯგუფის საშუალო ქულა“</strong>: ერთ დავალებაზე თუ მთელ კურსზე?</li>
+</ul>
+<p><strong>აქტორები:</strong> ლექტორი (აძლევს დავალებას, აფასებს), სტუდენტი (აბარებს), მენეჯერი (ადევნებს თვალს შეფასებას, გადაწევს დედლაინს).</p>
+<p><strong>წესები:</strong></p>
+<ol>
+<li>დედლაინის შემდეგ ნამუშევარი არ მიიღება.</li>
+<li>ქულა 1-დან 12-მდეა; 6-ზე ნაკლების შემთხვევაში სტუდენტს ერთხელ შეუძლია ხელახლა ჩაბარება.</li>
+<li>ლექტორი ნამუშევარს კვირაში აფასებს.</li>
+<li><strong>გამონაკლისი:</strong> თუ სტუდენტს ცნობა აქვს, მენეჯერს დედლაინის გადაწევა შეუძლია.</li>
+</ol>
+<p><strong>კითხვები (ნიმუში):</strong></p>
+<ul>
+<li><em>მაგალითი:</em> ბოლოს ვინ ჩააბარა ხელახლა? რომელი ქულა დარჩა, პირველი თუ მეორე?</li>
+<li><em>ყოველთვის?</em> დედლაინი ყოველთვის ერთი კვირაა?</li>
+<li><em>ვინ?</em> „მენეჯერი ნერვიულობს“: ვინ იღებს შეტყობინებას, თუ ლექტორმა კვირაში არ შეაფასა?</li>
+<li><em>მერე?</em> მენეჯერმა დედლაინი გადაწია. მერე? ლექტორი ამას ხედავს?</li>
+<li><em>რატომ?</em> ვისთვისაა ჯგუფის საშუალო ქულა? რას აკეთებს ამ რიცხვით?</li>
+</ul>
+<div class="callout note"><span class="ci">💡</span><div><p>„ხელახლა ჩაბარება“ ბიზნესისთვის ერთი წინადადებაა, კოდში კი ბევრ კითხვას აჩენს: ახალი ნამუშევარია თუ ძველი იცვლება? ორივე ქულა ინახება? დედლაინი ამ დროს მოქმედებს? ასეთ კითხვებს <strong>კოდის წერამდე</strong> ვსვამთ.</p></div></div></article>
+<h2 class="sec" id="sec-9">შეჯამება</h2>
+<article class="blk" data-slides="30"><span class="anchor" id="s-30"></span><div class="bh"><h3>შეამოწმე, რა დაგამახსოვრდა</h3><a class="chip" href="index.html#/30" data-go="30" title="პრეზენტაციაში გახსნა">სლაიდი 30</a></div>
+<p>ეს კითხვები შემდეგი ლექციის დასაწყისშიც დაისმება.</p>
+<div class="selfcheck"><div class="sh">✅ შეამოწმე თავი <small>დაფიქრდი, მერე გახსენი პასუხი</small></div><details><summary>რა არის Domain და ვინ არის Domain Expert?</summary><div class="ans">Domain არის ბიზნესის სფერო, რომლისთვისაც პროგრამას ვწერთ (სწავლება, ბანკი, მაღაზია) · Domain Expert ის ადამიანია, ვინც ამ ბიზნესს შიგნიდან იცნობს (დირექტორი, მენეჯერი, ლექტორი)</div></details><details><summary>რა არის Ubiquitous Language და სად უნდა ჩანდეს?</summary><div class="ans">ბიზნესისა და დეველოპერის საერთო ენა: ერთი სიტყვა, ერთი მნიშვნელობა · ჩანს საუბარში, ლექსიკონში და კოდში (class-ების, endpoint-ების და მეთოდების სახელებში)</div></details><details><summary>რატომ არის ცუდი კითხვა „რა ფუნქციები გინდათ?“ და რით შევცვალოთ?</summary><div class="ans">ბიზნესი ამაზე სურვილების ბუნდოვან სიას აბრუნებს · ჯობს ვკითხოთ კონკრეტული მაგალითი („ბოლოს როდის მოხდა?“), შემდეგ „მერე რა ხდება?“, „ყოველთვის?“, „ვინ აკეთებს?“, „რატომ?“</div></details><details><summary>რა პრობლემაა, როცა ერთ სიტყვას ორი მნიშვნელობა აქვს? მაგალითი LMS-იდან</summary><div class="ans">ორივე მხარეს ჰგონია, რომ ერთმანეთს ეთანხმება, და კოდი სხვა რამეს აკეთებს · მაგ. „დავალება“ ზოგისთვის ლექტორის მიცემული ამოცანაა (Assignment), ზოგისთვის სტუდენტის ჩაბარებული ნამუშევარი (Submission)</div></details><details><summary>ბიზნესის წინადადებაში რა ხდება class, რა endpoint და რა შემოწმება?</summary><div class="ans">არსებითი სახელი → class (Submission) · ზმნა/მოქმედება → endpoint ან მეთოდი (Grade) · წესი („1-დან 12-მდე“) → შემოწმება; თუ ირღვევა → შეცდომის პასუხი (400 / 409)</div></details><details><summary>რა არის user story და მიღების კრიტერიუმი?</summary><div class="ans">„როგორც &lt;აქტორი&gt;, მინდა &lt;მოქმედება&gt;, რომ &lt;მიზანი&gt;“: ერთი სამუშაო ბიზნესის ენაზე · მიღების კრიტერიუმები ის წესებია, რომელთა შესრულების შემდეგ story მზად ითვლება</div></details></div></article>
+<article class="blk" data-slides="31"><span class="anchor" id="s-31"></span><div class="bh"><h3>შეჯამება · ჯერ გაიგე, მერე დაწერე</h3><a class="chip" href="index.html#/31" data-go="31" title="პრეზენტაციაში გახსნა">სლაიდი 31</a></div>
+<p><strong>დაიმახსოვრე:</strong></p>
+<ol>
+<li>ყველაზე ძვირი შეცდომა ის კოდია, რომელიც მუშაობს, მაგრამ <strong>სხვა რამეს</strong> აკეთებს, ვიდრე ბიზნესს უნდოდა.</li>
+<li><strong>Domain</strong> ბიზნესის სფეროა, <strong>Domain Expert</strong> ბიზნესის მცოდნე ადამიანი, <strong>DDD</strong> კი პროექტის დაწყება ბიზნესიდან.</li>
+<li>DDD ღირს, როცა <strong>წესები ბევრია</strong> (LMS). მარტივ CRUD-ს არ სჭირდება.</li>
+<li><strong>Ubiquitous Language</strong>: ერთი სიტყვა, ერთი მნიშვნელობა. სიტყვას ბიზნესი ირჩევს, და ის ყველგან ჩანს, <strong>კოდშიც</strong>.</li>
+<li>კითხვა „რა ფუნქციები გინდათ?“ არ მუშაობს. მუშაობს: <strong>მაგალითი · მერე? · ყოველთვის? · გამონაკლისი? · ვინ? · რატომ?</strong> მზა ამოხსნას არ ვთავაზობთ, პასუხს ბიზნესის სიტყვებით ვიწერთ.</li>
+<li>გზა: <strong>საუბარი → ლექსიკონი → აქტორები და პროცესები → წესები → backlog → კოდი</strong>.</li>
+<li>წინადადებაში: არსებითი სახელი → <strong>class</strong>, მოქმედება → <strong>endpoint</strong>, წესი → <strong>შემოწმება</strong>, დარღვევა → <strong>400 / 409</strong>.</li>
+<li><strong>User story</strong>: „როგორც &lt;აქტორი&gt;, მინდა &lt;მოქმედება&gt;, რომ &lt;მიზანი&gt;“ + მიღების კრიტერიუმები.</li>
+</ol>
+<div class="prompt"><div class="ph"><span>🤖 DDD-ის საფუძვლები: გასაუბრებისთვის</span><button class="copy" type="button">კოპირება</button></div><div class="pb">ვემზადები .NET Junior გასაუბრებისთვის. დამისვი კითხვები DDD-ის საფუძვლებზე: Domain, Domain Expert, Ubiquitous Language, როდის ღირს DDD და როდის არა, როგორ ვესაუბრებით ბიზნესს, user story და მიღების კრიტერიუმები, როგორ აისახება ბიზნესის ენა კოდში.
+სათითაოდ დასვი, დაელოდე ჩემს პასუხს, შემიფასე და აუხსენი, რა გამომრჩა. 8 კითხვა. ქართულად.</div></div></article>
+<h2 class="sec" id="sec-10">საშინაო</h2>
+<article class="blk" data-slides="32"><span class="anchor" id="s-32"></span><div class="bh"><h3>საშინაო დავალება: ჩემი LMS: პირველი საუბრისთვის მზადება</h3><a class="chip" href="index.html#/32" data-go="32" title="პრეზენტაციაში გახსნა">სლაიდი 32</a></div>
+<p>საშინაო · HW-06 · LMS (საერთო ყველასთვის)</p>
+<h3>მოთხოვნები</h3>
+<ul>
+<li>ყველაფერი შეავსე <a href="../06-ddd/materials/homework-sheet.html">📝 საშინაოს ფურცელში</a> → <strong>⬇ ჩამოტვირთვა</strong> → HTML ფაილი <strong>ატვირთე LB-ზე</strong></li>
+<li><strong>ხედვა</strong> 3–5 წინადადებით: ვინ იყენებს, რა პრობლემას ხსნის, რა <strong>არ</strong> შედის</li>
+<li><strong>ლექსიკონი</strong>: 10 ტერმინი: განმარტება ბიზნესის ენაზე + სახელი კოდში</li>
+<li><strong>2 ორმნიშვნელოვანი სიტყვა</strong> (LB-დან ან აკადემიიდან) და შენი გადაწყვეტილება</li>
+<li><strong>12 კითხვა</strong> დირექტორისთვის, თითოს თავისი ტექნიკით</li>
+</ul>
+<h3>📤 როგორ ჩავაბარო</h3>
+<ol>
+<li>გახსენი <a href="../06-ddd/materials/homework-sheet.html">📝 საშინაოს ფურცელი</a>, ჩაწერე სახელი და გვარი და შეავსე. პასუხები ბრაუზერში თვითონ ინახება: შეგიძლია დახურო და მერე დაბრუნდე (იმავე კომპიუტერზე და იმავე ბრაუზერში).</li>
+<li>ქვედა ზოლი გაჩვენებს, რა აკლია: ხედვა 3+ წინადადება · ლექსიკონი 10 · ორმნიშვნელოვანი 2 · კითხვები 12 · ტექნიკური სიტყვა 0.</li>
+<li>დააჭირე <strong>⬇ ჩამოტვირთვა</strong>: ჩამოიტვირთება HTML ფაილი შენი პასუხებით (<code>06-homework-სახელი-გვარი.html</code>).</li>
+<li>ეს ფაილი <strong>ატვირთე LB-ზე</strong>, საშინაო დავალებაში.</li>
+</ol>
+<h3>✓ მზადაა, როცა</h3>
+<p>ლექსიკონში ტექნიკური სიტყვა (ცხრილი, Controller, ბაზა) არ არის და ყოველ კითხვაზე დირექტორი კონკრეტული მაგალითით უპასუხებს</p>
+<h3>⭐ ბონუსი</h3>
+<ul>
+<li>3 user story, თითოს 2–3 მიღების კრიტერიუმით</li>
+<li>ერთ user story-ს მიუწერე, კოდში რა გახდება: class, endpoint, შემოწმება</li>
+</ul></article>
+  </main>
+</div>
+<script>
+const DECK = "ASP.NET · 6 — DDD: ბიზნესის ენიდან კოდამდე";
+if (matchMedia('(min-width:981px)').matches) document.getElementById('tocd').open = true;
+const blocks = [...document.querySelectorAll('.blk')];
+const tocLinks = [...document.querySelectorAll('nav.toc a[href^="#sec-"]')];
+const secOf = b => { let e = b; while (e && !(e.matches && e.matches('h2.sec'))) e = e.previousElementSibling; return e; };
+function mark(b, toc_only) {
+  if (!toc_only) blocks.forEach(x => x.classList.toggle('cur', x === b));
+  const s = b && secOf(b); tocLinks.forEach(a => a.classList.toggle('cur', s && a.getAttribute('href') === '#' + s.id));
+}
+const blockFor = n => blocks.find(b => b.dataset.slides.split(',').includes(String(n)));
+
+// copy buttons (code: one line per .ln)
+document.addEventListener('click', e => {
+  const btn = e.target.closest('.copy'); if (!btn) return;
+  const box = btn.closest('.codebox, .prompt');
+  const text = box.matches('.prompt') ? box.querySelector('.pb').textContent : [...box.querySelectorAll('.ln')].map(l => l.textContent).join('\n');
+  navigator.clipboard.writeText(text).then(() => { btn.textContent = '✓ დაკოპირდა'; btn.classList.add('ok'); setTimeout(() => { btn.textContent = 'კოპირება'; btn.classList.remove('ok'); }, 1600); });
+});
+
+// live mode: opened from the deck with P — follow the projector
+const live = new URLSearchParams(location.search).has('live');
+let follow = true, bc = null;
+const liveBtn = document.getElementById('live');
+if (live) {
+  try { bc = new BroadcastChannel('deck-' + DECK); } catch (e) {}
+  liveBtn.classList.add('on');
+  liveBtn.onclick = () => { follow = !follow; liveBtn.classList.toggle('off', !follow); liveBtn.querySelector('.lt').textContent = follow ? 'მიჰყვება სლაიდებს' : 'თავისუფლად ვკითხულობ'; };
+  if (bc) {
+    bc.onmessage = ({ data }) => {
+      if (data.t !== 'state' || !follow) return;
+      const b = blockFor(data.i + 1); if (!b || b.classList.contains('cur')) return;
+      mark(b); b.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    };
+    bc.postMessage({ t: 'hello' });
+  }
+  document.addEventListener('click', e => {   // slide chip → move the projector deck
+    const c = e.target.closest('.chip[data-go]'); if (!c || !bc) return;
+    e.preventDefault(); bc.postMessage({ t: 'go', n: +c.dataset.go - 1 });
+  });
+}
+// deep link #s-12
+const h = location.hash.match(/^#s-(\d+)$/);
+if (h) { const b = blockFor(+h[1]); if (b) { mark(b); setTimeout(() => b.scrollIntoView({ block: 'start' }), 50); } }
+// highlight section in the TOC while reading
+const io = new IntersectionObserver(es => es.forEach(x => { if (x.isIntersecting && !(live && follow)) mark(x.target, true); }), { rootMargin: '-30% 0px -60% 0px' });
+blocks.forEach(b => io.observe(b));
+</script>
+</body></html>

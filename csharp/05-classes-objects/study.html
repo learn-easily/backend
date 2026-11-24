@@ -1,0 +1,460 @@
+<!doctype html>
+<html lang="ka"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>📖 კლასები და ობიექტები — კონსპექტი</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Georgian:wght@400;600;700;800&family=JetBrains+Mono:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#fbf8f3;--card:#fff;--ink:#1e2132;--ink2:#3b3f54;--muted:#7b8096;--line:#e6dfd2;--accent:#6d28d9;--accent-soft:#f3effe;--teal:#0d9488;
+  --green:#15803d;--amber:#b45309;--mono:"JetBrains Mono",ui-monospace,monospace;--sans:"Noto Sans Georgian",system-ui,sans-serif}
+*{box-sizing:border-box}
+html{scroll-padding-top:76px}
+body{margin:0;background:var(--bg);color:var(--ink);font:17.5px/1.75 var(--sans);-webkit-font-smoothing:antialiased}
+a{color:var(--accent)}
+/* top bar */
+.top{position:sticky;top:0;z-index:10;display:flex;align-items:center;gap:14px;padding:10px 20px;background:rgba(251,248,243,.92);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.top .back{font:600 14px var(--mono);color:var(--muted);text-decoration:none;white-space:nowrap}
+.top .back:hover{color:var(--ink)}
+.top .ttl{flex:1;min-width:0;font-weight:700;font-size:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.top .ttl small{font:500 13px var(--mono);color:var(--muted);margin-right:8px}
+.btn{font:700 14px var(--sans);text-decoration:none;border-radius:10px;padding:7px 14px;white-space:nowrap;border:1px solid var(--line);color:var(--ink);background:var(--card);cursor:pointer}
+.btn.play{background:var(--accent);border-color:var(--accent);color:#fff}
+.live{display:none;align-items:center;gap:8px;font:600 13px var(--mono);color:var(--teal);background:#e6f6f4;border:1px solid #bfe7e2;border-radius:999px;padding:5px 12px;cursor:pointer}
+.live.on{display:flex}
+.live .dot{width:8px;height:8px;border-radius:50%;background:var(--teal);animation:pulse 1.6s infinite}
+.live.off{color:var(--muted);background:var(--card);border-color:var(--line)}.live.off .dot{background:var(--muted);animation:none}
+@keyframes pulse{50%{opacity:.3}}
+/* layout */
+.wrap{display:grid;grid-template-columns:230px minmax(0,1000px);gap:44px;justify-content:center;padding:32px 28px 120px}
+nav.toc{position:sticky;top:84px;align-self:start;font-size:14px;line-height:1.45}
+nav.toc .h{font:700 12px var(--mono);color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px}
+nav.toc a{display:block;color:var(--ink2);text-decoration:none;padding:6px 10px;border-left:2px solid var(--line)}
+nav.toc a:hover{color:var(--accent)}
+nav.toc a.cur{color:var(--accent);border-left-color:var(--accent);font-weight:700}
+nav.toc .mats{margin-top:22px;display:flex;flex-direction:column;gap:6px}
+nav.toc .mats a{border:0;padding:2px 0;font:500 13px var(--mono);color:var(--teal);word-break:break-all}
+header.hero{margin-bottom:8px}
+header.hero .k{font:600 14px var(--mono);color:var(--accent)}
+header.hero h1{font-size:38px;line-height:1.2;margin:6px 0 10px;letter-spacing:-.01em}
+header.hero p{color:var(--muted);margin:0;font-size:15.5px}
+header.hero kbd{font:500 12px var(--mono);border:1px solid var(--line);border-radius:5px;padding:0 5px;background:var(--card)}
+h2.sec{font-size:15px;font:700 13px var(--mono);color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin:48px 0 6px;padding-top:18px;border-top:1px solid var(--line)}
+/* blocks */
+.blk{position:relative;padding:14px 0 6px 22px;margin-left:-22px;border-left:3px solid transparent;transition:border-color .3s,background .3s;border-radius:0 12px 12px 0}
+.blk.cur{border-left-color:var(--accent);background:linear-gradient(90deg,var(--accent-soft),transparent 70%)}
+.anchor{position:absolute;top:0}
+.bh{display:flex;align-items:baseline;justify-content:space-between;gap:12px}
+.bh h3{font-size:22px;line-height:1.35;margin:4px 0 6px}
+.chip{flex:none;font:600 12px var(--mono);color:var(--muted);text-decoration:none;border:1px solid var(--line);border-radius:999px;padding:2px 10px;background:var(--card)}
+.chip:hover{color:var(--accent);border-color:var(--accent)}
+.blk h2{font-size:26px;line-height:1.3;margin:6px 0 10px}
+.blk h3:not(.bh h3){font-size:19px;margin:22px 0 6px}
+.blk h4{font-size:17px;margin:18px 0 4px}
+.blk p{margin:10px 0}
+.blk ul,.blk ol{padding-left:24px;margin:8px 0}
+.blk li{margin:4px 0}
+.blk strong{color:var(--ink)}
+.blk :not(pre)>code{font:600 .86em var(--mono);background:#f1ece3;border-radius:6px;padding:1px 6px;color:#5b21b6}
+.blk table{border-collapse:collapse;margin:14px 0;font-size:15.5px;width:100%;display:block;overflow-x:auto}
+.blk th,.blk td{border:1px solid var(--line);padding:8px 12px;text-align:left;vertical-align:top}
+.blk th{background:#f6f1e8}
+/* code */
+.codebox{margin:14px 0;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:#fffdf9}
+.codebox .ch,.prompt .ph{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:6px 8px 6px 14px;font:600 12.5px var(--mono);color:var(--muted);background:#f6f1e8;border-bottom:1px solid var(--line)}
+.copy{font:600 12px var(--mono);border:1px solid var(--line);background:var(--card);color:var(--ink2);border-radius:7px;padding:3px 10px;cursor:pointer}
+.copy:hover{border-color:var(--ink)}
+.copy.ok{color:var(--green);border-color:var(--green)}
+pre.code{margin:0;padding:12px 0;overflow-x:auto;font:14px/1.65 var(--mono)}
+pre.code .ln{display:block;padding:0 16px;white-space:pre}
+.code .ttl{background:var(--bg2);color:var(--muted)}
+.code .ln.hl{background:rgba(109,40,217,.07);box-shadow:inset 3px 0 0 var(--net)}
+.code .ln.dim{opacity:.42}
+.code .k,.code .kd,.code .kn,.code .kr,.code .kc{color:#7c3aed}
+.code .kt{color:#2563eb}
+.code .s,.code .s1,.code .s2,.code .sa,.code .se,.code .si,.code .sd{color:#15803d}
+.code .c,.code .c1,.code .cm,.code .cp,.code .ch{color:#8b8fa3}
+.code .m,.code .mi,.code .mf,.code .mh{color:#c2410c}
+.code .nf,.code .fm{color:#1d4ed8}
+.code .nc,.code .nn,.code .nt,.code .nd{color:#b45309}
+.code .na{color:#7c3aed} .code .nb{color:#0e7490}
+.code .o,.code .p{color:#64748b}
+.code .nv,.code .nx{color:var(--ink)}
+.code .go{color:#64748b}
+/* prompt */
+.prompt{margin:16px 0;border:1px solid #ddd2fb;border-radius:12px;overflow:hidden;background:var(--accent-soft)}
+.prompt .ph{background:#ebe3fd;border-color:#ddd2fb;color:var(--accent)}
+.prompt .pb{padding:12px 16px;white-space:pre-wrap;font-size:15.5px;line-height:1.6;color:var(--ink2)}
+/* self check */
+.selfcheck{margin:16px 0;border:1px solid #cfe9d6;border-radius:12px;background:#f3fbf5;padding:12px 16px}
+.selfcheck .sh{font-weight:700;color:var(--green);margin-bottom:6px}
+.selfcheck .sh small{font-weight:400;color:var(--muted);font-size:13.5px;margin-left:6px}
+.selfcheck details{border-top:1px solid #dcefe1;padding:8px 0}
+.selfcheck summary{cursor:pointer;font-weight:600;list-style:none;padding-left:26px;position:relative}
+.selfcheck summary::-webkit-details-marker{display:none}
+.selfcheck summary::before{content:"?";position:absolute;left:0;top:2px;width:18px;height:18px;border-radius:50%;background:var(--green);color:#fff;font:700 12px/18px var(--mono);text-align:center}
+.selfcheck details[open] summary::before{content:"✓"}
+.selfcheck .ans{padding:6px 0 2px 26px;color:var(--ink2)}
+/* terms */
+.terms{margin:16px 0;border:1px solid var(--line);border-radius:12px;background:var(--card);padding:12px 16px}
+.terms .th{font-weight:700;margin-bottom:6px}
+.terms dl{display:grid;grid-template-columns:max-content 1fr;gap:6px 18px;margin:0}
+.terms dt{font:600 14.5px var(--mono);color:var(--accent)}
+.terms dd{margin:0;color:var(--ink2)}
+/* callouts */
+.callout{display:flex;gap:12px;margin:14px 0;padding:12px 16px;border-radius:12px;border:1px solid var(--line);background:var(--card)}
+.callout .ci{font-size:20px;line-height:1.6}
+.callout>div>p:first-child{margin-top:0}.callout>div>p:last-child{margin-bottom:0}
+.callout.warn{background:#fff8eb;border-color:#f6dfb5}
+.callout.note{background:#eef5ff;border-color:#cfe0fb}
+@media (max-width:980px){
+  .wrap{grid-template-columns:minmax(0,1fr);gap:0;padding:20px 16px 100px}
+  nav.toc{position:static;margin-bottom:12px}
+  nav.toc details{border:1px solid var(--line);border-radius:12px;background:var(--card);padding:8px 12px}
+  nav.toc details>summary{cursor:pointer;font-weight:700}
+  nav.toc .h{display:none}
+  header.hero h1{font-size:30px}
+  .blk{padding-left:14px;margin-left:-14px}
+  .top .ttl small{display:none}
+  .terms dl{grid-template-columns:1fr}.terms dd{margin-bottom:8px}
+}
+@media (min-width:981px){nav.toc details>summary{display:none}}
+@media print{.top,nav.toc,.copy,.chip,.live{display:none}.wrap{display:block;padding:0}.selfcheck details{display:block}.blk.cur{background:none}}
+</style></head>
+<body>
+<div class="top">
+  <a class="back" href="../../">← ლექციები</a>
+  <div class="ttl"><small>C# · 5</small>კლასები და ობიექტები</div>
+  <button class="live" id="live" type="button" title="ჩართული: ტექსტი პრეზენტაციას მიჰყვება"><span class="dot"></span><span class="lt">მიჰყვება სლაიდებს</span></button>
+  <a class="btn play" href="index.html">▶ პრეზენტაცია</a>
+</div>
+<div class="wrap">
+  <nav class="toc"><details id="tocd"><summary>სარჩევი</summary><div class="h">სარჩევი</div><a href="#sec-1">შესავალი</a><a href="#sec-2">გამეორება</a><a href="#sec-3">საშინაოს განხილვა</a><a href="#sec-4">დღის თემა</a><a href="#sec-5">შესავალი</a><a href="#sec-6">1 · კლასი და ობიექტი</a><a href="#sec-7">2 · მეთოდი კლასში</a><a href="#sec-8">3 · კონსტრუქტორი</a><a href="#sec-9">4 · ცალკე ფაილი</a><a href="#sec-10">პრაქტიკა</a><a href="#sec-11">შეჯამება</a><a href="#sec-12">საშინაო</a><div class="mats"></div></details></nav>
+  <main>
+    <header class="hero">
+      <div class="k">📖 კონსპექტი · C# · ლექცია 5</div>
+      <h1>კლასები და ობიექტები</h1>
+      <p>წაიკითხე ლექციის შემდეგ, ან პრეზენტაციასთან ერთად: პრეზენტაციაში დააჭირე <kbd>P</kbd> და ეს გვერდი სლაიდებს გაჰყვება. კოდი და AI-ს პრომპტები კოპირდება ერთი დაჭერით.</p>
+    </header>
+    <h2 class="sec" id="sec-1">შესავალი</h2>
+<article class="blk" data-slides="1"><span class="anchor" id="s-1"></span><div class="bh"><h3>კლასები და ობიექტები</h3><a class="chip" href="index.html#/1" data-go="1" title="პრეზენტაციაში გახსნა">სლაიდი 1</a></div><h1>კლასები და ობიექტები</h1>
+<p>აქამდე მონაცემები (ცვლადები) და მოქმედებები (მეთოდები) ცალ-ცალკე იყო. დღეს მათ ერთად ვაერთიანებთ: <strong>კლასი</strong> — ნახაზი, <strong>ობიექტი</strong> — ამ ნახაზით შექმნილი ნამდვილი რამ.</p></article>
+<h2 class="sec" id="sec-2">გამეორება</h2>
+<article class="blk" data-slides="2"><span class="anchor" id="s-2"></span><div class="bh"><h3>გავიხსენოთ წინა ლექცია</h3><a class="chip" href="index.html#/2" data-go="2" title="პრეზენტაციაში გახსნა">სლაიდი 2</a></div>
+<p>ლექცია 4 — <strong>მეთოდები — საკუთარი ბრძანებები</strong>. ახალ თემამდე ვამოწმებთ, რა დაგვამახსოვრდა. ჯერ თვითონ უპასუხე, მერე გახსენი პასუხი. თუ რომელიმე გაგიჭირდა, <a href="../04-methods/study.html">წინა ლექციის კონსპექტს</a> გადახედე.</p>
+<div class="selfcheck"><div class="sh">✅ შეამოწმე თავი <small>დაფიქრდი, მერე გახსენი პასუხი</small></div><details><summary>რას ნიშნავს <code>void</code> მეთოდის სახელის წინ?</summary><div class="ans">მეთოდი არაფერს აბრუნებს — უბრალოდ აკეთებს (მაგ. ბეჭდავს)</div></details><details><summary><code>int Add(int a, int b)</code> — რას იღებს და რას აბრუნებს?</summary><div class="ans">იღებს ორ int-ს (a, b), აბრუნებს int-ს — <code>return</code>-ით</div></details><details><summary><code>AddBonus(score);</code> — მეთოდში <code>value += 5</code> წერია. შეიცვლება <code>score</code>?</summary><div class="ans">არა — მეთოდში ასლი შევიდა. შედეგი <code>return</code>-ით უნდა დააბრუნო: <code>score = AddBonus(score);</code></div></details><details><summary><code>void PrintLine(char symbol = '-')</code> — რა მოხდება <code>PrintLine();</code>-ზე?</summary><div class="ans">default მნიშვნელობა გამოიყენება — დაიბეჭდება <code>-</code>-ებით</div></details><details><summary>როდის ვაქცევთ კოდს მეთოდად?</summary><div class="ans">როცა მეორდება ან ძალიან გრძელია; რაც ასლებში იცვლება — პარამეტრი ხდება</div></details></div></article>
+<h2 class="sec" id="sec-3">საშინაოს განხილვა</h2>
+<article class="blk" data-slides="3"><span class="anchor" id="s-3"></span><div class="bh"><h3>საშინაოს განხილვა</h3><a class="chip" href="index.html#/3" data-go="3" title="პრეზენტაციაში გახსნა">სლაიდი 3</a></div>
+<p>წინა ლექციის საშინაო: <strong>კალკულატორი 2.0 — მეთოდებით</strong>. ქვემოთ არის ერთ-ერთი სწორი ამოხსნა. შენი კოდი შეიძლება სხვანაირად იყოს დაწერილი — მთავარია, მოთხოვნები სრულდებოდეს.</p>
+<h3>მოთხოვნები</h3>
+<ul>
+<li>ახალი Console App: <strong>Calculator</strong></li>
+<li>სამი მეთოდი: <code>double ReadDouble(string question)</code>, <code>double Calculate(double a, double b, string op)</code> (switch expression) და <code>void PrintResult(double a, double b, string op, double result)</code> — ფერით: <code>7 / 2 = 3.5</code></li>
+<li><code>do-while</code> მენიუ: გამოთვლის შემდეგ „კიდევ? (კი/არა)“</li>
+<li>0-ზე გაყოფა: <code>Calculate</code>-მდე შეამოწმე და დაბეჭდე გაფრთხილება</li>
+<li>ძირითადი კოდი (მეთოდების ზემოთ) — <strong>15 ხაზზე ნაკლები</strong></li>
+</ul>
+<h3>ამოხსნა</h3>
+<div class="codebox"><div class="ch"><span>Program.cs · ძირითადი კოდი</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="kt">string</span><span class="w"> </span><span class="n">again</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="k">do</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="kt">double</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ReadDouble</span><span class="p">(</span><span class="s">"პირველი რიცხვი"</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="n">Console</span><span class="p">.</span><span class="n">Write</span><span class="p">(</span><span class="s">"ოპერაცია (+ - * /): "</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="kt">string</span><span class="w"> </span><span class="n">op</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Console</span><span class="p">.</span><span class="n">ReadLine</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="kt">double</span><span class="w"> </span><span class="n">b</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ReadDouble</span><span class="p">(</span><span class="s">"მეორე რიცხვი"</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">op</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s">"/"</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">b</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="p">{</span></span><span class="ln"><span class="w">        </span><span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="s">"⚠ 0-ზე გაყოფა არ შეიძლება"</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="p">}</span></span><span class="ln"><span class="w">    </span><span class="k">else</span></span><span class="ln"><span class="w">    </span><span class="p">{</span></span><span class="ln"><span class="w">        </span><span class="n">PrintResult</span><span class="p">(</span><span class="n">a</span><span class="p">,</span><span class="w"> </span><span class="n">b</span><span class="p">,</span><span class="w"> </span><span class="n">op</span><span class="p">,</span><span class="w"> </span><span class="n">Calculate</span><span class="p">(</span><span class="n">a</span><span class="p">,</span><span class="w"> </span><span class="n">b</span><span class="p">,</span><span class="w"> </span><span class="n">op</span><span class="p">)</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="p">}</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="n">Console</span><span class="p">.</span><span class="n">Write</span><span class="p">(</span><span class="s">"კიდევ? (კი/არა) "</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="n">again</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Console</span><span class="p">.</span><span class="n">ReadLine</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="p">}</span><span class="w"> </span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="n">again</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s">"კი"</span><span class="p">)</span><span class="p">;</span></span></code></pre></div>
+<div class="codebox"><div class="ch"><span>Program.cs · მეთოდები (ძირითადი კოდის ქვემოთ)</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="kt">double</span><span class="w"> </span><span class="nf">ReadDouble</span><span class="p">(</span><span class="kt">string</span><span class="w"> </span><span class="n">question</span><span class="p">)</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="n">Console</span><span class="p">.</span><span class="n">Write</span><span class="p">(</span><span class="s">$"{question}: "</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="kt">double</span><span class="p">.</span><span class="n">Parse</span><span class="p">(</span><span class="n">Console</span><span class="p">.</span><span class="n">ReadLine</span><span class="p">(</span><span class="p">)</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="p">}</span></span><span class="ln"> </span><span class="ln"><span class="kt">double</span><span class="w"> </span><span class="nf">Calculate</span><span class="p">(</span><span class="kt">double</span><span class="w"> </span><span class="n">a</span><span class="p">,</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="n">b</span><span class="p">,</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="n">op</span><span class="p">)</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">op</span><span class="w"> </span><span class="k">switch</span></span><span class="ln"><span class="w">    </span><span class="p">{</span></span><span class="ln"><span class="w">        </span><span class="s">"+"</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">b</span><span class="p">,</span></span><span class="ln"><span class="w">        </span><span class="s">"-"</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">b</span><span class="p">,</span></span><span class="ln"><span class="w">        </span><span class="s">"*"</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">b</span><span class="p">,</span></span><span class="ln"><span class="w">        </span><span class="s">"/"</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">b</span><span class="p">,</span></span><span class="ln"><span class="w">        </span><span class="n">_</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="mi">0</span></span><span class="ln"><span class="w">    </span><span class="p">}</span><span class="p">;</span></span><span class="ln"><span class="p">}</span></span><span class="ln"> </span><span class="ln"><span class="k">void</span><span class="w"> </span><span class="nf">PrintResult</span><span class="p">(</span><span class="kt">double</span><span class="w"> </span><span class="n">a</span><span class="p">,</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="n">b</span><span class="p">,</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="n">op</span><span class="p">,</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="n">result</span><span class="p">)</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="n">Console</span><span class="p">.</span><span class="n">ForegroundColor</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ConsoleColor</span><span class="p">.</span><span class="n">Green</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="s">$"{a} {op} {b} = {result}"</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="n">Console</span><span class="p">.</span><span class="n">ResetColor</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="p">}</span></span></code></pre></div>
+<div class="callout note"><span class="ci">💡</span><div><p><code>return op switch { … };</code> — switch expression მნიშვნელობას აბრუნებს, ამიტომ მისი შედეგი პირდაპირ <code>return</code>-ით შეგვიძლია დავაბრუნოთ, ცალკე ცვლადის გარეშე. <code>PrintResult(a, b, op, Calculate(a, b, op))</code> — ჯერ <code>Calculate</code> სრულდება, მისი პასუხი კი <code>PrintResult</code>-ის მეოთხე პარამეტრი ხდება.</p></div></div></article>
+<h2 class="sec" id="sec-4">დღის თემა</h2>
+<article class="blk" data-slides="4"><span class="anchor" id="s-4"></span><div class="bh"><h3>დღის თემა: კლასები და ობიექტები</h3><a class="chip" href="index.html#/4" data-go="4" title="პრეზენტაციაში გახსნა">სლაიდი 4</a></div>
+<p>ერთი მოსწავლის სახელი, ასაკი და ქულა სამ ცალკე ცვლადშია — 30 მოსწავლე უკვე 90 ცვლადია და ერთი არასწორი ცვლადი მეთოდში ყველაფერს არევს. მოსწავლე, გმირი, პროდუქტი — ერთი „რამაა“ და ერთ ცვლადში უნდა ცხოვრობდეს. დღეს ვისწავლით საკუთარი ტიპების შექმნას — კლასებს, მათ მეთოდებს და კონსტრუქტორებს.</p>
+<p><strong>ლექციის ბოლოს შეძლებ:</strong></p>
+<ul>
+<li>კლასი და ობიექტი: <code>class</code>, property, <code>new</code> — ჯერ Program.cs-ში</li>
+<li>მეთოდი კლასში: ობიექტი თავის მონაცემებს იცნობს</li>
+<li>კონსტრუქტორი და მისი წესები; რამდენიმე კონსტრუქტორი — განსხვავებული პარამეტრებით</li>
+<li>კლასის გადატანა ცალკე ფაილში</li>
+</ul></article>
+<h2 class="sec" id="sec-5">შესავალი</h2>
+<article class="blk" data-slides="5"><span class="anchor" id="s-5"></span><div class="bh"><h3>🧩 პრობლემა: მოსწავლე — ერთი რამ, ჩვენ კი ნაწილებად ვინახავთ</h3><a class="chip" href="index.html#/5" data-go="5" title="პრეზენტაციაში გახსნა">სლაიდი 5</a></div>
+<p>ანა ერთი მოსწავლეა, მაგრამ ჩვენი ცოდნით ის სამ ცალკე ცვლადშია: <code>anaName</code>, <code>anaAge</code>, <code>anaAverage</code>. მოსწავლე, პროდუქტი, გმირი — ცხოვრებაში ერთი რამაა და კოდშიც ერთ ცვლადში უნდა ცხოვრობდეს.</p></article>
+<article class="blk" data-slides="6"><span class="anchor" id="s-6"></span><div class="bh"><h3>💥 პრობლემა კოდში: ერთი მოსწავლე — სამი ცალკე ცვლადი</h3><a class="chip" href="index.html#/6" data-go="6" title="პრეზენტაციაში გახსნა">სლაიდი 6</a></div>
+<div class="codebox"><div class="ch"><span>Program.cs · ჩვენი ცოდნით</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="k">static</span><span class="w"> </span><span class="k">void</span><span class="w"> </span><span class="nf">Main</span><span class="p">(</span><span class="kt">string</span><span class="p">[</span><span class="p">]</span><span class="w"> </span><span class="n">args</span><span class="p">)</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="kt">string</span><span class="w"> </span><span class="n">anaName</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"ანა"</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">anaAge</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">15</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="kt">double</span><span class="w"> </span><span class="n">anaAverage</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">9.2</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="kt">string</span><span class="w"> </span><span class="n">gioName</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"გიო"</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">gioAge</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">16</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="kt">double</span><span class="w"> </span><span class="n">gioAverage</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">8.5</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="n">PrintStudent</span><span class="p">(</span><span class="n">anaName</span><span class="p">,</span><span class="w"> </span><span class="n">anaAge</span><span class="p">,</span><span class="w"> </span><span class="n">anaAverage</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="n">PrintStudent</span><span class="p">(</span><span class="n">gioName</span><span class="p">,</span><span class="w"> </span><span class="n">gioAge</span><span class="p">,</span><span class="w"> </span><span class="n">gioAverage</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="p">}</span></span><span class="ln"> </span><span class="ln"><span class="k">static</span><span class="w"> </span><span class="k">void</span><span class="w"> </span><span class="nf">PrintStudent</span><span class="p">(</span><span class="kt">string</span><span class="w"> </span><span class="n">name</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">age</span><span class="p">,</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="n">average</span><span class="p">)</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="s">$"{name}, {age} წლის, საშუალო {average}"</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="p">}</span></span></code></pre></div>
+<ul>
+<li>🧩 ანას სამ ცვლადს მხოლოდ სახელის დასაწყისი <code>ana…</code> აკავშირებს. C#-ისთვის ეს სამი სრულიად დამოუკიდებელი ცვლადია.</li>
+<li>🔀 <code>PrintStudent(anaName, gioAge, anaAverage)</code> — დაკომპილირდება და შეცდომას ვერავინ შეამჩნევს: ანას გიოს ასაკი მიეწერა.</li>
+<li>👥 ყოველ ახალ მოსწავლეს კიდევ სამი ცვლადი სჭირდება. 30 მოსწავლე — 90 ცვლადი.</li>
+<li>📋 დაამატე ტელეფონი, მისამართი, კლასი… მეთოდს 10 პარამეტრი დასჭირდება.</li>
+</ul>
+<p>გამოსავალი — <strong>საკუთარი ტიპი</strong> <code>Student</code>, ისევე როგორც <code>int</code> ან <code>string</code>.</p></article>
+<h2 class="sec" id="sec-6">1 · კლასი და ობიექტი</h2>
+<article class="blk" data-slides="7"><span class="anchor" id="s-7"></span><div class="bh"><h3>ნაწილი 1 · კლასი და ობიექტი</h3><a class="chip" href="index.html#/7" data-go="7" title="პრეზენტაციაში გახსნა">სლაიდი 7</a></div>
+<p>საკუთარი ტიპი — <code>int</code>-ისა და <code>string</code>-ის გვერდით.</p></article>
+<article class="blk" data-slides="8"><span class="anchor" id="s-8"></span><div class="bh"><h3>კლასი = ნახაზი · ობიექტი = სახლი</h3><a class="chip" href="index.html#/8" data-go="8" title="პრეზენტაციაში გახსნა">სლაიდი 8</a></div>
+<ul>
+<li><strong>კლასი</strong> (<code>class Student</code>) — ნახაზი: ამბობს, <strong>რა</strong> აქვს ყველა მოსწავლეს — სახელი, ასაკი, საშუალო.</li>
+<li><strong>ობიექტი</strong> — ამ ნახაზით აშენებული ნამდვილი მოსწავლე, თავისი მონაცემებით: ნიკა, 16, 8.5.</li>
+<li>ერთი კლასიდან — რამდენიც გინდა ობიექტი. ობიექტს <code>new</code> ქმნის.</li>
+</ul>
+<p>ნახაზში ვერ იცხოვრებ. კლასიც ასეა: მონაცემი მხოლოდ ობიექტში ინახება. Angular-ში ეს უკვე ნახე: <code>export class ProductListComponent</code> — კლასია, და Angular მისგან ობიექტს ქმნის.</p>
+<div class="terms"><div class="th">📘 ტერმინები</div><dl><dt>კლასი</dt><dd>ნახაზი: რა მონაცემები და მოქმედებები აქვს ამ ტიპს</dd><dt>ობიექტი</dt><dd>კლასით შექმნილი კონკრეტული „რამ“ საკუთარი მონაცემებით</dd><dt>property</dt><dd>ობიექტის მონაცემი (სახელი, ასაკი…)</dd></dl></div></article>
+<article class="blk" data-slides="9"><span class="anchor" id="s-9"></span><div class="bh"><h3>პირველი კლასი — Program.cs-ში</h3><a class="chip" href="index.html#/9" data-go="9" title="პრეზენტაციაში გახსნა">სლაიდი 9</a></div>
+<div class="codebox"><div class="ch"><span>Program.cs</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="k">namespace</span><span class="w"> </span><span class="nn">SchoolApp</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="k">internal</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">Program</span></span><span class="ln"><span class="w">    </span><span class="p">{</span></span><span class="ln"><span class="w">        </span><span class="k">static</span><span class="w"> </span><span class="k">void</span><span class="w"> </span><span class="nf">Main</span><span class="p">(</span><span class="kt">string</span><span class="p">[</span><span class="p">]</span><span class="w"> </span><span class="n">args</span><span class="p">)</span></span><span class="ln"><span class="w">        </span><span class="p">{</span></span><span class="ln"><span class="w">            </span><span class="n">Student</span><span class="w"> </span><span class="n">nika</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">Student</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">            </span><span class="n">nika</span><span class="p">.</span><span class="n">Name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"ნიკა"</span><span class="p">;</span></span><span class="ln"><span class="w">            </span><span class="n">nika</span><span class="p">.</span><span class="n">Age</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">16</span><span class="p">;</span></span><span class="ln"><span class="w">            </span><span class="n">nika</span><span class="p">.</span><span class="n">Average</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">8.5</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="w">            </span><span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="s">$"{nika.Name}, {nika.Age} წლის"</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">        </span><span class="p">}</span></span><span class="ln"><span class="w">    </span><span class="p">}</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="k">class</span><span class="w"> </span><span class="nc">Student</span></span><span class="ln"><span class="w">    </span><span class="p">{</span></span><span class="ln"><span class="w">        </span><span class="k">public</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="n">Name</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">get</span><span class="p">;</span><span class="w"> </span><span class="k">set</span><span class="p">;</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">""</span><span class="p">;</span></span><span class="ln"><span class="w">        </span><span class="k">public</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">Age</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">get</span><span class="p">;</span><span class="w"> </span><span class="k">set</span><span class="p">;</span><span class="w"> </span><span class="p">}</span></span><span class="ln"><span class="w">        </span><span class="k">public</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="n">Average</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">get</span><span class="p">;</span><span class="w"> </span><span class="k">set</span><span class="p">;</span><span class="w"> </span><span class="p">}</span></span><span class="ln"><span class="w">    </span><span class="p">}</span></span><span class="ln"><span class="p">}</span></span></code></pre></div>
+<ul>
+<li>კლასი იწერება <code>class Program</code>-ის <strong>შემდეგ</strong>, იმავე <code>namespace</code>-ის შიგნით.</li>
+<li><strong>property</strong> — ობიექტის მონაცემი: <code>Name</code>, <code>Age</code>, <code>Average</code>. სახელი — დიდი ასოთი. <code>{ get; set; }</code> — წაკითხვაც (get) და შეცვლაც (set) შეიძლება.</li>
+<li><code>public</code> — ჯერ უბრალოდ ვწერთ; რას ნიშნავს, OOP-ის ლექციაზე გავიგებთ.</li>
+<li><code>= ""</code> — სახელი დასაწყისში ცარიელი ტექსტია.</li>
+<li><code>Student</code> — ახალი <strong>ტიპი</strong>, ისევე როგორც <code>int</code>. <code>new Student()</code> — ახალი ობიექტი. <code>nika.Name</code> — „ნიკას სახელი“.</li>
+</ul>
+<p>TypeScript-ში: <code>class Student { name: string; age: number; }</code> — იდეა იგივეა.</p></article>
+<article class="blk" data-slides="10"><span class="anchor" id="s-10"></span><div class="bh"><h3>ერთი ნახაზი — ბევრი ობიექტი</h3><a class="chip" href="index.html#/10" data-go="10" title="პრეზენტაციაში გახსნა">სლაიდი 10</a></div>
+<div class="codebox"><div class="ch"><span>Program.cs · Main</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="n">Student</span><span class="w"> </span><span class="n">ana</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">Student</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">Name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"ანა"</span><span class="p">,</span><span class="w"> </span><span class="n">Age</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">15</span><span class="p">,</span><span class="w"> </span><span class="n">Average</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">9.2</span><span class="w"> </span><span class="p">}</span><span class="p">;</span></span><span class="ln"><span class="n">Student</span><span class="w"> </span><span class="n">luka</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">Student</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">Name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"ლუკა"</span><span class="p">,</span><span class="w"> </span><span class="n">Age</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">17</span><span class="p">,</span><span class="w"> </span><span class="n">Average</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">7.8</span><span class="w"> </span><span class="p">}</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="n">ana</span><span class="p">.</span><span class="n">Average</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">9.5</span><span class="p">;</span><span class="w">   </span><span class="c1">// მხოლოდ ანა შეიცვალა</span></span><span class="ln"> </span><span class="ln"><span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="n">ana</span><span class="p">.</span><span class="n">Average</span><span class="p">)</span><span class="p">;</span><span class="w">    </span><span class="c1">// 9.5</span></span><span class="ln"><span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="n">luka</span><span class="p">.</span><span class="n">Average</span><span class="p">)</span><span class="p">;</span><span class="w">   </span><span class="o">/</span><span class="o">/</span><span class="w"> </span><span class="mf">7.8</span></span></code></pre></div>
+<ul>
+<li><code>new Student { Name = "ანა", Age = 15 }</code> — შექმნა და შევსება ერთ ხაზში. JS-ის <code>{ name: "ანა", age: 15 }</code>-ს ჰგავს.</li>
+<li>ანა და ლუკა ორი ცალკე ობიექტია — ერთის შეცვლა მეორეს არ ეხება.</li>
+<li>შეცდომით <code>Nmae</code> დაწერე? JS ჩუმად ახალ ველს შექმნიდა; C# წითელ ხაზს გაჩვენებს.</li>
+</ul></article>
+<h2 class="sec" id="sec-7">2 · მეთოდი კლასში</h2>
+<article class="blk" data-slides="11"><span class="anchor" id="s-11"></span><div class="bh"><h3>ნაწილი 2 · მეთოდი კლასში</h3><a class="chip" href="index.html#/11" data-go="11" title="პრეზენტაციაში გახსნა">სლაიდი 11</a></div>
+<p>მონაცემი და მოქმედება — ერთად.</p></article>
+<article class="blk" data-slides="12"><span class="anchor" id="s-12"></span><div class="bh"><h3>💥 პრობლემა კოდში: მონაცემი ობიექტშია — მოქმედება გარეთ</h3><a class="chip" href="index.html#/12" data-go="12" title="პრეზენტაციაში გახსნა">სლაიდი 12</a></div>
+<div class="codebox"><div class="ch"><span>Program.cs</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="k">static</span><span class="w"> </span><span class="k">void</span><span class="w"> </span><span class="nf">Main</span><span class="p">(</span><span class="kt">string</span><span class="p">[</span><span class="p">]</span><span class="w"> </span><span class="n">args</span><span class="p">)</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="n">Student</span><span class="w"> </span><span class="n">ana</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">Student</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">Name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"ანა"</span><span class="p">,</span><span class="w"> </span><span class="n">Age</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">15</span><span class="p">,</span><span class="w"> </span><span class="n">Average</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">9.2</span><span class="w"> </span><span class="p">}</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="n">PrintStudent</span><span class="p">(</span><span class="n">ana</span><span class="p">.</span><span class="n">Name</span><span class="p">,</span><span class="w"> </span><span class="n">ana</span><span class="p">.</span><span class="n">Age</span><span class="p">,</span><span class="w"> </span><span class="n">ana</span><span class="p">.</span><span class="n">Average</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="p">}</span></span><span class="ln"> </span><span class="ln"><span class="k">static</span><span class="w"> </span><span class="k">void</span><span class="w"> </span><span class="nf">PrintStudent</span><span class="p">(</span><span class="kt">string</span><span class="w"> </span><span class="n">name</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">age</span><span class="p">,</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="n">average</span><span class="p">)</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="s">$"გამარჯობა, მე ვარ {name}, {age} წლის"</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="p">}</span></span></code></pre></div>
+<p>ანას მონაცემები უკვე ერთადაა, მაგრამ მეთოდს მაინც სამ ნაწილად ვაწვდით. „გაეცანი“ მოსწავლის მოქმედებაა — ის მოსწავლესთან ერთად უნდა ცხოვრობდეს: <code>ana.Introduce()</code>.</p></article>
+<article class="blk" data-slides="13"><span class="anchor" id="s-13"></span><div class="bh"><h3>მეთოდი კლასში: ობიექტი თავის მონაცემებს იცნობს</h3><a class="chip" href="index.html#/13" data-go="13" title="პრეზენტაციაში გახსნა">სლაიდი 13</a></div>
+<div class="codebox"><div class="ch"><span>Program.cs · class Student</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="k">class</span><span class="w"> </span><span class="nc">Student</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="n">Name</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">get</span><span class="p">;</span><span class="w"> </span><span class="k">set</span><span class="p">;</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">""</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">Age</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">get</span><span class="p">;</span><span class="w"> </span><span class="k">set</span><span class="p">;</span><span class="w"> </span><span class="p">}</span></span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="n">Average</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">get</span><span class="p">;</span><span class="w"> </span><span class="k">set</span><span class="p">;</span><span class="w"> </span><span class="p">}</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="k">void</span><span class="w"> </span><span class="nf">Introduce</span><span class="p">(</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="p">{</span></span><span class="ln"><span class="w">        </span><span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="s">$"გამარჯობა, მე ვარ {Name}, {Age} წლის"</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="p">}</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="nf">IsExcellent</span><span class="p">(</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="p">{</span></span><span class="ln"><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">Average</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="mi">9</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="p">}</span></span><span class="ln"><span class="p">}</span></span></code></pre></div>
+<div class="codebox"><div class="ch"><span>Program.cs · Main</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="n">ana</span><span class="p">.</span><span class="n">Introduce</span><span class="p">(</span><span class="p">)</span><span class="p">;</span><span class="w">      </span><span class="c1">// გამარჯობა, მე ვარ ანა, 15 წლის</span></span><span class="ln"><span class="n">luka</span><span class="p">.</span><span class="n">Introduce</span><span class="p">(</span><span class="p">)</span><span class="p">;</span><span class="w">     </span><span class="c1">// გამარჯობა, მე ვარ ლუკა, 17 წლის</span></span><span class="ln"> </span><span class="ln"><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">ana</span><span class="p">.</span><span class="n">IsExcellent</span><span class="p">(</span><span class="p">)</span><span class="p">)</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="s">"🌟 ფრიადოსანი!"</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="p">}</span></span></code></pre></div>
+<ul>
+<li><code>Introduce()</code>-ს პარამეტრები არ სჭირდება: <code>Name</code> და <code>Age</code> იმ ობიექტისაა, რომელზეც გამოიძახე.</li>
+<li><strong>static-ის გარეშე</strong> — ასეთი მეთოდი კონკრეტულ ობიექტს ეკუთვნის (<code>ana.Introduce()</code>). <code>static</code> მეთოდი (მაგ. <code>Main</code>) ობიექტის გარეშე მუშაობს — ამიტომ ვწერდით მას წინა ლექციაზე.</li>
+<li>Angular-ში კომპონენტის მეთოდი (<code>addToCart()</code>) იყენებდა კომპონენტის მონაცემებს — იგივე იდეა.</li>
+</ul></article>
+<h2 class="sec" id="sec-8">3 · კონსტრუქტორი</h2>
+<article class="blk" data-slides="14"><span class="anchor" id="s-14"></span><div class="bh"><h3>ნაწილი 3 · კონსტრუქტორი: ობიექტის დაბადება</h3><a class="chip" href="index.html#/14" data-go="14" title="პრეზენტაციაში გახსნა">სლაიდი 14</a></div>
+<p>რა უნდა ჰქონდეს ობიექტს პირველივე წამიდან.</p></article>
+<article class="blk" data-slides="15"><span class="anchor" id="s-15"></span><div class="bh"><h3>🧩 პრობლემა: ობიექტი ნახევრად შევსებული</h3><a class="chip" href="index.html#/15" data-go="15" title="პრეზენტაციაში გახსნა">სლაიდი 15</a></div>
+<div class="codebox"><div class="ch"><span>Program.cs · Main</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="n">Student</span><span class="w"> </span><span class="n">luka</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">Student</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="n">luka</span><span class="p">.</span><span class="n">Name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"ლუკა"</span><span class="p">;</span></span><span class="ln"><span class="c1">// Age და Average დაგვავიწყდა 😬</span></span><span class="ln"><span class="n">luka</span><span class="p">.</span><span class="n">Introduce</span><span class="p">(</span><span class="p">)</span><span class="p">;</span><span class="w">     </span><span class="c1">// გამარჯობა, მე ვარ ლუკა, 0 წლის</span></span><span class="ln"> </span><span class="ln"><span class="n">Student</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">Student</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="n">x</span><span class="p">.</span><span class="n">Introduce</span><span class="p">(</span><span class="p">)</span><span class="p">;</span><span class="w">        </span><span class="o">/</span><span class="o">/</span><span class="w"> </span><span class="n">გამარჯობა</span><span class="p">,</span><span class="w"> </span><span class="n">მე</span><span class="w"> </span><span class="n">ვარ</span><span class="w"> </span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="n">წლის</span></span></code></pre></div>
+<ul>
+<li>კომპილატორი არაფერს ამბობს — ასაკის გარეშე მოსწავლე მშვიდად შეიქმნა.</li>
+<li>ყოველ ობიექტზე 4 ხაზია — ერთი რომ გამოგრჩეს, ვერავინ შეგახსენებს.</li>
+</ul>
+<p>გვინდა: მოსწავლე <strong>ვერ შეიქმნას</strong> სახელისა და ასაკის გარეშე.</p></article>
+<article class="blk" data-slides="16"><span class="anchor" id="s-16"></span><div class="bh"><h3>რა არის კონსტრუქტორი</h3><a class="chip" href="index.html#/16" data-go="16" title="პრეზენტაციაში გახსნა">სლაიდი 16</a></div>
+<p><strong>კონსტრუქტორი</strong> — სპეციალური მეთოდი, რომელიც ობიექტის „დაბადებისას“ სრულდება და მას საჭირო მონაცემებით ავსებს.</p>
+<div class="codebox"><div class="ch"><span>class Student</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="k">class</span><span class="w"> </span><span class="nc">Student</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="n">Name</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">get</span><span class="p">;</span><span class="w"> </span><span class="k">set</span><span class="p">;</span><span class="w"> </span><span class="p">}</span></span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">Age</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">get</span><span class="p">;</span><span class="w"> </span><span class="k">set</span><span class="p">;</span><span class="w"> </span><span class="p">}</span></span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="n">Average</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">get</span><span class="p">;</span><span class="w"> </span><span class="k">set</span><span class="p">;</span><span class="w"> </span><span class="p">}</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="nf">Student</span><span class="p">(</span><span class="kt">string</span><span class="w"> </span><span class="n">name</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">age</span><span class="p">,</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="n">average</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="p">{</span></span><span class="ln"><span class="w">        </span><span class="n">Name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">name</span><span class="p">;</span></span><span class="ln"><span class="w">        </span><span class="n">Age</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">age</span><span class="p">;</span></span><span class="ln"><span class="w">        </span><span class="n">Average</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">average</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="p">}</span></span><span class="ln"><span class="p">}</span></span></code></pre></div>
+<p><strong>წესები:</strong></p>
+<ol>
+<li>სახელი = <strong>კლასის სახელი</strong>, ზუსტად: <code>Student</code>.</li>
+<li>დასაბრუნებელი ტიპი <strong>არ აქვს</strong> — <code>void</code>-იც კი. <code>void Student(...)</code> უკვე კონსტრუქტორი აღარ არის.</li>
+<li>სრულდება <strong>თავისით</strong>, <code>new</code>-ის დროს — ყოველ ობიექტზე <strong>ერთხელ</strong>. ხელით ვერ გამოიძახებ.</li>
+<li>პარამეტრები — როგორც ჩვეულებრივ მეთოდს. პარამეტრს (<code>name</code> — პატარა ასოთი) property-ში ვდებთ (<code>Name</code> — დიდი ასოთი).</li>
+</ol>
+<p>TypeScript-ში: <code>constructor(name: string) { … }</code> — იდეა იგივეა, C#-ში სახელად კლასის სახელი იწერება.</p></article>
+<article class="blk" data-slides="17"><span class="anchor" id="s-17"></span><div class="bh"><h3>⌨️ ახლა მოსწავლე ცარიელი ვერ დაიბადება</h3><a class="chip" href="index.html#/17" data-go="17" title="პრეზენტაციაში გახსნა">სლაიდი 17</a></div>
+<div class="codebox"><div class="ch"><span>Program.cs · Main</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="n">Student</span><span class="w"> </span><span class="n">nika</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">Student</span><span class="p">(</span><span class="s">"ნიკა"</span><span class="p">,</span><span class="w"> </span><span class="mi">16</span><span class="p">,</span><span class="w"> </span><span class="mf">8.5</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="n">Student</span><span class="w"> </span><span class="n">ana</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">Student</span><span class="p">(</span><span class="s">"ანა"</span><span class="p">,</span><span class="w"> </span><span class="mi">15</span><span class="p">,</span><span class="w"> </span><span class="mf">9.2</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="n">nika</span><span class="p">.</span><span class="n">Introduce</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="n">ana</span><span class="p">.</span><span class="n">Introduce</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="n">Student</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">Student</span><span class="p">(</span><span class="p">)</span><span class="p">;</span><span class="w">   </span><span class="o">/</span><span class="o">/</span><span class="w"> </span><span class="err">❌</span></span></code></pre></div>
+<div class="codebox"><div class="ch"><span>Error List</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln">CS7036: There is no argument given that corresponds to the required parameter 'name'</span></code></pre></div>
+<ul>
+<li><code>new Student(...)</code> — ფრჩხილებში კონსტრუქტორის პარამეტრები. 4 ხაზის ნაცვლად — ერთი.</li>
+<li>რაც ადრე გვავიწყდებოდა, ახლა კომპილატორი გვთხოვს — სახელისა და ასაკის გარეშე მოსწავლეს ვეღარ შექმნი.</li>
+<li><code>= ""</code> აღარ გვჭირდება: სახელს ახლა ყოველთვის კონსტრუქტორი ავსებს.</li>
+</ul></article>
+<article class="blk" data-slides="18"><span class="anchor" id="s-18"></span><div class="bh"><h3>⚠ ხაფანგი: რატომ მუშაობდა new Student() აქამდე?</h3><a class="chip" href="index.html#/18" data-go="18" title="პრეზენტაციაში გახსნა">სლაიდი 18</a></div>
+<ul>
+<li>თუ კლასში <strong>არცერთი</strong> კონსტრუქტორი არ დაგიწერია, C# თვითონ ამატებს <strong>ცარიელს</strong> — <code>public Student() { }</code>. ის კოდში არ ჩანს, მაგრამ არსებობს. ამიტომ მუშაობდა <code>new Student()</code>.</li>
+<li><strong>ერთიც</strong> რომ დაწერო, უხილავი ცარიელი კონსტრუქტორი <strong>ქრება</strong>. ამის შემდეგ <code>new Student()</code> → შეცდომა.</li>
+<li>ორივე გზა გინდა (პარამეტრებითაც და ცარიელიც)? ცარიელი კონსტრუქტორიც თვითონ დაწერე — ამას შემდეგ სლაიდზე ვნახავთ.</li>
+</ul></article>
+<article class="blk" data-slides="19"><span class="anchor" id="s-19"></span><div class="bh"><h3>რამდენიმე კონსტრუქტორი — შექმნის რამდენიმე გზა</h3><a class="chip" href="index.html#/19" data-go="19" title="პრეზენტაციაში გახსნა">სლაიდი 19</a></div>
+<div class="codebox"><div class="ch"><span>class Student</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="k">class</span><span class="w"> </span><span class="nc">Student</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="n">Name</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">get</span><span class="p">;</span><span class="w"> </span><span class="k">set</span><span class="p">;</span><span class="w"> </span><span class="p">}</span></span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">Age</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">get</span><span class="p">;</span><span class="w"> </span><span class="k">set</span><span class="p">;</span><span class="w"> </span><span class="p">}</span></span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="n">Average</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">get</span><span class="p">;</span><span class="w"> </span><span class="k">set</span><span class="p">;</span><span class="w"> </span><span class="p">}</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="nf">Student</span><span class="p">(</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="p">{</span></span><span class="ln"><span class="w">        </span><span class="n">Name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"უცნობი"</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="p">}</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="nf">Student</span><span class="p">(</span><span class="kt">string</span><span class="w"> </span><span class="n">name</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="p">{</span></span><span class="ln"><span class="w">        </span><span class="n">Name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">name</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="p">}</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="nf">Student</span><span class="p">(</span><span class="kt">string</span><span class="w"> </span><span class="n">name</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">age</span><span class="p">,</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="n">average</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="p">{</span></span><span class="ln"><span class="w">        </span><span class="n">Name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">name</span><span class="p">;</span></span><span class="ln"><span class="w">        </span><span class="n">Age</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">age</span><span class="p">;</span></span><span class="ln"><span class="w">        </span><span class="n">Average</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">average</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="p">}</span></span><span class="ln"><span class="p">}</span></span></code></pre></div>
+<table>
+<thead>
+<tr>
+<th>გამოძახება</th>
+<th>რომელი კონსტრუქტორი</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>new Student()</code></td>
+<td>1 · ცარიელი → სახელი „უცნობი“</td>
+</tr>
+<tr>
+<td><code>new Student("ანა")</code></td>
+<td>2 · მხოლოდ სახელი</td>
+</tr>
+<tr>
+<td><code>new Student("ნიკა", 16, 8.5)</code></td>
+<td>3 · სამივე</td>
+</tr>
+<tr>
+<td><code>new Student(16)</code></td>
+<td>❌ int-ის მიმღები კონსტრუქტორი არ არსებობს</td>
+</tr>
+</tbody>
+</table>
+<p>C# ფრჩხილებში ჩაწერილის მიხედვით ირჩევს — ზუსტად ისე, როგორც მეთოდების <strong>overloading</strong>-ში (ლექცია 4).</p></article>
+<article class="blk" data-slides="20"><span class="anchor" id="s-20"></span><div class="bh"><h3>რამდენიმე კონსტრუქტორის წესები</h3><a class="chip" href="index.html#/20" data-go="20" title="პრეზენტაციაში გახსნა">სლაიდი 20</a></div>
+<p>კონსტრუქტორი შეიძლება რამდენიც გინდა — მაგრამ ყოველი უნდა <strong>განსხვავდებოდეს პარამეტრებით</strong>:</p>
+<ul>
+<li>✅ <strong>რაოდენობით</strong> — <code>Student()</code> და <code>Student(string name)</code></li>
+<li>✅ <strong>ტიპით</strong> — <code>Student(string name)</code> და <code>Student(int age)</code></li>
+<li>✅ <strong>რიგით</strong> — <code>Student(string name, int age)</code> და <code>Student(int age, string name)</code></li>
+<li>❌ <strong>პარამეტრის სახელი არ ითვლება</strong> — <code>Student(string name)</code> და <code>Student(string city)</code> C#-ისთვის ერთი და იგივეა: ორივე ერთ <code>string</code>-ს იღებს. <code>new Student("ანა")</code> — რომელი გამოიძახოს? ვერ გაარჩევს.</li>
+</ul>
+<div class="codebox"><div class="ch"><span>Error List</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln">CS0111: Type 'Student' already defines a member called 'Student' with the same parameter types</span></code></pre></div>
+<p>ეს ზუსტად მეთოდების overloading-ის წესებია (ლექცია 4).</p></article>
+<article class="blk" data-slides="21"><span class="anchor" id="s-21"></span><div class="bh"><h3>❓ რომელი დაკომპილირდება?</h3><a class="chip" href="index.html#/21" data-go="21" title="პრეზენტაციაში გახსნა">სლაიდი 21</a></div>
+<p>თითოეულში — ორი კონსტრუქტორი ერთ <code>class Book</code>-ში:</p>
+<div class="selfcheck"><div class="sh">✅ შეამოწმე თავი <small>დაფიქრდი, მერე გახსენი პასუხი</small></div><details><summary>A — <code>Book()</code> და <code>Book(string title)</code></summary><div class="ans">✅ — პარამეტრების რაოდენობა განსხვავდება</div></details><details><summary>B — <code>Book(string title)</code> და <code>Book(string author)</code></summary><div class="ans">❌ — განსხვავდება მხოლოდ სახელი; ორივე ერთ string-ს იღებს</div></details><details><summary>C — <code>Book(string title, int pages)</code> და <code>Book(int pages, string title)</code></summary><div class="ans">✅ — ტიპების რიგი განსხვავდება</div></details><details><summary>D — <code>void Book(string title)</code></summary><div class="ans">❌ — კონსტრუქტორს დასაბრუნებელი ტიპი არ აქვს, void-იც კი</div></details></div></article>
+<h2 class="sec" id="sec-9">4 · ცალკე ფაილი</h2>
+<article class="blk" data-slides="22"><span class="anchor" id="s-22"></span><div class="bh"><h3>ნაწილი 4 · ერთი კლასი — ერთი ფაილი</h3><a class="chip" href="index.html#/22" data-go="22" title="პრეზენტაციაში გახსნა">სლაიდი 22</a></div>
+<p>კლასებს ცალკე ფაილებში გადავიტანთ.</p></article>
+<article class="blk" data-slides="23"><span class="anchor" id="s-23"></span><div class="bh"><h3>🧩 პრობლემა: Program.cs იზრდება</h3><a class="chip" href="index.html#/23" data-go="23" title="პრეზენტაციაში გახსნა">სლაიდი 23</a></div>
+<p>Program.cs-ში უკვე <code>Program</code>, <code>Student</code>, <code>Teacher</code>, <code>Hero</code>, <code>Monster</code> — 186 ხაზი. სადაა <code>Hero</code>-ს <code>TakeDamage</code>? სქროლავ და ეძებ. ორი ადამიანი ერთ ფაილზე მუშაობს — ერთმანეთს უშლიან.</p>
+<p>გამოსავალი: ყოველ კლასს — <strong>თავისი ფაილი</strong>, კლასის სახელით: <code>Student.cs</code>. Angular-შიც ყოველ კომპონენტს თავისი ფაილი ჰქონდა.</p></article>
+<article class="blk" data-slides="24"><span class="anchor" id="s-24"></span><div class="bh"><h3>კლასი — ცალკე ფაილში</h3><a class="chip" href="index.html#/24" data-go="24" title="პრეზენტაციაში გახსნა">სლაიდი 24</a></div>
+<ol>
+<li>Solution Explorer → <strong>პროექტზე</strong> მარჯვენა ღილაკი</li>
+<li><strong>Add</strong> → <strong>Class…</strong> → სახელი <strong>Student.cs</strong></li>
+<li><code>class Student</code>-ის შიგთავსი Program.cs-დან გადმოიტანე</li>
+<li>Program.cs-ში ძველი <code>class Student</code> წაშალე</li>
+</ol>
+<div class="codebox"><div class="ch"><span>Student.cs</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="k">namespace</span><span class="w"> </span><span class="nn">SchoolApp</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="k">internal</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">Student</span></span><span class="ln"><span class="w">    </span><span class="p">{</span></span><span class="ln"><span class="w">        </span><span class="k">public</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="n">Name</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">get</span><span class="p">;</span><span class="w"> </span><span class="k">set</span><span class="p">;</span><span class="w"> </span><span class="p">}</span></span><span class="ln"><span class="w">        </span><span class="k">public</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">Age</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">get</span><span class="p">;</span><span class="w"> </span><span class="k">set</span><span class="p">;</span><span class="w"> </span><span class="p">}</span></span><span class="ln"><span class="w">        </span><span class="k">public</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="n">Average</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">get</span><span class="p">;</span><span class="w"> </span><span class="k">set</span><span class="p">;</span><span class="w"> </span><span class="p">}</span></span><span class="ln"> </span><span class="ln"><span class="w">        </span><span class="k">public</span><span class="w"> </span><span class="nf">Student</span><span class="p">(</span><span class="kt">string</span><span class="w"> </span><span class="n">name</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">age</span><span class="p">,</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="n">average</span><span class="p">)</span></span><span class="ln"><span class="w">        </span><span class="p">{</span></span><span class="ln"><span class="w">            </span><span class="n">Name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">name</span><span class="p">;</span></span><span class="ln"><span class="w">            </span><span class="n">Age</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">age</span><span class="p">;</span></span><span class="ln"><span class="w">            </span><span class="n">Average</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">average</span><span class="p">;</span></span><span class="ln"><span class="w">        </span><span class="p">}</span></span><span class="ln"> </span><span class="ln"><span class="w">        </span><span class="k">public</span><span class="w"> </span><span class="k">void</span><span class="w"> </span><span class="nf">Introduce</span><span class="p">(</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">.</span><span class="p">.</span><span class="p">.</span><span class="w"> </span><span class="p">}</span></span><span class="ln"><span class="w">    </span><span class="p">}</span></span><span class="ln"><span class="p">}</span></span></code></pre></div>
+<ul>
+<li>ფაილის სახელი = კლასის სახელი.</li>
+<li>VS-მა ფაილის თავში დაწერა <code>namespace SchoolApp</code> — <strong>იგივე</strong>, რაც Program.cs-ში. ამიტომ Main-ში <code>new Student(...)</code> უცვლელად მუშაობს.</li>
+<li><code>internal</code> — VS თვითონ წერს; ჯერ უბრალოდ ვტოვებთ.</li>
+</ul></article>
+<h2 class="sec" id="sec-10">პრაქტიკა</h2>
+<article class="blk" data-slides="25"><span class="anchor" id="s-25"></span><div class="bh"><h3>კლასში დავალება: დავალებები — აირჩიე დონე</h3><a class="chip" href="index.html#/25" data-go="25" title="პრეზენტაციაში გახსნა">სლაიდი 25</a></div>
+<p>ჯერ Program.cs-ში, მერე — ცალკე ფაილში</p>
+<h3>ნაბიჯები</h3>
+<ul>
+<li>⭐ <strong>წიგნი</strong> — <code>Book</code> კლასი: <code>Title</code>, <code>Author</code>, <code>Pages</code>, კონსტრუქტორი და <code>void PrintInfo()</code>. შექმენი 3 წიგნი და დაბეჭდე</li>
+<li>⭐⭐ <strong>სამი კონსტრუქტორი</strong> — <code>Book</code>-ს დაუმატე: <code>Book()</code> → სათაური „უსათაურო“, <code>Book(string title)</code> და <code>Book(string title, string author, int pages)</code>. სამივე გზით შექმენი წიგნი</li>
+<li>⭐⭐ <strong>ბიბლიოთეკა</strong> — <code>Book</code>-ი ცალკე ფაილში (<strong>Book.cs</strong>). შექმენი 4 წიგნი → დაბეჭდე ჯამური გვერდები და <code>if</code>-ებით იპოვე ყველაზე გრძელი წიგნი</li>
+</ul>
+<h3>✓ მზადაა, როცა</h3>
+<p>სამივე კონსტრუქტორი მუშაობს; <code>new Book(300)</code> წითელ ხაზს აჩენს; Book.cs ცალკე ფაილშია და Main-ში უცვლელად მუშაობს</p>
+<h3>⭐ ბონუსი</h3>
+<ul>
+<li>⭐⭐⭐ <strong>საბანკო ანგარიში</strong> — <code>BankAccount</code>: <code>Owner</code>, <code>Balance</code>, ორი კონსტრუქტორი (<code>BankAccount(string owner)</code> → ბალანსი 0, და <code>BankAccount(string owner, decimal balance)</code>), <code>void Deposit(decimal amount)</code>, <code>bool Withdraw(decimal amount)</code> — თანხა არ ჰყოფნის → <code>false</code>, ბალანსი არ იცვლება</li>
+<li>🏆 <strong>ტამაგოჩი</strong> — <code>Pet</code>: <code>Name</code>, <code>Hunger</code>, <code>Happiness</code> (0–10), <code>Feed()</code>, <code>Play()</code>, <code>PrintStatus()</code> და <code>do-while</code> მენიუ</li>
+</ul>
+<h3>💡 მინიშნება</h3>
+<p>ყველაზე გრძელი წიგნი: <code>Book longest = book1;</code> და მერე სამი <code>if</code> — <code>if (book2.Pages &gt; longest.Pages) longest = book2;</code>. <code>Withdraw</code>-ში ჯერ შეამოწმე, მერე შეცვალე: <code>if (amount &gt; Balance) return false;</code>. ცარიელ კონსტრუქტორში <code>Title = "უსათაურო";</code>.</p></article>
+<h2 class="sec" id="sec-11">შეჯამება</h2>
+<article class="blk" data-slides="26"><span class="anchor" id="s-26"></span><div class="bh"><h3>📸 TS → C# · კლასები</h3><a class="chip" href="index.html#/26" data-go="26" title="პრეზენტაციაში გახსნა">სლაიდი 26</a></div>
+<table>
+<thead>
+<tr>
+<th>TypeScript</th>
+<th>C#</th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>class Student { }</code></td>
+<td><code>class Student { }</code></td>
+<td>კლასი — ცალკე ფაილში</td>
+</tr>
+<tr>
+<td><code>name: string;</code></td>
+<td><code>public string Name { get; set; }</code></td>
+<td>property</td>
+</tr>
+<tr>
+<td><code>constructor(name: string)</code></td>
+<td><code>public Student(string name)</code></td>
+<td>კონსტრუქტორი</td>
+</tr>
+<tr>
+<td>— მხოლოდ ერთი constructor —</td>
+<td><code>Student()</code> · <code>Student(string)</code> · <code>Student(string, int)</code></td>
+<td>რამდენიმე კონსტრუქტორი</td>
+</tr>
+<tr>
+<td><code>this.name</code></td>
+<td><code>Name</code></td>
+<td><code>this</code> არ სჭირდება</td>
+</tr>
+<tr>
+<td><code>new Student("ანა")</code></td>
+<td><code>new Student("ანა", 15)</code></td>
+<td>იგივეა ✓</td>
+</tr>
+</tbody>
+</table></article>
+<article class="blk" data-slides="27"><span class="anchor" id="s-27"></span><div class="bh"><h3>შეამოწმე, რა დაგამახსოვრდა</h3><a class="chip" href="index.html#/27" data-go="27" title="პრეზენტაციაში გახსნა">სლაიდი 27</a></div>
+<p>ეს კითხვები შემდეგი ლექციის დასაწყისშიც დაისმება.</p>
+<div class="selfcheck"><div class="sh">✅ შეამოწმე თავი <small>დაფიქრდი, მერე გახსენი პასუხი</small></div><details><summary>რა განსხვავებაა კლასსა და ობიექტს შორის?</summary><div class="ans">კლასი — ნახაზი (ერთი) · ობიექტი — <code>new</code>-ით შექმნილი „რამ“ საკუთარი მონაცემებით (ბევრი)</div></details><details><summary><code>ana.Introduce()</code> — საიდან იცის მეთოდმა სახელი პარამეტრის გარეშე?</summary><div class="ans">კლასის მეთოდი იმ ობიექტის მონაცემებს ხედავს, რომელზეც გამოიძახეს — აქ ანასას</div></details><details><summary>კონსტრუქტორის სამი წესი?</summary><div class="ans">სახელი = კლასის სახელი · დასაბრუნებელი ტიპი არ აქვს (void-იც არა) · სრულდება <code>new</code>-ის დროს</div></details><details><summary>კლასში დავწერეთ <code>Student(string name, int age)</code>. რატომ აღარ მუშაობს <code>new Student()</code>?</summary><div class="ans">C# ცარიელ კონსტრუქტორს მხოლოდ მაშინ ამატებს, როცა არცერთი არ გაქვს. ერთის დაწერისას ქრება</div></details><details><summary><code>Book(string title)</code> და <code>Book(string author)</code> — ერთ კლასში შეიძლება?</summary><div class="ans">არა — ორივე ერთ string-ს იღებს; პარამეტრის სახელი არ ითვლება (CS0111)</div></details></div></article>
+<article class="blk" data-slides="28"><span class="anchor" id="s-28"></span><div class="bh"><h3>შეჯამება · საკუთარი ტიპები — საკუთარი სამყარო</h3><a class="chip" href="index.html#/28" data-go="28" title="პრეზენტაციაში გახსნა">სლაიდი 28</a></div>
+<p><strong>დაიმახსოვრე:</strong></p>
+<ol>
+<li><strong>კლასი</strong> — ნახაზი; <strong>ობიექტი</strong> — ამ ნახაზით <code>new</code>-ით შექმნილი „რამ“ საკუთარი მონაცემებით.</li>
+<li><strong>property</strong> — მონაცემი (<code>Name { get; set; }</code>), <strong>მეთოდი</strong> — მოქმედება (<code>Introduce()</code>). კლასის მეთოდი თავისი ობიექტის მონაცემებს იცნობს და <code>static</code> არ არის.</li>
+<li><strong>კონსტრუქტორი</strong>: სახელი = კლასის სახელი, დასაბრუნებელი ტიპი არ აქვს (<code>void</code>-იც არა), სრულდება <code>new</code>-ზე.</li>
+<li>თუ კონსტრუქტორი არ დაწერე, C# ცარიელს ამატებს; ერთიც რომ დაწერო — ცარიელი ქრება.</li>
+<li>კონსტრუქტორი შეიძლება ბევრი იყოს — თუ პარამეტრები განსხვავდება რაოდენობით, ტიპით ან რიგით (სახელები არ ითვლება).</li>
+<li>ერთი კლასი — ერთი ფაილი.</li>
+</ol>
+<h3>⏭️ შემდეგ</h3>
+<p>OOP-ის პრინციპები: როგორ ვიცავთ ობიექტის მონაცემებს და როგორ ვაშენებთ კლასებს ერთმანეთზე.</p></article>
+<h2 class="sec" id="sec-12">საშინაო</h2>
+<article class="blk" data-slides="29"><span class="anchor" id="s-29"></span><div class="bh"><h3>საშინაო დავალება: სკოლის ჟურნალი</h3><a class="chip" href="index.html#/29" data-go="29" title="პრეზენტაციაში გახსნა">სლაიდი 29</a></div>
+<p>მოსწავლეები, ქულები და შეფასებები — კლასებით</p>
+<h3>მოთხოვნები</h3>
+<ul>
+<li>Console App <strong>SchoolJournal</strong>, კლასი <code>Student</code> (<strong>Student.cs</strong>): <code>Name</code> და <code>int[] Scores</code> (property-ები)</li>
+<li>ორი კონსტრუქტორი: <code>Student(string name, int[] scores)</code> და <code>Student(string name)</code> — მეორე: სამი ნული (<code>new int[3]</code>)</li>
+<li>მეთოდები: <code>double Average()</code>, <code>string Grade()</code> (switch expression: 9+ ფრიადი · 7+ კარგი · 5+ საშუალო · სხვა — არადამაკმაყოფილებელი) და <code>void PrintReport()</code></li>
+<li>Main-ში: 4 ცალკე ობიექტი (ორივე კონსტრუქტორით), ყველას რეპორტი, საუკეთესო და ფრიადოსნების რაოდენობა</li>
+</ul>
+<h3>✓ მზადაა, როცა</h3>
+<p>რეპორტი იბეჭდება ასე: <code>ანა — ქულები: 9 10 8 · საშუალო 9.0 · ფრიადი</code>, საშუალო ერთი ციფრით მძიმის შემდეგ, საუკეთესო და ფრიადოსნების რაოდენობა სწორია</p>
+<h3>⭐ ბონუსი</h3>
+<ul>
+<li>ერთი მოსწავლე კონსოლიდან შეიყვანე: სახელი და 3 ქულა — ცალკე <code>static</code> მეთოდით <code>Student ReadStudent()</code>, რომელიც შექმნილ მოსწავლეს აბრუნებს</li>
+</ul></article>
+  </main>
+</div>
+<script>
+const DECK = "C# · 5 — კლასები და ობიექტები";
+if (matchMedia('(min-width:981px)').matches) document.getElementById('tocd').open = true;
+const blocks = [...document.querySelectorAll('.blk')];
+const tocLinks = [...document.querySelectorAll('nav.toc a[href^="#sec-"]')];
+const secOf = b => { let e = b; while (e && !(e.matches && e.matches('h2.sec'))) e = e.previousElementSibling; return e; };
+function mark(b, toc_only) {
+  if (!toc_only) blocks.forEach(x => x.classList.toggle('cur', x === b));
+  const s = b && secOf(b); tocLinks.forEach(a => a.classList.toggle('cur', s && a.getAttribute('href') === '#' + s.id));
+}
+const blockFor = n => blocks.find(b => b.dataset.slides.split(',').includes(String(n)));
+
+// copy buttons (code: one line per .ln)
+document.addEventListener('click', e => {
+  const btn = e.target.closest('.copy'); if (!btn) return;
+  const box = btn.closest('.codebox, .prompt');
+  const text = box.matches('.prompt') ? box.querySelector('.pb').textContent : [...box.querySelectorAll('.ln')].map(l => l.textContent).join('\n');
+  navigator.clipboard.writeText(text).then(() => { btn.textContent = '✓ დაკოპირდა'; btn.classList.add('ok'); setTimeout(() => { btn.textContent = 'კოპირება'; btn.classList.remove('ok'); }, 1600); });
+});
+
+// live mode: opened from the deck with P — follow the projector
+const live = new URLSearchParams(location.search).has('live');
+let follow = true, bc = null;
+const liveBtn = document.getElementById('live');
+if (live) {
+  try { bc = new BroadcastChannel('deck-' + DECK); } catch (e) {}
+  liveBtn.classList.add('on');
+  liveBtn.onclick = () => { follow = !follow; liveBtn.classList.toggle('off', !follow); liveBtn.querySelector('.lt').textContent = follow ? 'მიჰყვება სლაიდებს' : 'თავისუფლად ვკითხულობ'; };
+  if (bc) {
+    bc.onmessage = ({ data }) => {
+      if (data.t !== 'state' || !follow) return;
+      const b = blockFor(data.i + 1); if (!b || b.classList.contains('cur')) return;
+      mark(b); b.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    };
+    bc.postMessage({ t: 'hello' });
+  }
+  document.addEventListener('click', e => {   // slide chip → move the projector deck
+    const c = e.target.closest('.chip[data-go]'); if (!c || !bc) return;
+    e.preventDefault(); bc.postMessage({ t: 'go', n: +c.dataset.go - 1 });
+  });
+}
+// deep link #s-12
+const h = location.hash.match(/^#s-(\d+)$/);
+if (h) { const b = blockFor(+h[1]); if (b) { mark(b); setTimeout(() => b.scrollIntoView({ block: 'start' }), 50); } }
+// highlight section in the TOC while reading
+const io = new IntersectionObserver(es => es.forEach(x => { if (x.isIntersecting && !(live && follow)) mark(x.target, true); }), { rootMargin: '-30% 0px -60% 0px' });
+blocks.forEach(b => io.observe(b));
+</script>
+</body></html>

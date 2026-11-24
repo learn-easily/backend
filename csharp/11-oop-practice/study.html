@@ -1,0 +1,396 @@
+<!doctype html>
+<html lang="ka"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>📖 OOP შეჯამება: პროექტი ნულიდან — კონსპექტი</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Georgian:wght@400;600;700;800&family=JetBrains+Mono:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#fbf8f3;--card:#fff;--ink:#1e2132;--ink2:#3b3f54;--muted:#7b8096;--line:#e6dfd2;--accent:#6d28d9;--accent-soft:#f3effe;--teal:#0d9488;
+  --green:#15803d;--amber:#b45309;--mono:"JetBrains Mono",ui-monospace,monospace;--sans:"Noto Sans Georgian",system-ui,sans-serif}
+*{box-sizing:border-box}
+html{scroll-padding-top:76px}
+body{margin:0;background:var(--bg);color:var(--ink);font:17.5px/1.75 var(--sans);-webkit-font-smoothing:antialiased}
+a{color:var(--accent)}
+/* top bar */
+.top{position:sticky;top:0;z-index:10;display:flex;align-items:center;gap:14px;padding:10px 20px;background:rgba(251,248,243,.92);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.top .back{font:600 14px var(--mono);color:var(--muted);text-decoration:none;white-space:nowrap}
+.top .back:hover{color:var(--ink)}
+.top .ttl{flex:1;min-width:0;font-weight:700;font-size:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.top .ttl small{font:500 13px var(--mono);color:var(--muted);margin-right:8px}
+.btn{font:700 14px var(--sans);text-decoration:none;border-radius:10px;padding:7px 14px;white-space:nowrap;border:1px solid var(--line);color:var(--ink);background:var(--card);cursor:pointer}
+.btn.play{background:var(--accent);border-color:var(--accent);color:#fff}
+.live{display:none;align-items:center;gap:8px;font:600 13px var(--mono);color:var(--teal);background:#e6f6f4;border:1px solid #bfe7e2;border-radius:999px;padding:5px 12px;cursor:pointer}
+.live.on{display:flex}
+.live .dot{width:8px;height:8px;border-radius:50%;background:var(--teal);animation:pulse 1.6s infinite}
+.live.off{color:var(--muted);background:var(--card);border-color:var(--line)}.live.off .dot{background:var(--muted);animation:none}
+@keyframes pulse{50%{opacity:.3}}
+/* layout */
+.wrap{display:grid;grid-template-columns:230px minmax(0,1000px);gap:44px;justify-content:center;padding:32px 28px 120px}
+nav.toc{position:sticky;top:84px;align-self:start;font-size:14px;line-height:1.45}
+nav.toc .h{font:700 12px var(--mono);color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px}
+nav.toc a{display:block;color:var(--ink2);text-decoration:none;padding:6px 10px;border-left:2px solid var(--line)}
+nav.toc a:hover{color:var(--accent)}
+nav.toc a.cur{color:var(--accent);border-left-color:var(--accent);font-weight:700}
+nav.toc .mats{margin-top:22px;display:flex;flex-direction:column;gap:6px}
+nav.toc .mats a{border:0;padding:2px 0;font:500 13px var(--mono);color:var(--teal);word-break:break-all}
+header.hero{margin-bottom:8px}
+header.hero .k{font:600 14px var(--mono);color:var(--accent)}
+header.hero h1{font-size:38px;line-height:1.2;margin:6px 0 10px;letter-spacing:-.01em}
+header.hero p{color:var(--muted);margin:0;font-size:15.5px}
+header.hero kbd{font:500 12px var(--mono);border:1px solid var(--line);border-radius:5px;padding:0 5px;background:var(--card)}
+h2.sec{font-size:15px;font:700 13px var(--mono);color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin:48px 0 6px;padding-top:18px;border-top:1px solid var(--line)}
+/* blocks */
+.blk{position:relative;padding:14px 0 6px 22px;margin-left:-22px;border-left:3px solid transparent;transition:border-color .3s,background .3s;border-radius:0 12px 12px 0}
+.blk.cur{border-left-color:var(--accent);background:linear-gradient(90deg,var(--accent-soft),transparent 70%)}
+.anchor{position:absolute;top:0}
+.bh{display:flex;align-items:baseline;justify-content:space-between;gap:12px}
+.bh h3{font-size:22px;line-height:1.35;margin:4px 0 6px}
+.chip{flex:none;font:600 12px var(--mono);color:var(--muted);text-decoration:none;border:1px solid var(--line);border-radius:999px;padding:2px 10px;background:var(--card)}
+.chip:hover{color:var(--accent);border-color:var(--accent)}
+.blk h2{font-size:26px;line-height:1.3;margin:6px 0 10px}
+.blk h3:not(.bh h3){font-size:19px;margin:22px 0 6px}
+.blk h4{font-size:17px;margin:18px 0 4px}
+.blk p{margin:10px 0}
+.blk ul,.blk ol{padding-left:24px;margin:8px 0}
+.blk li{margin:4px 0}
+.blk strong{color:var(--ink)}
+.blk :not(pre)>code{font:600 .86em var(--mono);background:#f1ece3;border-radius:6px;padding:1px 6px;color:#5b21b6}
+.blk table{border-collapse:collapse;margin:14px 0;font-size:15.5px;width:100%;display:block;overflow-x:auto}
+.blk th,.blk td{border:1px solid var(--line);padding:8px 12px;text-align:left;vertical-align:top}
+.blk th{background:#f6f1e8}
+/* code */
+.codebox{margin:14px 0;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:#fffdf9}
+.codebox .ch,.prompt .ph{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:6px 8px 6px 14px;font:600 12.5px var(--mono);color:var(--muted);background:#f6f1e8;border-bottom:1px solid var(--line)}
+.copy{font:600 12px var(--mono);border:1px solid var(--line);background:var(--card);color:var(--ink2);border-radius:7px;padding:3px 10px;cursor:pointer}
+.copy:hover{border-color:var(--ink)}
+.copy.ok{color:var(--green);border-color:var(--green)}
+pre.code{margin:0;padding:12px 0;overflow-x:auto;font:14px/1.65 var(--mono)}
+pre.code .ln{display:block;padding:0 16px;white-space:pre}
+.code .ttl{background:var(--bg2);color:var(--muted)}
+.code .ln.hl{background:rgba(109,40,217,.07);box-shadow:inset 3px 0 0 var(--net)}
+.code .ln.dim{opacity:.42}
+.code .k,.code .kd,.code .kn,.code .kr,.code .kc{color:#7c3aed}
+.code .kt{color:#2563eb}
+.code .s,.code .s1,.code .s2,.code .sa,.code .se,.code .si,.code .sd{color:#15803d}
+.code .c,.code .c1,.code .cm,.code .cp,.code .ch{color:#8b8fa3}
+.code .m,.code .mi,.code .mf,.code .mh{color:#c2410c}
+.code .nf,.code .fm{color:#1d4ed8}
+.code .nc,.code .nn,.code .nt,.code .nd{color:#b45309}
+.code .na{color:#7c3aed} .code .nb{color:#0e7490}
+.code .o,.code .p{color:#64748b}
+.code .nv,.code .nx{color:var(--ink)}
+.code .go{color:#64748b}
+/* prompt */
+.prompt{margin:16px 0;border:1px solid #ddd2fb;border-radius:12px;overflow:hidden;background:var(--accent-soft)}
+.prompt .ph{background:#ebe3fd;border-color:#ddd2fb;color:var(--accent)}
+.prompt .pb{padding:12px 16px;white-space:pre-wrap;font-size:15.5px;line-height:1.6;color:var(--ink2)}
+/* self check */
+.selfcheck{margin:16px 0;border:1px solid #cfe9d6;border-radius:12px;background:#f3fbf5;padding:12px 16px}
+.selfcheck .sh{font-weight:700;color:var(--green);margin-bottom:6px}
+.selfcheck .sh small{font-weight:400;color:var(--muted);font-size:13.5px;margin-left:6px}
+.selfcheck details{border-top:1px solid #dcefe1;padding:8px 0}
+.selfcheck summary{cursor:pointer;font-weight:600;list-style:none;padding-left:26px;position:relative}
+.selfcheck summary::-webkit-details-marker{display:none}
+.selfcheck summary::before{content:"?";position:absolute;left:0;top:2px;width:18px;height:18px;border-radius:50%;background:var(--green);color:#fff;font:700 12px/18px var(--mono);text-align:center}
+.selfcheck details[open] summary::before{content:"✓"}
+.selfcheck .ans{padding:6px 0 2px 26px;color:var(--ink2)}
+/* terms */
+.terms{margin:16px 0;border:1px solid var(--line);border-radius:12px;background:var(--card);padding:12px 16px}
+.terms .th{font-weight:700;margin-bottom:6px}
+.terms dl{display:grid;grid-template-columns:max-content 1fr;gap:6px 18px;margin:0}
+.terms dt{font:600 14.5px var(--mono);color:var(--accent)}
+.terms dd{margin:0;color:var(--ink2)}
+/* callouts */
+.callout{display:flex;gap:12px;margin:14px 0;padding:12px 16px;border-radius:12px;border:1px solid var(--line);background:var(--card)}
+.callout .ci{font-size:20px;line-height:1.6}
+.callout>div>p:first-child{margin-top:0}.callout>div>p:last-child{margin-bottom:0}
+.callout.warn{background:#fff8eb;border-color:#f6dfb5}
+.callout.note{background:#eef5ff;border-color:#cfe0fb}
+@media (max-width:980px){
+  .wrap{grid-template-columns:minmax(0,1fr);gap:0;padding:20px 16px 100px}
+  nav.toc{position:static;margin-bottom:12px}
+  nav.toc details{border:1px solid var(--line);border-radius:12px;background:var(--card);padding:8px 12px}
+  nav.toc details>summary{cursor:pointer;font-weight:700}
+  nav.toc .h{display:none}
+  header.hero h1{font-size:30px}
+  .blk{padding-left:14px;margin-left:-14px}
+  .top .ttl small{display:none}
+  .terms dl{grid-template-columns:1fr}.terms dd{margin-bottom:8px}
+}
+@media (min-width:981px){nav.toc details>summary{display:none}}
+@media print{.top,nav.toc,.copy,.chip,.live{display:none}.wrap{display:block;padding:0}.selfcheck details{display:block}.blk.cur{background:none}}
+</style></head>
+<body>
+<div class="top">
+  <a class="back" href="../../">← ლექციები</a>
+  <div class="ttl"><small>C# · 11</small>OOP შეჯამება: პროექტი ნულიდან</div>
+  <button class="live" id="live" type="button" title="ჩართული: ტექსტი პრეზენტაციას მიჰყვება"><span class="dot"></span><span class="lt">მიჰყვება სლაიდებს</span></button>
+  <a class="btn play" href="index.html">▶ პრეზენტაცია</a>
+</div>
+<div class="wrap">
+  <nav class="toc"><details id="tocd"><summary>სარჩევი</summary><div class="h">სარჩევი</div><a href="#sec-1">გამეორება</a><a href="#sec-2">საშინაოს განხილვა</a><a href="#sec-3">დღის თემა</a><a href="#sec-4">შესავალი</a><a href="#sec-5">1 · ლექტორი წერს</a><a href="#sec-6">2 · თქვენი ჯერი</a><a href="#sec-7">პრაქტიკა</a><a href="#sec-8">2 · თქვენი ჯერი</a><a href="#sec-9">შეჯამება</a><a href="#sec-10">საშინაო</a><div class="mats"></div></details></nav>
+  <main>
+    <header class="hero">
+      <div class="k">📖 კონსპექტი · C# · ლექცია 11</div>
+      <h1>OOP შეჯამება: პროექტი ნულიდან</h1>
+      <p>წაიკითხე ლექციის შემდეგ, ან პრეზენტაციასთან ერთად: პრეზენტაციაში დააჭირე <kbd>P</kbd> და ეს გვერდი სლაიდებს გაჰყვება. კოდი და AI-ს პრომპტები კოპირდება ერთი დაჭერით.</p>
+    </header>
+    <h2 class="sec" id="sec-1">გამეორება</h2>
+<article class="blk" data-slides="1,2"><span class="anchor" id="s-1"></span><span class="anchor" id="s-2"></span><div class="bh"><h3>გავიხსენოთ წინა ლექცია</h3><a class="chip" href="index.html#/1" data-go="1" title="პრეზენტაციაში გახსნა">სლაიდი 1</a></div>
+<p>ლექცია 10 — <strong>აბსტრაქცია და ინტერფეისი</strong>. ახალ თემამდე ვამოწმებთ, რა დაგვამახსოვრდა. ჯერ თვითონ უპასუხე, მერე გახსენი პასუხი. თუ რომელიმე გაგიჭირდა, <a href="../10-abstraction-interfaces/study.html">წინა ლექციის კონსპექტს</a> გადახედე.</p>
+<div class="selfcheck"><div class="sh">✅ შეამოწმე თავი <small>დაფიქრდი, მერე გახსენი პასუხი</small></div><details><summary><code>abstract class Character</code> — რა იცვლება?</summary><div class="ans"><code>new Character(...)</code> აღარ შეიძლება (CS0144). ცვლადის ტიპად, მასივში და მშობლად — კი</div></details><details><summary><code>public abstract int Attack();</code> — რატომ არ აქვს ტანი და რას აიძულებს შვილებს?</summary><div class="ans">„საერთო“ შეტევა არ არსებობს — ყველა შვილი ვალდებულია <code>override</code> დაწეროს, თორემ CS0534</div></details><details><summary>virtual და abstract — რა განსხვავებაა?</summary><div class="ans">virtual — ტანი აქვს, override შეიძლება · abstract — ტანი არ აქვს, override აუცილებელია, მხოლოდ abstract კლასში</div></details><details><summary>რატომ არის <code>IHealer</code> ინტერფეისი და არა კლასი?</summary><div class="ans">განკურნება — „შეუძლია“, არა „არის“. ჯადოქარს უკვე ჰყავს მშობელი, C#-ში კი მხოლოდ ერთი; ინტერფეისი — ბევრი შეიძლება</div></details><details><summary><code>IHealer[] healers = { ana, mari };</code> — რატომ მუშაობს და რა არის ეს?</summary><div class="ans">ინტერფეისიც ტიპია; ორივე IHealer-ს ახორციელებს. <code>healer.HealAlly()</code> — პოლიმორფიზმი ინტერფეისით</div></details></div></article>
+<h2 class="sec" id="sec-2">საშინაოს განხილვა</h2>
+<article class="blk" data-slides="3"><span class="anchor" id="s-3"></span><div class="bh"><h3>საშინაოს განხილვა</h3><a class="chip" href="index.html#/3" data-go="3" title="პრეზენტაციაში გახსნა">სლაიდი 3</a></div>
+<p>წინა ლექციის საშინაო: <strong>⚽ ფეხბურთის კლუბი · ნაწილი 5 — მწვრთნელი და ხელფასები</strong>. ქვემოთ არის ერთ-ერთი სწორი ამოხსნა. შენი კოდი შეიძლება სხვანაირად იყოს დაწერილი — მთავარია, მოთხოვნები სრულდებოდეს.</p>
+<h3>მოთხოვნები</h3>
+<ul>
+<li><code>Player</code> → <code>abstract</code>; <code>Rating()</code> → <code>abstract int Rating()</code> (პოზიციები თავად ითვლიან: უნარი + <code>Stamina / 5</code>)</li>
+<li><code>interface IPayable</code> — <code>int Salary()</code>. <code>Player : IPayable</code> — ხელფასი <code>Price / 20</code></li>
+<li>ახალი კლასი <code>Coach : IPayable</code> — <strong>მოთამაშე არ არის</strong>: <code>Name</code>, <code>Level</code> (1–5), <code>Salary()</code> → <code>Level * 2000</code>, <code>Bonus()</code> → <code>Level * 10</code></li>
+<li><code>Club</code> მწვრთნელს კონსტრუქტორში იღებს; <code>Strength()</code> მწვრთნელის <code>Bonus()</code>-საც ითვლის</li>
+<li><code>Club.PaySalaries()</code> — <code>IPayable[] payroll</code>: ყველა მოთამაშე + მწვრთნელი → ჯამი; ფული არ ჰყოფნის → „💸 კრიზისი“ და <code>false</code>, თორემ ბიუჯეტს აკლდება</li>
+<li>Main-ში: ორი კლუბი, მატჩი, ორივე იხდის ხელფასს</li>
+</ul>
+<h3>ამოხსნა</h3>
+<div class="codebox"><div class="ch"><span>Program.cs · Main</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="n">Club</span><span class="w"> </span><span class="n">dinamo</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">Club</span><span class="p">(</span><span class="s">"დინამო"</span><span class="p">,</span><span class="w"> </span><span class="mi">120000</span><span class="p">,</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">Coach</span><span class="p">(</span><span class="s">"ქართლი"</span><span class="p">,</span><span class="w"> </span><span class="mi">4</span><span class="p">)</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="n">dinamo</span><span class="p">.</span><span class="n">Buy</span><span class="p">(</span><span class="k">new</span><span class="w"> </span><span class="n">Goalkeeper</span><span class="p">(</span><span class="s">"საბა"</span><span class="p">,</span><span class="w"> </span><span class="mi">75</span><span class="p">)</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="n">dinamo</span><span class="p">.</span><span class="n">Buy</span><span class="p">(</span><span class="k">new</span><span class="w"> </span><span class="n">Defender</span><span class="p">(</span><span class="s">"ლუკა"</span><span class="p">,</span><span class="w"> </span><span class="mi">70</span><span class="p">)</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="n">dinamo</span><span class="p">.</span><span class="n">Buy</span><span class="p">(</span><span class="k">new</span><span class="w"> </span><span class="n">Defender</span><span class="p">(</span><span class="s">"დათო"</span><span class="p">,</span><span class="w"> </span><span class="mi">60</span><span class="p">)</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="n">dinamo</span><span class="p">.</span><span class="n">Buy</span><span class="p">(</span><span class="k">new</span><span class="w"> </span><span class="n">Striker</span><span class="p">(</span><span class="s">"ნიკა"</span><span class="p">,</span><span class="w"> </span><span class="mi">80</span><span class="p">)</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="n">dinamo</span><span class="p">.</span><span class="n">Buy</span><span class="p">(</span><span class="k">new</span><span class="w"> </span><span class="n">Striker</span><span class="p">(</span><span class="s">"გიო"</span><span class="p">,</span><span class="w"> </span><span class="mi">55</span><span class="p">)</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="n">Club</span><span class="w"> </span><span class="n">torpedo</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">Club</span><span class="p">(</span><span class="s">"ტორპედო"</span><span class="p">,</span><span class="w"> </span><span class="mi">120000</span><span class="p">,</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">Coach</span><span class="p">(</span><span class="s">"ბერია"</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="n">torpedo</span><span class="p">.</span><span class="n">Buy</span><span class="p">(</span><span class="k">new</span><span class="w"> </span><span class="n">Goalkeeper</span><span class="p">(</span><span class="s">"ზურა"</span><span class="p">,</span><span class="w"> </span><span class="mi">65</span><span class="p">)</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="n">torpedo</span><span class="p">.</span><span class="n">Buy</span><span class="p">(</span><span class="k">new</span><span class="w"> </span><span class="n">Defender</span><span class="p">(</span><span class="s">"ოთო"</span><span class="p">,</span><span class="w"> </span><span class="mi">75</span><span class="p">)</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="n">torpedo</span><span class="p">.</span><span class="n">Buy</span><span class="p">(</span><span class="k">new</span><span class="w"> </span><span class="n">Defender</span><span class="p">(</span><span class="s">"ბექა"</span><span class="p">,</span><span class="w"> </span><span class="mi">65</span><span class="p">)</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="n">torpedo</span><span class="p">.</span><span class="n">Buy</span><span class="p">(</span><span class="k">new</span><span class="w"> </span><span class="n">Striker</span><span class="p">(</span><span class="s">"ლევანი"</span><span class="p">,</span><span class="w"> </span><span class="mi">70</span><span class="p">)</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="n">torpedo</span><span class="p">.</span><span class="n">Buy</span><span class="p">(</span><span class="k">new</span><span class="w"> </span><span class="n">Striker</span><span class="p">(</span><span class="s">"ტოკო"</span><span class="p">,</span><span class="w"> </span><span class="mi">70</span><span class="p">)</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="n">PlayMatch</span><span class="p">(</span><span class="n">dinamo</span><span class="p">,</span><span class="w"> </span><span class="n">torpedo</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="n">dinamo</span><span class="p">.</span><span class="n">PaySalaries</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="n">torpedo</span><span class="p">.</span><span class="n">PaySalaries</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span></code></pre></div>
+<div class="codebox"><div class="ch"><span>IPayable.cs · Coach.cs</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="k">internal</span><span class="w"> </span><span class="k">interface</span><span class="w"> </span><span class="n">IPayable</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="nf">Salary</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="p">}</span></span><span class="ln"> </span><span class="ln"><span class="k">internal</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">Coach</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">IPayable</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="n">Name</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">get</span><span class="p">;</span><span class="w"> </span><span class="k">private</span><span class="w"> </span><span class="k">set</span><span class="p">;</span><span class="w"> </span><span class="p">}</span></span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">Level</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">get</span><span class="p">;</span><span class="w"> </span><span class="k">private</span><span class="w"> </span><span class="k">set</span><span class="p">;</span><span class="w"> </span><span class="p">}</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="nf">Coach</span><span class="p">(</span><span class="kt">string</span><span class="w"> </span><span class="n">name</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">level</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="p">{</span></span><span class="ln"><span class="w">        </span><span class="n">Name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">name</span><span class="p">;</span></span><span class="ln"><span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">level</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="n">level</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span></span><span class="ln"><span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">level</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">5</span><span class="p">)</span><span class="w"> </span><span class="n">level</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">5</span><span class="p">;</span></span><span class="ln"><span class="w">        </span><span class="n">Level</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">level</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="p">}</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="nf">Salary</span><span class="p">(</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="p">{</span></span><span class="ln"><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">Level</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">2000</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="p">}</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="nf">Bonus</span><span class="p">(</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="p">{</span></span><span class="ln"><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">Level</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">10</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="p">}</span></span><span class="ln"><span class="p">}</span></span></code></pre></div>
+<div class="codebox"><div class="ch"><span>Player.cs · ცვლილებები</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="k">internal</span><span class="w"> </span><span class="k">abstract</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">Player</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">IPayable</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="c1">// … Name, Stamina, Price, Rest, Tire, Roll, Train, ToString — როგორც იყო</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="k">abstract</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="nf">Rating</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="nf">Salary</span><span class="p">(</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="p">{</span></span><span class="ln"><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">Price</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="mi">20</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="p">}</span></span><span class="ln"><span class="p">}</span></span><span class="ln"> </span><span class="ln"><span class="c1">// Striker.cs — base.Rating() აღარ არსებობს</span></span><span class="ln"><span class="k">public</span><span class="w"> </span><span class="k">override</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="nf">Rating</span><span class="p">(</span><span class="p">)</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">Shot</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">Stamina</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="mi">5</span><span class="p">;</span></span><span class="ln"><span class="p">}</span></span></code></pre></div>
+<div class="codebox"><div class="ch"><span>Club.cs · ცვლილებები</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="k">public</span><span class="w"> </span><span class="n">Coach</span><span class="w"> </span><span class="n">Coach</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">get</span><span class="p">;</span><span class="w"> </span><span class="k">private</span><span class="w"> </span><span class="k">set</span><span class="p">;</span><span class="w"> </span><span class="p">}</span></span><span class="ln"> </span><span class="ln"><span class="k">public</span><span class="w"> </span><span class="nf">Club</span><span class="p">(</span><span class="kt">string</span><span class="w"> </span><span class="n">name</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">budget</span><span class="p">,</span><span class="w"> </span><span class="n">Coach</span><span class="w"> </span><span class="n">coach</span><span class="p">)</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="n">Name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">name</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">budget</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="n">budget</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="n">Budget</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">budget</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="n">Coach</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">coach</span><span class="p">;</span></span><span class="ln"><span class="p">}</span></span><span class="ln"> </span><span class="ln"><span class="k">public</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="nf">Strength</span><span class="p">(</span><span class="p">)</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">total</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Coach</span><span class="p">.</span><span class="n">Bonus</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">Count</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="p">{</span></span><span class="ln"><span class="w">        </span><span class="n">total</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="n">squad</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="p">.</span><span class="n">Rating</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="p">}</span></span><span class="ln"><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">total</span><span class="p">;</span></span><span class="ln"><span class="p">}</span></span><span class="ln"> </span><span class="ln"><span class="k">public</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="nf">PaySalaries</span><span class="p">(</span><span class="p">)</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="n">IPayable</span><span class="p">[</span><span class="p">]</span><span class="w"> </span><span class="n">payroll</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">IPayable</span><span class="p">[</span><span class="n">Count</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">]</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">Count</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="p">{</span></span><span class="ln"><span class="w">        </span><span class="n">payroll</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">squad</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="p">}</span></span><span class="ln"><span class="w">    </span><span class="n">payroll</span><span class="p">[</span><span class="n">Count</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Coach</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">total</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="k">foreach</span><span class="w"> </span><span class="p">(</span><span class="n">IPayable</span><span class="w"> </span><span class="n">p</span><span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="n">payroll</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="p">{</span></span><span class="ln"><span class="w">        </span><span class="n">total</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">Salary</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="p">}</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">total</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="n">Budget</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="p">{</span></span><span class="ln"><span class="w">        </span><span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="s">$"💸 {Name}: ხელფასისთვის {total} ₾ არ ჰყოფნის — კრიზისი!"</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="k">false</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="p">}</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="n">Budget</span><span class="w"> </span><span class="o">-=</span><span class="w"> </span><span class="n">total</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="s">$"💰 {Name}: ხელფასები {total} ₾ · დარჩა {Budget} ₾"</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="k">true</span><span class="p">;</span></span><span class="ln"><span class="p">}</span></span></code></pre></div>
+<div class="callout note"><span class="ci">💡</span><div><p><code>Player</code> — <code>abstract</code>: „უბრალოდ მოთამაშე“ არ არსებობს, ყოველთვის რომელიმე პოზიციაა. მწვრთნელი მოთამაშე <strong>არ არის</strong> — <code>Coach : Player</code> არასწორი იქნებოდა. მაგრამ ხელფასი ორივეს აქვს, ამიტომ საერთოს ინტერფეისი ქმნის: <code>IPayable</code>. <code>payroll[i] = squad[i];</code> — მოთამაშე <code>IPayable[]</code>-ში ეტევა, რადგან <code>Player</code> მას ახორციელებს.</p></div></div></article>
+<h2 class="sec" id="sec-3">დღის თემა</h2>
+<article class="blk" data-slides="4"><span class="anchor" id="s-4"></span><div class="bh"><h3>დღის თემა: OOP შეჯამება: პროექტი ნულიდან</h3><a class="chip" href="index.html#/4" data-go="4" title="პრეზენტაციაში გახსნა">სლაიდი 4</a></div>
+<p>ოთხივე პრინციპი ცალ-ცალკე იცით. ნამდვილ პროექტში კი ისინი ერთად მუშაობს — და მთავარი ისაა, როგორ ფიქრობ, სანამ კოდს დაწერ. დღეს ჯერ ერთად ავაწყობთ გადახდის სისტემას ნულიდან, ხუთი კითხვით, მერე კი თქვენ თვითონ დაწერთ ზოოპარკს. ეს ყველაფერი შემდეგი ლექციის ტესტისთვისაც მოგამზადებთ.</p>
+<p><strong>ლექციის ბოლოს შეძლებ:</strong></p>
+<ul>
+<li>OOP პროექტის დაგეგმვა ხუთი კითხვით: კლასები, „არის“, „შეუძლია“, დაცვა, განსხვავება</li>
+<li>გადახდის სისტემა: abstract <code>Payment</code>, <code>IRefundable</code>, დაცული მონაცემები</li>
+<li>ზოოპარკი — საკუთარი OOP პროექტი ოთხივე პრინციპით</li>
+<li>მზადება ტესტისთვის</li>
+</ul></article>
+<h2 class="sec" id="sec-4">შესავალი</h2>
+<article class="blk" data-slides="5"><span class="anchor" id="s-5"></span><div class="bh"><h3>💡 გავიხსენოთ: OOP — ოთხი პრინციპი</h3><a class="chip" href="index.html#/5" data-go="5" title="პრეზენტაციაში გახსნა">სლაიდი 5</a></div>
+<ol>
+<li>🛡️ <strong>ინკაფსულაცია</strong> — <code>private</code> ველი, <code>{ get; private set; }</code>, property წესით; მონაცემი იცვლება მხოლოდ მეთოდებით.</li>
+<li>🧬 <strong>მემკვიდრეობა</strong> — <code>class B : A</code>, <code>: base(...)</code>, <code>protected</code>; მხოლოდ ერთი მშობელი.</li>
+<li>🎭 <strong>პოლიმორფიზმი</strong> — <code>virtual</code> / <code>override</code>, <code>base.Method()</code>, <code>override ToString()</code>; მშობლის ტიპის მასივი და ერთი ციკლი.</li>
+<li>🎨 <strong>აბსტრაქცია</strong> — <code>abstract</code> კლასი და მეთოდი; <code>interface</code> — „შეუძლია“, ბევრი ერთ კლასს.</li>
+</ol></article>
+<article class="blk" data-slides="6"><span class="anchor" id="s-6"></span><div class="bh"><h3>💡 როგორ ვფიქრობთ: OOP პროექტი ხუთი კითხვით იწყება</h3><a class="chip" href="index.html#/6" data-go="6" title="პრეზენტაციაში გახსნა">სლაიდი 6</a></div>
+<ol>
+<li><strong>ვინ / რა?</strong> — დავალების არსებითი სახელები → კლასები.</li>
+<li><strong>ვინ „არის“ ვინ?</strong> — „ბარათით გადახდა არის გადახდა“ → მემკვიდრეობა.</li>
+<li><strong>რა „შეუძლია“ ზოგს?</strong> — „ზოგს შეუძლია თანხის დაბრუნება“ → ინტერფეისი.</li>
+<li><strong>რა უნდა დავიცვათ?</strong> — „თანხა უარყოფითი არ არის“, „ბარათის ნომერი დამალულია“ → <code>private</code> და წესები.</li>
+<li><strong>რა განსხვავდება?</strong> — „თითოეული თავისებურად იხდის“ → <code>abstract</code> მეთოდი და <code>override</code>.</li>
+</ol>
+<p>კოდს მხოლოდ ამის შემდეგ ვწერთ.</p></article>
+<h2 class="sec" id="sec-5">1 · ლექტორი წერს</h2>
+<article class="blk" data-slides="7"><span class="anchor" id="s-7"></span><div class="bh"><h3>ნაწილი 1 · მე ვწერ: გადახდის სისტემა</h3><a class="chip" href="index.html#/7" data-go="7" title="პრეზენტაციაში გახსნა">სლაიდი 7</a></div>
+<p>თქვენ ერთად წერთ — და ყოველ ნაბიჯზე მეუბნებით, რომელი პრინციპია.</p></article>
+<article class="blk" data-slides="8"><span class="anchor" id="s-8"></span><div class="bh"><h3>🧩 დავალება: ონლაინ მაღაზიის სალარო</h3><a class="chip" href="index.html#/8" data-go="8" title="პრეზენტაციაში გახსნა">სლაიდი 8</a></div>
+<p><strong>მოთხოვნები:</strong></p>
+<ul>
+<li>მომხმარებელი იხდის ბარათით, ნაღდით ან ციფრული საფულით.</li>
+<li>თანხა უარყოფითი ვერ იქნება.</li>
+<li>ბარათის ნომრიდან ჩანს მხოლოდ ბოლო 4 ციფრი.</li>
+<li>საფულეში ფული თუ არ ჰყოფნის — გადახდა არ ხერხდება.</li>
+<li>ბარათით და საფულით გადახდილი თანხა ბრუნდება, ნაღდი — არა.</li>
+<li>სალარო ყველა გადახდას ერთი ციკლით ამუშავებს.</li>
+</ul>
+<p><strong>ხუთი კითხვა:</strong></p>
+<ol>
+<li>კლასები: <code>Payment</code>, <code>CardPayment</code>, <code>CashPayment</code>, <code>WalletPayment</code>.</li>
+<li>ბარათით გადახდა <strong>არის</strong> გადახდა → <code>abstract class Payment</code>.</li>
+<li>თანხის დაბრუნება <strong>შეუძლია</strong> ზოგს → <code>interface IRefundable</code>.</li>
+<li>დავიცვათ: თანხა, ბარათის ნომერი, ბალანსი → <code>private</code>.</li>
+<li>თითოეული თავისებურად იხდის → <code>abstract bool Pay()</code>.</li>
+</ol></article>
+<article class="blk" data-slides="9"><span class="anchor" id="s-9"></span><div class="bh"><h3>⌨️ Payment.cs + IRefundable.cs: მშობელი და ხელშეკრულება</h3><a class="chip" href="index.html#/9" data-go="9" title="პრეზენტაციაში გახსნა">სლაიდი 9</a></div>
+<p>ახალი პროექტი: <strong>Console App → Checkout</strong>.</p>
+<div class="codebox"><div class="ch"><span>Payment.cs + IRefundable.cs</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="k">internal</span><span class="w"> </span><span class="k">abstract</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">Payment</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="kt">decimal</span><span class="w"> </span><span class="n">Amount</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">get</span><span class="p">;</span><span class="w"> </span><span class="k">private</span><span class="w"> </span><span class="k">set</span><span class="p">;</span><span class="w"> </span><span class="p">}</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="nf">Payment</span><span class="p">(</span><span class="kt">decimal</span><span class="w"> </span><span class="n">amount</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="p">{</span></span><span class="ln"><span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">amount</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="n">amount</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span></span><span class="ln"><span class="w">        </span><span class="n">Amount</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">amount</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="p">}</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="k">abstract</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="nf">Pay</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="k">override</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="nf">ToString</span><span class="p">(</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="p">{</span></span><span class="ln"><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="s">$"{Amount} ₾"</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="p">}</span></span><span class="ln"><span class="p">}</span></span><span class="ln"> </span><span class="ln"><span class="k">internal</span><span class="w"> </span><span class="k">interface</span><span class="w"> </span><span class="n">IRefundable</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="k">void</span><span class="w"> </span><span class="nf">Refund</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="p">}</span></span></code></pre></div>
+<ul>
+<li>🛡️ <code>decimal</code> — ფულისთვის განკუთვნილი ტიპი: <code>double</code>-სგან განსხვავებით, თეთრებს არ „კარგავს“. <code>Amount</code> — <code>private set</code> და წესი კონსტრუქტორში.</li>
+<li>🎨 <code>abstract bool Pay()</code> — „ყველა იხდის, როგორ — შვილი იტყვის“. <code>bool</code> — მოხერხდა თუ არა.</li>
+<li>🎨 <code>IRefundable</code> — „შეუძლია თანხის დაბრუნება“.</li>
+</ul></article>
+<article class="blk" data-slides="10"><span class="anchor" id="s-10"></span><div class="bh"><h3>⌨️ CashPayment.cs — უმარტივესი შვილი</h3><a class="chip" href="index.html#/10" data-go="10" title="პრეზენტაციაში გახსნა">სლაიდი 10</a></div>
+<div class="codebox"><div class="ch"><span>CashPayment.cs · namespace-ის შიგნით</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="k">internal</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">CashPayment</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">Payment</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="nf">CashPayment</span><span class="p">(</span><span class="kt">decimal</span><span class="w"> </span><span class="n">amount</span><span class="p">)</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="k">base</span><span class="p">(</span><span class="n">amount</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="p">}</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="k">override</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="nf">Pay</span><span class="p">(</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="p">{</span></span><span class="ln"><span class="w">        </span><span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="s">$"💵 ნაღდი → {Amount} ₾"</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="k">true</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="p">}</span></span><span class="ln"><span class="p">}</span></span></code></pre></div>
+<ul>
+<li>🧬 <code>: base(amount)</code> — თანხა და მისი წესი მშობელშია.</li>
+<li>🎭 <code>override Pay()</code> — abstract მეთოდმა აიძულა.</li>
+<li><code>IRefundable</code> არ აქვს — ნაღდი არ ბრუნდება.</li>
+</ul></article>
+<article class="blk" data-slides="11"><span class="anchor" id="s-11"></span><div class="bh"><h3>⌨️ CardPayment.cs — ნომერი დამალულია</h3><a class="chip" href="index.html#/11" data-go="11" title="პრეზენტაციაში გახსნა">სლაიდი 11</a></div>
+<div class="codebox"><div class="ch"><span>CardPayment.cs · namespace-ის შიგნით</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="k">internal</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">CardPayment</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">Payment</span><span class="p">,</span><span class="w"> </span><span class="n">IRefundable</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="k">private</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="n">cardNumber</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="nf">CardPayment</span><span class="p">(</span><span class="kt">decimal</span><span class="w"> </span><span class="n">amount</span><span class="p">,</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="n">number</span><span class="p">)</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="k">base</span><span class="p">(</span><span class="n">amount</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="p">{</span></span><span class="ln"><span class="w">        </span><span class="n">cardNumber</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">number</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="p">}</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="nf">Masked</span><span class="p">(</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="p">{</span></span><span class="ln"><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="s">"**** "</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">cardNumber</span><span class="p">.</span><span class="n">Substring</span><span class="p">(</span><span class="n">cardNumber</span><span class="p">.</span><span class="n">Length</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">4</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="p">}</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="k">override</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="nf">Pay</span><span class="p">(</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="p">{</span></span><span class="ln"><span class="w">        </span><span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="s">$"💳 ბარათი {Masked()} → {Amount} ₾"</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="k">true</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="p">}</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="k">void</span><span class="w"> </span><span class="nf">Refund</span><span class="p">(</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="p">{</span></span><span class="ln"><span class="w">        </span><span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="s">$"↩️ {Amount} ₾ დაბრუნდა ბარათზე {Masked()}"</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="p">}</span></span><span class="ln"><span class="p">}</span></span></code></pre></div>
+<ul>
+<li>🛡️ ბარათის ნომერი — <code>private</code> ველი, property-იც კი არა. გარედან ვერავინ წაიკითხავს.</li>
+<li><code>Substring(start)</code> — string-ის მეთოდი: ტექსტი <code>start</code> პოზიციიდან ბოლომდე. <code>Length - 4</code> → ბოლო ოთხი ციფრი. ყველაფერი ობიექტია!</li>
+<li>🎭 <code>override Pay()</code> — თავისებურად; 🎨 <code>Refund()</code> — ხელშეკრულება შესრულდა.</li>
+</ul></article>
+<article class="blk" data-slides="12"><span class="anchor" id="s-12"></span><div class="bh"><h3>⌨️ WalletPayment.cs — საფულე წესით</h3><a class="chip" href="index.html#/12" data-go="12" title="პრეზენტაციაში გახსნა">სლაიდი 12</a></div>
+<div class="codebox"><div class="ch"><span>WalletPayment.cs · namespace-ის შიგნით</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="k">internal</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">WalletPayment</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">Payment</span><span class="p">,</span><span class="w"> </span><span class="n">IRefundable</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="kt">decimal</span><span class="w"> </span><span class="n">Balance</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">get</span><span class="p">;</span><span class="w"> </span><span class="k">private</span><span class="w"> </span><span class="k">set</span><span class="p">;</span><span class="w"> </span><span class="p">}</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="nf">WalletPayment</span><span class="p">(</span><span class="kt">decimal</span><span class="w"> </span><span class="n">amount</span><span class="p">,</span><span class="w"> </span><span class="kt">decimal</span><span class="w"> </span><span class="n">balance</span><span class="p">)</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="k">base</span><span class="p">(</span><span class="n">amount</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="p">{</span></span><span class="ln"><span class="w">        </span><span class="n">Balance</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">balance</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="p">}</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="k">override</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="nf">Pay</span><span class="p">(</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="p">{</span></span><span class="ln"><span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">Balance</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">Amount</span><span class="p">)</span></span><span class="ln"><span class="w">        </span><span class="p">{</span></span><span class="ln"><span class="w">            </span><span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="s">$"❌ საფულეში მხოლოდ {Balance} ₾ — არ ჰყოფნის"</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">            </span><span class="k">return</span><span class="w"> </span><span class="k">false</span><span class="p">;</span></span><span class="ln"><span class="w">        </span><span class="p">}</span></span><span class="ln"> </span><span class="ln"><span class="w">        </span><span class="n">Balance</span><span class="w"> </span><span class="o">-=</span><span class="w"> </span><span class="n">Amount</span><span class="p">;</span></span><span class="ln"><span class="w">        </span><span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="s">$"📱 საფულე → {Amount} ₾ (დარჩა {Balance} ₾)"</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="k">true</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="p">}</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="k">void</span><span class="w"> </span><span class="nf">Refund</span><span class="p">(</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="p">{</span></span><span class="ln"><span class="w">        </span><span class="n">Balance</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="n">Amount</span><span class="p">;</span></span><span class="ln"><span class="w">        </span><span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="s">$"↩️ {Amount} ₾ დაბრუნდა საფულეში ({Balance} ₾)"</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="p">}</span></span><span class="ln"><span class="p">}</span></span></code></pre></div>
+<ul>
+<li>🛡️ <code>Balance</code> — გარედან ჩანს, მაგრამ იცვლება მხოლოდ <code>Pay()</code>-ით და <code>Refund()</code>-ით.</li>
+<li>წესი: ფული არ ჰყოფნის → <code>false</code> და ბალანსი არ იცვლება.</li>
+<li>დაბრუნება — თანხა ბალანსს ემატება.</li>
+</ul></article>
+<article class="blk" data-slides="13"><span class="anchor" id="s-13"></span><div class="bh"><h3>⌨️ Program.cs — სალარო</h3><a class="chip" href="index.html#/13" data-go="13" title="პრეზენტაციაში გახსნა">სლაიდი 13</a></div>
+<div class="codebox"><div class="ch"><span>Program.cs · Main</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="n">Payment</span><span class="p">[</span><span class="p">]</span><span class="w"> </span><span class="n">payments</span><span class="w"> </span><span class="o">=</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="k">new</span><span class="w"> </span><span class="nf">CardPayment</span><span class="p">(</span><span class="mi">45</span><span class="p">,</span><span class="w"> </span><span class="s">"4417123456789012"</span><span class="p">)</span><span class="p">,</span></span><span class="ln"><span class="w">    </span><span class="k">new</span><span class="w"> </span><span class="nf">CashPayment</span><span class="p">(</span><span class="mi">20</span><span class="p">)</span><span class="p">,</span></span><span class="ln"><span class="w">    </span><span class="k">new</span><span class="w"> </span><span class="nf">WalletPayment</span><span class="p">(</span><span class="mi">80</span><span class="p">,</span><span class="w"> </span><span class="mi">50</span><span class="p">)</span></span><span class="ln"><span class="p">}</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="kt">decimal</span><span class="w"> </span><span class="n">total</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span></span><span class="ln"><span class="k">foreach</span><span class="w"> </span><span class="p">(</span><span class="n">Payment</span><span class="w"> </span><span class="n">p</span><span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="n">payments</span><span class="p">)</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">p</span><span class="p">.</span><span class="n">Pay</span><span class="p">(</span><span class="p">)</span><span class="p">)</span><span class="w"> </span><span class="n">total</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">Amount</span><span class="p">;</span></span><span class="ln"><span class="p">}</span></span><span class="ln"><span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="s">$"💰 სულ გადახდილია: {total} ₾"</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="n">CardPayment</span><span class="w"> </span><span class="n">card</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">CardPayment</span><span class="p">(</span><span class="mi">30</span><span class="p">,</span><span class="w"> </span><span class="s">"5555666677778888"</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="n">WalletPayment</span><span class="w"> </span><span class="n">wallet</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">WalletPayment</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span><span class="w"> </span><span class="mi">100</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="n">card</span><span class="p">.</span><span class="n">Pay</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="n">wallet</span><span class="p">.</span><span class="n">Pay</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="n">IRefundable</span><span class="p">[</span><span class="p">]</span><span class="w"> </span><span class="n">refunds</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">card</span><span class="p">,</span><span class="w"> </span><span class="n">wallet</span><span class="w"> </span><span class="p">}</span><span class="p">;</span></span><span class="ln"><span class="k">foreach</span><span class="w"> </span><span class="p">(</span><span class="n">IRefundable</span><span class="w"> </span><span class="n">r</span><span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="n">refunds</span><span class="p">)</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="n">r</span><span class="p">.</span><span class="n">Refund</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="p">}</span></span></code></pre></div>
+<div class="codebox"><div class="ch"><span>Console</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln">💳 ბარათი **** 9012 → 45 ₾</span><span class="ln">💵 ნაღდი → 20 ₾</span><span class="ln">❌ საფულეში მხოლოდ 50 ₾ — არ ჰყოფნის</span><span class="ln">💰 სულ გადახდილია: 65 ₾</span><span class="ln">💳 ბარათი **** 8888 → 30 ₾</span><span class="ln">📱 საფულე → 10 ₾ (დარჩა 90 ₾)</span><span class="ln">↩️ 30 ₾ დაბრუნდა ბარათზე **** 8888</span><span class="ln">↩️ 10 ₾ დაბრუნდა საფულეში (100 ₾)</span></code></pre></div>
+<ul>
+<li>🎭 <code>Payment[]</code> — სამი სხვადასხვა გადახდა, ერთი ციკლი. <code>p.Pay()</code> — ყველა თავისებურად; საფულემ უარი თქვა, ამიტომ ჯამში არ ჩაითვალა.</li>
+<li>🎨 <code>IRefundable[]</code> — მხოლოდ ისინი, ვისაც შეუძლია დაბრუნება. ნაღდი აქ ვერ ჩაეტევა — კომპილატორი არ დაუშვებს.</li>
+</ul></article>
+<article class="blk" data-slides="14"><span class="anchor" id="s-14"></span><div class="bh"><h3>💡 სად რომელი პრინციპია</h3><a class="chip" href="index.html#/14" data-go="14" title="პრეზენტაციაში გახსნა">სლაიდი 14</a></div>
+<table>
+<thead>
+<tr>
+<th>პრინციპი</th>
+<th>სად</th>
+<th>რას გვაძლევს</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>🛡️ ინკაფსულაცია</td>
+<td><code>Amount</code>, <code>Balance</code> — private set; <code>cardNumber</code> — private</td>
+<td>უარყოფითი თანხა და ნომრის გაჟონვა შეუძლებელია</td>
+</tr>
+<tr>
+<td>🧬 მემკვიდრეობა</td>
+<td><code>CardPayment : Payment</code></td>
+<td>თანხა და ToString — ერთხელ</td>
+</tr>
+<tr>
+<td>🎭 პოლიმორფიზმი</td>
+<td><code>foreach … p.Pay()</code></td>
+<td>ახალი გადახდის ტიპი — ციკლი არ იცვლება</td>
+</tr>
+<tr>
+<td>🎨 აბსტრაქცია</td>
+<td><code>abstract Payment</code>, <code>IRefundable</code></td>
+<td>„უბრალოდ გადახდა“ არ არსებობს; ნაღდი არ ბრუნდება</td>
+</tr>
+</tbody>
+</table></article>
+<h2 class="sec" id="sec-6">2 · თქვენი ჯერი</h2>
+<article class="blk" data-slides="15"><span class="anchor" id="s-15"></span><div class="bh"><h3>ნაწილი 2 · თქვენი ჯერი: ზოოპარკი</h3><a class="chip" href="index.html#/15" data-go="15" title="პრეზენტაციაში გახსნა">სლაიდი 15</a></div>
+<p>იგივე ხუთი კითხვა — ახლა თქვენ წერთ.</p></article>
+<article class="blk" data-slides="16"><span class="anchor" id="s-16"></span><div class="bh"><h3>🧩 დავალება: ზოოპარკი — ჯერ იფიქრეთ, მერე წერეთ</h3><a class="chip" href="index.html#/16" data-go="16" title="პრეზენტაციაში გახსნა">სლაიდი 16</a></div>
+<p><strong>ზოოპარკის მოთხოვნები:</strong></p>
+<ul>
+<li>ცხოველები: ლომი, თუთიყუში, იხვი, თევზი.</li>
+<li>ყველას აქვს სახელი და ენერგია (0–100).</li>
+<li>ყველა ჭამს და ხმას გამოსცემს — თავისებურად.</li>
+<li>ზოგი დაფრინავს, ზოგი ცურავს, იხვი — ორივეს.</li>
+<li>მოძრაობა ენერგიას ხარჯავს.</li>
+<li>„უბრალოდ ცხოველი“ არ არსებობს.</li>
+</ul>
+<p>ჯერ რვეულში უპასუხეთ ხუთ კითხვას (5 წუთი): ვინ/რა → კლასები, ვინ არის → მემკვიდრეობა, რა შეუძლია → ინტერფეისი, რა დავიცვათ → private, რა განსხვავდება → abstract/override. მერე — კოდი, დონეების მიხედვით.</p></article>
+<h2 class="sec" id="sec-7">პრაქტიკა</h2>
+<article class="blk" data-slides="17"><span class="anchor" id="s-17"></span><div class="bh"><h3>კლასში დავალება: ზოოპარკი 🦁</h3><a class="chip" href="index.html#/17" data-go="17" title="პრეზენტაციაში გახსნა">სლაიდი 17</a></div>
+<p>ყოველი დონე — ერთი პრინციპი</p>
+<h3>ნაბიჯები</h3>
+<ul>
+<li>⭐ <strong>🛡️</strong> <code>Animal</code>: <code>Name</code> წესით, <code>Energy { get; private set; }</code> (0–100), <code>Eat(int food)</code>, <code>protected Spend(int amount)</code></li>
+<li>⭐ <strong>🧬</strong> <code>Lion</code>, <code>Parrot</code>, <code>Duck</code>, <code>Fish</code> — <code>Animal</code>-ის შვილები, <code>: base(name)</code>-ით</li>
+<li>⭐⭐ <strong>🎭</strong> <code>virtual void Move()</code> (−10, „დადის“) — თევზი <code>override</code>-ით ცურავს; <code>override ToString()</code> → „ლეო ⚡ 70“</li>
+<li>⭐⭐ <strong>🎨</strong> <code>Animal</code> → <code>abstract</code>; <code>abstract string MakeSound()</code> — ყველას თავისი ხმა</li>
+<li>⭐⭐⭐ <strong>🎨</strong> <code>IFlyer</code> (<code>Fly()</code>, −20) და <code>ISwimmer</code> (<code>Swim()</code>, −5): თუთიყუში დაფრინავს, თევზი ცურავს, იხვი — ორივეს</li>
+</ul>
+<h3>✓ მზადაა, როცა</h3>
+<p><code>Animal[]</code> — ერთი ციკლი</p>
+<h3>⭐ ბონუსი</h3>
+<ul>
+<li>🏆 <strong>მომვლელი</strong> — <code>static void FeedAll(Animal[] animals, int food)</code> Program-ში: ყველას აჭმევს და ბოლოს ყველაზე დაღლილს ბეჭდავს</li>
+</ul>
+<h3>💡 მინიშნება</h3>
+<p>ცარიელი სახელი → „უსახელო“, ენერგია თავიდან 50. ზუსტად სალაროსავით: <code>Animal</code> ↔ <code>Payment</code>, <code>MakeSound()</code> ↔ <code>Pay()</code>, <code>IFlyer</code> ↔ <code>IRefundable</code>. იხვი: <code>class Duck : Animal, IFlyer, ISwimmer</code>. <code>Spend</code> — <code>protected</code>: შვილებმა უნდა გამოიძახონ, გარედან კი — არავინ.</p></article>
+<h2 class="sec" id="sec-8">2 · თქვენი ჯერი</h2>
+<article class="blk" data-slides="18"><span class="anchor" id="s-18"></span><div class="bh"><h3>📝 შემდეგ ლექციაზე — ტესტი</h3><a class="chip" href="index.html#/18" data-go="18" title="პრეზენტაციაში გახსნა">სლაიდი 18</a></div>
+<ul>
+<li><strong>რა იქნება:</strong> C#-ის საფუძვლები და მთელი OOP — კლასები, ობიექტები, ოთხი პრინციპი.</li>
+<li><strong>როგორი კითხვები:</strong> თეორია, „რას დაბეჭდავს?“, კოდის აწყობა (ხაზების სწორ რიგში დალაგება), ცარიელი ადგილის შევსება, „იპოვე შეცდომა“.</li>
+<li><strong>ქულა:</strong> ტესტის ბოლოს მაშინვე ნახავთ ქულას, შეცდომებს და სწორ პასუხებს ახსნით.</li>
+</ul>
+<p><strong>როგორ მოვემზადოთ:</strong> კონსპექტები, ყოველი ლექციის „შევამოწმოთ“-ის კითხვები და არენის კოდი — თავიდან ბოლომდე. სცადეთ, არენა ნულიდან დაწეროთ კონსპექტში ჩაუხედავად.</p></article>
+<h2 class="sec" id="sec-9">შეჯამება</h2>
+<article class="blk" data-slides="19"><span class="anchor" id="s-19"></span><div class="bh"><h3>შეამოწმე, რა დაგამახსოვრდა</h3><a class="chip" href="index.html#/19" data-go="19" title="პრეზენტაციაში გახსნა">სლაიდი 19</a></div>
+<p>ეს კითხვები შემდეგი ლექციის დასაწყისშიც დაისმება.</p>
+<div class="selfcheck"><div class="sh">✅ შეამოწმე თავი <small>დაფიქრდი, მერე გახსენი პასუხი</small></div><details><summary>OOP პროექტის დაგეგმვის ხუთი კითხვა?</summary><div class="ans">ვინ/რა → კლასები · ვინ „არის“ → მემკვიდრეობა · რა „შეუძლია“ → ინტერფეისი · რა დავიცვათ → private · რა განსხვავდება → abstract/override</div></details><details><summary>სალაროში <code>Payment</code> რატომ არის abstract?</summary><div class="ans">„უბრალოდ გადახდა“ არ არსებობს — ყოველთვის ბარათია, ნაღდი ან საფულე. და ყველა შვილი ვალდებულია Pay() დაწეროს</div></details><details><summary><code>IRefundable</code> — რატომ ინტერფეისი და არა <code>Payment</code>-ის მეთოდი?</summary><div class="ans">დაბრუნება ყველას არ შეუძლია — ნაღდს არა. „შეუძლია“ → ინტერფეისი</div></details><details><summary><code>private string cardNumber;</code> — რატომ არც property?</summary><div class="ans">ნომერი გარედან საერთოდ არ უნდა ჩანდეს — მხოლოდ <code>Masked()</code> აჩვენებს ბოლო 4 ციფრს (ინკაფსულაცია)</div></details><details><summary><code>Payment[]</code> და ერთი ციკლი <code>p.Pay()</code>-ით — რომელი პრინციპია და რას გვაძლევს?</summary><div class="ans">პოლიმორფიზმი: ყველა თავისებურად იხდის, ახალი გადახდის ტიპი ციკლს არ ცვლის</div></details></div></article>
+<article class="blk" data-slides="20"><span class="anchor" id="s-20"></span><div class="bh"><h3>შეჯამება · ჯერ იფიქრე — მერე წერე</h3><a class="chip" href="index.html#/20" data-go="20" title="პრეზენტაციაში გახსნა">სლაიდი 20</a></div>
+<p><strong>დაიმახსოვრე:</strong></p>
+<ol>
+<li>OOP პროექტი ხუთი კითხვით იწყება: ვინ/რა → ვინ „არის“ → რა „შეუძლია“ → რა დავიცვათ → რა განსხვავდება.</li>
+<li>„არის“ → მემკვიდრეობა (<code>abstract</code> მშობელი); „შეუძლია“ → ინტერფეისი.</li>
+<li>დაცვა → <code>private</code>, <code>private set</code> და წესები მეთოდებში.</li>
+<li>მშობლის ან ინტერფეისის ტიპის მასივი + ერთი ციკლი → ახალი ტიპი კოდს არ ცვლის.</li>
+</ol>
+<h3>⏭️ შემდეგ</h3>
+<p>📝 ტესტი — C#-ის საფუძვლები და მთელი OOP.</p></article>
+<h2 class="sec" id="sec-10">საშინაო</h2>
+<article class="blk" data-slides="21"><span class="anchor" id="s-21"></span><div class="bh"><h3>საშინაო დავალება: ⚽ ფეხბურთის კლუბი · ფინალი — სეზონი + მზადება ტესტისთვის</h3><a class="chip" href="index.html#/21" data-go="21" title="პრეზენტაციაში გახსნა">სლაიდი 21</a></div>
+<p>4 კლუბი, ყველა ყველას ეთამაშება, მოგება ფულს მოაქვს, ხელფასები კი ყოველ მატჩზე — ვინ გახდება ჩემპიონი?</p>
+<h3>მოთხოვნები</h3>
+<ul>
+<li><code>Club</code>-ში: <code>Points</code>, <code>GoalsFor</code>, <code>GoalsAgainst</code> — <code>{ get; private set; }</code> და <code>void AddResult(int scored, int conceded)</code>: მოგება 3 ქულა და +15 000 ₾, ფრე 1 ქულა და +5 000 ₾, წაგება 0</li>
+<li><code>PlayMatch</code> ორივე კლუბს შედეგს უწერს <code>AddResult</code>-ით; მატჩის შემდეგ ორივე კლუბი იხდის ხელფასს</li>
+<li>Program-ში <code>static Club MakeClub(string name, int coachLevel)</code> — 150 000 ₾-იანი კლუბი, რომელიც თავად ყიდულობს 1 მეკარეს, 2 მცველს და 2 თავდამსხმელს შემთხვევითი უნარით (50–90)</li>
+<li>Main-ში: <code>Club[] league</code> — 4 კლუბი; ორი ჩადგმული <code>for</code> — ყველა წყვილი ერთხელ; ბოლოს ცხრილი (ქულები, გოლები, ბიუჯეტი) და ჩემპიონი</li>
+<li>ტესტისთვის: გადახედეთ ყოველი ლექციის „შევამოწმოთ“-ის კითხვებს და იპოვეთ პროექტში ოთხივე პრინციპი</li>
+</ul>
+<h3>✓ მზადაა, როცა</h3>
+<p>6 მატჩი თამაშდება და არცერთი კლუბი თავის თავს არ ეთამაშება; ქულები და ბიუჯეტი მხოლოდ <code>Club</code>-ის მეთოდებით იცვლება; ოთხივე პრინციპზე შეგიძლიათ თითით აჩვენოთ: „აი, აქ“</p>
+<h3>⭐ ბონუსი</h3>
+<ul>
+<li>ორწრიანი სეზონი (შინ და გასვლაზე); ცხრილი ქულებით დალაგებული (bubble sort); ფრე ქულებში → გოლების სხვაობა წყვეტს</li>
+</ul></article>
+  </main>
+</div>
+<script>
+const DECK = "C# · 11 — OOP შეჯამება: პროექტი ნულიდან";
+if (matchMedia('(min-width:981px)').matches) document.getElementById('tocd').open = true;
+const blocks = [...document.querySelectorAll('.blk')];
+const tocLinks = [...document.querySelectorAll('nav.toc a[href^="#sec-"]')];
+const secOf = b => { let e = b; while (e && !(e.matches && e.matches('h2.sec'))) e = e.previousElementSibling; return e; };
+function mark(b, toc_only) {
+  if (!toc_only) blocks.forEach(x => x.classList.toggle('cur', x === b));
+  const s = b && secOf(b); tocLinks.forEach(a => a.classList.toggle('cur', s && a.getAttribute('href') === '#' + s.id));
+}
+const blockFor = n => blocks.find(b => b.dataset.slides.split(',').includes(String(n)));
+
+// copy buttons (code: one line per .ln)
+document.addEventListener('click', e => {
+  const btn = e.target.closest('.copy'); if (!btn) return;
+  const box = btn.closest('.codebox, .prompt');
+  const text = box.matches('.prompt') ? box.querySelector('.pb').textContent : [...box.querySelectorAll('.ln')].map(l => l.textContent).join('\n');
+  navigator.clipboard.writeText(text).then(() => { btn.textContent = '✓ დაკოპირდა'; btn.classList.add('ok'); setTimeout(() => { btn.textContent = 'კოპირება'; btn.classList.remove('ok'); }, 1600); });
+});
+
+// live mode: opened from the deck with P — follow the projector
+const live = new URLSearchParams(location.search).has('live');
+let follow = true, bc = null;
+const liveBtn = document.getElementById('live');
+if (live) {
+  try { bc = new BroadcastChannel('deck-' + DECK); } catch (e) {}
+  liveBtn.classList.add('on');
+  liveBtn.onclick = () => { follow = !follow; liveBtn.classList.toggle('off', !follow); liveBtn.querySelector('.lt').textContent = follow ? 'მიჰყვება სლაიდებს' : 'თავისუფლად ვკითხულობ'; };
+  if (bc) {
+    bc.onmessage = ({ data }) => {
+      if (data.t !== 'state' || !follow) return;
+      const b = blockFor(data.i + 1); if (!b || b.classList.contains('cur')) return;
+      mark(b); b.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    };
+    bc.postMessage({ t: 'hello' });
+  }
+  document.addEventListener('click', e => {   // slide chip → move the projector deck
+    const c = e.target.closest('.chip[data-go]'); if (!c || !bc) return;
+    e.preventDefault(); bc.postMessage({ t: 'go', n: +c.dataset.go - 1 });
+  });
+}
+// deep link #s-12
+const h = location.hash.match(/^#s-(\d+)$/);
+if (h) { const b = blockFor(+h[1]); if (b) { mark(b); setTimeout(() => b.scrollIntoView({ block: 'start' }), 50); } }
+// highlight section in the TOC while reading
+const io = new IntersectionObserver(es => es.forEach(x => { if (x.isIntersecting && !(live && follow)) mark(x.target, true); }), { rootMargin: '-30% 0px -60% 0px' });
+blocks.forEach(b => io.observe(b));
+</script>
+</body></html>

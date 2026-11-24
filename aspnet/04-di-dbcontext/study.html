@@ -1,0 +1,743 @@
+<!doctype html>
+<html lang="ka"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>📖 Dependency Injection და DbContext — კონსპექტი</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Georgian:wght@400;600;700;800&family=JetBrains+Mono:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#fbf8f3;--card:#fff;--ink:#1e2132;--ink2:#3b3f54;--muted:#7b8096;--line:#e6dfd2;--accent:#6d28d9;--accent-soft:#f3effe;--teal:#0d9488;
+  --green:#15803d;--amber:#b45309;--mono:"JetBrains Mono",ui-monospace,monospace;--sans:"Noto Sans Georgian",system-ui,sans-serif}
+*{box-sizing:border-box}
+html{scroll-padding-top:76px}
+body{margin:0;background:var(--bg);color:var(--ink);font:17.5px/1.75 var(--sans);-webkit-font-smoothing:antialiased}
+a{color:var(--accent)}
+/* top bar */
+.top{position:sticky;top:0;z-index:10;display:flex;align-items:center;gap:14px;padding:10px 20px;background:rgba(251,248,243,.92);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.top .back{font:600 14px var(--mono);color:var(--muted);text-decoration:none;white-space:nowrap}
+.top .back:hover{color:var(--ink)}
+.top .ttl{flex:1;min-width:0;font-weight:700;font-size:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.top .ttl small{font:500 13px var(--mono);color:var(--muted);margin-right:8px}
+.btn{font:700 14px var(--sans);text-decoration:none;border-radius:10px;padding:7px 14px;white-space:nowrap;border:1px solid var(--line);color:var(--ink);background:var(--card);cursor:pointer}
+.btn.play{background:var(--accent);border-color:var(--accent);color:#fff}
+.live{display:none;align-items:center;gap:8px;font:600 13px var(--mono);color:var(--teal);background:#e6f6f4;border:1px solid #bfe7e2;border-radius:999px;padding:5px 12px;cursor:pointer}
+.live.on{display:flex}
+.live .dot{width:8px;height:8px;border-radius:50%;background:var(--teal);animation:pulse 1.6s infinite}
+.live.off{color:var(--muted);background:var(--card);border-color:var(--line)}.live.off .dot{background:var(--muted);animation:none}
+@keyframes pulse{50%{opacity:.3}}
+/* layout */
+.wrap{display:grid;grid-template-columns:230px minmax(0,1000px);gap:44px;justify-content:center;padding:32px 28px 120px}
+nav.toc{position:sticky;top:84px;align-self:start;font-size:14px;line-height:1.45}
+nav.toc .h{font:700 12px var(--mono);color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px}
+nav.toc a{display:block;color:var(--ink2);text-decoration:none;padding:6px 10px;border-left:2px solid var(--line)}
+nav.toc a:hover{color:var(--accent)}
+nav.toc a.cur{color:var(--accent);border-left-color:var(--accent);font-weight:700}
+nav.toc .mats{margin-top:22px;display:flex;flex-direction:column;gap:6px}
+nav.toc .mats a{border:0;padding:2px 0;font:500 13px var(--mono);color:var(--teal);word-break:break-all}
+header.hero{margin-bottom:8px}
+header.hero .k{font:600 14px var(--mono);color:var(--accent)}
+header.hero h1{font-size:38px;line-height:1.2;margin:6px 0 10px;letter-spacing:-.01em}
+header.hero p{color:var(--muted);margin:0;font-size:15.5px}
+header.hero kbd{font:500 12px var(--mono);border:1px solid var(--line);border-radius:5px;padding:0 5px;background:var(--card)}
+h2.sec{font-size:15px;font:700 13px var(--mono);color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin:48px 0 6px;padding-top:18px;border-top:1px solid var(--line)}
+/* blocks */
+.blk{position:relative;padding:14px 0 6px 22px;margin-left:-22px;border-left:3px solid transparent;transition:border-color .3s,background .3s;border-radius:0 12px 12px 0}
+.blk.cur{border-left-color:var(--accent);background:linear-gradient(90deg,var(--accent-soft),transparent 70%)}
+.anchor{position:absolute;top:0}
+.bh{display:flex;align-items:baseline;justify-content:space-between;gap:12px}
+.bh h3{font-size:22px;line-height:1.35;margin:4px 0 6px}
+.chip{flex:none;font:600 12px var(--mono);color:var(--muted);text-decoration:none;border:1px solid var(--line);border-radius:999px;padding:2px 10px;background:var(--card)}
+.chip:hover{color:var(--accent);border-color:var(--accent)}
+.blk h2{font-size:26px;line-height:1.3;margin:6px 0 10px}
+.blk h3:not(.bh h3){font-size:19px;margin:22px 0 6px}
+.blk h4{font-size:17px;margin:18px 0 4px}
+.blk p{margin:10px 0}
+.blk ul,.blk ol{padding-left:24px;margin:8px 0}
+.blk li{margin:4px 0}
+.blk strong{color:var(--ink)}
+.blk :not(pre)>code{font:600 .86em var(--mono);background:#f1ece3;border-radius:6px;padding:1px 6px;color:#5b21b6}
+.blk table{border-collapse:collapse;margin:14px 0;font-size:15.5px;width:100%;display:block;overflow-x:auto}
+.blk th,.blk td{border:1px solid var(--line);padding:8px 12px;text-align:left;vertical-align:top}
+.blk th{background:#f6f1e8}
+/* code */
+.codebox{margin:14px 0;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:#fffdf9}
+.codebox .ch,.prompt .ph{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:6px 8px 6px 14px;font:600 12.5px var(--mono);color:var(--muted);background:#f6f1e8;border-bottom:1px solid var(--line)}
+.copy{font:600 12px var(--mono);border:1px solid var(--line);background:var(--card);color:var(--ink2);border-radius:7px;padding:3px 10px;cursor:pointer}
+.copy:hover{border-color:var(--ink)}
+.copy.ok{color:var(--green);border-color:var(--green)}
+pre.code{margin:0;padding:12px 0;overflow-x:auto;font:14px/1.65 var(--mono)}
+pre.code .ln{display:block;padding:0 16px;white-space:pre}
+.code .ttl{background:var(--bg2);color:var(--muted)}
+.code .ln.hl{background:rgba(109,40,217,.07);box-shadow:inset 3px 0 0 var(--net)}
+.code .ln.dim{opacity:.42}
+.code .k,.code .kd,.code .kn,.code .kr,.code .kc{color:#7c3aed}
+.code .kt{color:#2563eb}
+.code .s,.code .s1,.code .s2,.code .sa,.code .se,.code .si,.code .sd{color:#15803d}
+.code .c,.code .c1,.code .cm,.code .cp,.code .ch{color:#8b8fa3}
+.code .m,.code .mi,.code .mf,.code .mh{color:#c2410c}
+.code .nf,.code .fm{color:#1d4ed8}
+.code .nc,.code .nn,.code .nt,.code .nd{color:#b45309}
+.code .na{color:#7c3aed} .code .nb{color:#0e7490}
+.code .o,.code .p{color:#64748b}
+.code .nv,.code .nx{color:var(--ink)}
+.code .go{color:#64748b}
+/* prompt */
+.prompt{margin:16px 0;border:1px solid #ddd2fb;border-radius:12px;overflow:hidden;background:var(--accent-soft)}
+.prompt .ph{background:#ebe3fd;border-color:#ddd2fb;color:var(--accent)}
+.prompt .pb{padding:12px 16px;white-space:pre-wrap;font-size:15.5px;line-height:1.6;color:var(--ink2)}
+/* self check */
+.selfcheck{margin:16px 0;border:1px solid #cfe9d6;border-radius:12px;background:#f3fbf5;padding:12px 16px}
+.selfcheck .sh{font-weight:700;color:var(--green);margin-bottom:6px}
+.selfcheck .sh small{font-weight:400;color:var(--muted);font-size:13.5px;margin-left:6px}
+.selfcheck details{border-top:1px solid #dcefe1;padding:8px 0}
+.selfcheck summary{cursor:pointer;font-weight:600;list-style:none;padding-left:26px;position:relative}
+.selfcheck summary::-webkit-details-marker{display:none}
+.selfcheck summary::before{content:"?";position:absolute;left:0;top:2px;width:18px;height:18px;border-radius:50%;background:var(--green);color:#fff;font:700 12px/18px var(--mono);text-align:center}
+.selfcheck details[open] summary::before{content:"✓"}
+.selfcheck .ans{padding:6px 0 2px 26px;color:var(--ink2)}
+/* terms */
+.terms{margin:16px 0;border:1px solid var(--line);border-radius:12px;background:var(--card);padding:12px 16px}
+.terms .th{font-weight:700;margin-bottom:6px}
+.terms dl{display:grid;grid-template-columns:max-content 1fr;gap:6px 18px;margin:0}
+.terms dt{font:600 14.5px var(--mono);color:var(--accent)}
+.terms dd{margin:0;color:var(--ink2)}
+/* callouts */
+.callout{display:flex;gap:12px;margin:14px 0;padding:12px 16px;border-radius:12px;border:1px solid var(--line);background:var(--card)}
+.callout .ci{font-size:20px;line-height:1.6}
+.callout>div>p:first-child{margin-top:0}.callout>div>p:last-child{margin-bottom:0}
+.callout.warn{background:#fff8eb;border-color:#f6dfb5}
+.callout.note{background:#eef5ff;border-color:#cfe0fb}
+@media (max-width:980px){
+  .wrap{grid-template-columns:minmax(0,1fr);gap:0;padding:20px 16px 100px}
+  nav.toc{position:static;margin-bottom:12px}
+  nav.toc details{border:1px solid var(--line);border-radius:12px;background:var(--card);padding:8px 12px}
+  nav.toc details>summary{cursor:pointer;font-weight:700}
+  nav.toc .h{display:none}
+  header.hero h1{font-size:30px}
+  .blk{padding-left:14px;margin-left:-14px}
+  .top .ttl small{display:none}
+  .terms dl{grid-template-columns:1fr}.terms dd{margin-bottom:8px}
+}
+@media (min-width:981px){nav.toc details>summary{display:none}}
+@media print{.top,nav.toc,.copy,.chip,.live{display:none}.wrap{display:block;padding:0}.selfcheck details{display:block}.blk.cur{background:none}}
+</style></head>
+<body>
+<div class="top">
+  <a class="back" href="../../">← ლექციები</a>
+  <div class="ttl"><small>ASP.NET · 4</small>Dependency Injection და DbContext</div>
+  <button class="live" id="live" type="button" title="ჩართული: ტექსტი პრეზენტაციას მიჰყვება"><span class="dot"></span><span class="lt">მიჰყვება სლაიდებს</span></button>
+  <a class="btn play" href="index.html">▶ პრეზენტაცია</a>
+</div>
+<div class="wrap">
+  <nav class="toc"><details id="tocd"><summary>სარჩევი</summary><div class="h">სარჩევი</div><a href="#sec-1">გამეორება</a><a href="#sec-2">საშინაოს განხილვა</a><a href="#sec-3">დღის თემა</a><a href="#sec-4">1 · ბაზა API-ში</a><a href="#sec-5">2 · Inversion of Control</a><a href="#sec-6">3 · Dependency Injection</a><a href="#sec-7">4 · სამი Lifetime</a><a href="#sec-8">პრაქტიკა</a><a href="#sec-9">შეჯამება</a><a href="#sec-10">საშინაო</a><div class="mats"></div></details></nav>
+  <main>
+    <header class="hero">
+      <div class="k">📖 კონსპექტი · ASP.NET · ლექცია 4</div>
+      <h1>Dependency Injection და DbContext</h1>
+      <p>წაიკითხე ლექციის შემდეგ, ან პრეზენტაციასთან ერთად: პრეზენტაციაში დააჭირე <kbd>P</kbd> და ეს გვერდი სლაიდებს გაჰყვება. კოდი და AI-ს პრომპტები კოპირდება ერთი დაჭერით.</p>
+    </header>
+    <h2 class="sec" id="sec-1">გამეორება</h2>
+<article class="blk" data-slides="1,2"><span class="anchor" id="s-1"></span><span class="anchor" id="s-2"></span><div class="bh"><h3>გავიხსენოთ წინა ლექცია</h3><a class="chip" href="index.html#/1" data-go="1" title="პრეზენტაციაში გახსნა">სლაიდი 1</a></div>
+<p>ლექცია 3 — <strong>DTO და Mapping</strong>. ახალ თემამდე ვამოწმებთ, რა დაგვამახსოვრდა. ჯერ თვითონ უპასუხე, მერე გახსენი პასუხი. თუ რომელიმე გაგიჭირდა, <a href="../03-dto-mapping/study.html">წინა ლექციის კონსპექტს</a> გადახედე.</p>
+<div class="selfcheck"><div class="sh">✅ შეამოწმე თავი <small>დაფიქრდი, მერე გახსენი პასუხი</small></div><details><summary>რა არის Entity და რატომ არ ვაბრუნებთ მას პირდაპირ?</summary><div class="ans">ბაზის ცხრილის აღწერა · შიდა ველები გაიპარება, კლიენტი სერვერის ველებს შეავსებს, ცხრილის ცვლილება კლიენტს გატეხავს</div></details><details><summary>რა განსხვავებაა Request DTO-სა და Response DTO-ს შორის?</summary><div class="ans">Request — რას ვიღებთ (Id-ს გარეშე) · Response — რას ვაჩვენებთ (შიდა ველების გარეშე)</div></details><details><summary>რა არის mapping და რატომ გავიტანეთ ცალკე Mapper-ში?</summary><div class="ans">ველების გადატანა ერთი ობიექტიდან მეორეში · რომ ერთი ცოდნა ერთ ადგილას იყოს და ახალი ველი ერთგან შეიცვალოს</div></details><details><summary>რას აკეთებს <code>this</code> mapper-ის მეთოდის პარამეტრში?</summary><div class="ans">extension method: <code>product.ToResponse()</code> — თითქოს მეთოდი Product-ს ეკუთვნის</div></details><details><summary>სად არის Mapperly-ს მეთოდის სხეული?</summary><div class="ans">კომპილაციისას თვითონ წერს · <code>ProductMapper.g.cs</code> — Dependencies → Analyzers</div></details></div></article>
+<h2 class="sec" id="sec-2">საშინაოს განხილვა</h2>
+<article class="blk" data-slides="3"><span class="anchor" id="s-3"></span><div class="bh"><h3>საშინაოს განხილვა</h3><a class="chip" href="index.html#/3" data-go="3" title="პრეზენტაციაში გახსნა">სლაიდი 3</a></div>
+<p>წინა ლექციის საშინაო: <strong>MembersController — პაროლი გარეთ არ გადის</strong>. ქვემოთ არის ერთ-ერთი სწორი ამოხსნა. შენი კოდი შეიძლება სხვანაირად იყოს დაწერილი — მთავარია, მოთხოვნები სრულდებოდეს.</p>
+<h3>მოთხოვნები</h3>
+<ul>
+<li><code>Models/Member</code>: <code>Id</code> (Guid), <code>FullName</code>, <code>Email</code>, <code>PasswordHash</code>, <code>JoinedAt</code></li>
+<li><code>Dtos/</code>: <strong>CreateMemberRequest</strong> (FullName, Email, Password), <strong>UpdateMemberRequest</strong> (FullName, Email), <strong>MemberResponse</strong> (Id, FullName, Email, JoinedAt)</li>
+<li><code>Mappers/MemberMapper</code> — პირდაპირ <strong>Mapperly</strong>-ით</li>
+<li><strong>MembersController</strong> — სრული CRUD, სწორი სტატუს კოდები</li>
+<li>Create-ში: <code>Id</code>, <code>JoinedAt</code> და <code>PasswordHash</code> სერვერი ავსებს</li>
+</ul>
+<h3>ამოხსნა</h3>
+<p>DTO-ები: <code>Password</code> მხოლოდ შემოდის, <code>PasswordHash</code> საერთოდ არსად გადის.</p>
+<div class="codebox"><div class="ch"><span>Dtos/MemberDtos.cs</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="k">public</span><span class="w"> </span><span class="k">record</span><span class="w"> </span><span class="nf">CreateMemberRequest</span><span class="p">(</span></span><span class="ln"><span class="w">    </span><span class="kt">string</span><span class="w"> </span><span class="n">FullName</span><span class="p">,</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="n">Email</span><span class="p">,</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="n">Password</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="k">public</span><span class="w"> </span><span class="k">record</span><span class="w"> </span><span class="nf">UpdateMemberRequest</span><span class="p">(</span><span class="kt">string</span><span class="w"> </span><span class="n">FullName</span><span class="p">,</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="n">Email</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="k">public</span><span class="w"> </span><span class="k">record</span><span class="w"> </span><span class="nf">MemberResponse</span><span class="p">(</span></span><span class="ln"><span class="w">    </span><span class="n">Guid</span><span class="w"> </span><span class="n">Id</span><span class="p">,</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="n">FullName</span><span class="p">,</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="n">Email</span><span class="p">,</span><span class="w"> </span><span class="n">DateTime</span><span class="w"> </span><span class="n">JoinedAt</span><span class="p">)</span><span class="p">;</span></span></code></pre></div>
+<p>Mapper: ყველა „განზრახ გამოტოვებული“ ველი ცხადად წერია.</p>
+<div class="codebox"><div class="ch"><span>Mappers/MemberMapper.cs</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="na">[Mapper]</span></span><span class="ln"><span class="k">public</span><span class="w"> </span><span class="k">static</span><span class="w"> </span><span class="k">partial</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">MemberMapper</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="na">[MapperIgnoreSource(nameof(Member.PasswordHash))]</span></span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="k">static</span><span class="w"> </span><span class="k">partial</span><span class="w"> </span><span class="n">MemberResponse</span><span class="w"> </span><span class="nf">ToResponse</span><span class="p">(</span><span class="k">this</span><span class="w"> </span><span class="n">Member</span><span class="w"> </span><span class="n">member</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="na">[MapperIgnoreSource(nameof(CreateMemberRequest.Password))]</span></span><span class="ln"><span class="w">    </span><span class="na">[MapperIgnoreTarget(nameof(Member.Id))]</span></span><span class="ln"><span class="w">    </span><span class="na">[MapperIgnoreTarget(nameof(Member.PasswordHash))]</span></span><span class="ln"><span class="w">    </span><span class="na">[MapperIgnoreTarget(nameof(Member.JoinedAt))]</span></span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="k">static</span><span class="w"> </span><span class="k">partial</span><span class="w"> </span><span class="n">Member</span><span class="w"> </span><span class="nf">ToEntity</span><span class="p">(</span><span class="k">this</span><span class="w"> </span><span class="n">CreateMemberRequest</span><span class="w"> </span><span class="n">request</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="na">[MapperIgnoreTarget(nameof(Member.Id))]</span></span><span class="ln"><span class="w">    </span><span class="na">[MapperIgnoreTarget(nameof(Member.PasswordHash))]</span></span><span class="ln"><span class="w">    </span><span class="na">[MapperIgnoreTarget(nameof(Member.JoinedAt))]</span></span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="k">static</span><span class="w"> </span><span class="k">partial</span><span class="w"> </span><span class="k">void</span><span class="w"> </span><span class="nf">UpdateFrom</span><span class="p">(</span></span><span class="ln"><span class="w">        </span><span class="na">[MappingTarget]</span><span class="w"> </span><span class="k">this</span><span class="w"> </span><span class="n">Member</span><span class="w"> </span><span class="n">member</span><span class="p">,</span><span class="w"> </span><span class="n">UpdateMemberRequest</span><span class="w"> </span><span class="n">request</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="p">}</span></span></code></pre></div>
+<p>Controller — Create, ბონუსით:</p>
+<div class="codebox"><div class="ch"><span>Controllers/MembersController.cs</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="na">[HttpPost]</span></span><span class="ln"><span class="k">public</span><span class="w"> </span><span class="n">IActionResult</span><span class="w"> </span><span class="nf">Create</span><span class="p">(</span><span class="n">CreateMemberRequest</span><span class="w"> </span><span class="n">request</span><span class="p">)</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">_members</span><span class="p">.</span><span class="n">Any</span><span class="p">(</span><span class="n">m</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">m</span><span class="p">.</span><span class="n">Email</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">request</span><span class="p">.</span><span class="n">Email</span><span class="p">)</span><span class="p">)</span></span><span class="ln"><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="nf">Conflict</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="kt">var</span><span class="w"> </span><span class="n">member</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">request</span><span class="p">.</span><span class="n">ToEntity</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="n">member</span><span class="p">.</span><span class="n">Id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Guid</span><span class="p">.</span><span class="n">NewGuid</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="n">member</span><span class="p">.</span><span class="n">JoinedAt</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">DateTime</span><span class="p">.</span><span class="n">UtcNow</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="n">member</span><span class="p">.</span><span class="n">PasswordHash</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Argon2</span><span class="p">.</span><span class="n">Hash</span><span class="p">(</span><span class="n">request</span><span class="p">.</span><span class="n">Password</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="n">_members</span><span class="p">.</span><span class="n">Add</span><span class="p">(</span><span class="n">member</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nf">CreatedAtAction</span><span class="p">(</span><span class="k">nameof</span><span class="p">(</span><span class="n">GetById</span><span class="p">)</span><span class="p">,</span></span><span class="ln"><span class="w">        </span><span class="k">new</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">member</span><span class="p">.</span><span class="n">Id</span><span class="w"> </span><span class="p">}</span><span class="p">,</span><span class="w"> </span><span class="n">member</span><span class="p">.</span><span class="n">ToResponse</span><span class="p">(</span><span class="p">)</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="p">}</span></span></code></pre></div>
+<div class="callout note"><span class="ci">💡</span><div><p><code>Argon2.Hash</code> აბრუნებს ერთ სტრიქონს, მაგალითად <code>$argon2id$v=19$m=…,t=…,p=…$…</code>. მასშივე წერია ალგორითმი, პარამეტრები და „მარილი“ (salt) — ამიტომ ერთი და იგივე პაროლი ორჯერ ერთნაირ hash-ს არ იძლევა, და ცალკე სვეტი salt-ისთვის არ გვჭირდება. პაროლის შემოწმებას (<code>Argon2.Verify</code>) ავტორიზაციის თემაში ვნახავთ.</p></div></div></article>
+<h2 class="sec" id="sec-3">დღის თემა</h2>
+<article class="blk" data-slides="4"><span class="anchor" id="s-4"></span><div class="bh"><h3>დღის თემა: Dependency Injection და DbContext</h3><a class="chip" href="index.html#/4" data-go="4" title="პრეზენტაციაში გახსნა">სლაიდი 4</a></div>
+<p>ShopApi-ის პროდუქტები ჯერ კიდევ Controller-ის <code>static</code> სიაშია: სერვერის გადატვირთვაზე ყველაფერი ქრება, მეორე Controller კი მათ ვერ წვდება. დღეს API-ს ნამდვილ ბაზას ვუერთებთ — EF Core-ს, რომელიც კონსოლში ვისწავლეთ — და ამ გზაზე ვპასუხობთ კითხვას, რომელსაც ყველა .NET გასაუბრებაზე გკითხავენ: ვინ ქმნის ობიექტებს? პასუხი — Inversion of Control და Dependency Injection — და სამი გზა, რამდენ ხანს იცოცხლოს ობიექტმა: Singleton, Scoped, Transient.</p>
+<p><strong>ლექციის ბოლოს შეძლებ:</strong></p>
+<ul>
+<li>EF Core-ის მიერთება Web API-ზე: DataContext, მიგრაცია, CRUD Controller-ში</li>
+<li>ახსნა, რატომ არ ვწერთ Controller-ში <code>new DataContext()</code>-ს და რა არის IoC და DI</li>
+<li>DataContext-ის constructor-ით მოთხოვნა, <code>AddDbContext</code> რეგისტრაცია, connection string — <code>appsettings.json</code>-ში</li>
+<li>Singleton, Scoped და Transient-ის განსხვავება და რატომ არის DataContext Scoped</li>
+</ul></article>
+<article class="blk" data-slides="5"><span class="anchor" id="s-5"></span><div class="bh"><h3>სადაც შევჩერდით</h3><a class="chip" href="index.html#/5" data-go="5" title="პრეზენტაციაში გახსნა">სლაიდი 5</a></div>
+<p>ShopApi-ს ხუთი endpoint აქვს, DTO-ებით და სწორი სტატუს კოდებით. მაგრამ პროდუქტები ინახება <code>static</code> სიაში, Controller-ის შიგნით:</p>
+<div class="codebox"><div class="ch"><span>Controllers/ProductsController.cs</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="k">private</span><span class="w"> </span><span class="k">static</span><span class="w"> </span><span class="n">List</span><span class="o">&lt;</span><span class="n">Product</span><span class="o">&gt;</span><span class="w"> </span><span class="n">_products</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">List</span><span class="o">&lt;</span><span class="n">Product</span><span class="o">&gt;</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">.</span><span class="p">.</span><span class="p">.</span><span class="w"> </span><span class="p">}</span><span class="p">;</span></span></code></pre></div>
+<p>ეს თავიდანვე დროებითი გამოსავალი იყო:</p>
+<ul>
+<li>სია <strong>მეხსიერებაშია</strong> — პროგრამის გადატვირთვისას ყველაფერი ქრება, POST-ით დამატებული პროდუქტიც.</li>
+<li>სია <strong>ProductsController-შია ჩაკეტილი</strong> — სხვა Controller-ი მას ვერ წვდება.</li>
+</ul>
+<div class="callout note"><span class="ci">💡</span><div><p>ამ ლექციის სლაიდებზე Controller-ი <code>Product</code>-ს პირდაპირ იღებს და აბრუნებს — რომ ყურადღება მხოლოდ ბაზასა და DI-ზე იყოს. შენს პროექტში DTO-ები და Mapper წინა ლექციიდან ადგილზე რჩება: Controller შემოსვლისას <code>ToEntity()</code>-ს და გასვლისას <code>ToResponse()</code>-ს იძახებს, ბაზაში კი <code>Product</code> ინახება.</p></div></div></article>
+<h2 class="sec" id="sec-4">1 · ბაზა API-ში</h2>
+<article class="blk" data-slides="6"><span class="anchor" id="s-6"></span><div class="bh"><h3>ნაწილი 1 · ბაზა API-ში</h3><a class="chip" href="index.html#/6" data-go="6" title="პრეზენტაციაში გახსნა">სლაიდი 6</a></div>
+<p>EF Core კონსოლში უკვე ვიცით. პირველ რიგში ShopApi-ს ბაზას ზუსტად ისე ვუერთებთ, როგორც კონსოლში ვაკეთებდით — და ვნახავთ, რა არ ჯდება API-ში.</p></article>
+<article class="blk" data-slides="7"><span class="anchor" id="s-7"></span><div class="bh"><h3>მენეჯერი წერს: „დამატებული პროდუქტები ქრება“</h3><a class="chip" href="index.html#/7" data-go="7" title="პრეზენტაციაში გახსნა">სლაიდი 7</a></div>
+<p>„გუშინ 10 პროდუქტი დავამატე, დღეს სერვერი გადაიტვირთა და ისევ სამია. და კიდევ — სტატისტიკა მინდა ცალკე მისამართზე: რამდენი პროდუქტია და რა ღირს ყველა ერთად.“</p>
+<p>ორი მოთხოვნა:</p>
+<ol>
+<li><strong>მონაცემი უნდა დარჩეს</strong> გადატვირთვის შემდეგაც — <code>static</code> სია ამას ვერ შეძლებს.</li>
+<li><strong><code>GET /api/stats</code></strong> — REST-ის წესით ახალი რესურსია, ესე იგი ახალი Controller: <strong>StatsController</strong>. და მასაც პროდუქტები სჭირდება.</li>
+</ol>
+<p>ორივეს ერთი პასუხი აქვს — <strong>ბაზა</strong>. ბაზაში ჩაწერილი არ ქრება, და მასთან ნებისმიერი კლასი ლაპარაკობს. ბაზასთან სამუშაოდ კი EF Core უკვე ვიცით.</p></article>
+<article class="blk" data-slides="8"><span class="anchor" id="s-8"></span><div class="bh"><h3>იგივე 4 ნაბიჯი, რაც კონსოლში</h3><a class="chip" href="index.html#/8" data-go="8" title="პრეზენტაციაში გახსნა">სლაიდი 8</a></div>
+<ol>
+<li><strong>4 პაკეტი</strong> — Project → Manage NuGet Packages: <code>Microsoft.EntityFrameworkCore</code>, <code>.SqlServer</code>, <code>.Tools</code>, <code>.Design</code> (ერთი ვერსია, 10.0.x).</li>
+<li><strong>DataContext</strong> — ფოლდერი <code>Data</code>, მასში:</li>
+</ol>
+<div class="codebox"><div class="ch"><span>Data/DataContext.cs</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="k">using</span><span class="w"> </span><span class="nn">Microsoft.EntityFrameworkCore</span><span class="p">;</span></span><span class="ln"><span class="k">using</span><span class="w"> </span><span class="nn">ShopApi.Models</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="k">namespace</span><span class="w"> </span><span class="nn">ShopApi.Data</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="k">public</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">DataContext</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">DbContext</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="n">DbSet</span><span class="o">&lt;</span><span class="n">Product</span><span class="o">&gt;</span><span class="w"> </span><span class="n">Products</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">get</span><span class="p">;</span><span class="w"> </span><span class="k">set</span><span class="p">;</span><span class="w"> </span><span class="p">}</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="k">protected</span><span class="w"> </span><span class="k">override</span><span class="w"> </span><span class="k">void</span><span class="w"> </span><span class="nf">OnConfiguring</span><span class="p">(</span><span class="n">DbContextOptionsBuilder</span><span class="w"> </span><span class="n">options</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="p">{</span></span><span class="ln"><span class="w">        </span><span class="n">options</span><span class="p">.</span><span class="n">UseSqlServer</span><span class="p">(</span><span class="s">"Server=(localdb)\\MSSQLLocalDB;Database=ShopApiDb;Trusted_Connection=True;TrustServerCertificate=True"</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="p">}</span></span><span class="ln"><span class="p">}</span></span></code></pre></div>
+<ol start="3">
+<li><strong>Connection String</strong> — View → SQL Server Object Explorer → <code>(localdb)\MSSQLLocalDB</code> → Properties → Connection string. ბაზის სახელი: <code>ShopApiDb</code>.</li>
+<li><strong>მიგრაცია</strong> — Tools → NuGet Package Manager → Package Manager Console:</li>
+</ol>
+<div class="codebox"><div class="ch"><span>Package Manager Console</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln">Add-Migration InitialCreate</span><span class="ln">Update-Database</span></code></pre></div>
+<p><code>Product</code> კლასი არ იცვლება: <code>Id</code> (Guid), <code>Name</code>, <code>Price</code>. Guid-ის <code>Id</code>-ს EF Core <code>Add</code>-ის დროს თვითონ ავსებს, ამიტომ <code>Guid.NewGuid()</code> აღარ გვჭირდება.</p>
+<div class="callout note"><span class="ci">💡</span><div><p>C#-ის სტრიქონში <code>\</code> სპეციალური სიმბოლოა, ამიტომ <code>(localdb)\\MSSQLLocalDB</code> ორი ხაზით იწერება (ან სტრიქონის წინ <code>@</code>, როგორც კონსოლში).</p></div></div></article>
+<article class="blk" data-slides="9"><span class="anchor" id="s-9"></span><div class="bh"><h3>ორივე Controller-ში new DataContext()</h3><a class="chip" href="index.html#/9" data-go="9" title="პრეზენტაციაში გახსნა">სლაიდი 9</a></div>
+<p>კონსოლში <code>TodoService</code> DataContext-ს ველში ქმნიდა. იგივეს ვაკეთებთ Controller-ში — <code>static</code> სია ქრება, მის ადგილას DataContext დგება:</p>
+<div class="codebox"><div class="ch"><span>Controllers/ProductsController.cs</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="na">[ApiController]</span></span><span class="ln"><span class="na">[Route("api/[controller]</span><span class="s">")]</span></span><span class="ln"><span class="k">public</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">ProductsController</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">ControllerBase</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="k">private</span><span class="w"> </span><span class="k">readonly</span><span class="w"> </span><span class="n">DataContext</span><span class="w"> </span><span class="n">_db</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">DataContext</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="na">[HttpGet]</span></span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="n">IActionResult</span><span class="w"> </span><span class="nf">GetAll</span><span class="p">(</span><span class="p">)</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">Ok</span><span class="p">(</span><span class="n">_db</span><span class="p">.</span><span class="n">Products</span><span class="p">.</span><span class="n">ToList</span><span class="p">(</span><span class="p">)</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="na">[HttpGet("{id:guid}")]</span></span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="n">IActionResult</span><span class="w"> </span><span class="nf">GetById</span><span class="p">(</span><span class="n">Guid</span><span class="w"> </span><span class="n">id</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="p">{</span></span><span class="ln"><span class="w">        </span><span class="kt">var</span><span class="w"> </span><span class="n">product</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">_db</span><span class="p">.</span><span class="n">Products</span><span class="p">.</span><span class="n">Find</span><span class="p">(</span><span class="n">id</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">product</span><span class="w"> </span><span class="k">is</span><span class="w"> </span><span class="k">null</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">NotFound</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="nf">Ok</span><span class="p">(</span><span class="n">product</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="p">}</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="na">[HttpPost]</span></span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="n">IActionResult</span><span class="w"> </span><span class="nf">Create</span><span class="p">(</span><span class="n">Product</span><span class="w"> </span><span class="n">product</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="p">{</span></span><span class="ln"><span class="w">        </span><span class="n">_db</span><span class="p">.</span><span class="n">Products</span><span class="p">.</span><span class="n">Add</span><span class="p">(</span><span class="n">product</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">        </span><span class="n">_db</span><span class="p">.</span><span class="n">SaveChanges</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="nf">CreatedAtAction</span><span class="p">(</span><span class="k">nameof</span><span class="p">(</span><span class="n">GetById</span><span class="p">)</span><span class="p">,</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">product</span><span class="p">.</span><span class="n">Id</span><span class="w"> </span><span class="p">}</span><span class="p">,</span><span class="w"> </span><span class="n">product</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="p">}</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="na">[HttpPut("{id:guid}")]</span></span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="n">IActionResult</span><span class="w"> </span><span class="nf">Update</span><span class="p">(</span><span class="n">Guid</span><span class="w"> </span><span class="n">id</span><span class="p">,</span><span class="w"> </span><span class="n">Product</span><span class="w"> </span><span class="n">updated</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="p">{</span></span><span class="ln"><span class="w">        </span><span class="kt">var</span><span class="w"> </span><span class="n">product</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">_db</span><span class="p">.</span><span class="n">Products</span><span class="p">.</span><span class="n">Find</span><span class="p">(</span><span class="n">id</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">product</span><span class="w"> </span><span class="k">is</span><span class="w"> </span><span class="k">null</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">NotFound</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">        </span><span class="n">product</span><span class="p">.</span><span class="n">Name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">updated</span><span class="p">.</span><span class="n">Name</span><span class="p">;</span></span><span class="ln"><span class="w">        </span><span class="n">product</span><span class="p">.</span><span class="n">Price</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">updated</span><span class="p">.</span><span class="n">Price</span><span class="p">;</span></span><span class="ln"><span class="w">        </span><span class="n">_db</span><span class="p">.</span><span class="n">SaveChanges</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="nf">NoContent</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="p">}</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="na">[HttpDelete("{id:guid}")]</span></span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="n">IActionResult</span><span class="w"> </span><span class="nf">Delete</span><span class="p">(</span><span class="n">Guid</span><span class="w"> </span><span class="n">id</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="p">{</span></span><span class="ln"><span class="w">        </span><span class="kt">var</span><span class="w"> </span><span class="n">product</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">_db</span><span class="p">.</span><span class="n">Products</span><span class="p">.</span><span class="n">Find</span><span class="p">(</span><span class="n">id</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">product</span><span class="w"> </span><span class="k">is</span><span class="w"> </span><span class="k">null</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">NotFound</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">        </span><span class="n">_db</span><span class="p">.</span><span class="n">Products</span><span class="p">.</span><span class="n">Remove</span><span class="p">(</span><span class="n">product</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">        </span><span class="n">_db</span><span class="p">.</span><span class="n">SaveChanges</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="nf">NoContent</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="p">}</span></span><span class="ln"><span class="p">}</span></span></code></pre></div>
+<ul>
+<li>ნაცნობი EF Core: <code>ToList</code>, <code>Find</code>, <code>Add</code>, <code>Remove</code>, <code>SaveChanges</code>. <code>Update</code>-ში <code>Find</code>-ით ნაპოვნ პროდუქტს ვცვლით — Change Tracker-მა იცის, რა შეიცვალა.</li>
+<li><code>Id</code>-ს EF Core <code>Add</code>-ის დროს თვითონ ავსებს — <code>CreatedAtAction</code>-ში უკვე მზა <code>product.Id</code> გადის.</li>
+</ul>
+<div class="codebox"><div class="ch"><span>Controllers/StatsController.cs</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="na">[ApiController]</span></span><span class="ln"><span class="na">[Route("api/[controller]</span><span class="s">")]</span></span><span class="ln"><span class="k">public</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">StatsController</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">ControllerBase</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="k">private</span><span class="w"> </span><span class="k">readonly</span><span class="w"> </span><span class="n">DataContext</span><span class="w"> </span><span class="n">_db</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">DataContext</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="na">[HttpGet]</span></span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="n">IActionResult</span><span class="w"> </span><span class="nf">Get</span><span class="p">(</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="p">{</span></span><span class="ln"><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="nf">Ok</span><span class="p">(</span><span class="k">new</span></span><span class="ln"><span class="w">        </span><span class="p">{</span></span><span class="ln"><span class="w">            </span><span class="n">Count</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">_db</span><span class="p">.</span><span class="n">Products</span><span class="p">.</span><span class="n">Count</span><span class="p">(</span><span class="p">)</span><span class="p">,</span></span><span class="ln"><span class="w">            </span><span class="n">TotalValue</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">_db</span><span class="p">.</span><span class="n">Products</span><span class="p">.</span><span class="n">Sum</span><span class="p">(</span><span class="n">p</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">Price</span><span class="p">)</span></span><span class="ln"><span class="w">        </span><span class="p">}</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="p">}</span></span><span class="ln"><span class="p">}</span></span></code></pre></div>
+<p><code>new { ... }</code> <strong>ანონიმური ობიექტია</strong>: კლასის შექმნის გარეშე JSON-ის ფორმას ვაწყობთ. <code>Count()</code> და <code>Sum()</code> ბაზაში SQL-ად სრულდება.</p>
+<p>ვამოწმებთ Swagger-ში: POST-ით ვამატებთ მონიტორს → პროგრამას ვაჩერებთ და თავიდან ვუშვებთ → GET — <strong>მონიტორი ადგილზეა</strong>. <code>/api/stats</code>-იც მას ითვლის. ორივე მოთხოვნა შესრულდა.</p></article>
+<article class="blk" data-slides="10"><span class="anchor" id="s-10"></span><div class="bh"><h3>მუშაობს… მაგრამ სამი ნამდვილი პრობლემა</h3><a class="chip" href="index.html#/10" data-go="10" title="პრეზენტაციაში გახსნა">სლაიდი 10</a></div>
+<ol>
+<li>🔑 <strong>Connection String კოდშია.</strong> ყველა დეველოპერს სხვა კომპიუტერი აქვს, სერვერზე კი სულ სხვა ბაზაა. ბაზის შეცვლა = კოდის შეცვლა და თავიდან აწყობა. ნამდვილ პროექტში სტრიქონში პაროლიც წერია — და ის Git-ში, ყველას თვალწინ მოხვდება.</li>
+<li>🔌 <strong>DataContext-ს არავინ ხურავს.</strong> კონსოლში <code>using var db = new DataContext();</code> ვწერდით — <code>using</code> ბოლოს კავშირს ხურავდა. აქ Controller ყოველ მოთხოვნაზე ახალია, მასთან ერთად — DataContext-იც, და არცერთი არ იხურება. ბაზასთან კავშირები გროვდება.</li>
+<li>⛓️ <strong><code>new DataContext()</code> ყველა Controller-შია.</strong> ProductsController თავისას ქმნის, StatsController — თავისას, და ყოველი ახალი Controller კიდევ ერთს დაამატებს. ყოველმა Controller-მა იცის, <em>როგორ</em> შექმნას DataContext. მის შექმნას რამე დასჭირდა? ყველა Controller-ს გადაუვლი.</li>
+</ol>
+<p>სამივე პრობლემის ფესვი ერთია: <strong>Controller თვითონ ქმნის იმას, რაც სჭირდება.</strong></p></article>
+<article class="blk" data-slides="11"><span class="anchor" id="s-11"></span><div class="bh"><h3>მთავარი კითხვა: ვინ უნდა შექმნას DataContext?</h3><a class="chip" href="index.html#/11" data-go="11" title="პრეზენტაციაში გახსნა">სლაიდი 11</a></div>
+<ul>
+<li>🙅 <strong>თვითონ Controller-ი</strong> — ყველა თავის ასლს ქმნის, და ვერავინ აკონტროლებს, რამდენი ასლია, როგორ იქმნება და როდის იხურება.</li>
+<li>🤝 <strong>ვიღაც გარედან</strong> — ერთ ადგილას იცის, როგორ შექმნას, მიაწვდის ყველას, ვისაც სჭირდება, და საქმის ბოლოს თვითონ დახურავს. Controller მხოლოდ იტყვის: „მე DataContext მჭირდება“.</li>
+</ul>
+<p>ვინ შეიძლება იყოს ეს „ვიღაც“? პასუხამდე ჯერ უფრო მარტივ კითხვას ვუპასუხოთ.</p></article>
+<h2 class="sec" id="sec-5">2 · Inversion of Control</h2>
+<article class="blk" data-slides="12"><span class="anchor" id="s-12"></span><div class="bh"><h3>ნაწილი 2 · Inversion of Control</h3><a class="chip" href="index.html#/12" data-go="12" title="პრეზენტაციაში გახსნა">სლაიდი 12</a></div>
+<p>ერთი წუთით ბაზა გვერდზე გადავდოთ და ჩვენს პროგრამას სხვა კუთხიდან შევხედოთ: ვინ მართავს მას?</p></article>
+<article class="blk" data-slides="13"><span class="anchor" id="s-13"></span><div class="bh"><h3>ექსპერიმენტი: ვინ ქმნის Controller-ს და ვინ იძახებს GetAll()-ს?</h3><a class="chip" href="index.html#/13" data-go="13" title="პრეზენტაციაში გახსნა">სლაიდი 13</a></div>
+<p>Visual Studio-ში <strong>Ctrl+Shift+F</strong> — ძებნა მთელ პროექტში:</p>
+<ul>
+<li><code>new ProductsController(</code> — <strong>0 შედეგი</strong>. პროექტში არსად წერია, რომ Controller-ს ვქმნით.</li>
+<li><code>GetAll(</code> — ერთი შედეგი: თვითონ მეთოდი Controller-ში. მას არსად არავინ იძახებს.</li>
+</ul>
+<p>ჩვენ არასდროს შეგვიქმნია Controller და არასდროს გამოგვიძახებია მისი მეთოდი — და მაინც ყოველ მოთხოვნაზე მუშაობს. ვინ აკეთებს ამას? <strong>ASP.NET Core.</strong></p></article>
+<article class="blk" data-slides="14"><span class="anchor" id="s-14"></span><div class="bh"><h3>ორი სამყარო: ვინ წყვეტს, რა და როდის შესრულდეს?</h3><a class="chip" href="index.html#/14" data-go="14" title="პრეზენტაციაში გახსნა">სლაიდი 14</a></div>
+<p><strong>🖥️ Console აპლიკაციაში</strong> შენი კოდი მართავს ყველაფერს: შენ ქმნი ობიექტებს (<code>new TodoService()</code>), შენ იძახებ მეთოდებს, შენ წყვეტ თანმიმდევრობას.</p>
+<p><strong>🌐 ASP.NET Core-ში</strong> — პირიქით:</p>
+<table>
+<thead>
+<tr>
+<th>ნაბიჯი</th>
+<th>ვინ აკეთებს</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>მოთხოვნა მოვიდა: <code>GET /api/products</code></td>
+<td>ASP.NET Core</td>
+</tr>
+<tr>
+<td>მისამართით პოულობს Controller-ს</td>
+<td>ASP.NET Core</td>
+</tr>
+<tr>
+<td>ქმნის <code>ProductsController</code>-ს</td>
+<td>ASP.NET Core</td>
+</tr>
+<tr>
+<td>იძახებს <code>GetAll()</code>-ს</td>
+<td>ASP.NET Core</td>
+</tr>
+<tr>
+<td><code>return Ok(...)</code></td>
+<td><strong>შენი კოდი</strong></td>
+</tr>
+<tr>
+<td>შედეგს JSON-ად აქცევს და აგზავნის</td>
+<td>ASP.NET Core</td>
+</tr>
+</tbody>
+</table>
+<p>ექვსი ნაბიჯიდან ჩვენი მხოლოდ ერთია. პროგრამას framework მართავს — ჩვენ მას ნაწილებს ვაწვდით.</p></article>
+<article class="blk" data-slides="15,16"><span class="anchor" id="s-15"></span><span class="anchor" id="s-16"></span><div class="bh"><h3>Inversion of Control (IoC)</h3><a class="chip" href="index.html#/15" data-go="15" title="პრეზენტაციაში გახსნა">სლაიდი 15</a></div>
+<p><strong>IoC — პრინციპი: პროგრამის მართვას შენი კოდიდან გადასცემ framework-ს.</strong> შენ წერ ნაწილებს, framework წყვეტს, როდის და როგორ გამოიყენოს. ეს იდეაა, არა კონკრეტული კოდი.</p>
+<p>ჰოლივუდში მსახიობს კასტინგის შემდეგ ეუბნებიან: „ნუ დაგვირეკავთ — ჩვენ დაგირეკავთ“. ჩვენი Controller ზუსტად ასე იქცევა: <code>[Route]</code> და <code>[HttpGet]</code>-ით „ნომერს ტოვებს“, ASP.NET Core კი თვითონ წყვეტს, როდის „დაურეკოს“ — როცა შესაბამისი მოთხოვნა მოვა.</p>
+<p>კონტროლს ორი მხარე აქვს:</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>ვინ აკეთებს</th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>📞 ვინ <strong>იძახებს</strong> მეთოდებს</td>
+<td>ASP.NET Core იძახებს <code>GetAll()</code>-ს</td>
+<td>✓ უკვე გადაბრუნებულია</td>
+</tr>
+<tr>
+<td>🏭 ვინ <strong>ქმნის</strong> ობიექტებს</td>
+<td>Controller-ები თვითონ წერენ <code>new DataContext()</code></td>
+<td>✗ კონტროლი ჯერ ჩვენთანაა</td>
+</tr>
+</tbody>
+</table>
+<p>შესვენების შემდეგ მეორე მხარესაც გადავაბრუნებთ — და სამივე პრობლემა გადაიჭრება.</p>
+<div class="terms"><div class="th">📘 ტერმინები</div><dl><dt>Inversion of Control (IoC)</dt><dd>პრინციპი: კონტროლი (ვინ ქმნის, ვინ იძახებს) შენი კოდიდან framework-ს გადაეცემა</dd></dl></div></article>
+<h2 class="sec" id="sec-6">3 · Dependency Injection</h2>
+<article class="blk" data-slides="17"><span class="anchor" id="s-17"></span><div class="bh"><h3>ნაწილი 3 · Dependency Injection</h3><a class="chip" href="index.html#/17" data-go="17" title="პრეზენტაციაში გახსნა">სლაიდი 17</a></div>
+<p><strong>ნუ შექმნი — მოითხოვე.</strong> ობიექტების შექმნაც framework-ს გადავცეთ.</p></article>
+<article class="blk" data-slides="18"><span class="anchor" id="s-18"></span><div class="bh"><h3>Dependency — დამოკიდებულება</h3><a class="chip" href="index.html#/18" data-go="18" title="პრეზენტაციაში გახსნა">სლაიდი 18</a></div>
+<p>ორივე Controller იყენებს DataContext-ს. შეუძლია ProductsController-ს იმუშაოს DataContext-ის გარეშე? არა — ბაზასთან სწორედ მისით ლაპარაკობს. ესე იგი ის DataContext-ზეა <strong>დამოკიდებული</strong>.</p>
+<p><strong>DataContext არის ProductsController-ის dependency</strong> — ის, რაც მას სამუშაოდ სჭირდება. ერთ კლასს შეიძლება ბევრი dependency ჰქონდეს.</p>
+<div class="terms"><div class="th">📘 ტერმინები</div><dl><dt>Dependency</dt><dd>ობიექტი, რომელიც კლასს სამუშაოდ სჭირდება (ProductsController-ისთვის — DataContext)</dd></dl></div></article>
+<article class="blk" data-slides="19"><span class="anchor" id="s-19"></span><div class="bh"><h3>Injection — მზარეული ბაზარში არ დადის</h3><a class="chip" href="index.html#/19" data-go="19" title="პრეზენტაციაში გახსნა">სლაიდი 19</a></div>
+<p>რესტორნის მაგალითი:</p>
+<ul>
+<li>🧑‍🍳 <strong>თვითონ ყიდულობს</strong> — ყოველ დილით ყველა მზარეული ბაზარში მიდის, ყველას სხვადასხვა პომიდორი აქვს. ეს არის <code>new DataContext()</code> Controller-ში.</li>
+<li>🚚 <strong>მომწოდებელი მოაქვს</strong> — მზარეული მხოლოდ ამბობს „პომიდორი მჭირდება“, და მომწოდებელი სამზარეულოს კარამდე მიუტანს. ეს არის: Controller ითხოვს, ვიღაც აწვდის.</li>
+<li>📋 <strong>მენეჯერი წყვეტს</strong> — ვინ არის მომწოდებელი, რესტორნის მენეჯერი ერთხელ, ერთ ადგილას წყვეტს. ჩვენთან ეს ადგილი <code>Program.cs</code> იქნება.</li>
+</ul>
+<p><strong>Injection</strong> = შეყვანა, მიწოდება: კლასს dependency გარედან მიეწოდება.</p></article>
+<article class="blk" data-slides="20"><span class="anchor" id="s-20"></span><div class="bh"><h3>კოდში: Controller-ი ითხოვს constructor-ით</h3><a class="chip" href="index.html#/20" data-go="20" title="პრეზენტაციაში გახსნა">სლაიდი 20</a></div>
+<div class="codebox"><div class="ch"><span>Controllers/ProductsController.cs</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="k">public</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">ProductsController</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">ControllerBase</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="c1">// ადრე: = new DataContext();</span></span><span class="ln"><span class="w">    </span><span class="k">private</span><span class="w"> </span><span class="k">readonly</span><span class="w"> </span><span class="n">DataContext</span><span class="w"> </span><span class="n">_db</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="nf">ProductsController</span><span class="p">(</span><span class="n">DataContext</span><span class="w"> </span><span class="n">db</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="p">{</span></span><span class="ln"><span class="w">        </span><span class="n">_db</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">db</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="p">}</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="na">[HttpGet]</span></span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="n">IActionResult</span><span class="w"> </span><span class="nf">GetAll</span><span class="p">(</span><span class="p">)</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">Ok</span><span class="p">(</span><span class="n">_db</span><span class="p">.</span><span class="n">Products</span><span class="p">.</span><span class="n">ToList</span><span class="p">(</span><span class="p">)</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="p">}</span></span></code></pre></div>
+<ol>
+<li><strong><code>new</code> წავშალეთ.</strong> <code>readonly</code> — ველი ერთხელ მიენიჭება (constructor-ში) და მერე ვეღარავინ შეცვლის.</li>
+<li><strong>constructor-ის პარამეტრი</strong> <code>DataContext db</code> = მოთხოვნა: „ჩემს შესაქმნელად DataContext აუცილებელია“. ვინც ProductsController-ს შექმნის, DataContext-იც უნდა მოუტანოს.</li>
+<li><strong>მიღებულს ველში ვინახავთ</strong> — მეთოდები ისევ <code>_db</code>-ს იყენებენ, მათში არაფერი შეცვლილა.</li>
+</ol>
+<p>იგივე კეთდება StatsController-შიც.</p></article>
+<article class="blk" data-slides="21"><span class="anchor" id="s-21"></span><div class="bh"><h3>ვუშვებთ… 500 და ძალიან სასარგებლო შეცდომა</h3><a class="chip" href="index.html#/21" data-go="21" title="პრეზენტაციაში გახსნა">სლაიდი 21</a></div>
+<div class="codebox"><div class="ch"><span>System.InvalidOperationException</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln">Unable to resolve service for type 'ShopApi.Data.DataContext'</span><span class="ln">while attempting to activate 'ShopApi.Controllers.ProductsController'.</span></code></pre></div>
+<p>ნუ შეგეშინდება — ეს ერთ-ერთი ყველაზე სასარგებლო შეცდომაა .NET-ში. ნაწილ-ნაწილ:</p>
+<ul>
+<li><strong>Unable to resolve service</strong> — „ვერ გავარკვიე, საიდან ავიღო…“</li>
+<li><strong>…DataContext</strong> — „…DataContext“</li>
+<li><strong>while attempting to activate ProductsController</strong> — „…როცა ProductsController-ს ვქმნიდი“</li>
+</ul>
+<p>ანუ ვიღაც ცდილობდა ProductsController-ის შექმნას, დაინახა, რომ DataContext სჭირდება, და ვერ იპოვა. ვინ არის ეს „ვიღაც“?</p></article>
+<article class="blk" data-slides="22"><span class="anchor" id="s-22"></span><div class="bh"><h3>DI Container — ობიექტების ქარხანა</h3><a class="chip" href="index.html#/22" data-go="22" title="პრეზენტაციაში გახსნა">სლაიდი 22</a></div>
+<p>ASP.NET Core-ს აქვს ჩაშენებული <strong>DI Container</strong>: ის ქმნის ობიექტებს და აწვდის მათ, ვისაც სჭირდება. Controller-ებსაც ის ქმნის.</p>
+<p>ეს ხაზები <code>Program.cs</code>-ში პირველი ლექციიდან გვიწერია:</p>
+<div class="codebox"><div class="ch"><span>Program.cs</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="kt">var</span><span class="w"> </span><span class="n">builder</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">WebApplication</span><span class="p">.</span><span class="n">CreateBuilder</span><span class="p">(</span><span class="n">args</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="n">builder</span><span class="p">.</span><span class="n">Services</span><span class="p">.</span><span class="n">AddControllers</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="n">builder</span><span class="p">.</span><span class="n">Services</span><span class="p">.</span><span class="n">AddOpenApi</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="n">builder</span><span class="p">.</span><span class="n">Services</span><span class="p">.</span><span class="n">AddSwaggerGen</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span></code></pre></div>
+<p><strong><code>builder.Services</code> — სწორედ Container-ის სიაა.</strong> <code>AddControllers</code>, <code>AddOpenApi</code>, <code>AddSwaggerGen</code> — რეგისტრაციებია: Container-ს ვეუბნებით „ესენი იცოდე“. მასში ასობით სერვისია, მაგრამ <strong>DataContext სიაში არ არის</strong> — ამიტომ Container ვერ ქმნის მას.</p>
+<div class="terms"><div class="th">📘 ტერმინები</div><dl><dt>DI Container</dt><dd>ASP.NET Core-ის ნაწილი, რომელიც ობიექტებს ქმნის და მათ, ვისაც სჭირდება, constructor-ით აწვდის</dd><dt>builder.Services</dt><dd>Container-ის სია: რა ტიპები იცის და როგორ შექმნას</dd></dl></div></article>
+<article class="blk" data-slides="23"><span class="anchor" id="s-23"></span><div class="bh"><h3>AddDbContext — DataContext-ს Container ქმნის</h3><a class="chip" href="index.html#/23" data-go="23" title="პრეზენტაციაში გახსნა">სლაიდი 23</a></div>
+<p>Container-ს DataContext უნდა ვასწავლოთ. EF Core-ს ამისთვის მზა მეთოდი აქვს — <code>AddDbContext</code>. რომელ ბაზასთან და როგორ დაუკავშირდეს, აქ ვეუბნებით:</p>
+<div class="codebox"><div class="ch"><span>Program.cs</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="n">builder</span><span class="p">.</span><span class="n">Services</span><span class="p">.</span><span class="n">AddControllers</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="n">builder</span><span class="p">.</span><span class="n">Services</span><span class="p">.</span><span class="n">AddOpenApi</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="n">builder</span><span class="p">.</span><span class="n">Services</span><span class="p">.</span><span class="n">AddSwaggerGen</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="n">builder</span><span class="p">.</span><span class="n">Services</span><span class="p">.</span><span class="n">AddDbContext</span><span class="o">&lt;</span><span class="n">DataContext</span><span class="o">&gt;</span><span class="p">(</span><span class="n">options</span><span class="w"> </span><span class="o">=&gt;</span></span><span class="ln"><span class="w">    </span><span class="n">options</span><span class="p">.</span><span class="n">UseSqlServer</span><span class="p">(</span><span class="s">"Server=(localdb)\\MSSQLLocalDB;Database=ShopApiDb;Trusted_Connection=True;TrustServerCertificate=True"</span><span class="p">)</span><span class="p">)</span><span class="p">;</span></span></code></pre></div>
+<ul>
+<li><strong><code>Add…</code></strong> — „Container, DataContext იცოდე · ვინც მოითხოვს, შექმენი და მიაწოდე“.</li>
+<li><code>UseSqlServer</code> <code>OnConfiguring</code>-იდან აქ გადმოვიდა.</li>
+<li><code>Program.cs</code>-ის თავში — <code>using Microsoft.EntityFrameworkCore;</code> და <code>using ShopApi.Data;</code>.</li>
+</ul>
+<p>DataContext-ში <code>OnConfiguring</code> ვშლით და მის ნაცვლად constructor-ს ვწერთ:</p>
+<div class="codebox"><div class="ch"><span>Data/DataContext.cs</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="k">public</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">DataContext</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">DbContext</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="nf">DataContext</span><span class="p">(</span><span class="n">DbContextOptions</span><span class="o">&lt;</span><span class="n">DataContext</span><span class="o">&gt;</span><span class="w"> </span><span class="n">options</span><span class="p">)</span></span><span class="ln"><span class="w">        </span><span class="p">:</span><span class="w"> </span><span class="k">base</span><span class="p">(</span><span class="n">options</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="p">}</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="n">DbSet</span><span class="o">&lt;</span><span class="n">Product</span><span class="o">&gt;</span><span class="w"> </span><span class="n">Products</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">get</span><span class="p">;</span><span class="w"> </span><span class="k">set</span><span class="p">;</span><span class="w"> </span><span class="p">}</span></span><span class="ln"><span class="p">}</span></span></code></pre></div>
+<ul>
+<li>DataContext-იც <strong>ითხოვს</strong> — პარამეტრებს (<code>options</code>: რომელი ბაზა, რა სტრიქონით). მათ Container აწყობს იმ ლამბდიდან, რომელიც <code>AddDbContext</code>-ს მივეცით.</li>
+<li><code>: base(options)</code> — მიღებულ პარამეტრებს მშობელ კლასს, <code>DbContext</code>-ს გადასცემს. ესაა მემკვიდრეობის constructor-ების ჯაჭვი, რომელიც C#-ში ვნახეთ.</li>
+</ul>
+<p>ვუშვებთ — 200.</p>
+<p><code>AddDbContext</code> DataContext-ს <strong>Scoped</strong>-ად არეგისტრირებს — ერთი ობიექტი ერთი მოთხოვნისთვის. რას ნიშნავს ეს და რა ვარიანტები არსებობს, ნაწილ 4-ში ვნახავთ.</p>
+<div class="callout note"><span class="ci">💡</span><div><p>ბაზა ხელახლა შექმნა არ სჭირდება: ცხრილი იგივეა. ახალი მიგრაცია მხოლოდ მაშინ გვჭირდება, როცა Entity-ები იცვლება. <code>Add-Migration</code>-იც ასე იმუშავებს — EF Core-ის ბრძანებები DataContext-ს <code>Program.cs</code>-ის რეგისტრაციიდან იღებს.</p></div></div></article>
+<article class="blk" data-slides="24"><span class="anchor" id="s-24"></span><div class="bh"><h3>Connection String — appsettings.json-ში</h3><a class="chip" href="index.html#/24" data-go="24" title="პრეზენტაციაში გახსნა">სლაიდი 24</a></div>
+<p>სტრიქონი კოდიდან კონფიგურაციის ფაილში გადაგვაქვს:</p>
+<div class="codebox"><div class="ch"><span>appsettings.json</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">  </span><span class="nt">"ConnectionStrings"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="nt">"Default"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Server=(localdb)\\MSSQLLocalDB;Database=ShopApiDb;Trusted_Connection=True;TrustServerCertificate=True"</span></span><span class="ln"><span class="w">  </span><span class="p">},</span></span><span class="ln"><span class="w">  </span><span class="nt">"Logging"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="err">.</span><span class="err">.</span><span class="err">.</span><span class="w"> </span><span class="p">},</span></span><span class="ln"><span class="w">  </span><span class="nt">"AllowedHosts"</span><span class="p">:</span><span class="w"> </span><span class="s2">"*"</span></span><span class="ln"><span class="p">}</span></span></code></pre></div>
+<div class="codebox"><div class="ch"><span>Program.cs</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="n">builder</span><span class="p">.</span><span class="n">Services</span><span class="p">.</span><span class="n">AddDbContext</span><span class="o">&lt;</span><span class="n">DataContext</span><span class="o">&gt;</span><span class="p">(</span><span class="n">options</span><span class="w"> </span><span class="o">=&gt;</span></span><span class="ln"><span class="w">    </span><span class="n">options</span><span class="p">.</span><span class="n">UseSqlServer</span><span class="p">(</span></span><span class="ln"><span class="w">        </span><span class="n">builder</span><span class="p">.</span><span class="n">Configuration</span><span class="p">.</span><span class="n">GetConnectionString</span><span class="p">(</span><span class="s">"Default"</span><span class="p">)</span><span class="p">)</span><span class="p">)</span><span class="p">;</span></span></code></pre></div>
+<ul>
+<li><strong><code>ConnectionStrings</code></strong> — სტანდარტული სექცია connection string-ებისთვის. <code>Default</code> — სახელი, რომელიც ჩვენ ავარჩიეთ.</li>
+<li><strong><code>builder.Configuration</code></strong> — <code>IConfiguration</code> ტიპის ობიექტი. <code>appsettings.json</code>-ს <code>CreateBuilder</code> თვითონ კითხულობს. <code>GetConnectionString("Default")</code> = <code>ConnectionStrings</code> სექციიდან <code>Default</code>.</li>
+<li>JSON-შიც <code>\</code> ორჯერ იწერება: <code>(localdb)\\MSSQLLocalDB</code>.</li>
+</ul>
+<p>ბაზა შეიცვალა — სხვა კომპიუტერი, სერვერი? იცვლება <strong>მხოლოდ JSON</strong>, კოდი — არა. <strong>პრობლემა 1 გადაწყდა.</strong></p>
+<p><code>IConfiguration</code> Container-შიც უკვე წერია — framework თვითონ DI-ზეა აგებული. ნებისმიერ კლასს შეუძლია ის constructor-ით მოითხოვოს, რეგისტრაციის გარეშე:</p>
+<div class="codebox"><div class="ch"><span>csharp</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="k">public</span><span class="w"> </span><span class="nf">ProductsController</span><span class="p">(</span><span class="n">DataContext</span><span class="w"> </span><span class="n">db</span><span class="p">,</span><span class="w"> </span><span class="n">IConfiguration</span><span class="w"> </span><span class="n">configuration</span><span class="p">)</span></span></code></pre></div>
+<div class="callout note"><span class="ci">💡</span><div><p>სერვერზე პაროლიან სტრიქონს ფაილში არ წერენ — მას გარემოს ცვლადით (environment variable) აწვდიან, და <code>IConfiguration</code> მას ავტომატურად კითხულობს. კოდი ამისთვისაც არ იცვლება. ამას DevOps-ში ვნახავთ.</p></div></div></article>
+<article class="blk" data-slides="25"><span class="anchor" id="s-25"></span><div class="bh"><h3>რა ხდება ახლა: Container აწყობს — და ხურავს</h3><a class="chip" href="index.html#/25" data-go="25" title="პრეზენტაციაში გახსნა">სლაიდი 25</a></div>
+<p>ერთი მოთხოვნა, ნაბიჯ-ნაბიჯ:</p>
+<ol>
+<li>მოდის <code>GET /api/products</code>. ASP.NET Core-ს ProductsController სჭირდება.</li>
+<li>Container კითხულობს constructor-ს: ProductsController-ს DataContext სჭირდება.</li>
+<li>ჯერ dependency-ს ქმნის: ① DataContext → მერე ② ProductsController, და constructor-ში DataContext-ს აწვდის. (თუ DataContext-საც რამე სჭირდებოდა, ჯერ იმას შექმნიდა — Container ჯაჭვს ქვემოდან ზემოთ აწყობს.)</li>
+<li>ASP.NET Core იძახებს <code>GetAll()</code>-ს — ეს ჩვენი კოდია.</li>
+<li>პასუხი წავიდა — Container მოთხოვნის ობიექტებს ასუფთავებს და <strong>DataContext-ს ხურავს</strong>, ისე, როგორც კონსოლში <code>using</code> ხურავდა. <strong>პრობლემა 2 გადაწყდა.</strong></li>
+</ol>
+<p>ჩვენს კოდში <code>new DataContext()</code> აღარ არის: Controller მხოლოდ ამბობს, რა სჭირდება.</p></article>
+<article class="blk" data-slides="26"><span class="anchor" id="s-26"></span><div class="bh"><h3>სამი პრობლემა — სამი გადაწყვეტა</h3><a class="chip" href="index.html#/26" data-go="26" title="პრეზენტაციაში გახსნა">სლაიდი 26</a></div>
+<table>
+<thead>
+<tr>
+<th>პრობლემა</th>
+<th>❌ ადრე — Controller ქმნის</th>
+<th>✓ ახლა — Controller ითხოვს</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>🔑 Connection String</td>
+<td>DataContext-ის კოდში</td>
+<td><code>appsettings.json</code> → <code>GetConnectionString("Default")</code></td>
+</tr>
+<tr>
+<td>🔌 ვინ ხურავს DataContext-ს</td>
+<td>არავინ</td>
+<td>Container — მოთხოვნის ბოლოს</td>
+</tr>
+<tr>
+<td>⛓️ შექმნის წესი</td>
+<td><code>new</code> ყველა Controller-ში</td>
+<td>ერთ ადგილას — <code>Program.cs</code></td>
+</tr>
+</tbody>
+</table>
+<p>ვამოწმებთ Swagger-ში: <code>POST /api/products</code> → 201 · პროგრამის გადატვირთვა · <code>GET /api/products</code> და <code>GET /api/stats</code> — მონიტორი ადგილზეა.</p>
+<p>თუ DataContext-ის შექმნა ოდესმე შეიცვლება, ერთ ადგილას შევცვლით, და არა ყველა Controller-ში.</p></article>
+<article class="blk" data-slides="27"><span class="anchor" id="s-27"></span><div class="bh"><h3>სამი ტერმინი — ერთმანეთის შიგნით</h3><a class="chip" href="index.html#/27" data-go="27" title="პრეზენტაციაში გახსნა">სლაიდი 27</a></div>
+<ul>
+<li><strong>Inversion of Control</strong> — <em>პრინციპი</em>: კონტროლს framework-ს ვაძლევთ. ის ქმნის ობიექტებს და იძახებს ჩვენს კოდს.</li>
+<li><strong>Dependency Injection</strong> — <em>ტექნიკა</em>: IoC ობიექტების შექმნაზე. კლასი dependency-ს constructor-ში ითხოვს და თვითონ არ ქმნის.<ul>
+<li><strong>DI Container</strong> — <em>ინსტრუმენტი</em>: ის, ვინც ქმნის, აწვდის და ხურავს. ASP.NET Core-ში — <code>builder.Services</code>.</li>
+</ul>
+</li>
+</ul>
+<div class="callout note"><span class="ci">💡</span><div><p>გასაუბრებაზე თუ გკითხეს „რა განსხვავებაა IoC-სა და DI-ს შორის?“ — IoC პრინციპია, DI მისი ერთ-ერთი რეალიზაცია.</p></div></div></article>
+<h2 class="sec" id="sec-7">4 · სამი Lifetime</h2>
+<article class="blk" data-slides="28"><span class="anchor" id="s-28"></span><div class="bh"><h3>ნაწილი 4 · რამდენ ხანს ცოცხლობს ობიექტი?</h3><a class="chip" href="index.html#/28" data-go="28" title="პრეზენტაციაში გახსნა">სლაიდი 28</a></div>
+<p>რეგისტრაციისას Container-ს ორ რამეს ვეუბნებით: <strong>რა</strong> შექმნას და <strong>რამდენ ხანს</strong> იცოცხლოს შექმნილმა ობიექტმა. მეორეს <strong>lifetime</strong> ჰქვია. სამი ვარიანტია — და ბაზაზე კარგად ჩანს, რატომ არის არჩევანი მნიშვნელოვანი.</p></article>
+<article class="blk" data-slides="29"><span class="anchor" id="s-29"></span><div class="bh"><h3>სამი რეგისტრაცია — სამი lifetime</h3><a class="chip" href="index.html#/29" data-go="29" title="პრეზენტაციაში გახსნა">სლაიდი 29</a></div>
+<table>
+<thead>
+<tr>
+<th>რეგისტრაცია</th>
+<th>რამდენი ობიექტი</th>
+<th>როდის იქმნება ახალი</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>AddSingleton&lt;T&gt;()</code></td>
+<td><strong>ერთი</strong> მთელი აპლიკაციისთვის</td>
+<td>მხოლოდ პირველად. მერე ყველას, ყველა მოთხოვნაზე იმავეს აწვდის</td>
+</tr>
+<tr>
+<td><code>AddScoped&lt;T&gt;()</code></td>
+<td><strong>ერთი თითო მოთხოვნაზე</strong></td>
+<td>ყოველ ახალ მოთხოვნაზე. მოთხოვნის შიგნით ყველა იმავეს იღებს; ბოლოს იხურება</td>
+</tr>
+<tr>
+<td><code>AddTransient&lt;T&gt;()</code></td>
+<td><strong>ახალი ყოველ ჯერზე</strong></td>
+<td>ყოველთვის, როცა ვინმე ითხოვს — ერთ მოთხოვნაშიც კი</td>
+</tr>
+</tbody>
+</table>
+<p>„Scope“ — არე, ჩარჩო. ASP.NET Core-ში ეს ჩარჩო ერთი HTTP მოთხოვნაა.</p>
+<div class="terms"><div class="th">📘 ტერმინები</div><dl><dt>Lifetime</dt><dd>რამდენ ხანს ცოცხლობს Container-ის შექმნილი ობიექტი და როდის ქმნის ახალს</dd><dt>Singleton</dt><dd>ერთი ობიექტი მთელი აპლიკაციისთვის</dd><dt>Scoped</dt><dd>ერთი ობიექტი ერთი მოთხოვნისთვის</dd><dt>Transient</dt><dd>ახალი ობიექტი ყოველ მოთხოვნისას (ყოველ ჯერზე, როცა ვინმე ითხოვს)</dd></dl></div></article>
+<article class="blk" data-slides="30"><span class="anchor" id="s-30"></span><div class="bh"><h3>ექსპერიმენტი: რამდენი DataContext იქმნება?</h3><a class="chip" href="index.html#/30" data-go="30" title="პრეზენტაციაში გახსნა">სლაიდი 30</a></div>
+<p>lifetime-ს თვალით რომ დავინახოთ, DataContext-ის constructor-ში დროებით მთვლელს ვამატებთ. <code>static</code> ველი ყველა ობიექტისთვის საერთოა — ამიტომ ითვლის, სულ რამდენი შეიქმნა:</p>
+<div class="codebox"><div class="ch"><span>Data/DataContext.cs · დროებით</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="k">private</span><span class="w"> </span><span class="k">static</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">_created</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="k">public</span><span class="w"> </span><span class="nf">DataContext</span><span class="p">(</span><span class="n">DbContextOptions</span><span class="o">&lt;</span><span class="n">DataContext</span><span class="o">&gt;</span><span class="w"> </span><span class="n">options</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="p">:</span><span class="w"> </span><span class="k">base</span><span class="p">(</span><span class="n">options</span><span class="p">)</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="n">_created</span><span class="o">++</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="s">$"new DataContext #{_created}"</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="p">}</span></span></code></pre></div>
+<p><code>AddDbContext</code>-ს მესამე პარამეტრად lifetime შეიძლება გადავცეთ. ნაგულისხმევად ის <strong>Scoped</strong>-ია — ექსპერიმენტისთვის ცხადად ვწერთ, რომ მერე შევცვალოთ:</p>
+<div class="codebox"><div class="ch"><span>Program.cs</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="n">builder</span><span class="p">.</span><span class="n">Services</span><span class="p">.</span><span class="n">AddDbContext</span><span class="o">&lt;</span><span class="n">DataContext</span><span class="o">&gt;</span><span class="p">(</span><span class="n">options</span><span class="w"> </span><span class="o">=&gt;</span></span><span class="ln"><span class="w">    </span><span class="n">options</span><span class="p">.</span><span class="n">UseSqlServer</span><span class="p">(</span></span><span class="ln"><span class="w">        </span><span class="n">builder</span><span class="p">.</span><span class="n">Configuration</span><span class="p">.</span><span class="n">GetConnectionString</span><span class="p">(</span><span class="s">"Default"</span><span class="p">)</span><span class="p">)</span><span class="p">,</span></span><span class="ln"><span class="w">    </span><span class="n">ServiceLifetime</span><span class="p">.</span><span class="n">Scoped</span><span class="p">)</span><span class="p">;</span></span></code></pre></div>
+<p>Swagger-ში სამ მოთხოვნას ვაგზავნით და აპლიკაციის console ფანჯარას ვუყურებთ:</p>
+<div class="codebox"><div class="ch"><span>ShopApi · Console · Scoped</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln">GET /api/products   → new DataContext #1</span><span class="ln">POST /api/products  → new DataContext #2</span><span class="ln">GET /api/stats      → new DataContext #3</span></code></pre></div>
+<p>ყოველ მოთხოვნაზე ახალი DataContext — <strong>Scoped</strong>. მოთხოვნა დასრულდა — Container მას ხურავს.</p>
+<div class="callout note"><span class="ci">💡</span><div><p>ჩვენს კლასებს lifetime-ს მეთოდის სახელით ვაძლევთ: <code>AddSingleton&lt;T&gt;()</code>, <code>AddScoped&lt;T&gt;()</code>, <code>AddTransient&lt;T&gt;()</code>. DataContext-ს EF Core-ის <code>AddDbContext</code> არეგისტრირებს, ამიტომ მას lifetime პარამეტრად გადაეცემა — <code>ServiceLifetime.Singleton</code>, <code>.Scoped</code> ან <code>.Transient</code>. აზრი ერთი და იგივეა.</p></div></div></article>
+<article class="blk" data-slides="31"><span class="anchor" id="s-31"></span><div class="bh"><h3>ექსპერიმენტი: Transient — არაფერი შეიცვალა?</h3><a class="chip" href="index.html#/31" data-go="31" title="პრეზენტაციაში გახსნა">სლაიდი 31</a></div>
+<p><code>ServiceLifetime.Scoped</code>-ს ვცვლით <code>ServiceLifetime.Transient</code>-ით და ისევ ვაგზავნით მოთხოვნებს. console-ში — იგივე სურათი: ყოველ მოთხოვნაზე ერთი DataContext.</p>
+<p>რატომ? Transient ახალს მაშინ ქმნის, <strong>როცა ვინმე ითხოვს</strong>. ჩვენთან ერთ მოთხოვნაზე DataContext-ს მხოლოდ ერთი კლასი ითხოვს — Controller. ერთხელ ითხოვს — ერთხელ იქმნება. Scoped-თან განსხვავება მაშინ ჩანს, როცა ერთ მოთხოვნაში ერთსა და იმავეს <strong>ორი</strong> კლასი ითხოვს.</p>
+<p>ეს მალე მოხდება: როცა პროექტს სტრუქტურას მივცემთ, ლოგიკა Controller-იდან ცალკე კლასებში გადავა. მაგალითად, შეკვეთისას ერთი კლასი მარაგს აკლებს, მეორე შეკვეთას ამატებს — ორივეს DataContext სჭირდება:</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>კლასი A (მარაგი)</th>
+<th>კლასი B (შეკვეთა)</th>
+<th>შედეგი</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Scoped</strong> ✓</td>
+<td>DataContext #1</td>
+<td>DataContext #1</td>
+<td>ერთი <code>SaveChanges</code> ორივე ცვლილებას ერთად ინახავს</td>
+</tr>
+<tr>
+<td><strong>Transient</strong> ✗</td>
+<td>DataContext #1</td>
+<td>DataContext #2</td>
+<td>ერთის <code>SaveChanges</code> მეორის ცვლილებებს ვერ ხედავს — ნახევარი შეინახება, ნახევარი არა</td>
+</tr>
+</tbody>
+</table>
+<p>ამიტომაა DataContext <strong>Scoped</strong>: ერთ მოთხოვნაში ყველა ერთ DataContext-ზე მუშაობს. Change Tracker ერთია და <code>SaveChanges</code> ყველაფერს ერთად ინახავს.</p></article>
+<article class="blk" data-slides="32"><span class="anchor" id="s-32"></span><div class="bh"><h3>ექსპერიმენტი: Singleton — ერთი DataContext ყველასთვის</h3><a class="chip" href="index.html#/32" data-go="32" title="პრეზენტაციაში გახსნა">სლაიდი 32</a></div>
+<p>ახლა <code>ServiceLifetime.Singleton</code>:</p>
+<div class="codebox"><div class="ch"><span>Program.cs · ❌ ასე არა</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="n">builder</span><span class="p">.</span><span class="n">Services</span><span class="p">.</span><span class="n">AddDbContext</span><span class="o">&lt;</span><span class="n">DataContext</span><span class="o">&gt;</span><span class="p">(</span><span class="n">options</span><span class="w"> </span><span class="o">=&gt;</span></span><span class="ln"><span class="w">    </span><span class="n">options</span><span class="p">.</span><span class="n">UseSqlServer</span><span class="p">(</span></span><span class="ln"><span class="w">        </span><span class="n">builder</span><span class="p">.</span><span class="n">Configuration</span><span class="p">.</span><span class="n">GetConnectionString</span><span class="p">(</span><span class="s">"Default"</span><span class="p">)</span><span class="p">)</span><span class="p">,</span></span><span class="ln"><span class="w">    </span><span class="n">ServiceLifetime</span><span class="p">.</span><span class="n">Singleton</span><span class="p">)</span><span class="p">;</span></span></code></pre></div>
+<p>console-ში — <code>new DataContext #1</code> და მეტი არაფერი, რამდენი მოთხოვნაც არ უნდა გავაგზავნოთ. ერთი DataContext ყველა მოთხოვნას, ყველა მომხმარებელს ემსახურება. მუშაობს, მაგრამ:</p>
+<ol>
+<li><strong>Change Tracker იზრდება.</strong> ყველა პროდუქტი, რაც DataContext-მა ოდესმე წაიკითხა, მასთან რჩება — მეხსიერება სულ იზრდება. <code>Find</code> ჯერ Change Tracker-ში ეძებს, ამიტომ შეიძლება ბაზაში უკვე შეცვლილი პროდუქტის <strong>ძველი ასლი</strong> დააბრუნოს.</li>
+<li><strong>ორი მომხმარებელი ერთდროულად.</strong> სერვერი მოთხოვნებს პარალელურად ამუშავებს. DataContext ერთ ჯერზე მხოლოდ ერთ ოპერაციას აკეთებს, და მეორე მომხმარებელი მიიღებს:</li>
+</ol>
+<div class="codebox"><div class="ch"><span>System.InvalidOperationException</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln">A second operation was started on this context instance before a previous operation</span><span class="ln">completed. This is usually caused by different threads concurrently using the same</span><span class="ln">instance of DbContext.</span></code></pre></div>
+<p>ლოკალურად, მარტო რომ ვტესტავთ, ამას ვერ შევამჩნევთ — პრობლემა სერვერზე, ნამდვილ მომხმარებლებთან ჩნდება. DataContext ერთი მოთხოვნისთვისაა — სწორედ ამიტომ არის <code>AddDbContext</code> ნაგულისხმევად Scoped.</p></article>
+<article class="blk" data-slides="33"><span class="anchor" id="s-33"></span><div class="bh"><h3>Lifetime-ის არჩევა</h3><a class="chip" href="index.html#/33" data-go="33" title="პრეზენტაციაში გახსნა">სლაიდი 33</a></div>
+<table>
+<thead>
+<tr>
+<th>Lifetime</th>
+<th>ჩვენი კლასისთვის</th>
+<th>როდის</th>
+<th>მაგალითი</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Singleton</strong></td>
+<td><code>AddSingleton&lt;T&gt;()</code></td>
+<td>ერთი, საერთო ყველასთვის; არ ინახავს მოთხოვნაზე დამოკიდებულ მონაცემს</td>
+<td><code>IConfiguration</code> — framework-მა თვითონ დაარეგისტრირა Singleton-ად</td>
+</tr>
+<tr>
+<td><strong>Scoped</strong></td>
+<td><code>AddScoped&lt;T&gt;()</code></td>
+<td>ერთი მოთხოვნის საქმე — ყველაფერი, რაც DataContext-ს იყენებს</td>
+<td><code>DataContext</code> (<code>AddDbContext</code>)</td>
+</tr>
+<tr>
+<td><strong>Transient</strong></td>
+<td><code>AddTransient&lt;T&gt;()</code></td>
+<td>მსუბუქი კლასი, საკუთარი მდგომარეობის და DataContext-ის გარეშე</td>
+<td>მაგ. ფასდაკლების გამომთვლელი</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li><strong>DataContext:</strong> <code>AddDbContext</code> თვითონ ირჩევს Scoped-ს. lifetime-ს არ ვცვლით — ექსპერიმენტი მხოლოდ იმისთვის იყო, რომ განსხვავება დაგვენახა.</li>
+<li><strong>ჩვენი კლასები</strong> — <code>AddScoped&lt;T&gt;()</code> და სხვები — მაშინ დაგვჭირდება, როცა პროექტს სტრუქტურას მივცემთ და ლოგიკა Controller-იდან ცალკე კლასებში გადავა. წესი იქაც მარტივია: კლასი DataContext-ს იყენებს → Scoped.</li>
+</ul>
+<div class="callout warn"><span class="ci">⚠️</span><div><p>ექსპერიმენტის მთვლელი (<code>_created</code> და <code>Console.WriteLine</code>) DataContext-იდან წაშალე და <code>AddDbContext</code>-ში lifetime-ის პარამეტრიც მოაშორე — ნაგულისხმევი Scoped საკმარისია.</p></div></div>
+<div class="prompt"><div class="ph"><span>🤖 Singleton, Scoped, Transient — შემამოწმე</span><button class="copy" type="button">კოპირება</button></div><div class="pb">ვსწავლობ ASP.NET Core-ში DI-ს lifetime-ებს: AddSingleton, AddScoped, AddTransient და AddDbContext (ნაგულისხმევად Scoped). მომეცი 5 პატარა სცენარი (კლასი და რას აკეთებს), და თითოეულზე მკითხე, რომელი lifetime მივცე.
+ჩემს პასუხს დაელოდე, შემიფასე და ამიხსენი. ერთ-ერთი სცენარი იყოს DataContext Singleton-ად. ქართულად.</div></div></article>
+<article class="blk" data-slides="34"><span class="anchor" id="s-34"></span><div class="bh"><h3>სამი Lifetime — კონკრეტულ სიტუაციებში</h3><a class="chip" href="index.html#/34" data-go="34" title="პრეზენტაციაში გახსნა">სლაიდი 34</a></div>
+<p>ცხრილი „როდის რომელი“ წესია. ახლა — როგორ გამოიყურება ეს ნამდვილ პროექტებში. ამათ ახლა არ ვწერთ: მაგალითებია, რომ წესი ცოცხალ სიტუაციებს დაუკავშირო.</p>
+<h4>🟧 Singleton — ერთი ობიექტი ყველასთვის</h4>
+<ul>
+<li>💱 <strong>ვალუტის კურსი.</strong> ონლაინ მაღაზია ფასებს ლარში, დოლარში და ევროში აჩვენებს. კურსი ეროვნული ბანკიდან მოდის და დღეში რამდენჯერმე იცვლება. ერთი ობიექტი საათში ერთხელ მოიტანს მას და ინახავს — ათასივე მომხმარებელი ერთსა და იმავე ციფრს ხედავს, და ბანკის API-ს ყოველ მოთხოვნაზე არ ვაწუხებთ.</li>
+<li>🚚 <strong>მიწოდების ზონები.</strong> საკვების მიწოდების სერვისს აქვს სია: საბურთალო — 3 ₾, ვაკე — 4 ₾, გლდანი — 5 ₾. ის ყველასთვის ერთია და იშვიათად იცვლება — აპლიკაციის გაშვებისას ერთხელ იტვირთება.</li>
+<li>⚙️ <strong>framework-ის ხელსაწყოები</strong> — <code>IConfiguration</code>, ლოგერი, მეხსიერების ქეში. ASP.NET Core-მა ისინი თვითონ დაარეგისტრირა Singleton-ად.</li>
+</ul>
+<p>საერთო ნიშანი: მონაცემი <strong>ყველასთვის ერთია</strong> და არ ეკუთვნის კონკრეტულ მომხმარებელს ან მოთხოვნას.</p>
+<h4>🟪 Scoped — ერთი ობიექტი ერთი მოთხოვნისთვის</h4>
+<ul>
+<li>🗄️ <strong>DataContext</strong> — მთელი მოთხოვნა ერთ Change Tracker-ზე მუშაობს და ერთი <code>SaveChanges</code>-ით ინახება.</li>
+<li>🧾 <strong>შეკვეთის გაფორმება.</strong> მომხმარებელი „ყიდვას“ აჭერს: მარაგი უნდა დაიკლოს, შეკვეთა და გადახდის ჩანაწერი დაემატოს. ამას რამდენიმე კლასი აკეთებს, მაგრამ ყველა ერთ DataContext-ზე — და ბოლოს ერთი <code>SaveChanges</code> ყველაფერს <strong>ერთად</strong> ინახავს, ან არაფერს.</li>
+<li>👤 <strong>ვინ შემოვიდა.</strong> როცა ავტორიზაციას ვისწავლით: ობიექტი „მიმდინარე მომხმარებელი“ (ან რესტორნის დაჯავშნის სისტემაში — „რომელი რესტორანი“). ერთ მოთხოვნაში ბევრ კლასს სჭირდება, მაგრამ ორ სხვადასხვა მოთხოვნას ორი სხვადასხვა მომხმარებელი ჰყავს.</li>
+</ul>
+<p>საერთო ნიშანი: მონაცემი <strong>ამ მოთხოვნას ეკუთვნის</strong> — მის შიგნით საერთოა, მოთხოვნებს შორის — არა.</p>
+<h4>🟦 Transient — ახალი ყოველ ჯერზე</h4>
+<ul>
+<li>🏷️ <strong>ფასდაკლების გამომთვლელი.</strong> პრომო კოდი −10%, დღგ 18%: ფასს იღებს, შედეგს აბრუნებს და არაფერს ინახავს. იაფია შესაქმნელად, და ორ ადგილას ორი ასლი არაფერს აფუჭებს.</li>
+<li>✅ <strong>ვალიდატორი.</strong> „სახელი ცარიელი ხომ არ არის?“, „ფასი უარყოფითი ხომ არ არის?“ — მსუბუქი შემოწმება, მდგომარეობის გარეშე.</li>
+<li>🧾 <strong>ჩეკის ან email-ის ამწყობი.</strong> ხაზ-ხაზ აგროვებს ტექსტს: „ლეპტოპი — 2400 ₾“, „მაუსი — 45 ₾“… თუ ორი შეკვეთა ერთ ობიექტს გაიზიარებს, ხაზები აირევა. ამიტომ ყოველ ჩეკს თავისი, <strong>სუფთა</strong> ობიექტი სჭირდება.</li>
+</ul>
+<p>საერთო ნიშანი: <strong>მსუბუქია</strong> და ან არაფერს ინახავს, ან ინახავს მხოლოდ ერთი გამოყენებისთვის.</p></article>
+<article class="blk" data-slides="35"><span class="anchor" id="s-35"></span><div class="bh"><h3>რეალური შეცდომები — და რას ხედავს მომხმარებელი</h3><a class="chip" href="index.html#/35" data-go="35" title="პრეზენტაციაში გახსნა">სლაიდი 35</a></div>
+<p>არასწორი lifetime კომპილაციის შეცდომას არ იძლევა. პროგრამა ირთვება და ლოკალურად ხშირად მუშაობს კიდეც. პრობლემა ნამდვილ მომხმარებლებთან ჩნდება — ამიტომ ასეთი შეცდომები ძვირი ჯდება.</p>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>რა დარეგისტრირდა</th>
+<th>რას ხედავს მომხმარებელი</th>
+<th>სწორი</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td><strong>კალათა — Singleton</strong></td>
+<td>ნინოს კალათაში გიორგის ლეპტოპი ჩნდება: ერთი ობიექტი ყველა მომხმარებელს ემსახურება და ყველას ნივთი ერთ სიაში იყრება</td>
+<td>კალათა მომხმარებელს ეკუთვნის — ბაზაში ინახება, მასთან მომუშავე კლასი Scoped-ია</td>
+</tr>
+<tr>
+<td>2</td>
+<td><strong>DataContext — Singleton</strong></td>
+<td>ლოკალურად ყველაფერი კარგადაა. საღამოს, დატვირთვისას — „A second operation was started…“; ადმინმა ფასი შეცვალა, საიტზე კი ძველი ჩანს (Change Tracker-ის ძველი ასლი)</td>
+<td>Scoped</td>
+</tr>
+<tr>
+<td>3</td>
+<td><strong>DataContext — Transient</strong></td>
+<td>შეკვეთის გაფორმებისას ორი კლასი ორ DataContext-ს იღებს: შეკვეთა შეინახა, მარაგის კლება — არა. საწყობში ლეპტოპი „ჯერ კიდევ არის“ და მეორე მომხმარებელს იგივე ლეპტოპი მიეყიდება</td>
+<td>Scoped</td>
+</tr>
+<tr>
+<td>4</td>
+<td><strong>ვალუტის კურსი — Transient</strong></td>
+<td>ყოველ გვერდის გახსნაზე ახალი ობიექტი, და თითოეული ბანკის API-ს თავიდან ეკითხება. საიტი ნელდება, ხოლო API ზედმეტი მოთხოვნებისთვის გვბლოკავს</td>
+<td>Singleton</td>
+</tr>
+</tbody>
+</table>
+<p><strong>კითხვა, რომელიც ყოველ რეგისტრაციაზე უნდა დაუსვა თავს:</strong> ეს მონაცემი ვის ეკუთვნის?</p>
+<ul>
+<li><strong>ყველას ერთნაირად</strong> → Singleton</li>
+<li><strong>ამ მოთხოვნას / ამ მომხმარებელს</strong> → Scoped</li>
+<li><strong>არავის — მხოლოდ ერთ გამოთვლას</strong> → Transient</li>
+</ul>
+<div class="prompt"><div class="ph"><span>🤖 რეალური სიტუაციები — შემამოწმე</span><button class="copy" type="button">კოპირება</button></div><div class="pb">ვსწავლობ ASP.NET Core DI-ის lifetime-ებს (Singleton, Scoped, Transient). მომიყევი 6 მოკლე სიტუაცია რეალური ვებ-პროექტებიდან (ონლაინ მაღაზია, მიწოდება, დაჯავშნა, ბანკი) — თითოეულში კლასი და რას აკეთებს.
+თითოეულზე მკითხე: რომელ lifetime-ს მივცემ და რა მოხდება, თუ შევცდები? ჩემს პასუხს დაელოდე და შემიფასე. ქართულად.</div></div></article>
+<h2 class="sec" id="sec-8">პრაქტიკა</h2>
+<article class="blk" data-slides="36"><span class="anchor" id="s-36"></span><div class="bh"><h3>ნაწილი 5 · თქვენი ჯერია</h3><a class="chip" href="index.html#/36" data-go="36" title="პრეზენტაციაში გახსნა">სლაიდი 36</a></div>
+<p>იგივე გზა LibraryApi-ში, წიგნებზე — ოღონდ პირდაპირ საბოლოო ვარიანტით: <code>new</code>-ის გარეშე.</p></article>
+<article class="blk" data-slides="37"><span class="anchor" id="s-37"></span><div class="bh"><h3>კლასში დავალება: LibraryApi → ბაზა + DI</h3><a class="chip" href="index.html#/37" data-go="37" title="პრეზენტაციაში გახსნა">სლაიდი 37</a></div>
+<p>დავალება · LibraryApi</p>
+<h3>ნაბიჯები</h3>
+<ul>
+<li>4 პაკეტი · <code>DataContext</code> — <code>DbSet&lt;Book&gt; Books</code>, constructor <code>DbContextOptions&lt;DataContext&gt;</code>-ით</li>
+<li><code>appsettings.json</code> → <code>ConnectionStrings:Default</code> (<code>LibraryDb</code>) · <code>AddDbContext</code></li>
+<li>BooksController — DataContext-ს <strong>constructor-ში</strong> ითხოვს · <code>static</code> სია წაშალე</li>
+<li>5 endpoint EF Core-ით · მიგრაცია → <code>Update-Database</code></li>
+</ul>
+<h3>✓ მზადაა, როცა</h3>
+<p>Ctrl+Shift+F → <code>new DataContext</code> — 0 შედეგი, და წიგნი გადატვირთვის შემდეგაც ჩანს</p>
+<h3>⭐ ბონუსი</h3>
+<ul>
+<li><code>GET /api/stats</code> — წიგნების რაოდენობა და საშუალო ფასი (StatsController, იგივე DataContext)</li>
+<li>მთვლელი DataContext-ის constructor-ში — Scoped → Singleton: რას ხედავ console-ში?</li>
+</ul>
+<h3>💡 რჩევა</h3>
+<p>ShopApi-ს გზა გაიარე, ოღონდ პირდაპირ საბოლოო ვარიანტით — <code>new</code>-ის გარეშე: ჯერ DataContext და connection string (<code>appsettings.json</code>-ში <code>(localdb)\\MSSQLLocalDB</code> — ორი <code>\</code>), მერე <code>AddDbContext</code>, მერე BooksController-ის constructor, ბოლოს მიგრაცია (<code>Add-Migration InitialCreate</code>). DTO-ები და BookMapper წინა ლექციიდან უცვლელი რჩება: ბაზაში <code>Book</code> ინახება, Controller კი შემოსვლისას <code>ToEntity()</code>-ს, გასვლისას <code>ToResponse()</code>-ს იძახებს.</p></article>
+<article class="blk" data-slides="38"><span class="anchor" id="s-38"></span><div class="bh"><h3>ხშირი შეცდომები</h3><a class="chip" href="index.html#/38" data-go="38" title="პრეზენტაციაში გახსნა">სლაიდი 38</a></div>
+<table>
+<thead>
+<tr>
+<th>რას ხედავ</th>
+<th>მიზეზი და გამოსწორება</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Unable to resolve service for type '…DataContext'</code></td>
+<td>Container-ს არ უთქვამს → <code>builder.Services.AddDbContext&lt;DataContext&gt;(…)</code></td>
+</tr>
+<tr>
+<td><code>The ConnectionString property has not been initialized</code></td>
+<td><code>GetConnectionString("…")</code>-ში სხვა სახელი წერია, ვიდრე JSON-ში → ორივეგან <code>Default</code></td>
+</tr>
+<tr>
+<td><code>Failed to load configuration from file '…appsettings.json'</code></td>
+<td>JSON გატეხილია: ერთი <code>\</code> (საჭიროა <code>\\</code>) ან მძიმე აკლია</td>
+</tr>
+<tr>
+<td><code>Add-Migration</code>: <code>Unable to create a 'DbContext' of type…</code></td>
+<td>DataContext-ს <code>DbContextOptions&lt;DataContext&gt;</code>-იანი constructor აკლია, ან Package Manager Console-ში Default project სხვაა</td>
+</tr>
+<tr>
+<td>POST-ის შემდეგ GET-ში ახალი არ ჩანს</td>
+<td><code>SaveChanges()</code> დაგავიწყდა</td>
+</tr>
+</tbody>
+</table>
+<div class="prompt"><div class="ph"><span>🤖 როცა რამე არ მუშაობს</span><button class="copy" type="button">კოპირება</button></div><div class="pb">ASP.NET Core Web API-ში EF Core-ს DI-ით ვიყენებ (AddDbContext, constructor injection Controller-ში, connection string appsettings.json-ში). მაქვს პრობლემა: [აღწერე]
+შეცდომის ტექსტი: [ჩასვი]
+ჩემი Program.cs, DataContext და Controller-ის constructor: [ჩასვი]
+ჯერ მითხარი, რას ნიშნავს შეცდომა და სად ვეძებო — მზა კოდი ნუ დამიწერე.</div></div></article>
+<h2 class="sec" id="sec-9">შეჯამება</h2>
+<article class="blk" data-slides="39"><span class="anchor" id="s-39"></span><div class="bh"><h3>შეამოწმე, რა დაგამახსოვრდა</h3><a class="chip" href="index.html#/39" data-go="39" title="პრეზენტაციაში გახსნა">სლაიდი 39</a></div>
+<p>ეს კითხვები შემდეგი ლექციის დასაწყისშიც დაისმება.</p>
+<div class="selfcheck"><div class="sh">✅ შეამოწმე თავი <small>დაფიქრდი, მერე გახსენი პასუხი</small></div><details><summary>რატომ არ ვწერთ Controller-ში <code>new DataContext()</code>-ს?</summary><div class="ans">connection string კოდშია · DataContext-ს არავინ ხურავს · შექმნის წესი ყველა Controller-შია მიმოფანტული</div></details><details><summary>რა არის Inversion of Control და Dependency Injection?</summary><div class="ans">IoC — კონტროლს framework-ს ვაძლევთ · DI — კლასი dependency-ს constructor-ით ითხოვს, Container აწვდის</div></details><details><summary>რას ნიშნავს „Unable to resolve service for type …“?</summary><div class="ans">Container-მა ეს ტიპი არ იცის — <code>builder.Services</code>-ში რეგისტრაცია აკლია</div></details><details><summary>Singleton, Scoped, Transient — როდის იქმნება ახალი ობიექტი?</summary><div class="ans">მხოლოდ ერთხელ, მთელ აპზე · ყოველ მოთხოვნაზე ერთი · ყოველ ჯერზე, როცა ვინმე ითხოვს</div></details><details><summary>რატომ არის DataContext Scoped და რა მოხდება Singleton-ით?</summary><div class="ans">ერთ მოთხოვნაში ერთი DataContext, ბოლოს იხურება · Singleton — ერთი ყველასთვის: Change Tracker იზრდება, ერთდროულ მოთხოვნებზე „A second operation was started…“</div></details></div></article>
+<article class="blk" data-slides="40"><span class="anchor" id="s-40"></span><div class="bh"><h3>შეჯამება · ობიექტებს აღარ ვქმნით — ვითხოვთ</h3><a class="chip" href="index.html#/40" data-go="40" title="პრეზენტაციაში გახსნა">სლაიდი 40</a></div>
+<p><strong>დაიმახსოვრე:</strong></p>
+<ol>
+<li><code>new DataContext()</code> Controller-ში არ ჯდება: connection string კოდშია, DataContext-ს არავინ ხურავს, შექმნის წესი ყველა Controller-შია მიმოფანტული.</li>
+<li><strong>IoC</strong> — ASP.NET Core მართავს პროგრამას: ქმნის Controller-ებს და იძახებს მეთოდებს.</li>
+<li><strong>DI</strong> — კლასი dependency-ს constructor-ით ითხოვს, <strong>Container</strong> ქმნის, აწვდის და მოთხოვნის ბოლოს ხურავს. რეგისტრაცია — <code>Program.cs</code>-ში, connection string — <code>appsettings.json</code>-ში.</li>
+<li><strong>Lifetime</strong> — Singleton (ერთი აპზე), Scoped (ერთი მოთხოვნაზე), Transient (ახალი ყოველ ჯერზე). DataContext — <strong>Scoped</strong> (<code>AddDbContext</code>-ის ნაგულისხმევი).</li>
+</ol>
+<div class="codebox"><div class="ch"><span>Program.cs · დღევანდელი შედეგი</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="n">builder</span><span class="p">.</span><span class="n">Services</span><span class="p">.</span><span class="n">AddDbContext</span><span class="o">&lt;</span><span class="n">DataContext</span><span class="o">&gt;</span><span class="p">(</span><span class="n">options</span><span class="w"> </span><span class="o">=&gt;</span></span><span class="ln"><span class="w">    </span><span class="n">options</span><span class="p">.</span><span class="n">UseSqlServer</span><span class="p">(</span></span><span class="ln"><span class="w">        </span><span class="n">builder</span><span class="p">.</span><span class="n">Configuration</span><span class="p">.</span><span class="n">GetConnectionString</span><span class="p">(</span><span class="s">"Default"</span><span class="p">)</span><span class="p">)</span><span class="p">)</span><span class="p">;</span></span></code></pre></div>
+<div class="prompt"><div class="ph"><span>🤖 IoC, DI და Lifetime — გასაუბრებისთვის</span><button class="copy" type="button">კოპირება</button></div><div class="pb">ვემზადები .NET Junior გასაუბრებისთვის. დამისვი კითხვები Inversion of Control-ზე, Dependency Injection-ზე, DI Container-ზე და lifetime-ებზე (ASP.NET Core, builder.Services, AddDbContext და ServiceLifetime, AddScoped, AddSingleton, AddTransient, constructor injection).
+სათითაოდ დასვი, დაელოდე ჩემს პასუხს, შემიფასე და აუხსენი, რა გამომრჩა. 8 კითხვა. ქართულად.</div></div></article>
+<h2 class="sec" id="sec-10">საშინაო</h2>
+<article class="blk" data-slides="41"><span class="anchor" id="s-41"></span><div class="bh"><h3>საშინაო დავალება: LibraryApi — წევრები და გატანა ბაზაში</h3><a class="chip" href="index.html#/41" data-go="41" title="პრეზენტაციაში გახსნა">სლაიდი 41</a></div>
+<p>ერთი DataContext — სამი ცხრილი</p>
+<h3>მოთხოვნები</h3>
+<ul>
+<li>MembersController — <code>static</code> სიის ნაცვლად <code>DbSet&lt;Member&gt; Members</code> (Email-ის შემოწმება და Argon2 რჩება)</li>
+<li><code>Loan</code>: <code>Id</code>, <code>BookId</code>, <code>MemberId</code> (Guid), <code>LoanedAt</code> · <code>DbSet&lt;Loan&gt; Loans</code> · ახალი მიგრაცია</li>
+<li><code>LoansController(DataContext)</code> · <code>POST /api/loans</code> <code>{ bookId, memberId }</code> → 201 · 404 · 409 (უკვე გატანილია)</li>
+<li><code>GET /api/loans</code> — ყველა გატანა · ყველგან DataContext constructor-ით, <code>new</code>-ის გარეშე</li>
+</ul>
+<h3>✓ მზადაა, როცა</h3>
+<p>გადატვირთვის შემდეგ ყველაფერი ადგილზეა, და ერთი წიგნის მეორედ გატანა 409-ს აბრუნებს</p>
+<h3>⭐ ბონუსი</h3>
+<ul>
+<li><code>GET /api/members/{id}/loans</code> — წევრის გატანები (404, თუ წევრი არ არის)</li>
+<li>მთვლელი DataContext-ში: Scoped → Transient → Singleton — რას ხედავ console-ში და რატომ?</li>
+</ul>
+<h3>💡 მინიშნება</h3>
+<p>მიგრაციის სახელი, მაგ. <code>AddMembersAndLoans</code>. DTO-ები — <code>record CreateLoanRequest(Guid BookId, Guid MemberId)</code> და <code>record LoanResponse(Guid Id, Guid BookId, Guid MemberId, DateTime LoanedAt)</code>. LoansController წიგნსაც, წევრსაც და გატანასაც ერთი DataContext-ით ამოწმებს: <code>_db.Books.Find(...)</code>, <code>_db.Members.Find(...)</code>, <code>_db.Loans.Any(...)</code> — ბაზაში ყველა ცხრილი ერთ DataContext-შია. ბონუსის მთვლელი ბოლოს წაშალე.</p></article>
+  </main>
+</div>
+<script>
+const DECK = "ASP.NET · 4 — Dependency Injection და DbContext";
+if (matchMedia('(min-width:981px)').matches) document.getElementById('tocd').open = true;
+const blocks = [...document.querySelectorAll('.blk')];
+const tocLinks = [...document.querySelectorAll('nav.toc a[href^="#sec-"]')];
+const secOf = b => { let e = b; while (e && !(e.matches && e.matches('h2.sec'))) e = e.previousElementSibling; return e; };
+function mark(b, toc_only) {
+  if (!toc_only) blocks.forEach(x => x.classList.toggle('cur', x === b));
+  const s = b && secOf(b); tocLinks.forEach(a => a.classList.toggle('cur', s && a.getAttribute('href') === '#' + s.id));
+}
+const blockFor = n => blocks.find(b => b.dataset.slides.split(',').includes(String(n)));
+
+// copy buttons (code: one line per .ln)
+document.addEventListener('click', e => {
+  const btn = e.target.closest('.copy'); if (!btn) return;
+  const box = btn.closest('.codebox, .prompt');
+  const text = box.matches('.prompt') ? box.querySelector('.pb').textContent : [...box.querySelectorAll('.ln')].map(l => l.textContent).join('\n');
+  navigator.clipboard.writeText(text).then(() => { btn.textContent = '✓ დაკოპირდა'; btn.classList.add('ok'); setTimeout(() => { btn.textContent = 'კოპირება'; btn.classList.remove('ok'); }, 1600); });
+});
+
+// live mode: opened from the deck with P — follow the projector
+const live = new URLSearchParams(location.search).has('live');
+let follow = true, bc = null;
+const liveBtn = document.getElementById('live');
+if (live) {
+  try { bc = new BroadcastChannel('deck-' + DECK); } catch (e) {}
+  liveBtn.classList.add('on');
+  liveBtn.onclick = () => { follow = !follow; liveBtn.classList.toggle('off', !follow); liveBtn.querySelector('.lt').textContent = follow ? 'მიჰყვება სლაიდებს' : 'თავისუფლად ვკითხულობ'; };
+  if (bc) {
+    bc.onmessage = ({ data }) => {
+      if (data.t !== 'state' || !follow) return;
+      const b = blockFor(data.i + 1); if (!b || b.classList.contains('cur')) return;
+      mark(b); b.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    };
+    bc.postMessage({ t: 'hello' });
+  }
+  document.addEventListener('click', e => {   // slide chip → move the projector deck
+    const c = e.target.closest('.chip[data-go]'); if (!c || !bc) return;
+    e.preventDefault(); bc.postMessage({ t: 'go', n: +c.dataset.go - 1 });
+  });
+}
+// deep link #s-12
+const h = location.hash.match(/^#s-(\d+)$/);
+if (h) { const b = blockFor(+h[1]); if (b) { mark(b); setTimeout(() => b.scrollIntoView({ block: 'start' }), 50); } }
+// highlight section in the TOC while reading
+const io = new IntersectionObserver(es => es.forEach(x => { if (x.isIntersecting && !(live && follow)) mark(x.target, true); }), { rootMargin: '-30% 0px -60% 0px' });
+blocks.forEach(b => io.observe(b));
+</script>
+</body></html>

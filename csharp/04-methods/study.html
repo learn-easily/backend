@@ -1,0 +1,406 @@
+<!doctype html>
+<html lang="ka"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>📖 მეთოდები — საკუთარი ბრძანებები — კონსპექტი</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Georgian:wght@400;600;700;800&family=JetBrains+Mono:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#fbf8f3;--card:#fff;--ink:#1e2132;--ink2:#3b3f54;--muted:#7b8096;--line:#e6dfd2;--accent:#6d28d9;--accent-soft:#f3effe;--teal:#0d9488;
+  --green:#15803d;--amber:#b45309;--mono:"JetBrains Mono",ui-monospace,monospace;--sans:"Noto Sans Georgian",system-ui,sans-serif}
+*{box-sizing:border-box}
+html{scroll-padding-top:76px}
+body{margin:0;background:var(--bg);color:var(--ink);font:17.5px/1.75 var(--sans);-webkit-font-smoothing:antialiased}
+a{color:var(--accent)}
+/* top bar */
+.top{position:sticky;top:0;z-index:10;display:flex;align-items:center;gap:14px;padding:10px 20px;background:rgba(251,248,243,.92);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.top .back{font:600 14px var(--mono);color:var(--muted);text-decoration:none;white-space:nowrap}
+.top .back:hover{color:var(--ink)}
+.top .ttl{flex:1;min-width:0;font-weight:700;font-size:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.top .ttl small{font:500 13px var(--mono);color:var(--muted);margin-right:8px}
+.btn{font:700 14px var(--sans);text-decoration:none;border-radius:10px;padding:7px 14px;white-space:nowrap;border:1px solid var(--line);color:var(--ink);background:var(--card);cursor:pointer}
+.btn.play{background:var(--accent);border-color:var(--accent);color:#fff}
+.live{display:none;align-items:center;gap:8px;font:600 13px var(--mono);color:var(--teal);background:#e6f6f4;border:1px solid #bfe7e2;border-radius:999px;padding:5px 12px;cursor:pointer}
+.live.on{display:flex}
+.live .dot{width:8px;height:8px;border-radius:50%;background:var(--teal);animation:pulse 1.6s infinite}
+.live.off{color:var(--muted);background:var(--card);border-color:var(--line)}.live.off .dot{background:var(--muted);animation:none}
+@keyframes pulse{50%{opacity:.3}}
+/* layout */
+.wrap{display:grid;grid-template-columns:230px minmax(0,1000px);gap:44px;justify-content:center;padding:32px 28px 120px}
+nav.toc{position:sticky;top:84px;align-self:start;font-size:14px;line-height:1.45}
+nav.toc .h{font:700 12px var(--mono);color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px}
+nav.toc a{display:block;color:var(--ink2);text-decoration:none;padding:6px 10px;border-left:2px solid var(--line)}
+nav.toc a:hover{color:var(--accent)}
+nav.toc a.cur{color:var(--accent);border-left-color:var(--accent);font-weight:700}
+nav.toc .mats{margin-top:22px;display:flex;flex-direction:column;gap:6px}
+nav.toc .mats a{border:0;padding:2px 0;font:500 13px var(--mono);color:var(--teal);word-break:break-all}
+header.hero{margin-bottom:8px}
+header.hero .k{font:600 14px var(--mono);color:var(--accent)}
+header.hero h1{font-size:38px;line-height:1.2;margin:6px 0 10px;letter-spacing:-.01em}
+header.hero p{color:var(--muted);margin:0;font-size:15.5px}
+header.hero kbd{font:500 12px var(--mono);border:1px solid var(--line);border-radius:5px;padding:0 5px;background:var(--card)}
+h2.sec{font-size:15px;font:700 13px var(--mono);color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin:48px 0 6px;padding-top:18px;border-top:1px solid var(--line)}
+/* blocks */
+.blk{position:relative;padding:14px 0 6px 22px;margin-left:-22px;border-left:3px solid transparent;transition:border-color .3s,background .3s;border-radius:0 12px 12px 0}
+.blk.cur{border-left-color:var(--accent);background:linear-gradient(90deg,var(--accent-soft),transparent 70%)}
+.anchor{position:absolute;top:0}
+.bh{display:flex;align-items:baseline;justify-content:space-between;gap:12px}
+.bh h3{font-size:22px;line-height:1.35;margin:4px 0 6px}
+.chip{flex:none;font:600 12px var(--mono);color:var(--muted);text-decoration:none;border:1px solid var(--line);border-radius:999px;padding:2px 10px;background:var(--card)}
+.chip:hover{color:var(--accent);border-color:var(--accent)}
+.blk h2{font-size:26px;line-height:1.3;margin:6px 0 10px}
+.blk h3:not(.bh h3){font-size:19px;margin:22px 0 6px}
+.blk h4{font-size:17px;margin:18px 0 4px}
+.blk p{margin:10px 0}
+.blk ul,.blk ol{padding-left:24px;margin:8px 0}
+.blk li{margin:4px 0}
+.blk strong{color:var(--ink)}
+.blk :not(pre)>code{font:600 .86em var(--mono);background:#f1ece3;border-radius:6px;padding:1px 6px;color:#5b21b6}
+.blk table{border-collapse:collapse;margin:14px 0;font-size:15.5px;width:100%;display:block;overflow-x:auto}
+.blk th,.blk td{border:1px solid var(--line);padding:8px 12px;text-align:left;vertical-align:top}
+.blk th{background:#f6f1e8}
+/* code */
+.codebox{margin:14px 0;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:#fffdf9}
+.codebox .ch,.prompt .ph{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:6px 8px 6px 14px;font:600 12.5px var(--mono);color:var(--muted);background:#f6f1e8;border-bottom:1px solid var(--line)}
+.copy{font:600 12px var(--mono);border:1px solid var(--line);background:var(--card);color:var(--ink2);border-radius:7px;padding:3px 10px;cursor:pointer}
+.copy:hover{border-color:var(--ink)}
+.copy.ok{color:var(--green);border-color:var(--green)}
+pre.code{margin:0;padding:12px 0;overflow-x:auto;font:14px/1.65 var(--mono)}
+pre.code .ln{display:block;padding:0 16px;white-space:pre}
+.code .ttl{background:var(--bg2);color:var(--muted)}
+.code .ln.hl{background:rgba(109,40,217,.07);box-shadow:inset 3px 0 0 var(--net)}
+.code .ln.dim{opacity:.42}
+.code .k,.code .kd,.code .kn,.code .kr,.code .kc{color:#7c3aed}
+.code .kt{color:#2563eb}
+.code .s,.code .s1,.code .s2,.code .sa,.code .se,.code .si,.code .sd{color:#15803d}
+.code .c,.code .c1,.code .cm,.code .cp,.code .ch{color:#8b8fa3}
+.code .m,.code .mi,.code .mf,.code .mh{color:#c2410c}
+.code .nf,.code .fm{color:#1d4ed8}
+.code .nc,.code .nn,.code .nt,.code .nd{color:#b45309}
+.code .na{color:#7c3aed} .code .nb{color:#0e7490}
+.code .o,.code .p{color:#64748b}
+.code .nv,.code .nx{color:var(--ink)}
+.code .go{color:#64748b}
+/* prompt */
+.prompt{margin:16px 0;border:1px solid #ddd2fb;border-radius:12px;overflow:hidden;background:var(--accent-soft)}
+.prompt .ph{background:#ebe3fd;border-color:#ddd2fb;color:var(--accent)}
+.prompt .pb{padding:12px 16px;white-space:pre-wrap;font-size:15.5px;line-height:1.6;color:var(--ink2)}
+/* self check */
+.selfcheck{margin:16px 0;border:1px solid #cfe9d6;border-radius:12px;background:#f3fbf5;padding:12px 16px}
+.selfcheck .sh{font-weight:700;color:var(--green);margin-bottom:6px}
+.selfcheck .sh small{font-weight:400;color:var(--muted);font-size:13.5px;margin-left:6px}
+.selfcheck details{border-top:1px solid #dcefe1;padding:8px 0}
+.selfcheck summary{cursor:pointer;font-weight:600;list-style:none;padding-left:26px;position:relative}
+.selfcheck summary::-webkit-details-marker{display:none}
+.selfcheck summary::before{content:"?";position:absolute;left:0;top:2px;width:18px;height:18px;border-radius:50%;background:var(--green);color:#fff;font:700 12px/18px var(--mono);text-align:center}
+.selfcheck details[open] summary::before{content:"✓"}
+.selfcheck .ans{padding:6px 0 2px 26px;color:var(--ink2)}
+/* terms */
+.terms{margin:16px 0;border:1px solid var(--line);border-radius:12px;background:var(--card);padding:12px 16px}
+.terms .th{font-weight:700;margin-bottom:6px}
+.terms dl{display:grid;grid-template-columns:max-content 1fr;gap:6px 18px;margin:0}
+.terms dt{font:600 14.5px var(--mono);color:var(--accent)}
+.terms dd{margin:0;color:var(--ink2)}
+/* callouts */
+.callout{display:flex;gap:12px;margin:14px 0;padding:12px 16px;border-radius:12px;border:1px solid var(--line);background:var(--card)}
+.callout .ci{font-size:20px;line-height:1.6}
+.callout>div>p:first-child{margin-top:0}.callout>div>p:last-child{margin-bottom:0}
+.callout.warn{background:#fff8eb;border-color:#f6dfb5}
+.callout.note{background:#eef5ff;border-color:#cfe0fb}
+@media (max-width:980px){
+  .wrap{grid-template-columns:minmax(0,1fr);gap:0;padding:20px 16px 100px}
+  nav.toc{position:static;margin-bottom:12px}
+  nav.toc details{border:1px solid var(--line);border-radius:12px;background:var(--card);padding:8px 12px}
+  nav.toc details>summary{cursor:pointer;font-weight:700}
+  nav.toc .h{display:none}
+  header.hero h1{font-size:30px}
+  .blk{padding-left:14px;margin-left:-14px}
+  .top .ttl small{display:none}
+  .terms dl{grid-template-columns:1fr}.terms dd{margin-bottom:8px}
+}
+@media (min-width:981px){nav.toc details>summary{display:none}}
+@media print{.top,nav.toc,.copy,.chip,.live{display:none}.wrap{display:block;padding:0}.selfcheck details{display:block}.blk.cur{background:none}}
+</style></head>
+<body>
+<div class="top">
+  <a class="back" href="../../">← ლექციები</a>
+  <div class="ttl"><small>C# · 4</small>მეთოდები — საკუთარი ბრძანებები</div>
+  <button class="live" id="live" type="button" title="ჩართული: ტექსტი პრეზენტაციას მიჰყვება"><span class="dot"></span><span class="lt">მიჰყვება სლაიდებს</span></button>
+  <a class="btn play" href="index.html">▶ პრეზენტაცია</a>
+</div>
+<div class="wrap">
+  <nav class="toc"><details id="tocd"><summary>სარჩევი</summary><div class="h">სარჩევი</div><a href="#sec-1">შესავალი</a><a href="#sec-2">გამეორება</a><a href="#sec-3">საშინაოს განხილვა</a><a href="#sec-4">დღის თემა</a><a href="#sec-5">შესავალი</a><a href="#sec-6">1 · პირველი მეთოდი</a><a href="#sec-7">2 · მეთოდები საქმეში</a><a href="#sec-8">პრაქტიკა</a><a href="#sec-9">შეჯამება</a><a href="#sec-10">საშინაო</a><div class="mats"></div></details></nav>
+  <main>
+    <header class="hero">
+      <div class="k">📖 კონსპექტი · C# · ლექცია 4</div>
+      <h1>მეთოდები — საკუთარი ბრძანებები</h1>
+      <p>წაიკითხე ლექციის შემდეგ, ან პრეზენტაციასთან ერთად: პრეზენტაციაში დააჭირე <kbd>P</kbd> და ეს გვერდი სლაიდებს გაჰყვება. კოდი და AI-ს პრომპტები კოპირდება ერთი დაჭერით.</p>
+    </header>
+    <h2 class="sec" id="sec-1">შესავალი</h2>
+<article class="blk" data-slides="1"><span class="anchor" id="s-1"></span><div class="bh"><h3>მეთოდები: საკუთარი ბრძანებები</h3><a class="chip" href="index.html#/1" data-go="1" title="პრეზენტაციაში გახსნა">სლაიდი 1</a></div><h1>მეთოდები — საკუთარი ბრძანებები</h1>
+<p>მეთოდი — კოდის ნაწილი, რომელსაც <strong>სახელი</strong> აქვს. ერთხელ წერ, მერე სახელით იძახებ — რამდენჯერაც გინდა. JS-ში ამას <strong>ფუნქცია</strong> ერქვა.</p></article>
+<h2 class="sec" id="sec-2">გამეორება</h2>
+<article class="blk" data-slides="2"><span class="anchor" id="s-2"></span><div class="bh"><h3>გავიხსენოთ წინა ლექცია</h3><a class="chip" href="index.html#/2" data-go="2" title="პრეზენტაციაში გახსნა">სლაიდი 2</a></div>
+<p>ლექცია 3 — <strong>ციკლები და მასივები</strong>. ახალ თემამდე ვამოწმებთ, რა დაგვამახსოვრდა. ჯერ თვითონ უპასუხე, მერე გახსენი პასუხი. თუ რომელიმე გაგიჭირდა, <a href="../03-loops-arrays/study.html">წინა ლექციის კონსპექტს</a> გადახედე.</p>
+<div class="selfcheck"><div class="sh">✅ შეამოწმე თავი <small>დაფიქრდი, მერე გახსენი პასუხი</small></div><details><summary>როდის <code>for</code> და როდის <code>while</code>?</summary><div class="ans">ვიცით, რამდენჯერ → for · არ ვიცით (მაგ. სანამ პაროლს არ გამოიცნობს) → while</div></details><details><summary>რით განსხვავდება <code>do-while</code> <code>while</code>-ისგან?</summary><div class="ans">do-while ერთხელ აუცილებლად სრულდება — პირობას ბოლოს ამოწმებს</div></details><details><summary><code>int[] a = { 4, 8, 15 };</code> — რა არის <code>a[1]</code> და <code>a.Length</code>?</summary><div class="ans"><code>a[1]</code> → 8 (ინდექსი 0-დან) · <code>a.Length</code> → 3</div></details><details><summary><code>for (int i = 0; i &lt;= a.Length; i++)</code> — რა არის შეცდომა?</summary><div class="ans"><code>&lt;=</code> → ბოლო ბრუნზე <code>a[a.Length]</code> → IndexOutOfRangeException. სწორია <code>i &lt; a.Length</code></div></details><details><summary><code>break</code> და <code>continue</code> — რა განსხვავებაა?</summary><div class="ans"><code>break</code> — ციკლიდან გამოდის · <code>continue</code> — მხოლოდ ამ ბრუნს ტოვებს</div></details></div></article>
+<h2 class="sec" id="sec-3">საშინაოს განხილვა</h2>
+<article class="blk" data-slides="3"><span class="anchor" id="s-3"></span><div class="bh"><h3>საშინაოს განხილვა</h3><a class="chip" href="index.html#/3" data-go="3" title="პრეზენტაციაში გახსნა">სლაიდი 3</a></div>
+<p>წინა ლექციის საშინაო: <strong>„გამოიცანი რიცხვი“ 2.0</strong>. ქვემოთ არის ერთ-ერთი სწორი ამოხსნა. შენი კოდი შეიძლება სხვანაირად იყოს დაწერილი — მთავარია, მოთხოვნები სრულდებოდეს.</p>
+<h3>მოთხოვნები</h3>
+<ul>
+<li>„გამოიცანი რიცხვი“ <strong>შენ თვითონ</strong> დაწერე — სლაიდში ჩაუხედავად</li>
+<li>მაქსიმუმ <strong>7 ცდა</strong>, მერე „Game Over“ და ჩაფიქრებული რიცხვი</li>
+<li>ყოველი ვარაუდი ჩაწერე მასივში <code>int[] history = new int[7];</code> და თამაშის ბოლოს დაბეჭდე: <code>შენი ცდები: 50 75 63</code></li>
+<li>თამაშის ბოლოს: „კიდევ ითამაშებ? (კი/არა)“ — <code>do-while</code>-ით, „კი“-ზე თავიდან იწყება</li>
+</ul>
+<h3>ამოხსნა</h3>
+<div class="codebox"><div class="ch"><span>Program.cs</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="kt">string</span><span class="w"> </span><span class="n">again</span><span class="p">;</span></span><span class="ln"><span class="k">do</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">secret</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Random</span><span class="p">.</span><span class="n">Shared</span><span class="p">.</span><span class="n">Next</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">101</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="kt">int</span><span class="p">[</span><span class="p">]</span><span class="w"> </span><span class="n">history</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="kt">int</span><span class="p">[</span><span class="mi">7</span><span class="p">]</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">guess</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">tries</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="n">guess</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">secret</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">tries</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">7</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="p">{</span></span><span class="ln"><span class="w">        </span><span class="n">Console</span><span class="p">.</span><span class="n">Write</span><span class="p">(</span><span class="s">$"ცდა {tries + 1}/7: "</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">        </span><span class="n">guess</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kt">int</span><span class="p">.</span><span class="n">Parse</span><span class="p">(</span><span class="n">Console</span><span class="p">.</span><span class="n">ReadLine</span><span class="p">(</span><span class="p">)</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">        </span><span class="n">history</span><span class="p">[</span><span class="n">tries</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">guess</span><span class="p">;</span></span><span class="ln"><span class="w">        </span><span class="n">tries</span><span class="o">++</span><span class="p">;</span></span><span class="ln"><span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">guess</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">secret</span><span class="p">)</span><span class="w"> </span><span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="s">"მეტია ⬆"</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">        </span><span class="k">else</span><span class="w"> </span><span class="nf">if</span><span class="w"> </span><span class="p">(</span><span class="n">guess</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="n">secret</span><span class="p">)</span><span class="w"> </span><span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="s">"ნაკლებია ⬇"</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="p">}</span></span><span class="ln"><span class="w">    </span><span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="n">guess</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">secret</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="s">$"🎉 გამოიცანი {tries} ცდაში!"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s">$"Game Over! ჩაფიქრებული იყო {secret}"</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="n">Console</span><span class="p">.</span><span class="n">Write</span><span class="p">(</span><span class="s">"შენი ცდები: "</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">tries</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="p">{</span></span><span class="ln"><span class="w">        </span><span class="n">Console</span><span class="p">.</span><span class="n">Write</span><span class="p">(</span><span class="n">history</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="s">" "</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="p">}</span></span><span class="ln"><span class="w">    </span><span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="n">Console</span><span class="p">.</span><span class="n">Write</span><span class="p">(</span><span class="s">"კიდევ ითამაშებ? (კი/არა) "</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="n">again</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Console</span><span class="p">.</span><span class="n">ReadLine</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="p">}</span><span class="w"> </span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="n">again</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s">"კი"</span><span class="p">)</span><span class="p">;</span></span></code></pre></div>
+<div class="callout note"><span class="ci">💡</span><div><p>ისტორიას <code>foreach</code>-ით არ ვბეჭდავთ: 3 ცდაში თუ გამოიცანი, მასივის დანარჩენი 4 ადგილი ნულებია. ამიტომ <code>for</code> მხოლოდ <code>tries</code>-მდე მიდის. <code>history[tries] = guess;</code> — <code>tries++</code>-მდე, რომ პირველი ვარაუდი ინდექს 0-ზე ჩაიწეროს.</p></div></div></article>
+<h2 class="sec" id="sec-4">დღის თემა</h2>
+<article class="blk" data-slides="4"><span class="anchor" id="s-4"></span><div class="bh"><h3>დღის თემა: მეთოდები — საკუთარი ბრძანებები</h3><a class="chip" href="index.html#/4" data-go="4" title="პრეზენტაციაში გახსნა">სლაიდი 4</a></div>
+<p>პროგრამები იზრდება: ერთი და იგივე კოდი სამ ადგილასაა კოპირებული, შეცდომა სამჯერ უნდა გაასწორო, 300 ხაზში კი ვეღარ პოულობ, სად რა ხდება. დღეს ვისწავლით მეთოდებს — კოდს სახელს ვარქმევთ, ერთხელ ვწერთ და სადაც გინდა ვიძახებთ. ბოლოს „გამოიცანი რიცხვს“ მეთოდებით გადავწერთ.</p>
+<p><strong>ლექციის ბოლოს შეძლებ:</strong></p>
+<ul>
+<li>მეთოდის გამოცხადება და გამოძახება: <code>void</code>, პარამეტრები, <code>return</code></li>
+<li>მასივი პარამეტრად: <code>Average(int[] numbers)</code></li>
+<li>scope: რატომ არ ჩანს მეთოდის ცვლადი გარეთ; default პარამეტრები</li>
+<li>განმეორებადი კოდის მეთოდად გადაქცევა და კარგი სახელის შერჩევა</li>
+</ul></article>
+<h2 class="sec" id="sec-5">შესავალი</h2>
+<article class="blk" data-slides="5"><span class="anchor" id="s-5"></span><div class="bh"><h3>პრობლემა: ერთი და იგივე კოდი სამ ადგილას</h3><a class="chip" href="index.html#/5" data-go="5" title="პრეზენტაციაში გახსნა">სლაიდი 5</a></div>
+<div class="codebox"><div class="ch"><span>Program.cs</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="n">Console</span><span class="p">.</span><span class="n">Write</span><span class="p">(</span><span class="s">"ასაკი (1-100): "</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="kt">int</span><span class="w"> </span><span class="n">age</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kt">int</span><span class="p">.</span><span class="n">Parse</span><span class="p">(</span><span class="n">Console</span><span class="p">.</span><span class="n">ReadLine</span><span class="p">(</span><span class="p">)</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="n">age</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">age</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">100</span><span class="p">)</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="n">Console</span><span class="p">.</span><span class="n">Write</span><span class="p">(</span><span class="s">"არასწორია! ასაკი (1-100): "</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="n">age</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kt">int</span><span class="p">.</span><span class="n">Parse</span><span class="p">(</span><span class="n">Console</span><span class="p">.</span><span class="n">ReadLine</span><span class="p">(</span><span class="p">)</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="p">}</span></span><span class="ln"> </span><span class="ln"><span class="n">Console</span><span class="p">.</span><span class="n">Write</span><span class="p">(</span><span class="s">"ქულა (1-10): "</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="kt">int</span><span class="w"> </span><span class="n">score</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kt">int</span><span class="p">.</span><span class="n">Parse</span><span class="p">(</span><span class="n">Console</span><span class="p">.</span><span class="n">ReadLine</span><span class="p">(</span><span class="p">)</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="n">score</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">score</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">10</span><span class="p">)</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="n">Console</span><span class="p">.</span><span class="n">Write</span><span class="p">(</span><span class="s">"არასწორია! ქულა (1-10): "</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="n">score</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kt">int</span><span class="p">.</span><span class="n">Parse</span><span class="p">(</span><span class="n">Console</span><span class="p">.</span><span class="n">ReadLine</span><span class="p">(</span><span class="p">)</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="p">}</span></span><span class="ln"> </span><span class="ln"><span class="o">/</span><span class="o">/</span><span class="w"> </span><span class="p">.</span><span class="p">.</span><span class="p">.</span><span class="w"> </span><span class="n">და</span><span class="w"> </span><span class="n">კიდევ</span><span class="w"> </span><span class="n">ერთხელ</span><span class="w"> </span><span class="n">კლასისთვის</span></span></code></pre></div>
+<ul>
+<li>🐛 შეცდომა იპოვე? უნდა გაასწორო <strong>ყველა</strong> ასლში. ერთი დაგავიწყდა — ბაგი რჩება.</li>
+<li>📜 პროგრამა იზრდება და აღარ იკითხება.</li>
+</ul>
+<p>მეთოდებს უკვე იყენებ: <code>Console.WriteLine</code>, <code>int.Parse</code>, <code>ToLower</code>, <code>Random.Shared.Next</code> — სხვამ დაწერა, შენ სახელით იძახებ. დღეს <strong>საკუთარს</strong> დავწერთ.</p></article>
+<h2 class="sec" id="sec-6">1 · პირველი მეთოდი</h2>
+<article class="blk" data-slides="6"><span class="anchor" id="s-6"></span><div class="bh"><h3>ნაწილი 1 · პირველი მეთოდი</h3><a class="chip" href="index.html#/6" data-go="6" title="პრეზენტაციაში გახსნა">სლაიდი 6</a></div>
+<p>სახელი, პარამეტრები და დასაბრუნებელი მნიშვნელობა — JS-ის <code>function</code>-ის ძმა.</p></article>
+<article class="blk" data-slides="7"><span class="anchor" id="s-7"></span><div class="bh"><h3>გამოცხადება და გამოძახება</h3><a class="chip" href="index.html#/7" data-go="7" title="პრეზენტაციაში გახსნა">სლაიდი 7</a></div>
+<div class="codebox"><div class="ch"><span>JavaScript</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="kd">function</span><span class="w"> </span><span class="nx">printLine</span><span class="p">(</span><span class="p">)</span><span class="w"> </span><span class="p">{</span></span><span class="ln"><span class="w">  </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">"=========="</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="p">}</span></span><span class="ln"> </span><span class="ln"><span class="nx">printLine</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="nx">printLine</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span></code></pre></div>
+<div class="codebox"><div class="ch"><span>C#</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="n">PrintLine</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="n">PrintLine</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="k">void</span><span class="w"> </span><span class="nf">PrintLine</span><span class="p">(</span><span class="p">)</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="s">"=========="</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="p">}</span></span></code></pre></div>
+<ul>
+<li><code>function</code>-ის ადგილას — <strong><code>void</code></strong>: „ეს მეთოდი არაფერს აბრუნებს, უბრალოდ აკეთებს“.</li>
+<li>სახელი <strong>დიდი ასოთი</strong> (PascalCase): <code>PrintLine</code>, როგორც <code>WriteLine</code>.</li>
+<li>Program.cs-ში მეთოდებს <strong>ბოლოში</strong> ვწერთ, ძირითად კოდს — ზემოთ. გამოძახება ზემოდანაც მუშაობს.</li>
+</ul>
+<div class="terms"><div class="th">📘 ტერმინები</div><dl><dt>გამოცხადება</dt><dd>მეთოდის დაწერა: რა ჰქვია და რას აკეთებს</dd><dt>გამოძახება</dt><dd>მეთოდის გაშვება სახელით: PrintLine();</dd></dl></div></article>
+<article class="blk" data-slides="8"><span class="anchor" id="s-8"></span><div class="bh"><h3>პარამეტრები: მეთოდს მონაცემს ვაწვდით</h3><a class="chip" href="index.html#/8" data-go="8" title="პრეზენტაციაში გახსნა">სლაიდი 8</a></div>
+<div class="codebox"><div class="ch"><span>Program.cs</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="n">Greet</span><span class="p">(</span><span class="s">"ნიკა"</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="n">Greet</span><span class="p">(</span><span class="s">"ანა"</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="n">PrintLine</span><span class="p">(</span><span class="sc">'*'</span><span class="p">,</span><span class="w"> </span><span class="mi">20</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="k">void</span><span class="w"> </span><span class="nf">Greet</span><span class="p">(</span><span class="kt">string</span><span class="w"> </span><span class="n">name</span><span class="p">)</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="s">$"გამარჯობა, {name}! 👋"</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="p">}</span></span><span class="ln"> </span><span class="ln"><span class="k">void</span><span class="w"> </span><span class="nf">PrintLine</span><span class="p">(</span><span class="kt">char</span><span class="w"> </span><span class="n">symbol</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">length</span><span class="p">)</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">length</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="p">{</span></span><span class="ln"><span class="w">        </span><span class="n">Console</span><span class="p">.</span><span class="n">Write</span><span class="p">(</span><span class="n">symbol</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="p">}</span></span><span class="ln"><span class="w">    </span><span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="p">}</span></span></code></pre></div>
+<ul>
+<li><code>Greet("ნიკა")</code> — <code>"ნიკა"</code> ჩადის <code>name</code>-ში. ყოველ გამოძახებაზე — სხვა მნიშვნელობა.</li>
+<li>პარამეტრს <strong>ტიპი</strong> აქვს, ისევ <strong>წინ</strong> (TS-ში <code>name: string</code>, C#-ში <code>string name</code>).</li>
+<li>რამდენიმე პარამეტრი — მძიმით. თანმიმდევრობა მნიშვნელოვანია: <code>PrintLine('*', 20)</code>.</li>
+<li><code>Console.WriteLine();</code> ცარიელი — უბრალოდ ახალ ხაზზე გადადის.</li>
+</ul>
+<p>კომპილატორი ისევ გიცავს: <code>Greet(5)</code> — ❌ (int არ არის string), <code>Greet()</code> — ❌ (name აკლია).</p></article>
+<article class="blk" data-slides="9"><span class="anchor" id="s-9"></span><div class="bh"><h3>return: მეთოდი პასუხს აბრუნებს</h3><a class="chip" href="index.html#/9" data-go="9" title="პრეზენტაციაში გახსნა">სლაიდი 9</a></div>
+<div class="codebox"><div class="ch"><span>Program.cs</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="kt">int</span><span class="w"> </span><span class="n">sum</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Add</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span><span class="w"> </span><span class="mi">4</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="n">sum</span><span class="p">)</span><span class="p">;</span><span class="w">            </span><span class="c1">// 7</span></span><span class="ln"><span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="n">Add</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span><span class="w"> </span><span class="mi">20</span><span class="p">)</span><span class="p">)</span><span class="p">;</span><span class="w">    </span><span class="c1">// 30</span></span><span class="ln"> </span><span class="ln"><span class="kt">bool</span><span class="w"> </span><span class="n">even</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">IsEven</span><span class="p">(</span><span class="mi">7</span><span class="p">)</span><span class="p">;</span><span class="w">             </span><span class="c1">// False</span></span><span class="ln"> </span><span class="ln"><span class="kt">int</span><span class="w"> </span><span class="nf">Add</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">a</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">b</span><span class="p">)</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">b</span><span class="p">;</span></span><span class="ln"><span class="p">}</span></span><span class="ln"> </span><span class="ln"><span class="kt">bool</span><span class="w"> </span><span class="nf">IsEven</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">n</span><span class="p">)</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="o">%</span><span class="w"> </span><span class="mi">2</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span></span><span class="ln"><span class="p">}</span></span></code></pre></div>
+<table>
+<thead>
+<tr>
+<th>ნაწილი</th>
+<th>მნიშვნელობა</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>int</code></td>
+<td>რა ტიპის პასუხს აბრუნებს (<code>void</code> — არაფერს)</td>
+</tr>
+<tr>
+<td><code>Add</code></td>
+<td>სახელი</td>
+</tr>
+<tr>
+<td><code>(int a, int b)</code></td>
+<td>რას იღებს</td>
+</tr>
+<tr>
+<td><code>return a + b;</code></td>
+<td>პასუხი — ბრუნდება იქ, საიდანაც გამოიძახეს</td>
+</tr>
+</tbody>
+</table>
+<p>TS-ში დასაბრუნებელი ტიპი ბოლოში იწერებოდა (<code>: number</code>), C#-ში — <strong>წინ</strong>.</p>
+<div class="callout warn"><span class="ci">⚠️</span><div><p>თუ მეთოდი <code>int</code>-ს აბრუნებს და <code>return</code> დაგავიწყდა — შეცდომა CS0161. კომპილატორი ამოწმებს, რომ პასუხი <strong>ყოველთვის</strong> ბრუნდება.</p></div></div></article>
+<h2 class="sec" id="sec-7">2 · მეთოდები საქმეში</h2>
+<article class="blk" data-slides="10"><span class="anchor" id="s-10"></span><div class="bh"><h3>ნაწილი 2 · მეთოდები საქმეში</h3><a class="chip" href="index.html#/10" data-go="10" title="პრეზენტაციაში გახსნა">სლაიდი 10</a></div>
+<p>მასივები, scope, default პარამეტრები — და წინა ლექციების კოდის გაწმენდა.</p></article>
+<article class="blk" data-slides="11"><span class="anchor" id="s-11"></span><div class="bh"><h3>მასივი პარამეტრად</h3><a class="chip" href="index.html#/11" data-go="11" title="პრეზენტაციაში გახსნა">სლაიდი 11</a></div>
+<div class="codebox"><div class="ch"><span>Program.cs</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="kt">int</span><span class="p">[</span><span class="p">]</span><span class="w"> </span><span class="n">scores</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="mi">9</span><span class="p">,</span><span class="w"> </span><span class="mi">7</span><span class="p">,</span><span class="w"> </span><span class="mi">10</span><span class="p">,</span><span class="w"> </span><span class="mi">6</span><span class="p">,</span><span class="w"> </span><span class="mi">8</span><span class="w"> </span><span class="p">}</span><span class="p">;</span></span><span class="ln"><span class="kt">int</span><span class="p">[</span><span class="p">]</span><span class="w"> </span><span class="n">temps</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="mi">12</span><span class="p">,</span><span class="w"> </span><span class="mi">15</span><span class="p">,</span><span class="w"> </span><span class="mi">9</span><span class="p">,</span><span class="w"> </span><span class="mi">18</span><span class="p">,</span><span class="w"> </span><span class="mi">21</span><span class="w"> </span><span class="p">}</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="s">$"ქულების საშუალო: {Average(scores):F1}"</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="s">$"ტემპ. საშუალო: {Average(temps):F1}"</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="s">$"მაქს. ქულა: {Max(scores)}"</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="kt">double</span><span class="w"> </span><span class="nf">Average</span><span class="p">(</span><span class="kt">int</span><span class="p">[</span><span class="p">]</span><span class="w"> </span><span class="n">numbers</span><span class="p">)</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">sum</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="k">foreach</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="n">numbers</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="p">{</span></span><span class="ln"><span class="w">        </span><span class="n">sum</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="n">n</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="p">}</span></span><span class="ln"><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">sum</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mf">1.0</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">numbers</span><span class="p">.</span><span class="n">Length</span><span class="p">;</span></span><span class="ln"><span class="p">}</span></span><span class="ln"> </span><span class="ln"><span class="kt">int</span><span class="w"> </span><span class="nf">Max</span><span class="p">(</span><span class="kt">int</span><span class="p">[</span><span class="p">]</span><span class="w"> </span><span class="n">numbers</span><span class="p">)</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">max</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">numbers</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="k">foreach</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="n">numbers</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="p">{</span></span><span class="ln"><span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">n</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="n">max</span><span class="p">)</span><span class="w"> </span><span class="n">max</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">n</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="p">}</span></span><span class="ln"><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">max</span><span class="p">;</span></span><span class="ln"><span class="p">}</span></span></code></pre></div>
+<p>წინა ლექციის „ქულების ანალიზი“ — ახლა სახელიანი მეთოდებია. <code>int[] numbers</code> ნიშნავს: „მომეცი ნებისმიერი int-ების მასივი“. ერთხელ დაწერილი <code>Average</code> ქულებზეც მუშაობს და ტემპერატურაზეც.</p></article>
+<article class="blk" data-slides="12"><span class="anchor" id="s-12"></span><div class="bh"><h3>scope: სად „ცხოვრობს“ ცვლადი</h3><a class="chip" href="index.html#/12" data-go="12" title="პრეზენტაციაში გახსნა">სლაიდი 12</a></div>
+<div class="codebox"><div class="ch"><span>❌ ასე არ მუშაობს</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="kt">int</span><span class="w"> </span><span class="n">score</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">10</span><span class="p">;</span></span><span class="ln"><span class="n">AddBonus</span><span class="p">(</span><span class="n">score</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="n">score</span><span class="p">)</span><span class="p">;</span><span class="w">   </span><span class="c1">// 10 — არ შეიცვალა!</span></span><span class="ln"><span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="n">bonus</span><span class="p">)</span><span class="p">;</span><span class="w">   </span><span class="c1">// ❌ bonus აქ არ არსებობს</span></span><span class="ln"> </span><span class="ln"><span class="k">void</span><span class="w"> </span><span class="nf">AddBonus</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="k">value</span><span class="p">)</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">bonus</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">5</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="k">value</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="n">bonus</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="k">value</span><span class="p">)</span><span class="p">;</span><span class="w">   </span><span class="c1">// 15</span></span><span class="ln"><span class="p">}</span></span></code></pre></div>
+<ul>
+<li><code>value</code> — <code>score</code>-ის <strong>ასლია</strong>. ასლი შეიცვალა, ორიგინალი — არა.</li>
+<li><code>bonus</code> მეთოდის შიგნით დაიბადა და შიგნითვე „კვდება“ — გარეთ არ არსებობს.</li>
+</ul>
+<div class="codebox"><div class="ch"><span>✅ შედეგი return-ით</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="kt">int</span><span class="w"> </span><span class="n">score</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">10</span><span class="p">;</span></span><span class="ln"><span class="n">score</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">AddBonus</span><span class="p">(</span><span class="n">score</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="n">score</span><span class="p">)</span><span class="p">;</span><span class="w">   </span><span class="c1">// 15 ✅</span></span><span class="ln"> </span><span class="ln"><span class="kt">int</span><span class="w"> </span><span class="nf">AddBonus</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="k">value</span><span class="p">)</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">bonus</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">5</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="k">value</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">bonus</span><span class="p">;</span></span><span class="ln"><span class="p">}</span></span></code></pre></div>
+<p><strong>წესი:</strong> მეთოდი მონაცემს იღებს პარამეტრით, შედეგს აბრუნებს <code>return</code>-ით.</p>
+<div class="callout note"><span class="ci">💡</span><div><p>Program.cs-ში მეთოდი ტექნიკურად „ხედავს“ მის ზემოთ გამოცხადებულ ცვლადებს. ამით არ ვსარგებლობთ — ასეთი კოდი სწრაფად იხლართება. ყველაფერი, რაც მეთოდს სჭირდება, პარამეტრით გადაეცი.</p></div></div></article>
+<article class="blk" data-slides="13"><span class="anchor" id="s-13"></span><div class="bh"><h3>default პარამეტრები</h3><a class="chip" href="index.html#/13" data-go="13" title="პრეზენტაციაში გახსნა">სლაიდი 13</a></div>
+<div class="codebox"><div class="ch"><span>Program.cs</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="n">PrintLine</span><span class="p">(</span><span class="p">)</span><span class="p">;</span><span class="w">            </span><span class="c1">// ----------</span></span><span class="ln"><span class="n">PrintLine</span><span class="p">(</span><span class="sc">'*'</span><span class="p">)</span><span class="p">;</span><span class="w">         </span><span class="c1">// **********</span></span><span class="ln"><span class="n">PrintLine</span><span class="p">(</span><span class="sc">'='</span><span class="p">,</span><span class="w"> </span><span class="mi">5</span><span class="p">)</span><span class="p">;</span><span class="w">      </span><span class="c1">// =====</span></span><span class="ln"> </span><span class="ln"><span class="k">void</span><span class="w"> </span><span class="nf">PrintLine</span><span class="p">(</span><span class="kt">char</span><span class="w"> </span><span class="n">symbol</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="sc">'-'</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">length</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">10</span><span class="p">)</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">length</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="p">{</span></span><span class="ln"><span class="w">        </span><span class="n">Console</span><span class="p">.</span><span class="n">Write</span><span class="p">(</span><span class="n">symbol</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="p">}</span></span><span class="ln"><span class="w">    </span><span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="p">}</span></span></code></pre></div>
+<p><code>char symbol = '-'</code> — თუ გამომძახებელმა არაფერი გადასცა, <code>'-'</code> გამოიყენება. JS-შიც ზუსტად ასე იყო.</p>
+<div class="callout tip"><span class="ci">👉</span><div><p><code>Console.WriteLine(5)</code>, <code>Console.WriteLine("ტექსტი")</code>, <code>Console.WriteLine()</code> — ერთი სახელი, სხვადასხვა პარამეტრები. ამას ჰქვია <strong>overloading</strong> (გადატვირთვა). JS-ში ასეთი რამ არ არის. საკუთარს კლასების ლექციაზე დავწერთ.</p></div></div></article>
+<article class="blk" data-slides="14"><span class="anchor" id="s-14"></span><div class="bh"><h3>23 ხაზი → 3 გამოძახება</h3><a class="chip" href="index.html#/14" data-go="14" title="პრეზენტაციაში გახსნა">სლაიდი 14</a></div>
+<p>ლექციის დასაწყისის პრობლემა, მეთოდით:</p>
+<div class="codebox"><div class="ch"><span>Program.cs</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="kt">int</span><span class="w"> </span><span class="n">age</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ReadNumber</span><span class="p">(</span><span class="s">"ასაკი"</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">100</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="kt">int</span><span class="w"> </span><span class="n">score</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ReadNumber</span><span class="p">(</span><span class="s">"ქულა"</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">10</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="kt">int</span><span class="w"> </span><span class="n">grade</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ReadNumber</span><span class="p">(</span><span class="s">"კლასი"</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">12</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="s">$"{age} წლის, {grade} კლასი, ქულა {score}"</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="kt">int</span><span class="w"> </span><span class="nf">ReadNumber</span><span class="p">(</span><span class="kt">string</span><span class="w"> </span><span class="n">question</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">min</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">max</span><span class="p">)</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="n">Console</span><span class="p">.</span><span class="n">Write</span><span class="p">(</span><span class="s">$"{question} ({min}-{max}): "</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">number</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kt">int</span><span class="p">.</span><span class="n">Parse</span><span class="p">(</span><span class="n">Console</span><span class="p">.</span><span class="n">ReadLine</span><span class="p">(</span><span class="p">)</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="n">number</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">min</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">number</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="n">max</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="p">{</span></span><span class="ln"><span class="w">        </span><span class="n">Console</span><span class="p">.</span><span class="n">ForegroundColor</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ConsoleColor</span><span class="p">.</span><span class="n">Red</span><span class="p">;</span></span><span class="ln"><span class="w">        </span><span class="n">Console</span><span class="p">.</span><span class="n">Write</span><span class="p">(</span><span class="s">$"არასწორია! {question} ({min}-{max}): "</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">        </span><span class="n">Console</span><span class="p">.</span><span class="n">ResetColor</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">        </span><span class="n">number</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kt">int</span><span class="p">.</span><span class="n">Parse</span><span class="p">(</span><span class="n">Console</span><span class="p">.</span><span class="n">ReadLine</span><span class="p">(</span><span class="p">)</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="p">}</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">number</span><span class="p">;</span></span><span class="ln"><span class="p">}</span></span></code></pre></div>
+<p><strong>როგორ ვაქცევთ კოდს მეთოდად:</strong> იპოვე, რა მეორდება → რაც ასლებში <strong>იცვლება</strong> (ტექსტი, მინიმუმი, მაქსიმუმი), პარამეტრად აქციე → შედეგი <code>return</code>-ით დააბრუნე.</p>
+<p>ახლა შემოწმება ერთ ადგილასაა: წითელი ფერი დავამატეთ — სამივე კითხვამ ერთბაშად მიიღო.</p></article>
+<article class="blk" data-slides="15"><span class="anchor" id="s-15"></span><div class="bh"><h3>🎯 „გამოიცანი რიცხვი“ — მეთოდებით</h3><a class="chip" href="index.html#/15" data-go="15" title="პრეზენტაციაში გახსნა">სლაიდი 15</a></div>
+<div class="codebox"><div class="ch"><span>Program.cs</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="s">"=== 🎯 გამოიცანი რიცხვი ==="</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="kt">string</span><span class="w"> </span><span class="n">again</span><span class="p">;</span></span><span class="ln"><span class="k">do</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">tries</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">PlayRound</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="s">$"🎉 გამოიცანი {tries} ცდაში!"</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="n">Console</span><span class="p">.</span><span class="n">Write</span><span class="p">(</span><span class="s">"კიდევ? (კი/არა) "</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="n">again</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Console</span><span class="p">.</span><span class="n">ReadLine</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="p">}</span><span class="w"> </span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="n">again</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s">"კი"</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="kt">int</span><span class="w"> </span><span class="nf">PlayRound</span><span class="p">(</span><span class="p">)</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">secret</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Random</span><span class="p">.</span><span class="n">Shared</span><span class="p">.</span><span class="n">Next</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">101</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">guess</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">tries</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="n">guess</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">secret</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="p">{</span></span><span class="ln"><span class="w">        </span><span class="n">guess</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ReadNumber</span><span class="p">(</span><span class="s">"ვარაუდი"</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">100</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">        </span><span class="n">tries</span><span class="o">++</span><span class="p">;</span></span><span class="ln"><span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">guess</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">secret</span><span class="p">)</span><span class="w"> </span><span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="s">"მეტია ⬆"</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">        </span><span class="k">else</span><span class="w"> </span><span class="nf">if</span><span class="w"> </span><span class="p">(</span><span class="n">guess</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="n">secret</span><span class="p">)</span><span class="w"> </span><span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="s">"ნაკლებია ⬇"</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="p">}</span></span><span class="ln"><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">tries</span><span class="p">;</span></span><span class="ln"><span class="p">}</span></span><span class="ln"> </span><span class="ln"><span class="o">/</span><span class="o">/</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">ReadNumber</span><span class="w"> </span><span class="n">წინა</span><span class="w"> </span><span class="n">სლაიდიდან</span></span></code></pre></div>
+<ul>
+<li>ზედა ნაწილი — <strong>სცენარი</strong>: რაუნდი → შედეგი → კიდევ? წაიკითხავ და მაშინვე გაიგებ, რას აკეთებს პროგრამა.</li>
+<li>დეტალები მეთოდებშია. <code>PlayRound</code> თამაშობს ერთ რაუნდს და ცდების რაოდენობას აბრუნებს.</li>
+<li>მეთოდი მეთოდს იძახებს: <code>ReadNumber</code> ხელახლა გამოვიყენეთ — და 1-100 შემოწმება უფასოდ მივიღეთ.</li>
+</ul></article>
+<article class="blk" data-slides="16"><span class="anchor" id="s-16"></span><div class="bh"><h3>კარგი მეთოდის წესები</h3><a class="chip" href="index.html#/16" data-go="16" title="პრეზენტაციაში გახსნა">სლაიდი 16</a></div>
+<ul>
+<li>🔠 <strong>PascalCase</strong> — <code>PrintTitle</code>, <code>ReadNumber</code>: ყოველი სიტყვა დიდი ასოთი.</li>
+<li>🏃 <strong>ზმნით</strong> — <code>Calculate…</code>, <code>Print…</code>, <code>Read…</code>. bool-ის დამბრუნებელი — <code>Is…</code> / <code>Has…</code>: <code>IsEven</code>, <code>HasMoney</code>.</li>
+<li>🎯 <strong>ერთი საქმე</strong> — <code>ReadAndCalculateAndPrint</code> სინამდვილეში სამი მეთოდია.</li>
+<li>📏 <strong>მოკლე</strong> — ეკრანზე არ ეტევა? ნაწილი ცალკე მეთოდში გაიტანე.</li>
+</ul>
+<p><code>DoStuff(int x)</code> ❌ → <code>PrintMultiplicationTable(int number)</code> ✅ — სახელიდან ჩანს, რას აკეთებს.</p></article>
+<h2 class="sec" id="sec-8">პრაქტიკა</h2>
+<article class="blk" data-slides="17"><span class="anchor" id="s-17"></span><div class="bh"><h3>კლასში დავალება: დავალებები — აირჩიე დონე</h3><a class="chip" href="index.html#/17" data-go="17" title="პრეზენტაციაში გახსნა">სლაიდი 17</a></div>
+<p>ყოველი მეთოდი გამოიძახე და შედეგი დაბეჭდე</p>
+<h3>ნაბიჯები</h3>
+<ul>
+<li>⭐ <strong>პატარა მეთოდები</strong> — <code>int Square(int n)</code>, <code>bool IsEven(int n)</code>, <code>bool IsAdult(int age)</code></li>
+<li>⭐⭐ <strong>ტემპერატურა</strong> — <code>double CelsiusToFahrenheit(double c)</code> და <code>string DescribeWeather(double c)</code>: 0-ზე ნაკლები → „ყინავს ❄️“, 25-ზე მეტი → „ცხელა ☀️“, სხვა → „სასიამოვნოა 🌤️“</li>
+<li>⭐⭐ <strong>მასივის მეთოდები</strong> — <code>int Min(int[] numbers)</code>, <code>int Sum(int[] numbers)</code>, <code>int CountAbove(int[] numbers, int limit)</code>. სცადე ორ სხვადასხვა მასივზე</li>
+</ul>
+<h3>✓ მზადაა, როცა</h3>
+<p>ძირითად კოდში მხოლოდ გამოძახებებია, ყველა გამოთვლა — მეთოდებში; მასივზე <code>{ 9, 7, 10, 6 }</code> და <code>limit = 8</code>-ზე <code>CountAbove</code> აბრუნებს <code>2</code>-ს</p>
+<h3>⭐ ბონუსი</h3>
+<ul>
+<li>⭐⭐⭐ <code>bool IsPrime(int n)</code> — მარტივია თუ არა რიცხვი. მისი დახმარებით დაბეჭდე ყველა მარტივი 1-დან 100-მდე</li>
+<li>🏆 <code>void PrintBox(string text)</code> — ტექსტს ჩარჩოში სვამს, ჩარჩოს სიგანე ტექსტის სიგრძეზეა დამოკიდებული (<code>text.Length</code>)</li>
+</ul>
+<h3>💡 მინიშნება</h3>
+<p><code>DescribeWeather</code> სტრიქონს აბრუნებს — switch expression-ითაც შეიძლება: <code>c switch { &lt; 0 =&gt; "…", &gt; 25 =&gt; "…", _ =&gt; "…" }</code>. <code>IsPrime</code>-ში: 2-დან <code>n - 1</code>-მდე თუ რომელიმეზე იყოფა (<code>n % i == 0</code>) → <code>return false;</code> — <code>return</code> მეთოდს მაშინვე ამთავრებს, ციკლსაც.</p></article>
+<h2 class="sec" id="sec-9">შეჯამება</h2>
+<article class="blk" data-slides="18"><span class="anchor" id="s-18"></span><div class="bh"><h3>📸 JS → C# · მეთოდები</h3><a class="chip" href="index.html#/18" data-go="18" title="პრეზენტაციაში გახსნა">სლაიდი 18</a></div>
+<table>
+<thead>
+<tr>
+<th>JavaScript / TS</th>
+<th>C#</th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>function print() { }</code></td>
+<td><code>void Print() { }</code></td>
+<td>არაფერს აბრუნებს</td>
+</tr>
+<tr>
+<td><code>add(a: number): number</code></td>
+<td><code>int Add(int a)</code></td>
+<td>ტიპები წინ</td>
+</tr>
+<tr>
+<td><code>return a + b;</code></td>
+<td><code>return a + b;</code></td>
+<td>იგივეა ✓</td>
+</tr>
+<tr>
+<td><code>function f(x = 10)</code></td>
+<td><code>void F(int x = 10)</code></td>
+<td>default პარამეტრი</td>
+</tr>
+<tr>
+<td><code>printLine()</code></td>
+<td><code>PrintLine()</code></td>
+<td>PascalCase</td>
+</tr>
+<tr>
+<td>— არ არის —</td>
+<td><code>WriteLine(5)</code> · <code>WriteLine("ა")</code></td>
+<td>overloading</td>
+</tr>
+</tbody>
+</table></article>
+<article class="blk" data-slides="19"><span class="anchor" id="s-19"></span><div class="bh"><h3>შეამოწმე, რა დაგამახსოვრდა</h3><a class="chip" href="index.html#/19" data-go="19" title="პრეზენტაციაში გახსნა">სლაიდი 19</a></div>
+<p>ეს კითხვები შემდეგი ლექციის დასაწყისშიც დაისმება.</p>
+<div class="selfcheck"><div class="sh">✅ შეამოწმე თავი <small>დაფიქრდი, მერე გახსენი პასუხი</small></div><details><summary>რას ნიშნავს <code>void</code> მეთოდის სახელის წინ?</summary><div class="ans">მეთოდი არაფერს აბრუნებს — უბრალოდ აკეთებს (მაგ. ბეჭდავს)</div></details><details><summary><code>int Add(int a, int b)</code> — რას იღებს და რას აბრუნებს?</summary><div class="ans">იღებს ორ int-ს (a, b), აბრუნებს int-ს — <code>return</code>-ით</div></details><details><summary><code>AddBonus(score);</code> — მეთოდში <code>value += 5</code> წერია. შეიცვლება <code>score</code>?</summary><div class="ans">არა — მეთოდში ასლი შევიდა. შედეგი <code>return</code>-ით უნდა დააბრუნო: <code>score = AddBonus(score);</code></div></details><details><summary><code>void PrintLine(char symbol = '-')</code> — რა მოხდება <code>PrintLine();</code>-ზე?</summary><div class="ans">default მნიშვნელობა გამოიყენება — დაიბეჭდება <code>-</code>-ებით</div></details><details><summary>როდის ვაქცევთ კოდს მეთოდად?</summary><div class="ans">როცა მეორდება ან ძალიან გრძელია; რაც ასლებში იცვლება — პარამეტრი ხდება</div></details></div></article>
+<article class="blk" data-slides="20"><span class="anchor" id="s-20"></span><div class="bh"><h3>შეჯამება · ერთხელ დაწერე — ბევრჯერ გამოიყენე</h3><a class="chip" href="index.html#/20" data-go="20" title="პრეზენტაციაში გახსნა">სლაიდი 20</a></div>
+<p><strong>დაიმახსოვრე:</strong></p>
+<ol>
+<li><strong>მეთოდი</strong> — სახელიანი კოდის ნაწილი. <code>void</code> — უბრალოდ აკეთებს; <code>int</code>, <code>bool</code>, <code>double</code>… — პასუხს აბრუნებს <code>return</code>-ით.</li>
+<li>მონაცემი მეთოდში შედის <strong>პარამეტრით</strong>, შედეგი გამოდის <strong>return</strong>-ით. მეთოდის ცვლადები გარეთ არ ჩანს.</li>
+<li>კოდი მეორდება? → მეთოდი. რაც ასლებში იცვლება → პარამეტრი.</li>
+<li>სახელი — PascalCase, ზმნით, ერთი საქმე.</li>
+</ol>
+<h3>⏭️ შემდეგ ლექციაზე</h3>
+<p>კლასები და ობიექტები — მონაცემები და მეთოდები ერთ „ყუთში“.</p></article>
+<h2 class="sec" id="sec-10">საშინაო</h2>
+<article class="blk" data-slides="21"><span class="anchor" id="s-21"></span><div class="bh"><h3>საშინაო დავალება: კალკულატორი 2.0 — მეთოდებით</h3><a class="chip" href="index.html#/21" data-go="21" title="პრეზენტაციაში გახსნა">სლაიდი 21</a></div>
+<p>ლექცია 2-ის კალკულატორი — მენიუთი და მეთოდებით</p>
+<h3>მოთხოვნები</h3>
+<ul>
+<li>ახალი Console App: <strong>Calculator</strong></li>
+<li>სამი მეთოდი: <code>double ReadDouble(string question)</code>, <code>double Calculate(double a, double b, string op)</code> (switch expression) და <code>void PrintResult(double a, double b, string op, double result)</code> — ფერით: <code>7 / 2 = 3.5</code></li>
+<li><code>do-while</code> მენიუ: გამოთვლის შემდეგ „კიდევ? (კი/არა)“</li>
+<li>0-ზე გაყოფა: <code>Calculate</code>-მდე შეამოწმე და დაბეჭდე გაფრთხილება</li>
+<li>ძირითადი კოდი (მეთოდების ზემოთ) — <strong>15 ხაზზე ნაკლები</strong></li>
+</ul>
+<h3>✓ მზადაა, როცა</h3>
+<p><code>7 / 2</code> → <code>3.5</code>, <code>5 * 4</code> → <code>20</code>, <code>1 / 0</code> → გაფრთხილება (პროგრამა არ ჩავარდა), „კი“-ზე ახალი გამოთვლა იწყება</p>
+<h3>⭐ ბონუსი</h3>
+<ul>
+<li>დაამატე <code>^</code> (ხარისხი) — ციკლით, საკუთარი მეთოდით <code>double Power(double x, int n)</code></li>
+<li>გამოთვლების ისტორია: ბოლო 5 პასუხი მასივში, „ისტორია“ ბრძანებაზე დაიბეჭდოს</li>
+</ul></article>
+  </main>
+</div>
+<script>
+const DECK = "C# · 4 — მეთოდები — საკუთარი ბრძანებები";
+if (matchMedia('(min-width:981px)').matches) document.getElementById('tocd').open = true;
+const blocks = [...document.querySelectorAll('.blk')];
+const tocLinks = [...document.querySelectorAll('nav.toc a[href^="#sec-"]')];
+const secOf = b => { let e = b; while (e && !(e.matches && e.matches('h2.sec'))) e = e.previousElementSibling; return e; };
+function mark(b, toc_only) {
+  if (!toc_only) blocks.forEach(x => x.classList.toggle('cur', x === b));
+  const s = b && secOf(b); tocLinks.forEach(a => a.classList.toggle('cur', s && a.getAttribute('href') === '#' + s.id));
+}
+const blockFor = n => blocks.find(b => b.dataset.slides.split(',').includes(String(n)));
+
+// copy buttons (code: one line per .ln)
+document.addEventListener('click', e => {
+  const btn = e.target.closest('.copy'); if (!btn) return;
+  const box = btn.closest('.codebox, .prompt');
+  const text = box.matches('.prompt') ? box.querySelector('.pb').textContent : [...box.querySelectorAll('.ln')].map(l => l.textContent).join('\n');
+  navigator.clipboard.writeText(text).then(() => { btn.textContent = '✓ დაკოპირდა'; btn.classList.add('ok'); setTimeout(() => { btn.textContent = 'კოპირება'; btn.classList.remove('ok'); }, 1600); });
+});
+
+// live mode: opened from the deck with P — follow the projector
+const live = new URLSearchParams(location.search).has('live');
+let follow = true, bc = null;
+const liveBtn = document.getElementById('live');
+if (live) {
+  try { bc = new BroadcastChannel('deck-' + DECK); } catch (e) {}
+  liveBtn.classList.add('on');
+  liveBtn.onclick = () => { follow = !follow; liveBtn.classList.toggle('off', !follow); liveBtn.querySelector('.lt').textContent = follow ? 'მიჰყვება სლაიდებს' : 'თავისუფლად ვკითხულობ'; };
+  if (bc) {
+    bc.onmessage = ({ data }) => {
+      if (data.t !== 'state' || !follow) return;
+      const b = blockFor(data.i + 1); if (!b || b.classList.contains('cur')) return;
+      mark(b); b.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    };
+    bc.postMessage({ t: 'hello' });
+  }
+  document.addEventListener('click', e => {   // slide chip → move the projector deck
+    const c = e.target.closest('.chip[data-go]'); if (!c || !bc) return;
+    e.preventDefault(); bc.postMessage({ t: 'go', n: +c.dataset.go - 1 });
+  });
+}
+// deep link #s-12
+const h = location.hash.match(/^#s-(\d+)$/);
+if (h) { const b = blockFor(+h[1]); if (b) { mark(b); setTimeout(() => b.scrollIntoView({ block: 'start' }), 50); } }
+// highlight section in the TOC while reading
+const io = new IntersectionObserver(es => es.forEach(x => { if (x.isIntersecting && !(live && follow)) mark(x.target, true); }), { rootMargin: '-30% 0px -60% 0px' });
+blocks.forEach(b => io.observe(b));
+</script>
+</body></html>

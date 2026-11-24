@@ -1,0 +1,390 @@
+<!doctype html>
+<html lang="ka"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>📖 CD — merge → LMS სერვერზე — კონსპექტი</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Georgian:wght@400;600;700;800&family=JetBrains+Mono:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#fbf8f3;--card:#fff;--ink:#1e2132;--ink2:#3b3f54;--muted:#7b8096;--line:#e6dfd2;--accent:#6d28d9;--accent-soft:#f3effe;--teal:#0d9488;
+  --green:#15803d;--amber:#b45309;--mono:"JetBrains Mono",ui-monospace,monospace;--sans:"Noto Sans Georgian",system-ui,sans-serif}
+*{box-sizing:border-box}
+html{scroll-padding-top:76px}
+body{margin:0;background:var(--bg);color:var(--ink);font:17.5px/1.75 var(--sans);-webkit-font-smoothing:antialiased}
+a{color:var(--accent)}
+/* top bar */
+.top{position:sticky;top:0;z-index:10;display:flex;align-items:center;gap:14px;padding:10px 20px;background:rgba(251,248,243,.92);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.top .back{font:600 14px var(--mono);color:var(--muted);text-decoration:none;white-space:nowrap}
+.top .back:hover{color:var(--ink)}
+.top .ttl{flex:1;min-width:0;font-weight:700;font-size:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.top .ttl small{font:500 13px var(--mono);color:var(--muted);margin-right:8px}
+.btn{font:700 14px var(--sans);text-decoration:none;border-radius:10px;padding:7px 14px;white-space:nowrap;border:1px solid var(--line);color:var(--ink);background:var(--card);cursor:pointer}
+.btn.play{background:var(--accent);border-color:var(--accent);color:#fff}
+.live{display:none;align-items:center;gap:8px;font:600 13px var(--mono);color:var(--teal);background:#e6f6f4;border:1px solid #bfe7e2;border-radius:999px;padding:5px 12px;cursor:pointer}
+.live.on{display:flex}
+.live .dot{width:8px;height:8px;border-radius:50%;background:var(--teal);animation:pulse 1.6s infinite}
+.live.off{color:var(--muted);background:var(--card);border-color:var(--line)}.live.off .dot{background:var(--muted);animation:none}
+@keyframes pulse{50%{opacity:.3}}
+/* layout */
+.wrap{display:grid;grid-template-columns:230px minmax(0,1000px);gap:44px;justify-content:center;padding:32px 28px 120px}
+nav.toc{position:sticky;top:84px;align-self:start;font-size:14px;line-height:1.45}
+nav.toc .h{font:700 12px var(--mono);color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px}
+nav.toc a{display:block;color:var(--ink2);text-decoration:none;padding:6px 10px;border-left:2px solid var(--line)}
+nav.toc a:hover{color:var(--accent)}
+nav.toc a.cur{color:var(--accent);border-left-color:var(--accent);font-weight:700}
+nav.toc .mats{margin-top:22px;display:flex;flex-direction:column;gap:6px}
+nav.toc .mats a{border:0;padding:2px 0;font:500 13px var(--mono);color:var(--teal);word-break:break-all}
+header.hero{margin-bottom:8px}
+header.hero .k{font:600 14px var(--mono);color:var(--accent)}
+header.hero h1{font-size:38px;line-height:1.2;margin:6px 0 10px;letter-spacing:-.01em}
+header.hero p{color:var(--muted);margin:0;font-size:15.5px}
+header.hero kbd{font:500 12px var(--mono);border:1px solid var(--line);border-radius:5px;padding:0 5px;background:var(--card)}
+h2.sec{font-size:15px;font:700 13px var(--mono);color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin:48px 0 6px;padding-top:18px;border-top:1px solid var(--line)}
+/* blocks */
+.blk{position:relative;padding:14px 0 6px 22px;margin-left:-22px;border-left:3px solid transparent;transition:border-color .3s,background .3s;border-radius:0 12px 12px 0}
+.blk.cur{border-left-color:var(--accent);background:linear-gradient(90deg,var(--accent-soft),transparent 70%)}
+.anchor{position:absolute;top:0}
+.bh{display:flex;align-items:baseline;justify-content:space-between;gap:12px}
+.bh h3{font-size:22px;line-height:1.35;margin:4px 0 6px}
+.chip{flex:none;font:600 12px var(--mono);color:var(--muted);text-decoration:none;border:1px solid var(--line);border-radius:999px;padding:2px 10px;background:var(--card)}
+.chip:hover{color:var(--accent);border-color:var(--accent)}
+.blk h2{font-size:26px;line-height:1.3;margin:6px 0 10px}
+.blk h3:not(.bh h3){font-size:19px;margin:22px 0 6px}
+.blk h4{font-size:17px;margin:18px 0 4px}
+.blk p{margin:10px 0}
+.blk ul,.blk ol{padding-left:24px;margin:8px 0}
+.blk li{margin:4px 0}
+.blk strong{color:var(--ink)}
+.blk :not(pre)>code{font:600 .86em var(--mono);background:#f1ece3;border-radius:6px;padding:1px 6px;color:#5b21b6}
+.blk table{border-collapse:collapse;margin:14px 0;font-size:15.5px;width:100%;display:block;overflow-x:auto}
+.blk th,.blk td{border:1px solid var(--line);padding:8px 12px;text-align:left;vertical-align:top}
+.blk th{background:#f6f1e8}
+/* code */
+.codebox{margin:14px 0;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:#fffdf9}
+.codebox .ch,.prompt .ph{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:6px 8px 6px 14px;font:600 12.5px var(--mono);color:var(--muted);background:#f6f1e8;border-bottom:1px solid var(--line)}
+.copy{font:600 12px var(--mono);border:1px solid var(--line);background:var(--card);color:var(--ink2);border-radius:7px;padding:3px 10px;cursor:pointer}
+.copy:hover{border-color:var(--ink)}
+.copy.ok{color:var(--green);border-color:var(--green)}
+pre.code{margin:0;padding:12px 0;overflow-x:auto;font:14px/1.65 var(--mono)}
+pre.code .ln{display:block;padding:0 16px;white-space:pre}
+.code .ttl{background:var(--bg2);color:var(--muted)}
+.code .ln.hl{background:rgba(109,40,217,.07);box-shadow:inset 3px 0 0 var(--net)}
+.code .ln.dim{opacity:.42}
+.code .k,.code .kd,.code .kn,.code .kr,.code .kc{color:#7c3aed}
+.code .kt{color:#2563eb}
+.code .s,.code .s1,.code .s2,.code .sa,.code .se,.code .si,.code .sd{color:#15803d}
+.code .c,.code .c1,.code .cm,.code .cp,.code .ch{color:#8b8fa3}
+.code .m,.code .mi,.code .mf,.code .mh{color:#c2410c}
+.code .nf,.code .fm{color:#1d4ed8}
+.code .nc,.code .nn,.code .nt,.code .nd{color:#b45309}
+.code .na{color:#7c3aed} .code .nb{color:#0e7490}
+.code .o,.code .p{color:#64748b}
+.code .nv,.code .nx{color:var(--ink)}
+.code .go{color:#64748b}
+/* prompt */
+.prompt{margin:16px 0;border:1px solid #ddd2fb;border-radius:12px;overflow:hidden;background:var(--accent-soft)}
+.prompt .ph{background:#ebe3fd;border-color:#ddd2fb;color:var(--accent)}
+.prompt .pb{padding:12px 16px;white-space:pre-wrap;font-size:15.5px;line-height:1.6;color:var(--ink2)}
+/* self check */
+.selfcheck{margin:16px 0;border:1px solid #cfe9d6;border-radius:12px;background:#f3fbf5;padding:12px 16px}
+.selfcheck .sh{font-weight:700;color:var(--green);margin-bottom:6px}
+.selfcheck .sh small{font-weight:400;color:var(--muted);font-size:13.5px;margin-left:6px}
+.selfcheck details{border-top:1px solid #dcefe1;padding:8px 0}
+.selfcheck summary{cursor:pointer;font-weight:600;list-style:none;padding-left:26px;position:relative}
+.selfcheck summary::-webkit-details-marker{display:none}
+.selfcheck summary::before{content:"?";position:absolute;left:0;top:2px;width:18px;height:18px;border-radius:50%;background:var(--green);color:#fff;font:700 12px/18px var(--mono);text-align:center}
+.selfcheck details[open] summary::before{content:"✓"}
+.selfcheck .ans{padding:6px 0 2px 26px;color:var(--ink2)}
+/* terms */
+.terms{margin:16px 0;border:1px solid var(--line);border-radius:12px;background:var(--card);padding:12px 16px}
+.terms .th{font-weight:700;margin-bottom:6px}
+.terms dl{display:grid;grid-template-columns:max-content 1fr;gap:6px 18px;margin:0}
+.terms dt{font:600 14.5px var(--mono);color:var(--accent)}
+.terms dd{margin:0;color:var(--ink2)}
+/* callouts */
+.callout{display:flex;gap:12px;margin:14px 0;padding:12px 16px;border-radius:12px;border:1px solid var(--line);background:var(--card)}
+.callout .ci{font-size:20px;line-height:1.6}
+.callout>div>p:first-child{margin-top:0}.callout>div>p:last-child{margin-bottom:0}
+.callout.warn{background:#fff8eb;border-color:#f6dfb5}
+.callout.note{background:#eef5ff;border-color:#cfe0fb}
+@media (max-width:980px){
+  .wrap{grid-template-columns:minmax(0,1fr);gap:0;padding:20px 16px 100px}
+  nav.toc{position:static;margin-bottom:12px}
+  nav.toc details{border:1px solid var(--line);border-radius:12px;background:var(--card);padding:8px 12px}
+  nav.toc details>summary{cursor:pointer;font-weight:700}
+  nav.toc .h{display:none}
+  header.hero h1{font-size:30px}
+  .blk{padding-left:14px;margin-left:-14px}
+  .top .ttl small{display:none}
+  .terms dl{grid-template-columns:1fr}.terms dd{margin-bottom:8px}
+}
+@media (min-width:981px){nav.toc details>summary{display:none}}
+@media print{.top,nav.toc,.copy,.chip,.live{display:none}.wrap{display:block;padding:0}.selfcheck details{display:block}.blk.cur{background:none}}
+</style></head>
+<body>
+<div class="top">
+  <a class="back" href="../../">← ლექციები</a>
+  <div class="ttl"><small>DevOps · 11</small>CD — merge → LMS სერვერზე</div>
+  <button class="live" id="live" type="button" title="ჩართული: ტექსტი პრეზენტაციას მიჰყვება"><span class="dot"></span><span class="lt">მიჰყვება სლაიდებს</span></button>
+  <a class="btn play" href="index.html">▶ პრეზენტაცია</a>
+</div>
+<div class="wrap">
+  <nav class="toc"><details id="tocd"><summary>სარჩევი</summary><div class="h">სარჩევი</div><a href="#sec-1">გამეორება</a><a href="#sec-2">საშინაოს განხილვა</a><a href="#sec-3">დღის თემა</a><a href="#sec-4">1 · CD</a><a href="#sec-5">2 · deploy</a><a href="#sec-6">შეჯამება</a><a href="#sec-7">პრაქტიკა</a><a href="#sec-8">შეჯამება</a><a href="#sec-9">საშინაო</a><div class="mats"></div></details></nav>
+  <main>
+    <header class="hero">
+      <div class="k">📖 კონსპექტი · DevOps · ლექცია 11</div>
+      <h1>CD — merge → LMS სერვერზე</h1>
+      <p>წაიკითხე ლექციის შემდეგ, ან პრეზენტაციასთან ერთად: პრეზენტაციაში დააჭირე <kbd>P</kbd> და ეს გვერდი სლაიდებს გაჰყვება. კოდი და AI-ს პრომპტები კოპირდება ერთი დაჭერით.</p>
+    </header>
+    <h2 class="sec" id="sec-1">გამეორება</h2>
+<article class="blk" data-slides="1,2"><span class="anchor" id="s-1"></span><span class="anchor" id="s-2"></span><div class="bh"><h3>გავიხსენოთ წინა ლექცია</h3><a class="chip" href="index.html#/1" data-go="1" title="პრეზენტაციაში გახსნა">სლაიდი 1</a></div>
+<p>ლექცია 10 — <strong>CI/CD — თეორია და CI პრაქტიკაში</strong>. ახალ თემამდე ვამოწმებთ, რა დაგვამახსოვრდა. ჯერ თვითონ უპასუხე, მერე გახსენი პასუხი. თუ რომელიმე გაგიჭირდა, <a href="../10-ci/study.html">წინა ლექციის კონსპექტს</a> გადახედე.</p>
+<div class="selfcheck"><div class="sh">✅ შეამოწმე თავი <small>დაფიქრდი, მერე გახსენი პასუხი</small></div><details><summary>CI და CD — რა განსხვავებაა?</summary><div class="ans">CI (Continuous Integration) — ყოველი ცვლილების ავტომატური შემოწმება (build, ტესტები) <code>main</code>-ში შერწყმამდე. CD (Continuous Deployment) — <code>main</code>-ის ყოველი ცვლილების ავტომატური გაშვება სერვერზე</div></details><details><summary>Continuous Delivery და Continuous Deployment — რა განსხვავებაა?</summary><div class="ans">Delivery: <code>main</code> ყოველთვის მზადაა გასაშვებად, production-ში გატანას ადამიანი წყვეტს ღილაკით. Deployment: merge-ის შემდეგ ახალი ვერსია production-ში ავტომატურად მიდის — ჩვენ LMS-ისთვის ამას ვაკეთებთ</div></details><details><summary>pipeline-ში ტესტი ჩავარდა. რა მოხდება შემდეგ ნაბიჯებზე?</summary><div class="ans">pipeline ჩერდება: artifact (image) არ აეწყობა და deploy არ მოხდება — გატეხილი კოდი production-მდე ვერ მივა</div></details><details><summary><code>uses:</code> და <code>run:</code> — რა განსხვავებაა step-ში?</summary><div class="ans"><code>uses</code> — მზა action-ის გამოყენება (მაგ. <code>actions/checkout@v4</code>), <code>run</code> — ბრძანება runner-ის ტერმინალში (მაგ. <code>dotnet build</code>)</div></details><details><summary>workflow-ში პირველი <code>ls -la</code> ცარიელს აჩვენებს. რატომ?</summary><div class="ans">runner ყოველ გაშვებაზე ახალი, სუფთა ვირტუალური Ubuntu-ა — შენი კოდი მასზე მხოლოდ <code>actions/checkout</code>-ის შემდეგ ჩნდება</div></details><details><summary>რატომ არ ეყოფა CI-ს მხოლოდ <code>dotnet build</code>?</summary><div class="ans">build ამოწმებს, რომ კოდი იკომპილირდება, მაგრამ არა — რომ სწორად მუშაობს. ამას <code>dotnet test</code> ამოწმებს: ჩავარდნილი ტესტი CI-ს წითლად აქცევს</div></details><details><summary>PR-ზე CI წითელია, შენთან კი ყველაფერი მუშაობს. რას შეამოწმებ?</summary><div class="ans">რომელ step-ზე ჩავარდა და მისი ლოგის ბოლო ხაზები; მერე — გარემოს განსხვავება: .NET-ის ვერსია, ფაილის სახელის დიდი/პატარა ასოები (runner Linux-ია), ფაილი, რომელიც <code>.gitignore</code>-შია</div></details><details><summary>რას იძლევა branch protection <code>main</code>-ზე?</summary><div class="ans"><code>main</code>-ში პირდაპირ push აღარ შეიძლება — მხოლოდ Pull Request-ით, და merge მხოლოდ მაშინ, როცა CI მწვანეა</div></details></div></article>
+<h2 class="sec" id="sec-2">საშინაოს განხილვა</h2>
+<article class="blk" data-slides="3"><span class="anchor" id="s-3"></span><div class="bh"><h3>საშინაოს განხილვა</h3><a class="chip" href="index.html#/3" data-go="3" title="პრეზენტაციაში გახსნა">სლაიდი 3</a></div>
+<p>წინა ლექციის საშინაო: <strong>ტესტები და CI badge</strong>. ქვემოთ არის ერთ-ერთი სწორი ამოხსნა. შენი კოდი შეიძლება სხვანაირად იყოს დაწერილი — მთავარია, მოთხოვნები სრულდებოდეს.</p>
+<h3>მოთხოვნები</h3>
+<ul>
+<li>კიდევ 2 ტესტი თქვენი პროექტის მეთოდებზე — თითოეული <strong>ცალკე PR</strong>-ით, CI ✅-ით</li>
+<li>README-ში CI badge — ის <code>main</code>-ის სტატუსს აჩვენებს</li>
+<li><code>ci.yml</code>-ში დაამატეთ <code>workflow_dispatch</code> — CI Actions-იდან ხელითაც ეშვებოდეს</li>
+</ul>
+<h3>ამოხსნა</h3>
+<div class="codebox"><div class="ch"><span>.github/workflows/ci.yml</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">CI</span></span><span class="ln"> </span><span class="ln"><span class="nt">on</span><span class="p">:</span></span><span class="ln"><span class="w">  </span><span class="nt">pull_request</span><span class="p">:</span></span><span class="ln"><span class="w">    </span><span class="nt">branches</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="nv">main</span><span class="p">]</span></span><span class="ln"><span class="w">  </span><span class="nt">workflow_dispatch</span><span class="p">:</span></span><span class="ln"> </span><span class="ln"><span class="nt">jobs</span><span class="p">:</span></span><span class="ln"><span class="w">  </span><span class="nt">build</span><span class="p">:</span></span><span class="ln"><span class="w">    </span><span class="nt">runs-on</span><span class="p">:</span><span class="w"> </span><span class="l">ubuntu-latest</span></span><span class="ln"><span class="w">    </span><span class="nt">steps</span><span class="p">:</span></span><span class="ln"><span class="w">      </span><span class="p">-</span><span class="w"> </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l">actions/checkout@v4</span></span><span class="ln"><span class="w">      </span><span class="p">-</span><span class="w"> </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l">actions/setup-dotnet@v4</span></span><span class="ln"><span class="w">        </span><span class="nt">with</span><span class="p">:</span></span><span class="ln"><span class="w">          </span><span class="nt">dotnet-version</span><span class="p">:</span><span class="w"> </span><span class="s">'</span><span class="s">10.0.x</span><span class="s">'</span></span><span class="ln"><span class="w">      </span><span class="p">-</span><span class="w"> </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="l">dotnet</span><span class="l"> </span><span class="l">restore</span></span><span class="ln"><span class="w">      </span><span class="p">-</span><span class="w"> </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="l">dotnet</span><span class="l"> </span><span class="l">build</span><span class="l"> </span><span class="l">--no-restore</span><span class="l"> </span><span class="l">-c</span><span class="l"> </span><span class="l">Release</span></span><span class="ln"><span class="w">      </span><span class="p">-</span><span class="w"> </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="l">dotnet</span><span class="l"> </span><span class="l">test</span><span class="l"> </span><span class="l">--no-build</span><span class="l"> </span><span class="l">-c</span><span class="l"> </span><span class="l">Release</span></span></code></pre></div>
+<div class="codebox"><div class="ch"><span>README.md</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln">![<span class="nt">CI</span>](<span class="na">https://github.com/giorgi/lms/actions/workflows/ci.yml/badge.svg</span>)</span></code></pre></div>
+<div class="codebox"><div class="ch"><span>Lms.Tests/CourseTests.cs</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="na">[Theory]</span></span><span class="ln"><span class="na">[InlineData(1, 1, false)]</span></span><span class="ln"><span class="na">[InlineData(2, 1, true)]</span></span><span class="ln"><span class="k">public</span><span class="w"> </span><span class="k">void</span><span class="w"> </span><span class="nf">Enroll_DependsOnCapacity</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">capacity</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">alreadyEnrolled</span><span class="p">,</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">expected</span><span class="p">)</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="kt">var</span><span class="w"> </span><span class="n">course</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">Course</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">Title</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"DevOps"</span><span class="p">,</span><span class="w"> </span><span class="n">Capacity</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">capacity</span><span class="w"> </span><span class="p">}</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">var</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">alreadyEnrolled</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span></span><span class="ln"><span class="w">        </span><span class="n">course</span><span class="p">.</span><span class="n">Enroll</span><span class="p">(</span><span class="n">Guid</span><span class="p">.</span><span class="n">NewGuid</span><span class="p">(</span><span class="p">)</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="n">Assert</span><span class="p">.</span><span class="n">Equal</span><span class="p">(</span><span class="n">expected</span><span class="p">,</span><span class="w"> </span><span class="n">course</span><span class="p">.</span><span class="n">Enroll</span><span class="p">(</span><span class="n">Guid</span><span class="p">.</span><span class="n">NewGuid</span><span class="p">(</span><span class="p">)</span><span class="p">)</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="p">}</span></span></code></pre></div></article>
+<h2 class="sec" id="sec-3">დღის თემა</h2>
+<article class="blk" data-slides="4"><span class="anchor" id="s-4"></span><div class="bh"><h3>დღის თემა: CD — merge → LMS სერვერზე</h3><a class="chip" href="index.html#/4" data-go="4" title="პრეზენტაციაში გახსნა">სლაიდი 4</a></div>
+<p>CI ყოველ PR-ს ამოწმებს — მაგრამ merge-ის შემდეგ სერვერზე განახლება ისევ ხელით ხდება: ssh → git pull → docker compose up --build, და image სერვერზე, 1 GB RAM-ზე იწყობა. დღეს ჯაჭვს ბოლომდე ვაგრძელებთ: merge-ის შემდეგ GitHub Actions image-ს ააწყობს, GHCR-ში შეინახავს და SSH-ით სერვერზე გაუშვებს. ხელით — არაფერი, და თუ ახალმა ვერსიამ რამე გატეხა, წამებში დავბრუნდებით წინაზე.</p>
+<p><strong>ლექციის ბოლოს შეძლებ:</strong></p>
+<ul>
+<li>CD-ის გეგმა: build GitHub-ზე, სერვერი მხოლოდ მზა image-ს იღებს</li>
+<li>image-ის აწყობა და ატვირთვა GHCR-ში <code>latest</code> და commit-ის <code>sha</code> tag-ებით</li>
+<li>GitHub Secrets და ცალკე deploy SSH გასაღები</li>
+<li><code>deploy.yml</code>: push <code>main</code>-ში → build → GHCR → SSH → <code>compose pull</code> + <code>up -d</code></li>
+<li>rollback წინა ვერსიაზე commit-ის sha-ით მონიშნული image-ით</li>
+</ul></article>
+<h2 class="sec" id="sec-4">1 · CD</h2>
+<article class="blk" data-slides="5"><span class="anchor" id="s-5"></span><div class="bh"><h3>ნაწილი 1 · CD — გეგმა და გასაღებები</h3><a class="chip" href="index.html#/5" data-go="5" title="პრეზენტაციაში გახსნა">სლაიდი 5</a></div>
+<p>CI ყოველ PR-ს ამოწმებს. დღეს ჯაჭვს ვაგრძელებთ: merge-ის შემდეგ GitHub Actions image-ს ააწყობს, შეინახავს და სერვერზე თვითონ გაუშვებს.</p></article>
+<article class="blk" data-slides="6"><span class="anchor" id="s-6"></span><div class="bh"><h3>პრობლემა: CI მწვანეა — deploy კი ისევ ხელით</h3><a class="chip" href="index.html#/6" data-go="6" title="პრეზენტაციაში გახსნა">სლაიდი 6</a></div>
+<p>წინა ლექციის შემდეგ <code>main</code>-ში მხოლოდ შემოწმებული კოდი ხვდება. მაგრამ სერვერამდე ის ისევ ხელით მიდის:</p>
+<div class="codebox"><div class="ch"><span>merge-ის შემდეგ — ყოველ ჯერზე</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="gp"># </span>Termius<span class="w"> </span>→<span class="w"> </span>lms-server</span><span class="ln"><span class="gp">$ </span><span class="nb">cd</span><span class="w"> </span>~/lms</span><span class="ln"><span class="gp">$ </span>git<span class="w"> </span>pull</span><span class="ln"><span class="gp">$ </span>docker<span class="w"> </span>compose<span class="w"> </span>up<span class="w"> </span>-d<span class="w"> </span>--build</span></code></pre></div>
+<ul>
+<li>😴 merge გააკეთე და სერვერზე შესვლა დაგავიწყდა — მომხმარებელი ძველ ვერსიას ხედავს;</li>
+<li>🐢 image სერვერზე იწყობა — 1 GB RAM-ზე ნელა, და ამ დროს საიტი მეხსიერებისთვის „ეჯიბრება“ build-ს;</li>
+<li>👥 გუნდში ხუთი ადამიანია — ყველას სერვერზე SSH წვდომა ჰქონდეს?</li>
+</ul>
+<p>წინა ლექციის pipeline-ში CI-ის ნაწილი (build → test) უკვე მუშაობს. დღეს — მეორე ნაწილი, <strong>Continuous Deployment</strong> პრაქტიკაში: artifact (Docker image) → GHCR → deploy სერვერზე, ავტომატურად, merge-ის შემდეგ.</p></article>
+<article class="blk" data-slides="7"><span class="anchor" id="s-7"></span><div class="bh"><h3>გეგმა: build — GitHub-ზე, სერვერი მხოლოდ იღებს</h3><a class="chip" href="index.html#/7" data-go="7" title="პრეზენტაციაში გახსნა">სლაიდი 7</a></div>
+<p>მე-8 ლექციაში image-ს <strong>სერვერზე</strong> ვაწყობდით (<code>up --build</code>) — 1 GB RAM-ზე ნელა და რისკით. ახლა:</p>
+<p><strong>GitHub Actions runner-ზე:</strong></p>
+<ol>
+<li><code>checkout</code> — კოდი;</li>
+<li><code>docker build</code> — <strong>იგივე Dockerfile</strong>, მე-7 ლექციიდან;</li>
+<li><code>push</code> → <strong>GHCR</strong> (GitHub Container Registry) — image-ს ორი tag-ით ვინახავთ: <code>latest</code> და commit-ის <strong>sha</strong> (rollback-ისთვის);</li>
+<li>SSH-ით სერვერზე შესვლა.</li>
+</ol>
+<p><strong>სერვერზე</strong> (SSH-ით, ავტომატურად):</p>
+<div class="codebox"><div class="ch"><span>Termius · lms-server</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="gp">$ </span><span class="nb">cd</span><span class="w"> </span>~/lms</span><span class="ln"><span class="gp">$ </span>git<span class="w"> </span>pull<span class="w">                     </span><span class="c1"># compose.yaml-ის ცვლილებებისთვის</span></span><span class="ln"><span class="gp">$ </span>docker<span class="w"> </span>compose<span class="w"> </span>pull<span class="w"> </span>api<span class="w">      </span><span class="c1"># ახალი image GHCR-იდან</span></span></code></pre></div>
+<p>სერვერი აღარაფერს აწყობს — მხოლოდ მზა image-ს იღებს. ეს უფრო სწრაფია, და რაც მთავარია: <strong>ზუსტად ის image</strong>, რომელიც აეწყო, მიდის სერვერზე.</p>
+<div class="terms"><div class="th">📘 ტერმინები</div><dl><dt>GHCR</dt><dd>ghcr.io, GitHub-ის image-ების საცავი (registry) — როგორც Docker Hub, ოღონდ GitHub-ში</dd><dt>sha</dt><dd>commit-ის უნიკალური იდენტიფიკატორი (git log-ში ჩანს), image-ის tag-ად ვიყენებთ</dd></dl></div></article>
+<article class="blk" data-slides="8,9"><span class="anchor" id="s-8"></span><span class="anchor" id="s-9"></span><div class="bh"><h3>ნაბიჯი 1 · deploy გასაღები და GitHub Secrets</h3><a class="chip" href="index.html#/8" data-go="8" title="პრეზენტაციაში გახსნა">სლაიდი 8</a></div>
+<p>GitHub Actions-ს სერვერზე შესასვლელად SSH გასაღები სჭირდება. <strong>შენს</strong> გასაღებს არ ვაძლევთ — ვქმნით <strong>ცალკე</strong>, მხოლოდ ამ საქმისთვის:</p>
+<div class="codebox"><div class="ch"><span>WSL</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="gp">$ </span>ssh-keygen<span class="w"> </span>-t<span class="w"> </span>ed25519<span class="w"> </span>-f<span class="w"> </span>~/.ssh/github-deploy<span class="w"> </span>-N<span class="w"> </span><span class="s2">""</span><span class="w"> </span>-C<span class="w"> </span><span class="s2">"github-actions-deploy"</span></span><span class="ln"><span class="gp">$ </span>ssh-copy-id<span class="w"> </span>-i<span class="w"> </span>~/.ssh/github-deploy.pub<span class="w"> </span>lms</span></code></pre></div>
+<ul>
+<li><code>-f</code> — ფაილის სახელი, <code>-N ""</code> — passphrase-ის გარეშე (robot-ს მის აკრეფა არ შეუძლია);</li>
+<li><code>ssh-copy-id</code> — <code>.pub</code>-ს სერვერის <code>~/.ssh/authorized_keys</code>-ში ამატებს.</li>
+</ul>
+<p><strong>რატომ ცალკე?</strong> თუ GitHub-ის secret ოდესმე გაჟონავს, საკმარისია ამ <strong>ერთი</strong> ხაზის წაშლა <code>authorized_keys</code>-იდან. შენი პირადი გასაღები და სხვა სერვერები ხელშეუხებელია.</p>
+<p><strong>GitHub Secrets</strong> — რეპოს <strong>Settings → Secrets and variables → Actions → New repository secret</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Secret</th>
+<th>მნიშვნელობა</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>SSH_HOST</code></td>
+<td>სერვერის IP</td>
+</tr>
+<tr>
+<td><code>SSH_USER</code></td>
+<td><code>giorgi</code></td>
+</tr>
+<tr>
+<td><code>SSH_KEY</code></td>
+<td><code>cat ~/.ssh/github-deploy</code>-ის <strong>მთელი</strong> შიგთავსი, <code>-----BEGIN</code>-იდან <code>-----END</code>-ის ჩათვლით</td>
+</tr>
+</tbody>
+</table>
+<p>workflow მათ <code>${{ secrets.SSH_KEY }}</code>-ით კითხულობს. ლოგებში ისინი <code>***</code>-ით იმალება, შენახვის შემდეგ კი GitHub მათ აღარავის აჩვენებს — მხოლოდ შეცვლა შეიძლება.</p>
+<p><strong><code>GITHUB_TOKEN</code></strong> — დროებითი ტოკენი, რომელსაც GitHub ყოველ workflow-ს <strong>თვითონ</strong> აძლევს. GHCR-ში image-ის ატვირთვას ის ეყოფა (თუ workflow-ში <code>packages: write</code> უფლებაა).</p></article>
+<h2 class="sec" id="sec-5">2 · deploy</h2>
+<article class="blk" data-slides="10"><span class="anchor" id="s-10"></span><div class="bh"><h3>ნაწილი 2 · deploy.yml — merge → live</h3><a class="chip" href="index.html#/10" data-go="10" title="პრეზენტაციაში გახსნა">სლაიდი 10</a></div></article>
+<article class="blk" data-slides="11"><span class="anchor" id="s-11"></span><div class="bh"><h3>ნაბიჯი 2 · deploy.yml</h3><a class="chip" href="index.html#/11" data-go="11" title="პრეზენტაციაში გახსნა">სლაიდი 11</a></div>
+<div class="codebox"><div class="ch"><span>.github/workflows/deploy.yml</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">Deploy</span></span><span class="ln"> </span><span class="ln"><span class="nt">on</span><span class="p">:</span></span><span class="ln"><span class="w">  </span><span class="nt">push</span><span class="p">:</span></span><span class="ln"><span class="w">    </span><span class="nt">branches</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="nv">main</span><span class="p">]</span></span><span class="ln"> </span><span class="ln"><span class="nt">permissions</span><span class="p">:</span></span><span class="ln"><span class="w">  </span><span class="nt">contents</span><span class="p">:</span><span class="w"> </span><span class="l">read</span></span><span class="ln"><span class="w">  </span><span class="nt">packages</span><span class="p">:</span><span class="w"> </span><span class="l">write</span></span><span class="ln"> </span><span class="ln"><span class="nt">jobs</span><span class="p">:</span></span><span class="ln"><span class="w">  </span><span class="nt">deploy</span><span class="p">:</span></span><span class="ln"><span class="w">    </span><span class="nt">runs-on</span><span class="p">:</span><span class="w"> </span><span class="l">ubuntu-latest</span></span><span class="ln"><span class="w">    </span><span class="nt">steps</span><span class="p">:</span></span><span class="ln"><span class="w">      </span><span class="p">-</span><span class="w"> </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l">actions/checkout@v4</span></span><span class="ln"> </span><span class="ln"><span class="w">      </span><span class="p">-</span><span class="w"> </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l">docker/login-action@v3</span></span><span class="ln"><span class="w">        </span><span class="nt">with</span><span class="p">:</span></span><span class="ln"><span class="w">          </span><span class="nt">registry</span><span class="p">:</span><span class="w"> </span><span class="l">ghcr.io</span></span><span class="ln"><span class="w">          </span><span class="nt">username</span><span class="p">:</span><span class="w"> </span><span class="l">${{</span><span class="l"> </span><span class="l">github.actor</span><span class="l"> </span><span class="l">}}</span></span><span class="ln"><span class="w">          </span><span class="nt">password</span><span class="p">:</span><span class="w"> </span><span class="l">${{</span><span class="l"> </span><span class="l">secrets.GITHUB_TOKEN</span><span class="l"> </span><span class="l">}}</span></span><span class="ln"> </span><span class="ln"><span class="w">      </span><span class="p">-</span><span class="w"> </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l">docker/build-push-action@v6</span></span><span class="ln"><span class="w">        </span><span class="nt">with</span><span class="p">:</span></span><span class="ln"><span class="w">          </span><span class="nt">push</span><span class="p">:</span><span class="w"> </span><span class="l">true</span></span><span class="ln"><span class="w">          </span><span class="nt">tags</span><span class="p">:</span><span class="w"> </span><span class="p">|</span></span><span class="ln"><span class="w">            </span><span class="no">ghcr.io/${{ github.repository }}:latest</span></span><span class="ln"><span class="w">            </span><span class="no">ghcr.io/${{ github.repository }}:${{ github.sha }}</span></span><span class="ln"> </span><span class="ln"><span class="w">      </span><span class="p">-</span><span class="w"> </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l">appleboy/ssh-action@v1</span></span><span class="ln"><span class="w">        </span><span class="nt">with</span><span class="p">:</span></span><span class="ln"><span class="w">          </span><span class="nt">host</span><span class="p">:</span><span class="w"> </span><span class="l">${{</span><span class="l"> </span><span class="l">secrets.SSH_HOST</span><span class="l"> </span><span class="l">}}</span></span><span class="ln"><span class="w">          </span><span class="nt">username</span><span class="p">:</span><span class="w"> </span><span class="l">${{</span><span class="l"> </span><span class="l">secrets.SSH_USER</span><span class="l"> </span><span class="l">}}</span></span><span class="ln"><span class="w">          </span><span class="nt">key</span><span class="p">:</span><span class="w"> </span><span class="l">${{</span><span class="l"> </span><span class="l">secrets.SSH_KEY</span><span class="l"> </span><span class="l">}}</span></span><span class="ln"><span class="w">          </span><span class="nt">script</span><span class="p">:</span><span class="w"> </span><span class="p">|</span></span><span class="ln"><span class="w">            </span><span class="no">cd ~/lms</span></span><span class="ln"><span class="w">            </span><span class="no">git pull</span></span><span class="ln"><span class="w">            </span><span class="no">docker compose pull api</span></span><span class="ln"><span class="w">            </span><span class="no">docker compose up -d</span></span></code></pre></div>
+<table>
+<thead>
+<tr>
+<th>ნაწილი</th>
+<th>რას აკეთებს</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>on: push: branches: [main]</code></td>
+<td>ყოველ push-ზე <code>main</code>-ში — branch protection-ით ეს მხოლოდ <strong>merge</strong>-ია</td>
+</tr>
+<tr>
+<td><code>permissions: packages: write</code></td>
+<td><code>GITHUB_TOKEN</code>-ს GHCR-ში ჩაწერის უფლება</td>
+</tr>
+<tr>
+<td><code>docker/login-action</code></td>
+<td><code>docker login ghcr.io</code></td>
+</tr>
+<tr>
+<td><code>docker/build-push-action</code></td>
+<td><code>docker build</code> + <code>docker push</code> — ორი tag-ით</td>
+</tr>
+<tr>
+<td><code>appleboy/ssh-action</code></td>
+<td>SSH სერვერზე და <code>script</code>-ის ბრძანებები</td>
+</tr>
+</tbody>
+</table>
+<p><code>${{ … }}</code> — workflow-ის ცვლადები: <code>github.repository</code> = <code>giorgi/lms</code>, <code>github.sha</code> = commit-ის id, <code>github.actor</code> = ვინც გაუშვა.</p>
+<div class="callout warn"><span class="ci">⚠️</span><div><p>GHCR-ში image-ის სახელი <strong>მხოლოდ პატარა ასოებით</strong> შეიძლება. თუ რეპოს ჰქვია <code>Giorgi/LMS</code>, build-push ჩავარდება — გადაარქვი რეპოს სახელი პატარა ასოებით.</p></div></div></article>
+<article class="blk" data-slides="12"><span class="anchor" id="s-12"></span><div class="bh"><h3>ნაბიჯი 3 · სერვერზე — ორი პატარა ცვლილება</h3><a class="chip" href="index.html#/12" data-go="12" title="პრეზენტაციაში გახსნა">სლაიდი 12</a></div>
+<p><strong>1. compose.yaml</strong> — <code>api</code>-ს ვუმატებთ image-ის სახელს:</p>
+<div class="codebox"><div class="ch"><span>compose.yaml — api</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="nt">api</span><span class="p">:</span></span><span class="ln"><span class="w">  </span><span class="nt">build</span><span class="p">:</span><span class="w"> </span><span class="l">.</span></span><span class="ln"><span class="w">  </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l">ghcr.io/giorgi/lms:${IMAGE_TAG:-latest}</span></span><span class="ln"><span class="w">  </span><span class="l">...</span></span></code></pre></div>
+<p>როცა <code>build</code> და <code>image</code> ერთადაა: <code>docker compose up --build</code> (შენთან) ააწყობს და ამ სახელს დაარქმევს; <code>docker compose pull</code> (სერვერზე) კი GHCR-იდან ჩამოტვირთავს. <code>${IMAGE_TAG:-latest}</code> — ნაგულისხმევად <code>latest</code>, rollback-ისთვის კი <code>.env</code>-იდან შეგვიძლია შევცვალოთ.</p>
+<p>ეს ცვლილება commit → PR → merge — და deploy-ის <code>git pull</code> მას სერვერზე თვითონ მიიტანს.</p>
+<p><strong>2. GHCR-ში შესვლა სერვერზე — ერთხელ.</strong> GHCR-ის package ნაგულისხმევად private-ია, ამიტომ სერვერს წაკითხვის უფლება სჭირდება. GitHub → Settings → Developer settings → Personal access tokens → <strong>Tokens (classic)</strong> → Generate, scope <strong>მხოლოდ</strong> <code>read:packages</code>:</p>
+<div class="codebox"><div class="ch"><span>Termius · lms-server</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="gp">$ </span><span class="nb">echo</span><span class="w"> </span><span class="s2">"ghp_xxxx"</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>docker<span class="w"> </span>login<span class="w"> </span>ghcr.io<span class="w"> </span>-u<span class="w"> </span>giorgi<span class="w"> </span>--password-stdin</span></code></pre></div>
+<p><code>--password-stdin</code> — ტოკენი ბრძანებების ისტორიაში არ ჩაიწერება ისე, როგორც <code>-p ghp_…</code> ჩაიწერებოდა. Docker მას სერვერზე იმახსოვრებს.</p>
+<div class="callout note"><span class="ci">💡</span><div><p>ტოკენი მინიმალური უფლებით (<code>read:packages</code>) — იგივე პრინციპი, რაც ცალკე deploy გასაღებისთვის და <code>User=www-data</code>-სთვის: ყველას — მხოლოდ ის, რაც სჭირდება.</p></div></div></article>
+<article class="blk" data-slides="13"><span class="anchor" id="s-13"></span><div class="bh"><h3>ნაბიჯი 4 · პირველი ავტომატური deploy</h3><a class="chip" href="index.html#/13" data-go="13" title="პრეზენტაციაში გახსნა">სლაიდი 13</a></div>
+<p><code>deploy.yml</code> → commit → PR → CI ✅ → merge. Actions ჩანართში ჩაირთვება <strong>Deploy</strong>:</p>
+<div class="codebox"><div class="ch"><span>Actions → Deploy</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln">✅ Set up job                          2s</span><span class="ln">✅ Run actions/checkout@v4             1s</span><span class="ln">✅ Run docker/login-action@v3          1s</span><span class="ln">✅ Run docker/build-push-action@v6     1m 12s</span><span class="ln">✅ Run appleboy/ssh-action@v1          14s</span></code></pre></div>
+<p>რამდენიმე წუთში <code>https://api.giorgi.ge</code> ახალ ვერსიას აჩვენებს — სერვერზე ხელით არაფერი გაგიშვია.</p>
+<p><strong>რა შეიცვალა გუნდისთვის:</strong></p>
+<ul>
+<li>deploy ყველასთვის <strong>ერთნაირია</strong> — merge <code>main</code>-ში. არავის სჭირდება სერვერზე SSH წვდომა;</li>
+<li>ყოველი deploy <strong>ჩაწერილია</strong> Actions-ში: ვინ, როდის, რომელი commit, რა ლოგით;</li>
+<li>ჩავარდა? — Actions-ში წითელი step, მისი ლოგი, და GitHub ელ-ფოსტითაც შეგატყობინებს.</li>
+</ul>
+<div class="callout tip"><span class="ci">👉</span><div><p>deploy ჩავარდა SSH-ის ნაბიჯზე? ჯერ — Actions-ის ლოგი (<code>ssh: handshake failed</code> → <code>SSH_KEY</code> არასწორადაა ჩასმული). მერე სერვერზე — <code>docker compose ps</code> და <code>docker compose logs api</code>, როგორც მე-8 ლექციაზე.</p></div></div></article>
+<article class="blk" data-slides="14"><span class="anchor" id="s-14"></span><div class="bh"><h3>ნაბიჯი 5 · rollback</h3><a class="chip" href="index.html#/14" data-go="14" title="პრეზენტაციაში გახსნა">სლაიდი 14</a></div>
+<p>ყოველი image GHCR-ში commit-ის <strong>sha</strong>-ითაცაა მონიშნული. ამიტომ წინა ვერსიაზე დაბრუნება = სხვა tag-ის გაშვება:</p>
+<div class="codebox"><div class="ch"><span>Termius · lms-server · ~/lms</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="gp">$ </span>git<span class="w"> </span>log<span class="w"> </span>--oneline<span class="w"> </span>-3</span><span class="ln"><span class="go">a91c3f2 Add course capacity        ← გატეხა</span></span><span class="ln"><span class="go">7be04d1 Fix grades pagination      ← მუშაობდა</span></span></code></pre></div>
+<p>GitHub-ზე commit-ის სრული sha (40 სიმბოლო) ჩანს commit-ის გვერდზე ან Actions-ის გაშვებაში:</p>
+<div class="codebox"><div class="ch"><span>Termius · lms-server · ~/lms</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="gp">$ </span><span class="nb">echo</span><span class="w"> </span><span class="s2">"IMAGE_TAG=7be04d1e5c..."</span><span class="w"> </span>&gt;&gt;<span class="w"> </span>.env</span><span class="ln"><span class="gp">$ </span>docker<span class="w"> </span>compose<span class="w"> </span>up<span class="w"> </span>-d</span></code></pre></div>
+<p><code>compose.yaml</code>-ში <code>image: ghcr.io/giorgi/lms:${IMAGE_TAG:-latest}</code> — ახლა ის ძველ ვერსიას იღებს. წამებში LMS ისევ მუშაობს, და მშვიდად ასწორებ შეცდომას — ჩვეულებრივ: branch → PR → CI → merge. მერე <code>.env</code>-იდან <code>IMAGE_TAG</code> შლი და <code>up -d</code> — ისევ <code>latest</code>.</p>
+<div class="callout warn"><span class="ci">⚠️</span><div><p>rollback კოდს აბრუნებს, <strong>ბაზას — არა</strong>. თუ ახალმა ვერსიამ მიგრაციით სქემა შეცვალა, ძველი კოდი შეიძლება ახალ სქემასთან ვერ იმუშაოს. ამიტომ რისკიანი მიგრაციების წინ — <code>pg_dump</code> backup (მე-8 ლექცია).</p></div></div></article>
+<h2 class="sec" id="sec-6">შეჯამება</h2>
+<article class="blk" data-slides="15"><span class="anchor" id="s-15"></span><div class="bh"><h3>შპარგალკა: CD</h3><a class="chip" href="index.html#/15" data-go="15" title="პრეზენტაციაში გახსნა">სლაიდი 15</a></div>
+<p><strong>ერთხელ:</strong> ცალკე deploy გასაღები (<code>ssh-keygen -f ~/.ssh/github-deploy</code>) → <code>.pub</code> სერვერის <code>authorized_keys</code>-ში; GitHub Secrets — <code>SSH_HOST</code>, <code>SSH_USER</code>, <code>SSH_KEY</code>; <code>compose.yaml</code>-ში <code>image: ghcr.io/&lt;user&gt;/&lt;repo&gt;:${IMAGE_TAG:-latest}</code>; სერვერზე <code>docker login ghcr.io</code> (PAT <code>read:packages</code>).</p>
+<p><strong>ყოველთვის:</strong> branch → PR → CI ✅ → merge → <strong>Deploy</strong> workflow: build → GHCR (<code>latest</code> + <code>sha</code>) → SSH → <code>git pull</code>, <code>compose pull api</code>, <code>up -d</code>.</p>
+<p><strong>გატეხა:</strong> სერვერის <code>.env</code>-ში <code>IMAGE_TAG=&lt;წინა sha&gt;</code> → <code>docker compose up -d</code> → გასწორება → <code>IMAGE_TAG</code>-ის წაშლა → <code>up -d</code>.</p>
+<p><strong>თუ ჩავარდა:</strong> რომელი step? <code>build-push</code> → Dockerfile / რეპოს სახელის დიდი ასოები; <code>ssh-action</code> → <code>SSH_KEY</code> მთლიანადაა ჩასმული? <code>SSH_HOST</code> სწორია? სერვერზე — <code>docker compose ps</code>, <code>docker compose logs api</code>.</p></article>
+<h2 class="sec" id="sec-7">პრაქტიკა</h2>
+<article class="blk" data-slides="16"><span class="anchor" id="s-16"></span><div class="bh"><h3>კლასში დავალება: CD — პირველი ავტომატური deploy</h3><a class="chip" href="index.html#/16" data-go="16" title="პრეზენტაციაში გახსნა">სლაიდი 16</a></div>
+<p>დავალება · deploy გასაღები + Secrets + deploy.yml</p>
+<h3>ნაბიჯები</h3>
+<ul>
+<li>WSL: <code>ssh-keygen -t ed25519 -f ~/.ssh/github-deploy -N ""</code> → <code>ssh-copy-id -i ~/.ssh/github-deploy.pub lms</code> → შეამოწმეთ <code>ssh -i ~/.ssh/github-deploy …</code></li>
+<li>GitHub → <strong>Settings → Secrets and variables → Actions</strong>: <code>SSH_HOST</code>, <code>SSH_USER</code>, <code>SSH_KEY</code></li>
+<li><code>compose.yaml</code>-ში <code>api</code>-ს: <code>image: ghcr.io/&lt;user&gt;/&lt;repo&gt;:${IMAGE_TAG:-latest}</code>; სერვერზე ერთხელ <code>docker login ghcr.io</code> (PAT <code>read:packages</code>)</li>
+<li>branch <code>feature/deploy</code> → <code>.github/workflows/deploy.yml</code> → PR → CI ✅ → merge</li>
+<li>Actions-ში <strong>Deploy</strong> ✅ → API-ში პატარა ცვლილება (მაგ. ახალი ველი პასუხში) → PR → merge → ცვლილება <code>https://api.&lt;domain&gt;</code>-ზე</li>
+</ul>
+<h3>✓ მზადაა, როცა</h3>
+<p>merge-ის შემდეგ ცვლილება სერვერზე ჩანს და სერვერზე ხელით არაფერი გაგიშვიათ; GHCR-ში (რეპოს გვერდი → <strong>Packages</strong>) ჩანს image <code>latest</code> და <code>sha</code> tag-ებით</p>
+<h3>⭐ ბონუსი</h3>
+<ul>
+<li>ბოლო ნაბიჯად დაამატეთ შემოწმება: <code>curl -f https://api.&lt;domain&gt;/api/courses</code> — თუ API არ პასუხობს, Deploy წითელი გახდება</li>
+</ul>
+<h3>💡 მინიშნება</h3>
+<p><code>SSH_KEY</code>-ში ჩასვით <strong>პირადი</strong> გასაღების მთელი ფაილი (<code>cat ~/.ssh/github-deploy</code>), <code>-----BEGIN</code>-იდან <code>-----END</code>-ის ჩათვლით. <code>build-push</code> ჩავარდა <code>repository name must be lowercase</code>-ით? — რეპოს სახელი პატარა ასოებით გადაარქვით.</p></article>
+<h2 class="sec" id="sec-8">შეჯამება</h2>
+<article class="blk" data-slides="17"><span class="anchor" id="s-17"></span><div class="bh"><h3>შეამოწმე, რა დაგამახსოვრდა</h3><a class="chip" href="index.html#/17" data-go="17" title="პრეზენტაციაში გახსნა">სლაიდი 17</a></div>
+<p>ეს კითხვები შემდეგი ლექციის დასაწყისშიც დაისმება.</p>
+<div class="selfcheck"><div class="sh">✅ შეამოწმე თავი <small>დაფიქრდი, მერე გახსენი პასუხი</small></div><details><summary>CI და CD — რა განსხვავებაა?</summary><div class="ans">CI (Continuous Integration) — ყოველი ცვლილების ავტომატური შემოწმება (build, ტესტები) <code>main</code>-ში შერწყმამდე. CD (Continuous Deployment) — <code>main</code>-ის ყოველი ცვლილების ავტომატური გაშვება სერვერზე</div></details><details><summary>SSH-ის პირადი გასაღები workflow-ს როგორ მივაწოდოთ?</summary><div class="ans">GitHub Secrets-ში (<code>Settings → Secrets and variables → Actions</code>) — workflow მას <code>${{ secrets.SSH_KEY }}</code>-ით კითხულობს, ლოგებში კი ის <code>***</code>-ით იმალება. YAML-ში პირდაპირ — არასოდეს</div></details><details><summary>რატომ ვიყენებთ deploy-ისთვის ცალკე SSH გასაღებს და არა საკუთარს?</summary><div class="ans">თუ GitHub-ის secret გაჟონავს, საკმარისია ამ ერთი გასაღების წაშლა სერვერის <code>authorized_keys</code>-იდან — შენი პირადი გასაღები და სხვა სერვერები დაცული რჩება</div></details><details><summary>რატომ ვაწყობთ image-ს GitHub Actions-ზე და არა სერვერზე?</summary><div class="ans">სერვერს მცირე RAM აქვს და build საიტს ანელებს; Actions-ზე აწყობილი image GHCR-ში ინახება და სერვერი მხოლოდ მზას იღებს — სწრაფად, და ზუსტად იმას, რაც აეწყო</div></details><details><summary>ახალმა ვერსიამ LMS გატეხა. როგორ დავბრუნდეთ წინაზე?</summary><div class="ans">ყოველი image commit-ის sha-ითაცაა მონიშნული. სერვერის <code>.env</code>-ში <code>IMAGE_TAG=&lt;წინა sha&gt;</code> → <code>docker compose up -d</code> — წამებში ძველი ვერსია მუშაობს</div></details></div></article>
+<article class="blk" data-slides="18"><span class="anchor" id="s-18"></span><div class="bh"><h3>შეჯამება · დღეს ვისწავლეთ</h3><a class="chip" href="index.html#/18" data-go="18" title="პრეზენტაციაში გახსნა">სლაიდი 18</a></div>
+<ul>
+<li>🔑 <strong>საიდუმლოებები</strong> — ცალკე deploy გასაღები; GitHub Secrets (<code>SSH_HOST</code>, <code>SSH_USER</code>, <code>SSH_KEY</code>); <code>GITHUB_TOKEN</code>; სერვერზე PAT მხოლოდ <code>read:packages</code>-ით.</li>
+<li>🚀 <strong>CD</strong> — <code>deploy.yml</code> push-ზე <code>main</code>-ში: build → GHCR (<code>latest</code> + <code>sha</code>) → SSH → <code>git pull</code>, <code>compose pull api</code>, <code>up -d</code>. build სერვერზე აღარ ხდება.</li>
+<li>⏪ <strong>rollback</strong> — <code>IMAGE_TAG=&lt;sha&gt;</code> <code>.env</code>-ში → <code>up -d</code>; ბაზისთვის — backup მიგრაციამდე.</li>
+</ul>
+<p><strong>შემდეგ ლექციაზე — ფინალი:</strong> LMS-ს ფრონტი ემატება, და მთელ სისტემას — ფრონტს, API-ს და ბაზას — <strong>ახალ სერვერზე</strong> გადავიტანთ. ნახავ, რამდენად მარტივია ეს, როცა ყველაფერი ავტომატიზებულია.</p>
+<div class="prompt"><div class="ph"><span>🤖 გამოცდა მეთერთმეტე ლექციაზე</span><button class="copy" type="button">კოპირება</button></div><div class="pb">ვსწავლობ DevOps-ს. მეთერთმეტე ლექციაზე გავიარეთ CD GitHub Actions-ით: docker/login-action, docker/build-push-action, GHCR, GITHUB_TOKEN და permissions, appleboy/ssh-action, GitHub Secrets, ცალკე deploy SSH გასაღები, image tag-ები latest და sha, rollback IMAGE_TAG-ით.
+დამისვი 8 კითხვა სათითაოდ, მარტივიდან რთულისკენ — ნაწილი სიტუაციური იყოს („deploy ჩავარდა SSH-ის ნაბიჯზე, რას შეამოწმებ?“). ყოველ პასუხზე შემიფასე და ამიხსენი. ბოლოს მითხარი, რა გავიმეორო. ქართულად.</div></div>
+<div class="prompt"><div class="ph"><span>🤖 GitHub Actions-ის workflow ჩავარდა</span><button class="copy" type="button">კოპირება</button></div><div class="pb">ჩემი GitHub Actions workflow ჩავარდა. დამეხმარე მიზეზის პოვნაში ნაბიჯ-ნაბიჯ, მარტივად და ქართულად. workflow ფაილი: [აქ ჩასვი, საიდუმლოებების გარეშე]. რომელ step-ზე ჩავარდა და მისი ლოგის ბოლო ხაზები: [აქ]</div></div></article>
+<h2 class="sec" id="sec-9">საშინაო</h2>
+<article class="blk" data-slides="19"><span class="anchor" id="s-19"></span><div class="bh"><h3>საშინაო დავალება: შენი პროექტი — merge → live</h3><a class="chip" href="index.html#/19" data-go="19" title="პრეზენტაციაში გახსნა">სლაიდი 19</a></div>
+<p>შემდეგ ლექციაზე ამ ავტომატიზაციით მთელ სისტემას ახალ სერვერზე გადავიტანთ</p>
+<h3>მოთხოვნები</h3>
+<ul>
+<li>კლასის დავალება — ბოლომდე, <strong>თქვენს პროექტზე</strong>: deploy გასაღები (<code>ssh-keygen -f ~/.ssh/github-deploy</code>) → <code>.pub</code> სერვერზე; Secrets: <code>SSH_HOST</code>, <code>SSH_USER</code>, <code>SSH_KEY</code></li>
+<li><code>deploy.yml</code>: push <code>main</code>-ზე → GHCR (<code>latest</code> + <code>sha</code>) → SSH → <code>compose pull api &amp;&amp; up -d</code></li>
+<li>სერვერზე: compose-ში <code>image: ghcr.io/&lt;user&gt;/&lt;repo&gt;:${IMAGE_TAG:-latest}</code>; ერთხელ <code>docker login ghcr.io</code> (PAT <code>read:packages</code>)</li>
+<li>README: ცოცხალი ლინკები, CI badge, deploy-ის აღწერა</li>
+</ul>
+<h3>✓ მზადაა, როცა</h3>
+<p>PR → CI ✅ → merge → Deploy ✅ → ცვლილება <code>https://api.&lt;domain&gt;</code>-ზე, ხელით არაფერი</p>
+<h3>⭐ ბონუსი</h3>
+<ul>
+<li>rollback: სერვერის <code>.env</code>-ში <code>IMAGE_TAG=&lt;წინა commit-ის sha&gt;</code> → <code>docker compose up -d</code> → ძველი ვერსია → მერე უკან <code>latest</code>-ზე</li>
+</ul></article>
+  </main>
+</div>
+<script>
+const DECK = "DevOps · 11 — CD — merge → LMS სერვერზე";
+if (matchMedia('(min-width:981px)').matches) document.getElementById('tocd').open = true;
+const blocks = [...document.querySelectorAll('.blk')];
+const tocLinks = [...document.querySelectorAll('nav.toc a[href^="#sec-"]')];
+const secOf = b => { let e = b; while (e && !(e.matches && e.matches('h2.sec'))) e = e.previousElementSibling; return e; };
+function mark(b, toc_only) {
+  if (!toc_only) blocks.forEach(x => x.classList.toggle('cur', x === b));
+  const s = b && secOf(b); tocLinks.forEach(a => a.classList.toggle('cur', s && a.getAttribute('href') === '#' + s.id));
+}
+const blockFor = n => blocks.find(b => b.dataset.slides.split(',').includes(String(n)));
+
+// copy buttons (code: one line per .ln)
+document.addEventListener('click', e => {
+  const btn = e.target.closest('.copy'); if (!btn) return;
+  const box = btn.closest('.codebox, .prompt');
+  const text = box.matches('.prompt') ? box.querySelector('.pb').textContent : [...box.querySelectorAll('.ln')].map(l => l.textContent).join('\n');
+  navigator.clipboard.writeText(text).then(() => { btn.textContent = '✓ დაკოპირდა'; btn.classList.add('ok'); setTimeout(() => { btn.textContent = 'კოპირება'; btn.classList.remove('ok'); }, 1600); });
+});
+
+// live mode: opened from the deck with P — follow the projector
+const live = new URLSearchParams(location.search).has('live');
+let follow = true, bc = null;
+const liveBtn = document.getElementById('live');
+if (live) {
+  try { bc = new BroadcastChannel('deck-' + DECK); } catch (e) {}
+  liveBtn.classList.add('on');
+  liveBtn.onclick = () => { follow = !follow; liveBtn.classList.toggle('off', !follow); liveBtn.querySelector('.lt').textContent = follow ? 'მიჰყვება სლაიდებს' : 'თავისუფლად ვკითხულობ'; };
+  if (bc) {
+    bc.onmessage = ({ data }) => {
+      if (data.t !== 'state' || !follow) return;
+      const b = blockFor(data.i + 1); if (!b || b.classList.contains('cur')) return;
+      mark(b); b.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    };
+    bc.postMessage({ t: 'hello' });
+  }
+  document.addEventListener('click', e => {   // slide chip → move the projector deck
+    const c = e.target.closest('.chip[data-go]'); if (!c || !bc) return;
+    e.preventDefault(); bc.postMessage({ t: 'go', n: +c.dataset.go - 1 });
+  });
+}
+// deep link #s-12
+const h = location.hash.match(/^#s-(\d+)$/);
+if (h) { const b = blockFor(+h[1]); if (b) { mark(b); setTimeout(() => b.scrollIntoView({ block: 'start' }), 50); } }
+// highlight section in the TOC while reading
+const io = new IntersectionObserver(es => es.forEach(x => { if (x.isIntersecting && !(live && follow)) mark(x.target, true); }), { rootMargin: '-30% 0px -60% 0px' });
+blocks.forEach(b => io.observe(b));
+</script>
+</body></html>

@@ -1,0 +1,570 @@
+<!doctype html>
+<html lang="ka"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>📖 ფინალი — მთელი სისტემა ახალ სერვერზე — კონსპექტი</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Georgian:wght@400;600;700;800&family=JetBrains+Mono:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#fbf8f3;--card:#fff;--ink:#1e2132;--ink2:#3b3f54;--muted:#7b8096;--line:#e6dfd2;--accent:#6d28d9;--accent-soft:#f3effe;--teal:#0d9488;
+  --green:#15803d;--amber:#b45309;--mono:"JetBrains Mono",ui-monospace,monospace;--sans:"Noto Sans Georgian",system-ui,sans-serif}
+*{box-sizing:border-box}
+html{scroll-padding-top:76px}
+body{margin:0;background:var(--bg);color:var(--ink);font:17.5px/1.75 var(--sans);-webkit-font-smoothing:antialiased}
+a{color:var(--accent)}
+/* top bar */
+.top{position:sticky;top:0;z-index:10;display:flex;align-items:center;gap:14px;padding:10px 20px;background:rgba(251,248,243,.92);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.top .back{font:600 14px var(--mono);color:var(--muted);text-decoration:none;white-space:nowrap}
+.top .back:hover{color:var(--ink)}
+.top .ttl{flex:1;min-width:0;font-weight:700;font-size:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.top .ttl small{font:500 13px var(--mono);color:var(--muted);margin-right:8px}
+.btn{font:700 14px var(--sans);text-decoration:none;border-radius:10px;padding:7px 14px;white-space:nowrap;border:1px solid var(--line);color:var(--ink);background:var(--card);cursor:pointer}
+.btn.play{background:var(--accent);border-color:var(--accent);color:#fff}
+.live{display:none;align-items:center;gap:8px;font:600 13px var(--mono);color:var(--teal);background:#e6f6f4;border:1px solid #bfe7e2;border-radius:999px;padding:5px 12px;cursor:pointer}
+.live.on{display:flex}
+.live .dot{width:8px;height:8px;border-radius:50%;background:var(--teal);animation:pulse 1.6s infinite}
+.live.off{color:var(--muted);background:var(--card);border-color:var(--line)}.live.off .dot{background:var(--muted);animation:none}
+@keyframes pulse{50%{opacity:.3}}
+/* layout */
+.wrap{display:grid;grid-template-columns:230px minmax(0,1000px);gap:44px;justify-content:center;padding:32px 28px 120px}
+nav.toc{position:sticky;top:84px;align-self:start;font-size:14px;line-height:1.45}
+nav.toc .h{font:700 12px var(--mono);color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px}
+nav.toc a{display:block;color:var(--ink2);text-decoration:none;padding:6px 10px;border-left:2px solid var(--line)}
+nav.toc a:hover{color:var(--accent)}
+nav.toc a.cur{color:var(--accent);border-left-color:var(--accent);font-weight:700}
+nav.toc .mats{margin-top:22px;display:flex;flex-direction:column;gap:6px}
+nav.toc .mats a{border:0;padding:2px 0;font:500 13px var(--mono);color:var(--teal);word-break:break-all}
+header.hero{margin-bottom:8px}
+header.hero .k{font:600 14px var(--mono);color:var(--accent)}
+header.hero h1{font-size:38px;line-height:1.2;margin:6px 0 10px;letter-spacing:-.01em}
+header.hero p{color:var(--muted);margin:0;font-size:15.5px}
+header.hero kbd{font:500 12px var(--mono);border:1px solid var(--line);border-radius:5px;padding:0 5px;background:var(--card)}
+h2.sec{font-size:15px;font:700 13px var(--mono);color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin:48px 0 6px;padding-top:18px;border-top:1px solid var(--line)}
+/* blocks */
+.blk{position:relative;padding:14px 0 6px 22px;margin-left:-22px;border-left:3px solid transparent;transition:border-color .3s,background .3s;border-radius:0 12px 12px 0}
+.blk.cur{border-left-color:var(--accent);background:linear-gradient(90deg,var(--accent-soft),transparent 70%)}
+.anchor{position:absolute;top:0}
+.bh{display:flex;align-items:baseline;justify-content:space-between;gap:12px}
+.bh h3{font-size:22px;line-height:1.35;margin:4px 0 6px}
+.chip{flex:none;font:600 12px var(--mono);color:var(--muted);text-decoration:none;border:1px solid var(--line);border-radius:999px;padding:2px 10px;background:var(--card)}
+.chip:hover{color:var(--accent);border-color:var(--accent)}
+.blk h2{font-size:26px;line-height:1.3;margin:6px 0 10px}
+.blk h3:not(.bh h3){font-size:19px;margin:22px 0 6px}
+.blk h4{font-size:17px;margin:18px 0 4px}
+.blk p{margin:10px 0}
+.blk ul,.blk ol{padding-left:24px;margin:8px 0}
+.blk li{margin:4px 0}
+.blk strong{color:var(--ink)}
+.blk :not(pre)>code{font:600 .86em var(--mono);background:#f1ece3;border-radius:6px;padding:1px 6px;color:#5b21b6}
+.blk table{border-collapse:collapse;margin:14px 0;font-size:15.5px;width:100%;display:block;overflow-x:auto}
+.blk th,.blk td{border:1px solid var(--line);padding:8px 12px;text-align:left;vertical-align:top}
+.blk th{background:#f6f1e8}
+/* code */
+.codebox{margin:14px 0;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:#fffdf9}
+.codebox .ch,.prompt .ph{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:6px 8px 6px 14px;font:600 12.5px var(--mono);color:var(--muted);background:#f6f1e8;border-bottom:1px solid var(--line)}
+.copy{font:600 12px var(--mono);border:1px solid var(--line);background:var(--card);color:var(--ink2);border-radius:7px;padding:3px 10px;cursor:pointer}
+.copy:hover{border-color:var(--ink)}
+.copy.ok{color:var(--green);border-color:var(--green)}
+pre.code{margin:0;padding:12px 0;overflow-x:auto;font:14px/1.65 var(--mono)}
+pre.code .ln{display:block;padding:0 16px;white-space:pre}
+.code .ttl{background:var(--bg2);color:var(--muted)}
+.code .ln.hl{background:rgba(109,40,217,.07);box-shadow:inset 3px 0 0 var(--net)}
+.code .ln.dim{opacity:.42}
+.code .k,.code .kd,.code .kn,.code .kr,.code .kc{color:#7c3aed}
+.code .kt{color:#2563eb}
+.code .s,.code .s1,.code .s2,.code .sa,.code .se,.code .si,.code .sd{color:#15803d}
+.code .c,.code .c1,.code .cm,.code .cp,.code .ch{color:#8b8fa3}
+.code .m,.code .mi,.code .mf,.code .mh{color:#c2410c}
+.code .nf,.code .fm{color:#1d4ed8}
+.code .nc,.code .nn,.code .nt,.code .nd{color:#b45309}
+.code .na{color:#7c3aed} .code .nb{color:#0e7490}
+.code .o,.code .p{color:#64748b}
+.code .nv,.code .nx{color:var(--ink)}
+.code .go{color:#64748b}
+/* prompt */
+.prompt{margin:16px 0;border:1px solid #ddd2fb;border-radius:12px;overflow:hidden;background:var(--accent-soft)}
+.prompt .ph{background:#ebe3fd;border-color:#ddd2fb;color:var(--accent)}
+.prompt .pb{padding:12px 16px;white-space:pre-wrap;font-size:15.5px;line-height:1.6;color:var(--ink2)}
+/* self check */
+.selfcheck{margin:16px 0;border:1px solid #cfe9d6;border-radius:12px;background:#f3fbf5;padding:12px 16px}
+.selfcheck .sh{font-weight:700;color:var(--green);margin-bottom:6px}
+.selfcheck .sh small{font-weight:400;color:var(--muted);font-size:13.5px;margin-left:6px}
+.selfcheck details{border-top:1px solid #dcefe1;padding:8px 0}
+.selfcheck summary{cursor:pointer;font-weight:600;list-style:none;padding-left:26px;position:relative}
+.selfcheck summary::-webkit-details-marker{display:none}
+.selfcheck summary::before{content:"?";position:absolute;left:0;top:2px;width:18px;height:18px;border-radius:50%;background:var(--green);color:#fff;font:700 12px/18px var(--mono);text-align:center}
+.selfcheck details[open] summary::before{content:"✓"}
+.selfcheck .ans{padding:6px 0 2px 26px;color:var(--ink2)}
+/* terms */
+.terms{margin:16px 0;border:1px solid var(--line);border-radius:12px;background:var(--card);padding:12px 16px}
+.terms .th{font-weight:700;margin-bottom:6px}
+.terms dl{display:grid;grid-template-columns:max-content 1fr;gap:6px 18px;margin:0}
+.terms dt{font:600 14.5px var(--mono);color:var(--accent)}
+.terms dd{margin:0;color:var(--ink2)}
+/* callouts */
+.callout{display:flex;gap:12px;margin:14px 0;padding:12px 16px;border-radius:12px;border:1px solid var(--line);background:var(--card)}
+.callout .ci{font-size:20px;line-height:1.6}
+.callout>div>p:first-child{margin-top:0}.callout>div>p:last-child{margin-bottom:0}
+.callout.warn{background:#fff8eb;border-color:#f6dfb5}
+.callout.note{background:#eef5ff;border-color:#cfe0fb}
+@media (max-width:980px){
+  .wrap{grid-template-columns:minmax(0,1fr);gap:0;padding:20px 16px 100px}
+  nav.toc{position:static;margin-bottom:12px}
+  nav.toc details{border:1px solid var(--line);border-radius:12px;background:var(--card);padding:8px 12px}
+  nav.toc details>summary{cursor:pointer;font-weight:700}
+  nav.toc .h{display:none}
+  header.hero h1{font-size:30px}
+  .blk{padding-left:14px;margin-left:-14px}
+  .top .ttl small{display:none}
+  .terms dl{grid-template-columns:1fr}.terms dd{margin-bottom:8px}
+}
+@media (min-width:981px){nav.toc details>summary{display:none}}
+@media print{.top,nav.toc,.copy,.chip,.live{display:none}.wrap{display:block;padding:0}.selfcheck details{display:block}.blk.cur{background:none}}
+</style></head>
+<body>
+<div class="top">
+  <a class="back" href="../../">← ლექციები</a>
+  <div class="ttl"><small>DevOps · 12</small>ფინალი — მთელი სისტემა ახალ სერვერზე</div>
+  <button class="live" id="live" type="button" title="ჩართული: ტექსტი პრეზენტაციას მიჰყვება"><span class="dot"></span><span class="lt">მიჰყვება სლაიდებს</span></button>
+  <a class="btn play" href="index.html">▶ პრეზენტაცია</a>
+</div>
+<div class="wrap">
+  <nav class="toc"><details id="tocd"><summary>სარჩევი</summary><div class="h">სარჩევი</div><a href="#sec-1">გამეორება</a><a href="#sec-2">საშინაოს განხილვა</a><a href="#sec-3">დღის თემა</a><a href="#sec-4">1 · ფრონტი</a><a href="#sec-5">2 · ახალი სერვერი</a><a href="#sec-6">3 · ფინალი</a><a href="#sec-7">პრაქტიკა</a><a href="#sec-8">შეჯამება</a><a href="#sec-9">საშინაო</a><div class="mats"><a href="materials/roadmap.html" download>📎 roadmap.html</a></div></details></nav>
+  <main>
+    <header class="hero">
+      <div class="k">📖 კონსპექტი · DevOps · ლექცია 12</div>
+      <h1>ფინალი — მთელი სისტემა ახალ სერვერზე</h1>
+      <p>წაიკითხე ლექციის შემდეგ, ან პრეზენტაციასთან ერთად: პრეზენტაციაში დააჭირე <kbd>P</kbd> და ეს გვერდი სლაიდებს გაჰყვება. კოდი და AI-ს პრომპტები კოპირდება ერთი დაჭერით.</p>
+    </header>
+    <h2 class="sec" id="sec-1">გამეორება</h2>
+<article class="blk" data-slides="1,2"><span class="anchor" id="s-1"></span><span class="anchor" id="s-2"></span><div class="bh"><h3>გავიხსენოთ წინა ლექცია</h3><a class="chip" href="index.html#/1" data-go="1" title="პრეზენტაციაში გახსნა">სლაიდი 1</a></div>
+<p>ლექცია 11 — <strong>CD — merge → LMS სერვერზე</strong>. ახალ თემამდე ვამოწმებთ, რა დაგვამახსოვრდა. ჯერ თვითონ უპასუხე, მერე გახსენი პასუხი. თუ რომელიმე გაგიჭირდა, <a href="../11-cd/study.html">წინა ლექციის კონსპექტს</a> გადახედე.</p>
+<div class="selfcheck"><div class="sh">✅ შეამოწმე თავი <small>დაფიქრდი, მერე გახსენი პასუხი</small></div><details><summary>CI და CD — რა განსხვავებაა?</summary><div class="ans">CI (Continuous Integration) — ყოველი ცვლილების ავტომატური შემოწმება (build, ტესტები) <code>main</code>-ში შერწყმამდე. CD (Continuous Deployment) — <code>main</code>-ის ყოველი ცვლილების ავტომატური გაშვება სერვერზე</div></details><details><summary>SSH-ის პირადი გასაღები workflow-ს როგორ მივაწოდოთ?</summary><div class="ans">GitHub Secrets-ში (<code>Settings → Secrets and variables → Actions</code>) — workflow მას <code>${{ secrets.SSH_KEY }}</code>-ით კითხულობს, ლოგებში კი ის <code>***</code>-ით იმალება. YAML-ში პირდაპირ — არასოდეს</div></details><details><summary>რატომ ვიყენებთ deploy-ისთვის ცალკე SSH გასაღებს და არა საკუთარს?</summary><div class="ans">თუ GitHub-ის secret გაჟონავს, საკმარისია ამ ერთი გასაღების წაშლა სერვერის <code>authorized_keys</code>-იდან — შენი პირადი გასაღები და სხვა სერვერები დაცული რჩება</div></details><details><summary>რატომ ვაწყობთ image-ს GitHub Actions-ზე და არა სერვერზე?</summary><div class="ans">სერვერს მცირე RAM აქვს და build საიტს ანელებს; Actions-ზე აწყობილი image GHCR-ში ინახება და სერვერი მხოლოდ მზას იღებს — სწრაფად, და ზუსტად იმას, რაც აეწყო</div></details><details><summary>ახალმა ვერსიამ LMS გატეხა. როგორ დავბრუნდეთ წინაზე?</summary><div class="ans">ყოველი image commit-ის sha-ითაცაა მონიშნული. სერვერის <code>.env</code>-ში <code>IMAGE_TAG=&lt;წინა sha&gt;</code> → <code>docker compose up -d</code> — წამებში ძველი ვერსია მუშაობს</div></details></div></article>
+<h2 class="sec" id="sec-2">საშინაოს განხილვა</h2>
+<article class="blk" data-slides="3"><span class="anchor" id="s-3"></span><div class="bh"><h3>საშინაოს განხილვა</h3><a class="chip" href="index.html#/3" data-go="3" title="პრეზენტაციაში გახსნა">სლაიდი 3</a></div>
+<p>წინა ლექციის საშინაო: <strong>შენი პროექტი — merge → live</strong>. ქვემოთ არის ერთ-ერთი სწორი ამოხსნა. შენი კოდი შეიძლება სხვანაირად იყოს დაწერილი — მთავარია, მოთხოვნები სრულდებოდეს.</p>
+<h3>მოთხოვნები</h3>
+<ul>
+<li>კლასის დავალება — ბოლომდე, <strong>თქვენს პროექტზე</strong>: deploy გასაღები (<code>ssh-keygen -f ~/.ssh/github-deploy</code>) → <code>.pub</code> სერვერზე; Secrets: <code>SSH_HOST</code>, <code>SSH_USER</code>, <code>SSH_KEY</code></li>
+<li><code>deploy.yml</code>: push <code>main</code>-ზე → GHCR (<code>latest</code> + <code>sha</code>) → SSH → <code>compose pull api &amp;&amp; up -d</code></li>
+<li>სერვერზე: compose-ში <code>image: ghcr.io/&lt;user&gt;/&lt;repo&gt;:${IMAGE_TAG:-latest}</code>; ერთხელ <code>docker login ghcr.io</code> (PAT <code>read:packages</code>)</li>
+<li>README: ცოცხალი ლინკები, CI badge, deploy-ის აღწერა</li>
+</ul>
+<h3>ამოხსნა</h3>
+<div class="codebox"><div class="ch"><span>deploy.yml — მთავარი ნაწილი</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="p">-</span><span class="w"> </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l">docker/build-push-action@v6</span></span><span class="ln"><span class="w">  </span><span class="nt">with</span><span class="p">:</span></span><span class="ln"><span class="w">    </span><span class="nt">push</span><span class="p">:</span><span class="w"> </span><span class="l">true</span></span><span class="ln"><span class="w">    </span><span class="nt">tags</span><span class="p">:</span><span class="w"> </span><span class="p">|</span></span><span class="ln"><span class="w">      </span><span class="no">ghcr.io/${{ github.repository }}:latest</span></span><span class="ln"><span class="w">      </span><span class="no">ghcr.io/${{ github.repository }}:${{ github.sha }}</span></span><span class="ln"><span class="p">-</span><span class="w"> </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l">appleboy/ssh-action@v1</span></span><span class="ln"><span class="w">  </span><span class="nt">with</span><span class="p">:</span></span><span class="ln"><span class="w">    </span><span class="nt">host</span><span class="p">:</span><span class="w"> </span><span class="l">${{</span><span class="l"> </span><span class="l">secrets.SSH_HOST</span><span class="l"> </span><span class="l">}}</span></span><span class="ln"><span class="w">    </span><span class="nt">username</span><span class="p">:</span><span class="w"> </span><span class="l">${{</span><span class="l"> </span><span class="l">secrets.SSH_USER</span><span class="l"> </span><span class="l">}}</span></span><span class="ln"><span class="w">    </span><span class="nt">key</span><span class="p">:</span><span class="w"> </span><span class="l">${{</span><span class="l"> </span><span class="l">secrets.SSH_KEY</span><span class="l"> </span><span class="l">}}</span></span><span class="ln"><span class="w">    </span><span class="nt">script</span><span class="p">:</span><span class="w"> </span><span class="p">|</span></span><span class="ln"><span class="w">      </span><span class="no">cd ~/lms</span></span><span class="ln"><span class="w">      </span><span class="no">git pull</span></span><span class="ln"><span class="w">      </span><span class="no">docker compose pull api</span></span><span class="ln"><span class="w">      </span><span class="no">docker compose up -d</span></span></code></pre></div>
+<div class="codebox"><div class="ch"><span>.github/workflows/deploy.yml</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">Deploy</span></span><span class="ln"><span class="nt">on</span><span class="p">:</span></span><span class="ln"><span class="w">  </span><span class="nt">push</span><span class="p">:</span></span><span class="ln"><span class="w">    </span><span class="nt">branches</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="nv">main</span><span class="p">]</span></span><span class="ln"><span class="nt">permissions</span><span class="p">:</span></span><span class="ln"><span class="w">  </span><span class="nt">contents</span><span class="p">:</span><span class="w"> </span><span class="l">read</span></span><span class="ln"><span class="w">  </span><span class="nt">packages</span><span class="p">:</span><span class="w"> </span><span class="l">write</span></span><span class="ln"><span class="nt">jobs</span><span class="p">:</span></span><span class="ln"><span class="w">  </span><span class="nt">deploy</span><span class="p">:</span></span><span class="ln"><span class="w">    </span><span class="nt">runs-on</span><span class="p">:</span><span class="w"> </span><span class="l">ubuntu-latest</span></span><span class="ln"><span class="w">    </span><span class="nt">steps</span><span class="p">:</span></span><span class="ln"><span class="w">      </span><span class="p">-</span><span class="w"> </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l">actions/checkout@v4</span></span><span class="ln"><span class="w">      </span><span class="p">-</span><span class="w"> </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l">docker/login-action@v3</span></span><span class="ln"><span class="w">        </span><span class="nt">with</span><span class="p">:</span></span><span class="ln"><span class="w">          </span><span class="nt">registry</span><span class="p">:</span><span class="w"> </span><span class="l">ghcr.io</span></span><span class="ln"><span class="w">          </span><span class="nt">username</span><span class="p">:</span><span class="w"> </span><span class="l">${{</span><span class="l"> </span><span class="l">github.actor</span><span class="l"> </span><span class="l">}}</span></span><span class="ln"><span class="w">          </span><span class="nt">password</span><span class="p">:</span><span class="w"> </span><span class="l">${{</span><span class="l"> </span><span class="l">secrets.GITHUB_TOKEN</span><span class="l"> </span><span class="l">}}</span></span><span class="ln"><span class="w">      </span><span class="p">-</span><span class="w"> </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l">docker/build-push-action@v6</span></span><span class="ln"><span class="w">        </span><span class="nt">with</span><span class="p">:</span></span><span class="ln"><span class="w">          </span><span class="nt">push</span><span class="p">:</span><span class="w"> </span><span class="l">true</span></span><span class="ln"><span class="w">          </span><span class="nt">tags</span><span class="p">:</span><span class="w"> </span><span class="p">|</span></span><span class="ln"><span class="w">            </span><span class="no">ghcr.io/${{ github.repository }}:latest</span></span><span class="ln"><span class="w">            </span><span class="no">ghcr.io/${{ github.repository }}:${{ github.sha }}</span></span><span class="ln"><span class="w">      </span><span class="p">-</span><span class="w"> </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l">appleboy/ssh-action@v1</span></span><span class="ln"><span class="w">        </span><span class="nt">with</span><span class="p">:</span></span><span class="ln"><span class="w">          </span><span class="nt">host</span><span class="p">:</span><span class="w"> </span><span class="l">${{</span><span class="l"> </span><span class="l">secrets.SSH_HOST</span><span class="l"> </span><span class="l">}}</span></span><span class="ln"><span class="w">          </span><span class="nt">username</span><span class="p">:</span><span class="w"> </span><span class="l">${{</span><span class="l"> </span><span class="l">secrets.SSH_USER</span><span class="l"> </span><span class="l">}}</span></span><span class="ln"><span class="w">          </span><span class="nt">key</span><span class="p">:</span><span class="w"> </span><span class="l">${{</span><span class="l"> </span><span class="l">secrets.SSH_KEY</span><span class="l"> </span><span class="l">}}</span></span><span class="ln"><span class="w">          </span><span class="nt">script</span><span class="p">:</span><span class="w"> </span><span class="p">|</span></span><span class="ln"><span class="w">            </span><span class="no">cd ~/lms</span></span><span class="ln"><span class="w">            </span><span class="no">git pull</span></span><span class="ln"><span class="w">            </span><span class="no">docker compose pull api</span></span><span class="ln"><span class="w">            </span><span class="no">docker compose up -d</span></span></code></pre></div>
+<div class="codebox"><div class="ch"><span>compose.yaml — api</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="nt">api</span><span class="p">:</span></span><span class="ln"><span class="w">  </span><span class="nt">build</span><span class="p">:</span><span class="w"> </span><span class="l">.</span></span><span class="ln"><span class="w">  </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l">ghcr.io/giorgi/lms:${IMAGE_TAG:-latest}</span></span></code></pre></div>
+<div class="codebox"><div class="ch"><span>Termius · lms-server</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="gp">$ </span><span class="nb">echo</span><span class="w"> </span><span class="s2">"&lt;PAT&gt;"</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>docker<span class="w"> </span>login<span class="w"> </span>ghcr.io<span class="w"> </span>-u<span class="w"> </span>giorgi<span class="w"> </span>--password-stdin</span></code></pre></div>
+<p>GHCR-ის image-ის სახელი <strong>პატარა ასოებით</strong> უნდა იყოს — თუ რეპოს სახელში დიდი ასოებია (<code>Giorgi/LMS</code>), გადაარქვით რეპოს სახელი პატარა ასოებით.</p></article>
+<h2 class="sec" id="sec-3">დღის თემა</h2>
+<article class="blk" data-slides="4"><span class="anchor" id="s-4"></span><div class="bh"><h3>დღის თემა: ფინალი — მთელი სისტემა ახალ სერვერზე</h3><a class="chip" href="index.html#/4" data-go="4" title="პრეზენტაციაში გახსნა">სლაიდი 4</a></div>
+<p>API-ის კურსზე LMS-ს ფრონტიც დაეწერა — და ახლა მთელი სისტემა ერთად უნდა გავიდეს: ფრონტი, API და ბაზა. თან სერვერი შეიძლება გაფუჭდეს, ან უფრო ძლიერი დაგვჭირდეს. მე-6 ლექციაზე მხოლოდ API-ს ხელით გაშვებას მთელი ლექცია დასჭირდა. დღეს ფრონტს სისტემაში ვამატებთ და მთელ სისტემას, მონაცემებიანად, ახალ სერვერზე ვიტანთ — და ვნახავთ, რამდენად მარტივია ეს, როცა ყველაფერი ავტომატიზებულია.</p>
+<p><strong>ლექციის ბოლოს შეძლებ:</strong></p>
+<ul>
+<li>Angular ფრონტის multi-stage Dockerfile და Nginx კონტეინერში: <code>try_files</code> + <code>/api</code> proxy, CORS-ის გარეშე</li>
+<li>ფრონტის დამატება Compose-სა და CD-ში — ორი image ერთი commit-იდან</li>
+<li>ახალი სერვერის მომზადება cloud-init-ით</li>
+<li>რა გადადის CD-ით და რა — ხელით: <code>.env</code>, ბაზის მონაცემები, DNS, სერტიფიკატი</li>
+<li>სერვერის გამოცვლა: მონაცემები <code>pg_dump | psql</code>-ით → deploy → DNS → HTTPS → შემოწმება</li>
+</ul></article>
+<h2 class="sec" id="sec-4">1 · ფრონტი</h2>
+<article class="blk" data-slides="5"><span class="anchor" id="s-5"></span><div class="bh"><h3>ნაწილი 1 · ფრონტი სისტემაში</h3><a class="chip" href="index.html#/5" data-go="5" title="პრეზენტაციაში გახსნა">სლაიდი 5</a></div>
+<p>API-ის კურსზე LMS-ს ფრონტიც დაეწერა. ახლა ის სისტემის ნაწილი უნდა გახდეს: იგივე Docker, იგივე Compose, იგივე CD — რომ მთელი სისტემა ერთად აეწყოს, ერთად გაეშვას და ერთად გადავიდეს ახალ სერვერზე.</p></article>
+<article class="blk" data-slides="6"><span class="anchor" id="s-6"></span><div class="bh"><h3>პრობლემა: API — ავტომატურად, ფრონტი — ხელით?</h3><a class="chip" href="index.html#/6" data-go="6" title="პრეზენტაციაში გახსნა">სლაიდი 6</a></div>
+<p>API უკვე სრულ გზას გადის: merge → CI → GHCR → სერვერი. ფრონტი კი, თუ მე-5 ლექციის გზით წავიდოდით, ხელით გავიდოდა: <code>ng build</code> → <code>rsync</code> → <code>/var/www/app</code>.</p>
+<p>ორი პრობლემა:</p>
+<ul>
+<li><strong>API-ს მისამართი.</strong> თუ Angular-ის კოდში წერია <code>https://api.giorgi.ge</code>, ბრაუზერისთვის ეს <strong>სხვა დომენია</strong> (<code>app.</code> ≠ <code>api.</code>) — API-ს CORS სჭირდება, და ყოველ გარემოს (შენი ლეპტოპი, სერვერი) თავისი build.</li>
+<li><strong>ორი სხვადასხვა გზა.</strong> სერვერის გამოცვლისას ორივე ცალ-ცალკე უნდა გადავიტანოთ.</li>
+</ul>
+<p><strong>გამოსავალი:</strong> ფრონტსაც ვაქცევთ <strong>კონტეინერად</strong>. მის შიგნით — Nginx, რომელიც Angular-ის ფაილებს აძლევს, ხოლო <code>/api/...</code> მოთხოვნებს API-ის კონტეინერს გადასცემს. ბრაუზერისთვის ყველაფერი <strong>ერთ დომენზეა</strong> — CORS აღარ სჭირდება, და Angular-ში API-ის მისამართი უბრალოდ <code>/api</code>-ა, ნებისმიერ გარემოში.</p></article>
+<article class="blk" data-slides="7"><span class="anchor" id="s-7"></span><div class="bh"><h3>ნაბიჯი 1 · web/Dockerfile — node აწყობს, nginx აძლევს</h3><a class="chip" href="index.html#/7" data-go="7" title="პრეზენტაციაში გახსნა">სლაიდი 7</a></div>
+<p>ფრონტი რეპოს <code>web/</code> საქაღალდეშია (API-ის გვერდით). მისი Dockerfile ორეტაპიანია — ზუსტად ისე, როგორც API-ის (მე-7 ლექცია): აწყობას ერთი გარემო სჭირდება, გაშვებას — სხვა, ბევრად პატარა.</p>
+<div class="codebox"><div class="ch"><span>web/Dockerfile</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="c"># 1 — აწყობა: Node + npm</span></span><span class="ln"><span class="k">FROM</span><span class="w"> </span><span class="s">node:24-alpine</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="s">build</span></span><span class="ln"><span class="k">WORKDIR</span><span class="w"> </span><span class="s">/app</span></span><span class="ln"><span class="k">COPY</span><span class="w"> </span>package*.json<span class="w"> </span>./</span><span class="ln"><span class="k">RUN</span><span class="w"> </span>npm<span class="w"> </span>ci</span><span class="ln"><span class="k">COPY</span><span class="w"> </span>.<span class="w"> </span>.</span><span class="ln"><span class="k">RUN</span><span class="w"> </span>npm<span class="w"> </span>run<span class="w"> </span>build</span><span class="ln"> </span><span class="ln"><span class="c"># 2 — გაშვება: მხოლოდ Nginx და მზა ფაილები</span></span><span class="ln"><span class="k">FROM</span><span class="w"> </span><span class="s">nginx:alpine</span></span><span class="ln"><span class="k">COPY</span><span class="w"> </span>nginx.conf<span class="w"> </span>/etc/nginx/conf.d/default.conf</span><span class="ln"><span class="k">COPY</span><span class="w"> </span>--from<span class="o">=</span>build<span class="w"> </span>/app/dist/lms-web/browser<span class="w"> </span>/usr/share/nginx/html</span></code></pre></div>
+<ul>
+<li><code>npm ci</code> — ზუსტად <code>package-lock.json</code>-ის ვერსიებს აყენებს (CI-სა და Docker-ისთვის ეს ჯობია <code>npm install</code>-ს);</li>
+<li><code>dist/lms-web/browser</code> — Angular-ის build-ის შედეგი; <code>lms-web</code> — პროექტის სახელი <code>angular.json</code>-დან;</li>
+<li>საბოლოო image-ში <strong>Node არ არის</strong> — მხოლოდ Nginx და HTML/CSS/JS ფაილები.</li>
+</ul>
+<div class="codebox"><div class="ch"><span>web/nginx.conf</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="k">server</span><span class="w"> </span><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="kn">listen</span><span class="w"> </span><span class="mi">80</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="kn">root</span><span class="w"> </span><span class="s">/usr/share/nginx/html</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="kn">index</span><span class="w"> </span><span class="s">index.html</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="kn">location</span><span class="w"> </span><span class="s">/api/</span><span class="w"> </span><span class="p">{</span></span><span class="ln"><span class="w">        </span><span class="kn">proxy_pass</span><span class="w"> </span><span class="s">http://api:8080</span><span class="p">;</span></span><span class="ln"><span class="w">        </span><span class="kn">proxy_set_header</span><span class="w"> </span><span class="s">Host</span><span class="w"> </span><span class="nv">$host</span><span class="p">;</span></span><span class="ln"><span class="w">        </span><span class="kn">proxy_set_header</span><span class="w"> </span><span class="s">X-Forwarded-For</span><span class="w"> </span><span class="nv">$proxy_add_x_forwarded_for</span><span class="p">;</span></span><span class="ln"><span class="w">        </span><span class="kn">proxy_set_header</span><span class="w"> </span><span class="s">X-Forwarded-Proto</span><span class="w"> </span><span class="nv">$http_x_forwarded_proto</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="p">}</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="kn">location</span><span class="w"> </span><span class="s">/</span><span class="w"> </span><span class="p">{</span></span><span class="ln"><span class="w">        </span><span class="kn">try_files</span><span class="w"> </span><span class="nv">$uri</span><span class="w"> </span><span class="nv">$uri/</span><span class="w"> </span><span class="s">/index.html</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="p">}</span></span><span class="ln"><span class="p">}</span></span></code></pre></div>
+<ul>
+<li><code>location /api/</code> — <code>/api/...</code> მოთხოვნები API-ის კონტეინერს გადაეცემა. <code>api</code> — სერვისის სახელი Compose-ში (როგორც <code>Host=db</code> ბაზისთვის, მე-8 ლექცია), <code>8080</code> — port <strong>კონტეინერის შიგნით</strong>;</li>
+<li><code>X-Forwarded-Proto</code> — სერვერის Nginx-მა უკვე იცის, რომ მოთხოვნა HTTPS-ით მოვიდა; ამ ინფორმაციას API-მდე ვატარებთ (მე-9 ლექცია);</li>
+<li><code>try_files … /index.html</code> — SPA-ს refresh → 404 პრობლემა, მე-5 ლექციიდან.</li>
+</ul>
+<div class="callout warn"><span class="ci">⚠️</span><div><p>Angular-ში API-ის მისამართი ახლა <strong>ფარდობითია</strong>: <code>/api/courses</code>, არა <code>https://api.giorgi.ge/api/courses</code>. ასე ერთი და იგივე build ყველგან მუშაობს, და CORS არ გვჭირდება — ბრაუზერისთვის ფრონტიც და API-ც ერთ დომენზეა.</p></div></div></article>
+<article class="blk" data-slides="8"><span class="anchor" id="s-8"></span><div class="bh"><h3>ნაბიჯი 2 · Compose + სერვერის Nginx</h3><a class="chip" href="index.html#/8" data-go="8" title="პრეზენტაციაში გახსნა">სლაიდი 8</a></div>
+<p><code>compose.yaml</code>-ში მესამე სერვისი ემატება:</p>
+<div class="codebox"><div class="ch"><span>compose.yaml — web</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="nt">web</span><span class="p">:</span></span><span class="ln"><span class="w">  </span><span class="nt">build</span><span class="p">:</span><span class="w"> </span><span class="l">./web</span></span><span class="ln"><span class="w">  </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l">ghcr.io/giorgi/lms-web:${IMAGE_TAG:-latest}</span></span><span class="ln"><span class="w">  </span><span class="nt">ports</span><span class="p">:</span></span><span class="ln"><span class="w">    </span><span class="p">-</span><span class="w"> </span><span class="s">"</span><span class="s">127.0.0.1:4000:80</span><span class="s">"</span></span><span class="ln"><span class="w">  </span><span class="nt">depends_on</span><span class="p">:</span></span><span class="ln"><span class="w">    </span><span class="p">-</span><span class="w"> </span><span class="l">api</span></span><span class="ln"><span class="w">  </span><span class="nt">restart</span><span class="p">:</span><span class="w"> </span><span class="l">unless-stopped</span></span></code></pre></div>
+<ul>
+<li><code>build: ./web</code> — Dockerfile <code>web/</code> საქაღალდიდან (შენთან, <code>up --build</code>-ისთვის);</li>
+<li><code>image</code> — იგივე <code>IMAGE_TAG</code>, რაც API-ს: ორივე ერთი commit-იდან აეწყობა, და rollback-იც ორივეს ერთად აბრუნებს;</li>
+<li><code>127.0.0.1:4000</code> — როგორც API-ს <code>5000</code>: ინტერნეტიდან პირდაპირ არ ჩანს, მხოლოდ სერვერის Nginx-ისთვის.</li>
+</ul>
+<p>შენთან: <code>docker compose up -d --build</code> → <code>http://localhost:4000</code> — ფრონტი იხსნება და <code>/api/courses</code>-ს API-დან იღებს.</p>
+<p><strong>სერვერის Nginx</strong> — <code>app.giorgi.ge</code>-ის server block-ში <code>root /var/www/app</code> და <code>try_files</code> იცვლება <code>proxy_pass</code>-ით:</p>
+<div class="codebox"><div class="ch"><span>sites-available/app</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="k">server</span><span class="w"> </span><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="kn">server_name</span><span class="w"> </span><span class="s">app.giorgi.ge</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="kn">location</span><span class="w"> </span><span class="s">/</span><span class="w"> </span><span class="p">{</span></span><span class="ln"><span class="w">        </span><span class="kn">proxy_pass</span><span class="w"> </span><span class="s">http://127.0.0.1:4000</span><span class="p">;</span></span><span class="ln"><span class="w">        </span><span class="kn">proxy_set_header</span><span class="w"> </span><span class="s">Host</span><span class="w"> </span><span class="nv">$host</span><span class="p">;</span></span><span class="ln"><span class="w">        </span><span class="kn">proxy_set_header</span><span class="w"> </span><span class="s">X-Forwarded-For</span><span class="w"> </span><span class="nv">$proxy_add_x_forwarded_for</span><span class="p">;</span></span><span class="ln"><span class="w">        </span><span class="kn">proxy_set_header</span><span class="w"> </span><span class="s">X-Forwarded-Proto</span><span class="w"> </span><span class="nv">$scheme</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="p">}</span></span><span class="ln"><span class="w">    </span><span class="c1"># listen 443 ssl და ssl_certificate ხაზები — certbot-ისგან, უცვლელი</span></span><span class="ln"><span class="p">}</span></span></code></pre></div>
+<p><code>sudo nginx -t &amp;&amp; sudo systemctl reload nginx</code>.</p>
+<div class="callout note"><span class="ci">💡</span><div><p>ეს კონფიგი რეპოშიც ჩადე — <code>deploy/nginx/lms.conf</code> (<code>app</code> და <code>api</code> ბლოკები, certbot-ის ხაზების გარეშე). მეორე ნაწილში, ახალ სერვერზე, ის ხელახლა წერის ნაცვლად უბრალოდ დაკოპირდება.</p></div></div></article>
+<article class="blk" data-slides="9,10"><span class="anchor" id="s-9"></span><span class="anchor" id="s-10"></span><div class="bh"><h3>ნაბიჯი 3 · deploy.yml — ორი image</h3><a class="chip" href="index.html#/9" data-go="9" title="პრეზენტაციაში გახსნა">სლაიდი 9</a></div>
+<p><code>deploy.yml</code>-ში სამი ცვლილებაა:</p>
+<div class="codebox"><div class="ch"><span>.github/workflows/deploy.yml (ცვლილებები)</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="nt">on</span><span class="p">:</span></span><span class="ln"><span class="w">  </span><span class="nt">push</span><span class="p">:</span></span><span class="ln"><span class="w">    </span><span class="nt">branches</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="nv">main</span><span class="p">]</span></span><span class="ln"><span class="w">  </span><span class="nt">workflow_dispatch</span><span class="p">:</span></span><span class="ln"> </span><span class="ln"><span class="c1"># ... checkout და login — უცვლელი</span></span><span class="ln"> </span><span class="ln"><span class="w">      </span><span class="p">-</span><span class="w"> </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l">docker/build-push-action@v6</span><span class="w">     </span><span class="c1"># api — უცვლელი</span></span><span class="ln"><span class="w">        </span><span class="nt">with</span><span class="p">:</span></span><span class="ln"><span class="w">          </span><span class="nt">push</span><span class="p">:</span><span class="w"> </span><span class="l">true</span></span><span class="ln"><span class="w">          </span><span class="nt">tags</span><span class="p">:</span><span class="w"> </span><span class="p">|</span></span><span class="ln"><span class="w">            </span><span class="no">ghcr.io/${{ github.repository }}:latest</span></span><span class="ln"><span class="w">            </span><span class="no">ghcr.io/${{ github.repository }}:${{ github.sha }}</span></span><span class="ln"> </span><span class="ln"><span class="w">      </span><span class="p">-</span><span class="w"> </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l">docker/build-push-action@v6</span><span class="w">     </span><span class="c1"># web — ახალი</span></span><span class="ln"><span class="w">        </span><span class="nt">with</span><span class="p">:</span></span><span class="ln"><span class="w">          </span><span class="nt">context</span><span class="p">:</span><span class="w"> </span><span class="l">./web</span></span><span class="ln"><span class="w">          </span><span class="nt">push</span><span class="p">:</span><span class="w"> </span><span class="l">true</span></span><span class="ln"><span class="w">          </span><span class="nt">tags</span><span class="p">:</span><span class="w"> </span><span class="p">|</span></span><span class="ln"><span class="w">            </span><span class="no">ghcr.io/${{ github.repository }}-web:latest</span></span><span class="ln"><span class="w">            </span><span class="no">ghcr.io/${{ github.repository }}-web:${{ github.sha }}</span></span><span class="ln"> </span><span class="ln"><span class="w">      </span><span class="p">-</span><span class="w"> </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l">appleboy/ssh-action@v1</span></span><span class="ln"><span class="w">        </span><span class="nt">with</span><span class="p">:</span></span><span class="ln"><span class="w">          </span><span class="nt">host</span><span class="p">:</span><span class="w"> </span><span class="l">${{</span><span class="l"> </span><span class="l">secrets.SSH_HOST</span><span class="l"> </span><span class="l">}}</span></span><span class="ln"><span class="w">          </span><span class="nt">username</span><span class="p">:</span><span class="w"> </span><span class="l">${{</span><span class="l"> </span><span class="l">secrets.SSH_USER</span><span class="l"> </span><span class="l">}}</span></span><span class="ln"><span class="w">          </span><span class="nt">key</span><span class="p">:</span><span class="w"> </span><span class="l">${{</span><span class="l"> </span><span class="l">secrets.SSH_KEY</span><span class="l"> </span><span class="l">}}</span></span><span class="ln"><span class="w">          </span><span class="nt">script</span><span class="p">:</span><span class="w"> </span><span class="p">|</span></span><span class="ln"><span class="w">            </span><span class="no">cd ~/lms</span></span><span class="ln"><span class="w">            </span><span class="no">git pull</span></span><span class="ln"><span class="w">            </span><span class="no">docker compose pull api web</span></span><span class="ln"><span class="w">            </span><span class="no">docker compose up -d</span></span></code></pre></div>
+<ol>
+<li><code>workflow_dispatch</code> — Actions-ში ჩნდება <strong>Run workflow</strong> ღილაკი. ახალ სერვერზე პირველი deploy-ისთვის დაგვჭირდება: ახალი commit არ გვექნება, deploy კი უნდა გაეშვას.</li>
+<li>მეორე <code>build-push-action</code> — <code>context: ./web</code> (Dockerfile და ფაილები <code>web/</code>-დან), image-ის სახელი <code>…-web</code>.</li>
+<li><code>docker compose pull api web</code> — სერვერი ორივე ახალ image-ს იღებს.</li>
+</ol>
+<p>root-ის <code>.dockerignore</code>-ში ემატება <code>web/</code> და <code>.github/</code> — API-ის build-ს ისინი არ სჭირდება, და build ასე უფრო სწრაფია.</p>
+<p>merge → Actions: Deploy ✅ → <code>https://app.giorgi.ge</code> — ფრონტი, რომელიც API-დან მონაცემებს იღებს. ამიერიდან <strong>მთელი სისტემა</strong> ერთი გზით გადის.</p>
+<div class="callout warn"><span class="ci">⚠️</span><div><p>სერვერზე ერთხელ შეამოწმე, რომ GHCR-ის <code>read:packages</code> ტოკენი ახალ <code>lms-web</code> package-საც კითხულობს (<code>docker compose pull web</code>). ტოკენი მომხმარებლის ყველა package-ზე მოქმედებს, ამიტომ ჩვეულებრივ დამატებით არაფერი სჭირდება.</p></div></div></article>
+<h2 class="sec" id="sec-5">2 · ახალი სერვერი</h2>
+<article class="blk" data-slides="11"><span class="anchor" id="s-11"></span><div class="bh"><h3>ნაწილი 2 · ახალი სერვერი</h3><a class="chip" href="index.html#/11" data-go="11" title="პრეზენტაციაში გახსნა">სლაიდი 11</a></div>
+<p>სერვერი შეიძლება გაფუჭდეს, ან LMS-ს მეტი მომხმარებელი ჰყავდეს და 1 GB RAM აღარ ეყოს. მე-6 ლექციაზე მხოლოდ API-ს ხელით გაშვებას მთელი ლექცია დასჭირდა. დღეს მთელ სისტემას — ფრონტს, API-ს და ბაზას მონაცემებით — ახალ სერვერზე ვიტანთ და ვნახავთ, რას გვაძლევს ყველაფერი, რაც კურსზე ავაწყეთ.</p></article>
+<article class="blk" data-slides="12"><span class="anchor" id="s-12"></span><div class="bh"><h3>გეგმა: კოდი თვითონ მიდის — მდგომარეობა კი არა</h3><a class="chip" href="index.html#/12" data-go="12" title="პრეზენტაციაში გახსნა">სლაიდი 12</a></div>
+<p>სერვერის გამოცვლისას ყველაფერი ორ ჯგუფად იყოფა:</p>
+<table>
+<thead>
+<tr>
+<th>✅ Git-შია და GHCR-ში — CD წაიღებს</th>
+<th>✋ Git-ში არ არის — ჩვენ გადაგვაქვს</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>კოდი, Dockerfile-ები, <code>compose.yaml</code></td>
+<td>სერვერის მომზადება (user, firewall, Docker, Nginx)</td>
+</tr>
+<tr>
+<td>workflow-ები, Nginx-ის კონფიგი (<code>deploy/nginx/</code>)</td>
+<td><code>.env</code> — საიდუმლოებები (Git-ში არასოდეს!)</td>
+</tr>
+<tr>
+<td>image-ები GHCR-ში</td>
+<td>ბაზის <strong>მონაცემები</strong></td>
+</tr>
+<tr>
+<td></td>
+<td>DNS ჩანაწერები და HTTPS სერტიფიკატი</td>
+</tr>
+</tbody>
+</table>
+<p>რაც Git-შია, ის ახალ სერვერზე CD-ით თვითონ მიდის. დანარჩენი — <strong>მდგომარეობაა</strong> (state): ის სერვერზე ცხოვრობს და მასთან ერთად ქრება. ამიტომ მას ცალკე, ფრთხილად ვიტანთ.</p>
+<p><strong>გეგმა:</strong></p>
+<ol>
+<li>ახალი Droplet — <strong>cloud-init</strong>-ით, რომ შექმნისთანავე მზად იყოს;</li>
+<li>მომზადება: <code>git clone</code>, <code>.env</code>, GHCR login, Nginx-ის კონფიგი;</li>
+<li><strong>მონაცემები</strong>: ძველი ბაზა → ახალი;</li>
+<li><strong>deploy</strong>: GitHub-ში <code>SSH_HOST</code> → ახალი IP → Deploy;</li>
+<li><strong>DNS</strong> → ახალი IP, მერე <strong>HTTPS</strong>;</li>
+<li>შემოწმება → ძველი სერვერის წაშლა.</li>
+</ol>
+<div class="callout tip"><span class="ci">👉</span><div><p>DNS-ის ჩანაწერის TTL <strong>წინა დღეს</strong> ჩამოწიე 300 წამამდე. თორემ ბრაუზერები და პროვაიდერები ძველ IP-ს საათობით დაიმახსოვრებენ, და გადასვლა ლექციაზე ვერ დასრულდება.</p></div></div></article>
+<article class="blk" data-slides="13"><span class="anchor" id="s-13"></span><div class="bh"><h3>ნაბიჯი 1 · Droplet + cloud-init</h3><a class="chip" href="index.html#/13" data-go="13" title="პრეზენტაციაში გახსნა">სლაიდი 13</a></div>
+<p>მე-4 ლექციაზე სერვერს ხელით ვამზადებდით: user, გასაღები, <code>sshd</code>, <code>ufw</code>, swap. მე-8-ზე — Docker. ახლა ყველაფერს ერთ ფაილში ვწერთ, და Droplet შექმნისთანავე თვითონ ასრულებს.</p>
+<p><strong>cloud-init</strong> — სტანდარტი, რომლითაც ღრუბლოვანი სერვერი პირველ ჩართვაზე თავისით მზადდება. DigitalOcean-ზე: <strong>Create Droplet</strong> → Ubuntu 24.04 → SSH key → <strong>Advanced Options → Add Initialization scripts</strong> → ჩასვი ფაილი:</p>
+<div class="codebox"><div class="ch"><span>cloud-init.yaml</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="c1">#cloud-config</span></span><span class="ln"><span class="nt">users</span><span class="p">:</span></span><span class="ln"><span class="w">  </span><span class="p">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">giorgi</span></span><span class="ln"><span class="w">    </span><span class="nt">groups</span><span class="p">:</span><span class="w"> </span><span class="l">sudo</span></span><span class="ln"><span class="w">    </span><span class="nt">shell</span><span class="p">:</span><span class="w"> </span><span class="l">/bin/bash</span></span><span class="ln"><span class="w">    </span><span class="nt">sudo</span><span class="p">:</span><span class="w"> </span><span class="s">"</span><span class="s">ALL=(ALL)</span><span class="nv"> </span><span class="s">NOPASSWD:ALL</span><span class="s">"</span></span><span class="ln"><span class="w">    </span><span class="nt">ssh_authorized_keys</span><span class="p">:</span></span><span class="ln"><span class="w">      </span><span class="p">-</span><span class="w"> </span><span class="l">ssh-ed25519</span><span class="l"> </span><span class="l">AAAA...</span><span class="l"> </span><span class="l">giorgi@laptop</span></span><span class="ln"><span class="w">      </span><span class="p">-</span><span class="w"> </span><span class="l">ssh-ed25519</span><span class="l"> </span><span class="l">AAAA...</span><span class="l"> </span><span class="l">github-actions-deploy</span></span><span class="ln"><span class="nt">package_update</span><span class="p">:</span><span class="w"> </span><span class="l">true</span></span><span class="ln"><span class="nt">packages</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="nv">nginx</span><span class="p">,</span><span class="w"> </span><span class="nv">certbot</span><span class="p">,</span><span class="w"> </span><span class="nv">python3-certbot-nginx</span><span class="p">]</span></span><span class="ln"><span class="nt">runcmd</span><span class="p">:</span></span><span class="ln"><span class="w">  </span><span class="p">-</span><span class="w"> </span><span class="l">curl</span><span class="l"> </span><span class="l">-fsSL</span><span class="l"> </span><span class="l">https://get.docker.com</span><span class="l"> </span><span class="l">|</span><span class="l"> </span><span class="l">sh</span></span><span class="ln"><span class="w">  </span><span class="p">-</span><span class="w"> </span><span class="l">usermod</span><span class="l"> </span><span class="l">-aG</span><span class="l"> </span><span class="l">docker</span><span class="l"> </span><span class="l">giorgi</span></span><span class="ln"><span class="w">  </span><span class="p">-</span><span class="w"> </span><span class="l">fallocate</span><span class="l"> </span><span class="l">-l</span><span class="l"> </span><span class="l">2G</span><span class="l"> </span><span class="l">/swapfile</span><span class="l"> </span><span class="l">&amp;&amp;</span><span class="l"> </span><span class="l">chmod</span><span class="l"> </span><span class="l">600</span><span class="l"> </span><span class="l">/swapfile</span></span><span class="ln"><span class="w">  </span><span class="p">-</span><span class="w"> </span><span class="l">mkswap</span><span class="l"> </span><span class="l">/swapfile</span><span class="l"> </span><span class="l">&amp;&amp;</span><span class="l"> </span><span class="l">swapon</span><span class="l"> </span><span class="l">/swapfile</span></span><span class="ln"><span class="w">  </span><span class="p">-</span><span class="w"> </span><span class="l">echo</span><span class="l"> </span><span class="l">'/swapfile</span><span class="l"> </span><span class="l">none</span><span class="l"> </span><span class="l">swap</span><span class="l"> </span><span class="l">sw</span><span class="l"> </span><span class="l">0</span><span class="l"> </span><span class="l">0'</span><span class="l"> </span><span class="l">&gt;&gt;</span><span class="l"> </span><span class="l">/etc/fstab</span></span><span class="ln"><span class="w">  </span><span class="p">-</span><span class="w"> </span><span class="l">sed</span><span class="l"> </span><span class="l">-i</span><span class="l"> </span><span class="l">'s/^#\?PermitRootLogin.*/PermitRootLogin</span><span class="l"> </span><span class="l">no/'</span><span class="l"> </span><span class="l">/etc/ssh/sshd_config</span></span><span class="ln"><span class="w">  </span><span class="p">-</span><span class="w"> </span><span class="l">systemctl</span><span class="l"> </span><span class="l">restart</span><span class="l"> </span><span class="l">ssh</span></span><span class="ln"><span class="w">  </span><span class="p">-</span><span class="w"> </span><span class="l">ufw</span><span class="l"> </span><span class="l">allow</span><span class="l"> </span><span class="l">OpenSSH</span><span class="l"> </span><span class="l">&amp;&amp;</span><span class="l"> </span><span class="l">ufw</span><span class="l"> </span><span class="l">allow</span><span class="l"> </span><span class="l">'Nginx</span><span class="l"> </span><span class="l">Full'</span><span class="l"> </span><span class="l">&amp;&amp;</span><span class="l"> </span><span class="l">ufw</span><span class="l"> </span><span class="l">--force</span><span class="l"> </span><span class="l">enable</span></span></code></pre></div>
+<table>
+<thead>
+<tr>
+<th>ნაწილი</th>
+<th>რას აკეთებს</th>
+<th>ხელით — სად</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>users</code></td>
+<td>user, sudo, ორი საჯარო გასაღები</td>
+<td>მე-4 ლექცია</td>
+</tr>
+<tr>
+<td><code>packages</code></td>
+<td>Nginx და certbot</td>
+<td>მე-5 და მე-9</td>
+</tr>
+<tr>
+<td><code>runcmd</code></td>
+<td>Docker, swap, root-ის აკრძალვა, firewall</td>
+<td>მე-4 და მე-8</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li><code>ssh_authorized_keys</code> — შენი გასაღების <code>.pub</code> (<code>cat ~/.ssh/id_ed25519.pub</code>) და <strong>deploy</strong> გასაღების <code>.pub</code> (<code>cat ~/.ssh/github-deploy.pub</code>). ასე GitHub Actions ახალ სერვერზეც შევა, და <code>SSH_KEY</code> secret-ის შეცვლა არ მოგვიწევს;</li>
+<li><code>NOPASSWD</code> — user-ს პაროლი არ აქვს (შესვლა მხოლოდ გასაღებით), ამიტომ <code>sudo</code> პაროლს არ ითხოვს.</li>
+</ul>
+<p>რამდენიმე წუთში: Termius-ში ახალი host <strong>lms-new</strong> (ახალი IP, user <code>giorgi</code>) და WSL-ის <code>~/.ssh/config</code>-ში <code>Host lms-new</code>:</p>
+<div class="codebox"><div class="ch"><span>Termius · lms-new</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="gp">$ </span>cloud-init<span class="w"> </span>status<span class="w"> </span>--wait</span><span class="ln"><span class="go">status: done</span></span></code></pre></div>
+<div class="callout warn"><span class="ci">⚠️</span><div><p><code>runcmd</code> ერთხელ, პირველ ჩართვაზე სრულდება. თუ რამე ჩავარდა, ლოგი აქაა: <code>sudo tail -50 /var/log/cloud-init-output.log</code>.</p></div></div></article>
+<article class="blk" data-slides="14"><span class="anchor" id="s-14"></span><div class="bh"><h3>ნაბიჯი 2 · მომზადება: რეპო · .env · GHCR · Nginx</h3><a class="chip" href="index.html#/14" data-go="14" title="პრეზენტაციაში გახსნა">სლაიდი 14</a></div>
+<p>ყველაფერი ნაცნობია — ოღონდ ახლა ხუთ წუთში:</p>
+<div class="codebox"><div class="ch"><span>Termius · lms-new</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="gp">$ </span>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/giorgi/lms.git<span class="w"> </span>~/lms</span><span class="ln"> </span><span class="ln"><span class="gp">$ </span><span class="nb">echo</span><span class="w"> </span><span class="s2">"ghp_xxxx"</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>docker<span class="w"> </span>login<span class="w"> </span>ghcr.io<span class="w"> </span>-u<span class="w"> </span>giorgi<span class="w"> </span>--password-stdin</span><span class="ln"><span class="go">Login Succeeded</span></span><span class="ln"> </span><span class="ln"><span class="gp">$ </span>sudo<span class="w"> </span>cp<span class="w"> </span>~/lms/deploy/nginx/lms.conf<span class="w"> </span>/etc/nginx/sites-available/lms</span><span class="ln"><span class="gp">$ </span>sudo<span class="w"> </span>ln<span class="w"> </span>-s<span class="w"> </span>/etc/nginx/sites-available/lms<span class="w"> </span>/etc/nginx/sites-enabled/</span><span class="ln"><span class="gp">$ </span>sudo<span class="w"> </span>rm<span class="w"> </span>/etc/nginx/sites-enabled/default</span></code></pre></div>
+<ul>
+<li><code>git clone</code> — <code>compose.yaml</code> და Nginx-ის კონფიგი. თუ რეპო private-ია, clone-ს ტოკენი სჭირდება — იგივე PAT-ით, <code>repo</code> უფლებით;</li>
+<li><code>docker login ghcr.io</code> — PAT <code>read:packages</code>-ით (მე-11 ლექცია); შეგიძლია ძველი გამოიყენო;</li>
+<li>Nginx-ის კონფიგი <strong>რეპოდან</strong> მოდის (<code>deploy/nginx/lms.conf</code>) — ხელით აღარ ვწერთ. HTTPS-ის ხაზებს certbot მოგვიანებით თვითონ დაამატებს.</li>
+</ul>
+<p><strong><code>.env</code> — Git-ში არ არის</strong>, ამიტომ ძველი სერვერიდან პირდაპირ გადმოგვაქვს:</p>
+<div class="codebox"><div class="ch"><span>WSL</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="gp">$ </span>scp<span class="w"> </span>-3<span class="w"> </span>lms:~/lms/.env<span class="w"> </span>lms-new:~/lms/.env</span></code></pre></div>
+<p><code>scp -3</code> ფაილს ორ სერვერს შორის <strong>შენი კომპიუტერის გავლით</strong> აკოპირებს — სერვერებს ერთმანეთის გასაღებები არ სჭირდებათ.</p>
+<div class="callout warn"><span class="ci">⚠️</span><div><p><code>.env</code> <strong>იგივე</strong> უნდა იყოს. ბაზა ძველი <code>DB_PASSWORD</code>-ით გადმოვა, ხოლო ახალი JWT გასაღებით ყველა ძველი ტოკენი გაუქმდებოდა — ყველა მომხმარებელი სისტემიდან გამოვიდოდა.</p></div></div></article>
+<article class="blk" data-slides="15"><span class="anchor" id="s-15"></span><div class="bh"><h3>ნაბიჯი 3 · მონაცემები: ბაზა ძველიდან ახალში</h3><a class="chip" href="index.html#/15" data-go="15" title="პრეზენტაციაში გახსნა">სლაიდი 15</a></div>
+<p><code>pg_dump</code> და აღდგენა მე-8 ლექციიდან ვიცით. ახლა ორ სერვერს შორის ვაკეთებთ — <strong>pipe-ით</strong>, ფაილის გარეშე:</p>
+<div class="codebox"><div class="ch"><span>WSL</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="gp"># </span><span class="m">1</span><span class="w"> </span>—<span class="w"> </span>ძველზე:<span class="w"> </span>API-ს<span class="w"> </span>და<span class="w"> </span>ფრონტს<span class="w"> </span>ვაჩერებთ,<span class="w"> </span>ბაზა<span class="w"> </span>მუშაობს</span><span class="ln"><span class="gp">$ </span>ssh<span class="w"> </span>lms<span class="w"> </span><span class="s2">"cd ~/lms &amp;&amp; docker compose stop web api"</span></span><span class="ln"> </span><span class="ln"><span class="gp"># </span><span class="m">2</span><span class="w"> </span>—<span class="w"> </span>ახალზე:<span class="w"> </span>ჯერ<span class="w"> </span>მხოლოდ<span class="w"> </span>ბაზა</span><span class="ln"><span class="gp">$ </span>ssh<span class="w"> </span>lms-new<span class="w"> </span><span class="s2">"cd ~/lms &amp;&amp; docker compose up -d db"</span></span><span class="ln"> </span><span class="ln"><span class="gp"># </span><span class="m">3</span><span class="w"> </span>—<span class="w"> </span>pg_dump<span class="w"> </span>ძველზე<span class="w"> </span>→<span class="w"> </span>psql<span class="w"> </span>ახალზე</span><span class="ln"><span class="gp">$ </span>ssh<span class="w"> </span>lms<span class="w"> </span><span class="s2">"cd ~/lms &amp;&amp; docker compose exec -T db pg_dump -U lms lms"</span><span class="w"> </span><span class="se">\</span></span></code></pre></div>
+<ul>
+<li><code>|</code> (pipe) — პირველი ბრძანების გამოსავალი მეორის შესავალი ხდება. <code>pg_dump</code>-ის SQL ძველი სერვერიდან პირდაპირ ახალი სერვერის <code>psql</code>-ში მიედინება;</li>
+<li><code>-T</code> — <code>exec</code> ტერმინალის გარეშე: pipe-ისთვის აუცილებელია;</li>
+<li>შემოწმება — ცხრილში ჩანაწერების რაოდენობა ორივე სერვერზე ერთნაირი უნდა იყოს.</li>
+</ul>
+<p><strong>რატომ ჩერდება API ძველზე?</strong> თუ გადატანის დროს ვინმე ახალ კურსს შექმნის, ის ძველ ბაზაში ჩაიწერება და ახალში ვეღარ მოხვდება. რამდენიმე წუთი LMS მიუწვდომელია — ეს <strong>დაგეგმილი გაჩერებაა</strong> (maintenance). რეალურ პროექტებში მას წინასწარ აცხადებენ და ღამით აკეთებენ.</p>
+<div class="callout warn"><span class="ci">⚠️</span><div><p><strong>თანმიმდევრობა მნიშვნელოვანია:</strong> ჯერ მონაცემები, მერე API. API ჩართვისას მიგრაციებს თვითონ უშვებს (მე-8 ლექცია) — ცარიელ ბაზაზე ის ცარიელ ცხრილებს შექმნიდა, და აღდგენა კონფლიქტით ჩავარდებოდა. თუ ასე მოხდა: <code>docker compose down -v</code> ახალზე (<strong>მხოლოდ ახალზე!</strong> <code>-v</code> volume-ს შლის) და ნაბიჯი 2-დან თავიდან.</p></div></div></article>
+<article class="blk" data-slides="16"><span class="anchor" id="s-16"></span><div class="bh"><h3>ნაბიჯი 4 · deploy: ერთი secret — და CD აკეთებს დანარჩენს</h3><a class="chip" href="index.html#/16" data-go="16" title="პრეზენტაციაში გახსნა">სლაიდი 16</a></div>
+<ol>
+<li>GitHub → რეპო → <strong>Settings → Secrets and variables → Actions</strong> → <code>SSH_HOST</code> → <strong>ახალი IP</strong>. <code>SSH_USER</code> და <code>SSH_KEY</code> არ იცვლება — user იგივეა, deploy გასაღები კი cloud-init-მა უკვე დაამატა.</li>
+<li><strong>Actions → Deploy → Run workflow</strong> (<code>workflow_dispatch</code>, ნაწილი 1).</li>
+</ol>
+<p>Deploy იგივე ნაბიჯებს გადის, ოღონდ ახლა ახალ სერვერზე: image-ები → GHCR → SSH → <code>git pull</code>, <code>compose pull api web</code>, <code>up -d</code>.</p>
+<div class="codebox"><div class="ch"><span>Termius · lms-new</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="gp">$ </span>docker<span class="w"> </span>compose<span class="w"> </span>ps</span><span class="ln"><span class="go">lms-db-1   Up (healthy)</span></span><span class="ln"><span class="go">lms-api-1  Up</span></span></code></pre></div>
+<p>API ჩაირთო, ბაზაში უკვე ყველა ცხრილი და მონაცემია — მიგრაციებს გასაშვები არაფერი აქვს.</p>
+<div class="callout tip"><span class="ci">👉</span><div><p>DNS ჯერ ძველ IP-ზეა. ახალი სერვერის შემოწმება DNS-ის შეცვლამდეც შეიძლება: <code>curl --resolve api.giorgi.ge:80:167.71.40.8 http://api.giorgi.ge/api/courses</code> — <code>curl</code> სახელს მითითებულ IP-ზე გაგზავნის, DNS-ის კითხვის გარეშე.</p></div></div></article>
+<article class="blk" data-slides="17"><span class="anchor" id="s-17"></span><div class="bh"><h3>ნაბიჯი 5 · DNS + HTTPS</h3><a class="chip" href="index.html#/17" data-go="17" title="პრეზენტაციაში გახსნა">სლაიდი 17</a></div>
+<p><strong>DNS</strong> (მე-9 ლექცია): დომენის პანელში <code>app</code> და <code>api</code> A-ჩანაწერებს ახალ IP-ს ვუწერთ (თუ portfolio-ც ამ სერვერზე იყო — <code>@</code> და <code>www</code>-საც).</p>
+<div class="codebox"><div class="ch"><span>WSL</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="gp">$ </span>dig<span class="w"> </span>+short<span class="w"> </span>app.giorgi.ge</span></code></pre></div>
+<p>TTL-ის წყალობით (წინა დღეს 300 წამზე ჩამოვწიეთ), რამდენიმე წუთში ყველა ახალ IP-ს ხედავს.</p>
+<p><strong>HTTPS</strong> — სერტიფიკატი ძველ სერვერზე დარჩა, ახალზე თავიდან ვიღებთ:</p>
+<div class="codebox"><div class="ch"><span>Termius · lms-new</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code></code></pre></div>
+<p>certbot რეპოდან მოსულ Nginx-ის კონფიგს <code>listen 443 ssl</code> ხაზებს და HTTP → HTTPS redirect-ს თვითონ დაუმატებს — ზუსტად ისე, როგორც მე-9 ლექციაზე.</p>
+<div class="callout warn"><span class="ci">⚠️</span><div><p>certbot გაუშვი <strong>მხოლოდ მას შემდეგ</strong>, რაც <code>dig</code> ახალ IP-ს აჩვენებს. Let's Encrypt ამოწმებს, რომ დომენი ნამდვილად ამ სერვერზე მიდის — თუ DNS ჯერ ძველზეა, შემოწმება ჩავარდება.</p></div></div>
+<div class="callout note"><span class="ci">💡</span><div><p>Let's Encrypt-ს ლიმიტები აქვს: ერთი და იგივე დომენების ნაკრებზე კვირაში მხოლოდ რამდენიმე სერტიფიკატი. თუ გადასვლას წინასწარ ცდი, გამოიყენე <code>--test-cert</code> — სატესტო სერტიფიკატი, რომელიც ლიმიტს არ ხარჯავს (ბრაუზერი მას არ ენდობა). ნამდვილზე — ბრძანება <code>--test-cert</code>-ის გარეშე.</p></div></div></article>
+<article class="blk" data-slides="18"><span class="anchor" id="s-18"></span><div class="bh"><h3>ნაბიჯი 6 · შემოწმება → მერე ძველის წაშლა</h3><a class="chip" href="index.html#/18" data-go="18" title="პრეზენტაციაში გახსნა">სლაიდი 18</a></div>
+<p>ძველ სერვერს მანამდე არ ვშლით, სანამ ახალზე ყველაფერი არ შევამოწმეთ:</p>
+<ul>
+<li>☐ <code>https://app.giorgi.ge</code> 🔒 იხსნება; შიდა გვერდზე refresh — არა 404;</li>
+<li>☐ ძველი მონაცემები ჩანს — კურსები, სტუდენტები, ყველაფერი, რაც გადატანამდე იყო;</li>
+<li>☐ შესვლა მუშაობს, და ვინც უკვე შესული იყო, სისტემიდან არ გამოაგდო (იგივე JWT გასაღები <code>.env</code>-ში);</li>
+<li>☐ CD: პატარა PR → merge → Deploy → ცვლილება <strong>ახალ</strong> სერვერზე ჩანს;</li>
+<li>☐ <code>sudo certbot renew --dry-run</code> — სერტიფიკატი 90 დღეში თვითონ განახლდება.</li>
+</ul>
+<p>ყველაფერი ✓? ძველი Droplet რამდენიმე დღე <strong>გამორთული</strong> დატოვე (Power Off) — თუ რამე გამოგრჩა, მონაცემები ჯერ კიდევ იქაა. მერე — <strong>Destroy</strong>: გამორთული Droplet-იც ფასიანია (მე-4 ლექცია).</p>
+<p>Termius-ში ძველი host წაშალე, ხოლო <code>lms-new</code> გადაარქვი <code>lms</code>-ად — და WSL-ის <code>~/.ssh/config</code>-შიც.</p></article>
+<article class="blk" data-slides="19"><span class="anchor" id="s-19"></span><div class="bh"><h3>შედარება: მე-6 ლექცია vs დღეს</h3><a class="chip" href="index.html#/19" data-go="19" title="პრეზენტაციაში გახსნა">სლაიდი 19</a></div>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>მე-6 ლექცია — ხელით</th>
+<th>დღეს</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>სერვერის მომზადება</td>
+<td>user, sshd, ufw, swap, runtime — ბრძანება-ბრძანება</td>
+<td>cloud-init — Droplet-თან ერთად</td>
+</tr>
+<tr>
+<td>აპის გაშვება</td>
+<td>publish, rsync, systemd, მიგრაციები</td>
+<td><code>SSH_HOST</code> + Run workflow</td>
+</tr>
+<tr>
+<td>რა გავიდა</td>
+<td>მხოლოდ API</td>
+<td>ფრონტი + API + ბაზა მონაცემებით</td>
+</tr>
+<tr>
+<td>დრო</td>
+<td>მთელი ლექცია</td>
+<td>~20 წუთი, უმეტესად ლოდინი</td>
+</tr>
+</tbody>
+</table>
+<p>ეს არის ავტომატიზაციის მთავარი სარგებელი: სერვერი <strong>ადვილად შესაცვლელი</strong> ხდება. ის აღარ არის „ძვირფასი“ კომპიუტერი, რომელსაც ხელით ააწყობ და ეშინია, რომ გაფუჭდება — ნებისმიერ დროს შეგიძლია ახალი აიღო.</p>
+<p><strong>ხელით რაც დარჩა</strong> — Droplet-ის შექმნა, DNS, <code>.env</code> და მონაცემები — ისიც ავტომატიზდება: <strong>Terraform</strong> (სერვერი და DNS კოდით), <strong>Ansible</strong> (სერვერის მომზადება), managed ბაზები (მონაცემები სერვერისგან ცალკე). ეს უკვე შემდეგი დონეა — DevOps-ის რუკაზე.</p></article>
+<h2 class="sec" id="sec-6">3 · ფინალი</h2>
+<article class="blk" data-slides="20"><span class="anchor" id="s-20"></span><div class="bh"><h3>ნაწილი 3 · კურსის ფინალი</h3><a class="chip" href="index.html#/20" data-go="20" title="პრეზენტაციაში გახსნა">სლაიდი 20</a></div></article>
+<article class="blk" data-slides="21"><span class="anchor" id="s-21"></span><div class="bh"><h3>გავლილი გზა: ლეპტოპიდან — ადვილად შესაცვლელ სერვერამდე</h3><a class="chip" href="index.html#/21" data-go="21" title="პრეზენტაციაში გახსნა">სლაიდი 21</a></div>
+<table>
+<thead>
+<tr>
+<th>ლექცია</th>
+<th>თემა</th>
+<th>რა შეგიძლია ახლა</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>DevOps</td>
+<td>რა არის DevOps, ჰოსტინგის სახეები, DNS</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Git → GitHub Pages</td>
+<td>სტატიკური საიტი ინტერნეტში — და რატომ არ ეყოფა ეს API-ს</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Linux</td>
+<td>სერვერზე ორიენტირება, ფაილები, უფლებები, პროცესები</td>
+</tr>
+<tr>
+<td>4</td>
+<td>SSH + Droplet</td>
+<td>საკუთარი სერვერი, გასაღები, firewall</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Nginx</td>
+<td>ვებ-სერვერი, საიტები, SPA, ლოგები</td>
+</tr>
+<tr>
+<td>6</td>
+<td>API ხელით</td>
+<td>runtime, PostgreSQL, systemd, reverse proxy — „შიგნიდან“</td>
+</tr>
+<tr>
+<td>7</td>
+<td>Docker</td>
+<td>აპი გარემოსთან ერთად, Dockerfile</td>
+</tr>
+<tr>
+<td>8</td>
+<td>Compose</td>
+<td>მთელი სისტემა ერთ ფაილში, სერვერზე</td>
+</tr>
+<tr>
+<td>9</td>
+<td>დომენი, HTTPS</td>
+<td>DNS, Let's Encrypt, საიდუმლოებები</td>
+</tr>
+<tr>
+<td>10</td>
+<td>CI/CD თეორია + CI</td>
+<td>pipeline, Delivery vs Deployment, GitHub Actions, build + test ყოველ PR-ზე, branch protection</td>
+</tr>
+<tr>
+<td>11</td>
+<td>CD</td>
+<td>merge → GHCR → სერვერი, rollback</td>
+</tr>
+<tr>
+<td>12</td>
+<td>ფინალი</td>
+<td>ფრონტი სისტემაში, cloud-init, სერვერის გამოცვლა მონაცემებით</td>
+</tr>
+</tbody>
+</table>
+<p>ყოველი ლექცია წინა ლექციის <strong>პრობლემიდან</strong> დაიწყო: Pages API-ს ვერ უშვებს → სერვერი; სერვერი ტერმინალია → Linux; ხელით deploy რთულია → Docker; ორი <code>docker run</code> → Compose; IP და port → დომენი; გატეხილი კოდი <code>main</code>-ში → CI; ხელით განახლება → CD; სერვერი გაფუჭდა → ახალი, ოც წუთში. ასე მუშაობს DevOps რეალურადაც.</p></article>
+<article class="blk" data-slides="22"><span class="anchor" id="s-22"></span><div class="bh"><h3>საძირკველი გაქვს — რა არის შემდეგ?</h3><a class="chip" href="index.html#/22" data-go="22" title="პრეზენტაციაში გახსნა">სლაიდი 22</a></div>
+<p><strong><a href="materials/roadmap.html">🗺️ DevOps-ის რუკა: Junior → Middle → Senior</a></strong> — სრული გეგმა კურსის შემდეგ: რა ისწავლო, რა უნდა შეძლო, რომელი ინსტრუმენტები გამოიყენება, რა სავარჯიშოები და პროექტები გააკეთო და როდის ხარ მზად შემდეგ დონეზე. თითოეული დონე ცალკე ტაბშია, პროგრესი კი ბრაუზერში ინახება.</p>
+<p>ეს კურსი DevOps-ის <strong>საფუძველია</strong> (პირველ ლექციაზე ეს ვთქვით). თუ ამ მიმართულებით გინდა გაგრძელება:</p>
+<ul>
+<li>📈 <strong>მონიტორინგი</strong> — health check endpoint-ები, Prometheus + Grafana, alert-ები: შეიტყო, რომ რაღაც გაფუჭდა, სანამ მომხმარებელი მოგწერს;</li>
+<li>🏗️ <strong>Infrastructure as Code</strong> — Terraform: Droplet, DNS, firewall — კოდით, Git-ში, ისევე როგორც <code>compose.yaml</code>;</li>
+<li>☁️ <strong>დიდი Cloud-ები</strong> — Azure, AWS, GCP: managed ბაზები, load balancer-ები, ავტომატური მასშტაბირება;</li>
+<li>☸️ <strong>Kubernetes</strong> — როცა კონტეინერები ბევრია და სერვერებიც ბევრია.</li>
+</ul>
+<p><strong>💼 CV-ში ახლავე:</strong> Linux, SSH, Nginx, Docker, Docker Compose, PostgreSQL, GitHub Actions, CI/CD, Let's Encrypt, DigitalOcean.</p>
+<p>და რაც ყველა სიტყვაზე მეტს ამბობს — <strong>ცოცხალი ლინკი</strong> შენს პროექტზე, HTTPS-ით, და GitHub-ის რეპო მწვანე CI badge-ით. დამსაქმებელი მას გახსნის და დაინახავს, რომ შენ არა მარტო კოდს წერ, არამედ მას ბოლომდე — მომხმარებლამდე — მიიტან.</p></article>
+<h2 class="sec" id="sec-7">პრაქტიკა</h2>
+<article class="blk" data-slides="23"><span class="anchor" id="s-23"></span><div class="bh"><h3>კლასში დავალება: ფრონტი — სისტემის ნაწილი</h3><a class="chip" href="index.html#/23" data-go="23" title="პრეზენტაციაში გახსნა">სლაიდი 23</a></div>
+<p>დავალება · web/Dockerfile + nginx.conf + Compose</p>
+<h3>ნაბიჯები</h3>
+<ul>
+<li>ფრონტი რეპოს <code>web/</code> საქაღალდეში; Angular-ში API-ის მისამართი — ფარდობითი: <code>/api</code></li>
+<li><code>web/Dockerfile</code>: <code>node:24-alpine</code> → <code>npm ci</code> → <code>npm run build</code> → <code>nginx:alpine</code> + <code>dist/&lt;project&gt;/browser</code></li>
+<li><code>web/nginx.conf</code>: <code>location /api/</code> → <code>proxy_pass http://api:8080;</code> და <code>location /</code> → <code>try_files $uri $uri/ /index.html;</code></li>
+<li><code>compose.yaml</code>-ში <code>web</code> სერვისი (<code>build: ./web</code>, <code>127.0.0.1:4000:80</code>); root-ის <code>.dockerignore</code>-ში <code>web/</code></li>
+<li>შენთან: <code>docker compose up -d --build</code> → <code>http://localhost:4000</code></li>
+</ul>
+<h3>✓ მზადაა, როცა</h3>
+<p><code>localhost:4000</code>-ზე ფრონტი იხსნება, მონაცემებს API-დან იღებს, შიდა გვერდზე refresh → არა 404, ხოლო DevTools → Network-ში მოთხოვნები მიდის <code>localhost:4000/api/...</code>-ზე (CORS-ის შეცდომის გარეშე)</p>
+<h3>⭐ ბონუსი</h3>
+<ul>
+<li><code>deploy.yml</code>-ში მეორე <code>build-push-action</code> (<code>context: ./web</code>) და <code>docker compose pull api web</code> → PR → merge → <code>https://app.&lt;domain&gt;</code></li>
+</ul>
+<h3>💡 მინიშნება</h3>
+<p>build-ის საქაღალდის სახელი ნახეთ <code>angular.json</code>-ში: <code>projects.&lt;სახელი&gt;.architect.build.options.outputPath</code>. თუ <code>COPY --from=build</code> ჩავარდა <code>not found</code>-ით — გზა არასწორია.</p></article>
+<h2 class="sec" id="sec-8">შეჯამება</h2>
+<article class="blk" data-slides="24"><span class="anchor" id="s-24"></span><div class="bh"><h3>შეამოწმე, რა დაგამახსოვრდა</h3><a class="chip" href="index.html#/24" data-go="24" title="პრეზენტაციაში გახსნა">სლაიდი 24</a></div>
+<p>ეს კითხვები შემდეგი ლექციის დასაწყისშიც დაისმება.</p>
+<div class="selfcheck"><div class="sh">✅ შეამოწმე თავი <small>დაფიქრდი, მერე გახსენი პასუხი</small></div><details><summary>რატომ გადასცემს ფრონტის კონტეინერის Nginx <code>/api/</code> მოთხოვნებს API-ს, და არ იძახებს ფრონტი <code>https://api.giorgi.ge</code>-ს პირდაპირ?</summary><div class="ans">ბრაუზერისთვის ფრონტიც და API-ც ერთ დომენზეა — CORS აღარ სჭირდება, Angular-ში მისამართი უბრალოდ <code>/api</code>-ა, და ერთი build ყველა გარემოში მუშაობს</div></details><details><summary>სერვერის გამოცვლისას რა გადადის CD-ით და რა — ხელით?</summary><div class="ans">CD-ით — ყველაფერი, რაც Git-სა და GHCR-შია: კოდი, Dockerfile-ები, compose.yaml, Nginx-ის კონფიგი, image-ები. ხელით — მდგომარეობა: <code>.env</code>, ბაზის მონაცემები, DNS და HTTPS სერტიფიკატი</div></details><details><summary>რას აკეთებს cloud-init?</summary><div class="ans">ახალ სერვერს პირველ ჩართვაზე თვითონ ამზადებს ფაილის მიხედვით: user და გასაღებები, პაკეტები (Nginx, certbot), Docker, swap, firewall — ის, რასაც მე-4 ლექციაზე ხელით ვაკეთებდით</div></details><details><summary>ახალ სერვერზე ჯერ API ჩავრთეთ, მერე ბაზის აღდგენამ შეცდომა მოგვცა. რატომ?</summary><div class="ans">API ჩართვისას მიგრაციებს უშვებს და ცარიელ ცხრილებს ქმნის — აღდგენა მათ ეჯახება. სწორი რიგი: ჯერ მხოლოდ <code>db</code>, აღდგენა, მერე API</div></details><details><summary>რატომ ვიყენებთ ახალ სერვერზე ძველ <code>.env</code>-ს და არა ახალ პაროლებს?</summary><div class="ans">მონაცემები ძველი <code>DB_PASSWORD</code>-ით გადმოდის, ხოლო ახალი JWT გასაღებით ყველა ძველი ტოკენი გაუქმდებოდა და მომხმარებლები სისტემიდან გამოვიდოდნენ</div></details><details><summary>certbot ახალ სერვერზე ჩავარდა. რა შეამოწმო პირველ რიგში?</summary><div class="ans">DNS უკვე ახალ IP-ზე მიდის? (<code>dig +short</code>) — Let's Encrypt დომენს ამოწმებს და ის ამ სერვერზე უნდა მიდიოდეს. და firewall-ში 80/443 ღიაა? (<code>ufw status</code>)</div></details></div></article>
+<article class="blk" data-slides="25"><span class="anchor" id="s-25"></span><div class="bh"><h3>შეჯამება · დღეს ვისწავლეთ</h3><a class="chip" href="index.html#/25" data-go="25" title="პრეზენტაციაში გახსნა">სლაიდი 25</a></div>
+<ul>
+<li>🧩 <strong>ფრონტი სისტემაში</strong> — <code>web/Dockerfile</code> (node აწყობს → nginx აძლევს), <code>web/nginx.conf</code> (<code>try_files</code> + <code>/api/</code> → <code>http://api:8080</code>), Compose-ში <code>web</code> სერვისი <code>127.0.0.1:4000</code>-ზე, <code>deploy.yml</code>-ში მეორე image და <code>workflow_dispatch</code>.</li>
+<li>📜 <strong>cloud-init</strong> — user, გასაღებები, Docker, Nginx, certbot, swap, firewall — Droplet-ის შექმნისას, ერთ ფაილში.</li>
+<li>🗄️ <strong>კოდი vs მდგომარეობა</strong> — რაც Git-შია, CD თვითონ წაიღებს; <code>.env</code>, მონაცემები, DNS და სერტიფიკატი ცალკე გადადის. ბაზა — <code>pg_dump | psql</code> pipe-ით, <strong>API-ის ჩართვამდე</strong>.</li>
+<li>🚚 <strong>სერვერის გამოცვლა</strong> — cloud-init → clone, <code>.env</code>, GHCR login, Nginx-ის კონფიგი რეპოდან → მონაცემები → <code>SSH_HOST</code> + Run workflow → DNS → certbot → შემოწმება → ძველის Destroy.</li>
+</ul>
+<p><strong>შემდეგი ნაბიჯები:</strong> <a href="materials/roadmap.html">🗺️ DevOps-ის რუკა</a> — Junior, Middle, Senior.</p>
+<p><strong>ფინალური პროექტი (საშინაო):</strong> შენი სრული სისტემა — ფრონტი, API, ბაზა — ახალ სერვერზე, ავტომატური deploy-ით და <code>https://app.&lt;შენი-დომენი&gt;</code>-ზე.</p>
+<div class="prompt"><div class="ph"><span>🤖 გამოცდა მეთორმეტე ლექციაზე</span><button class="copy" type="button">კოპირება</button></div><div class="pb">ვსწავლობ DevOps-ს. მეთორმეტე ლექციაზე გავიარეთ: Angular ფრონტის multi-stage Dockerfile (node → nginx), Nginx კონტეინერში try_files-ით და /api proxy-ით, ერთი დომენი CORS-ის გარეშე, Compose-ში web სერვისი, deploy.yml ორი image-ით და workflow_dispatch, სერვერის გამოცვლა: cloud-init, კოდი vs მდგომარეობა (.env, ბაზის მონაცემები, DNS, სერტიფიკატი), scp -3, pg_dump | psql pipe-ით ორ სერვერს შორის, რატომ ჯერ მონაცემები და მერე API, DNS TTL, certbot ახალ სერვერზე, Let&#x27;s Encrypt-ის ლიმიტები.
+დამისვი 8 კითხვა სათითაოდ, მარტივიდან რთულისკენ — ნაწილი სიტუაციური იყოს („ახალ სერვერზე API ჩაირთო, მერე ბაზის აღდგენა კონფლიქტით ჩავარდა. რატომ?“). ყოველ პასუხზე შემიფასე და ამიხსენი. ბოლოს მითხარი, რა გავიმეორო. ქართულად.</div></div>
+<div class="prompt"><div class="ph"><span>🤖 სერვერის გადატანის გეგმა</span><button class="copy" type="button">კოპირება</button></div><div class="pb">მინდა ჩემი პროექტი ახალ სერვერზე გადავიტანო. სისტემა: [აქ აღწერე — მაგ. Angular + ASP.NET Core API + PostgreSQL, Docker Compose, GitHub Actions CD, DigitalOcean]. დამეხმარე ნაბიჯ-ნაბიჯ გეგმის შედგენაში: რა გადადის ავტომატურად, რა — ხელით, რა თანმიმდევრობით, და რა შეიძლება დამავიწყდეს. ჯერ დამისვი კითხვები. ქართულად.</div></div>
+<div class="prompt"><div class="ph"><span>🤖 მთელი კურსის გამეორება</span><button class="copy" type="button">კოპირება</button></div><div class="pb">ვსწავლობ DevOps-ს და დავასრულე კურსი: DevOps-ის საფუძვლები, Git და GitHub Pages, Linux, SSH და DigitalOcean Droplet, Nginx (სტატიკური საიტი, SPA, reverse proxy), ASP.NET Core API-ის ხელით deploy (systemd, PostgreSQL), Docker, Docker Compose, დომენი და HTTPS (certbot), საიდუმლოებები, GitHub Actions CI (build + test, branch protection), CD (GHCR, SSH, rollback), სრული სისტემის გადატანა ახალ სერვერზე (cloud-init, pg_dump). მოამზადე ჩემთვის 15 კითხვიანი გამოცდა მთელ კურსზე — სათითაოდ დამისვი, ყოველ პასუხზე შემიფასე, ბოლოს მითხარი, რომელი თემები გავიმეორო. ქართულად.</div></div></article>
+<h2 class="sec" id="sec-9">საშინაო</h2>
+<article class="blk" data-slides="26"><span class="anchor" id="s-26"></span><div class="bh"><h3>საშინაო დავალება: ფინალური პროექტი — შენი სისტემა ახალ სერვერზე</h3><a class="chip" href="index.html#/26" data-go="26" title="პრეზენტაციაში გახსნა">სლაიდი 26</a></div>
+<p>კურსის ყველა ლექცია ერთ გზაზე</p>
+<h3>მოთხოვნები</h3>
+<ul>
+<li>შენი პროექტის ფრონტი სისტემაშია: <code>web/Dockerfile</code>, Compose-ში <code>web</code>, <code>deploy.yml</code>-ში ორი image და <code>workflow_dispatch</code></li>
+<li>Nginx-ის კონფიგი რეპოში: <code>deploy/nginx/lms.conf</code></li>
+<li>ახალი Droplet cloud-init-ით → clone, <code>.env</code> (<code>scp -3</code>), GHCR login, Nginx → მონაცემები (<code>pg_dump | psql</code>) → <code>SSH_HOST</code> → Run workflow → DNS → certbot</li>
+<li>შემოწმების სია (ლექციის ნაბიჯი 6) — ყველა ✓ → ძველი Droplet: Power Off → რამდენიმე დღეში <strong>Destroy</strong></li>
+<li>README: ცოცხალი ლინკი <code>https://app.&lt;domain&gt;</code>, CI badge, სისტემის სქემა (web → api → db) და deploy-ის აღწერა</li>
+</ul>
+<h3>✓ მზადაა, როცა</h3>
+<p><code>https://app.&lt;domain&gt;</code> ახალ სერვერზე მუშაობს ძველი მონაცემებით, PR → CI ✅ → merge → Deploy ✅ ცვლილებას ახალ სერვერზე აჩენს, ხელით არაფერი</p>
+<h3>⭐ ბონუსი</h3>
+<ul>
+<li>DevOps-ის რუკა: Junior ტაბზე მონიშნე, რაც უკვე შეგიძლია, და აირჩიე შემდეგი ერთი თემა</li>
+</ul></article>
+  </main>
+</div>
+<script>
+const DECK = "DevOps · 12 — ფინალი — მთელი სისტემა ახალ სერვერზე";
+if (matchMedia('(min-width:981px)').matches) document.getElementById('tocd').open = true;
+const blocks = [...document.querySelectorAll('.blk')];
+const tocLinks = [...document.querySelectorAll('nav.toc a[href^="#sec-"]')];
+const secOf = b => { let e = b; while (e && !(e.matches && e.matches('h2.sec'))) e = e.previousElementSibling; return e; };
+function mark(b, toc_only) {
+  if (!toc_only) blocks.forEach(x => x.classList.toggle('cur', x === b));
+  const s = b && secOf(b); tocLinks.forEach(a => a.classList.toggle('cur', s && a.getAttribute('href') === '#' + s.id));
+}
+const blockFor = n => blocks.find(b => b.dataset.slides.split(',').includes(String(n)));
+
+// copy buttons (code: one line per .ln)
+document.addEventListener('click', e => {
+  const btn = e.target.closest('.copy'); if (!btn) return;
+  const box = btn.closest('.codebox, .prompt');
+  const text = box.matches('.prompt') ? box.querySelector('.pb').textContent : [...box.querySelectorAll('.ln')].map(l => l.textContent).join('\n');
+  navigator.clipboard.writeText(text).then(() => { btn.textContent = '✓ დაკოპირდა'; btn.classList.add('ok'); setTimeout(() => { btn.textContent = 'კოპირება'; btn.classList.remove('ok'); }, 1600); });
+});
+
+// live mode: opened from the deck with P — follow the projector
+const live = new URLSearchParams(location.search).has('live');
+let follow = true, bc = null;
+const liveBtn = document.getElementById('live');
+if (live) {
+  try { bc = new BroadcastChannel('deck-' + DECK); } catch (e) {}
+  liveBtn.classList.add('on');
+  liveBtn.onclick = () => { follow = !follow; liveBtn.classList.toggle('off', !follow); liveBtn.querySelector('.lt').textContent = follow ? 'მიჰყვება სლაიდებს' : 'თავისუფლად ვკითხულობ'; };
+  if (bc) {
+    bc.onmessage = ({ data }) => {
+      if (data.t !== 'state' || !follow) return;
+      const b = blockFor(data.i + 1); if (!b || b.classList.contains('cur')) return;
+      mark(b); b.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    };
+    bc.postMessage({ t: 'hello' });
+  }
+  document.addEventListener('click', e => {   // slide chip → move the projector deck
+    const c = e.target.closest('.chip[data-go]'); if (!c || !bc) return;
+    e.preventDefault(); bc.postMessage({ t: 'go', n: +c.dataset.go - 1 });
+  });
+}
+// deep link #s-12
+const h = location.hash.match(/^#s-(\d+)$/);
+if (h) { const b = blockFor(+h[1]); if (b) { mark(b); setTimeout(() => b.scrollIntoView({ block: 'start' }), 50); } }
+// highlight section in the TOC while reading
+const io = new IntersectionObserver(es => es.forEach(x => { if (x.isIntersecting && !(live && follow)) mark(x.target, true); }), { rootMargin: '-30% 0px -60% 0px' });
+blocks.forEach(b => io.observe(b));
+</script>
+</body></html>

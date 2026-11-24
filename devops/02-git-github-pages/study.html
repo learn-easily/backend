@@ -1,0 +1,464 @@
+<!doctype html>
+<html lang="ka"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>📖 Git → GitHub Pages — საიტი ინტერნეტში — კონსპექტი</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Georgian:wght@400;600;700;800&family=JetBrains+Mono:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#fbf8f3;--card:#fff;--ink:#1e2132;--ink2:#3b3f54;--muted:#7b8096;--line:#e6dfd2;--accent:#6d28d9;--accent-soft:#f3effe;--teal:#0d9488;
+  --green:#15803d;--amber:#b45309;--mono:"JetBrains Mono",ui-monospace,monospace;--sans:"Noto Sans Georgian",system-ui,sans-serif}
+*{box-sizing:border-box}
+html{scroll-padding-top:76px}
+body{margin:0;background:var(--bg);color:var(--ink);font:17.5px/1.75 var(--sans);-webkit-font-smoothing:antialiased}
+a{color:var(--accent)}
+/* top bar */
+.top{position:sticky;top:0;z-index:10;display:flex;align-items:center;gap:14px;padding:10px 20px;background:rgba(251,248,243,.92);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.top .back{font:600 14px var(--mono);color:var(--muted);text-decoration:none;white-space:nowrap}
+.top .back:hover{color:var(--ink)}
+.top .ttl{flex:1;min-width:0;font-weight:700;font-size:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.top .ttl small{font:500 13px var(--mono);color:var(--muted);margin-right:8px}
+.btn{font:700 14px var(--sans);text-decoration:none;border-radius:10px;padding:7px 14px;white-space:nowrap;border:1px solid var(--line);color:var(--ink);background:var(--card);cursor:pointer}
+.btn.play{background:var(--accent);border-color:var(--accent);color:#fff}
+.live{display:none;align-items:center;gap:8px;font:600 13px var(--mono);color:var(--teal);background:#e6f6f4;border:1px solid #bfe7e2;border-radius:999px;padding:5px 12px;cursor:pointer}
+.live.on{display:flex}
+.live .dot{width:8px;height:8px;border-radius:50%;background:var(--teal);animation:pulse 1.6s infinite}
+.live.off{color:var(--muted);background:var(--card);border-color:var(--line)}.live.off .dot{background:var(--muted);animation:none}
+@keyframes pulse{50%{opacity:.3}}
+/* layout */
+.wrap{display:grid;grid-template-columns:230px minmax(0,1000px);gap:44px;justify-content:center;padding:32px 28px 120px}
+nav.toc{position:sticky;top:84px;align-self:start;font-size:14px;line-height:1.45}
+nav.toc .h{font:700 12px var(--mono);color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px}
+nav.toc a{display:block;color:var(--ink2);text-decoration:none;padding:6px 10px;border-left:2px solid var(--line)}
+nav.toc a:hover{color:var(--accent)}
+nav.toc a.cur{color:var(--accent);border-left-color:var(--accent);font-weight:700}
+nav.toc .mats{margin-top:22px;display:flex;flex-direction:column;gap:6px}
+nav.toc .mats a{border:0;padding:2px 0;font:500 13px var(--mono);color:var(--teal);word-break:break-all}
+header.hero{margin-bottom:8px}
+header.hero .k{font:600 14px var(--mono);color:var(--accent)}
+header.hero h1{font-size:38px;line-height:1.2;margin:6px 0 10px;letter-spacing:-.01em}
+header.hero p{color:var(--muted);margin:0;font-size:15.5px}
+header.hero kbd{font:500 12px var(--mono);border:1px solid var(--line);border-radius:5px;padding:0 5px;background:var(--card)}
+h2.sec{font-size:15px;font:700 13px var(--mono);color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin:48px 0 6px;padding-top:18px;border-top:1px solid var(--line)}
+/* blocks */
+.blk{position:relative;padding:14px 0 6px 22px;margin-left:-22px;border-left:3px solid transparent;transition:border-color .3s,background .3s;border-radius:0 12px 12px 0}
+.blk.cur{border-left-color:var(--accent);background:linear-gradient(90deg,var(--accent-soft),transparent 70%)}
+.anchor{position:absolute;top:0}
+.bh{display:flex;align-items:baseline;justify-content:space-between;gap:12px}
+.bh h3{font-size:22px;line-height:1.35;margin:4px 0 6px}
+.chip{flex:none;font:600 12px var(--mono);color:var(--muted);text-decoration:none;border:1px solid var(--line);border-radius:999px;padding:2px 10px;background:var(--card)}
+.chip:hover{color:var(--accent);border-color:var(--accent)}
+.blk h2{font-size:26px;line-height:1.3;margin:6px 0 10px}
+.blk h3:not(.bh h3){font-size:19px;margin:22px 0 6px}
+.blk h4{font-size:17px;margin:18px 0 4px}
+.blk p{margin:10px 0}
+.blk ul,.blk ol{padding-left:24px;margin:8px 0}
+.blk li{margin:4px 0}
+.blk strong{color:var(--ink)}
+.blk :not(pre)>code{font:600 .86em var(--mono);background:#f1ece3;border-radius:6px;padding:1px 6px;color:#5b21b6}
+.blk table{border-collapse:collapse;margin:14px 0;font-size:15.5px;width:100%;display:block;overflow-x:auto}
+.blk th,.blk td{border:1px solid var(--line);padding:8px 12px;text-align:left;vertical-align:top}
+.blk th{background:#f6f1e8}
+/* code */
+.codebox{margin:14px 0;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:#fffdf9}
+.codebox .ch,.prompt .ph{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:6px 8px 6px 14px;font:600 12.5px var(--mono);color:var(--muted);background:#f6f1e8;border-bottom:1px solid var(--line)}
+.copy{font:600 12px var(--mono);border:1px solid var(--line);background:var(--card);color:var(--ink2);border-radius:7px;padding:3px 10px;cursor:pointer}
+.copy:hover{border-color:var(--ink)}
+.copy.ok{color:var(--green);border-color:var(--green)}
+pre.code{margin:0;padding:12px 0;overflow-x:auto;font:14px/1.65 var(--mono)}
+pre.code .ln{display:block;padding:0 16px;white-space:pre}
+.code .ttl{background:var(--bg2);color:var(--muted)}
+.code .ln.hl{background:rgba(109,40,217,.07);box-shadow:inset 3px 0 0 var(--net)}
+.code .ln.dim{opacity:.42}
+.code .k,.code .kd,.code .kn,.code .kr,.code .kc{color:#7c3aed}
+.code .kt{color:#2563eb}
+.code .s,.code .s1,.code .s2,.code .sa,.code .se,.code .si,.code .sd{color:#15803d}
+.code .c,.code .c1,.code .cm,.code .cp,.code .ch{color:#8b8fa3}
+.code .m,.code .mi,.code .mf,.code .mh{color:#c2410c}
+.code .nf,.code .fm{color:#1d4ed8}
+.code .nc,.code .nn,.code .nt,.code .nd{color:#b45309}
+.code .na{color:#7c3aed} .code .nb{color:#0e7490}
+.code .o,.code .p{color:#64748b}
+.code .nv,.code .nx{color:var(--ink)}
+.code .go{color:#64748b}
+/* prompt */
+.prompt{margin:16px 0;border:1px solid #ddd2fb;border-radius:12px;overflow:hidden;background:var(--accent-soft)}
+.prompt .ph{background:#ebe3fd;border-color:#ddd2fb;color:var(--accent)}
+.prompt .pb{padding:12px 16px;white-space:pre-wrap;font-size:15.5px;line-height:1.6;color:var(--ink2)}
+/* self check */
+.selfcheck{margin:16px 0;border:1px solid #cfe9d6;border-radius:12px;background:#f3fbf5;padding:12px 16px}
+.selfcheck .sh{font-weight:700;color:var(--green);margin-bottom:6px}
+.selfcheck .sh small{font-weight:400;color:var(--muted);font-size:13.5px;margin-left:6px}
+.selfcheck details{border-top:1px solid #dcefe1;padding:8px 0}
+.selfcheck summary{cursor:pointer;font-weight:600;list-style:none;padding-left:26px;position:relative}
+.selfcheck summary::-webkit-details-marker{display:none}
+.selfcheck summary::before{content:"?";position:absolute;left:0;top:2px;width:18px;height:18px;border-radius:50%;background:var(--green);color:#fff;font:700 12px/18px var(--mono);text-align:center}
+.selfcheck details[open] summary::before{content:"✓"}
+.selfcheck .ans{padding:6px 0 2px 26px;color:var(--ink2)}
+/* terms */
+.terms{margin:16px 0;border:1px solid var(--line);border-radius:12px;background:var(--card);padding:12px 16px}
+.terms .th{font-weight:700;margin-bottom:6px}
+.terms dl{display:grid;grid-template-columns:max-content 1fr;gap:6px 18px;margin:0}
+.terms dt{font:600 14.5px var(--mono);color:var(--accent)}
+.terms dd{margin:0;color:var(--ink2)}
+/* callouts */
+.callout{display:flex;gap:12px;margin:14px 0;padding:12px 16px;border-radius:12px;border:1px solid var(--line);background:var(--card)}
+.callout .ci{font-size:20px;line-height:1.6}
+.callout>div>p:first-child{margin-top:0}.callout>div>p:last-child{margin-bottom:0}
+.callout.warn{background:#fff8eb;border-color:#f6dfb5}
+.callout.note{background:#eef5ff;border-color:#cfe0fb}
+@media (max-width:980px){
+  .wrap{grid-template-columns:minmax(0,1fr);gap:0;padding:20px 16px 100px}
+  nav.toc{position:static;margin-bottom:12px}
+  nav.toc details{border:1px solid var(--line);border-radius:12px;background:var(--card);padding:8px 12px}
+  nav.toc details>summary{cursor:pointer;font-weight:700}
+  nav.toc .h{display:none}
+  header.hero h1{font-size:30px}
+  .blk{padding-left:14px;margin-left:-14px}
+  .top .ttl small{display:none}
+  .terms dl{grid-template-columns:1fr}.terms dd{margin-bottom:8px}
+}
+@media (min-width:981px){nav.toc details>summary{display:none}}
+@media print{.top,nav.toc,.copy,.chip,.live{display:none}.wrap{display:block;padding:0}.selfcheck details{display:block}.blk.cur{background:none}}
+</style></head>
+<body>
+<div class="top">
+  <a class="back" href="../../">← ლექციები</a>
+  <div class="ttl"><small>DevOps · 2</small>Git → GitHub Pages — საიტი ინტერნეტში</div>
+  <button class="live" id="live" type="button" title="ჩართული: ტექსტი პრეზენტაციას მიჰყვება"><span class="dot"></span><span class="lt">მიჰყვება სლაიდებს</span></button>
+  <a class="btn play" href="index.html">▶ პრეზენტაცია</a>
+</div>
+<div class="wrap">
+  <nav class="toc"><details id="tocd"><summary>სარჩევი</summary><div class="h">სარჩევი</div><a href="#sec-1">გამეორება</a><a href="#sec-2">დღის თემა</a><a href="#sec-3">1 · Git</a><a href="#sec-4">2 · GitHub Pages</a><a href="#sec-5">3 · Pages-ის ზღვარი</a><a href="#sec-6">შეჯამება</a><a href="#sec-7">პრაქტიკა</a><a href="#sec-8">შეჯამება</a><a href="#sec-9">საშინაო</a><div class="mats"></div></details></nav>
+  <main>
+    <header class="hero">
+      <div class="k">📖 კონსპექტი · DevOps · ლექცია 2</div>
+      <h1>Git → GitHub Pages — საიტი ინტერნეტში</h1>
+      <p>წაიკითხე ლექციის შემდეგ, ან პრეზენტაციასთან ერთად: პრეზენტაციაში დააჭირე <kbd>P</kbd> და ეს გვერდი სლაიდებს გაჰყვება. კოდი და AI-ს პრომპტები კოპირდება ერთი დაჭერით.</p>
+    </header>
+    <h2 class="sec" id="sec-1">გამეორება</h2>
+<article class="blk" data-slides="1,2"><span class="anchor" id="s-1"></span><span class="anchor" id="s-2"></span><div class="bh"><h3>გავიხსენოთ წინა ლექცია</h3><a class="chip" href="index.html#/1" data-go="1" title="პრეზენტაციაში გახსნა">სლაიდი 1</a></div>
+<p>ლექცია 1 — <strong>რა არის DevOps</strong>. ახალ თემამდე ვამოწმებთ, რა დაგვამახსოვრდა. ჯერ თვითონ უპასუხე, მერე გახსენი პასუხი. თუ რომელიმე გაგიჭირდა, <a href="../01-hosting-git-github/study.html">წინა ლექციის კონსპექტს</a> გადახედე.</p>
+<div class="selfcheck"><div class="sh">✅ შეამოწმე თავი <small>დაფიქრდი, მერე გახსენი პასუხი</small></div><details><summary>რა არის DevOps — ერთი წინადადებით?</summary><div class="ans">Dev + Ops: ერთი გუნდი და ავტომატური გზა, რომლითაც კოდი ლეპტოპიდან მომხმარებლამდე სწრაფად და უსაფრთხოდ მიდის</div></details><details><summary>რატომ გაჩნდა DevOps?</summary><div class="ans">Dev და Ops ცალ-ცალკე მუშაობდნენ: ვერსია იშვიათად და შიშით გამოდიოდა. 2009 წელს Flickr-მა აჩვენა: ერთად და ავტომატიზაციით — დღეში 10+ deploy</div></details><details><summary>დაასახელე DevOps ინჟინრის 3 ყოველდღიური საქმე</summary><div class="ans">მაგ.: მონიტორინგი და alert-ები, ჩავარდნილი pipeline-ის გამართვა, სერვერის/ბაზის მომზადება, ავტომატიზაცია, deploy და rollback, ინციდენტზე რეაგირება</div></details><details><summary>Docker და Kubernetes ამ კურსში ისწავლება?</summary><div class="ans">Docker — საფუძვლები: კონტეინერის აწყობა და მისით deploy. Kubernetes — შემდეგი ნაბიჯია. კურსი საძირკველს ყრის: Git, GitHub Actions, Linux, სერვერი, Docker, დომენი, HTTPS</div></details><details><summary>რას ინახავს DNS?</summary><div class="ans">დომენის სახელს და მისი სერვერის IP მისამართს: ბრაუზერი ეკითხება <code>myportfolio.ge</code> სად არის, DNS პასუხობს <code>164.90.12.34</code></div></details><details><summary>VPS და PaaS — რა განსხვავებაა ბინის ანალოგიით?</summary><div class="ans">VPS = ნაქირავები ბინა: OS-ს და აპს შენ მართავ. PaaS = სასტუმრო: მხოლოდ კოდს (ჩემოდანს) მიიტან, დანარჩენს პროვაიდერი მართავს</div></details></div></article>
+<h2 class="sec" id="sec-2">დღის თემა</h2>
+<article class="blk" data-slides="3"><span class="anchor" id="s-3"></span><div class="bh"><h3>დღის თემა: Git → GitHub Pages — საიტი ინტერნეტში</h3><a class="chip" href="index.html#/3" data-go="3" title="პრეზენტაციაში გახსნა">სლაიდი 3</a></div>
+<p>Git უკვე იცით — Frontend-ზეც და Backend-ზეც. DevOps-ში კი <code>git push</code> ახალ მნიშვნელობას იძენს: ის deploy-ს იწყებს. დღეს მოკლედ ვიმეორებთ, რაც კურსს სჭირდება, და პირველ deploy-ს ვაკეთებთ: my-portfolio ნამდვილ მისამართზე, რომელიც ყოველ <code>git push</code>-ზე თავისით ახლდება. და ვნახავთ, სად მთავრდება GitHub Pages-ის შესაძლებლობა — რატომ ვერ გაუშვებს ის შენს API-ს.</p>
+<p><strong>ლექციის ბოლოს შეძლებ:</strong></p>
+<ul>
+<li>ახსნა, რა როლი აქვს Git-ს DevOps-ში: <code>git push</code> → GitHub → pipeline → საიტი</li>
+<li>public რეპოს დაცვა <code>.gitignore</code>-ით და რა ვქნა, თუ საიდუმლო უკვე ავტვირთე</li>
+<li>my-portfolio-ს გამოქვეყნება GitHub Pages-ით: <code>username.github.io/my-portfolio</code></li>
+<li>საიტის განახლება <code>git push</code>-ით, Actions-ში სტატუსის ნახვა და ტიპური შეცდომების გასწორება (404, CSS არ იტვირთება)</li>
+<li>ახსნა, რატომ ვერ გაეშვება API GitHub Pages-ზე და რა გვჭირდება ამისთვის</li>
+</ul></article>
+<h2 class="sec" id="sec-3">1 · Git</h2>
+<article class="blk" data-slides="4"><span class="anchor" id="s-4"></span><div class="bh"><h3>ნაწილი 1 · Git — რაც DevOps-ს სჭირდება</h3><a class="chip" href="index.html#/4" data-go="4" title="პრეზენტაციაში გახსნა">სლაიდი 4</a></div>
+<p>Git Frontend-სა და Backend-ზე უკვე ისწავლეთ და ყოველდღე იყენებთ. ამიტომ თავიდან არ ვსწავლობთ — ვიმეორებთ მხოლოდ იმას, რაზეც ეს კურსი დგას, და ვნახავთ, <strong>რატომ</strong> იწყება DevOps-ის ყოველი გზა Git-ით.</p></article>
+<article class="blk" data-slides="5"><span class="anchor" id="s-5"></span><div class="bh"><h3>Git DevOps-ში — ყველაფრის დასაწყისი</h3><a class="chip" href="index.html#/5" data-go="5" title="პრეზენტაციაში გახსნა">სლაიდი 5</a></div>
+<p>DevOps-ში კოდი ლეპტოპიდან მომხმარებლამდე ერთი გზით მიდის, და ეს გზა <strong>Git-ით იწყება</strong>:</p>
+<p><code>git push</code> → <strong>GitHub</strong> → <strong>pipeline</strong> (ავტომატური ნაბიჯები) → <strong>საიტი ან სერვერი</strong>.</p>
+<table>
+<thead>
+<tr>
+<th>ბრძანება</th>
+<th>DevOps-ში სად დაგვჭირდება</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>git clone</code></td>
+<td>კოდის ჩამოტანა სერვერზე და CI-ის runner-ზე</td>
+</tr>
+<tr>
+<td><code>git status</code> · <code>add</code> · <code>commit</code></td>
+<td>ყოველი ცვლილება ისტორიაშია — ცუდი ვერსია შეიძლება დავაბრუნოთ</td>
+</tr>
+<tr>
+<td><code>git push</code></td>
+<td>deploy-ის „ღილაკი“: დღეს GitHub Pages-ზე, კურსის ბოლოს — CI/CD-ით საკუთარ სერვერზე</td>
+</tr>
+<tr>
+<td><code>git pull</code></td>
+<td>სხვის (ან სხვა კომპიუტერზე გაკეთებულ) ცვლილებებს ჩამოიტანს</td>
+</tr>
+<tr>
+<td><code>git switch -c</code> · <code>git merge</code></td>
+<td><code>main</code> = რაც ინტერნეტშია; ახალი ფიჩა branch-ზე იწერება</td>
+</tr>
+</tbody>
+</table>
+<div class="callout tip"><span class="ci">👉</span><div><p>დღეიდან <code>main</code>-ს სხვა მნიშვნელობა აქვს: <strong>რაც <code>main</code>-შია, ის ინტერნეტშია.</strong> სწორედ ამიტომ ახალ ფიჩაზე branch-ზე ვმუშაობთ.</p></div></div></article>
+<article class="blk" data-slides="6"><span class="anchor" id="s-6"></span><div class="bh"><h3>.gitignore — DevOps-ში ეს უკვე უსაფრთხოებაა</h3><a class="chip" href="index.html#/6" data-go="6" title="პრეზენტაციაში გახსნა">სლაიდი 6</a></div>
+<p><code>.gitignore</code> უკვე იცით. DevOps-ში კი მისი მნიშვნელობა იზრდება:</p>
+<ul>
+<li><strong>რეპო public ხდება.</strong> GitHub Pages უფასო ანგარიშზე მხოლოდ public რეპოზე მუშაობს — კოდს ყველა ხედავს.</li>
+<li><strong>ბოტები GitHub-ს უწყვეტად კითხულობენ.</strong> ატვირთულ პაროლს, API გასაღებს ან ბაზის connection string-ს ისინი წუთებში პოულობენ.</li>
+<li>კურსის მეორე ნახევარში სერვერის პაროლები, SSH გასაღებები და JWT გასაღებები გვექნება — არცერთი არ უნდა მოხვდეს Git-ში.</li>
+</ul>
+<div class="codebox"><div class="ch"><span>.gitignore</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"># საიდუმლოებები — არასოდეს Git-ში</span><span class="ln">.env</span><span class="ln">*.pem</span><span class="ln"> </span><span class="ln"># ავტომატურად იქმნება</span><span class="ln">node_modules/</span><span class="ln">dist/</span><span class="ln">bin/</span><span class="ln">obj/</span><span class="ln"> </span><span class="ln"># რედაქტორი</span><span class="ln">.vscode/</span><span class="ln">.idea/</span></code></pre></div>
+<div class="callout warn"><span class="ci">⚠️</span><div><p>საიდუმლო უკვე GitHub-ზე მოხვდა? ფაილის წაშლა და ახალი commit <strong>არ შველის</strong> — ის ისტორიაში რჩება და იქიდან იკითხება. ერთადერთი სწორი გზა: საიდუმლო <strong>შეცვალე</strong> (ახალი პაროლი, ახალი გასაღები), ფაილი კი <code>.gitignore</code>-ში ჩაწერე.</p></div></div>
+<p>საიდუმლოებებს როგორ ვინახავთ სწორად — სერვერზე <code>.env</code>-ში და GitHub Secrets-ში — მე-9 და მე-11 ლექციებზე ვნახავთ.</p></article>
+<article class="blk" data-slides="7"><span class="anchor" id="s-7"></span><div class="bh"><h3>პრაქტიკა · my-portfolio GitHub-ზე</h3><a class="chip" href="index.html#/7" data-go="7" title="პრეზენტაციაში გახსნა">სლაიდი 7</a></div>
+<p>დღეს ვაქვეყნებთ <strong>my-portfolio</strong>-ს — მარტივ სტატიკურ საიტს შენზე. თუ Frontend-იდან უკვე გაქვს HTML/CSS პროექტი, შეგიძლია ის გამოიყენო.</p>
+<ol>
+<li>GitHub → <strong>New repository</strong> → სახელი <code>my-portfolio</code> → <strong>Public</strong> → Create.</li>
+<li>ჩამოიტანე და შექმენი ფაილები:</li>
+</ol>
+<div class="codebox"><div class="ch"><span>Git Bash</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="gp">$ </span>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/&lt;username&gt;/my-portfolio.git</span><span class="ln"><span class="gp">$ </span><span class="nb">cd</span><span class="w"> </span>my-portfolio</span><span class="ln"><span class="gp"># </span>შექმენი:<span class="w"> </span>index.html,<span class="w"> </span>style.css,<span class="w"> </span>.gitignore</span><span class="ln"><span class="gp">$ </span>git<span class="w"> </span>status</span><span class="ln"><span class="gp">$ </span>git<span class="w"> </span>add<span class="w"> </span>.</span><span class="ln"><span class="gp">$ </span>git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">"Initial portfolio"</span></span></code></pre></div>
+<div class="callout warn"><span class="ci">⚠️</span><div><p><code>index.html</code> უნდა იყოს რეპოს <strong>root-ში</strong> და დაწერილი <strong>პატარა ასოებით</strong> — ეს საიტის მთავარი გვერდია. ამას მეორე ნაწილში დავჭირდებით.</p></div></div>
+<div class="selfcheck"><div class="sh">✅ შეამოწმე თავი <small>დაფიქრდი, მერე გახსენი პასუხი</small></div><details><summary>რატომ ვქმნით რეპოს Public-ად?</summary><div class="ans">GitHub Pages უფასო ანგარიშზე მხოლოდ public რეპოზე მუშაობს — ამიტომ რეპოში საიდუმლო არაფერი უნდა იყოს</div></details></div></article>
+<h2 class="sec" id="sec-4">2 · GitHub Pages</h2>
+<article class="blk" data-slides="8"><span class="anchor" id="s-8"></span><div class="bh"><h3>ნაწილი 2 · GitHub Pages</h3><a class="chip" href="index.html#/8" data-go="8" title="პრეზენტაციაში გახსნა">სლაიდი 8</a></div>
+<p>საიტი ნამდვილ მისამართზე — ერთი ღილაკით. ეს არის ჩვენი პირველი <strong>deploy</strong>: კოდი ლეპტოპიდან მომხმარებლამდე მიდის.</p></article>
+<article class="blk" data-slides="9"><span class="anchor" id="s-9"></span><div class="bh"><h3>პრობლემა: კოდი GitHub-ზეა — საიტი კი არა</h3><a class="chip" href="index.html#/9" data-go="9" title="პრეზენტაციაში გახსნა">სლაიდი 9</a></div>
+<p>პირველ ნაწილში my-portfolio GitHub-ზე ავიტანეთ. მაგრამ თუ მეგობარს გაუგზავნი <code>github.com/giorgi/my-portfolio</code>-ს, ის დაინახავს <strong>ფაილების სიას და კოდს</strong> — არა საიტს.</p>
+<p>ლოკალურად (Live Server, <code>127.0.0.1:5500</code>) საიტი მუშაობს, მაგრამ მხოლოდ <strong>შენს ლეპტოპზე</strong>: სხვა კომპიუტერიდან ეს მისამართი არ იხსნება, ლეპტოპის დახურვისას კი საიტი ქრება.</p>
+<p>GitHub კოდს <strong>ინახავს</strong>. საიტის <strong>ჩვენება</strong> ინტერნეტში — <strong>ჰოსტინგის</strong> საქმეა. პირველ ლექციაზე ჰოსტინგის სახეები ვნახეთ; დღეს ყველაზე მარტივით ვიწყებთ.</p></article>
+<article class="blk" data-slides="10"><span class="anchor" id="s-10"></span><div class="bh"><h3>GitHub Pages — რეპო → საიტი</h3><a class="chip" href="index.html#/10" data-go="10" title="პრეზენტაციაში გახსნა">სლაიდი 10</a></div>
+<p><strong>GitHub Pages</strong> — GitHub-ის უფასო ჰოსტინგი. ის რეპოს ერთი branch-იდან ფაილებს იღებს და აქვეყნებს მისამართზე:</p>
+<div class="codebox"><div class="ch"><span>plain</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln">https://&lt;username&gt;.github.io/&lt;რეპოს-სახელი&gt;/</span></code></pre></div>
+<table>
+<thead>
+<tr>
+<th>რას იძლევა</th>
+<th>რა პირობით</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>საჯარო მისამართი და HTTPS</td>
+<td>უფასოდ, <strong>public</strong> რეპოსთვის</td>
+</tr>
+<tr>
+<td>ავტომატური განახლება ყოველ <code>git push</code>-ზე</td>
+<td>ფაილები ერთი branch-იდან (ჩვენთან <code>main</code>)</td>
+</tr>
+<tr>
+<td>HTML, CSS, JS, სურათები</td>
+<td><strong>მხოლოდ ფაილები</strong></td>
+</tr>
+</tbody>
+</table>
+<p>პირველი ლექციის ტერმინებით: ეს <strong>სტატიკური ჰოსტინგია</strong> — სერვერს შენ არ მართავ, GitHub ყველაფერს თვითონ აკეთებს. შენ მხოლოდ ფაილებს აწვდი.</p>
+<div class="terms"><div class="th">📘 ტერმინები</div><dl><dt>deploy</dt><dd>კოდის გაგზავნა იქ, სადაც მომხმარებელი მას დაინახავს</dd><dt>ჰოსტინგი</dt><dd>სერვისი, რომელიც საიტს ინტერნეტში 24/7 აჩვენებს</dd></dl></div></article>
+<article class="blk" data-slides="11"><span class="anchor" id="s-11"></span><div class="bh"><h3>ნაბიჯი 1 · Pages-ის ჩართვა</h3><a class="chip" href="index.html#/11" data-go="11" title="პრეზენტაციაში გახსნა">სლაიდი 11</a></div>
+<ol>
+<li>my-portfolio-ს გვერდზე GitHub-ზე → <strong>⚙ Settings</strong>.</li>
+<li>მარცხენა მენიუში, განყოფილებაში <strong>Code and automation</strong> → <strong>Pages</strong>.</li>
+<li><strong>Build and deployment → Source:</strong> <code>Deploy from a branch</code>. <strong>Branch:</strong> <code>main</code>, <strong>Folder:</strong> <code>/ (root)</code> → <strong>Save</strong>.</li>
+</ol>
+<p>დაახლოებით ერთ წუთში გვერდის ზემოთ გამოჩნდება: <strong>Your site is live at</strong> <code>https://&lt;username&gt;.github.io/my-portfolio/</code>.</p>
+<div class="callout warn"><span class="ci">⚠️</span><div><p><code>index.html</code> უნდა იყოს რეპოს <strong>root-ში</strong> (არა რომელიმე საქაღალდეში) და დაწერილი <strong>პატარა ასოებით</strong> — <code>Index.html</code> არ ჩაითვლება. ეს ფაილი საიტის მთავარი გვერდია: მისამართის ბოლოს ფაილის სახელი თუ არ წერია, სერვერი <code>index.html</code>-ს აბრუნებს.</p></div></div>
+<div class="callout note"><span class="ci">💡</span><div><p>უფასო ანგარიშზე Pages მხოლოდ <strong>public</strong> რეპოსთვის მუშაობს. ამიტომ რეპოში არაფერი საიდუმლო არ უნდა იყოს — სწორედ ამიტომ ვისწავლეთ <code>.gitignore</code>.</p></div></div></article>
+<article class="blk" data-slides="12"><span class="anchor" id="s-12"></span><div class="bh"><h3>ნაბიჯი 2 · Actions ჩანართი — პირველი pipeline</h3><a class="chip" href="index.html#/12" data-go="12" title="პრეზენტაციაში გახსნა">სლაიდი 12</a></div>
+<p>Save-ზე დაჭერის შემდეგ GitHub-მა <strong>workflow</strong> გაუშვა — სახელით <strong>pages build and deployment</strong>. მას ნახავ რეპოს <strong>Actions</strong> ჩანართში.</p>
+<p>ის ორი ნაბიჯისგან შედგება:</p>
+<ul>
+<li><strong>build</strong> — ფაილების მომზადება გამოსაქვეყნებლად;</li>
+<li><strong>deploy</strong> — მათი გამოქვეყნება <code>github.io</code>-ზე.</li>
+</ul>
+<p>სტატუსი: 🟡 მიმდინარეობს · ✅ წარმატებით დასრულდა · ❌ შეცდომა (დააჭირე — ნახავ, რომელ ნაბიჯზე და რატომ).</p>
+<div class="terms"><div class="th">📘 ტერმინები</div><dl><dt>workflow</dt><dd>ავტომატური ნაბიჯების თანმიმდევრობა, რომელსაც GitHub რაღაც მოვლენაზე (მაგ. push) უშვებს</dd><dt>pipeline</dt><dd>გზა კოდიდან გამოქვეყნებამდე, ნაბიჯებად დაყოფილი: build → deploy</dd></dl></div>
+<div class="callout tip"><span class="ci">👉</span><div><p>ეს workflow GitHub-მა <strong>თვითონ</strong> შექმნა. მე-10 და მე-11 ლექციებზე ასეთს ჩვენ თვითონ დავწერთ — ოღონდ არა სტატიკური საიტისთვის, არამედ შენი API-სთვის, რომელიც საკუთარ სერვერზე გაეშვება.</p></div></div></article>
+<article class="blk" data-slides="13"><span class="anchor" id="s-13"></span><div class="bh"><h3>ნაბიჯი 3 · განახლება: შეცვალე → push → საიტი განახლდა</h3><a class="chip" href="index.html#/13" data-go="13" title="პრეზენტაციაში გახსნა">სლაიდი 13</a></div>
+<p>Pages-ის ჩართვა ერთხელ ხდება. მერე ყოველი <code>git push</code> <code>main</code>-ში ახალ deploy-ს უშვებს:</p>
+<div class="codebox"><div class="ch"><span>Git Bash</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="gp">$ </span>git<span class="w"> </span>switch<span class="w"> </span>-c<span class="w"> </span>feature/about</span><span class="ln"><span class="gp"># </span>index.html-ში<span class="w"> </span>„ჩემ<span class="w"> </span>შესახებ“<span class="w"> </span>ბლოკი<span class="w"> </span>დავამატეთ</span><span class="ln"><span class="gp">$ </span>git<span class="w"> </span>add<span class="w"> </span>index.html</span><span class="ln"><span class="gp">$ </span>git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">"Add about section"</span></span><span class="ln"> </span><span class="ln"><span class="gp">$ </span>git<span class="w"> </span>switch<span class="w"> </span>main</span><span class="ln"><span class="gp">$ </span>git<span class="w"> </span>merge<span class="w"> </span>feature/about</span></code></pre></div>
+<p>Actions-ში გამოჩნდება ახალი <strong>pages build and deployment</strong> — მწვანე ✓-ის შემდეგ ახალი ვერსია ყველასთვის ჩანს.</p>
+<div class="callout tip"><span class="ci">👉</span><div><p>ახლა <code>main</code> = <strong>რაც ინტერნეტშია</strong>. სწორედ ამიტომ ვმუშაობთ ფიჩაზე branch-ზე: ნახევრად დაწერილი კოდი <code>main</code>-ში არ ხვდება და მომხმარებელი გატეხილ საიტს ვერ ნახავს.</p></div></div></article>
+<article class="blk" data-slides="14,15"><span class="anchor" id="s-14"></span><span class="anchor" id="s-15"></span><div class="bh"><h3>ტიპური შეცდომები: რატომ არ მუშაობს?</h3><a class="chip" href="index.html#/14" data-go="14" title="პრეზენტაციაში გახსნა">სლაიდი 14</a></div>
+<table>
+<thead>
+<tr>
+<th>რას ხედავ</th>
+<th>მიზეზი</th>
+<th>გამოსავალი</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>404</strong> · There isn't a GitHub Pages site here</td>
+<td>deploy ჯერ არ დასრულდა; ან <code>index.html</code> root-ში არ არის; ან ჰქვია <code>Index.html</code></td>
+<td>Actions-ში დაელოდე ✓-ს; ფაილი root-ში, პატარა ასოებით</td>
+</tr>
+<tr>
+<td>საიტი გაიხსნა, <strong>CSS/სურათი არა</strong></td>
+<td>გზა იწყება <code>/</code>-ით: <code>href="/style.css"</code></td>
+<td>ფარდობითი გზა: <code>href="style.css"</code></td>
+</tr>
+<tr>
+<td>იგივე</td>
+<td>ასოები: HTML-ში <code>Style.css</code>, ფაილი — <code>style.css</code></td>
+<td>სახელები ზუსტად ერთნაირად</td>
+</tr>
+<tr>
+<td><strong>ძველი ვერსია</strong> ჩანს</td>
+<td>deploy ჯერ მიდის, ან ბრაუზერს ძველი ასლი აქვს (cache)</td>
+<td>Actions ✓ → <code>Ctrl + F5</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>რატომ იშლება <code>/style.css</code>?</strong> <code>/</code>-ით დაწყებული გზა დომენის root-იდან ითვლება: <code>giorgi.github.io/style.css</code>. შენი საიტი კი ცხოვრობს <code>giorgi.github.io/my-portfolio/</code>-ში — ფაილი იქ არ არის. ფარდობითი <code>style.css</code> კი მიმდინარე გვერდის საქაღალდიდან ითვლება.</p>
+<div class="callout warn"><span class="ci">⚠️</span><div><p>Windows-ზე <code>Style.css</code> და <code>style.css</code> ერთი და იგივე ფაილია — ამიტომ ლოკალურად ყველაფერი მუშაობს. სერვერები კი, თითქმის ყველა, <strong>Linux</strong>-ზე მუშაობს, სადაც ეს <strong>ორი სხვადასხვა ფაილია</strong>. „ჩემთან მუშაობს, სერვერზე — არა“ — DevOps-ის ყველაზე ხშირი ფრაზა. Linux-ს შემდეგ ლექციაზე ვიწყებთ.</p></div></div></article>
+<h2 class="sec" id="sec-5">3 · Pages-ის ზღვარი</h2>
+<article class="blk" data-slides="16"><span class="anchor" id="s-16"></span><div class="bh"><h3>ნაწილი 3 · Pages-ის ზღვარი</h3><a class="chip" href="index.html#/16" data-go="16" title="პრეზენტაციაში გახსნა">სლაიდი 16</a></div>
+<p>portfolio ინტერნეტშია. API-ის კურსზე კი API-ს წერ — ის ხომ ასევე უნდა გაეშვას. შეიძლება Pages-ზე?</p></article>
+<article class="blk" data-slides="17"><span class="anchor" id="s-17"></span><div class="bh"><h3>ექსპერიმენტი: LMS-ის რეპო → Pages</h3><a class="chip" href="index.html#/17" data-go="17" title="პრეზენტაციაში გახსნა">სლაიდი 17</a></div>
+<p>თუ LMS-ის რეპოზე Pages-ს ჩავრთავთ:</p>
+<ul>
+<li>რეპოში <code>index.html</code> არ არის — Pages აჩვენებს README-ს ან 404-ს;</li>
+<li><code>https://giorgi.github.io/lms/api/courses</code> → <strong>404</strong>. C# კოდი არავინ შეასრულა.</li>
+</ul>
+<p>ლოკალურად კი API მუშაობს:</p>
+<div class="codebox"><div class="ch"><span>ლოკალურად</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="gp">$ </span>dotnet<span class="w"> </span>run</span><span class="ln"><span class="go">Now listening on: http://localhost:5080</span></span></code></pre></div>
+<p><code>dotnet run</code>-ის შემდეგ API <strong>გაშვებული პროგრამაა</strong>: ის port-ს უსმენს, ელოდება მოთხოვნას, ყოველ მოთხოვნაზე შენს C# კოდს ასრულებს და მერე ისევ ელოდება. terminal-ს თუ დახურავ — API ჩერდება.</p>
+<p>GitHub Pages ასეთ პროგრამას <strong>არ უშვებს</strong> — ის მხოლოდ მზა ფაილებს აძლევს.</p></article>
+<article class="blk" data-slides="18"><span class="anchor" id="s-18"></span><div class="bh"><h3>ფაილის გაცემა vs პროგრამის გაშვება</h3><a class="chip" href="index.html#/18" data-go="18" title="პრეზენტაციაში გახსნა">სლაიდი 18</a></div>
+<p><strong>GitHub Pages:</strong> ბრაუზერი ითხოვს <code>index.html</code>-ს → Pages პოულობს ფაილს და აგზავნის. ყველა მომხმარებელი ზუსტად ერთსა და იმავე ფაილს იღებს. კოდი არ სრულდება — ეს <strong>სტატიკური</strong> საიტია.</p>
+<p><strong>API:</strong> ბრაუზერი (ან Angular აპი) ითხოვს <code>/api/courses</code>-ს → <strong>გაშვებული</strong> პროგრამა იღებს მოთხოვნას, ასრულებს C# კოდს, მიმართავს <strong>ბაზას</strong> და პასუხს — JSON-ს — იმ წამს ქმნის. სხვადასხვა მომხმარებელს სხვადასხვა პასუხი შეიძლება მიუვიდეს.</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>GitHub Pages</th>
+<th>API</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>რას აკეთებს</td>
+<td>მზა ფაილს აძლევს</td>
+<td>კოდს ასრულებს</td>
+</tr>
+<tr>
+<td>ბაზა</td>
+<td>არა</td>
+<td>კი</td>
+</tr>
+<tr>
+<td>სჭირდება</td>
+<td>ფაილები რეპოში</td>
+<td>გაშვებული პროგრამა 24/7</td>
+</tr>
+</tbody>
+</table>
+<p>Pages = <strong>თარო ფაილებით</strong>. API-ს სჭირდება <strong>კომპიუტერი</strong>, რომელზეც შენი პროგრამა და ბაზა მუდმივად მუშაობს.</p></article>
+<article class="blk" data-slides="19"><span class="anchor" id="s-19"></span><div class="bh"><h3>API-ს სჭირდება საკუთარი სერვერი</h3><a class="chip" href="index.html#/19" data-go="19" title="პრეზენტაციაში გახსნა">სლაიდი 19</a></div>
+<p>API-ს გასაშვებად გვჭირდება კომპიუტერი, რომელიც:</p>
+<ul>
+<li>🔌 <strong>24/7 ჩართულია</strong> — შენი ლეპტოპისგან განსხვავებით;</li>
+<li>🌍 აქვს <strong>საჯარო IP</strong> — ინტერნეტიდან მისაწვდომია;</li>
+<li>🛠️ შეგიძლია <strong>დააყენო</strong> მასზე რაც გინდა: .NET, ბაზა;</li>
+<li>🔑 <strong>შენ მართავ</strong> — დისტანციურად.</li>
+</ul>
+<p>ეს არის <strong>VPS</strong> — პირველი ლექციის ანალოგიით, „ნაქირავები ბინა“. კურსში გამოვიყენებთ <strong>DigitalOcean Droplet</strong>-ს.</p>
+<p>სერვერებზე თითქმის ყოველთვის <strong>Linux</strong> მუშაობს — ეკრანის, მაუსის და ღილაკების გარეშე, <strong>მხოლოდ ტერმინალი</strong>. ამიტომ, სანამ სერვერს შევქმნით, ვისწავლით მის ენას: <strong>შემდეგი ლექცია — Linux</strong>.</p>
+<div class="callout note"><span class="ci">💡</span><div><p>GitHub Pages კი არსად გაქრება: სტატიკური საიტისთვის (portfolio, დოკუმენტაცია, landing page) ის იდეალური და უფასო გამოსავალია. სწორი ინსტრუმენტი — სწორი ამოცანისთვის.</p></div></div></article>
+<h2 class="sec" id="sec-6">შეჯამება</h2>
+<article class="blk" data-slides="20"><span class="anchor" id="s-20"></span><div class="bh"><h3>შპარგალკა: GitHub Pages</h3><a class="chip" href="index.html#/20" data-go="20" title="პრეზენტაციაში გახსნა">სლაიდი 20</a></div>
+<p><strong>ჩართვა (ერთხელ):</strong> Settings → Pages → Source: <code>Deploy from a branch</code> → <code>main</code> / <code>(root)</code> → Save → Actions-ში ✅ → <code>https://&lt;username&gt;.github.io/&lt;repo&gt;/</code>.</p>
+<p><strong>განახლება (ყოველთვის):</strong></p>
+<div class="codebox"><div class="ch"><span>Git Bash</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="gp">$ </span>git<span class="w"> </span>switch<span class="w"> </span>-c<span class="w"> </span>feature/…</span><span class="ln"><span class="gp">$ </span>git<span class="w"> </span>add<span class="w"> </span>.<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">"…"</span></span><span class="ln"><span class="gp">$ </span>git<span class="w"> </span>switch<span class="w"> </span>main</span><span class="ln"><span class="gp">$ </span>git<span class="w"> </span>merge<span class="w"> </span>feature/…</span></code></pre></div>
+<p><strong>თუ არ მუშაობს:</strong> Actions მწვანეა? → <code>index.html</code> root-შია, პატარა ასოებით? → გზები ფარდობითია (<code>style.css</code>, არა <code>/style.css</code>)? → ფაილის სახელის ასოები ემთხვევა? → <code>Ctrl + F5</code>.</p></article>
+<h2 class="sec" id="sec-7">პრაქტიკა</h2>
+<article class="blk" data-slides="21"><span class="anchor" id="s-21"></span><div class="bh"><h3>კლასში დავალება: my-portfolio → ინტერნეტში</h3><a class="chip" href="index.html#/21" data-go="21" title="პრეზენტაციაში გახსნა">სლაიდი 21</a></div>
+<p>დავალება · პირველი deploy</p>
+<h3>ნაბიჯები</h3>
+<ul>
+<li>my-portfolio GitHub-ზეა (Public), რეპოს root-ში — <code>index.html</code>, <code>style.css</code> და <code>.gitignore</code> (<code>.env</code>, <code>node_modules/</code>, <code>.vscode/</code>)</li>
+<li>GitHub-ზე my-portfolio → <strong>Settings → Pages</strong> → Source: <strong>Deploy from a branch</strong> → <code>main</code> / <code>(root)</code> → <strong>Save</strong></li>
+<li><strong>Actions</strong> ჩანართში დაელოდეთ მწვანე ✓-ს → გახსენით <code>https://&lt;username&gt;.github.io/my-portfolio/</code></li>
+<li>ლინკი გაუგზავნეთ გვერდით მჯდომს — მან ტელეფონიდან უნდა გახსნას</li>
+<li>branch <code>feature/footer</code> → <code>index.html</code>-ის ბოლოს footer (სახელი + წელი) → commit → merge <code>main</code>-ში → <code>git push</code></li>
+<li>Actions-ში ახალი deploy → საიტზე footer გამოჩნდა</li>
+</ul>
+<h3>✓ მზადაა, როცა</h3>
+<p>საიტი იხსნება სხვის ტელეფონზე, footer ჩანს, Actions-ში ორივე deploy მწვანეა, <code>.env</code> კი GitHub-ზე არ ჩანს</p>
+<h3>⭐ ბონუსი</h3>
+<ul>
+<li>განზრახ გააფუჭეთ: <code>href="style.css"</code> → <code>href="/style.css"</code> → push → ნახეთ, რა მოხდა → გაასწორეთ და ახსენით, რატომ გაფუჭდა</li>
+</ul>
+<h3>💡 მინიშნება</h3>
+<div class="codebox"><div class="ch"><span>bash</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln">git<span class="w"> </span>switch<span class="w"> </span>-c<span class="w"> </span>feature/footer</span><span class="ln"><span class="c1"># index.html-ში footer დავამატეთ</span></span><span class="ln">git<span class="w"> </span>add<span class="w"> </span>index.html</span><span class="ln">git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">"Add footer"</span></span><span class="ln">git<span class="w"> </span>switch<span class="w"> </span>main</span><span class="ln">git<span class="w"> </span>merge<span class="w"> </span>feature/footer</span><span class="ln">git<span class="w"> </span>push</span></code></pre></div>
+<p>ძველი ვერსია ჩანს? ჯერ Actions — მწვანეა? მერე <code>Ctrl + F5</code> (ბრაუზერის cache).</p></article>
+<h2 class="sec" id="sec-8">შეჯამება</h2>
+<article class="blk" data-slides="22"><span class="anchor" id="s-22"></span><div class="bh"><h3>შეამოწმე, რა დაგამახსოვრდა</h3><a class="chip" href="index.html#/22" data-go="22" title="პრეზენტაციაში გახსნა">სლაიდი 22</a></div>
+<p>ეს კითხვები შემდეგი ლექციის დასაწყისშიც დაისმება.</p>
+<div class="selfcheck"><div class="sh">✅ შეამოწმე თავი <small>დაფიქრდი, მერე გახსენი პასუხი</small></div><details><summary>რატომ ამბობენ, რომ DevOps Git-ით იწყება?</summary><div class="ans">კოდის გზა მომხმარებლამდე <code>git push</code>-ით იწყება: GitHub იღებს ცვლილებას და pipeline მას ავტომატურად აქვეყნებს — დღეს Pages-ზე, კურსის ბოლოს საკუთარ სერვერზე</div></details><details><summary><code>.env</code> შემთხვევით public რეპოში ავტვირთე. საკმარისია მისი წაშლა?</summary><div class="ans">არა: ის ისტორიაში რჩება და ბოტები წუთებში პოულობენ. საიდუმლო (პაროლი, გასაღები) უნდა შეიცვალოს, ფაილი კი <code>.gitignore</code>-ში ჩაიწეროს</div></details><details><summary>რას აკეთებს GitHub Pages?</summary><div class="ans">რეპოს branch-იდან ფაილებს იღებს და ინტერნეტში აქვეყნებს მისამართზე <code>username.github.io/repo</code> — უფასოდ, public რეპოსთვის</div></details><details><summary>საიტი შევცვალე. როგორ მოხვდება ცვლილება ინტერნეტში?</summary><div class="ans">commit → (merge <code>main</code>-ში) → <code>git push</code>. GitHub თვითონ ხელახლა აქვეყნებს — სტატუსი ჩანს Actions ჩანართში</div></details><details><summary>საიტი გაიხსნა, მაგრამ CSS არ ჩაიტვირთა. რა შეიძლება იყოს მიზეზი?</summary><div class="ans">გზა <code>/style.css</code> (დახრილი ხაზით) — Pages-ზე საიტი <code>/my-portfolio/</code>-ში ცხოვრობს; ან ასოების ზომა: <code>Style.css</code> ≠ <code>style.css</code>, სერვერი მათ განასხვავებს</div></details><details><summary>რატომ ვერ გაეშვება ASP.NET API GitHub Pages-ზე?</summary><div class="ans">Pages მხოლოდ მზა ფაილებს აძლევს ბრაუზერს. API — პროგრამაა: მუდმივად უნდა მუშაობდეს, მოთხოვნაზე კოდი შეასრულოს და ბაზას დაუკავშირდეს. Pages პროგრამას არ უშვებს</div></details></div></article>
+<article class="blk" data-slides="23"><span class="anchor" id="s-23"></span><div class="bh"><h3>შეჯამება · დღეს ვისწავლეთ</h3><a class="chip" href="index.html#/23" data-go="23" title="პრეზენტაციაში გახსნა">სლაიდი 23</a></div>
+<ul>
+<li>🔁 <strong>Git DevOps-ში</strong> — <code>git push</code> deploy-ის დასაწყისია; <code>main</code> = რაც ინტერნეტშია; public რეპოში საიდუმლოებები <code>.gitignore</code>-ით არ ხვდება, ხოლო უკვე ატვირთული საიდუმლო უნდა შეიცვალოს.</li>
+<li>📄 <strong>GitHub Pages</strong> — რეპოს ფაილებს აქვეყნებს <code>username.github.io/repo</code>-ზე: უფასოდ, public რეპოსთვის, HTTPS-ით.</li>
+<li>🚀 <strong>deploy</strong> — ჩართვა ერთხელ ხდება, მერე ყოველი <code>git push</code> <code>main</code>-ში ახალ ვერსიას აქვეყნებს. სტატუსი — <strong>Actions</strong> ჩანართში (<code>pages build and deployment</code>).</li>
+<li>🐧 <strong>ტიპური შეცდომები</strong> — <code>index.html</code> root-ში და პატარა ასოებით; ფარდობითი გზები; სერვერი Linux-ია და <code>Style.css</code> ≠ <code>style.css</code>.</li>
+<li>⚙️ <strong>API ვერ გაეშვება Pages-ზე</strong> — ის გაშვებული პროგრამაა, რომელიც კოდს ასრულებს და ბაზას მიმართავს. სჭირდება საკუთარი სერვერი (VPS), რომელზეც Linux მუშაობს.</li>
+</ul>
+<p><strong>შემდეგ ლექციაზე:</strong> Linux — სერვერის ენა. საშინაოში დააყენე WSL და Ubuntu — ლექციაზე უკვე დაგჭირდება.</p>
+<div class="prompt"><div class="ph"><span>🤖 გამოცდა მეორე ლექციაზე</span><button class="copy" type="button">კოპირება</button></div><div class="pb">ვსწავლობ DevOps-ს. მეორე ლექციაზე გავიარეთ: Git-ის მოკლე გამეორება (clone, status, add, commit, push, pull, branch, merge), .gitignore და საიდუმლოებები public რეპოში, GitHub Pages (ჩართვა, მისამართი username.github.io/repo, განახლება git push-ით, Actions ჩანართი), ტიპური შეცდომები (404, CSS არ იტვირთება, /style.css vs style.css, დიდი და პატარა ასოები Linux-ზე, cache) და რატომ ვერ გაეშვება API GitHub Pages-ზე.
+დამისვი 7 კითხვა სათითაოდ, მარტივიდან რთულისკენ — ნაწილი პრაქტიკული სიტუაციები იყოს („საიტი გაიხსნა, მაგრამ…“). ყოველ პასუხზე შემიფასე და ამიხსენი. ბოლოს მითხარი, რა გავიმეორო. ქართულად.</div></div>
+<div class="prompt"><div class="ph"><span>🤖 საიტი Pages-ზე არ მუშაობს</span><button class="copy" type="button">კოპირება</button></div><div class="pb">ჩემი სტატიკური საიტი GitHub Pages-ზე არ მუშაობს სწორად. დამეხმარე პრობლემის პოვნაში ნაბიჯ-ნაბიჯ, მარტივად და ქართულად — ჯერ დამისვი კითხვები, მერე მირჩიე გამოსავალი. რას ვხედავ: [აქ აღწერე — მაგ. 404, CSS არ ჩანს, ძველი ვერსია]. ჩემი ფაილების სია: [აქ ჩაწერე]</div></div></article>
+<h2 class="sec" id="sec-9">საშინაო</h2>
+<article class="blk" data-slides="24"><span class="anchor" id="s-24"></span><div class="bh"><h3>საშინაო დავალება: პროექტების გვერდი, ლინკი README-ში და Linux შენს კომპიუტერზე</h3><a class="chip" href="index.html#/24" data-go="24" title="პრეზენტაციაში გახსნა">სლაიდი 24</a></div>
+<p>my-portfolio ცოცხალია — შემდეგ ლექციაზე სერვერის ენას, Linux-ს ვსწავლობთ</p>
+<h3>მოთხოვნები</h3>
+<ul>
+<li>branch <code>feature/projects</code>: <code>projects.html</code> — 2-3 პროექტი (სახელი + მოკლე აღწერა) და ბმული მასზე <code>index.html</code>-დან → merge <code>main</code>-ში → <code>git push</code> → ცოცხალ საიტზე იხსნება</li>
+<li><code>README.md</code>-ში და რეპოს <strong>About → Website</strong>-ში — ცოცხალი საიტის ლინკი</li>
+<li><strong>Windows:</strong> <code>wsl --install -d Ubuntu-24.04</code> (PowerShell, Administrator) → გადატვირთვა → user და პაროლი</li>
+<li><strong>macOS:</strong> საკმარისია ჩაშენებული Terminal</li>
+</ul>
+<h3>✓ მზადაა, როცა</h3>
+<p>რეპოს გვერდზე ჩანს საიტის ლინკი, <code>projects.html</code> ცოცხალ საიტზე იხსნება, Ubuntu-ში <code>lsb_release -a</code> აჩვენებს <code>24.04</code></p>
+<h3>⭐ ბონუსი</h3>
+<ul>
+<li><code>404.html</code> — საკუთარი „გვერდი ვერ მოიძებნა“: push → გახსენით არარსებული მისამართი, მაგ. <code>/my-portfolio/abc</code></li>
+</ul>
+<h3>💡 თუ WSL არ დაყენდა</h3>
+<p><code>Virtualization</code> BIOS-ში გამორთულია — ჩართეთ (Intel VT-x / AMD-V). ეს მე-7 ლექციაზე Docker-ისთვისაც დაგჭირდებათ, ამიტომ ახლავე მოაგვარეთ.</p></article>
+  </main>
+</div>
+<script>
+const DECK = "DevOps · 2 — Git → GitHub Pages — საიტი ინტერნეტში";
+if (matchMedia('(min-width:981px)').matches) document.getElementById('tocd').open = true;
+const blocks = [...document.querySelectorAll('.blk')];
+const tocLinks = [...document.querySelectorAll('nav.toc a[href^="#sec-"]')];
+const secOf = b => { let e = b; while (e && !(e.matches && e.matches('h2.sec'))) e = e.previousElementSibling; return e; };
+function mark(b, toc_only) {
+  if (!toc_only) blocks.forEach(x => x.classList.toggle('cur', x === b));
+  const s = b && secOf(b); tocLinks.forEach(a => a.classList.toggle('cur', s && a.getAttribute('href') === '#' + s.id));
+}
+const blockFor = n => blocks.find(b => b.dataset.slides.split(',').includes(String(n)));
+
+// copy buttons (code: one line per .ln)
+document.addEventListener('click', e => {
+  const btn = e.target.closest('.copy'); if (!btn) return;
+  const box = btn.closest('.codebox, .prompt');
+  const text = box.matches('.prompt') ? box.querySelector('.pb').textContent : [...box.querySelectorAll('.ln')].map(l => l.textContent).join('\n');
+  navigator.clipboard.writeText(text).then(() => { btn.textContent = '✓ დაკოპირდა'; btn.classList.add('ok'); setTimeout(() => { btn.textContent = 'კოპირება'; btn.classList.remove('ok'); }, 1600); });
+});
+
+// live mode: opened from the deck with P — follow the projector
+const live = new URLSearchParams(location.search).has('live');
+let follow = true, bc = null;
+const liveBtn = document.getElementById('live');
+if (live) {
+  try { bc = new BroadcastChannel('deck-' + DECK); } catch (e) {}
+  liveBtn.classList.add('on');
+  liveBtn.onclick = () => { follow = !follow; liveBtn.classList.toggle('off', !follow); liveBtn.querySelector('.lt').textContent = follow ? 'მიჰყვება სლაიდებს' : 'თავისუფლად ვკითხულობ'; };
+  if (bc) {
+    bc.onmessage = ({ data }) => {
+      if (data.t !== 'state' || !follow) return;
+      const b = blockFor(data.i + 1); if (!b || b.classList.contains('cur')) return;
+      mark(b); b.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    };
+    bc.postMessage({ t: 'hello' });
+  }
+  document.addEventListener('click', e => {   // slide chip → move the projector deck
+    const c = e.target.closest('.chip[data-go]'); if (!c || !bc) return;
+    e.preventDefault(); bc.postMessage({ t: 'go', n: +c.dataset.go - 1 });
+  });
+}
+// deep link #s-12
+const h = location.hash.match(/^#s-(\d+)$/);
+if (h) { const b = blockFor(+h[1]); if (b) { mark(b); setTimeout(() => b.scrollIntoView({ block: 'start' }), 50); } }
+// highlight section in the TOC while reading
+const io = new IntersectionObserver(es => es.forEach(x => { if (x.isIntersecting && !(live && follow)) mark(x.target, true); }), { rootMargin: '-30% 0px -60% 0px' });
+blocks.forEach(b => io.observe(b));
+</script>
+</body></html>

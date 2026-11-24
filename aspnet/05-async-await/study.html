@@ -1,0 +1,559 @@
+<!doctype html>
+<html lang="ka"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>📖 Async / Await API-ში — კონსპექტი</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Georgian:wght@400;600;700;800&family=JetBrains+Mono:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#fbf8f3;--card:#fff;--ink:#1e2132;--ink2:#3b3f54;--muted:#7b8096;--line:#e6dfd2;--accent:#6d28d9;--accent-soft:#f3effe;--teal:#0d9488;
+  --green:#15803d;--amber:#b45309;--mono:"JetBrains Mono",ui-monospace,monospace;--sans:"Noto Sans Georgian",system-ui,sans-serif}
+*{box-sizing:border-box}
+html{scroll-padding-top:76px}
+body{margin:0;background:var(--bg);color:var(--ink);font:17.5px/1.75 var(--sans);-webkit-font-smoothing:antialiased}
+a{color:var(--accent)}
+/* top bar */
+.top{position:sticky;top:0;z-index:10;display:flex;align-items:center;gap:14px;padding:10px 20px;background:rgba(251,248,243,.92);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.top .back{font:600 14px var(--mono);color:var(--muted);text-decoration:none;white-space:nowrap}
+.top .back:hover{color:var(--ink)}
+.top .ttl{flex:1;min-width:0;font-weight:700;font-size:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.top .ttl small{font:500 13px var(--mono);color:var(--muted);margin-right:8px}
+.btn{font:700 14px var(--sans);text-decoration:none;border-radius:10px;padding:7px 14px;white-space:nowrap;border:1px solid var(--line);color:var(--ink);background:var(--card);cursor:pointer}
+.btn.play{background:var(--accent);border-color:var(--accent);color:#fff}
+.live{display:none;align-items:center;gap:8px;font:600 13px var(--mono);color:var(--teal);background:#e6f6f4;border:1px solid #bfe7e2;border-radius:999px;padding:5px 12px;cursor:pointer}
+.live.on{display:flex}
+.live .dot{width:8px;height:8px;border-radius:50%;background:var(--teal);animation:pulse 1.6s infinite}
+.live.off{color:var(--muted);background:var(--card);border-color:var(--line)}.live.off .dot{background:var(--muted);animation:none}
+@keyframes pulse{50%{opacity:.3}}
+/* layout */
+.wrap{display:grid;grid-template-columns:230px minmax(0,1000px);gap:44px;justify-content:center;padding:32px 28px 120px}
+nav.toc{position:sticky;top:84px;align-self:start;font-size:14px;line-height:1.45}
+nav.toc .h{font:700 12px var(--mono);color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px}
+nav.toc a{display:block;color:var(--ink2);text-decoration:none;padding:6px 10px;border-left:2px solid var(--line)}
+nav.toc a:hover{color:var(--accent)}
+nav.toc a.cur{color:var(--accent);border-left-color:var(--accent);font-weight:700}
+nav.toc .mats{margin-top:22px;display:flex;flex-direction:column;gap:6px}
+nav.toc .mats a{border:0;padding:2px 0;font:500 13px var(--mono);color:var(--teal);word-break:break-all}
+header.hero{margin-bottom:8px}
+header.hero .k{font:600 14px var(--mono);color:var(--accent)}
+header.hero h1{font-size:38px;line-height:1.2;margin:6px 0 10px;letter-spacing:-.01em}
+header.hero p{color:var(--muted);margin:0;font-size:15.5px}
+header.hero kbd{font:500 12px var(--mono);border:1px solid var(--line);border-radius:5px;padding:0 5px;background:var(--card)}
+h2.sec{font-size:15px;font:700 13px var(--mono);color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin:48px 0 6px;padding-top:18px;border-top:1px solid var(--line)}
+/* blocks */
+.blk{position:relative;padding:14px 0 6px 22px;margin-left:-22px;border-left:3px solid transparent;transition:border-color .3s,background .3s;border-radius:0 12px 12px 0}
+.blk.cur{border-left-color:var(--accent);background:linear-gradient(90deg,var(--accent-soft),transparent 70%)}
+.anchor{position:absolute;top:0}
+.bh{display:flex;align-items:baseline;justify-content:space-between;gap:12px}
+.bh h3{font-size:22px;line-height:1.35;margin:4px 0 6px}
+.chip{flex:none;font:600 12px var(--mono);color:var(--muted);text-decoration:none;border:1px solid var(--line);border-radius:999px;padding:2px 10px;background:var(--card)}
+.chip:hover{color:var(--accent);border-color:var(--accent)}
+.blk h2{font-size:26px;line-height:1.3;margin:6px 0 10px}
+.blk h3:not(.bh h3){font-size:19px;margin:22px 0 6px}
+.blk h4{font-size:17px;margin:18px 0 4px}
+.blk p{margin:10px 0}
+.blk ul,.blk ol{padding-left:24px;margin:8px 0}
+.blk li{margin:4px 0}
+.blk strong{color:var(--ink)}
+.blk :not(pre)>code{font:600 .86em var(--mono);background:#f1ece3;border-radius:6px;padding:1px 6px;color:#5b21b6}
+.blk table{border-collapse:collapse;margin:14px 0;font-size:15.5px;width:100%;display:block;overflow-x:auto}
+.blk th,.blk td{border:1px solid var(--line);padding:8px 12px;text-align:left;vertical-align:top}
+.blk th{background:#f6f1e8}
+/* code */
+.codebox{margin:14px 0;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:#fffdf9}
+.codebox .ch,.prompt .ph{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:6px 8px 6px 14px;font:600 12.5px var(--mono);color:var(--muted);background:#f6f1e8;border-bottom:1px solid var(--line)}
+.copy{font:600 12px var(--mono);border:1px solid var(--line);background:var(--card);color:var(--ink2);border-radius:7px;padding:3px 10px;cursor:pointer}
+.copy:hover{border-color:var(--ink)}
+.copy.ok{color:var(--green);border-color:var(--green)}
+pre.code{margin:0;padding:12px 0;overflow-x:auto;font:14px/1.65 var(--mono)}
+pre.code .ln{display:block;padding:0 16px;white-space:pre}
+.code .ttl{background:var(--bg2);color:var(--muted)}
+.code .ln.hl{background:rgba(109,40,217,.07);box-shadow:inset 3px 0 0 var(--net)}
+.code .ln.dim{opacity:.42}
+.code .k,.code .kd,.code .kn,.code .kr,.code .kc{color:#7c3aed}
+.code .kt{color:#2563eb}
+.code .s,.code .s1,.code .s2,.code .sa,.code .se,.code .si,.code .sd{color:#15803d}
+.code .c,.code .c1,.code .cm,.code .cp,.code .ch{color:#8b8fa3}
+.code .m,.code .mi,.code .mf,.code .mh{color:#c2410c}
+.code .nf,.code .fm{color:#1d4ed8}
+.code .nc,.code .nn,.code .nt,.code .nd{color:#b45309}
+.code .na{color:#7c3aed} .code .nb{color:#0e7490}
+.code .o,.code .p{color:#64748b}
+.code .nv,.code .nx{color:var(--ink)}
+.code .go{color:#64748b}
+/* prompt */
+.prompt{margin:16px 0;border:1px solid #ddd2fb;border-radius:12px;overflow:hidden;background:var(--accent-soft)}
+.prompt .ph{background:#ebe3fd;border-color:#ddd2fb;color:var(--accent)}
+.prompt .pb{padding:12px 16px;white-space:pre-wrap;font-size:15.5px;line-height:1.6;color:var(--ink2)}
+/* self check */
+.selfcheck{margin:16px 0;border:1px solid #cfe9d6;border-radius:12px;background:#f3fbf5;padding:12px 16px}
+.selfcheck .sh{font-weight:700;color:var(--green);margin-bottom:6px}
+.selfcheck .sh small{font-weight:400;color:var(--muted);font-size:13.5px;margin-left:6px}
+.selfcheck details{border-top:1px solid #dcefe1;padding:8px 0}
+.selfcheck summary{cursor:pointer;font-weight:600;list-style:none;padding-left:26px;position:relative}
+.selfcheck summary::-webkit-details-marker{display:none}
+.selfcheck summary::before{content:"?";position:absolute;left:0;top:2px;width:18px;height:18px;border-radius:50%;background:var(--green);color:#fff;font:700 12px/18px var(--mono);text-align:center}
+.selfcheck details[open] summary::before{content:"✓"}
+.selfcheck .ans{padding:6px 0 2px 26px;color:var(--ink2)}
+/* terms */
+.terms{margin:16px 0;border:1px solid var(--line);border-radius:12px;background:var(--card);padding:12px 16px}
+.terms .th{font-weight:700;margin-bottom:6px}
+.terms dl{display:grid;grid-template-columns:max-content 1fr;gap:6px 18px;margin:0}
+.terms dt{font:600 14.5px var(--mono);color:var(--accent)}
+.terms dd{margin:0;color:var(--ink2)}
+/* callouts */
+.callout{display:flex;gap:12px;margin:14px 0;padding:12px 16px;border-radius:12px;border:1px solid var(--line);background:var(--card)}
+.callout .ci{font-size:20px;line-height:1.6}
+.callout>div>p:first-child{margin-top:0}.callout>div>p:last-child{margin-bottom:0}
+.callout.warn{background:#fff8eb;border-color:#f6dfb5}
+.callout.note{background:#eef5ff;border-color:#cfe0fb}
+@media (max-width:980px){
+  .wrap{grid-template-columns:minmax(0,1fr);gap:0;padding:20px 16px 100px}
+  nav.toc{position:static;margin-bottom:12px}
+  nav.toc details{border:1px solid var(--line);border-radius:12px;background:var(--card);padding:8px 12px}
+  nav.toc details>summary{cursor:pointer;font-weight:700}
+  nav.toc .h{display:none}
+  header.hero h1{font-size:30px}
+  .blk{padding-left:14px;margin-left:-14px}
+  .top .ttl small{display:none}
+  .terms dl{grid-template-columns:1fr}.terms dd{margin-bottom:8px}
+}
+@media (min-width:981px){nav.toc details>summary{display:none}}
+@media print{.top,nav.toc,.copy,.chip,.live{display:none}.wrap{display:block;padding:0}.selfcheck details{display:block}.blk.cur{background:none}}
+</style></head>
+<body>
+<div class="top">
+  <a class="back" href="../../">← ლექციები</a>
+  <div class="ttl"><small>ASP.NET · 5</small>Async / Await API-ში</div>
+  <button class="live" id="live" type="button" title="ჩართული: ტექსტი პრეზენტაციას მიჰყვება"><span class="dot"></span><span class="lt">მიჰყვება სლაიდებს</span></button>
+  <a class="btn play" href="index.html">▶ პრეზენტაცია</a>
+</div>
+<div class="wrap">
+  <nav class="toc"><details id="tocd"><summary>სარჩევი</summary><div class="h">სარჩევი</div><a href="#sec-1">გამეორება</a><a href="#sec-2">საშინაოს განხილვა</a><a href="#sec-3">დღის თემა</a><a href="#sec-4">1 · ლოდინის პრობლემა</a><a href="#sec-5">2 · Task და await</a><a href="#sec-6">3 · ShopApi → async</a><a href="#sec-7">4 · როდის — და როდის არა</a><a href="#sec-8">პრაქტიკა</a><a href="#sec-9">შეჯამება</a><a href="#sec-10">საშინაო</a><div class="mats"></div></details></nav>
+  <main>
+    <header class="hero">
+      <div class="k">📖 კონსპექტი · ASP.NET · ლექცია 5</div>
+      <h1>Async / Await API-ში</h1>
+      <p>წაიკითხე ლექციის შემდეგ, ან პრეზენტაციასთან ერთად: პრეზენტაციაში დააჭირე <kbd>P</kbd> და ეს გვერდი სლაიდებს გაჰყვება. კოდი და AI-ს პრომპტები კოპირდება ერთი დაჭერით.</p>
+    </header>
+    <h2 class="sec" id="sec-1">გამეორება</h2>
+<article class="blk" data-slides="1,2"><span class="anchor" id="s-1"></span><span class="anchor" id="s-2"></span><div class="bh"><h3>გავიხსენოთ წინა ლექცია</h3><a class="chip" href="index.html#/1" data-go="1" title="პრეზენტაციაში გახსნა">სლაიდი 1</a></div>
+<p>ლექცია 4 — <strong>Dependency Injection და DbContext</strong>. ახალ თემამდე ვამოწმებთ, რა დაგვამახსოვრდა. ჯერ თვითონ უპასუხე, მერე გახსენი პასუხი. თუ რომელიმე გაგიჭირდა, <a href="../04-di-dbcontext/study.html">წინა ლექციის კონსპექტს</a> გადახედე.</p>
+<div class="selfcheck"><div class="sh">✅ შეამოწმე თავი <small>დაფიქრდი, მერე გახსენი პასუხი</small></div><details><summary>რატომ არ ვწერთ Controller-ში <code>new DataContext()</code>-ს?</summary><div class="ans">connection string კოდშია · DataContext-ს არავინ ხურავს · შექმნის წესი ყველა Controller-შია მიმოფანტული</div></details><details><summary>რა არის Inversion of Control და Dependency Injection?</summary><div class="ans">IoC — კონტროლს framework-ს ვაძლევთ · DI — კლასი dependency-ს constructor-ით ითხოვს, Container აწვდის</div></details><details><summary>რას ნიშნავს „Unable to resolve service for type …“?</summary><div class="ans">Container-მა ეს ტიპი არ იცის — <code>builder.Services</code>-ში რეგისტრაცია აკლია</div></details><details><summary>Singleton, Scoped, Transient — როდის იქმნება ახალი ობიექტი?</summary><div class="ans">მხოლოდ ერთხელ, მთელ აპზე · ყოველ მოთხოვნაზე ერთი · ყოველ ჯერზე, როცა ვინმე ითხოვს</div></details><details><summary>რატომ არის DataContext Scoped და რა მოხდება Singleton-ით?</summary><div class="ans">ერთ მოთხოვნაში ერთი DataContext, ბოლოს იხურება · Singleton — ერთი ყველასთვის: Change Tracker იზრდება, ერთდროულ მოთხოვნებზე „A second operation was started…“</div></details></div></article>
+<h2 class="sec" id="sec-2">საშინაოს განხილვა</h2>
+<article class="blk" data-slides="3"><span class="anchor" id="s-3"></span><div class="bh"><h3>საშინაოს განხილვა</h3><a class="chip" href="index.html#/3" data-go="3" title="პრეზენტაციაში გახსნა">სლაიდი 3</a></div>
+<p>წინა ლექციის საშინაო: <strong>LibraryApi — წევრები და გატანა ბაზაში</strong>. ქვემოთ არის ერთ-ერთი სწორი ამოხსნა. შენი კოდი შეიძლება სხვანაირად იყოს დაწერილი — მთავარია, მოთხოვნები სრულდებოდეს.</p>
+<h3>მოთხოვნები</h3>
+<ul>
+<li>MembersController — <code>static</code> სიის ნაცვლად <code>DbSet&lt;Member&gt; Members</code> (Email-ის შემოწმება და Argon2 რჩება)</li>
+<li><code>Loan</code>: <code>Id</code>, <code>BookId</code>, <code>MemberId</code> (Guid), <code>LoanedAt</code> · <code>DbSet&lt;Loan&gt; Loans</code> · ახალი მიგრაცია</li>
+<li><code>LoansController(DataContext)</code> · <code>POST /api/loans</code> <code>{ bookId, memberId }</code> → 201 · 404 · 409 (უკვე გატანილია)</li>
+<li><code>GET /api/loans</code> — ყველა გატანა · ყველგან DataContext constructor-ით, <code>new</code>-ის გარეშე</li>
+</ul>
+<h3>ამოხსნა</h3>
+<div class="codebox"><div class="ch"><span>Controllers/LoansController.cs · Create</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="na">[HttpPost]</span></span><span class="ln"><span class="k">public</span><span class="w"> </span><span class="n">IActionResult</span><span class="w"> </span><span class="nf">Create</span><span class="p">(</span><span class="n">CreateLoanRequest</span><span class="w"> </span><span class="n">request</span><span class="p">)</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">_db</span><span class="p">.</span><span class="n">Books</span><span class="p">.</span><span class="n">Find</span><span class="p">(</span><span class="n">request</span><span class="p">.</span><span class="n">BookId</span><span class="p">)</span><span class="w"> </span><span class="k">is</span><span class="w"> </span><span class="k">null</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">NotFound</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">_db</span><span class="p">.</span><span class="n">Members</span><span class="p">.</span><span class="n">Find</span><span class="p">(</span><span class="n">request</span><span class="p">.</span><span class="n">MemberId</span><span class="p">)</span><span class="w"> </span><span class="k">is</span><span class="w"> </span><span class="k">null</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">NotFound</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">_db</span><span class="p">.</span><span class="n">Loans</span><span class="p">.</span><span class="n">Any</span><span class="p">(</span><span class="n">l</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">l</span><span class="p">.</span><span class="n">BookId</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">request</span><span class="p">.</span><span class="n">BookId</span><span class="p">)</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">Conflict</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="kt">var</span><span class="w"> </span><span class="n">loan</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">Loan</span></span><span class="ln"><span class="w">    </span><span class="p">{</span></span><span class="ln"><span class="w">        </span><span class="n">BookId</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">request</span><span class="p">.</span><span class="n">BookId</span><span class="p">,</span></span><span class="ln"><span class="w">        </span><span class="n">MemberId</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">request</span><span class="p">.</span><span class="n">MemberId</span><span class="p">,</span></span><span class="ln"><span class="w">        </span><span class="n">LoanedAt</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">DateTime</span><span class="p">.</span><span class="n">UtcNow</span></span><span class="ln"><span class="w">    </span><span class="p">}</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="n">_db</span><span class="p">.</span><span class="n">Loans</span><span class="p">.</span><span class="n">Add</span><span class="p">(</span><span class="n">loan</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="n">_db</span><span class="p">.</span><span class="n">SaveChanges</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nf">Created</span><span class="p">(</span><span class="s">$"/api/loans/{loan.Id}"</span><span class="p">,</span><span class="w"> </span><span class="n">ToResponse</span><span class="p">(</span><span class="n">loan</span><span class="p">)</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="p">}</span></span></code></pre></div>
+<div class="codebox"><div class="ch"><span>Controllers/LoansController.cs</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="na">[ApiController]</span></span><span class="ln"><span class="na">[Route("api/[controller]</span><span class="s">")]</span></span><span class="ln"><span class="k">public</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">LoansController</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">ControllerBase</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="k">private</span><span class="w"> </span><span class="k">readonly</span><span class="w"> </span><span class="n">DataContext</span><span class="w"> </span><span class="n">_db</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="nf">LoansController</span><span class="p">(</span><span class="n">DataContext</span><span class="w"> </span><span class="n">db</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="p">{</span></span><span class="ln"><span class="w">        </span><span class="n">_db</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">db</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="p">}</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="na">[HttpGet]</span></span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="n">IActionResult</span><span class="w"> </span><span class="nf">GetAll</span><span class="p">(</span><span class="p">)</span><span class="w"> </span><span class="o">=&gt;</span></span><span class="ln"><span class="w">        </span><span class="n">Ok</span><span class="p">(</span><span class="n">_db</span><span class="p">.</span><span class="n">Loans</span><span class="p">.</span><span class="n">ToList</span><span class="p">(</span><span class="p">)</span><span class="p">.</span><span class="n">Select</span><span class="p">(</span><span class="n">ToResponse</span><span class="p">)</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="k">private</span><span class="w"> </span><span class="k">static</span><span class="w"> </span><span class="n">LoanResponse</span><span class="w"> </span><span class="nf">ToResponse</span><span class="p">(</span><span class="n">Loan</span><span class="w"> </span><span class="n">l</span><span class="p">)</span><span class="w"> </span><span class="o">=&gt;</span></span><span class="ln"><span class="w">        </span><span class="k">new</span><span class="p">(</span><span class="n">l</span><span class="p">.</span><span class="n">Id</span><span class="p">,</span><span class="w"> </span><span class="n">l</span><span class="p">.</span><span class="n">BookId</span><span class="p">,</span><span class="w"> </span><span class="n">l</span><span class="p">.</span><span class="n">MemberId</span><span class="p">,</span><span class="w"> </span><span class="n">l</span><span class="p">.</span><span class="n">LoanedAt</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="c1">// Create — ზემოთ</span></span><span class="ln"><span class="p">}</span></span></code></pre></div>
+<div class="codebox"><div class="ch"><span>Data/DataContext.cs</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="k">public</span><span class="w"> </span><span class="n">DbSet</span><span class="o">&lt;</span><span class="n">Book</span><span class="o">&gt;</span><span class="w"> </span><span class="n">Books</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">get</span><span class="p">;</span><span class="w"> </span><span class="k">set</span><span class="p">;</span><span class="w"> </span><span class="p">}</span></span><span class="ln"><span class="k">public</span><span class="w"> </span><span class="n">DbSet</span><span class="o">&lt;</span><span class="n">Member</span><span class="o">&gt;</span><span class="w"> </span><span class="n">Members</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">get</span><span class="p">;</span><span class="w"> </span><span class="k">set</span><span class="p">;</span><span class="w"> </span><span class="p">}</span></span><span class="ln"><span class="k">public</span><span class="w"> </span><span class="n">DbSet</span><span class="o">&lt;</span><span class="n">Loan</span><span class="o">&gt;</span><span class="w"> </span><span class="n">Loans</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">get</span><span class="p">;</span><span class="w"> </span><span class="k">set</span><span class="p">;</span><span class="w"> </span><span class="p">}</span></span></code></pre></div>
+<p>ბონუსის პასუხი:</p>
+<div class="selfcheck"><div class="sh">✅ შეამოწმე თავი <small>დაფიქრდი, მერე გახსენი პასუხი</small></div><details><summary>Transient — რა შეიცვალა console-ში?</summary><div class="ans">არაფერი: ერთ მოთხოვნაზე DataContext-ს მხოლოდ ერთი Controller ითხოვს, ამიტომ ერთხელ იქმნება — ისევე, როგორც Scoped-ით</div></details><details><summary>Singleton — რა ჩანს?</summary><div class="ans"><code>new DataContext #1</code> მხოლოდ ერთხელ — ერთი DataContext ყველა მოთხოვნას ემსახურება. ლოკალურად მუშაობს, მაგრამ Change Tracker იზრდება და ერთდროულ მოთხოვნებზე „A second operation was started…“ შეცდომა ჩნდება</div></details></div>
+<div class="callout note"><span class="ci">💡</span><div><p>LoansController-ს სამი შემოწმებისთვის მხოლოდ ერთი dependency სჭირდება — DataContext.</p></div></div></article>
+<h2 class="sec" id="sec-3">დღის თემა</h2>
+<article class="blk" data-slides="4"><span class="anchor" id="s-4"></span><div class="bh"><h3>დღის თემა: Async / Await API-ში</h3><a class="chip" href="index.html#/4" data-go="4" title="პრეზენტაციაში გახსნა">სლაიდი 4</a></div>
+<p>ShopApi ბაზასთან მუშაობს, მაგრამ ყოველ <code>ToList()</code>-ზე და <code>SaveChanges()</code>-ზე სერვერის ნაკადი ჩერდება და ბაზის პასუხს ელოდება. ერთ მომხმარებელზე ამას ვერ შეამჩნევ — ფასდაკლების დღეს კი საიტი „იჭედება“, თუმცა პროცესორი თითქმის ისვენებს. დღეს ვნახავთ, რატომ ხდება ეს, როგორ ხსნის მას async/await, და — რაც არანაკლებ მნიშვნელოვანია — როდის გვჭირდება async და როდის არაფერს გვაძლევს.</p>
+<p><strong>ლექციის ბოლოს შეძლებ:</strong></p>
+<ul>
+<li>ახსნა, რა არის Thread და Thread Pool და რატომ „იჭედება“ სინქრონული სერვერი დატვირთვისას</li>
+<li><code>Task</code>, <code>Task&lt;T&gt;</code>, <code>async</code> და <code>await</code> — რას აკეთებს თითოეული და რა ხდება await-ზე</li>
+<li>ShopApi-ის Controller-ების გადაყვანა async-ზე: <code>ToListAsync</code>, <code>FindAsync</code>, <code>SaveChangesAsync</code>, <code>CountAsync</code></li>
+<li>გადაწყვეტილება: სად გვჭირდება async (I/O) და სად არა (გამოთვლა) · ხშირი შეცდომების ამოცნობა</li>
+</ul></article>
+<article class="blk" data-slides="5"><span class="anchor" id="s-5"></span><div class="bh"><h3>სადაც შევჩერდით</h3><a class="chip" href="index.html#/5" data-go="5" title="პრეზენტაციაში გახსნა">სლაიდი 5</a></div>
+<p>ShopApi ნამდვილ ბაზასთან მუშაობს: DataContext-ს Controller-ი constructor-ით ითხოვს, Container მას Scoped-ად ქმნის, პროდუქტები SQL Server-ში ინახება.</p>
+<div class="codebox"><div class="ch"><span>Controllers/ProductsController.cs</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="na">[HttpGet]</span></span><span class="ln"><span class="k">public</span><span class="w"> </span><span class="n">IActionResult</span><span class="w"> </span><span class="nf">GetAll</span><span class="p">(</span><span class="p">)</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nf">Ok</span><span class="p">(</span><span class="n">_db</span><span class="p">.</span><span class="n">Products</span><span class="p">.</span><span class="n">ToList</span><span class="p">(</span><span class="p">)</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="p">}</span></span><span class="ln"> </span><span class="ln"><span class="na">[HttpGet("{id:guid}")]</span></span><span class="ln"><span class="k">public</span><span class="w"> </span><span class="n">IActionResult</span><span class="w"> </span><span class="nf">GetById</span><span class="p">(</span><span class="n">Guid</span><span class="w"> </span><span class="n">id</span><span class="p">)</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="kt">var</span><span class="w"> </span><span class="n">product</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">_db</span><span class="p">.</span><span class="n">Products</span><span class="p">.</span><span class="n">Find</span><span class="p">(</span><span class="n">id</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">product</span><span class="w"> </span><span class="k">is</span><span class="w"> </span><span class="k">null</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">NotFound</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nf">Ok</span><span class="p">(</span><span class="n">product</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="p">}</span></span></code></pre></div>
+<p><code>ToList()</code>, <code>Find()</code> და <code>SaveChanges()</code> — სამივე ბაზაში მიდის: EF Core SQL-ს აწყობს, SQL Server-ს უგზავნის და <strong>პასუხს ელოდება</strong>. დღევანდელი ლექცია სწორედ ამ ლოდინზეა: რას აკეთებს ჩვენი პროგრამა, სანამ ბაზა პასუხობს?</p>
+<div class="callout note"><span class="ci">💡</span><div><p>სლაიდებზე Controller-ი <code>Product</code>-ს პირდაპირ იღებს და აბრუნებს — რომ ყურადღება მხოლოდ async-ზე იყოს. შენს პროექტში DTO-ები და Mapper ადგილზე რჩება, async-ზე გადასვლა მათ არ ეხება.</p></div></div></article>
+<h2 class="sec" id="sec-4">1 · ლოდინის პრობლემა</h2>
+<article class="blk" data-slides="6"><span class="anchor" id="s-6"></span><div class="bh"><h3>ნაწილი 1 · ლოდინის პრობლემა</h3><a class="chip" href="index.html#/6" data-go="6" title="პრეზენტაციაში გახსნა">სლაიდი 6</a></div>
+<p>ჯერ ვნახავთ პრობლემას — ისეთს, რომელსაც ერთ მომხმარებელზე ტესტირებისას ვერასდროს შეამჩნევ, მაგრამ ნამდვილ საიტზე დატვირთვისას აუცილებლად გამოჩნდება.</p></article>
+<article class="blk" data-slides="7"><span class="anchor" id="s-7"></span><div class="bh"><h3>მენეჯერი წერს: „ფასდაკლების დღეს საიტი გაიჭედა“</h3><a class="chip" href="index.html#/7" data-go="7" title="პრეზენტაციაში გახსნა">სლაიდი 7</a></div>
+<p>„Black Friday-ზე ერთდროულად ბევრი ხალხი შემოვიდა. გვერდი 30 წამს იტვირთებოდა, ზოგს შეცდომა ამოუვიდა. ადმინი ამბობს, რომ სერვერის პროცესორი 10%-ზე მეტად არ დატვირთულა. მაშინ რა მოხდა?“</p>
+<p>ერთი შეხედვით ეს ორი ფაქტი ერთმანეთს ეწინააღმდეგება:</p>
+<ol>
+<li><strong>მომხმარებლები ელოდებიან</strong> — გვერდი ნელა იტვირთება, ზოგს timeout-ის შეცდომა ამოუდის.</li>
+<li><strong>პროცესორი ისვენებს</strong> — სერვერი თითქოს არაფერს აკეთებს.</li>
+</ol>
+<p>თუ სერვერი დაკავებული არ არის, რატომ არ ემსახურება მომხმარებლებს? პასუხი <strong>ლოდინშია</strong> — და ამას ახლა ნაბიჯ-ნაბიჯ ვნახავთ.</p></article>
+<article class="blk" data-slides="8"><span class="anchor" id="s-8"></span><div class="bh"><h3>Thread და Thread Pool</h3><a class="chip" href="index.html#/8" data-go="8" title="პრეზენტაციაში გახსნა">სლაიდი 8</a></div>
+<p><strong>Thread (ნაკადი)</strong> — „მუშა“, რომელიც კოდს ხაზ-ხაზ ასრულებს. აქამდე ჩვენს კონსოლის პროგრამებს ერთი ნაკადი ასრულებდა: <code>Main</code>-იდან დაიწყებდა და ბოლომდე მივიდოდა.</p>
+<p>სერვერზე სხვა სურათია: ერთდროულად ბევრი მოთხოვნა მოდის. ASP.NET Core-ს აქვს <strong>Thread Pool</strong> — მზა ნაკადების „აუზი“. მოთხოვნა მოვიდა → აუზიდან თავისუფალი ნაკადი იღებს და ჩვენს Controller-ის მეთოდს ასრულებს → მოთხოვნა დასრულდა → ნაკადი აუზში ბრუნდება და შემდეგ მოთხოვნას ელოდება.</p>
+<p>თუ ყველა ნაკადი დაკავებულია, ახალი მოთხოვნა <strong>რიგში დგება</strong>.</p>
+<p>რატომ არ ვქმნით ათასობით ნაკადს? იმიტომ, რომ ნაკადი ძვირია:</p>
+<ul>
+<li>თითოეულს საკუთარი მეხსიერება სჭირდება (სტეკისთვის — დაახლოებით 1 MB);</li>
+<li>ოპერაციულ სისტემას მათ შორის გადართვა უწევს;</li>
+<li>Thread Pool ახალ ნაკადებს <strong>ნელ-ნელა</strong> ამატებს — უეცარ დატვირთვაზე ვერ ასწრებს.</li>
+</ul>
+<div class="terms"><div class="th">📘 ტერმინები</div><dl><dt>Thread (ნაკადი)</dt><dd>„მუშა“, რომელიც კოდს ასრულებს</dd><dt>Thread Pool</dt><dd>მზა ნაკადების აუზი; ASP.NET Core ყოველ მოთხოვნას იქიდან აძლევს ნაკადს</dd></dl></div></article>
+<article class="blk" data-slides="9"><span class="anchor" id="s-9"></span><div class="bh"><h3>Black Friday-ს საიდუმლო: ყველა ნაკადი დგას და ელოდება</h3><a class="chip" href="index.html#/9" data-go="9" title="პრეზენტაციაში გახსნა">სლაიდი 9</a></div>
+<p>ახლა მენეჯერის ამოცანა იხსნება. სინქრონულ კოდში <code>ToList()</code>-ის ხაზზე ნაკადი <strong>ჩერდება</strong> და ბაზის პასუხამდე იქ რჩება. დატვირთვისას ასე ხდება:</p>
+<ol>
+<li>ბევრი მოთხოვნა მოდის, აუზის ყველა ნაკადს თითო მოთხოვნა უჭირავს.</li>
+<li>ყველა ნაკადი <strong>ბაზას ელოდება</strong> — დაკავებულია, მაგრამ არაფერს აკეთებს.</li>
+<li>ახალ მოთხოვნებს თავისუფალი ნაკადი აღარ ხვდებათ — <strong>რიგში დგებიან</strong>. რიგი იზრდება, ზოგი timeout-ით მთავრდება.</li>
+<li>პროცესორი კი ისვენებს: ლოდინს პროცესორი არ სჭირდება. აქედანაა „CPU 10%“.</li>
+</ol>
+<p>ამ მდგომარეობას ჰქვია <strong>Thread Pool Starvation</strong> — ნაკადების „შიმშილი“: ნაკადები გვაქვს, მაგრამ ყველა ლოდინშია გაჭედილი.</p>
+<p>გამოსავალი ნაკადების გამრავლება კი არა — <strong>ლოდინის დროს ნაკადის გათავისუფლებაა</strong>: მან შეკვეთა ჩააბაროს და სხვა მაგიდასთან წავიდეს. ზუსტად ამას აკეთებს <strong>async/await</strong>.</p>
+<div class="terms"><div class="th">📘 ტერმინები</div><dl><dt>Blocking (ბლოკირება)</dt><dd>ნაკადი ჩერდება და ელოდება, სხვა საქმეს ვეღარ აკეთებს</dd><dt>Thread Pool Starvation</dt><dd>ყველა ნაკადი ლოდინშია, ახალ მოთხოვნებს ნაკადი აღარ რჩება</dd></dl></div></article>
+<h2 class="sec" id="sec-5">2 · Task და await</h2>
+<article class="blk" data-slides="10"><span class="anchor" id="s-10"></span><div class="bh"><h3>ნაწილი 2 · Task და await</h3><a class="chip" href="index.html#/10" data-go="10" title="პრეზენტაციაში გახსნა">სლაიდი 10</a></div>
+<p>C#-ში ასინქრონული ლოდინისთვის სამი რამ გვჭირდება: <strong>Task</strong> — „ქვითარი“ მომავალ შედეგზე, <strong>async</strong> — მეთოდის ნიშანი და <strong>await</strong> — „დაელოდე, ოღონდ ნაკადი გაათავისუფლე“.</p></article>
+<article class="blk" data-slides="11"><span class="anchor" id="s-11"></span><div class="bh"><h3>Task — პეიჯერი, რომელიც დარეკავს</h3><a class="chip" href="index.html#/11" data-go="11" title="პრეზენტაციაში გახსნა">სლაიდი 11</a></div>
+<p>ფუდ-კორტში ბურგერს შეუკვეთავ. კერძი ჯერ არ არის — მას მომზადება სჭირდება. გაძლევენ <strong>პეიჯერს</strong> — პატარა მოწყობილობას, რომელიც კერძის მზადყოფნისას დარეკავს. რიგში აღარ დგახარ: სხედხარ, მეგობრებს ესაუბრები. დარეკა → მიდიხარ და კერძს იღებ.</p>
+<p>C#-ში ეს პეიჯერი არის <strong>Task</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>ცნება</th>
+<th>რას ნიშნავს</th>
+<th>ფუდ-კორტში</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Task</code></td>
+<td>დაპირება: ოპერაცია დაიწყო და ოდესმე დასრულდება. შედეგს არ აბრუნებს — როგორც <code>void</code></td>
+<td>„შენი შეკვეთა მიღებულია“</td>
+</tr>
+<tr>
+<td><code>Task&lt;T&gt;</code></td>
+<td>დაპირება <strong>T ტიპის შედეგზე</strong>. <code>Task&lt;List&lt;Product&gt;&gt;</code> — „სია იქნება“</td>
+<td>პეიჯერი, რომელსაც ბოლოს კერძი მოჰყვება</td>
+</tr>
+<tr>
+<td><code>await</code></td>
+<td>„დაელოდე ამ დაპირებას“. ლოდინის დროს ნაკადი თავისუფლდება; შედეგი რომ მოვა, მეთოდი იქიდან გრძელდება, სადაც გაჩერდა</td>
+<td>სხედხარ და ელოდები ზარს — რიგში არ დგახარ</td>
+</tr>
+</tbody>
+</table>
+<div class="terms"><div class="th">📘 ტერმინები</div><dl><dt>Task</dt><dd>დაპირება: ოპერაცია მიმდინარეობს და ოდესმე დასრულდება</dd><dt>Task<T></dt><dd>დაპირება T ტიპის შედეგზე</dd><dt>await</dt><dd>დაელოდე Task-ს ნაკადის დაბლოკვის გარეშე; შედეგის შემდეგ მეთოდი გრძელდება</dd></dl></div></article>
+<article class="blk" data-slides="12"><span class="anchor" id="s-12"></span><div class="bh"><h3>სამი ცვლილება: async · Task&lt;…&gt; · await</h3><a class="chip" href="index.html#/12" data-go="12" title="პრეზენტაციაში გახსნა">სლაიდი 12</a></div>
+<div class="codebox"><div class="ch"><span>ადრე — სინქრონული</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="na">[HttpGet]</span></span><span class="ln"><span class="k">public</span><span class="w"> </span><span class="n">IActionResult</span><span class="w"> </span><span class="nf">GetAll</span><span class="p">(</span><span class="p">)</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="kt">var</span><span class="w"> </span><span class="n">products</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">_db</span><span class="p">.</span><span class="n">Products</span><span class="p">.</span><span class="n">ToList</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nf">Ok</span><span class="p">(</span><span class="n">products</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="p">}</span></span></code></pre></div>
+<div class="codebox"><div class="ch"><span>ახლა — ასინქრონული</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="na">[HttpGet]</span></span><span class="ln"><span class="k">public</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="n">Task</span><span class="o">&lt;</span><span class="n">IActionResult</span><span class="o">&gt;</span><span class="w"> </span><span class="n">GetAll</span><span class="p">(</span><span class="p">)</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="kt">var</span><span class="w"> </span><span class="n">products</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="n">_db</span><span class="p">.</span><span class="n">Products</span><span class="p">.</span><span class="n">ToListAsync</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nf">Ok</span><span class="p">(</span><span class="n">products</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="p">}</span></span></code></pre></div>
+<ol>
+<li><strong><code>async</code></strong> — მეთოდის ნიშანი: „ამ მეთოდში <code>await</code> იქნება“. მის გარეშე <code>await</code>-ის დაწერა არ შეიძლება.</li>
+<li><strong><code>Task&lt;IActionResult&gt;</code></strong> — async მეთოდი თვითონაც დაპირებას აბრუნებს. Controller-ის მეთოდიც ლოდინს შეიცავს, ესე იგი ისიც მაშინვე შედეგს ვერ აბრუნებს. ASP.NET Core ამ Task-ს თვითონ ელოდება და პასუხს მერე აგზავნის.</li>
+<li><strong><code>await _db.Products.ToListAsync()</code></strong> — <code>ToListAsync</code> მოთხოვნას ბაზაში აგზავნის და მაშინვე <code>Task&lt;List&lt;Product&gt;&gt;</code>-ს აბრუნებს. <code>await</code> ამბობს: „დაველოდოთ შედეგს“ — და ამ დროს ნაკადი თავისუფლდება.</li>
+</ol>
+<p><code>await</code>-ის შემდეგ <code>products</code> უკვე <strong><code>List&lt;Product&gt;</code></strong>-ია, არა Task: <code>await</code> დაპირებას „ხსნის“ და შიგნით არსებულ შედეგს გვაძლევს. ამიტომ დანარჩენი კოდი (<code>Ok(products)</code>) არ იცვლება.</p>
+<div class="callout tip"><span class="ci">👉</span><div><p>async მეთოდი თავიდან ბოლომდე ჩვეულებრივ კოდს ჰგავს — ზემოდან ქვემოთ იკითხება. ეს არის async/await-ის მთავარი ღირსება: ასინქრონულ კოდს ვწერთ ისე, თითქოს სინქრონული იყოს.</p></div></div></article>
+<article class="blk" data-slides="13"><span class="anchor" id="s-13"></span><div class="bh"><h3>რა ხდება await-ზე — ნაბიჯ-ნაბიჯ</h3><a class="chip" href="index.html#/13" data-go="13" title="პრეზენტაციაში გახსნა">სლაიდი 13</a></div>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>რა ხდება</th>
+<th>ნაკადი</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>მოთხოვნა მოვიდა, ASP.NET Core აუზიდან ნაკადს იღებს და <code>GetAll()</code>-ს იწყებს</td>
+<td>Thread 7</td>
+</tr>
+<tr>
+<td>2</td>
+<td><code>ToListAsync()</code> SQL-ს ბაზაში აგზავნის და მაშინვე Task-ს („პეიჯერს“) აბრუნებს</td>
+<td>Thread 7</td>
+</tr>
+<tr>
+<td>3</td>
+<td><code>await</code>: შედეგი ჯერ არ არის → მეთოდი „პაუზაზე“ დგება, ნაკადი <strong>აუზში ბრუნდება</strong></td>
+<td>Thread 7 თავისუფალია</td>
+</tr>
+<tr>
+<td>4</td>
+<td>ბაზა მუშაობს. ამ დროს <strong>არცერთი ნაკადი არ ელოდება</strong> — Thread 7 უკვე სხვა მოთხოვნას ემსახურება</td>
+<td>—</td>
+</tr>
+<tr>
+<td>5</td>
+<td>ბაზამ უპასუხა → აუზიდან <strong>ნებისმიერი</strong> თავისუფალი ნაკადი იღებს მეთოდის გაგრძელებას</td>
+<td>Thread 12</td>
+</tr>
+<tr>
+<td>6</td>
+<td>მეთოდი იქიდან გრძელდება, სადაც გაჩერდა (<code>return Ok(products)</code>), და პასუხი იგზავნება</td>
+<td>Thread 12</td>
+</tr>
+</tbody>
+</table>
+<p>ყურადღება მიაქციე მე-5 ნაბიჯს: მეთოდი შეიძლება <strong>სხვა ნაკადზე</strong> გაგრძელდეს. ჩვენთვის ეს შეუმჩნეველია — ლოკალური ცვლადები (<code>products</code>) და ველები (<code>_db</code>) ადგილზე რჩება. C#-ის კომპილატორი async მეთოდს ისე გარდაქმნის, რომ მან „დაიმახსოვროს“, სად გაჩერდა.</p>
+<div class="selfcheck"><div class="sh">✅ შეამოწმე თავი <small>დაფიქრდი, მერე გახსენი პასუხი</small></div><details><summary>await-ის დროს ნაკადი ელოდება?</summary><div class="ans">არა — ნაკადი აუზში ბრუნდება და სხვა მოთხოვნებს ემსახურება. ელოდება მხოლოდ მეთოდი („პაუზაზეა“)</div></details><details><summary>აუცილებლად იგივე ნაკადი აგრძელებს მეთოდს?</summary><div class="ans">არა — აუზიდან ნებისმიერი თავისუფალი ნაკადი</div></details></div>
+<h3>გადაამოწმე თვითონ: რომელი ნაკადი?</h3>
+<p>დავამტკიცოთ, რომ <code>await</code>-ზე ნაკადი ნამდვილად თავისუფლდება. <code>Environment.CurrentManagedThreadId</code> გვეუბნება, რომელი ნაკადი ასრულებს მიმდინარე ხაზს. ნომერს <code>await</code>-მდე და <code>await</code>-ის შემდეგ ვიმახსოვრებთ და ერთად ვბეჭდავთ:</p>
+<div class="codebox"><div class="ch"><span>Controllers/ProductsController.cs · დროებით</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="na">[HttpGet]</span></span><span class="ln"><span class="k">public</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="n">Task</span><span class="o">&lt;</span><span class="n">IActionResult</span><span class="o">&gt;</span><span class="w"> </span><span class="n">GetAll</span><span class="p">(</span><span class="p">)</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="kt">var</span><span class="w"> </span><span class="n">before</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Environment</span><span class="p">.</span><span class="n">CurrentManagedThreadId</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="kt">var</span><span class="w"> </span><span class="n">products</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="n">_db</span><span class="p">.</span><span class="n">Products</span><span class="p">.</span><span class="n">ToListAsync</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="kt">var</span><span class="w"> </span><span class="n">after</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Environment</span><span class="p">.</span><span class="n">CurrentManagedThreadId</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="s">$"Thread {before} → {after}"</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nf">Ok</span><span class="p">(</span><span class="n">products</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="p">}</span></span></code></pre></div>
+<p>Swagger-ში რამდენჯერმე ვაჭერთ Execute-ს და აპლიკაციის console-ს ვუყურებთ. ნომრები შენთან სხვა იქნება, მაგრამ ხშირად <code>await</code>-ის შემდეგ <strong>სხვა ნომერი</strong> ჩანს: მეთოდი აუზის სხვა ნაკადმა გააგრძელა.</p>
+<div class="callout note"><span class="ci">💡</span><div><p>ზოგჯერ ნომერი ემთხვევა — ეს ნორმალურია: აუზმა გაგრძელება შემთხვევით იმავე ნაკადს მისცა. მთავარი ის არის, რომ ლოდინის დროს ეს ნაკადი თავისუფალი იყო. ექსპერიმენტის შემდეგ ეს სამი ხაზი წაშალე.</p></div></div></article>
+<article class="blk" data-slides="14"><span class="anchor" id="s-14"></span><div class="bh"><h3>სიმულაცია: 4 ნაკადი, სინქრონული vs ასინქრონული</h3><a class="chip" href="index.html#/14" data-go="14" title="პრეზენტაციაში გახსნა">სლაიდი 14</a></div>
+<p>სლაიდზე ცოცხალი სიმულაციაა. პირობები:</p>
+<ul>
+<li>აუზში <strong>4 ნაკადია</strong>;</li>
+<li>ყოველ მოთხოვნას სჭირდება: <strong>0.2 წმ კოდი → 1.4 წმ ბაზის ლოდინი → 0.2 წმ კოდი</strong>;</li>
+<li>მოთხოვნა, რომელიც რიგში 4 წამზე მეტს ელოდება, <strong>timeout</strong>-ით მთავრდება.</li>
+</ul>
+<p>სცადე სამი ექსპერიმენტი:</p>
+<ol>
+<li><strong>სინქრონული, 2 მოთხოვნა/წმ</strong> — თითქმის მუშაობს, თუმცა ნაკადები უმეტესად ლოდინში დგანან (დაშტრიხული ზოლი).</li>
+<li><strong>სინქრონული, 4 მოთხოვნა/წმ</strong> — რიგი იზრდება, timeout-ები ჩნდება, <strong>CPU კი დაბალია</strong> — ეს არის Black Friday.</li>
+<li><strong>ასინქრონული, 4 და 8 მოთხოვნა/წმ</strong> — იგივე 4 ნაკადი ყველაფერს ასწრებს: ლოდინის დროს მოთხოვნა „ბაზასთანაა“ ნაკადის გარეშე, ნაკადი კი შემდეგ მოთხოვნას იღებს.</li>
+</ol>
+<p>რატომ? სინქრონულად ნაკადს ერთი მოთხოვნა 1.8 წამით უჭირავს — 4 ნაკადი წამში ~2 მოთხოვნას ასწრებს. ასინქრონულად ნაკადს მოთხოვნა მხოლოდ 0.4 წამით (კოდის ნაწილი) უჭირავს — იგივე 4 ნაკადი წამში ~10-ს ასწრებს.</p>
+<div class="callout note"><span class="ci">💡</span><div><p>ეს გამარტივებული მოდელია — ნამდვილ სერვერზე ნაკადი მეტია და დრო სხვაა. მაგრამ პროპორცია ზუსტად ასე მუშაობს: რაც მეტია ლოდინი, მით მეტს იგებს async.</p></div></div></article>
+<h2 class="sec" id="sec-6">3 · ShopApi → async</h2>
+<article class="blk" data-slides="15"><span class="anchor" id="s-15"></span><div class="bh"><h3>ნაწილი 3 · ShopApi → async</h3><a class="chip" href="index.html#/15" data-go="15" title="პრეზენტაციაში გახსნა">სლაიდი 15</a></div>
+<p>ახლა ShopApi-ის ორივე Controller-ს ასინქრონულზე გადავიყვანთ. ლოგიკა არ იცვლება — მხოლოდ ბაზასთან მიმართვა.</p></article>
+<article class="blk" data-slides="16"><span class="anchor" id="s-16"></span><div class="bh"><h3>ბაზაში მიდის? → …Async + await</h3><a class="chip" href="index.html#/16" data-go="16" title="პრეზენტაციაში გახსნა">სლაიდი 16</a></div>
+<p>წესი მარტივია: <strong>ის მეთოდი, რომელიც ბაზაში მიდის, Async ვერსიით იცვლება და მას <code>await</code> ეწერება.</strong></p>
+<table>
+<thead>
+<tr>
+<th>ადრე</th>
+<th>ახლა</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>_db.Products.ToList()</code></td>
+<td><code>await _db.Products.ToListAsync()</code></td>
+</tr>
+<tr>
+<td><code>_db.Products.Find(id)</code></td>
+<td><code>await _db.Products.FindAsync(id)</code></td>
+</tr>
+<tr>
+<td><code>_db.SaveChanges()</code></td>
+<td><code>await _db.SaveChangesAsync()</code></td>
+</tr>
+<tr>
+<td><code>.Count()</code> · <code>.Sum(…)</code> · <code>.Any(…)</code></td>
+<td><code>await .CountAsync()</code> · <code>await .SumAsync(…)</code> · <code>await .AnyAsync(…)</code></td>
+</tr>
+<tr>
+<td><code>.FirstOrDefault(…)</code></td>
+<td><code>await .FirstOrDefaultAsync(…)</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>რჩება როგორც იყო:</strong></p>
+<ul>
+<li><code>Add</code> და <code>Remove</code> — ბაზაში არ მიდიან, მხოლოდ Change Tracker-ში ნიშნავენ „დასამატებელია“ / „წასაშლელია“. ბაზაში ყველაფერი <code>SaveChangesAsync</code>-ზე მიდის.</li>
+<li><code>Where</code>, <code>OrderBy</code>, <code>Select</code> — SQL-ის „რეცეპტს“ აწყობენ, ბაზაში ჯერ არაფერი იგზავნება. მოთხოვნა ბოლო მეთოდზე სრულდება — მაგ. <code>await _db.Products.Where(p =&gt; p.Price &gt; 100).ToListAsync()</code>.</li>
+</ul>
+<div class="callout warn"><span class="ci">⚠️</span><div><p><code>ToListAsync</code>, <code>CountAsync</code> და სხვები <code>Microsoft.EntityFrameworkCore</code> namespace-ის extension მეთოდებია. თუ Controller-ში <code>using Microsoft.EntityFrameworkCore;</code> არ წერია, კომპილატორი იტყვის: „'DbSet<Product>' does not contain a definition for 'ToListAsync'“.</p></div></div>
+<div class="callout note"><span class="ci">💡</span><div><p>EF Core-ს <code>AddAsync</code>-იც აქვს, მაგრამ ჩვეულებრივ შემთხვევაში ის არ გვჭირდება — <code>Add</code> ბაზაში არ მიდის. <code>AddAsync</code> მხოლოდ სპეციალური Id-გენერატორებისთვისაა.</p></div></div></article>
+<article class="blk" data-slides="17"><span class="anchor" id="s-17"></span><div class="bh"><h3>ProductsController: GetAll · GetById · Create</h3><a class="chip" href="index.html#/17" data-go="17" title="პრეზენტაციაში გახსნა">სლაიდი 17</a></div>
+<div class="codebox"><div class="ch"><span>Controllers/ProductsController.cs</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="na">[HttpGet]</span></span><span class="ln"><span class="k">public</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="n">Task</span><span class="o">&lt;</span><span class="n">IActionResult</span><span class="o">&gt;</span><span class="w"> </span><span class="n">GetAll</span><span class="p">(</span><span class="p">)</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="kt">var</span><span class="w"> </span><span class="n">products</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="n">_db</span><span class="p">.</span><span class="n">Products</span><span class="p">.</span><span class="n">ToListAsync</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nf">Ok</span><span class="p">(</span><span class="n">products</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="p">}</span></span><span class="ln"> </span><span class="ln"><span class="na">[HttpGet("{id:guid}")]</span></span><span class="ln"><span class="k">public</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="n">Task</span><span class="o">&lt;</span><span class="n">IActionResult</span><span class="o">&gt;</span><span class="w"> </span><span class="n">GetById</span><span class="p">(</span><span class="n">Guid</span><span class="w"> </span><span class="n">id</span><span class="p">)</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="kt">var</span><span class="w"> </span><span class="n">product</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="n">_db</span><span class="p">.</span><span class="n">Products</span><span class="p">.</span><span class="n">FindAsync</span><span class="p">(</span><span class="n">id</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">product</span><span class="w"> </span><span class="k">is</span><span class="w"> </span><span class="k">null</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">NotFound</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nf">Ok</span><span class="p">(</span><span class="n">product</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="p">}</span></span><span class="ln"> </span><span class="ln"><span class="na">[HttpPost]</span></span><span class="ln"><span class="k">public</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="n">Task</span><span class="o">&lt;</span><span class="n">IActionResult</span><span class="o">&gt;</span><span class="w"> </span><span class="n">Create</span><span class="p">(</span><span class="n">Product</span><span class="w"> </span><span class="n">product</span><span class="p">)</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="n">_db</span><span class="p">.</span><span class="n">Products</span><span class="p">.</span><span class="n">Add</span><span class="p">(</span><span class="n">product</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="k">await</span><span class="w"> </span><span class="n">_db</span><span class="p">.</span><span class="n">SaveChangesAsync</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nf">CreatedAtAction</span><span class="p">(</span><span class="k">nameof</span><span class="p">(</span><span class="n">GetById</span><span class="p">)</span><span class="p">,</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">product</span><span class="p">.</span><span class="n">Id</span><span class="w"> </span><span class="p">}</span><span class="p">,</span><span class="w"> </span><span class="n">product</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="p">}</span></span></code></pre></div>
+<ul>
+<li>ყველა მეთოდი ხდება <code>async Task&lt;IActionResult&gt;</code>.</li>
+<li>ბაზიდან წაკითხვა — <code>await</code> + <code>ToListAsync</code> / <code>FindAsync</code>.</li>
+<li><code>Add</code> უცვლელია; ბაზაში მხოლოდ <code>await _db.SaveChangesAsync()</code> მიდის.</li>
+<li><code>NotFound()</code>, <code>Ok()</code>, <code>CreatedAtAction()</code> — ისევ ისე. ლოგიკა და სტატუს კოდები არ იცვლება.</li>
+</ul>
+<div class="callout warn"><span class="ci">⚠️</span><div><p>Controller-ის მეთოდებს (action-ებს) სახელის ბოლოს <strong>Async არ ვუწერთ</strong>: <code>GetById</code>, არა <code>GetByIdAsync</code>. ASP.NET Core action-ის სახელიდან „Async“-ს თვითონ აცილებს, და <code>CreatedAtAction(nameof(GetByIdAsync), …)</code> შეცდომას იძლევა: „No route matches the supplied values“. Async სუფიქსი ჩვენს სხვა მეთოდებს ეწერება, Controller-ის action-ებს — არა.</p></div></div></article>
+<article class="blk" data-slides="18"><span class="anchor" id="s-18"></span><div class="bh"><h3>Update · Delete · StatsController</h3><a class="chip" href="index.html#/18" data-go="18" title="პრეზენტაციაში გახსნა">სლაიდი 18</a></div>
+<div class="codebox"><div class="ch"><span>Controllers/ProductsController.cs</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="na">[HttpPut("{id:guid}")]</span></span><span class="ln"><span class="k">public</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="n">Task</span><span class="o">&lt;</span><span class="n">IActionResult</span><span class="o">&gt;</span><span class="w"> </span><span class="n">Update</span><span class="p">(</span><span class="n">Guid</span><span class="w"> </span><span class="n">id</span><span class="p">,</span><span class="w"> </span><span class="n">Product</span><span class="w"> </span><span class="n">updated</span><span class="p">)</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="kt">var</span><span class="w"> </span><span class="n">product</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="n">_db</span><span class="p">.</span><span class="n">Products</span><span class="p">.</span><span class="n">FindAsync</span><span class="p">(</span><span class="n">id</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">product</span><span class="w"> </span><span class="k">is</span><span class="w"> </span><span class="k">null</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">NotFound</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="n">product</span><span class="p">.</span><span class="n">Name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">updated</span><span class="p">.</span><span class="n">Name</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="n">product</span><span class="p">.</span><span class="n">Price</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">updated</span><span class="p">.</span><span class="n">Price</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="k">await</span><span class="w"> </span><span class="n">_db</span><span class="p">.</span><span class="n">SaveChangesAsync</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nf">NoContent</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="p">}</span></span><span class="ln"> </span><span class="ln"><span class="na">[HttpDelete("{id:guid}")]</span></span><span class="ln"><span class="k">public</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="n">Task</span><span class="o">&lt;</span><span class="n">IActionResult</span><span class="o">&gt;</span><span class="w"> </span><span class="n">Delete</span><span class="p">(</span><span class="n">Guid</span><span class="w"> </span><span class="n">id</span><span class="p">)</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="kt">var</span><span class="w"> </span><span class="n">product</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="n">_db</span><span class="p">.</span><span class="n">Products</span><span class="p">.</span><span class="n">FindAsync</span><span class="p">(</span><span class="n">id</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">product</span><span class="w"> </span><span class="k">is</span><span class="w"> </span><span class="k">null</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">NotFound</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="n">_db</span><span class="p">.</span><span class="n">Products</span><span class="p">.</span><span class="n">Remove</span><span class="p">(</span><span class="n">product</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="k">await</span><span class="w"> </span><span class="n">_db</span><span class="p">.</span><span class="n">SaveChangesAsync</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nf">NoContent</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="p">}</span></span></code></pre></div>
+<div class="codebox"><div class="ch"><span>Controllers/StatsController.cs</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="na">[HttpGet]</span></span><span class="ln"><span class="k">public</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="n">Task</span><span class="o">&lt;</span><span class="n">IActionResult</span><span class="o">&gt;</span><span class="w"> </span><span class="n">Get</span><span class="p">(</span><span class="p">)</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="kt">var</span><span class="w"> </span><span class="n">count</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="n">_db</span><span class="p">.</span><span class="n">Products</span><span class="p">.</span><span class="n">CountAsync</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="kt">var</span><span class="w"> </span><span class="n">totalValue</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="n">_db</span><span class="p">.</span><span class="n">Products</span><span class="p">.</span><span class="n">SumAsync</span><span class="p">(</span><span class="n">p</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">Price</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nf">Ok</span><span class="p">(</span><span class="k">new</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">Count</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">count</span><span class="p">,</span><span class="w"> </span><span class="n">TotalValue</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">totalValue</span><span class="w"> </span><span class="p">}</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="p">}</span></span></code></pre></div>
+<p>StatsController-ში ბაზაში <strong>ორი</strong> მოთხოვნა მიდის — თითოს თავისი <code>await</code>. ისინი რიგრიგობით სრულდება: ჯერ რაოდენობა, მერე ჯამი. ეს სწორია — ერთ DataContext-ზე ერთდროულად მხოლოდ ერთი ოპერაცია შეიძლება (ამას „ხშირ შეცდომებში“ დავუბრუნდებით).</p>
+<p>Swagger-ში ყველაფერი ისევე მუშაობს: იგივე JSON, იგივე სტატუს კოდები. კლიენტისთვის არაფერი შეცვლილა — განსხვავება სერვერის შიგნითაა და დატვირთვისას ჩანს.</p>
+<h3>ერთი ნაბიჯი წინ · CancellationToken (ბონუსისთვის)</h3>
+<p>ასინქრონულ მეთოდებს კიდევ ერთი საჩუქარი მოაქვს — <strong>გაუქმება</strong>. წარმოიდგინე ნელი ძებნა: მომხმარებელმა ლოდინი მოიწყინა და ჩანართი დახურა. სინქრონულ კოდში სერვერი ძებნას მაინც ბოლომდე მიიყვანს — პასუხი კი აღარავის სჭირდება.</p>
+<div class="codebox"><div class="ch"><span>Controllers/ProductsController.cs</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="na">[HttpGet]</span></span><span class="ln"><span class="k">public</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="n">Task</span><span class="o">&lt;</span><span class="n">IActionResult</span><span class="o">&gt;</span><span class="w"> </span><span class="n">GetAll</span><span class="p">(</span></span><span class="ln"><span class="w">    </span><span class="n">CancellationToken</span><span class="w"> </span><span class="n">cancellationToken</span><span class="p">)</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="kt">var</span><span class="w"> </span><span class="n">products</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="n">_db</span><span class="p">.</span><span class="n">Products</span></span><span class="ln"><span class="w">        </span><span class="p">.</span><span class="n">ToListAsync</span><span class="p">(</span><span class="n">cancellationToken</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nf">Ok</span><span class="p">(</span><span class="n">products</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="p">}</span></span></code></pre></div>
+<ul>
+<li><strong><code>CancellationToken</code></strong> action-ის პარამეტრია, მაგრამ კლიენტი მას არ აგზავნის — ASP.NET Core თვითონ აწვდის. ის „იცის“, ჯერ კიდევ ცოცხალია თუ არა კავშირი კლიენტთან.</li>
+<li>EF Core-ს გადავცემთ → კავშირი გაწყდა → EF Core SQL მოთხოვნას <strong>აუქმებს</strong>.</li>
+</ul>
+<p>ეს სავალდებულო არ არის: EF Core-ის ყველა Async მეთოდი <code>CancellationToken</code>-ს არასავალდებულო ბოლო პარამეტრად იღებს. ჩვეულებრივ CRUD-ში ბევრს არ ცვლის, ნელ მოთხოვნებზე (ძებნა, რეპორტები) კი სასარგებლოა.</p>
+<div class="terms"><div class="th">📘 ტერმინები</div><dl><dt>CancellationToken</dt><dd>სიგნალი „შეწყვიტე, ეს აღარ სჭირდება“; ASP.NET Core მოთხოვნის გაუქმებისას რთავს</dd></dl></div></article>
+<h2 class="sec" id="sec-7">4 · როდის — და როდის არა</h2>
+<article class="blk" data-slides="19"><span class="anchor" id="s-19"></span><div class="bh"><h3>ნაწილი 4 · როდის — და როდის არა</h3><a class="chip" href="index.html#/19" data-go="19" title="პრეზენტაციაში გახსნა">სლაიდი 19</a></div>
+<p>async ძლიერი ხელსაწყოა, მაგრამ ყველაფრის წამალი არ არის. ვნახავთ, რას გვაძლევს და რას — არა, სად გვჭირდება, სად არაფერს გვიშველის და რა შეცდომებს უშვებენ ყველაზე ხშირად.</p></article>
+<article class="blk" data-slides="20"><span class="anchor" id="s-20"></span><div class="bh"><h3>async ერთ მოთხოვნას არ აჩქარებს</h3><a class="chip" href="index.html#/20" data-go="20" title="პრეზენტაციაში გახსნა">სლაიდი 20</a></div>
+<p>ეს ყველაზე ხშირი მცდარი წარმოდგენაა — და გასაუბრებაზეც ხშირად ამოწმებენ.</p>
+<p><strong>ერთ მომხმარებელზე</strong> სინქრონულიც და ასინქრონულიც ერთნაირ დროს ხარჯავს: ბაზა ისევ 40 ms-ს ფიქრობს, ქსელიც იგივეა. async-ს ცოტა დამატებითი სამუშაოც აქვს (კომპილატორის მიერ აგებული „მდგომარეობის მანქანა“), მაგრამ ის მიკროწამებია — შეუმჩნეველი.</p>
+<p><strong>ბევრ მომხმარებელზე</strong> კი სურათი იცვლება:</p>
+<ul>
+<li>სინქრონულად ნაკადები ლოდინში დგანან → ახალი მოთხოვნები რიგში → <strong>ყველასთვის ნელდება</strong>, ზოგს timeout.</li>
+<li>ასინქრონულად ნაკადები ლოდინის დროს თავისუფლდებიან → იგივე სერვერი <strong>ბევრად მეტ</strong> ერთდროულ მომხმარებელს ემსახურება, და თითოეული ისევ ~40 ms-ში იღებს პასუხს.</li>
+</ul>
+<p>async-ის მოგება <strong>მასშტაბია</strong> (scalability) — რამდენ მომხმარებელს გაუძლებს სერვერი, და არა ერთი მოთხოვნის სიჩქარე.</p>
+<div class="terms"><div class="th">📘 ტერმინები</div><dl><dt>Scalability (მასშტაბირება)</dt><dd>რამდენ დატვირთვას უძლებს სისტემა ისე, რომ არ ნელდება</dd></dl></div></article>
+<article class="blk" data-slides="21"><span class="anchor" id="s-21"></span><div class="bh"><h3>ერთი კითხვა ყოველ მეთოდზე</h3><a class="chip" href="index.html#/21" data-go="21" title="პრეზენტაციაში გახსნა">სლაიდი 21</a></div>
+<p><strong>მეთოდი რამეს ელოდება პროგრამის გარეთ — ბაზას, ქსელს, ფაილს?</strong></p>
+<ul>
+<li><strong>კი → async.</strong> <code>async Task&lt;…&gt;</code>, Async მეთოდები, <code>await</code> ყველგან — და ზემოთ, ვინც მას იძახებს, ბოლომდე. მაგალითები: <code>GetAll</code>, <code>Create</code>, <code>StatsController.Get</code>, ბანკში გადახდა, AI-სთვის კითხვის გაგზავნა.</li>
+<li><strong>არა → ჩვეულებრივი მეთოდი.</strong> აბრუნებს <code>decimal</code>-ს, <code>bool</code>-ს, <code>ProductResponse</code>-ს — Task-ის გარეშე. მაგალითები: ფასდაკლების დათვლა, mapper, ვალიდაცია.</li>
+</ul>
+<div class="callout warn"><span class="ci">⚠️</span><div><p>ზოგი ნელ გამოთვლას <code>Task.Run(() =&gt; …)</code>-ში ახვევს და <code>await</code>-ს უწერს, რომ „async გახდეს“. API-ში ეს არაფერს იძლევა: <code>Task.Run</code> სამუშაოს <strong>იმავე Thread Pool-ის</strong> სხვა ნაკადზე გადაიტანს — ერთი ნაკადი თავისუფლდება, მეორე იკავებს. თავისუფალი ნაკადი არ ემატება, ზედმეტი გადართვა კი ემატება. async ლოდინისთვისაა, გამოთვლისთვის — არა.</p></div></div>
+<div class="prompt"><div class="ph"><span>🤖 async თუ არა — შემამოწმე</span><button class="copy" type="button">კოპირება</button></div><div class="pb">ვსწავლობ C#-ში async/await-ს ASP.NET Core Web API-ში. მომეცი 8 მოკლე მეთოდის აღწერა რეალური პროექტებიდან (ონლაინ მაღაზია, რესტორნის დაჯავშნა, ბანკი) — მაგალითად „ფასდაკლების დათვლა“, „შეკვეთის შენახვა ბაზაში“, „SMS-ის გაგზავნა“.
+თითოეულზე მკითხე: უნდა იყოს async თუ არა და რატომ (I/O-bound თუ CPU-bound)? ჩემს პასუხს დაელოდე და შემიფასე. ქართულად.</div></div></article>
+<article class="blk" data-slides="22,23"><span class="anchor" id="s-22"></span><span class="anchor" id="s-23"></span><div class="bh"><h3>ხუთი ხშირი შეცდომა</h3><a class="chip" href="index.html#/22" data-go="22" title="პრეზენტაციაში გახსნა">სლაიდი 22</a></div>
+<p><strong>1. დავიწყებული <code>await</code></strong></p>
+<div class="codebox"><div class="ch"><span>❌</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="kt">var</span><span class="w"> </span><span class="n">products</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">_db</span><span class="p">.</span><span class="n">Products</span><span class="p">.</span><span class="n">ToListAsync</span><span class="p">(</span><span class="p">)</span><span class="p">;</span><span class="w">   </span><span class="c1">// Task&lt;List&lt;Product&gt;&gt;, არა სია!</span></span><span class="ln"><span class="k">return</span><span class="w"> </span><span class="nf">Ok</span><span class="p">(</span><span class="n">products</span><span class="p">)</span><span class="p">;</span></span></code></pre></div>
+<p><code>products</code> სია კი არა — <strong>Task</strong>-ია (პეიჯერი, არა ბურგერი). კოდი კომპილირდება, მაგრამ კლიენტს სიის ნაცვლად Task-ის ობიექტი მიდის. სწორი: <code>var products = await _db.Products.ToListAsync();</code></p>
+<p><strong>2. <code>.Result</code> ან <code>.Wait()</code></strong></p>
+<div class="codebox"><div class="ch"><span>❌</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="kt">var</span><span class="w"> </span><span class="n">products</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">_db</span><span class="p">.</span><span class="n">Products</span><span class="p">.</span><span class="n">ToListAsync</span><span class="p">(</span><span class="p">)</span><span class="p">.</span><span class="n">Result</span><span class="p">;</span></span></code></pre></div>
+<p><code>.Result</code> Task-ს <strong>ბლოკავს</strong>: ნაკადი დგება და ელოდება — ზუსტად სინქრონულივით, ოღონდ უფრო რთული კოდით. ზოგ გარემოში პროგრამა სამუდამოდ „იჭედება“ (deadlock). სწორი: <code>await</code>.</p>
+<p><strong>3. ორი Task ერთ DataContext-ზე ერთდროულად</strong></p>
+<div class="codebox"><div class="ch"><span>❌</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="kt">var</span><span class="w"> </span><span class="n">countTask</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">_db</span><span class="p">.</span><span class="n">Products</span><span class="p">.</span><span class="n">CountAsync</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="kt">var</span><span class="w"> </span><span class="n">sumTask</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">_db</span><span class="p">.</span><span class="n">Products</span><span class="p">.</span><span class="n">SumAsync</span><span class="p">(</span><span class="n">p</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">Price</span><span class="p">)</span><span class="p">;</span><span class="w">   </span><span class="o">/</span><span class="o">/</span><span class="w"> </span><span class="err">💥</span></span></code></pre></div>
+<p><code>await</code>-ის გარეშე მეორე მოთხოვნა მაშინ იწყება, როცა პირველი ჯერ არ დასრულებულა. წინა ლექციიდან ვიცით: DataContext ერთ ჯერზე მხოლოდ ერთ ოპერაციას აკეთებს → <code>A second operation was started on this context instance before a previous operation completed</code>. სწორი: თითოს თავისი <code>await</code>, რიგრიგობით.</p>
+<p><strong>4. <code>async void</code></strong></p>
+<div class="codebox"><div class="ch"><span>❌</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="k">public</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="k">void</span><span class="w"> </span><span class="nf">Delete</span><span class="p">(</span><span class="n">Guid</span><span class="w"> </span><span class="n">id</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">.</span><span class="p">.</span><span class="p">.</span><span class="w"> </span><span class="p">}</span></span></code></pre></div>
+<p><code>void</code> Task-ს არ აბრუნებს — ASP.NET Core-ს <strong>დასალოდებელი არაფერი აქვს</strong>. ის პასუხს მაშინვე აგზავნის და მოთხოვნას ხურავს, DataContext-იც (Scoped!) იხურება — მეთოდი კი ჯერ კიდევ მუშაობს → <code>ObjectDisposedException</code>. async მეთოდი ყოველთვის <code>Task</code> ან <code>Task&lt;T&gt;</code>-ს აბრუნებს.</p>
+<p><strong>5. async მეთოდი, მაგრამ შიგნით სინქრონული გამოძახება</strong></p>
+<div class="codebox"><div class="ch"><span>❌</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="k">public</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="n">Task</span><span class="o">&lt;</span><span class="n">IActionResult</span><span class="o">&gt;</span><span class="w"> </span><span class="n">GetAll</span><span class="p">(</span><span class="p">)</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">Ok</span><span class="p">(</span><span class="n">_db</span><span class="p">.</span><span class="n">Products</span><span class="p">.</span><span class="n">ToList</span><span class="p">(</span><span class="p">)</span><span class="p">)</span><span class="p">;</span></span></code></pre></div>
+<p><code>async</code> წერია, მაგრამ <code>await</code> არსად — კომპილატორი გაფრთხილებს: <strong>CS1998</strong> „This async method lacks 'await' operators and will run synchronously“. <code>ToList()</code> ნაკადს ისევ ბლოკავს.</p>
+<div class="callout tip"><span class="ci">👉</span><div><p>წესი სამ ხაზად: <strong>Task-ს → await</strong> · <strong>ბაზაში მიდის → …Async</strong> · <strong>void → Task</strong>. და კომპილატორის warning-ებს (ყვითელი ტალღოვანი ხაზი) ნუ უგულებელყოფ — async-ის შეცდომების ნახევარს ისინი გეუბნებიან.</p></div></div></article>
+<h2 class="sec" id="sec-8">პრაქტიკა</h2>
+<article class="blk" data-slides="24"><span class="anchor" id="s-24"></span><div class="bh"><h3>ნაწილი 5 · თქვენი ჯერია</h3><a class="chip" href="index.html#/24" data-go="24" title="პრეზენტაციაში გახსნა">სლაიდი 24</a></div>
+<p>იგივე გზა LibraryApi-ში: ყველა endpoint, რომელიც ბაზაში მიდის, async ხდება.</p></article>
+<article class="blk" data-slides="25"><span class="anchor" id="s-25"></span><div class="bh"><h3>კლასში დავალება: LibraryApi → async</h3><a class="chip" href="index.html#/25" data-go="25" title="პრეზენტაციაში გახსნა">სლაიდი 25</a></div>
+<p>დავალება · LibraryApi</p>
+<h3>ნაბიჯები</h3>
+<ul>
+<li>BooksController — <code>using Microsoft.EntityFrameworkCore;</code></li>
+<li>5 endpoint → <code>async Task&lt;IActionResult&gt;</code> · action-ების სახელები <strong>Async-ის გარეშე</strong></li>
+<li><code>ToListAsync</code> · <code>FindAsync</code> · <code>SaveChangesAsync</code> — ყველას <code>await</code> · <code>Add</code> / <code>Remove</code> უცვლელია</li>
+<li>თუ StatsController გაქვს — <code>CountAsync</code> და <code>AverageAsync</code></li>
+</ul>
+<h3>✓ მზადაა, როცა</h3>
+<p>Ctrl+Shift+F → <code>.ToList()</code> და <code>.SaveChanges()</code> — 0 შედეგი, warning-ები არ არის, და Swagger-ში 5-ივე endpoint ისევ მუშაობს</p>
+<h3>⭐ ბონუსი</h3>
+<ul>
+<li><code>GetAll</code>-ში დაბეჭდე ნაკადის ნომერი <code>await</code>-მდე და შემდეგ — 5-ჯერ გაუშვი: რამდენჯერ შეიცვალა?</li>
+<li><code>GetAll</code>-ს დაამატე <code>CancellationToken</code> და გადაეცი <code>ToListAsync</code>-ს</li>
+</ul>
+<h3>💡 რჩევა</h3>
+<p>ShopApi-ის გზა გაიარე: ჯერ <code>GetAll</code> (ერთი <code>await</code>), გაუშვი და შეამოწმე, მერე დანარჩენი. ყოველ მეთოდში სამი რამ იცვლება: <code>async</code>, <code>Task&lt;IActionResult&gt;</code> და <code>await</code> + Async მეთოდი. DTO-ები და BookMapper არ იცვლება — mapping გამოთვლაა, ლოდინი არ არის. ნაკადის ნომერი: <code>Environment.CurrentManagedThreadId</code>.</p></article>
+<article class="blk" data-slides="26"><span class="anchor" id="s-26"></span><div class="bh"><h3>ხშირი შეცდომები</h3><a class="chip" href="index.html#/26" data-go="26" title="პრეზენტაციაში გახსნა">სლაიდი 26</a></div>
+<table>
+<thead>
+<tr>
+<th>რას ხედავ</th>
+<th>მიზეზი და გამოსწორება</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>'DbSet&lt;Book&gt;' does not contain a definition for 'ToListAsync'</code></td>
+<td><code>using Microsoft.EntityFrameworkCore;</code> აკლია Controller-ის თავში</td>
+</tr>
+<tr>
+<td><code>The 'await' operator can only be used within an async method</code></td>
+<td>მეთოდს <code>async</code> აკლია → <code>public async Task&lt;IActionResult&gt; …</code></td>
+</tr>
+<tr>
+<td><code>Cannot implicitly convert type 'Task&lt;List&lt;Book&gt;&gt;' to 'List&lt;Book&gt;'</code></td>
+<td><code>await</code> დაგავიწყდა → <code>await _db.Books.ToListAsync()</code></td>
+</tr>
+<tr>
+<td>⚠ <code>CS1998: This async method lacks 'await' operators…</code></td>
+<td><code>async</code> წერია, მაგრამ შიგნით ისევ <code>ToList()</code> / <code>SaveChanges()</code> → Async ვერსია + <code>await</code></td>
+</tr>
+<tr>
+<td><code>No route matches the supplied values</code> (POST-ზე, 500)</td>
+<td>action-ს <code>GetByIdAsync</code> დაარქვი, <code>CreatedAtAction(nameof(GetByIdAsync), …)</code> კი მას ვერ პოულობს → სახელი <code>GetById</code></td>
+</tr>
+</tbody>
+</table>
+<div class="prompt"><div class="ph"><span>🤖 როცა რამე არ მუშაობს</span><button class="copy" type="button">კოპირება</button></div><div class="pb">ASP.NET Core Web API-ში Controller-ებს async/await-ზე გადავიყვანე (EF Core: ToListAsync, FindAsync, SaveChangesAsync). მაქვს პრობლემა: [აღწერე]
+შეცდომის ან warning-ის ტექსტი: [ჩასვი]
+ჩემი Controller-ის მეთოდი: [ჩასვი]
+ჯერ მითხარი, რას ნიშნავს შეცდომა და სად ვეძებო — მზა კოდი ნუ დამიწერე.</div></div></article>
+<h2 class="sec" id="sec-9">შეჯამება</h2>
+<article class="blk" data-slides="27"><span class="anchor" id="s-27"></span><div class="bh"><h3>შეამოწმე, რა დაგამახსოვრდა</h3><a class="chip" href="index.html#/27" data-go="27" title="პრეზენტაციაში გახსნა">სლაიდი 27</a></div>
+<p>ეს კითხვები შემდეგი ლექციის დასაწყისშიც დაისმება.</p>
+<div class="selfcheck"><div class="sh">✅ შეამოწმე თავი <small>დაფიქრდი, მერე გახსენი პასუხი</small></div><details><summary>რას აკეთებს ნაკადი (thread) სინქრონულ კოდში, სანამ ბაზა პასუხობს?</summary><div class="ans">არაფერს — დგას და ელოდება (blocking); ამ დროს სხვა მოთხოვნას ვერ ემსახურება</div></details><details><summary>რა არის <code>Task&lt;T&gt;</code>?</summary><div class="ans">დაპირება: ოპერაცია მიმდინარეობს და ბოლოს T ტიპის შედეგს მოგვცემს (როგორც ფუდ-კორტის პეიჯერი)</div></details><details><summary>რა ხდება <code>await</code>-ზე?</summary><div class="ans">მეთოდი „პაუზაზე“ დგება, ნაკადი აუზში ბრუნდება · შედეგი რომ მოვა, მეთოდი გრძელდება — შეიძლება სხვა ნაკადზე</div></details><details><summary>async ერთ მოთხოვნას აჩქარებს?</summary><div class="ans">არა — სერვერს მეტი ერთდროული მომხმარებლის ატანას აძლევს იგივე ნაკადებით (scalability)</div></details><details><summary>როდის არ გვჭირდება async?</summary><div class="ans">როცა მეთოდი გარეთ არაფერს ელოდება — გამოთვლა, mapping, ვალიდაცია (CPU-bound)</div></details><details><summary>რა არის ცუდი <code>.Result</code>-ში და <code>async void</code>-ში?</summary><div class="ans"><code>.Result</code> ნაკადს ისევ ბლოკავს · <code>async void</code>-ს ვერავინ დაელოდება — ASP.NET Core მოთხოვნას და DataContext-ს ადრე ხურავს</div></details></div></article>
+<article class="blk" data-slides="28"><span class="anchor" id="s-28"></span><div class="bh"><h3>შეჯამება · ლოდინის დროს ნაკადი არ დგას</h3><a class="chip" href="index.html#/28" data-go="28" title="პრეზენტაციაში გახსნა">სლაიდი 28</a></div>
+<p><strong>დაიმახსოვრე:</strong></p>
+<ol>
+<li>ASP.NET Core ყოველ მოთხოვნას <strong>Thread Pool</strong>-იდან ნაკადს აძლევს. ნაკადები შეზღუდულია.</li>
+<li><strong>სინქრონულ</strong> კოდში ნაკადი ბაზის პასუხს ელოდება და ამ დროს <strong>დგას</strong> — დატვირთვისას ნაკადები მთავრდება (Thread Pool Starvation), პროცესორი კი ისვენებს.</li>
+<li><strong><code>Task&lt;T&gt;</code></strong> — დაპირება შედეგზე. <strong><code>await</code></strong> — დაელოდე, ოღონდ ნაკადი გაათავისუფლე; შედეგის შემდეგ მეთოდი გრძელდება (შეიძლება სხვა ნაკადზე). <strong><code>async</code></strong> — მეთოდის ნიშანი; async მეთოდი <code>Task</code>-ს აბრუნებს.</li>
+<li>EF Core: ბაზაში მიდის → <code>…Async</code> + <code>await</code> (<code>ToListAsync</code>, <code>FindAsync</code>, <code>SaveChangesAsync</code>, <code>CountAsync</code>…). <code>Add</code>/<code>Remove</code> უცვლელია.</li>
+<li>async ერთ მოთხოვნას <strong>არ აჩქარებს</strong> — სერვერს <strong>მეტი მომხმარებლის</strong> ატანას აძლევს.</li>
+<li><strong>I/O-bound</strong> (ბაზა, ქსელი, ფაილი) → async. <strong>CPU-bound</strong> (გამოთვლა) → ჩვეულებრივი მეთოდი.</li>
+<li>არა: დავიწყებული <code>await</code>, <code>.Result</code>/<code>.Wait()</code>, <code>async void</code>, ორი Task ერთ DataContext-ზე.</li>
+</ol>
+<div class="codebox"><div class="ch"><span>დღევანდელი შედეგი</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="na">[HttpGet]</span></span><span class="ln"><span class="k">public</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="n">Task</span><span class="o">&lt;</span><span class="n">IActionResult</span><span class="o">&gt;</span><span class="w"> </span><span class="n">GetAll</span><span class="p">(</span><span class="p">)</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="kt">var</span><span class="w"> </span><span class="n">products</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="n">_db</span><span class="p">.</span><span class="n">Products</span><span class="p">.</span><span class="n">ToListAsync</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nf">Ok</span><span class="p">(</span><span class="n">products</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="p">}</span></span></code></pre></div>
+<div class="prompt"><div class="ph"><span>🤖 async/await — გასაუბრებისთვის</span><button class="copy" type="button">კოპირება</button></div><div class="pb">ვემზადები .NET Junior გასაუბრებისთვის. დამისვი კითხვები async/await-ზე ASP.NET Core Web API-ში: Thread, Thread Pool, Thread Pool Starvation, Task და Task&lt;T&gt;, რას აკეთებს await, I/O-bound vs CPU-bound, რატომ არ აჩქარებს async ერთ მოთხოვნას, .Result და async void-ის პრობლემები, EF Core-ის Async მეთოდები, CancellationToken.
+სათითაოდ დასვი, დაელოდე ჩემს პასუხს, შემიფასე და აუხსენი, რა გამომრჩა. 8 კითხვა. ქართულად.</div></div></article>
+<h2 class="sec" id="sec-10">საშინაო</h2>
+<article class="blk" data-slides="29"><span class="anchor" id="s-29"></span><div class="bh"><h3>საშინაო დავალება: LibraryApi — წევრები და გატანები async-ზე</h3><a class="chip" href="index.html#/29" data-go="29" title="პრეზენტაციაში გახსნა">სლაიდი 29</a></div>
+<p>მთელი LibraryApi — async</p>
+<h3>მოთხოვნები</h3>
+<ul>
+<li>MembersController — ყველა endpoint async (Email-ის შემოწმება — <code>AnyAsync</code>; Argon2 ჰეში რჩება სინქრონული)</li>
+<li>LoansController — <code>POST /api/loans</code>: სამი შემოწმება async-ით → 201 · 404 · 409</li>
+<li><code>GET /api/loans</code> — <code>ToListAsync</code> · მთელ პროექტში არც ერთი <code>ToList()</code>, <code>Find()</code>, <code>Any()</code>, <code>SaveChanges()</code></li>
+<li>არც ერთი <code>.Result</code>, <code>.Wait()</code> ან <code>async void</code></li>
+</ul>
+<h3>✓ მზადაა, როცა</h3>
+<p>ყველა endpoint Swagger-ში ისე მუშაობს, როგორც წინა ლექციაზე, და Error List-ში async-ის warning არ არის</p>
+<h3>⭐ ბონუსი</h3>
+<ul>
+<li><code>GET /api/members/{id}/loans</code> async-ით (404, თუ წევრი არ არის)</li>
+<li><code>GET /api/loans</code> — <code>CancellationToken</code>-ით</li>
+</ul>
+<h3>💡 მინიშნება</h3>
+<p>LoansController-ის სამ შემოწმებას თითოს თავისი <code>await</code> სჭირდება — რიგრიგობით: ერთ DataContext-ზე ერთდროულად ორი ოპერაცია არ შეიძლება. რატომ რჩება Argon2-ის ჰეშირება სინქრონული? ის ლოდინი კი არა, გამოთვლაა (CPU-bound) — async მას არაფერს მისცემს.</p></article>
+  </main>
+</div>
+<script>
+const DECK = "ASP.NET · 5 — Async / Await API-ში";
+if (matchMedia('(min-width:981px)').matches) document.getElementById('tocd').open = true;
+const blocks = [...document.querySelectorAll('.blk')];
+const tocLinks = [...document.querySelectorAll('nav.toc a[href^="#sec-"]')];
+const secOf = b => { let e = b; while (e && !(e.matches && e.matches('h2.sec'))) e = e.previousElementSibling; return e; };
+function mark(b, toc_only) {
+  if (!toc_only) blocks.forEach(x => x.classList.toggle('cur', x === b));
+  const s = b && secOf(b); tocLinks.forEach(a => a.classList.toggle('cur', s && a.getAttribute('href') === '#' + s.id));
+}
+const blockFor = n => blocks.find(b => b.dataset.slides.split(',').includes(String(n)));
+
+// copy buttons (code: one line per .ln)
+document.addEventListener('click', e => {
+  const btn = e.target.closest('.copy'); if (!btn) return;
+  const box = btn.closest('.codebox, .prompt');
+  const text = box.matches('.prompt') ? box.querySelector('.pb').textContent : [...box.querySelectorAll('.ln')].map(l => l.textContent).join('\n');
+  navigator.clipboard.writeText(text).then(() => { btn.textContent = '✓ დაკოპირდა'; btn.classList.add('ok'); setTimeout(() => { btn.textContent = 'კოპირება'; btn.classList.remove('ok'); }, 1600); });
+});
+
+// live mode: opened from the deck with P — follow the projector
+const live = new URLSearchParams(location.search).has('live');
+let follow = true, bc = null;
+const liveBtn = document.getElementById('live');
+if (live) {
+  try { bc = new BroadcastChannel('deck-' + DECK); } catch (e) {}
+  liveBtn.classList.add('on');
+  liveBtn.onclick = () => { follow = !follow; liveBtn.classList.toggle('off', !follow); liveBtn.querySelector('.lt').textContent = follow ? 'მიჰყვება სლაიდებს' : 'თავისუფლად ვკითხულობ'; };
+  if (bc) {
+    bc.onmessage = ({ data }) => {
+      if (data.t !== 'state' || !follow) return;
+      const b = blockFor(data.i + 1); if (!b || b.classList.contains('cur')) return;
+      mark(b); b.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    };
+    bc.postMessage({ t: 'hello' });
+  }
+  document.addEventListener('click', e => {   // slide chip → move the projector deck
+    const c = e.target.closest('.chip[data-go]'); if (!c || !bc) return;
+    e.preventDefault(); bc.postMessage({ t: 'go', n: +c.dataset.go - 1 });
+  });
+}
+// deep link #s-12
+const h = location.hash.match(/^#s-(\d+)$/);
+if (h) { const b = blockFor(+h[1]); if (b) { mark(b); setTimeout(() => b.scrollIntoView({ block: 'start' }), 50); } }
+// highlight section in the TOC while reading
+const io = new IntersectionObserver(es => es.forEach(x => { if (x.isIntersecting && !(live && follow)) mark(x.target, true); }), { rootMargin: '-30% 0px -60% 0px' });
+blocks.forEach(b => io.observe(b));
+</script>
+</body></html>

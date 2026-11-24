@@ -1,0 +1,499 @@
+<!doctype html>
+<html lang="ka"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>📖 დომენი, HTTPS და საიდუმლოებები — კონსპექტი</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Georgian:wght@400;600;700;800&family=JetBrains+Mono:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#fbf8f3;--card:#fff;--ink:#1e2132;--ink2:#3b3f54;--muted:#7b8096;--line:#e6dfd2;--accent:#6d28d9;--accent-soft:#f3effe;--teal:#0d9488;
+  --green:#15803d;--amber:#b45309;--mono:"JetBrains Mono",ui-monospace,monospace;--sans:"Noto Sans Georgian",system-ui,sans-serif}
+*{box-sizing:border-box}
+html{scroll-padding-top:76px}
+body{margin:0;background:var(--bg);color:var(--ink);font:17.5px/1.75 var(--sans);-webkit-font-smoothing:antialiased}
+a{color:var(--accent)}
+/* top bar */
+.top{position:sticky;top:0;z-index:10;display:flex;align-items:center;gap:14px;padding:10px 20px;background:rgba(251,248,243,.92);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.top .back{font:600 14px var(--mono);color:var(--muted);text-decoration:none;white-space:nowrap}
+.top .back:hover{color:var(--ink)}
+.top .ttl{flex:1;min-width:0;font-weight:700;font-size:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.top .ttl small{font:500 13px var(--mono);color:var(--muted);margin-right:8px}
+.btn{font:700 14px var(--sans);text-decoration:none;border-radius:10px;padding:7px 14px;white-space:nowrap;border:1px solid var(--line);color:var(--ink);background:var(--card);cursor:pointer}
+.btn.play{background:var(--accent);border-color:var(--accent);color:#fff}
+.live{display:none;align-items:center;gap:8px;font:600 13px var(--mono);color:var(--teal);background:#e6f6f4;border:1px solid #bfe7e2;border-radius:999px;padding:5px 12px;cursor:pointer}
+.live.on{display:flex}
+.live .dot{width:8px;height:8px;border-radius:50%;background:var(--teal);animation:pulse 1.6s infinite}
+.live.off{color:var(--muted);background:var(--card);border-color:var(--line)}.live.off .dot{background:var(--muted);animation:none}
+@keyframes pulse{50%{opacity:.3}}
+/* layout */
+.wrap{display:grid;grid-template-columns:230px minmax(0,1000px);gap:44px;justify-content:center;padding:32px 28px 120px}
+nav.toc{position:sticky;top:84px;align-self:start;font-size:14px;line-height:1.45}
+nav.toc .h{font:700 12px var(--mono);color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px}
+nav.toc a{display:block;color:var(--ink2);text-decoration:none;padding:6px 10px;border-left:2px solid var(--line)}
+nav.toc a:hover{color:var(--accent)}
+nav.toc a.cur{color:var(--accent);border-left-color:var(--accent);font-weight:700}
+nav.toc .mats{margin-top:22px;display:flex;flex-direction:column;gap:6px}
+nav.toc .mats a{border:0;padding:2px 0;font:500 13px var(--mono);color:var(--teal);word-break:break-all}
+header.hero{margin-bottom:8px}
+header.hero .k{font:600 14px var(--mono);color:var(--accent)}
+header.hero h1{font-size:38px;line-height:1.2;margin:6px 0 10px;letter-spacing:-.01em}
+header.hero p{color:var(--muted);margin:0;font-size:15.5px}
+header.hero kbd{font:500 12px var(--mono);border:1px solid var(--line);border-radius:5px;padding:0 5px;background:var(--card)}
+h2.sec{font-size:15px;font:700 13px var(--mono);color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin:48px 0 6px;padding-top:18px;border-top:1px solid var(--line)}
+/* blocks */
+.blk{position:relative;padding:14px 0 6px 22px;margin-left:-22px;border-left:3px solid transparent;transition:border-color .3s,background .3s;border-radius:0 12px 12px 0}
+.blk.cur{border-left-color:var(--accent);background:linear-gradient(90deg,var(--accent-soft),transparent 70%)}
+.anchor{position:absolute;top:0}
+.bh{display:flex;align-items:baseline;justify-content:space-between;gap:12px}
+.bh h3{font-size:22px;line-height:1.35;margin:4px 0 6px}
+.chip{flex:none;font:600 12px var(--mono);color:var(--muted);text-decoration:none;border:1px solid var(--line);border-radius:999px;padding:2px 10px;background:var(--card)}
+.chip:hover{color:var(--accent);border-color:var(--accent)}
+.blk h2{font-size:26px;line-height:1.3;margin:6px 0 10px}
+.blk h3:not(.bh h3){font-size:19px;margin:22px 0 6px}
+.blk h4{font-size:17px;margin:18px 0 4px}
+.blk p{margin:10px 0}
+.blk ul,.blk ol{padding-left:24px;margin:8px 0}
+.blk li{margin:4px 0}
+.blk strong{color:var(--ink)}
+.blk :not(pre)>code{font:600 .86em var(--mono);background:#f1ece3;border-radius:6px;padding:1px 6px;color:#5b21b6}
+.blk table{border-collapse:collapse;margin:14px 0;font-size:15.5px;width:100%;display:block;overflow-x:auto}
+.blk th,.blk td{border:1px solid var(--line);padding:8px 12px;text-align:left;vertical-align:top}
+.blk th{background:#f6f1e8}
+/* code */
+.codebox{margin:14px 0;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:#fffdf9}
+.codebox .ch,.prompt .ph{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:6px 8px 6px 14px;font:600 12.5px var(--mono);color:var(--muted);background:#f6f1e8;border-bottom:1px solid var(--line)}
+.copy{font:600 12px var(--mono);border:1px solid var(--line);background:var(--card);color:var(--ink2);border-radius:7px;padding:3px 10px;cursor:pointer}
+.copy:hover{border-color:var(--ink)}
+.copy.ok{color:var(--green);border-color:var(--green)}
+pre.code{margin:0;padding:12px 0;overflow-x:auto;font:14px/1.65 var(--mono)}
+pre.code .ln{display:block;padding:0 16px;white-space:pre}
+.code .ttl{background:var(--bg2);color:var(--muted)}
+.code .ln.hl{background:rgba(109,40,217,.07);box-shadow:inset 3px 0 0 var(--net)}
+.code .ln.dim{opacity:.42}
+.code .k,.code .kd,.code .kn,.code .kr,.code .kc{color:#7c3aed}
+.code .kt{color:#2563eb}
+.code .s,.code .s1,.code .s2,.code .sa,.code .se,.code .si,.code .sd{color:#15803d}
+.code .c,.code .c1,.code .cm,.code .cp,.code .ch{color:#8b8fa3}
+.code .m,.code .mi,.code .mf,.code .mh{color:#c2410c}
+.code .nf,.code .fm{color:#1d4ed8}
+.code .nc,.code .nn,.code .nt,.code .nd{color:#b45309}
+.code .na{color:#7c3aed} .code .nb{color:#0e7490}
+.code .o,.code .p{color:#64748b}
+.code .nv,.code .nx{color:var(--ink)}
+.code .go{color:#64748b}
+/* prompt */
+.prompt{margin:16px 0;border:1px solid #ddd2fb;border-radius:12px;overflow:hidden;background:var(--accent-soft)}
+.prompt .ph{background:#ebe3fd;border-color:#ddd2fb;color:var(--accent)}
+.prompt .pb{padding:12px 16px;white-space:pre-wrap;font-size:15.5px;line-height:1.6;color:var(--ink2)}
+/* self check */
+.selfcheck{margin:16px 0;border:1px solid #cfe9d6;border-radius:12px;background:#f3fbf5;padding:12px 16px}
+.selfcheck .sh{font-weight:700;color:var(--green);margin-bottom:6px}
+.selfcheck .sh small{font-weight:400;color:var(--muted);font-size:13.5px;margin-left:6px}
+.selfcheck details{border-top:1px solid #dcefe1;padding:8px 0}
+.selfcheck summary{cursor:pointer;font-weight:600;list-style:none;padding-left:26px;position:relative}
+.selfcheck summary::-webkit-details-marker{display:none}
+.selfcheck summary::before{content:"?";position:absolute;left:0;top:2px;width:18px;height:18px;border-radius:50%;background:var(--green);color:#fff;font:700 12px/18px var(--mono);text-align:center}
+.selfcheck details[open] summary::before{content:"✓"}
+.selfcheck .ans{padding:6px 0 2px 26px;color:var(--ink2)}
+/* terms */
+.terms{margin:16px 0;border:1px solid var(--line);border-radius:12px;background:var(--card);padding:12px 16px}
+.terms .th{font-weight:700;margin-bottom:6px}
+.terms dl{display:grid;grid-template-columns:max-content 1fr;gap:6px 18px;margin:0}
+.terms dt{font:600 14.5px var(--mono);color:var(--accent)}
+.terms dd{margin:0;color:var(--ink2)}
+/* callouts */
+.callout{display:flex;gap:12px;margin:14px 0;padding:12px 16px;border-radius:12px;border:1px solid var(--line);background:var(--card)}
+.callout .ci{font-size:20px;line-height:1.6}
+.callout>div>p:first-child{margin-top:0}.callout>div>p:last-child{margin-bottom:0}
+.callout.warn{background:#fff8eb;border-color:#f6dfb5}
+.callout.note{background:#eef5ff;border-color:#cfe0fb}
+@media (max-width:980px){
+  .wrap{grid-template-columns:minmax(0,1fr);gap:0;padding:20px 16px 100px}
+  nav.toc{position:static;margin-bottom:12px}
+  nav.toc details{border:1px solid var(--line);border-radius:12px;background:var(--card);padding:8px 12px}
+  nav.toc details>summary{cursor:pointer;font-weight:700}
+  nav.toc .h{display:none}
+  header.hero h1{font-size:30px}
+  .blk{padding-left:14px;margin-left:-14px}
+  .top .ttl small{display:none}
+  .terms dl{grid-template-columns:1fr}.terms dd{margin-bottom:8px}
+}
+@media (min-width:981px){nav.toc details>summary{display:none}}
+@media print{.top,nav.toc,.copy,.chip,.live{display:none}.wrap{display:block;padding:0}.selfcheck details{display:block}.blk.cur{background:none}}
+</style></head>
+<body>
+<div class="top">
+  <a class="back" href="../../">← ლექციები</a>
+  <div class="ttl"><small>DevOps · 9</small>დომენი, HTTPS და საიდუმლოებები</div>
+  <button class="live" id="live" type="button" title="ჩართული: ტექსტი პრეზენტაციას მიჰყვება"><span class="dot"></span><span class="lt">მიჰყვება სლაიდებს</span></button>
+  <a class="btn play" href="index.html">▶ პრეზენტაცია</a>
+</div>
+<div class="wrap">
+  <nav class="toc"><details id="tocd"><summary>სარჩევი</summary><div class="h">სარჩევი</div><a href="#sec-1">გამეორება</a><a href="#sec-2">საშინაოს განხილვა</a><a href="#sec-3">დღის თემა</a><a href="#sec-4">1 · დომენი</a><a href="#sec-5">2 · HTTPS</a><a href="#sec-6">3 · საიდუმლოებები</a><a href="#sec-7">შეჯამება</a><a href="#sec-8">პრაქტიკა</a><a href="#sec-9">შეჯამება</a><a href="#sec-10">საშინაო</a><div class="mats"></div></details></nav>
+  <main>
+    <header class="hero">
+      <div class="k">📖 კონსპექტი · DevOps · ლექცია 9</div>
+      <h1>დომენი, HTTPS და საიდუმლოებები</h1>
+      <p>წაიკითხე ლექციის შემდეგ, ან პრეზენტაციასთან ერთად: პრეზენტაციაში დააჭირე <kbd>P</kbd> და ეს გვერდი სლაიდებს გაჰყვება. კოდი და AI-ს პრომპტები კოპირდება ერთი დაჭერით.</p>
+    </header>
+    <h2 class="sec" id="sec-1">გამეორება</h2>
+<article class="blk" data-slides="1,2"><span class="anchor" id="s-1"></span><span class="anchor" id="s-2"></span><div class="bh"><h3>გავიხსენოთ წინა ლექცია</h3><a class="chip" href="index.html#/1" data-go="1" title="პრეზენტაციაში გახსნა">სლაიდი 1</a></div>
+<p>ლექცია 8 — <strong>Docker Compose — LMS + ბაზა სერვერზე</strong>. ახალ თემამდე ვამოწმებთ, რა დაგვამახსოვრდა. ჯერ თვითონ უპასუხე, მერე გახსენი პასუხი. თუ რომელიმე გაგიჭირდა, <a href="../08-compose-deploy/study.html">წინა ლექციის კონსპექტს</a> გადახედე.</p>
+<div class="selfcheck"><div class="sh">✅ შეამოწმე თავი <small>დაფიქრდი, მერე გახსენი პასუხი</small></div><details><summary>API ბაზას რა მისამართით უკავშირდება Compose-ში და რატომ?</summary><div class="ans"><code>Host=db</code> — სერვისის სახელით. Compose ყველა სერვისს ერთ ქსელში სვამს, სადაც სახელი = მისამართი</div></details><details><summary>რას აკეთებს <code>depends_on</code> + <code>condition: service_healthy</code>?</summary><div class="ans">API მხოლოდ მაშინ ირთვება, როცა ბაზის <code>healthcheck</code> (<code>pg_isready</code>) წარმატებულია — ანუ ბაზა მართლა მზადაა მოთხოვნებისთვის</div></details><details><summary>რატომ ვწერთ <code>ports: "127.0.0.1:5000:8080"</code> და არა <code>"5000:8080"</code>?</summary><div class="ans">Docker port-ს ufw-ის გვერდის ავლით ხსნის. <code>127.0.0.1</code>-ით port მხოლოდ სერვერის შიგნიდან ჩანს — ინტერნეტიდან API-მდე მხოლოდ Nginx-ის გავლით მიდიან</div></details><details><summary><code>docker compose down</code> და <code>docker compose down -v</code> — რა განსხვავებაა?</summary><div class="ans"><code>down</code> კონტეინერებს და ქსელს შლის, volume-ები (ბაზა) რჩება. <code>down -v</code> volume-ებსაც შლის — ბაზა სამუდამოდ იკარგება</div></details><details><summary>სერვერზე LMS-ის ახალი ვერსია როგორ გავუშვა?</summary><div class="ans"><code>git pull</code> → <code>docker compose up -d --build</code>. Compose ახალ image-ს ააწყობს და მხოლოდ შეცვლილ კონტეინერს შეცვლის; ბაზა volume-ში რჩება</div></details><details><summary>როგორ გავაკეთო ბაზის backup?</summary><div class="ans"><code>docker compose exec db pg_dump -U lms lms &gt; backup.sql</code> — SQL ფაილი, რომლითაც ბაზა ნებისმიერ დროს აღდგება</div></details></div></article>
+<h2 class="sec" id="sec-2">საშინაოს განხილვა</h2>
+<article class="blk" data-slides="3"><span class="anchor" id="s-3"></span><div class="bh"><h3>საშინაოს განხილვა</h3><a class="chip" href="index.html#/3" data-go="3" title="პრეზენტაციაში გახსნა">სლაიდი 3</a></div>
+<p>წინა ლექციის საშინაო: <strong>შენი API სერვერზე — კონტეინერებით</strong>. ქვემოთ არის ერთ-ერთი სწორი ამოხსნა. შენი კოდი შეიძლება სხვანაირად იყოს დაწერილი — მთავარია, მოთხოვნები სრულდებოდეს.</p>
+<h3>მოთხოვნები</h3>
+<ul>
+<li>სერვერზე Docker (<code>get.docker.com</code>, <code>docker</code> ჯგუფი); ძველი <code>lms-api</code> და <code>postgresql</code> → <code>disable --now</code></li>
+<li><code>git clone</code> → სერვერის <code>.env</code> (ძლიერი პაროლი, <code>Production</code>, <code>chmod 600</code>) → <code>docker compose up -d --build</code></li>
+<li>backup: <code>pg_dump</code> → <code>~/backups/lms-&lt;თარიღი&gt;.sql</code></li>
+</ul>
+<h3>ამოხსნა</h3>
+<div class="codebox"><div class="ch"><span>Termius · lms-server</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="gp">$ </span>curl<span class="w"> </span>-fsSL<span class="w"> </span>https://get.docker.com<span class="w"> </span><span class="p">|</span><span class="w"> </span>sudo<span class="w"> </span>sh</span><span class="ln"><span class="gp">$ </span>sudo<span class="w"> </span>usermod<span class="w"> </span>-aG<span class="w"> </span>docker<span class="w"> </span><span class="nv">$USER</span></span><span class="ln"><span class="gp"># </span>Termius:<span class="w"> </span>გაითიშე<span class="w"> </span>და<span class="w"> </span>თავიდან<span class="w"> </span>დაუკავშირდი<span class="w"> </span>—<span class="w"> </span>ჯგუფი<span class="w"> </span>ამოქმედდება</span><span class="ln"><span class="gp">$ </span>sudo<span class="w"> </span>systemctl<span class="w"> </span>disable<span class="w"> </span>--now<span class="w"> </span>lms-api<span class="w"> </span>postgresql</span><span class="ln"> </span><span class="ln"><span class="gp">$ </span>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/giorgi/lms.git<span class="w"> </span>~/lms<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nb">cd</span><span class="w"> </span>~/lms</span><span class="ln"><span class="gp">$ </span>nano<span class="w"> </span>.env</span><span class="ln"><span class="go">DB_PASSWORD=h7Kq2-xR9v-Lm4Z</span></span><span class="ln"><span class="go">ASPNETCORE_ENVIRONMENT=Production</span></span><span class="ln"><span class="gp">$ </span>chmod<span class="w"> </span><span class="m">600</span><span class="w"> </span>.env</span><span class="ln"> </span><span class="ln"><span class="gp">$ </span>docker<span class="w"> </span>compose<span class="w"> </span>up<span class="w"> </span>-d<span class="w"> </span>--build</span><span class="ln"><span class="gp">$ </span>docker<span class="w"> </span>compose<span class="w"> </span>ps</span></code></pre></div>
+<div class="codebox"><div class="ch"><span>Termius · lms-server</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="gp">$ </span>mkdir<span class="w"> </span>-p<span class="w"> </span>~/backups</span><span class="ln"><span class="gp">$ </span>docker<span class="w"> </span>compose<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>db<span class="w"> </span>pg_dump<span class="w"> </span>-U<span class="w"> </span>lms<span class="w"> </span>lms<span class="w"> </span>&gt;<span class="w"> </span>~/backups/lms-<span class="k">$(</span>date<span class="w"> </span>+%F<span class="k">)</span>.sql</span></code></pre></div>
+<p><code>$(date +%F)</code> — დღევანდელი თარიღი (<code>2026-12-05</code>) ფაილის სახელში. <code>restart: unless-stopped</code>-ის წყალობით reboot-ის შემდეგ კონტეინერები თავისით ირთვება.</p></article>
+<h2 class="sec" id="sec-3">დღის თემა</h2>
+<article class="blk" data-slides="4"><span class="anchor" id="s-4"></span><div class="bh"><h3>დღის თემა: დომენი, HTTPS და საიდუმლოებები</h3><a class="chip" href="index.html#/4" data-go="4" title="პრეზენტაციაში გახსნა">სლაიდი 4</a></div>
+<p><code>http://164.90.12.34:8081</code> — არავინ დაიმახსოვრებს, ბრაუზერი „Not secure“-ს წერს, და ვინც შენთან ერთ Wi-Fi-შია, ხედავს პაროლებს, რომლებიც LMS-ში შედის. დღეს სერვერს ვაძლევთ სახელს — დომენს, ვრთავთ უფასო HTTPS-ს Let's Encrypt-ით და საიდუმლოებებს (ბაზის პაროლი, JWT გასაღები) ისე ვალაგებთ, რომ Git-ში არასოდეს მოხვდეს.</p>
+<p><strong>ლექციის ბოლოს შეძლებ:</strong></p>
+<ul>
+<li>DNS ჩანაწერების დამატება: A (<code>@</code>, <code>api</code>, <code>app</code>) და CNAME (<code>www</code>), შემოწმება <code>dig</code>-ით</li>
+<li>Nginx-ში საიტების დაყოფა <code>server_name</code>-ით port-ების ნაცვლად</li>
+<li>HTTPS Let's Encrypt-ით: <code>certbot --nginx</code>, HTTP → HTTPS redirect, ავტომატური განახლება</li>
+<li>ASP.NET Core-ის კონფიგურაციის რიგი: appsettings → environment → user-secrets → გარემოს ცვლადები</li>
+<li>საიდუმლოებები: <code>user-secrets</code> შენთან, <code>.env</code> სერვერზე; JWT გასაღების გენერაცია და proxy-ს უკან HTTPS-ის სწორად აღქმა</li>
+</ul></article>
+<h2 class="sec" id="sec-4">1 · დომენი</h2>
+<article class="blk" data-slides="5"><span class="anchor" id="s-5"></span><div class="bh"><h3>ნაწილი 1 · დომენი და DNS</h3><a class="chip" href="index.html#/5" data-go="5" title="პრეზენტაციაში გახსნა">სლაიდი 5</a></div>
+<p>პირველ ლექციაზე ვთქვით: DNS — ინტერნეტის „მისამართების წიგნია“, სახელი → IP. დღეს ამ წიგნში ჩანაწერს თვითონ ვაკეთებთ.</p></article>
+<article class="blk" data-slides="6"><span class="anchor" id="s-6"></span><div class="bh"><h3>პრობლემა: http://164.90.12.34:8081</h3><a class="chip" href="index.html#/6" data-go="6" title="პრეზენტაციაში გახსნა">სლაიდი 6</a></div>
+<p>ახლა ჩვენი სამი საიტი ასე იხსნება:</p>
+<table>
+<thead>
+<tr>
+<th>საიტი</th>
+<th>მისამართი</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>portfolio</td>
+<td><code>http://164.90.12.34</code></td>
+</tr>
+<tr>
+<td>Angular</td>
+<td><code>http://164.90.12.34:8080</code></td>
+</tr>
+<tr>
+<td>LMS API</td>
+<td><code>http://164.90.12.34:8081</code></td>
+</tr>
+</tbody>
+</table>
+<p>სამი პრობლემა:</p>
+<ul>
+<li>🧠 <strong>არავინ დაიმახსოვრებს</strong> — CV-ში, კლიენტთან ან მეგობართან ასეთ ლინკს ვერ გაუგზავნი.</li>
+<li>⚠ <strong>Not secure</strong> — ბრაუზერი მისამართის გვერდით აფრთხილებს, ზოგი ფუნქცია (მაგ. Secure cookie) HTTP-ზე საერთოდ არ მუშაობს.</li>
+<li>👀 <strong>ღია ტექსტი</strong> — HTTP-ზე ყველაფერი, მათ შორის ლოგინი და პაროლი, დაუშიფრავად მიდის. კაფეს Wi-Fi-ში ვინც იმავე ქსელშია, შეუძლია ეს მოთხოვნა დაინახოს.</li>
+</ul>
+<p>გამოსავალი: <strong>დომენი</strong> (სახელი) + <strong>HTTPS</strong> (დაშიფვრა).</p></article>
+<article class="blk" data-slides="7"><span class="anchor" id="s-7"></span><div class="bh"><h3>ნაბიჯი 1 · დომენის ყიდვა და DNS ჩანაწერები</h3><a class="chip" href="index.html#/7" data-go="7" title="პრეზენტაციაში გახსნა">სლაიდი 7</a></div>
+<p><strong>დომენი</strong> ყიდვით კი არა, <strong>ქირით</strong> იღება — წლიურად, <strong>registrar</strong>-თან (დომენების რეგისტრატორი). <code>.com</code>-ის ფასი დაახლოებით $10 წელიწადში; <code>.ge</code> — ქართულ registrar-თან.</p>
+<div class="callout tip"><span class="ci">👉</span><div><p>სწავლისთვის არის უფასო ვარიანტიც — სერვისები, რომლებიც უფასო ქვედომენს გაძლევენ (მაგ. DuckDNS: <code>giorgi.duckdns.org</code>). ყველაფერი, რასაც დღეს ვაკეთებთ, HTTPS-ის ჩათვლით, მასზეც მუშაობს.</p></div></div>
+<p>registrar-ის (ან DNS პროვაიდერის) panel-ში ვამატებთ <strong>DNS ჩანაწერებს</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Type</th>
+<th>Name</th>
+<th>Value</th>
+<th>შედეგი</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>A</code></td>
+<td><code>@</code></td>
+<td><code>164.90.12.34</code></td>
+<td><code>giorgi.ge</code> → სერვერი (portfolio)</td>
+</tr>
+<tr>
+<td><code>CNAME</code></td>
+<td><code>www</code></td>
+<td><code>giorgi.ge</code></td>
+<td><code>www.giorgi.ge</code> → იგივე, რაც <code>giorgi.ge</code></td>
+</tr>
+<tr>
+<td><code>A</code></td>
+<td><code>app</code></td>
+<td><code>164.90.12.34</code></td>
+<td><code>app.giorgi.ge</code> → Angular</td>
+</tr>
+<tr>
+<td><code>A</code></td>
+<td><code>api</code></td>
+<td><code>164.90.12.34</code></td>
+<td><code>api.giorgi.ge</code> → LMS API</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li><strong>A</strong> — სახელი → <strong>IP</strong> მისამართი.</li>
+<li><strong>CNAME</strong> — სახელი → <strong>სხვა სახელი</strong>; IP-ს DNS მერე თვითონ პოულობს.</li>
+<li><code>@</code> — თვითონ დომენი, ქვედომენის გარეშე.</li>
+<li><strong>TTL</strong> — რამდენ ხანს ინახავენ სხვა სერვერები ამ პასუხს ქეშში (ნაგულისხმევი მნიშვნელობა საკმარისია).</li>
+</ul>
+<p>ოთხივე სახელი <strong>ერთ</strong> სერვერზე მიდის. როგორ გაარჩევს Nginx, რომელი საიტი აჩვენოს — შემდეგ სლაიდზე.</p>
+<div class="codebox"><div class="ch"><span>WSL</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="gp">$ </span>dig<span class="w"> </span>+short<span class="w"> </span>api.giorgi.ge</span></code></pre></div>
+<p>ახალი ჩანაწერი რამდენიმე წუთში (ზოგჯერ — საათებში) ვრცელდება. სანამ <code>dig</code> IP-ს არ დააბრუნებს, HTTPS-ზე არ გადავდივართ.</p></article>
+<article class="blk" data-slides="8"><span class="anchor" id="s-8"></span><div class="bh"><h3>ნაბიჯი 2 · server_name: ერთი IP, ერთი port — სამი საიტი</h3><a class="chip" href="index.html#/8" data-go="8" title="პრეზენტაციაში გახსნა">სლაიდი 8</a></div>
+<p>აქამდე საიტებს <strong>port-ებით</strong> ვყოფდით (80, 8080, 8081). დომენებით ყველა 80-ზე (და მერე 443-ზე) იქნება — ბრაუზერი ყოველ მოთხოვნაში აგზავნის header-ს <code>Host: api.giorgi.ge</code>, და Nginx მას server block-ების <code>server_name</code>-ს ადარებს:</p>
+<div class="codebox"><div class="ch"><span>sites-available/portfolio</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="k">server</span><span class="w"> </span><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="kn">listen</span><span class="w"> </span><span class="mi">80</span><span class="w"> </span><span class="s">default_server</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="kn">server_name</span><span class="w"> </span><span class="s">giorgi.ge</span><span class="w"> </span><span class="s">www.giorgi.ge</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="kn">root</span><span class="w"> </span><span class="s">/var/www/portfolio</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="kn">...</span></span><span class="ln"><span class="err">}</span></span></code></pre></div>
+<div class="codebox"><div class="ch"><span>sites-available/app</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="k">server</span><span class="w"> </span><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="kn">listen</span><span class="w"> </span><span class="mi">80</span><span class="p">;</span><span class="w">                  </span><span class="c1"># იყო 8080</span></span><span class="ln"><span class="w">    </span><span class="kn">server_name</span><span class="w"> </span><span class="s">app.giorgi.ge</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="kn">root</span><span class="w"> </span><span class="s">/var/www/app</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="kn">...</span></span><span class="ln"><span class="err">}</span></span></code></pre></div>
+<div class="codebox"><div class="ch"><span>sites-available/lms-api</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="k">server</span><span class="w"> </span><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="kn">listen</span><span class="w"> </span><span class="mi">80</span><span class="p">;</span><span class="w">                  </span><span class="c1"># იყო 8081</span></span><span class="ln"><span class="w">    </span><span class="kn">server_name</span><span class="w"> </span><span class="s">api.giorgi.ge</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="kn">location</span><span class="w"> </span><span class="s">/</span><span class="w"> </span><span class="p">{</span></span><span class="ln"><span class="w">        </span><span class="kn">proxy_pass</span><span class="w"> </span><span class="s">http://127.0.0.1:5000</span><span class="p">;</span></span><span class="ln"><span class="w">        </span><span class="kn">...</span></span><span class="ln"><span class="w">    </span><span class="err">}</span></span><span class="ln"><span class="err">}</span></span></code></pre></div>
+<p><code>default_server</code> — თუ <code>Host</code> არცერთ <code>server_name</code>-ს არ ემთხვევა (მაგ. ვინმემ პირდაპირ IP გახსნა), ეს block პასუხობს.</p>
+<div class="codebox"><div class="ch"><span>Termius · lms-server</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code></code></pre></div>
+<p><code>http://app.giorgi.ge</code>, <code>http://api.giorgi.ge/api/courses</code> — მუშაობს. port-ები 8080/8081 აღარ გვჭირდება — HTTPS-ის შემდეგ მათ ufw-დან წავშლით.</p></article>
+<h2 class="sec" id="sec-5">2 · HTTPS</h2>
+<article class="blk" data-slides="9"><span class="anchor" id="s-9"></span><div class="bh"><h3>ნაწილი 2 · HTTPS — უფასოდ</h3><a class="chip" href="index.html#/9" data-go="9" title="პრეზენტაციაში გახსნა">სლაიდი 9</a></div></article>
+<article class="blk" data-slides="10"><span class="anchor" id="s-10"></span><div class="bh"><h3>HTTPS: სერტიფიკატი — „პასპორტი“ დომენისთვის</h3><a class="chip" href="index.html#/10" data-go="10" title="პრეზენტაციაში გახსნა">სლაიდი 10</a></div>
+<p><strong>HTTPS</strong> = HTTP + დაშიფვრა (TLS). ორ რამეს აკეთებს:</p>
+<ul>
+<li>🔐 <strong>დაშიფვრა</strong> — ბრაუზერსა და სერვერს შორის ყველაფერი დაშიფრულია; კაფეს Wi-Fi-ში ვერავინ წაიკითხავს.</li>
+<li>🪪 <strong>ავთენტიკაცია</strong> — <strong>სერტიფიკატი</strong> ადასტურებს, რომ ეს ნამდვილად <code>giorgi.ge</code>-ის სერვერია და არა ყალბი. სერტიფიკატს გასცემს ორგანიზაცია, რომელსაც ბრაუზერები ენდობიან (Certificate Authority).</li>
+</ul>
+<p><strong>Let's Encrypt</strong> — უფასო Certificate Authority. მისი სერტიფიკატები <strong>90 დღე</strong> მოქმედებს და <strong>certbot</strong> მათ ავტომატურად აახლებს.</p>
+<p><strong>სად მთავრდება HTTPS?</strong> ჩვენთან — <strong>Nginx-ზე</strong>: ბრაუზერი ⇄ HTTPS ⇄ Nginx ⇄ HTTP ⇄ API. Nginx-სა და API-ს შორის კავშირი სერვერის შიგნითაა (<code>127.0.0.1</code>), ამიტომ დაშიფვრა იქ არ სჭირდება. ამას <strong>TLS termination</strong> ჰქვია — და ეს reverse proxy-ს ერთ-ერთი მთავარი სარგებელია (მე-6 ლექცია).</p></article>
+<article class="blk" data-slides="11"><span class="anchor" id="s-11"></span><div class="bh"><h3>ნაბიჯი 3 · certbot --nginx</h3><a class="chip" href="index.html#/11" data-go="11" title="პრეზენტაციაში გახსნა">სლაიდი 11</a></div>
+<div class="codebox"><div class="ch"><span>Termius · lms-server</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="gp">$ </span>sudo<span class="w"> </span>apt<span class="w"> </span>install<span class="w"> </span>-y<span class="w"> </span>certbot<span class="w"> </span>python3-certbot-nginx</span><span class="ln"><span class="gp">$ </span>sudo<span class="w"> </span>ufw<span class="w"> </span>allow<span class="w"> </span><span class="s1">'Nginx Full'</span><span class="w">          </span><span class="c1"># 80 + 443</span></span><span class="ln"><span class="gp">$ </span>sudo<span class="w"> </span>ufw<span class="w"> </span>delete<span class="w"> </span>allow<span class="w"> </span><span class="s1">'Nginx HTTP'</span><span class="w">   </span><span class="c1"># ძველი წესი — Nginx Full მას მოიცავს</span></span><span class="ln"> </span><span class="ln"><span class="gp">$ </span>sudo<span class="w"> </span>certbot<span class="w"> </span>--nginx<span class="w"> </span>-d<span class="w"> </span>giorgi.ge<span class="w"> </span>-d<span class="w"> </span>www.giorgi.ge<span class="w"> </span>-d<span class="w"> </span>app.giorgi.ge<span class="w"> </span>-d<span class="w"> </span>api.giorgi.ge</span><span class="ln"><span class="go">Enter email address: giorgi@mail.ge</span></span><span class="ln"><span class="go">...</span></span><span class="ln"><span class="go">Successfully received certificate.</span></span><span class="ln"><span class="go">Deploying certificate to VirtualHost /etc/nginx/sites-enabled/portfolio</span></span><span class="ln"><span class="go">...</span></span></code></pre></div>
+<p>certbot ოთხ რამეს აკეთებს:</p>
+<ol>
+<li><strong>ამოწმებს</strong>, რომ დომენი შენს სერვერზე მიდის: Let's Encrypt <code>http://&lt;domain&gt;/.well-known/...</code>-ზე მოითხოვს სპეციალურ ფაილს (ამიტომ port 80 ღია უნდა იყოს და DNS — მზად);</li>
+<li><strong>იღებს სერტიფიკატს</strong> და ინახავს <code>/etc/letsencrypt/live/&lt;domain&gt;/</code>-ში;</li>
+<li><strong>ცვლის Nginx-ის კონფიგს</strong>: ამატებს <code>listen 443 ssl</code>-ს, სერტიფიკატის გზებს და redirect-ს HTTP → HTTPS;</li>
+<li><strong>ავტომატურ განახლებას</strong> აწყობს: systemd timer დღეში ორჯერ ამოწმებს და ვადის ამოწურვამდე 30 დღით ადრე აახლებს.</li>
+</ol>
+<div class="codebox"><div class="ch"><span>Termius · lms-server</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="gp">$ </span>sudo<span class="w"> </span>certbot<span class="w"> </span>renew<span class="w"> </span>--dry-run<span class="w">      </span><span class="c1"># განახლების „რეპეტიცია“</span></span><span class="ln"><span class="go">Congratulations, all simulated renewals succeeded</span></span></code></pre></div>
+<p><code>https://giorgi.ge</code> 🔒, <code>https://app.giorgi.ge</code> 🔒, <code>https://api.giorgi.ge/api/courses</code> 🔒. <code>http://</code>-ით გახსნა ავტომატურად <code>https://</code>-ზე გადაგიყვანს.</p></article>
+<article class="blk" data-slides="12,13"><span class="anchor" id="s-12"></span><span class="anchor" id="s-13"></span><div class="bh"><h3>რა შეცვალა certbot-მა</h3><a class="chip" href="index.html#/12" data-go="12" title="პრეზენტაციაში გახსნა">სლაიდი 12</a></div>
+<p>certbot-მა server block-ი ორად გაყო:</p>
+<div class="codebox"><div class="ch"><span>sites-available/lms-api (certbot-ის შემდეგ)</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="k">server</span><span class="w"> </span><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="kn">server_name</span><span class="w"> </span><span class="s">api.giorgi.ge</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="kn">location</span><span class="w"> </span><span class="s">/</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="kn">proxy_pass</span><span class="w"> </span><span class="s">http://127.0.0.1:5000</span><span class="p">;</span><span class="w"> </span><span class="kn">...</span><span class="w"> </span><span class="err">}</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="s">listen</span><span class="w"> </span><span class="mi">443</span><span class="w"> </span><span class="s">ssl</span><span class="p">;</span><span class="w"> </span><span class="c1"># managed by Certbot</span></span><span class="ln"><span class="w">    </span><span class="kn">ssl_certificate</span><span class="w"> </span><span class="s">/etc/letsencrypt/live/giorgi.ge/fullchain.pem</span><span class="p">;</span><span class="w"> </span><span class="c1"># managed by Certbot</span></span><span class="ln"><span class="w">    </span><span class="kn">ssl_certificate_key</span><span class="w"> </span><span class="s">/etc/letsencrypt/live/giorgi.ge/privkey.pem</span><span class="p">;</span><span class="w"> </span><span class="c1"># managed by Certbot</span></span><span class="ln"><span class="w">    </span><span class="kn">include</span><span class="w"> </span><span class="s">/etc/letsencrypt/options-ssl-nginx.conf</span><span class="p">;</span><span class="w"> </span><span class="c1"># managed by Certbot</span></span><span class="ln"><span class="p">}</span></span><span class="ln"> </span><span class="ln"><span class="kn">server</span><span class="w"> </span><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="kn">if</span><span class="w"> </span><span class="s">(</span><span class="nv">$host</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">api.giorgi.ge)</span><span class="w"> </span><span class="p">{</span></span><span class="ln"><span class="w">        </span><span class="kn">return</span><span class="w"> </span><span class="mi">301</span><span class="w"> </span><span class="s">https://</span><span class="nv">$host$request_uri</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="p">}</span><span class="w"> </span><span class="c1"># managed by Certbot</span></span><span class="ln"><span class="w">    </span><span class="kn">listen</span><span class="w"> </span><span class="mi">80</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="kn">server_name</span><span class="w"> </span><span class="s">api.giorgi.ge</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="kn">return</span><span class="w"> </span><span class="mi">404</span><span class="p">;</span><span class="w"> </span><span class="c1"># managed by Certbot</span></span><span class="ln"><span class="p">}</span></span></code></pre></div>
+<ul>
+<li>პირველი block — <strong>HTTPS</strong> (port 443): სერტიფიკატი (<code>fullchain.pem</code>) და პირადი გასაღები (<code>privkey.pem</code>).</li>
+<li>მეორე block — <strong>HTTP</strong> (port 80): ყველაფერს <code>301</code>-ით (მუდმივი redirect) HTTPS-ზე აგზავნის.</li>
+</ul>
+<div class="callout warn"><span class="ci">⚠️</span><div><p><code>privkey.pem</code> — სერტიფიკატის პირადი გასაღები: იგივე პრინციპი, რაც SSH-ის პირადი გასაღებისთვის. certbot მას დახურული უფლებებით ინახავს — არ დააკოპირო და არ შეცვალო. კონფიგში <code># managed by Certbot</code> ხაზებს არ ვშლით.</p></div></div></article>
+<h2 class="sec" id="sec-6">3 · საიდუმლოებები</h2>
+<article class="blk" data-slides="14"><span class="anchor" id="s-14"></span><div class="bh"><h3>ნაწილი 3 · კონფიგი და საიდუმლოებები</h3><a class="chip" href="index.html#/14" data-go="14" title="პრეზენტაციაში გახსნა">სლაიდი 14</a></div>
+<p>LMS-ს ორი საიდუმლო აქვს: ბაზის პაროლი და — ავთენტიკაციის შემდეგ — JWT-ის ხელმოწერის გასაღები. ვინც JWT გასაღებს გაიგებს, ნებისმიერი user-ის სახელით „ტოკენს დაბეჭდავს“.</p></article>
+<article class="blk" data-slides="15"><span class="anchor" id="s-15"></span><div class="bh"><h3>კონფიგურაციის რიგი: ვინ ვის ფარავს</h3><a class="chip" href="index.html#/15" data-go="15" title="პრეზენტაციაში გახსნა">სლაიდი 15</a></div>
+<p>ASP.NET Core კონფიგურაციას რამდენიმე წყაროდან კითხულობს, ამ რიგით — <strong>ყოველი შემდეგი წინას ფარავს</strong>:</p>
+<ol>
+<li><code>appsettings.json</code> — Git-შია, ამიტომ მასში <strong>საიდუმლო არ იწერება</strong> (მხოლოდ ცარიელი ადგილი ან საჯარო პარამეტრები);</li>
+<li><code>appsettings.{Environment}.json</code> — <code>Development</code> ან <code>Production</code>, ცვლადის <code>ASPNETCORE_ENVIRONMENT</code> მიხედვით;</li>
+<li><strong>user-secrets</strong> — მხოლოდ <code>Development</code>-ში, შენს კომპიუტერზე, პროექტის საქაღალდის <strong>გარეთ</strong>;</li>
+<li><strong>გარემოს ცვლადები</strong> — <code>Jwt__Key</code>, <code>ConnectionStrings__Default</code> (<code>__</code> = <code>:</code>).</li>
+</ol>
+<div class="codebox"><div class="ch"><span>appsettings.json — Git-ში</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">  </span><span class="nt">"Jwt"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="nt">"Issuer"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://api.giorgi.ge"</span><span class="p">,</span></span><span class="ln"><span class="w">    </span><span class="nt">"Key"</span><span class="p">:</span><span class="w"> </span><span class="s2">""</span></span><span class="ln"><span class="w">  </span><span class="p">}</span></span><span class="ln"><span class="p">}</span></span></code></pre></div>
+<p>კოდი ყოველთვის ერთნაირად კითხულობს — <code>builder.Configuration["Jwt:Key"]</code> — და არ აინტერესებს, საიდან მოვიდა მნიშვნელობა.</p>
+<table>
+<thead>
+<tr>
+<th>სად</th>
+<th>საიდუმლოებები</th>
+<th>როგორ</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>შენი კომპიუტერი</td>
+<td>user-secrets</td>
+<td><code>dotnet user-secrets set</code></td>
+</tr>
+<tr>
+<td>სერვერი</td>
+<td>გარემოს ცვლადები</td>
+<td><code>.env</code> → <code>compose.yaml</code> → კონტეინერი</td>
+</tr>
+<tr>
+<td>Git</td>
+<td><strong>არასოდეს</strong></td>
+<td><code>.gitignore</code>, ცარიელი მნიშვნელობები</td>
+</tr>
+</tbody>
+</table></article>
+<article class="blk" data-slides="16"><span class="anchor" id="s-16"></span><div class="bh"><h3>ნაბიჯი 4 · user-secrets შენთან, .env სერვერზე</h3><a class="chip" href="index.html#/16" data-go="16" title="პრეზენტაციაში გახსნა">სლაიდი 16</a></div>
+<p><strong>შენს კომპიუტერზე</strong> — <code>dotnet user-secrets</code>:</p>
+<div class="codebox"><div class="ch"><span>LMS-ის პროექტი</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="gp">$ </span>dotnet<span class="w"> </span>user-secrets<span class="w"> </span>init</span><span class="ln"><span class="gp">$ </span>dotnet<span class="w"> </span>user-secrets<span class="w"> </span><span class="nb">set</span><span class="w"> </span><span class="s2">"Jwt:Key"</span><span class="w"> </span><span class="s2">"dev-only-key-at-least-32-chars-long!!"</span></span><span class="ln"><span class="gp">$ </span>dotnet<span class="w"> </span>user-secrets<span class="w"> </span>list</span></code></pre></div>
+<p><code>init</code> <code>.csproj</code>-ში ამატებს <code>UserSecretsId</code>-ს, თვითონ საიდუმლოებები კი ინახება <strong>რეპოს გარეთ</strong>: Windows-ზე <code>%APPDATA%\Microsoft\UserSecrets\&lt;id&gt;\secrets.json</code>. Git-ში შემთხვევით ვერ მოხვდება. ASP.NET Core მათ Development-ში ავტომატურად კითხულობს.</p>
+<p><strong>სერვერზე</strong> — ძლიერი, შემთხვევითი გასაღები:</p>
+<div class="codebox"><div class="ch"><span>Termius · lms-server · ~/lms</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="gp">$ </span>openssl<span class="w"> </span>rand<span class="w"> </span>-base64<span class="w"> </span><span class="m">64</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>tr<span class="w"> </span>-d<span class="w"> </span><span class="s1">'\n'</span></span><span class="ln"><span class="go">Xq9v...Lw==</span></span></code></pre></div>
+<div class="codebox"><div class="ch"><span>.env (სერვერზე)</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="na">DB_PASSWORD</span><span class="o">=</span><span class="s">h7Kq2-xR9v-Lm4Z</span></span><span class="ln"><span class="na">JWT_KEY</span><span class="o">=</span><span class="s">Xq9v...Lw==</span></span><span class="ln"><span class="na">ASPNETCORE_ENVIRONMENT</span><span class="o">=</span><span class="s">Production</span></span></code></pre></div>
+<div class="codebox"><div class="ch"><span>compose.yaml — api.environment</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="nt">Jwt__Key</span><span class="p">:</span><span class="w"> </span><span class="l">${JWT_KEY}</span></span></code></pre></div>
+<div class="codebox"><div class="ch"><span>Termius · lms-server</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code></code></pre></div>
+<div class="callout warn"><span class="ci">⚠️</span><div><p><strong>გასაღები გაჟონა</strong> (შემთხვევით commit-ში, ჩატში, სკრინშოტზე)? შეცვალე: ახალი <code>openssl rand</code> → <code>.env</code> → <code>up -d</code>. ყველა ძველი JWT ტოკენი ბათილდება და user-ები ხელახლა შევლენ — ეს სწორი შედეგია. ბაზის პაროლის შეცვლა კი ბაზაშიც სჭირდება (<code>ALTER USER lms WITH PASSWORD '…';</code>).</p></div></div></article>
+<article class="blk" data-slides="17"><span class="anchor" id="s-17"></span><div class="bh"><h3>ნაბიჯი 5 · proxy-ს უკან: API-ს ჰგონია, რომ http-ია</h3><a class="chip" href="index.html#/17" data-go="17" title="პრეზენტაციაში გახსნა">სლაიდი 17</a></div>
+<p>HTTPS <strong>Nginx-ზე</strong> მთავრდება (TLS termination). API-მდე მოთხოვნა უკვე <code>http</code>-ით მიდის, Docker-ის შიდა მისამართიდან. ამიტომ API-ისთვის:</p>
+<ul>
+<li><code>Request.Scheme</code> = <code>http</code> — აპის მიერ შექმნილი ლინკები და redirect-ები <code>http://</code>-ით იქნება;</li>
+<li><code>RemoteIpAddress</code> = Docker-ის შიდა IP — ლოგებში ყველა მომხმარებელი ერთი IP-დან ჩანს.</li>
+</ul>
+<p>Nginx ნამდვილ მონაცემებს header-ებით გადასცემს (მე-6 ლექციიდან გვაქვს): <code>X-Forwarded-Proto: https</code> და <code>X-Forwarded-For: &lt;მომხმარებლის IP&gt;</code>. API-მ ისინი უნდა <strong>წაიკითხოს</strong> — ამას ASP.NET Core-ის <strong>Forwarded Headers</strong> აკეთებს. ერთი გარემოს ცვლადით:</p>
+<div class="codebox"><div class="ch"><span>compose.yaml — api.environment</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="nt">ASPNETCORE_FORWARDEDHEADERS_ENABLED</span><span class="p">:</span><span class="w"> </span><span class="s">"</span><span class="s">true</span><span class="s">"</span></span></code></pre></div>
+<p>ეს ცვლადი რთავს Forwarded Headers-ს <code>X-Forwarded-For</code>-ისთვის და <code>X-Forwarded-Proto</code>-სთვის, და ენდობა proxy-ს Docker-ის ქსელიდანაც. ახლა <code>Request.Scheme</code> = <code>https</code>, IP — მომხმარებლის ნამდვილი.</p>
+<div class="callout note"><span class="ci">💡</span><div><p>ეს ცვლადი სწორია, როცა API-ზე მხოლოდ Nginx-ის გავლით მიდიან — ჩვენთან ასეა: port <code>127.0.0.1</code>-ზეა გამოტანილი (მე-8 ლექცია). თუ API ინტერნეტში პირდაპირ იქნებოდა ღია, ვინმე ამ header-ებს გააყალბებდა.</p></div></div></article>
+<h2 class="sec" id="sec-7">შეჯამება</h2>
+<article class="blk" data-slides="18"><span class="anchor" id="s-18"></span><div class="bh"><h3>შპარგალკა</h3><a class="chip" href="index.html#/18" data-go="18" title="პრეზენტაციაში გახსნა">სლაიდი 18</a></div>
+<p><strong>🌐 დომენი და Nginx</strong></p>
+<table>
+<thead>
+<tr>
+<th>ნაბიჯი</th>
+<th>როგორ</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>DNS</td>
+<td><code>A @ → IP</code>, <code>CNAME www → @</code>, <code>A api → IP</code>, <code>A app → IP</code></td>
+</tr>
+<tr>
+<td>შემოწმება</td>
+<td><code>dig +short api.giorgi.ge</code></td>
+</tr>
+<tr>
+<td>Nginx</td>
+<td><code>listen 80;</code> + <code>server_name api.giorgi.ge;</code> → <code>nginx -t</code> → <code>reload</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>🔒 HTTPS</strong></p>
+<div class="codebox"><div class="ch"><span>Termius · lms-server</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="gp">$ </span>sudo<span class="w"> </span>apt<span class="w"> </span>install<span class="w"> </span>-y<span class="w"> </span>certbot<span class="w"> </span>python3-certbot-nginx</span><span class="ln"><span class="gp">$ </span>sudo<span class="w"> </span>ufw<span class="w"> </span>allow<span class="w"> </span><span class="s1">'Nginx Full'</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>sudo<span class="w"> </span>ufw<span class="w"> </span>delete<span class="w"> </span>allow<span class="w"> </span><span class="s1">'Nginx HTTP'</span></span><span class="ln"><span class="gp">$ </span>sudo<span class="w"> </span>certbot<span class="w"> </span>--nginx<span class="w"> </span>-d<span class="w"> </span>giorgi.ge<span class="w"> </span>-d<span class="w"> </span>www.giorgi.ge<span class="w"> </span>-d<span class="w"> </span>app.giorgi.ge<span class="w"> </span>-d<span class="w"> </span>api.giorgi.ge</span></code></pre></div>
+<p><strong>🔑 საიდუმლოებები</strong></p>
+<table>
+<thead>
+<tr>
+<th>სად</th>
+<th>რა</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Git (<code>appsettings.json</code>)</td>
+<td>მხოლოდ არასაიდუმლო; <code>"Key": ""</code></td>
+</tr>
+<tr>
+<td>შენთან</td>
+<td><code>dotnet user-secrets set "Jwt:Key" "…"</code></td>
+</tr>
+<tr>
+<td>სერვერზე</td>
+<td><code>.env</code> (<code>chmod 600</code>) → <code>compose.yaml</code>: <code>Jwt__Key: ${JWT_KEY}</code></td>
+</tr>
+<tr>
+<td>გაჟონვისას</td>
+<td>ახალი გასაღები → <code>docker compose up -d</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>proxy-ს უკან:</strong> <code>ASPNETCORE_FORWARDEDHEADERS_ENABLED: "true"</code> — <code>Request.Scheme</code> = <code>https</code>, ნამდვილი IP.</p></article>
+<h2 class="sec" id="sec-8">პრაქტიკა</h2>
+<article class="blk" data-slides="19"><span class="anchor" id="s-19"></span><div class="bh"><h3>კლასში დავალება: portfolio — დომენზე და HTTPS-ით</h3><a class="chip" href="index.html#/19" data-go="19" title="პრეზენტაციაში გახსნა">სლაიდი 19</a></div>
+<p>დავალება · DNS + server_name + certbot</p>
+<h3>ნაბიჯები</h3>
+<ul>
+<li>DNS-ში: <code>A @ → &lt;IP&gt;</code>, <code>CNAME www → @</code>, <code>A api → &lt;IP&gt;</code>, <code>A app → &lt;IP&gt;</code> → <code>dig +short &lt;domain&gt;</code> აბრუნებს IP-ს</li>
+<li><code>sites-available/portfolio</code>: <code>server_name &lt;domain&gt; www.&lt;domain&gt;;</code> → <code>nginx -t</code> → <code>reload</code> → <code>http://&lt;domain&gt;</code></li>
+<li><code>sudo apt install -y certbot python3-certbot-nginx</code> → <code>ufw allow 'Nginx Full'</code></li>
+<li><code>sudo certbot --nginx -d &lt;domain&gt; -d www.&lt;domain&gt;</code> → <code>https://&lt;domain&gt;</code> 🔒</li>
+</ul>
+<h3>✓ მზადაა, როცა</h3>
+<p><code>https://&lt;domain&gt;</code> და <code>https://www.&lt;domain&gt;</code> იხსნება ბოქლომით, <code>http://</code>-ზე ავტომატურად გადადის <code>https://</code>-ზე</p>
+<h3>⭐ ბონუსი</h3>
+<ul>
+<li><code>sudo certbot renew --dry-run</code> → <code>Congratulations, all simulated renewals succeeded</code></li>
+</ul>
+<h3>💡 მინიშნება</h3>
+<div class="codebox"><div class="ch"><span>bash</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln">dig<span class="w"> </span>+short<span class="w"> </span>giorgi.ge<span class="w">        </span><span class="c1"># DNS უკვე მუშაობს?</span></span><span class="ln">sudo<span class="w"> </span>nginx<span class="w"> </span>-T<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>server_name<span class="w">   </span>#<span class="w"> </span>რომელი<span class="w"> </span>server_name-ები<span class="w"> </span>ჩართულია</span></code></pre></div>
+<p>certbot ვერ ამოწმებს დომენს? — DNS ჯერ არ გავრცელდა (<code>dig</code>), ან port 80 დახურულია (<code>ufw status</code>).</p></article>
+<h2 class="sec" id="sec-9">შეჯამება</h2>
+<article class="blk" data-slides="20"><span class="anchor" id="s-20"></span><div class="bh"><h3>შეამოწმე, რა დაგამახსოვრდა</h3><a class="chip" href="index.html#/20" data-go="20" title="პრეზენტაციაში გახსნა">სლაიდი 20</a></div>
+<p>ეს კითხვები შემდეგი ლექციის დასაწყისშიც დაისმება.</p>
+<div class="selfcheck"><div class="sh">✅ შეამოწმე თავი <small>დაფიქრდი, მერე გახსენი პასუხი</small></div><details><summary>A და CNAME ჩანაწერი — რა განსხვავებაა?</summary><div class="ans">A — სახელი → IP მისამართი (<code>api.giorgi.ge → 164.90.12.34</code>). CNAME — სახელი → სხვა სახელი (<code>www → giorgi.ge</code>), რომლის IP-საც მერე DNS თვითონ პოულობს</div></details><details><summary>ერთ სერვერზე, ერთ port 443-ზე სამი საიტია. როგორ იცის Nginx-მა, რომელი აჩვენოს?</summary><div class="ans">ბრაუზერი მოთხოვნაში აგზავნის დომენს (<code>Host</code> header). Nginx მას <code>server_name</code>-ს ადარებს და შესაბამის server block-ს ირჩევს</div></details><details><summary>რას აკეთებს <code>certbot --nginx</code>?</summary><div class="ans">Let's Encrypt-ისგან იღებს უფასო სერტიფიკატს (ამოწმებს, რომ დომენი შენს სერვერზეა), Nginx-ის კონფიგს უმატებს <code>listen 443 ssl</code>-ს და HTTP → HTTPS redirect-ს, და აწყობს ავტომატურ განახლებას</div></details><details><summary>Let's Encrypt-ის სერტიფიკატი 90 დღეა. ყოველ 3 თვეში ხელით უნდა განვაახლო?</summary><div class="ans">არა — certbot-ის timer დღეში ორჯერ ამოწმებს და ვადის ამოწურვამდე 30 დღით ადრე თვითონ აახლებს. შემოწმება: <code>sudo certbot renew --dry-run</code></div></details><details><summary>JWT გასაღები სად ინახება შენთან და სად სერვერზე?</summary><div class="ans">შენთან — <code>dotnet user-secrets</code>-ში (პროექტის საქაღალდის გარეთ). სერვერზე — <code>.env</code>-ში (<code>chmod 600</code>), საიდანაც Compose მას <code>Jwt__Key</code> ცვლადად გადასცემს. Git-ში — არასოდეს</div></details><details><summary>API Nginx-ის უკანაა და HTTPS-ით იხსნება, მაგრამ აპს ჰგონია, რომ მოთხოვნა <code>http</code>-ით მოვიდა. რატომ და როგორ ვასწორებთ?</summary><div class="ans">HTTPS Nginx-ზე მთავრდება, API-ს უკვე <code>http</code> სწვდება. Nginx ორიგინალს <code>X-Forwarded-Proto</code>-ში წერს; აპი მას წაიკითხავს, თუ ჩართულია <code>ASPNETCORE_FORWARDEDHEADERS_ENABLED=true</code></div></details></div></article>
+<article class="blk" data-slides="21"><span class="anchor" id="s-21"></span><div class="bh"><h3>შეჯამება · დღეს ვისწავლეთ</h3><a class="chip" href="index.html#/21" data-go="21" title="პრეზენტაციაში გახსნა">სლაიდი 21</a></div>
+<ul>
+<li>🌐 <strong>დომენი და DNS</strong> — დომენი registrar-თან ქირავდება; <code>A</code> ჩანაწერი სახელს IP-ს უკავშირებს, <code>CNAME</code> — სხვა სახელს; შემოწმება — <code>dig +short</code>.</li>
+<li>🏷️ <strong>server_name</strong> — ბრაუზერი <code>Host</code> header-ს აგზავნის, Nginx მის მიხედვით ირჩევს საიტს. port-ები 8080/8081 აღარ გვჭირდება.</li>
+<li>🔒 <strong>HTTPS</strong> — Let's Encrypt-ის უფასო სერტიფიკატი <code>certbot --nginx</code>-ით: ამოწმებს დომენს, ცვლის Nginx-ს (443 + 301 redirect), 90 დღეში ერთხელ თავისით აახლებს.</li>
+<li>🔑 <strong>კონფიგურაცია და საიდუმლოებები</strong> — <code>appsettings.json</code> → <code>appsettings.{Env}.json</code> → user-secrets → გარემოს ცვლადები; Git-ში საიდუმლო არასოდეს; JWT გასაღები — <code>openssl rand</code>; გაჟონვისას — ცვლა.</li>
+<li>🔁 <strong>proxy-ს უკან</strong> — <code>ASPNETCORE_FORWARDEDHEADERS_ENABLED=true</code>, რომ API-მ HTTPS და ნამდვილი IP დაინახოს.</li>
+</ul>
+<p><strong>შემდეგ ლექციაზე — CI:</strong> დღემდე ყოველი განახლება ხელით იყო: <code>ssh</code> → <code>git pull</code> → <code>up</code>, და <code>main</code>-ში ისეთი კოდიც შეიძლება მოხვდეს, რომელიც არც კი იკომპილირდება. ორ ლექციაში ამას GitHub Actions-ს გადავცემთ: ჯერ ავტომატური შემოწმება (CI), მერე ავტომატური deploy (CD).</p>
+<div class="prompt"><div class="ph"><span>🤖 გამოცდა მეცხრე ლექციაზე</span><button class="copy" type="button">კოპირება</button></div><div class="pb">ვსწავლობ DevOps-ს. მეცხრე ლექციაზე გავიარეთ: დომენი და DNS (A, CNAME, @, TTL, dig), Nginx server_name ერთ IP-ზე რამდენიმე საიტისთვის, HTTPS (TLS, სერტიფიკატი, Let&#x27;s Encrypt, certbot --nginx, 301 redirect, certbot renew), TLS termination Nginx-ზე, ASP.NET Core-ის კონფიგურაციის რიგი (appsettings, environment, user-secrets, გარემოს ცვლადები, Jwt__Key), .env სერვერზე, openssl rand, ASPNETCORE_FORWARDEDHEADERS_ENABLED.
+დამისვი 8 კითხვა სათითაოდ, მარტივიდან რთულისკენ — ნაწილი სიტუაციური იყოს („certbot ვერ ამოწმებს დომენს, რა შევამოწმო?“). ყოველ პასუხზე შემიფასე და ამიხსენი. ბოლოს მითხარი, რა გავიმეორო. ქართულად.</div></div>
+<div class="prompt"><div class="ph"><span>🤖 HTTPS ან დომენი არ მუშაობს</span><button class="copy" type="button">კოპირება</button></div><div class="pb">ჩემი დომენი ან HTTPS Ubuntu სერვერზე (Nginx + certbot) არ მუშაობს. დამეხმარე პრობლემის პოვნაში ნაბიჯ-ნაბიჯ, მარტივად და ქართულად. დომენი: [აქ]. `dig +short &lt;domain&gt;` შედეგი: [აქ]. რას ხედავ ბრაუზერში ან certbot-ის შეცდომის ტექსტი: [აქ]</div></div></article>
+<h2 class="sec" id="sec-10">საშინაო</h2>
+<article class="blk" data-slides="22"><span class="anchor" id="s-22"></span><div class="bh"><h3>საშინაო დავალება: API და Angular — ქვედომენებზე, HTTPS-ით</h3><a class="chip" href="index.html#/22" data-go="22" title="პრეზენტაციაში გახსნა">სლაიდი 22</a></div>
+<p>port-ები 8080/8081 აღარ გვჭირდება</p>
+<h3>მოთხოვნები</h3>
+<ul>
+<li><code>lms-api</code> → <code>api.&lt;domain&gt;</code>, <code>app</code> → <code>app.&lt;domain&gt;</code> (<code>listen 80</code> + <code>server_name</code>) → <code>certbot --nginx</code></li>
+<li>ufw: წაშალეთ <code>8080/tcp</code>, <code>8081/tcp</code>, <code>Nginx HTTP</code></li>
+<li><code>.env</code>-ში <code>JWT_KEY</code> (<code>openssl rand</code>) → compose: <code>Jwt__Key</code> და <code>ASPNETCORE_FORWARDEDHEADERS_ENABLED</code></li>
+<li>Angular: <code>apiUrl: 'https://api.&lt;domain&gt;'</code> → <code>ng build</code> → <code>rsync</code></li>
+</ul>
+<h3>✓ მზადაა, როცა</h3>
+<p><code>https://api.&lt;domain&gt;</code> და <code>https://app.&lt;domain&gt;</code> ბოქლომით, რეპოში ნამდვილი გასაღები არ ჩანს</p>
+<h3>⭐ ბონუსი</h3>
+<ul>
+<li>პროექტში დროებით endpoint, რომელიც აბრუნებს <code>Request.Scheme</code>-ს → <code>https://api.&lt;domain&gt;/...</code> → <code>https</code> უნდა დაწეროს (forwarded headers მუშაობს) → მერე წაშალეთ</li>
+</ul></article>
+  </main>
+</div>
+<script>
+const DECK = "DevOps · 9 — დომენი, HTTPS და საიდუმლოებები";
+if (matchMedia('(min-width:981px)').matches) document.getElementById('tocd').open = true;
+const blocks = [...document.querySelectorAll('.blk')];
+const tocLinks = [...document.querySelectorAll('nav.toc a[href^="#sec-"]')];
+const secOf = b => { let e = b; while (e && !(e.matches && e.matches('h2.sec'))) e = e.previousElementSibling; return e; };
+function mark(b, toc_only) {
+  if (!toc_only) blocks.forEach(x => x.classList.toggle('cur', x === b));
+  const s = b && secOf(b); tocLinks.forEach(a => a.classList.toggle('cur', s && a.getAttribute('href') === '#' + s.id));
+}
+const blockFor = n => blocks.find(b => b.dataset.slides.split(',').includes(String(n)));
+
+// copy buttons (code: one line per .ln)
+document.addEventListener('click', e => {
+  const btn = e.target.closest('.copy'); if (!btn) return;
+  const box = btn.closest('.codebox, .prompt');
+  const text = box.matches('.prompt') ? box.querySelector('.pb').textContent : [...box.querySelectorAll('.ln')].map(l => l.textContent).join('\n');
+  navigator.clipboard.writeText(text).then(() => { btn.textContent = '✓ დაკოპირდა'; btn.classList.add('ok'); setTimeout(() => { btn.textContent = 'კოპირება'; btn.classList.remove('ok'); }, 1600); });
+});
+
+// live mode: opened from the deck with P — follow the projector
+const live = new URLSearchParams(location.search).has('live');
+let follow = true, bc = null;
+const liveBtn = document.getElementById('live');
+if (live) {
+  try { bc = new BroadcastChannel('deck-' + DECK); } catch (e) {}
+  liveBtn.classList.add('on');
+  liveBtn.onclick = () => { follow = !follow; liveBtn.classList.toggle('off', !follow); liveBtn.querySelector('.lt').textContent = follow ? 'მიჰყვება სლაიდებს' : 'თავისუფლად ვკითხულობ'; };
+  if (bc) {
+    bc.onmessage = ({ data }) => {
+      if (data.t !== 'state' || !follow) return;
+      const b = blockFor(data.i + 1); if (!b || b.classList.contains('cur')) return;
+      mark(b); b.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    };
+    bc.postMessage({ t: 'hello' });
+  }
+  document.addEventListener('click', e => {   // slide chip → move the projector deck
+    const c = e.target.closest('.chip[data-go]'); if (!c || !bc) return;
+    e.preventDefault(); bc.postMessage({ t: 'go', n: +c.dataset.go - 1 });
+  });
+}
+// deep link #s-12
+const h = location.hash.match(/^#s-(\d+)$/);
+if (h) { const b = blockFor(+h[1]); if (b) { mark(b); setTimeout(() => b.scrollIntoView({ block: 'start' }), 50); } }
+// highlight section in the TOC while reading
+const io = new IntersectionObserver(es => es.forEach(x => { if (x.isIntersecting && !(live && follow)) mark(x.target, true); }), { rootMargin: '-30% 0px -60% 0px' });
+blocks.forEach(b => io.observe(b));
+</script>
+</body></html>

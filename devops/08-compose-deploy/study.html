@@ -1,0 +1,537 @@
+<!doctype html>
+<html lang="ka"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>📖 Docker Compose — LMS + ბაზა სერვერზე — კონსპექტი</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Georgian:wght@400;600;700;800&family=JetBrains+Mono:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#fbf8f3;--card:#fff;--ink:#1e2132;--ink2:#3b3f54;--muted:#7b8096;--line:#e6dfd2;--accent:#6d28d9;--accent-soft:#f3effe;--teal:#0d9488;
+  --green:#15803d;--amber:#b45309;--mono:"JetBrains Mono",ui-monospace,monospace;--sans:"Noto Sans Georgian",system-ui,sans-serif}
+*{box-sizing:border-box}
+html{scroll-padding-top:76px}
+body{margin:0;background:var(--bg);color:var(--ink);font:17.5px/1.75 var(--sans);-webkit-font-smoothing:antialiased}
+a{color:var(--accent)}
+/* top bar */
+.top{position:sticky;top:0;z-index:10;display:flex;align-items:center;gap:14px;padding:10px 20px;background:rgba(251,248,243,.92);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.top .back{font:600 14px var(--mono);color:var(--muted);text-decoration:none;white-space:nowrap}
+.top .back:hover{color:var(--ink)}
+.top .ttl{flex:1;min-width:0;font-weight:700;font-size:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.top .ttl small{font:500 13px var(--mono);color:var(--muted);margin-right:8px}
+.btn{font:700 14px var(--sans);text-decoration:none;border-radius:10px;padding:7px 14px;white-space:nowrap;border:1px solid var(--line);color:var(--ink);background:var(--card);cursor:pointer}
+.btn.play{background:var(--accent);border-color:var(--accent);color:#fff}
+.live{display:none;align-items:center;gap:8px;font:600 13px var(--mono);color:var(--teal);background:#e6f6f4;border:1px solid #bfe7e2;border-radius:999px;padding:5px 12px;cursor:pointer}
+.live.on{display:flex}
+.live .dot{width:8px;height:8px;border-radius:50%;background:var(--teal);animation:pulse 1.6s infinite}
+.live.off{color:var(--muted);background:var(--card);border-color:var(--line)}.live.off .dot{background:var(--muted);animation:none}
+@keyframes pulse{50%{opacity:.3}}
+/* layout */
+.wrap{display:grid;grid-template-columns:230px minmax(0,1000px);gap:44px;justify-content:center;padding:32px 28px 120px}
+nav.toc{position:sticky;top:84px;align-self:start;font-size:14px;line-height:1.45}
+nav.toc .h{font:700 12px var(--mono);color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px}
+nav.toc a{display:block;color:var(--ink2);text-decoration:none;padding:6px 10px;border-left:2px solid var(--line)}
+nav.toc a:hover{color:var(--accent)}
+nav.toc a.cur{color:var(--accent);border-left-color:var(--accent);font-weight:700}
+nav.toc .mats{margin-top:22px;display:flex;flex-direction:column;gap:6px}
+nav.toc .mats a{border:0;padding:2px 0;font:500 13px var(--mono);color:var(--teal);word-break:break-all}
+header.hero{margin-bottom:8px}
+header.hero .k{font:600 14px var(--mono);color:var(--accent)}
+header.hero h1{font-size:38px;line-height:1.2;margin:6px 0 10px;letter-spacing:-.01em}
+header.hero p{color:var(--muted);margin:0;font-size:15.5px}
+header.hero kbd{font:500 12px var(--mono);border:1px solid var(--line);border-radius:5px;padding:0 5px;background:var(--card)}
+h2.sec{font-size:15px;font:700 13px var(--mono);color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin:48px 0 6px;padding-top:18px;border-top:1px solid var(--line)}
+/* blocks */
+.blk{position:relative;padding:14px 0 6px 22px;margin-left:-22px;border-left:3px solid transparent;transition:border-color .3s,background .3s;border-radius:0 12px 12px 0}
+.blk.cur{border-left-color:var(--accent);background:linear-gradient(90deg,var(--accent-soft),transparent 70%)}
+.anchor{position:absolute;top:0}
+.bh{display:flex;align-items:baseline;justify-content:space-between;gap:12px}
+.bh h3{font-size:22px;line-height:1.35;margin:4px 0 6px}
+.chip{flex:none;font:600 12px var(--mono);color:var(--muted);text-decoration:none;border:1px solid var(--line);border-radius:999px;padding:2px 10px;background:var(--card)}
+.chip:hover{color:var(--accent);border-color:var(--accent)}
+.blk h2{font-size:26px;line-height:1.3;margin:6px 0 10px}
+.blk h3:not(.bh h3){font-size:19px;margin:22px 0 6px}
+.blk h4{font-size:17px;margin:18px 0 4px}
+.blk p{margin:10px 0}
+.blk ul,.blk ol{padding-left:24px;margin:8px 0}
+.blk li{margin:4px 0}
+.blk strong{color:var(--ink)}
+.blk :not(pre)>code{font:600 .86em var(--mono);background:#f1ece3;border-radius:6px;padding:1px 6px;color:#5b21b6}
+.blk table{border-collapse:collapse;margin:14px 0;font-size:15.5px;width:100%;display:block;overflow-x:auto}
+.blk th,.blk td{border:1px solid var(--line);padding:8px 12px;text-align:left;vertical-align:top}
+.blk th{background:#f6f1e8}
+/* code */
+.codebox{margin:14px 0;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:#fffdf9}
+.codebox .ch,.prompt .ph{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:6px 8px 6px 14px;font:600 12.5px var(--mono);color:var(--muted);background:#f6f1e8;border-bottom:1px solid var(--line)}
+.copy{font:600 12px var(--mono);border:1px solid var(--line);background:var(--card);color:var(--ink2);border-radius:7px;padding:3px 10px;cursor:pointer}
+.copy:hover{border-color:var(--ink)}
+.copy.ok{color:var(--green);border-color:var(--green)}
+pre.code{margin:0;padding:12px 0;overflow-x:auto;font:14px/1.65 var(--mono)}
+pre.code .ln{display:block;padding:0 16px;white-space:pre}
+.code .ttl{background:var(--bg2);color:var(--muted)}
+.code .ln.hl{background:rgba(109,40,217,.07);box-shadow:inset 3px 0 0 var(--net)}
+.code .ln.dim{opacity:.42}
+.code .k,.code .kd,.code .kn,.code .kr,.code .kc{color:#7c3aed}
+.code .kt{color:#2563eb}
+.code .s,.code .s1,.code .s2,.code .sa,.code .se,.code .si,.code .sd{color:#15803d}
+.code .c,.code .c1,.code .cm,.code .cp,.code .ch{color:#8b8fa3}
+.code .m,.code .mi,.code .mf,.code .mh{color:#c2410c}
+.code .nf,.code .fm{color:#1d4ed8}
+.code .nc,.code .nn,.code .nt,.code .nd{color:#b45309}
+.code .na{color:#7c3aed} .code .nb{color:#0e7490}
+.code .o,.code .p{color:#64748b}
+.code .nv,.code .nx{color:var(--ink)}
+.code .go{color:#64748b}
+/* prompt */
+.prompt{margin:16px 0;border:1px solid #ddd2fb;border-radius:12px;overflow:hidden;background:var(--accent-soft)}
+.prompt .ph{background:#ebe3fd;border-color:#ddd2fb;color:var(--accent)}
+.prompt .pb{padding:12px 16px;white-space:pre-wrap;font-size:15.5px;line-height:1.6;color:var(--ink2)}
+/* self check */
+.selfcheck{margin:16px 0;border:1px solid #cfe9d6;border-radius:12px;background:#f3fbf5;padding:12px 16px}
+.selfcheck .sh{font-weight:700;color:var(--green);margin-bottom:6px}
+.selfcheck .sh small{font-weight:400;color:var(--muted);font-size:13.5px;margin-left:6px}
+.selfcheck details{border-top:1px solid #dcefe1;padding:8px 0}
+.selfcheck summary{cursor:pointer;font-weight:600;list-style:none;padding-left:26px;position:relative}
+.selfcheck summary::-webkit-details-marker{display:none}
+.selfcheck summary::before{content:"?";position:absolute;left:0;top:2px;width:18px;height:18px;border-radius:50%;background:var(--green);color:#fff;font:700 12px/18px var(--mono);text-align:center}
+.selfcheck details[open] summary::before{content:"✓"}
+.selfcheck .ans{padding:6px 0 2px 26px;color:var(--ink2)}
+/* terms */
+.terms{margin:16px 0;border:1px solid var(--line);border-radius:12px;background:var(--card);padding:12px 16px}
+.terms .th{font-weight:700;margin-bottom:6px}
+.terms dl{display:grid;grid-template-columns:max-content 1fr;gap:6px 18px;margin:0}
+.terms dt{font:600 14.5px var(--mono);color:var(--accent)}
+.terms dd{margin:0;color:var(--ink2)}
+/* callouts */
+.callout{display:flex;gap:12px;margin:14px 0;padding:12px 16px;border-radius:12px;border:1px solid var(--line);background:var(--card)}
+.callout .ci{font-size:20px;line-height:1.6}
+.callout>div>p:first-child{margin-top:0}.callout>div>p:last-child{margin-bottom:0}
+.callout.warn{background:#fff8eb;border-color:#f6dfb5}
+.callout.note{background:#eef5ff;border-color:#cfe0fb}
+@media (max-width:980px){
+  .wrap{grid-template-columns:minmax(0,1fr);gap:0;padding:20px 16px 100px}
+  nav.toc{position:static;margin-bottom:12px}
+  nav.toc details{border:1px solid var(--line);border-radius:12px;background:var(--card);padding:8px 12px}
+  nav.toc details>summary{cursor:pointer;font-weight:700}
+  nav.toc .h{display:none}
+  header.hero h1{font-size:30px}
+  .blk{padding-left:14px;margin-left:-14px}
+  .top .ttl small{display:none}
+  .terms dl{grid-template-columns:1fr}.terms dd{margin-bottom:8px}
+}
+@media (min-width:981px){nav.toc details>summary{display:none}}
+@media print{.top,nav.toc,.copy,.chip,.live{display:none}.wrap{display:block;padding:0}.selfcheck details{display:block}.blk.cur{background:none}}
+</style></head>
+<body>
+<div class="top">
+  <a class="back" href="../../">← ლექციები</a>
+  <div class="ttl"><small>DevOps · 8</small>Docker Compose — LMS + ბაზა სერვერზე</div>
+  <button class="live" id="live" type="button" title="ჩართული: ტექსტი პრეზენტაციას მიჰყვება"><span class="dot"></span><span class="lt">მიჰყვება სლაიდებს</span></button>
+  <a class="btn play" href="index.html">▶ პრეზენტაცია</a>
+</div>
+<div class="wrap">
+  <nav class="toc"><details id="tocd"><summary>სარჩევი</summary><div class="h">სარჩევი</div><a href="#sec-1">გამეორება</a><a href="#sec-2">საშინაოს განხილვა</a><a href="#sec-3">დღის თემა</a><a href="#sec-4">1 · Compose</a><a href="#sec-5">2 · სერვერზე</a><a href="#sec-6">შეჯამება</a><a href="#sec-7">პრაქტიკა</a><a href="#sec-8">შეჯამება</a><a href="#sec-9">საშინაო</a><div class="mats"></div></details></nav>
+  <main>
+    <header class="hero">
+      <div class="k">📖 კონსპექტი · DevOps · ლექცია 8</div>
+      <h1>Docker Compose — LMS + ბაზა სერვერზე</h1>
+      <p>წაიკითხე ლექციის შემდეგ, ან პრეზენტაციასთან ერთად: პრეზენტაციაში დააჭირე <kbd>P</kbd> და ეს გვერდი სლაიდებს გაჰყვება. კოდი და AI-ს პრომპტები კოპირდება ერთი დაჭერით.</p>
+    </header>
+    <h2 class="sec" id="sec-1">გამეორება</h2>
+<article class="blk" data-slides="1,2"><span class="anchor" id="s-1"></span><span class="anchor" id="s-2"></span><div class="bh"><h3>გავიხსენოთ წინა ლექცია</h3><a class="chip" href="index.html#/1" data-go="1" title="პრეზენტაციაში გახსნა">სლაიდი 1</a></div>
+<p>ლექცია 7 — <strong>Docker — აპი გარემოსთან ერთად</strong>. ახალ თემამდე ვამოწმებთ, რა დაგვამახსოვრდა. ჯერ თვითონ უპასუხე, მერე გახსენი პასუხი. თუ რომელიმე გაგიჭირდა, <a href="../07-docker/study.html">წინა ლექციის კონსპექტს</a> გადახედე.</p>
+<div class="selfcheck"><div class="sh">✅ შეამოწმე თავი <small>დაფიქრდი, მერე გახსენი პასუხი</small></div><details><summary>image და container — რა განსხვავებაა?</summary><div class="ans">image — შაბლონი (როგორც კლასი C#-ში): აპი + runtime + ყველა ფაილი, მხოლოდ წასაკითხად. container — image-იდან გაშვებული ეგზემპლარი (როგორც ობიექტი). ერთი image-იდან ბევრი container შეიძლება</div></details><details><summary><code>-p 8080:8080</code>-ში რომელი რიცხვი რას ნიშნავს?</summary><div class="ans"><code>ჰოსტის-port:კონტეინერის-port</code> — შენი კომპიუტერის 8080-ზე მოსული მოთხოვნა კონტეინერის შიგნით 8080-ზე მიდის</div></details><details><summary>PostgreSQL-ის კონტეინერი წავშალე. მონაცემები დაიკარგა?</summary><div class="ans">თუ volume (<code>-v lms-data:/var/lib/postgresql/data</code>) იყო მიბმული — არა, მონაცემები volume-ში რჩება და ახალი კონტეინერი მათ დაინახავს. volume-ის გარეშე — კი, ყველაფერი წაიშალა</div></details><details><summary>რატომ აქვს Dockerfile-ს ორი <code>FROM</code> (multi-stage)?</summary><div class="ans">პირველი ეტაპი (<code>sdk</code>) აპს აწყობს — მას SDK სჭირდება. მეორე (<code>aspnet</code>) მხოლოდ მზა ფაილებს იღებს და runtime-ზე უშვებს — საბოლოო image ბევრად პატარა და უსაფრთხოა, მასში SDK და კოდი არ არის</div></details><details><summary>რატომ ვაკოპირებთ ჯერ მხოლოდ <code>.csproj</code>-ს და ვუშვებთ <code>restore</code>-ს, მერე დანარჩენს?</summary><div class="ans">Docker ყოველ ნაბიჯს (layer) ქეშავს. თუ <code>.csproj</code> არ შეცვლილა, <code>restore</code> ქეშიდან აიღება — კოდის ცვლილებისას build ბევრად სწრაფია</div></details><details><summary>რისთვის არის <code>.dockerignore</code>?</summary><div class="ans">build-ში არ გადაიგზავნოს ზედმეტი: <code>bin/</code>, <code>obj/</code>, <code>.git</code>, <code>.vs</code> — build სწრაფია, image სუფთა, და ლოკალური საიდუმლოებები image-ში არ ხვდება</div></details></div></article>
+<h2 class="sec" id="sec-2">საშინაოს განხილვა</h2>
+<article class="blk" data-slides="3"><span class="anchor" id="s-3"></span><div class="bh"><h3>საშინაოს განხილვა</h3><a class="chip" href="index.html#/3" data-go="3" title="პრეზენტაციაში გახსნა">სლაიდი 3</a></div>
+<p>წინა ლექციის საშინაო: <strong>შენი API კონტეინერში</strong>. ქვემოთ არის ერთ-ერთი სწორი ამოხსნა. შენი კოდი შეიძლება სხვანაირად იყოს დაწერილი — მთავარია, მოთხოვნები სრულდებოდეს.</p>
+<h3>მოთხოვნები</h3>
+<ul>
+<li>პროექტის root-ში: multi-stage <code>Dockerfile</code> (<code>sdk:10.0</code> → <code>aspnet:10.0</code>) და <code>.dockerignore</code></li>
+<li><code>docker build -t lms-api .</code> → გაშვება <code>-p 8080:8080</code>, <code>host.docker.internal</code>-ით <code>lms-db</code>-ზე, <code>Development</code>-ით</li>
+<li><code>Dockerfile</code> და <code>.dockerignore</code> → GitHub</li>
+</ul>
+<h3>ამოხსნა</h3>
+<div class="codebox"><div class="ch"><span>Dockerfile</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="k">FROM</span><span class="w"> </span><span class="s">mcr.microsoft.com/dotnet/sdk:10.0</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="s">build</span></span><span class="ln"><span class="k">WORKDIR</span><span class="w"> </span><span class="s">/src</span></span><span class="ln"><span class="k">COPY</span><span class="w"> </span>Lms.Api/Lms.Api.csproj<span class="w"> </span>Lms.Api/</span><span class="ln"><span class="k">RUN</span><span class="w"> </span>dotnet<span class="w"> </span>restore<span class="w"> </span>Lms.Api/Lms.Api.csproj</span><span class="ln"><span class="k">COPY</span><span class="w"> </span>.<span class="w"> </span>.</span><span class="ln"><span class="k">RUN</span><span class="w"> </span>dotnet<span class="w"> </span>publish<span class="w"> </span>Lms.Api/Lms.Api.csproj<span class="w"> </span>-c<span class="w"> </span>Release<span class="w"> </span>-o<span class="w"> </span>/app/publish</span><span class="ln"> </span><span class="ln"><span class="k">FROM</span><span class="w"> </span><span class="s">mcr.microsoft.com/dotnet/aspnet:10.0</span></span><span class="ln"><span class="k">WORKDIR</span><span class="w"> </span><span class="s">/app</span></span><span class="ln"><span class="k">COPY</span><span class="w"> </span>--from<span class="o">=</span>build<span class="w"> </span>/app/publish<span class="w"> </span>.</span><span class="ln"><span class="k">USER</span><span class="w"> </span><span class="s">$APP_UID</span></span><span class="ln"><span class="k">EXPOSE</span><span class="w"> </span><span class="s">8080</span></span><span class="ln"><span class="k">ENTRYPOINT</span><span class="w"> </span><span class="p">[</span><span class="s2">"dotnet"</span><span class="p">,</span><span class="w"> </span><span class="s2">"Lms.Api.dll"</span><span class="p">]</span></span></code></pre></div>
+<div class="codebox"><div class="ch"><span>.dockerignore</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln">**/bin/</span><span class="ln">**/obj/</span><span class="ln">.git/</span><span class="ln">.vs/</span><span class="ln">.vscode/</span><span class="ln">*.user</span></code></pre></div>
+<div class="codebox"><div class="ch"><span>WSL</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="gp">$ </span>docker<span class="w"> </span>build<span class="w"> </span>-t<span class="w"> </span>lms-api<span class="w"> </span>.</span><span class="ln"><span class="gp">$ </span>docker<span class="w"> </span>run<span class="w"> </span>-d<span class="w"> </span>--name<span class="w"> </span>lms-api<span class="w"> </span>-p<span class="w"> </span><span class="m">8080</span>:8080<span class="w"> </span><span class="se">\</span></span><span class="ln"><span class="w">    </span>-e<span class="w"> </span><span class="nv">ASPNETCORE_ENVIRONMENT</span><span class="o">=</span>Development<span class="w"> </span><span class="se">\</span></span><span class="ln"><span class="w">    </span>-e<span class="w"> </span><span class="nv">ConnectionStrings__Default</span><span class="o">=</span><span class="s2">"Host=host.docker.internal;Database=lms;Username=lms;Password=dev"</span><span class="w"> </span><span class="se">\</span></span><span class="ln"><span class="w">    </span>lms-api</span></code></pre></div>
+<p><code>Lms.Api</code> — პროექტის საქაღალდე და სახელი; თქვენი თუ სხვაა, შეცვალეთ.</p></article>
+<h2 class="sec" id="sec-3">დღის თემა</h2>
+<article class="blk" data-slides="4"><span class="anchor" id="s-4"></span><div class="bh"><h3>დღის თემა: Docker Compose — LMS + ბაზა სერვერზე</h3><a class="chip" href="index.html#/4" data-go="4" title="პრეზენტაციაში გახსნა">სლაიდი 4</a></div>
+<p>წინა ლექციაზე ორი კონტეინერისთვის ორი გრძელი <code>docker run</code> დაგვჭირდა, API ბაზას „შემოვლით“ პოულობდა, და თუ ბაზაზე ადრე ჩაირთვებოდა — ვარდებოდა. Docker Compose მთელ სისტემას ერთ ფაილში აღწერს და ერთი ბრძანებით უშვებს. დღეს LMS-ს და PostgreSQL-ს ჯერ შენთან ვუშვებთ, მერე — სერვერზე, და მე-6 ლექციის 10 ხელით ნაბიჯი სამ ბრძანებად იქცევა.</p>
+<p><strong>ლექციის ბოლოს შეძლებ:</strong></p>
+<ul>
+<li><code>compose.yaml</code>-ის დაწერა: services, image/build, ports, environment, volumes</li>
+<li>სერვისებს შორის კავშირი სახელით (<code>Host=db</code>), <code>depends_on</code> + <code>healthcheck</code>, <code>restart</code></li>
+<li>საიდუმლოებები <code>.env</code>-ში და მიგრაციები აპის ჩართვისას</li>
+<li>სერვერზე Docker-ის დაყენება და LMS-ის გაშვება <code>docker compose up -d --build</code>-ით</li>
+<li>Nginx → კონტეინერი, port-ის დაცვა <code>127.0.0.1</code>-ით, განახლება და ბაზის backup</li>
+</ul></article>
+<h2 class="sec" id="sec-4">1 · Compose</h2>
+<article class="blk" data-slides="5"><span class="anchor" id="s-5"></span><div class="bh"><h3>ნაწილი 1 · compose.yaml</h3><a class="chip" href="index.html#/5" data-go="5" title="პრეზენტაციაში გახსნა">სლაიდი 5</a></div>
+<p>ჯერ ყველაფერს შენს კომპიუტერზე ვაწყობთ — და მხოლოდ მერე სერვერზე, უცვლელად.</p></article>
+<article class="blk" data-slides="6"><span class="anchor" id="s-6"></span><div class="bh"><h3>პრობლემა: ორი კონტეინერი — ორი გრძელი ბრძანება</h3><a class="chip" href="index.html#/6" data-go="6" title="პრეზენტაციაში გახსნა">სლაიდი 6</a></div>
+<p>წინა ლექციის ბოლოს LMS ორი კონტეინერით მუშაობდა — მაგრამ:</p>
+<ul>
+<li>📝 ორი გრძელი <code>docker run</code> — ზეპირად ან README-დან კოპირებით; ერთი შეცდომა და არ მუშაობს;</li>
+<li>🔗 API ბაზას <code>host.docker.internal</code>-ით პოულობს — „შემოვლით“, შენი კომპიუტერის გავლით;</li>
+<li>⏱️ თუ API ბაზაზე ადრე ჩაირთო — ვარდება.</li>
+</ul>
+<p><strong>Docker Compose</strong> მთელ სისტემას — ყველა კონტეინერს, მათ პარამეტრებს და კავშირებს — <strong>ერთ ფაილში</strong> აღწერს: <code>compose.yaml</code>. ფაილი Git-ში ინახება, და ნებისმიერ კომპიუტერზე ერთი ბრძანებით ეშვება.</p></article>
+<article class="blk" data-slides="7"><span class="anchor" id="s-7"></span><div class="bh"><h3>ნაბიჯი 1 · compose.yaml</h3><a class="chip" href="index.html#/7" data-go="7" title="პრეზენტაციაში გახსნა">სლაიდი 7</a></div>
+<p>LMS-ის რეპოს root-ში, <code>Dockerfile</code>-ის გვერდით:</p>
+<div class="codebox"><div class="ch"><span>compose.yaml</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="nt">services</span><span class="p">:</span></span><span class="ln"><span class="w">  </span><span class="nt">db</span><span class="p">:</span></span><span class="ln"><span class="w">    </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l">postgres:17</span></span><span class="ln"><span class="w">    </span><span class="nt">environment</span><span class="p">:</span></span><span class="ln"><span class="w">      </span><span class="nt">POSTGRES_USER</span><span class="p">:</span><span class="w"> </span><span class="l">lms</span></span><span class="ln"><span class="w">      </span><span class="nt">POSTGRES_PASSWORD</span><span class="p">:</span><span class="w"> </span><span class="l">${DB_PASSWORD}</span></span><span class="ln"><span class="w">      </span><span class="nt">POSTGRES_DB</span><span class="p">:</span><span class="w"> </span><span class="l">lms</span></span><span class="ln"><span class="w">    </span><span class="nt">volumes</span><span class="p">:</span></span><span class="ln"><span class="w">      </span><span class="p">-</span><span class="w"> </span><span class="l">lms-data:/var/lib/postgresql/data</span></span><span class="ln"><span class="w">    </span><span class="nt">healthcheck</span><span class="p">:</span></span><span class="ln"><span class="w">      </span><span class="nt">test</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s">"</span><span class="s">CMD-SHELL</span><span class="s">"</span><span class="p">,</span><span class="w"> </span><span class="s">"</span><span class="s">pg_isready</span><span class="nv"> </span><span class="s">-U</span><span class="nv"> </span><span class="s">lms</span><span class="nv"> </span><span class="s">-d</span><span class="nv"> </span><span class="s">lms</span><span class="s">"</span><span class="p">]</span></span><span class="ln"><span class="w">      </span><span class="nt">interval</span><span class="p">:</span><span class="w"> </span><span class="l">5s</span></span><span class="ln"><span class="w">      </span><span class="nt">retries</span><span class="p">:</span><span class="w"> </span><span class="l">10</span></span><span class="ln"><span class="w">    </span><span class="nt">restart</span><span class="p">:</span><span class="w"> </span><span class="l">unless-stopped</span></span><span class="ln"> </span><span class="ln"><span class="w">  </span><span class="nt">api</span><span class="p">:</span></span><span class="ln"><span class="w">    </span><span class="nt">build</span><span class="p">:</span><span class="w"> </span><span class="l">.</span></span><span class="ln"><span class="w">    </span><span class="nt">ports</span><span class="p">:</span></span><span class="ln"><span class="w">      </span><span class="p">-</span><span class="w"> </span><span class="s">"</span><span class="s">127.0.0.1:5000:8080</span><span class="s">"</span></span><span class="ln"><span class="w">    </span><span class="nt">environment</span><span class="p">:</span></span><span class="ln"><span class="w">      </span><span class="nt">ASPNETCORE_ENVIRONMENT</span><span class="p">:</span><span class="w"> </span><span class="l">${ASPNETCORE_ENVIRONMENT:-Production}</span></span><span class="ln"><span class="w">      </span><span class="nt">ConnectionStrings__Default</span><span class="p">:</span><span class="w"> </span><span class="s">"</span><span class="s">Host=db;Database=lms;Username=lms;Password=${DB_PASSWORD}</span><span class="s">"</span></span><span class="ln"><span class="w">    </span><span class="nt">depends_on</span><span class="p">:</span></span><span class="ln"><span class="w">      </span><span class="nt">db</span><span class="p">:</span></span><span class="ln"><span class="w">        </span><span class="nt">condition</span><span class="p">:</span><span class="w"> </span><span class="l">service_healthy</span></span><span class="ln"><span class="w">    </span><span class="nt">restart</span><span class="p">:</span><span class="w"> </span><span class="l">unless-stopped</span></span><span class="ln"> </span><span class="ln"><span class="nt">volumes</span><span class="p">:</span></span><span class="ln"><span class="w">  </span><span class="nt">lms-data</span><span class="p">:</span></span></code></pre></div>
+<table>
+<thead>
+<tr>
+<th>ნაწილი</th>
+<th>რას ნიშნავს</th>
+<th><code>docker run</code>-ში იყო</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>services:</code></td>
+<td>კონტეინერების სია; სახელი (<code>db</code>, <code>api</code>) — შენი არჩეული</td>
+<td><code>--name</code></td>
+</tr>
+<tr>
+<td><code>image:</code> / <code>build: .</code></td>
+<td>მზა image / ააწყე მიმდინარე საქაღალდის Dockerfile-ით</td>
+<td><code>docker build</code></td>
+</tr>
+<tr>
+<td><code>environment:</code></td>
+<td>გარემოს ცვლადები</td>
+<td><code>-e</code></td>
+</tr>
+<tr>
+<td><code>volumes:</code></td>
+<td>volume-ის მიბმა; ქვედა <code>volumes:</code> — მისი გამოცხადება</td>
+<td><code>-v</code></td>
+</tr>
+<tr>
+<td><code>ports:</code></td>
+<td><code>IP:ჰოსტი:კონტეინერი</code></td>
+<td><code>-p</code></td>
+</tr>
+<tr>
+<td><code>healthcheck:</code></td>
+<td>ბრძანება, რომელიც ამოწმებს, ბაზა მართლა მზადაა თუ არა (<code>pg_isready</code>)</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>depends_on</code> + <code>service_healthy</code></td>
+<td>API მხოლოდ <strong>healthy</strong> ბაზის შემდეგ ირთვება</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>restart: unless-stopped</code></td>
+<td>crash-ზე და სერვერის reboot-ზე თავისით ირთვება — როგორც systemd-ის <code>Restart=always</code></td>
+<td>—</td>
+</tr>
+</tbody>
+</table>
+<p><strong><code>Host=db</code></strong> — Compose ყველა სერვისს <strong>ერთ ქსელში</strong> სვამს, სადაც სერვისის სახელი მისამართად მუშაობს. <code>host.docker.internal</code> აღარ გვჭირდება.</p>
+<p><strong>YAML</strong> — ფორმატი, სადაც სტრუქტურას <strong>შეწევა</strong> (space-ები) განსაზღვრავს, არა <code>{ }</code>. მხოლოდ space-ები, არა Tab; ერთ დონეზე — ერთნაირი შეწევა.</p></article>
+<article class="blk" data-slides="8"><span class="anchor" id="s-8"></span><div class="bh"><h3>ნაბიჯი 2 · საიდუმლოებები და მიგრაციები</h3><a class="chip" href="index.html#/8" data-go="8" title="პრეზენტაციაში გახსნა">სლაიდი 8</a></div>
+<p><strong><code>.env</code></strong> — Compose <code>compose.yaml</code>-ის გვერდით მდებარე <code>.env</code> ფაილს <strong>ავტომატურად</strong> კითხულობს და <code>${სახელი}</code>-ს მის მნიშვნელობას უსვამს:</p>
+<div class="codebox"><div class="ch"><span>.env (შენთან)</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="na">DB_PASSWORD</span><span class="o">=</span><span class="s">dev</span></span><span class="ln"><span class="na">ASPNETCORE_ENVIRONMENT</span><span class="o">=</span><span class="s">Development</span></span></code></pre></div>
+<p><code>${ASPNETCORE_ENVIRONMENT:-Production}</code> — თუ ცვლადი არ არის მითითებული, ნაგულისხმევად <code>Production</code>. შენთან <code>.env</code>-ში <code>Development</code> წერია (Swagger ჩანს), სერვერზე — <code>Production</code>.</p>
+<div class="callout warn"><span class="ci">⚠️</span><div><p><code>.env</code> <strong>არასოდეს</strong> Git-ში — დაამატე <code>.gitignore</code>-ში (მე-2 ლექცია). სერვერზე ცალკე <code>.env</code> შეიქმნება, სხვა, ძლიერი პაროლით.</p></div></div>
+<p><strong>მიგრაციები ჩართვისას.</strong> წინა ლექციებზე მიგრაციებს ცალკე SQL სკრიპტით ვუშვებდით. ახლა აპი ჩართვისას თვითონ უშვებს მათ:</p>
+<div class="codebox"><div class="ch"><span>Program.cs</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="kt">var</span><span class="w"> </span><span class="n">app</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">builder</span><span class="p">.</span><span class="n">Build</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="k">using</span><span class="w"> </span><span class="p">(</span><span class="kt">var</span><span class="w"> </span><span class="n">scope</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">app</span><span class="p">.</span><span class="n">Services</span><span class="p">.</span><span class="n">CreateScope</span><span class="p">(</span><span class="p">)</span><span class="p">)</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="kt">var</span><span class="w"> </span><span class="n">db</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">scope</span><span class="p">.</span><span class="n">ServiceProvider</span><span class="p">.</span><span class="n">GetRequiredService</span><span class="o">&lt;</span><span class="n">LmsDbContext</span><span class="o">&gt;</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="n">db</span><span class="p">.</span><span class="n">Database</span><span class="p">.</span><span class="n">Migrate</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="p">}</span></span></code></pre></div>
+<p><code>Migrate()</code> ამოწმებს, რომელი მიგრაცია აკლია ბაზას, და მხოლოდ მათ უშვებს — იგივე, რაც <code>--idempotent</code> სკრიპტი. <code>depends_on: service_healthy</code>-ის წყალობით ამ დროს ბაზა უკვე მზადაა.</p>
+<div class="callout note"><span class="ci">💡</span><div><p>ერთი სერვერისთვის და სასწავლო პროექტისთვის ეს მარტივი და საიმედოა. დიდ სისტემებში, სადაც API რამდენიმე ეგზემპლარად ეშვება, მიგრაციებს ცალკე ნაბიჯად უშვებენ (<code>efbundle</code> ან SQL სკრიპტი pipeline-ში).</p></div></div></article>
+<article class="blk" data-slides="9,10"><span class="anchor" id="s-9"></span><span class="anchor" id="s-10"></span><div class="bh"><h3>ნაბიჯი 3 · გაშვება</h3><a class="chip" href="index.html#/9" data-go="9" title="პრეზენტაციაში გახსნა">სლაიდი 9</a></div>
+<p>წინა ლექციის კონტეინერები აღარ გვჭირდება: <code>docker rm -f lms-api lms-db</code>. მერე:</p>
+<div class="codebox"><div class="ch"><span>WSL · LMS-ის რეპო</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="gp">$ </span>docker<span class="w"> </span>compose<span class="w"> </span>up<span class="w"> </span>-d<span class="w"> </span>--build</span><span class="ln"><span class="go"> ✔ Network lms_default   Created</span></span><span class="ln"><span class="go"> ✔ Volume "lms_lms-data" Created</span></span><span class="ln"><span class="go"> ✔ Container lms-db-1    Healthy</span></span></code></pre></div>
+<p>Compose-მა შექმნა ქსელი, volume, ჩართო ბაზა, <strong>დაელოდა</strong> <code>healthy</code>-ს და მხოლოდ მერე ჩართო API. ბრაუზერში — <code>http://localhost:5000/swagger</code>.</p>
+<div class="codebox"><div class="ch"><span>WSL</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="gp">$ </span>docker<span class="w"> </span>compose<span class="w"> </span>logs<span class="w"> </span>-f<span class="w"> </span>api</span><span class="ln"><span class="go">info: Microsoft.EntityFrameworkCore.Migrations[20402]</span></span><span class="ln"><span class="go">      Applying migration '20261128_InitialCreate'.</span></span></code></pre></div>
+<table>
+<thead>
+<tr>
+<th>ბრძანება</th>
+<th>რას აკეთებს</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>docker compose up -d --build</code></td>
+<td>(ხელახლა) ააწყე image და გაუშვი ყველაფერი ფონზე</td>
+</tr>
+<tr>
+<td><code>docker compose ps</code></td>
+<td>სერვისების სტატუსები</td>
+</tr>
+<tr>
+<td><code>docker compose logs -f api</code></td>
+<td>ერთი სერვისის ლოგი ცოცხლად</td>
+</tr>
+<tr>
+<td><code>docker compose restart api</code></td>
+<td>ერთი სერვისის გადატვირთვა</td>
+</tr>
+<tr>
+<td><code>docker compose exec db psql -U lms</code></td>
+<td>ბრძანება სერვისის შიგნით</td>
+</tr>
+<tr>
+<td><code>docker compose down</code></td>
+<td>კონტეინერების და ქსელის წაშლა — <strong>volume (ბაზა) რჩება</strong></td>
+</tr>
+<tr>
+<td><code>docker compose down -v</code></td>
+<td>⚠ <strong>volume-ებიც</strong> — ბაზა სამუდამოდ იკარგება</td>
+</tr>
+</tbody>
+</table>
+<div class="callout warn"><span class="ci">⚠️</span><div><p><code>down -v</code> სერვერზე = მთელი ბაზის წაშლა. ეს ბრძანება მხოლოდ მაშინ, როცა <strong>ზუსტად</strong> გინდა ბაზის ნულიდან შექმნა — და backup გაქვს.</p></div></div></article>
+<h2 class="sec" id="sec-5">2 · სერვერზე</h2>
+<article class="blk" data-slides="11"><span class="anchor" id="s-11"></span><div class="bh"><h3>ნაწილი 2 · იგივე ფაილი — სერვერზე</h3><a class="chip" href="index.html#/11" data-go="11" title="პრეზენტაციაში გახსნა">სლაიდი 11</a></div>
+<p><code>compose.yaml</code> Git-შია. სერვერზე მას არაფერი ეცვლება — მხოლოდ <code>.env</code> იქნება სხვა.</p></article>
+<article class="blk" data-slides="12"><span class="anchor" id="s-12"></span><div class="bh"><h3>ნაბიჯი 4 · Docker სერვერზე</h3><a class="chip" href="index.html#/12" data-go="12" title="პრეზენტაციაში გახსნა">სლაიდი 12</a></div>
+<p>სერვერზე Docker Desktop არ გვჭირდება — მხოლოდ <strong>Docker Engine</strong> (ტერმინალის ვერსია):</p>
+<div class="codebox"><div class="ch"><span>Termius · lms-server</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="gp">$ </span>curl<span class="w"> </span>-fsSL<span class="w"> </span>https://get.docker.com<span class="w"> </span><span class="p">|</span><span class="w"> </span>sudo<span class="w"> </span>sh</span><span class="ln"><span class="gp">$ </span>sudo<span class="w"> </span>usermod<span class="w"> </span>-aG<span class="w"> </span>docker<span class="w"> </span><span class="nv">$USER</span></span><span class="ln"><span class="gp"># </span>Termius:<span class="w"> </span>გაითიშე<span class="w"> </span>და<span class="w"> </span>თავიდან<span class="w"> </span>დაუკავშირდი</span></code></pre></div>
+<ul>
+<li><code>get.docker.com</code> — Docker-ის ოფიციალური სკრიპტი: ამატებს Docker-ის apt repo-ს და აყენებს Engine-ს და Compose-ს. (<code>curl … | sh</code> — ინტერნეტიდან ჩამოტვირთული სკრიპტის გაშვება; ამას მხოლოდ სანდო, ოფიციალურ წყაროზე ვაკეთებთ.)</li>
+<li><code>usermod -aG docker $USER</code> — <code>docker</code> ჯგუფში ყოფნა საშუალებას გაძლევს <code>sudo</code>-ს გარეშე იმუშაო. ჯგუფი ამოქმედდება ხელახლა შესვლის შემდეგ.</li>
+</ul>
+<p><strong>ძველის გაჩერება.</strong> მე-6 ლექციის systemd სერვისი და apt-ით დაყენებული PostgreSQL აღარ გვჭირდება — ისინი RAM-ს ჭამენ:</p>
+<div class="codebox"><div class="ch"><span>Termius · lms-server</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code></code></pre></div>
+<p><code>disable --now</code> = გაჩერება ახლა + აღარ ჩაირთოს reboot-ზე.</p>
+<div class="callout tip"><span class="ci">👉</span><div><p>1 GB RAM-იან სერვერზე <code>docker compose up --build</code> (.NET-ის build) მეხსიერებას საზღვრამდე იყენებს. მე-4 ლექციაში დამატებული <strong>swap</strong> აქ გვიცავს. მე-11 ლექციაზე build სერვერიდან საერთოდ გადავა GitHub-ზე.</p></div></div></article>
+<article class="blk" data-slides="13"><span class="anchor" id="s-13"></span><div class="bh"><h3>ნაბიჯი 5 · გაშვება სერვერზე</h3><a class="chip" href="index.html#/13" data-go="13" title="პრეზენტაციაში გახსნა">სლაიდი 13</a></div>
+<div class="codebox"><div class="ch"><span>Termius · lms-server</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="gp">$ </span>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/giorgi/lms.git<span class="w"> </span>~/lms</span><span class="ln"><span class="gp">$ </span><span class="nb">cd</span><span class="w"> </span>~/lms</span></code></pre></div>
+<div class="codebox"><div class="ch"><span>.env (სერვერზე)</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="na">DB_PASSWORD</span><span class="o">=</span><span class="s">h7Kq2-xR9v-Lm4Z</span></span><span class="ln"><span class="na">ASPNETCORE_ENVIRONMENT</span><span class="o">=</span><span class="s">Production</span></span></code></pre></div>
+<div class="codebox"><div class="ch"><span>Termius · lms-server</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="gp">$ </span>chmod<span class="w"> </span><span class="m">600</span><span class="w"> </span>.env</span><span class="ln"><span class="gp">$ </span>docker<span class="w"> </span>compose<span class="w"> </span>up<span class="w"> </span>-d<span class="w"> </span>--build</span><span class="ln"><span class="go"> ✔ Container lms-db-1   Healthy</span></span><span class="ln"><span class="go"> ✔ Container lms-api-1  Started</span></span><span class="ln"> </span><span class="ln"><span class="gp">$ </span>curl<span class="w"> </span>http://127.0.0.1:5000/api/courses</span></code></pre></div>
+<ul>
+<li><code>compose.yaml</code> — Git-იდან, <strong>უცვლელად</strong>: ზუსტად ის ფაილი, რომელიც შენთან მუშაობდა.</li>
+<li><code>.env</code> — <strong>ხელით</strong>, მხოლოდ სერვერზე: სხვა, ძლიერი პაროლით და <code>Production</code>-ით. <code>chmod 600</code> — წაკითხვა მხოლოდ შენ შეგიძლია.</li>
+</ul>
+<p>მე-6 ლექციის 10 ხელით ნაბიჯი — runtime, PostgreSQL, user, ბაზა, publish, rsync, მიგრაციები, unit ფაილი… — ახლა <strong>სამი ბრძანებაა</strong>: <code>clone</code>, <code>.env</code>, <code>up</code>.</p>
+<div class="callout tip"><span class="ci">👉</span><div><p>ძლიერი პაროლის გენერაცია: <code>openssl rand -base64 24</code>.</p></div></div></article>
+<article class="blk" data-slides="14"><span class="anchor" id="s-14"></span><div class="bh"><h3>ნაბიჯი 6 · Nginx → კონტეინერი</h3><a class="chip" href="index.html#/14" data-go="14" title="პრეზენტაციაში გახსნა">სლაიდი 14</a></div>
+<p>Nginx-ის კონფიგი <strong>არ იცვლება</strong>: მე-6 ლექციაში API <code>127.0.0.1:5000</code>-ზე იყო, და კონტეინერი ზუსტად იმავე port-ზე გამოვიყვანეთ (<code>"127.0.0.1:5000:8080"</code>). Nginx-ისთვის განსხვავება არ არსებობს — <code>http://&lt;IP&gt;:8081/api/courses</code> ახლა კონტეინერიდან პასუხობს.</p>
+<p><strong>⚠ ხაფანგი: Docker ufw-ს გვერდს უვლის.</strong> Docker port-ების გასახსნელად firewall-ის წესებს პირდაპირ ცვლის — <code>ufw</code>-ის გავლის გარეშე. ამიტომ:</p>
+<table>
+<thead>
+<tr>
+<th>ჩანაწერი</th>
+<th>შედეგი</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>"5000:8080"</code></td>
+<td>port 5000 <strong>ინტერნეტში ღიაა</strong>, <code>ufw</code>-ის მიუხედავად</td>
+</tr>
+<tr>
+<td><code>"127.0.0.1:5000:8080"</code></td>
+<td>მხოლოდ სერვერის შიგნიდან — Nginx-ისთვის ✓</td>
+</tr>
+</tbody>
+</table>
+<p>ბაზის სერვისს <code>ports</code> <strong>საერთოდ არ აქვს</strong>: API მას Docker-ის შიდა ქსელში, <code>db</code> სახელით პოულობს. ინტერნეტიდან ბაზამდე გზა არ არსებობს.</p>
+<div class="callout warn"><span class="ci">⚠️</span><div><p>სერვერზე <code>ports</code>-ში ყოველთვის <code>127.0.0.1:</code> — თუ port-ს მხოლოდ Nginx იყენებს. ბაზის port-ს კი არასოდეს ვხსნით.</p></div></div></article>
+<article class="blk" data-slides="15"><span class="anchor" id="s-15"></span><div class="bh"><h3>ნაბიჯი 7 · ცხოვრება სერვერზე</h3><a class="chip" href="index.html#/15" data-go="15" title="პრეზენტაციაში გახსნა">სლაიდი 15</a></div>
+<p><strong>🔁 ახალი ვერსია:</strong></p>
+<div class="codebox"><div class="ch"><span>Termius · lms-server</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="gp">$ </span><span class="nb">cd</span><span class="w"> </span>~/lms</span><span class="ln"><span class="gp">$ </span>git<span class="w"> </span>pull</span></code></pre></div>
+<p>Compose ახალ image-ს ააწყობს და <strong>მხოლოდ შეცვლილ</strong> სერვისს (<code>api</code>) შეცვლის. ბაზა volume-ში რჩება, მიგრაციები <code>Migrate()</code>-ით ავტომატურად გაეშვება.</p>
+<p><strong>💾 backup:</strong></p>
+<div class="codebox"><div class="ch"><span>Termius · lms-server</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="gp">$ </span>mkdir<span class="w"> </span>-p<span class="w"> </span>~/backups</span></code></pre></div>
+<p><code>pg_dump</code> ბაზას SQL ფაილად აქცევს; <code>$(date +%F)</code> ფაილის სახელში დღევანდელ თარიღს სვამს. აღდგენა:</p>
+<div class="codebox"><div class="ch"><span>Termius · lms-server</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code></code></pre></div>
+<p><strong>📈 მონიტორინგი:</strong></p>
+<div class="codebox"><div class="ch"><span>Termius · lms-server</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="gp">$ </span>docker<span class="w"> </span>compose<span class="w"> </span>ps<span class="w">              </span><span class="c1"># ყველა სერვისი მუშაობს?</span></span><span class="ln"><span class="gp">$ </span>docker<span class="w"> </span>compose<span class="w"> </span>logs<span class="w"> </span>-f<span class="w"> </span>api<span class="w">     </span><span class="c1"># API-ს ლოგი</span></span></code></pre></div>
+<div class="callout note"><span class="ci">💡</span><div><p>backup იმავე სერვერზე — ნახევარი backup-ია: თუ სერვერი დაიკარგა, backup-იც დაიკარგება. რეალურ პროექტში მას სხვაგან ინახავენ (მაგ. DigitalOcean Spaces) და ავტომატურად, ყოველ ღამე.</p></div></div>
+<p><strong>რა დარჩა ხელით:</strong> ყოველ განახლებაზე — <code>ssh</code> → <code>cd</code> → <code>git pull</code> → <code>up</code>. თუ დაგავიწყდა, სერვერზე ძველი ვერსიაა. მე-11 ლექციაზე ამას GitHub Actions გააკეთებს — ყოველ <code>git push</code>-ზე.</p></article>
+<article class="blk" data-slides="16"><span class="anchor" id="s-16"></span><div class="bh"><h3>შედარება: მე-6 ლექცია vs დღეს</h3><a class="chip" href="index.html#/16" data-go="16" title="პრეზენტაციაში გახსნა">სლაიდი 16</a></div>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>ხელით (ლექცია 6)</th>
+<th>Compose (დღეს)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>.NET runtime</td>
+<td>apt, ზუსტად სწორი ვერსია</td>
+<td>image-შია</td>
+</tr>
+<tr>
+<td>PostgreSQL</td>
+<td>apt + <code>psql</code>-ში user და ბაზა</td>
+<td><code>image: postgres:17</code> + env</td>
+</tr>
+<tr>
+<td>მიგრაციები</td>
+<td>script → scp → <code>psql -f</code></td>
+<td><code>Migrate()</code> ჩართვისას</td>
+</tr>
+<tr>
+<td>24/7, crash, reboot</td>
+<td>systemd unit ფაილი</td>
+<td><code>restart: unless-stopped</code></td>
+</tr>
+<tr>
+<td>პარამეტრები</td>
+<td>unit ფაილში, მხოლოდ სერვერზე</td>
+<td><code>compose.yaml</code> — Git-ში, <code>.env</code> — სერვერზე</td>
+</tr>
+<tr>
+<td>ახალი სერვერი</td>
+<td>~10 ნაბიჯი თავიდან</td>
+<td>Docker → clone → <code>.env</code> → <code>up</code></td>
+</tr>
+<tr>
+<td>გუნდელის კომპიუტერი</td>
+<td>„ჩემთან მუშაობს“</td>
+<td>იგივე <code>compose.yaml</code></td>
+</tr>
+</tbody>
+</table>
+<p>Nginx და მე-6 ლექციის ცოდნა არსად გაქრა: Docker-ის შიგნითაც იგივე runtime, იგივე გარემოს ცვლადები, იგივე port-ები და იგივე „ჯერ ბაზა, მერე API“ მუშაობს. Docker უბრალოდ ამ ყველაფერს <strong>ფაილად</strong> აქცევს.</p></article>
+<h2 class="sec" id="sec-6">შეჯამება</h2>
+<article class="blk" data-slides="17"><span class="anchor" id="s-17"></span><div class="bh"><h3>შპარგალკა: Docker Compose</h3><a class="chip" href="index.html#/17" data-go="17" title="პრეზენტაციაში გახსნა">სლაიდი 17</a></div>
+<table>
+<thead>
+<tr>
+<th>ბრძანება</th>
+<th>რას აკეთებს</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>docker compose up -d --build</code></td>
+<td>ააწყე და გაუშვი ფონზე</td>
+</tr>
+<tr>
+<td><code>docker compose ps</code></td>
+<td>სტატუსები (healthy / running)</td>
+</tr>
+<tr>
+<td><code>docker compose logs -f api</code></td>
+<td>ერთი სერვისის ლოგი</td>
+</tr>
+<tr>
+<td><code>docker compose restart api</code></td>
+<td>ერთი სერვისის გადატვირთვა</td>
+</tr>
+<tr>
+<td><code>docker compose exec db psql -U lms</code></td>
+<td>ბრძანება სერვისის შიგნით</td>
+</tr>
+<tr>
+<td><code>docker compose down</code></td>
+<td>გაჩერება და წაშლა — ბაზა რჩება</td>
+</tr>
+<tr>
+<td><code>docker compose down -v</code></td>
+<td>⚠ ბაზაც იშლება</td>
+</tr>
+</tbody>
+</table>
+<p><strong>სერვერზე, ერთხელ:</strong> <code>curl -fsSL https://get.docker.com | sudo sh</code> → <code>usermod -aG docker $USER</code> → <code>git clone</code> → <code>.env</code> (<code>chmod 600</code>) → <code>up -d --build</code>.</p>
+<p><strong>ყოველ განახლებაზე:</strong> <code>git pull</code> → <code>docker compose up -d --build</code>.</p>
+<p><strong>backup:</strong> <code>docker compose exec db pg_dump -U lms lms &gt; ~/backups/lms-$(date +%F).sql</code></p>
+<p><strong>compose.yaml-ის წესები:</strong> სერვისი = მისამართი (<code>Host=db</code>); ბაზას — volume და healthcheck; <code>depends_on: service_healthy</code>; <code>restart: unless-stopped</code>; სერვერზე <code>ports</code> — <code>127.0.0.1:</code>-ით; საიდუმლოებები — <code>.env</code>-ში, <code>.gitignore</code>-ით.</p></article>
+<h2 class="sec" id="sec-7">პრაქტიკა</h2>
+<article class="blk" data-slides="18"><span class="anchor" id="s-18"></span><div class="bh"><h3>კლასში დავალება: API + ბაზა — ერთი ბრძანებით</h3><a class="chip" href="index.html#/18" data-go="18" title="პრეზენტაციაში გახსნა">სლაიდი 18</a></div>
+<p>დავალება · compose.yaml შენთან</p>
+<h3>ნაბიჯები</h3>
+<ul>
+<li>წინა ლექციის კონტეინერები: <code>docker rm -f lms-api lms-db</code></li>
+<li>თქვენი პროექტის რეპოში: <code>compose.yaml</code> (<code>db</code> + <code>api</code>) და <code>.env</code> (<code>DB_PASSWORD</code>, <code>ASPNETCORE_ENVIRONMENT=Development</code>); <code>.env</code> → <code>.gitignore</code></li>
+<li><code>Program.cs</code>-ში მიგრაციები ჩართვისას (<code>Database.Migrate()</code>)</li>
+<li><code>docker compose up -d --build</code> → <code>docker compose ps</code> → <code>http://localhost:5000/swagger</code></li>
+</ul>
+<h3>✓ მზადაა, როცა</h3>
+<p><code>docker compose ps</code> — <code>db</code> (healthy) და <code>api</code> (running), Swagger-ში ჩანაწერი ემატება, <code>git status</code> <code>.env</code>-ს არ აჩვენებს</p>
+<h3>⭐ ბონუსი</h3>
+<ul>
+<li><code>docker compose down</code> → <code>up -d</code> — მონაცემები დარჩა? მერე იფიქრეთ (არ გაუშვათ!): რა მოხდებოდა <code>down -v</code>-ზე?</li>
+</ul>
+<h3>💡 მინიშნება</h3>
+<div class="codebox"><div class="ch"><span>bash</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln">docker<span class="w"> </span>compose<span class="w"> </span>logs<span class="w"> </span>-f<span class="w"> </span>api<span class="w">      </span><span class="c1"># API-ს ლოგი</span></span><span class="ln">docker<span class="w"> </span>compose<span class="w"> </span>ps<span class="w">               </span><span class="c1"># სტატუსები: healthy / running</span></span><span class="ln">docker<span class="w"> </span>compose<span class="w"> </span>down<span class="w">             </span>#<span class="w"> </span>გაჩერება<span class="w"> </span><span class="o">(</span>ბაზა<span class="w"> </span>რჩება<span class="o">)</span></span></code></pre></div>
+<p><code>api</code> ვარდება <code>Connection refused</code>-ით? შეამოწმეთ connection string-ში <code>Host=db</code> და <code>depends_on</code> → <code>service_healthy</code>.</p></article>
+<h2 class="sec" id="sec-8">შეჯამება</h2>
+<article class="blk" data-slides="19"><span class="anchor" id="s-19"></span><div class="bh"><h3>შეამოწმე, რა დაგამახსოვრდა</h3><a class="chip" href="index.html#/19" data-go="19" title="პრეზენტაციაში გახსნა">სლაიდი 19</a></div>
+<p>ეს კითხვები შემდეგი ლექციის დასაწყისშიც დაისმება.</p>
+<div class="selfcheck"><div class="sh">✅ შეამოწმე თავი <small>დაფიქრდი, მერე გახსენი პასუხი</small></div><details><summary>API ბაზას რა მისამართით უკავშირდება Compose-ში და რატომ?</summary><div class="ans"><code>Host=db</code> — სერვისის სახელით. Compose ყველა სერვისს ერთ ქსელში სვამს, სადაც სახელი = მისამართი</div></details><details><summary>რას აკეთებს <code>depends_on</code> + <code>condition: service_healthy</code>?</summary><div class="ans">API მხოლოდ მაშინ ირთვება, როცა ბაზის <code>healthcheck</code> (<code>pg_isready</code>) წარმატებულია — ანუ ბაზა მართლა მზადაა მოთხოვნებისთვის</div></details><details><summary>რატომ ვწერთ <code>ports: "127.0.0.1:5000:8080"</code> და არა <code>"5000:8080"</code>?</summary><div class="ans">Docker port-ს ufw-ის გვერდის ავლით ხსნის. <code>127.0.0.1</code>-ით port მხოლოდ სერვერის შიგნიდან ჩანს — ინტერნეტიდან API-მდე მხოლოდ Nginx-ის გავლით მიდიან</div></details><details><summary><code>docker compose down</code> და <code>docker compose down -v</code> — რა განსხვავებაა?</summary><div class="ans"><code>down</code> კონტეინერებს და ქსელს შლის, volume-ები (ბაზა) რჩება. <code>down -v</code> volume-ებსაც შლის — ბაზა სამუდამოდ იკარგება</div></details><details><summary>სერვერზე LMS-ის ახალი ვერსია როგორ გავუშვა?</summary><div class="ans"><code>git pull</code> → <code>docker compose up -d --build</code>. Compose ახალ image-ს ააწყობს და მხოლოდ შეცვლილ კონტეინერს შეცვლის; ბაზა volume-ში რჩება</div></details><details><summary>როგორ გავაკეთო ბაზის backup?</summary><div class="ans"><code>docker compose exec db pg_dump -U lms lms &gt; backup.sql</code> — SQL ფაილი, რომლითაც ბაზა ნებისმიერ დროს აღდგება</div></details></div></article>
+<article class="blk" data-slides="20"><span class="anchor" id="s-20"></span><div class="bh"><h3>შეჯამება · დღეს ვისწავლეთ</h3><a class="chip" href="index.html#/20" data-go="20" title="პრეზენტაციაში გახსნა">სლაიდი 20</a></div>
+<ul>
+<li>📄 <strong>compose.yaml</strong> — ყველა სერვისი, მათი პარამეტრები და კავშირები ერთ ფაილში, რომელიც Git-ში ინახება.</li>
+<li>🔗 <strong>კავშირები</strong> — სერვისის სახელი = მისამართი (<code>Host=db</code>); <code>healthcheck</code> + <code>depends_on: service_healthy</code>; <code>restart: unless-stopped</code>.</li>
+<li>🔑 <strong><code>.env</code></strong> — საიდუმლოებები <code>compose.yaml</code>-ის გარეთ, <code>.gitignore</code>-ში; სერვერზე — ცალკე, <code>chmod 600</code>.</li>
+<li>🗄️ <strong><code>Database.Migrate()</code></strong> — მიგრაციები აპის ჩართვისას.</li>
+<li>🚀 <strong>სერვერზე</strong> — Docker Engine, <code>git clone</code>, <code>.env</code>, <code>docker compose up -d --build</code>. Nginx უცვლელია; <code>ports</code> — <code>127.0.0.1:</code>-ით, რადგან Docker ufw-ს გვერდს უვლის.</li>
+<li>💾 <strong>ცხოვრება</strong> — <code>git pull</code> + <code>up</code> განახლებისთვის, <code>pg_dump</code> backup-ისთვის, <code>logs</code>/<code>stats</code> მონიტორინგისთვის.</li>
+</ul>
+<p><strong>შემდეგ ლექციაზე:</strong> <code>http://164.90.12.34:8081</code> — არც ლამაზია, არც უსაფრთხო. ვყიდულობთ დომენს, ვრთავთ HTTPS-ს და საიდუმლოებებს წესრიგში ვალაგებთ.</p>
+<div class="prompt"><div class="ph"><span>🤖 გამოცდა მერვე ლექციაზე</span><button class="copy" type="button">კოპირება</button></div><div class="pb">ვსწავლობ DevOps-ს. მერვე ლექციაზე გავიარეთ Docker Compose ASP.NET Core API-სთვის და PostgreSQL-ისთვის: compose.yaml (services, image, build, ports, environment, volumes, healthcheck, depends_on service_healthy, restart), სერვისის სახელი როგორც მისამართი, .env და ${VAR}, Database.Migrate(), docker compose up/ps/logs/down/down -v, Docker-ის დაყენება Ubuntu სერვერზე, Nginx reverse proxy კონტეინერზე, Docker და ufw (127.0.0.1 port-ებში), pg_dump backup.
+დამისვი 8 კითხვა სათითაოდ, მარტივიდან რთულისკენ — ნაწილი სიტუაციური იყოს („API ვარდება Connection refused-ით, რას შეამოწმებ?“). ყოველ პასუხზე შემიფასე და ამიხსენი. ბოლოს მითხარი, რა გავიმეორო. ქართულად.</div></div>
+<div class="prompt"><div class="ph"><span>🤖 ჩემი compose.yaml-ის განხილვა</span><button class="copy" type="button">კოპირება</button></div><div class="pb">ვსწავლობ Docker Compose-ს. ეს არის ჩემი compose.yaml ASP.NET Core API-სთვის და PostgreSQL-ისთვის. ამიხსენი ქართულად, რას აკეთებს თითოეული ნაწილი, და მითხარი, რა არის სახიფათო ან გასაუმჯობესებელი სერვერზე გასაშვებად (port-ები, პაროლები, volume, restart) — მარტივად. compose.yaml: [აქ ჩასვი, პაროლების გარეშე]</div></div></article>
+<h2 class="sec" id="sec-9">საშინაო</h2>
+<article class="blk" data-slides="21"><span class="anchor" id="s-21"></span><div class="bh"><h3>საშინაო დავალება: შენი API სერვერზე — კონტეინერებით</h3><a class="chip" href="index.html#/21" data-go="21" title="პრეზენტაციაში გახსნა">სლაიდი 21</a></div>
+<p>მე-6 ლექციის ხელით deploy → Compose</p>
+<h3>მოთხოვნები</h3>
+<ul>
+<li>სერვერზე Docker (<code>get.docker.com</code>, <code>docker</code> ჯგუფი); ძველი <code>lms-api</code> და <code>postgresql</code> → <code>disable --now</code></li>
+<li><code>git clone</code> → სერვერის <code>.env</code> (ძლიერი პაროლი, <code>Production</code>, <code>chmod 600</code>) → <code>docker compose up -d --build</code></li>
+<li>backup: <code>pg_dump</code> → <code>~/backups/lms-&lt;თარიღი&gt;.sql</code></li>
+</ul>
+<h3>✓ მზადაა, როცა</h3>
+<p><code>http://&lt;IP&gt;:8081/api/courses</code> კონტეინერიდან პასუხობს, <code>reboot</code>-ის შემდეგაც, backup ფაილი არსებობს</p>
+<h3>⭐ ბონუსი</h3>
+<ul>
+<li>პროექტში პატარა ცვლილება → push → სერვერზე <code>git pull &amp;&amp; docker compose up -d --build</code> → ცვლილება ჩანს. დაითვალეთ, რამდენი ბრძანება დაგჭირდათ</li>
+</ul></article>
+  </main>
+</div>
+<script>
+const DECK = "DevOps · 8 — Docker Compose — LMS + ბაზა სერვერზე";
+if (matchMedia('(min-width:981px)').matches) document.getElementById('tocd').open = true;
+const blocks = [...document.querySelectorAll('.blk')];
+const tocLinks = [...document.querySelectorAll('nav.toc a[href^="#sec-"]')];
+const secOf = b => { let e = b; while (e && !(e.matches && e.matches('h2.sec'))) e = e.previousElementSibling; return e; };
+function mark(b, toc_only) {
+  if (!toc_only) blocks.forEach(x => x.classList.toggle('cur', x === b));
+  const s = b && secOf(b); tocLinks.forEach(a => a.classList.toggle('cur', s && a.getAttribute('href') === '#' + s.id));
+}
+const blockFor = n => blocks.find(b => b.dataset.slides.split(',').includes(String(n)));
+
+// copy buttons (code: one line per .ln)
+document.addEventListener('click', e => {
+  const btn = e.target.closest('.copy'); if (!btn) return;
+  const box = btn.closest('.codebox, .prompt');
+  const text = box.matches('.prompt') ? box.querySelector('.pb').textContent : [...box.querySelectorAll('.ln')].map(l => l.textContent).join('\n');
+  navigator.clipboard.writeText(text).then(() => { btn.textContent = '✓ დაკოპირდა'; btn.classList.add('ok'); setTimeout(() => { btn.textContent = 'კოპირება'; btn.classList.remove('ok'); }, 1600); });
+});
+
+// live mode: opened from the deck with P — follow the projector
+const live = new URLSearchParams(location.search).has('live');
+let follow = true, bc = null;
+const liveBtn = document.getElementById('live');
+if (live) {
+  try { bc = new BroadcastChannel('deck-' + DECK); } catch (e) {}
+  liveBtn.classList.add('on');
+  liveBtn.onclick = () => { follow = !follow; liveBtn.classList.toggle('off', !follow); liveBtn.querySelector('.lt').textContent = follow ? 'მიჰყვება სლაიდებს' : 'თავისუფლად ვკითხულობ'; };
+  if (bc) {
+    bc.onmessage = ({ data }) => {
+      if (data.t !== 'state' || !follow) return;
+      const b = blockFor(data.i + 1); if (!b || b.classList.contains('cur')) return;
+      mark(b); b.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    };
+    bc.postMessage({ t: 'hello' });
+  }
+  document.addEventListener('click', e => {   // slide chip → move the projector deck
+    const c = e.target.closest('.chip[data-go]'); if (!c || !bc) return;
+    e.preventDefault(); bc.postMessage({ t: 'go', n: +c.dataset.go - 1 });
+  });
+}
+// deep link #s-12
+const h = location.hash.match(/^#s-(\d+)$/);
+if (h) { const b = blockFor(+h[1]); if (b) { mark(b); setTimeout(() => b.scrollIntoView({ block: 'start' }), 50); } }
+// highlight section in the TOC while reading
+const io = new IntersectionObserver(es => es.forEach(x => { if (x.isIntersecting && !(live && follow)) mark(x.target, true); }), { rootMargin: '-30% 0px -60% 0px' });
+blocks.forEach(b => io.observe(b));
+</script>
+</body></html>
