@@ -2,7 +2,9 @@
 
 **ტექნოლოგიები:** .NET 10, EF Core 10, PostgreSQL (Npgsql), კონსოლის აპი
 
-**პროექტი:** **Shop** — C#-ის კურსის კონსოლის მაღაზია უერთდება SQL-ის კურსზე დაპროექტებულ ბაზას. კოდი ისევ კონსოლშია (Services საქაღალდე + მენიუ `Program.cs`-ში), რომ ყურადღება EF Core-ზე იყოს და არა API-ზე. სტუდენტი იმავეს სახლში **თავის საფინალო პროექტზე** იმეორებს (C#-ის კურსზე არჩეული სფერო). API-ის კურსში ეს ცოდნა ShopApi-ში და LMS-ში გადადის.
+**მაგალითები:** ⚽ **ფეხბურთის ლიგა** — იგივე სფერო, რაც SQL-ში: 01–07 ლექციებზე იგივე ბაზას ახლა C#-იდან ვაწყობთ (Code First). კოდი კონსოლშია (`Services` საქაღალდე + მენიუ `Program.cs`-ში), რომ ყურადღება EF Core-ზე იყოს და არა API-ზე.
+
+**ბოლო ორი ლექცია — შენი პროექტი:** 09-ზე SQL-ის საფინალო ბაზას (შენი სფერო) Database First-ით ვუკავშირდებით, 10-ზე კი C#-ის საფინალო პროექტი `database.json`-იდან EF Core-ზე გადადის: `Database` კლასის ადგილს `DataContext` იკავებს. ლექტორი იმავეს Shop-ზე აჩვენებს.
 
 | დანიშნულება | Package |
 | --- | --- |
@@ -15,12 +17,12 @@
 
 ### 01. EF Core კონსოლში — ORM, DataContext, მიგრაცია
 
-**პრობლემა:** C#-ის ობიექტები და ბაზის ცხრილები ცალ-ცალკე ცხოვრობს — SQL-ის ხელით წერა და შედეგის ობიექტებად გადაკეთება დიდი და შეცდომიანი სამუშაოა. **თემები:** რა არის ORM და EF Core; package-ები; `DataContext` და `DbSet<T>`; connection string; პირველი entity; პირველი მიგრაცია და `update-database`; პირველი ჩაწერა და წაკითხვა.
+**პრობლემა:** SQL უკვე ვიცით, C#-იც — მაგრამ ცალ-ცალკე ცხოვრობენ: SQL-ის ხელით წერა და შედეგის ობიექტებად გადაკეთება დიდი და შეცდომიანი სამუშაოა. **თემები:** რა არის ORM და EF Core; package-ები; `DataContext` და `DbSet<T>`; connection string; პირველი entity; პირველი მიგრაცია და `update-database`; პირველი ჩაწერა და წაკითხვა.
 
 📚 აუხსნის, რა პრობლემას აგვარებს ORM
 📚 დააყენებს EF Core-ს PostgreSQL-ისთვის და შექმნის `DataContext`-ს
 📚 შექმნის ბაზას მიგრაციით და ჩაწერს / წაიკითხავს მონაცემს
-🛠 Shop | `DataContext` · `Product` entity · პირველი მიგრაცია
+🛠 ლიგა | `DataContext` · `Club` entity · პირველი მიგრაცია
 
 ### 02. CRUD, სერვისი და კონსოლის მენიუ
 
@@ -29,7 +31,7 @@
 📚 დაწერს სრულ CRUD-ს EF Core-ით
 📚 გამოიყენებს async მეთოდებს ბაზასთან
 📚 დაყოფს კოდს სერვისებად
-🛠 Shop | `ProductService` — დამატება, სია, ძებნა, რედაქტირება, წაშლა · მენიუ
+🛠 ლიგა | `ClubService` — დამატება, სია, ძებნა, რედაქტირება, წაშლა · მენიუ
 
 ### 03. მიგრაციები სიღრმეში
 
@@ -38,65 +40,67 @@
 📚 შეცვლის მოდელს და გადაიტანს ცვლილებას ბაზაში უსაფრთხოდ
 📚 დააბრუნებს მიგრაციას უკან
 📚 ჩაწერს საწყის მონაცემს seed-ით
-🛠 Shop | `Category` ცხრილი · `Product.Stock` სვეტი · კატეგორიების seed
+🛠 ლიგა | `Player` · `Club.City` სვეტი · კლუბების seed
 
 ## ურთიერთობები (2 ლექცია)
 
 ### 04. ურთიერთობები I: 1–N და 1–1
 
-**თემები:** navigation property და FK property; კონვენციები; 1–N (`Category` → `Products`), 1–1 (`Customer` → `Address`); `Include`; required და optional კავშირი; წაშლის ქცევა.
+**თემები:** navigation property და FK property; კონვენციები; 1–N, 1–1; `Include`; required და optional კავშირი; წაშლის ქცევა.
 
 📚 ააწყობს 1–N და 1–1 კავშირს
 📚 ჩატვირთავს დაკავშირებულ მონაცემს `Include`-ით
-🛠 Shop | `Category` ↔ `Products` · `Customer` ↔ `User` (1–1 — ავტორიზაცია C#-იდან, ახლა ბაზაში) · `Customer` ↔ `Address` · `Customer` → `Orders`
+🛠 ლიგა | `Club` ↔ `Players` (1–N) · `Club` ↔ `Stadium` (1–1)
 
 ### 05. ურთიერთობები II: N–N და კონფიგურაცია
 
-**თემები:** N–N — ავტომატური და საკუთარი შუალედური entity (`OrderItem` თავისი ფასით და რაოდენობით); კონფიგურაცია attribute-ებით vs Fluent API (`OnModelCreating`, `IEntityTypeConfiguration`); ინდექსი, unique (`User.Email`), max length, precision; enum ბაზაში — `HasConversion<string>()` (`Role`, `OrderStatus`).
+**თემები:** N–N — შუალედური entity საკუთარი ველებით; ორი კავშირი ერთ ცხრილზე (მასპინძელი და სტუმარი); კონფიგურაცია attribute-ებით vs Fluent API (`OnModelCreating`, `IEntityTypeConfiguration`); ინდექსი, unique, max length, precision; enum ბაზაში — `HasConversion<string>()`.
 
 📚 ააწყობს N–N კავშირს შუალედური entity-ით
 📚 გაარჩევს attribute-ებს და Fluent API-ს და შეარჩევს სწორს
-🛠 Shop | `Order` ↔ `Product` `OrderItem`-ით · `ProductConfiguration` · `Review`
+📚 შეინახავს enum-ს ბაზაში წასაკითხ ფორმაში
+🛠 ლიგა | `Match` (`HomeClub`, `AwayClub`) · `Goal` (მატჩი ↔ მოთამაშე, წუთი) · `Position` — enum სტრიქონად · `PlayerConfiguration`
 
 ## მოთხოვნები და მონაცემის მართვა (2 ლექცია)
 
 ### 06. Querying — LINQ-დან SQL-მდე
 
-**პრობლემა:** კოდი მუშაობს, მაგრამ ბაზას 101 მოთხოვნას უგზავნის. **თემები:** როგორ ითარგმნება LINQ SQL-ად (`ToQueryString`, logging); `Include` / `ThenInclude`; projection `Select`-ით; `AsNoTracking`; eager / explicit / lazy loading; N+1 პრობლემა; `GroupBy` და აგრეგაცია ბაზაში.
+**პრობლემა:** კოდი მუშაობს, მაგრამ ბაზას 101 მოთხოვნას უგზავნის. **თემები:** როგორ ითარგმნება LINQ SQL-ად (`ToQueryString`, logging); `Include` / `ThenInclude`; projection `Select`-ით; `AsNoTracking`; N+1 პრობლემა; `GroupBy` და აგრეგაცია ბაზაში; pagination (`Skip` / `Take`); raw SQL (`FromSql`), როცა LINQ არ კმარა.
 
 📚 დაინახავს, რა SQL იგზავნება ბაზაში
 📚 აირიდებს N+1-ს და ზედმეტ მონაცემს projection-ით
-🛠 Shop | შეკვეთის დეტალები ერთი მოთხოვნით · ანგარიშები: შემოსავალი კატეგორიით, ტოპ პროდუქტები
+📚 დაწერს ანგარიშებს, რომლებიც ბაზაში ითვლება
+🛠 ლიგა | ტურნირის ცხრილი და ბომბარდირები LINQ-ით — შედარება SQL-ის 06-ე ლექციასთან · მატჩები გვერდებად
 
 ### 07. Change Tracking და ტრანზაქციები
 
-**პრობლემა:** შეკვეთა შეინახა, მარაგი კი არ შემცირდა — ან პირიქით. **თემები:** entity-ის მდგომარეობები (`Added`, `Modified`, `Deleted`, `Unchanged`); როგორ პოულობს EF ცვლილებას; ერთი `SaveChanges` = ერთი ტრანზაქცია; ცხადი ტრანზაქცია (`BeginTransactionAsync`).
+**პრობლემა:** ტრანსფერი ჩაიწერა, მოთამაშე კი ძველ კლუბში დარჩა — ან პირიქით. **თემები:** entity-ის მდგომარეობები (`Added`, `Modified`, `Deleted`, `Unchanged`); როგორ პოულობს EF ცვლილებას; ერთი `SaveChanges` = ერთი ტრანზაქცია; ცხადი ტრანზაქცია (`BeginTransactionAsync`); `ExecuteUpdateAsync` / `ExecuteDeleteAsync` — ბევრი სტრიქონი ერთი ბრძანებით.
 
 📚 აუხსნის, როგორ ადევნებს EF თვალს ცვლილებებს
 📚 შეასრულებს რამდენიმე ცვლილებას ერთ ტრანზაქციაში
-🛠 Shop | `OrderService.PlaceOrder` — შეკვეთა + მარაგი + კალათის გასუფთავება ერთად
+🛠 ლიგა | `TransferService` — `Transfer` + `Player.ClubId` ერთად · სეზონის ბოლოს ყველა ხელშეკრულების განახლება `ExecuteUpdateAsync`-ით
 
-## Code First vs Database First (2 ლექცია)
+## შენი პროექტი ბაზაზე (3 ლექცია)
 
 ### 08. Code First vs Database First
 
-**პრობლემა:** სამსახურში ბაზა ხშირად უკვე არსებობს და მას სხვა მართავს. **თემები:** ორი მიდგომა და როდის რომელი; `Scaffold-DbContext`; რას ქმნის scaffold და რა არის მისი შეზღუდვები.
+**პრობლემა:** სამსახურში ბაზა ხშირად უკვე არსებობს და მას სხვა მართავს. **თემები:** ორი მიდგომა და როდის რომელი; `Scaffold-DbContext`; რას ქმნის scaffold და რა არის მისი შეზღუდვები; ლიგის ბაზა SQL-ის კურსიდან → scaffold.
 
 📚 გაარჩევს Code First-ს და Database First-ს
 📚 შექმნის მოდელს არსებული ბაზიდან scaffold-ით
 
-### 09. Database First პრაქტიკაში
+### 09. Database First: შენი SQL-ის ბაზა
 
-**თემები:** სხვისი ბაზა — სახელები, კავშირები, view-ები; partial კლასები; ბაზის ცვლილების შემდეგ ხელახალი scaffold.
+SQL-ის საფინალო ბაზა (შენი სფერო) → scaffold; scaffold-ის კლასები vs C#-ის პროექტის მოდელები — რა ემთხვევა, რა არა (სახელები, `Entity`, enum-ები); partial კლასები; ბაზის ცვლილების შემდეგ ხელახალი scaffold. ლექტორი იმავეს აკეთებს Shop-ის ბაზაზე.
 
 📚 იმუშავებს არსებულ ბაზასთან ისე, რომ ხელით დაწერილი კოდი არ დაიკარგოს
+📚 შეადარებს ბაზის მოდელს C#-ის პროექტის მოდელებს
+🛠 Shop | SQL-ის 08-ე ლექციის ბაზა → `DataContext` scaffold-ით
 
-## შეჯამება (1 ლექცია)
+### 10. C#-ის პროექტი EF Core-ზე
 
-### 10. Performance და შეჯამება
+**პრობლემა:** C#-ის საფინალო პროექტი ყველაფერს `database.json`-ში ინახავს — ახლა ნამდვილი ბაზა გვაქვს. **თემები:** `Database` კლასი → `DataContext`; სერვისები `List`-ის ნაცვლად `DbSet`-ით; LINQ ანგარიშები — ახლა ბაზაში; `AuthService` — მომხმარებლები ბაზიდან; ტესტები, რომლებიც კვლავ უნდა გადიოდეს; რა შეიცვალა და რა დარჩა იგივე.
 
-**თემები:** pagination (`Skip` / `Take`); raw SQL (`FromSql`, `SqlQuery`); `ExecuteUpdateAsync` / `ExecuteDeleteAsync`; split query; ტიპური შეცდომები; Shop-ისა და სტუდენტების პროექტების განხილვა.
-
-📚 გამოიყენებს pagination-ს და bulk ოპერაციებს
-📚 დაწერს raw SQL-ს იქ, სადაც LINQ არ კმარა
-🛠 Shop | პროდუქტების გვერდები · ფასდაკლება მთელ კატეგორიაზე `ExecuteUpdateAsync`-ით
+📚 გადაიყვანს არსებულ პროექტს JSON-იდან ბაზაზე
+📚 დაინახავს, რომ კარგად დაყოფილ პროექტში მხოლოდ მონაცემის ფენა იცვლება
+🛠 Shop | `Database` + `database.json` → `DataContext` · `ProductService`, `OrderService`, `AuthService` — EF Core-ით · ანგარიშები ბაზაში
