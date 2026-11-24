@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="ka"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>📖 {{TITLE}} — კონსპექტი</title>
-{{FONTS}}
+{{FONTS}}{{THEME_HEAD}}
 <style>
 :root{--bg:#fbf8f3;--card:#fff;--ink:#1e2132;--ink2:#3b3f54;--muted:#7b8096;--line:#e6dfd2;--accent:#6d28d9;--accent-soft:#f3effe;--teal:#0d9488;
   --green:#15803d;--amber:#b45309;--mono:"JetBrains Mono",ui-monospace,monospace;--sans:"Noto Sans Georgian",system-ui,sans-serif}
@@ -10,7 +10,7 @@ html{scroll-padding-top:76px}
 body{margin:0;background:var(--bg);color:var(--ink);font:17.5px/1.75 var(--sans);-webkit-font-smoothing:antialiased}
 a{color:var(--accent)}
 /* top bar */
-.top{position:sticky;top:0;z-index:10;display:flex;align-items:center;gap:14px;padding:10px 20px;background:rgba(251,248,243,.92);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.top{position:sticky;top:0;z-index:10;display:flex;align-items:center;gap:14px;padding:10px 20px;background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
 .top .back{font:600 14px var(--mono);color:var(--muted);text-decoration:none;white-space:nowrap}
 .top .back:hover{color:var(--ink)}
 .top .ttl{flex:1;min-width:0;font-weight:700;font-size:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -104,12 +104,19 @@ pre.code .ln{display:block;padding:0 16px;white-space:pre}
 }
 @media (min-width:981px){nav.toc details>summary{display:none}}
 @media print{.top,nav.toc,.copy,.chip,.live{display:none}.wrap{display:block;padding:0}.selfcheck details{display:block}.blk.cur{background:none}}
+/* მუქი თემა — დანარჩენ ფერებს build.py-ის themeify() ცვლის */
+html[data-theme=dark]{color-scheme:dark;--bg:#16181d;--card:#1e2128;--ink:#e6e2da;--ink2:#bebab1;--muted:#8a8e98;--line:#2d313b;
+  --accent:#ab9ff2;--accent-soft:#272439;--teal:#72bfb3;--green:#8fc8a1;--amber:#dfa96e}
+html[data-theme=dark] .codebox{background:#1a1d23}
+.top .themebtn{font:700 15px var(--sans);line-height:1;border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:10px;padding:6px 9px;cursor:pointer}
+{{THEME_BTN_CSS}}
 </style></head>
 <body>
 <div class="top">
   <a class="back" href="../../">← ლექციები</a>
   <div class="ttl"><small>{{COURSE}} · {{NUM}}</small>{{TITLE}}</div>
   <button class="live" id="live" type="button" title="ჩართული: ტექსტი პრეზენტაციას მიჰყვება"><span class="dot"></span><span class="lt">მიჰყვება სლაიდებს</span></button>
+  {{THEME_BTN}}
   <a class="btn play" href="index.html">▶ პრეზენტაცია</a>
 </div>
 <div class="wrap">

@@ -116,6 +116,7 @@
     else if (code === 'KeyO' || key === 'Escape') ov.classList.toggle('open', key === 'Escape' ? false : !ov.classList.contains('open'));
     else if (code === 'KeyF') { document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen?.(); }
     else if (code === 'KeyA') { k = groups[i].length; render(true); }
+    else if (code === 'KeyT' && window.toggleTheme) toggleTheme();
     else if (code === 'KeyP' && document.body.dataset.study) { e.preventDefault(); openStudy(); }
   });
   addEventListener('hashchange', () => { const oi = i, ok = k; parseHash(); if (oi !== i || ok !== k) render(true); });

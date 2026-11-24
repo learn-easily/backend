@@ -20,7 +20,7 @@
 #   <lecture-classwork/>         კლასში დავალება (classwork.md)
 #   <lecture-check/>             შევამოწმოთ — ამ ლექციის review კითხვები
 #   <lecture-homework/>          საშინაო (homework.md, ამოხსნის გარეშე)
-import base64, html, json, os, pathlib, re, shutil, sys
+import colorsys, base64, html, json, os, pathlib, re, shutil, sys
 import markdown
 from pygments.lexers import get_lexer_by_name
 from pygments.token import STANDARD_TYPES
@@ -33,7 +33,7 @@ ENGINE = ROOT / 'engine'
 # LECTURES_OUT=dist → separate output folder (Vercel); default: repo root (GitHub Pages serves main/root)
 OUT = (ROOT / os.environ['LECTURES_OUT']).resolve() if os.environ.get('LECTURES_OUT') else ROOT
 GENERATED = '.generated'   # list of folders build.py created — only these are ever deleted
-CSS = (ENGINE / 'engine.css').read_text() + '\n' + (ENGINE / 'theme-light.css').read_text()
+CSS = (ENGINE / 'engine.css').read_text() + '\n' + (ENGINE / 'theme-light.css').read_text() + '\n' + (ENGINE / 'theme-dark.css').read_text()
 JS = (ENGINE / 'engine.js').read_text()
 TOKEN_CSS = '\n'.join(l for l in (ENGINE / 'theme-light.css').read_text().split('\n') if l.startswith('.code .'))
 FONTS = ('<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>'
@@ -68,6 +68,81 @@ def write_page(path, page, encrypt=True):
     b = lambda x: base64.b64encode(x).decode()
     payload = {'s': b(salt), 'i': b(iv), 'n': PBKDF2_ITERATIONS, 'c': b(AESGCM(key).encrypt(iv, page.encode(), None))}
     path.write_text((ENGINE / 'gate.html').read_text().replace('/*PAYLOAD*/{}', json.dumps(payload)))
+
+# ---------- მუქი თემა ----------
+# გვერდები ღია ფერებითაა დაწერილი (inline style-ებიც). build-ისას ყველა ფერი, რომელსაც მუქ თემაში სხვა ფერი სჭირდება,
+# იცვლება var(--xb-HEX,#HEX)-ით (ფონი/ჩარჩო) ან var(--xc-HEX,#HEX)-ით (ტექსტი): ღია თემაში ცვლადი არ არსებობს → ზუსტად
+# იგივე ფერია; html[data-theme=dark]-ში ცვლადებს მუქი მნიშვნელობა ეძლევა. SVG-ის fill/stroke ატრიბუტებს — CSS სელექტორებით.
+THEME_HEAD = ('<script>(()=>{const d=document.documentElement,K="lectures:theme";'
+              'try{d.dataset.theme=localStorage.getItem(K)||"light"}catch(e){d.dataset.theme="light"}'
+              'window.toggleTheme=()=>{const t=d.dataset.theme==="dark"?"light":"dark";d.dataset.theme=t;try{localStorage.setItem(K,t)}catch(e){}};'
+              'document.addEventListener("click",e=>{const b=e.target.closest(".themebtn");if(b){b.blur();toggleTheme()}});'
+              'addEventListener("storage",e=>{if(e.key===K)d.dataset.theme=e.newValue||"light"})})()</script>')
+THEME_BTN = '<button class="themebtn" type="button" title="ღია / მუქი თემა (T)"><span class="l">🌙</span><span class="d">☀️</span></button>'
+THEME_BTN_CSS = ('.themebtn .d{display:none}html[data-theme=dark] .themebtn .l{display:none}html[data-theme=dark] .themebtn .d{display:inline}')
+_HEX = re.compile(r'#(?:[0-9a-fA-F]{6}|[0-9a-fA-F]{3})\b')
+_PAPER = {'#f1ece3', '#f6f1e8', '#fbf8f3', '#f4efe6', '#efe8dc', '#fffdf9', '#ebe5d8', '#e6dfd2', '#e4ddcf', '#cfc6b6', '#d6ccbb', '#d6cdbb'}   # თბილი „ქაღალდი“ — მუქში ნეიტრალური
+_TEXT_PROPS = ('color', '-webkit-text-fill-color', 'caret-color')
+
+def _rgb(h):
+    h = h.lstrip('#').lower()
+    if len(h) == 3: h = ''.join(c * 2 for c in h)
+    return tuple(int(h[i:i + 2], 16) / 255 for i in (0, 2, 4))
+
+def _hex(h, l, s):
+    return '#' + ''.join(f'{round(x * 255):02x}' for x in colorsys.hls_to_rgb(h, l, s))
+
+def dark_of(hx, kind):
+    """kind 'b' — ფონი/ჩარჩო/SVG, 'c' — ტექსტი. None → ფერი მუქ თემაშიც იგივე რჩება."""
+    h, l, s = colorsys.rgb_to_hls(*_rgb(hx))
+    neutral = s < .15 or l > .985 or hx.lower() in _PAPER
+    if kind == 'c':
+        if l > .97: return '#16181d'                       # თეთრი ტექსტი ფერად ფონზე → მუქი (ფონი პასტელი ხდება)
+        if l < .47: return _hex(h, .85, 0) if neutral else _hex(h, .8, min(s, .6))   # მუქი ტექსტი → ღია
+        return None
+    if l > .985: return '#1e2128'                          # თეთრი ბარათი
+    if l > .93: return '#1d2027' if neutral else _hex(h, .16, min(s, .3))   # ღია ფონი / ტინტი
+    if l > .8: return '#3c414d' if neutral else _hex(h, .27, min(s, .35))  # ღია ჩარჩო
+    if l > .64: return '#4a4f5c' if neutral else _hex(h, .36, min(s, .4))
+    if l > .25 and s > .3: return _hex(h, .74, min(s, .6))                   # აქცენტი → პასტელი
+    return None
+
+def _skip_block(decls):
+    # განზრახ მუქი ბლოკი (ტერმინალი, კოდის ფანჯარა) — ფერებს არ ვეხებით
+    for prop, val in decls:
+        if prop in ('background', 'background-color'):
+            for hx in _HEX.findall(val):
+                if colorsys.rgb_to_hls(*_rgb(hx))[1] < .3: return True
+    return False
+
+def _themeify_css(css, used):
+    def block(body):
+        decls = [(m.group(1).lower(), m.group(2)) for m in re.finditer(r'([a-zA-Z-]+)\s*:\s*([^;]*)', body)]
+        if _skip_block(decls): return body
+        def decl(m):
+            prop, val = m.group(1), m.group(2)
+            if prop.startswith('--'): return m.group(0)
+            kind = 'c' if prop.lower() in _TEXT_PROPS else 'b'
+            def rep(hm):
+                hx = hm.group(0).lower()
+                d = dark_of(hx, kind)
+                if not d: return hm.group(0)
+                name = f'--x{kind}-{hx[1:]}'; used[name] = d
+                return f'var({name},{hm.group(0)})'
+            return prop + ':' + _HEX.sub(rep, val)
+        return re.sub(r'(--[\w-]+|[a-zA-Z-]+)\s*:\s*([^;{}]*)', decl, body)
+    # თითო წესის შიგთავსი {…} ცალკე (selector-ებში #id-ს არ ვეხებით)
+    return re.sub(r'\{([^{}]*)\}', lambda m: '{' + block(m.group(1)) + '}', css)
+
+def themeify(page):
+    used, svg = {}, set()
+    page = re.sub(r'(<style[^>]*>)(.*?)(</style>)', lambda m: m.group(1) + _themeify_css(m.group(2), used) + m.group(3), page, flags=re.S)
+    page = re.sub(r'(\sstyle=")([^"]*)(")', lambda m: m.group(1) + _themeify_css('{' + m.group(2) + '}', used)[1:-1] + m.group(3), page)
+    for attr, hx in re.findall(r'\s(fill|stroke|stop-color)="(#[0-9a-fA-F]{3,6})"', page):
+        d = dark_of(hx, 'b')
+        if d: svg.add(f'html[data-theme=dark] svg [{attr}="{hx}"]{{{attr}:{d}}}')
+    css = 'html[data-theme=dark]{' + ';'.join(f'{k}:{v}' for k, v in sorted(used.items())) + '}\n' + '\n'.join(sorted(svg))
+    return page.replace('</head>', f'<style>{css}</style>\n</head>', 1)
 
 # ---------- code highlighting ----------
 def _short(tt):
@@ -335,7 +410,13 @@ def expand(src, meta, ldir, prev):
 HOME_CSS = '''#home{position:fixed;left:12px;top:10px;z-index:41;font:600 13px var(--mono);color:var(--muted);text-decoration:none;
 padding:6px 10px;border-radius:8px;opacity:0;transition:opacity .25s}
 #home:hover,#home:focus-visible{opacity:1;background:rgba(0,0,0,.05)}
-:fullscreen #home{display:none}'''
+:fullscreen #home{display:none}
+#themebtn{position:fixed;right:16px;top:10px;z-index:41;font:700 15px var(--font);line-height:1;color:var(--ink2);background:var(--card);border:1px solid var(--line2);
+border-radius:10px;padding:6px 9px;cursor:pointer;opacity:.55;transition:opacity .25s}
+#themebtn:hover,#themebtn:focus-visible{opacity:1}#help{right:64px}
+:fullscreen #themebtn{opacity:0}:fullscreen #themebtn:hover{opacity:1}
+html[data-theme=dark] #home:hover{background:rgba(255,255,255,.06)}
+''' + THEME_BTN_CSS
 
 def heading(sl):
     h = re.search(r'<h[12][^>]*>(.*?)</h[12]>', sl, re.S)
@@ -365,14 +446,14 @@ def build_lecture(course, cdir, ldir, meta, prev):
     has_study = any(s['html'] for s in study)
 
     out.mkdir(parents=True, exist_ok=True)
-    write_page(out / 'index.html', f'''<!doctype html>
+    write_page(out / 'index.html', themeify(f'''<!doctype html>
 <html lang="ka"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>{esc(title)}</title>
-{FONTS}
+{FONTS}{THEME_HEAD}
 <style>{CSS}
 {HOME_CSS}</style></head>
 <body{' data-study="1"' if has_study else ''}>
-<a id="home" href="../../" title="ყველა ლექცია">← ლექციები</a>
+<a id="home" href="../../" title="ყველა ლექცია">← ლექციები</a>{THEME_BTN.replace('class="themebtn"', 'id="themebtn" class="themebtn"')}
 <div id="stage"><div id="deck">
 {src}
 <div id="hud"><span class="sec"></span><span class="dots"></span><span class="num"></span></div><div id="bar"></div>
@@ -380,7 +461,7 @@ def build_lecture(course, cdir, ldir, meta, prev):
 <div id="overview"></div>
 <div id="help">← → · F</div>
 <script>{JS}</script>
-</body></html>''')
+</body></html>'''))
     for stale in ('script.html', 'study.html'):
         (out / stale).unlink(missing_ok=True)
 
@@ -423,9 +504,10 @@ def write_study(out, course, meta, num, deck_title, study, materials):
     page = (ENGINE / 'study.html').read_text()
     for k, v in {'{{TITLE}}': esc(meta['title']), '{{COURSE}}': esc(course['title']), '{{NUM}}': str(num),
                  '{{DECK_TITLE_JSON}}': json.dumps(deck_title, ensure_ascii=False), '{{TOC}}': ''.join(toc),
-                 '{{BODY}}': '\n'.join(body), '{{MATERIALS}}': mats, '{{TOKEN_CSS}}': TOKEN_CSS, '{{FONTS}}': FONTS}.items():
+                 '{{BODY}}': '\n'.join(body), '{{MATERIALS}}': mats, '{{TOKEN_CSS}}': TOKEN_CSS, '{{FONTS}}': FONTS,
+                 '{{THEME_HEAD}}': THEME_HEAD, '{{THEME_BTN}}': THEME_BTN, '{{THEME_BTN_CSS}}': THEME_BTN_CSS}.items():
         page = page.replace(k, v)
-    write_page(out / 'study.html', page, encrypt=False)
+    write_page(out / 'study.html', themeify(page), encrypt=False)
 
 # ---------- everything ----------
 
