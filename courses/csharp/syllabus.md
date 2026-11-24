@@ -127,7 +127,7 @@
 📚 მიანიჭებს ობიექტს `Guid` id-ს
 📚 იმუშავებს თარიღთან: შექმნის, შეადარებს, დათვლის სხვაობას
 📚 დააგეგმავს მოდელებს კოდის დაწერამდე და დაალაგებს პროექტს საქაღალდეებად
-🛠 Shop | მოდელების სქემა: `Product`, `Customer`, `Order` → `OrderLine`, `User` · საქაღალდეები `Models` / `Enums` / `Services` / `Data` / `Exceptions`
+🛠 Shop | მოდელების სქემა: `Product`, `Customer`, `Order` → `OrderItem`, `User` · საქაღალდეები `Models` / `Enums` / `Services` / `Data` / `Exceptions`
 🛠 `Product` (`Guid Id`), `Category` (enum), `OrderStatus` (enum)
 🛠 `ShopSettings.TaxRate` (static) · `Order.CreatedAt` (`DateTime`)
 🛠 მენიუ: პროდუქტების ნახვა და დამატება
@@ -209,7 +209,7 @@ LINQ ყოველდღიური ინსტრუმენტია (EF 
 📚 გამოიყენებს `record`-ს მონაცემის მატარებელი ტიპისთვის და გაიგებს value equality-ს
 📚 დაწერს წესებს pattern matching-ით
 📚 დაიცავს კოდს `null`-ისგან კომპილატორის დახმარებით
-🛠 Shop | `record OrderLine` · ფასდაკლების წესები switch expression-ით · nullable-ის გაფრთხილებები გასწორებულია
+🛠 Shop | `record OrderItem` · ფასდაკლების წესები switch expression-ით · nullable-ის გაფრთხილებები გასწორებულია
 
 ### 24. ფაილები და JSON
 
@@ -225,20 +225,20 @@ LINQ ყოველდღიური ინსტრუმენტია (EF 
 
 ### 25. async / await
 
-**პრობლემა:** ფაილის წაკითხვა ან სერვერიდან კურსის წამოღება პროგრამას „ყინავს“. **თემები:** synchronous vs asynchronous; `Task` და `Task<T>`; `async` / `await`; async ფაილები; `HttpClient`; `Task.WhenAll`; ტიპური შეცდომები (`.Result`, `async void`). thread და ThreadPool — მხოლოდ ნახსენები. **ელფოსტა:** შეკვეთის შემდეგ მეილი `SmtpClient.SendMailAsync`-ით — კოდს ვაკოპირებთ, ვხსნით რატომ და როდის (app password, პარამეტრები კოდის გარეთ). **საშინაო:** [HW-25](materials/project.html#hw-25) — იგივე შენს პროექტში.
+**პრობლემა:** ფაილის წაკითხვა ან სერვერიდან კურსის წამოღება პროგრამას „ყინავს“. **თემები:** synchronous vs asynchronous; `Task` და `Task<T>`; `async` / `await`; async ფაილები; `HttpClient`; `Task.WhenAll`; ტიპური შეცდომები (`.Result`, `async void`). thread და ThreadPool — მხოლოდ ნახსენები. **ელფოსტა და პირველი NuGet package:** რა არის NuGet და როგორ ვაყენებთ package-ს; შეკვეთის შემდეგ მეილი **MailKit**-ით (უფასო, MIT) — კოდს ვაკოპირებთ, ვხსნით რატომ და როდის (app password, პარამეტრები კოდის გარეთ). **საშინაო:** [HW-25](materials/project.html#hw-25) — იგივე შენს პროექტში.
 
 📚 აუხსნის, რატომ არ უნდა დაელოდოს პროგრამა I/O-ს უქმად
 📚 დაწერს async მეთოდს და გამოიძახებს `await`-ით
 📚 გაუშვებს რამდენიმე ოპერაციას პარალელურად `Task.WhenAll`-ით
+📚 დააყენებს NuGet package-ს
 🛠 Shop | async შენახვა / ჩატვირთვა · ვალუტის კურსის წამოღება ეროვნული ბანკის API-დან (`HttpClient`) · ფასი ლარში და დოლარში
-🛠 შეკვეთის დადასტურება მეილზე (`EmailService` — SMTP)
+🛠 შეკვეთის დადასტურება მეილზე (`EmailService` — MailKit)
 
 ### 26. Solution და Unit Testing
 
-**პრობლემა:** ყოველი ცვლილების შემდეგ ხელით ვამოწმებთ, რომ ფასდაკლება და მარაგი ისევ სწორად მუშაობს. ტესტი ცალკე პროექტია — ამიტომ ჯერ solution-ს ვყოფთ. **თემები:** solution და რამდენიმე პროექტი; class library; project reference; `internal` vs `public` — რატომ „ქრება“ კლასი სხვა პროექტიდან; NuGet package (xUnit); რა არის unit ტესტი; Arrange–Act–Assert; `[Fact]`, `[Theory]`; exception-ის ტესტი; Test Explorer. **საშინაო:** [HW-26](materials/project.html#hw-26) — იგივე შენს პროექტში.
+**პრობლემა:** ყოველი ცვლილების შემდეგ ხელით ვამოწმებთ, რომ ფასდაკლება და მარაგი ისევ სწორად მუშაობს. ტესტი ცალკე პროექტია — ამიტომ ჯერ solution-ს ვყოფთ. **თემები:** solution და რამდენიმე პროექტი; class library; project reference; `internal` vs `public` — რატომ „ქრება“ კლასი სხვა პროექტიდან; xUnit — NuGet-ით (უკვე ნაცნობი 25-დან); რა არის unit ტესტი; Arrange–Act–Assert; `[Fact]`, `[Theory]`; exception-ის ტესტი; Test Explorer. **საშინაო:** [HW-26](materials/project.html#hw-26) — იგივე შენს პროექტში.
 
 📚 დაყოფს solution-ს პროექტებად და დააკავშირებს reference-ით
-📚 დააყენებს NuGet package-ს
 📚 დაწერს unit ტესტს xUnit-ით და შეამოწმებს წესებს და exception-ებს
 🛠 Shop | `Shop.Core` (class library: domain + ლოგიკა) · `Shop.Console` (მენიუ) · `Shop.Tests` (xUnit)
 🛠 ტესტები: კალათის ჯამი, ფასდაკლება, მარაგის შემცირება, `OutOfStockException`

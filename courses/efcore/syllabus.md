@@ -48,11 +48,11 @@
 
 📚 ააწყობს 1–N და 1–1 კავშირს
 📚 ჩატვირთავს დაკავშირებულ მონაცემს `Include`-ით
-🛠 Shop | `Category` ↔ `Products` · `Customer` ↔ `Address` · `Customer` → `Orders`
+🛠 Shop | `Category` ↔ `Products` · `Customer` ↔ `User` (1–1 — ავტორიზაცია C#-იდან, ახლა ბაზაში) · `Customer` ↔ `Address` · `Customer` → `Orders`
 
 ### 05. ურთიერთობები II: N–N და კონფიგურაცია
 
-**თემები:** N–N — ავტომატური და საკუთარი შუალედური entity (`OrderItem` თავისი ფასით და რაოდენობით); კონფიგურაცია attribute-ებით vs Fluent API (`OnModelCreating`, `IEntityTypeConfiguration`); ინდექსი, unique, max length, precision.
+**თემები:** N–N — ავტომატური და საკუთარი შუალედური entity (`OrderItem` თავისი ფასით და რაოდენობით); კონფიგურაცია attribute-ებით vs Fluent API (`OnModelCreating`, `IEntityTypeConfiguration`); ინდექსი, unique (`User.Email`), max length, precision; enum ბაზაში — `HasConversion<string>()` (`Role`, `OrderStatus`).
 
 📚 ააწყობს N–N კავშირს შუალედური entity-ით
 📚 გაარჩევს attribute-ებს და Fluent API-ს და შეარჩევს სწორს

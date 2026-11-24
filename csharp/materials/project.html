@@ -153,7 +153,7 @@ html[data-theme=dark] .ck:checked::after{color:#16181d}
   <h1>საფინალო პროექტი</h1>
   <p class="lead">ლექტორი კლასში <b>Shop</b>-ს აწყობს, შენ — იმავე დროს <b>შენს</b> პროექტს. ყოველი ლექციის შემდეგ სახლში იმავეს ამატებ შენს სფეროში, 28-ზე კი წარადგენ.</p>
   <div class="steps">
-    <div class="step"><span class="n">1 · ლექცია 14</span><b>აირჩიე სფერო</b><small>8-დან ერთი ან შენი იდეა</small></div>
+    <div class="step"><span class="n">1 · ლექცია 14</span><b>აირჩიე სფერო</b><small>7-დან ერთი ან შენი იდეა</small></div>
     <div class="step"><span class="n">2 · კლასში</span><b>Shop ლექტორთან</b><small>პრობლემა → ახსნა → კოდი</small></div>
     <div class="step"><span class="n">3 · სახლში</span><b>HW შენს პროექტში</b><small>ყოველი ლექციის შემდეგ</small></div>
     <div class="step"><span class="n">4 · ლექცია 28</span><b>წარდგენა</b><small>დემო, კოდი, კითხვები</small></div>
@@ -208,7 +208,7 @@ const DOMAINS = [
   catalog:{ka:"პროდუქტი",code:"Product",fields:"Name, Price, Stock, Category"},
   cat:{code:"Category",values:"Electronics, Books, Clothing, Food"},
   person:{ka:"მყიდველი",code:"Customer"},
-  order:{ka:"შეკვეთა",code:"Order"}, line:{ka:"შეკვეთის ხაზი",code:"OrderLine",fields:"ProductId, Quantity, UnitPrice"},
+  order:{ka:"შეკვეთა",code:"Order"}, line:{ka:"შეკვეთის ხაზი",code:"OrderItem",fields:"ProductId, Quantity, UnitPrice"},
   status:{code:"OrderStatus",values:"Pending, Paid, Shipped, Cancelled"},
   settings:"ShopSettings.TaxRate = 0.18m",
   date:"Order.CreatedAt — შეკვეთის დრო; „ბოლო 7 დღის შეკვეთები“",
@@ -217,7 +217,7 @@ const DOMAINS = [
   rule:"ფასდაკლება: 3+ ერთეულზე −10%, 200 ₾-ზე მეტ შეკვეთაზე −5%",
   ext:"products.InStock()",
   reports:["შემოსავალი კატეგორიით","ტოპ-5 გაყიდვადი პროდუქტი","საუკეთესო მყიდველი","თვის შემოსავალი","მარაგი, რომელიც იწურება (< 5)"],
-  record:"record OrderLine(Guid ProductId, int Quantity, decimal UnitPrice)",
+  record:"record OrderItem(Guid ProductId, int Quantity, decimal UnitPrice)",
   doc:"ჩეკი — receipts/<id>.txt",
   email:"შეკვეთა გაფორმდა → მყიდველს დადასტურების მეილი",
   api:"ვალუტის კურსი (ეროვნული ბანკი) — ფასი ლარში და დოლარში",
@@ -441,7 +441,7 @@ const LECTURES = [
   `${esc(d.doc)} — ${c("StringBuilder")}-ით`]],
  ["HW-25","25","async · ელფოსტა · გარე API","hw", d => [
   `ჩატვირთვა / შენახვა ${c("async")}-ით`,
-  `${c("Services/EmailService")} (SMTP, ლექციიდან): ${esc(d.email)}`,
+  `${c("Services/EmailService")} (MailKit — NuGet-ით, ლექციიდან): ${esc(d.email)}`,
   `პაროლი / app password — კოდის გარეთ, ცალკე პარამეტრების ფაილში (Git-ის გამოყენებისას — .gitignore-ში)`,
   `გარე API ${c("HttpClient")}-ით: ${esc(d.api)}`]],
  ["HW-26","26","Solution და Unit Testing","hw", d => [
@@ -464,7 +464,7 @@ const REQS = [
   ["დელეგატები და LINQ", "ფილტრი <code>Func</code>-ით; 5+ ანგარიში LINQ-ით (მათ შორის <code>GroupBy</code>)"],
   ["თარიღები", "<code>DateTime</code> / <code>TimeSpan</code> — ვადა, ხანგრძლივობა, შედარება"],
   ["JSON და async", "ყველა მონაცემი JSON-ში, ჩატვირთვა და შენახვა <code>async</code>-ით"],
-  ["ელფოსტა", "1+ მეილი SMTP-ით; პაროლი კოდში არ წერია"],
+  ["ელფოსტა", "1+ მეილი MailKit-ით; პაროლი კოდში არ წერია"],
   ["ტესტები", "8+ unit ტესტი — წესები და exception-ები"],
   ["ჩაბარება", "პროექტი — GitHub რეპოთი (სასურველია) ან საქაღალდე / zip-ით; ეშვება Visual Studio-ში დამატებითი ნაბიჯების გარეშე"]
 ];
