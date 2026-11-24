@@ -662,6 +662,8 @@ def main(filters):
         if not (cdir / 'course.json').exists():
             continue
         course = json.loads((cdir / 'course.json').read_text())
+        if (cdir / 'materials').is_dir():   # კურსის საერთო გვერდები (მაგ. საფინალო პროექტი) — ღია, კოდის გარეშე
+            shutil.copytree(cdir / 'materials', OUT / cdir.name / 'materials', dirs_exist_ok=True)
         lectures, prev = [], None
         for ldir in sorted(p for p in cdir.iterdir() if (p / 'deck.html').exists()):
             meta = json.loads((ldir / 'lecture.json').read_text())

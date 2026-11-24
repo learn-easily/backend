@@ -1,0 +1,214 @@
+<!doctype html>
+<html lang="ka">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>📋 საფინალო პროექტი — C#</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Georgian:wght@400;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<script>(()=>{const d=document.documentElement,K="lectures:theme";try{d.dataset.theme=localStorage.getItem(K)||"light"}catch(e){d.dataset.theme="light"}window.toggleTheme=()=>{const t=d.dataset.theme==="dark"?"light":"dark";d.dataset.theme=t;try{localStorage.setItem(K,t)}catch(e){}};document.addEventListener("click",e=>{const b=e.target.closest(".themebtn");if(b){b.blur();toggleTheme()}});addEventListener("storage",e=>{if(e.key===K)d.dataset.theme=e.newValue||"light"})})()</script>
+<style>
+:root{--bg:#f4f1ea;--card:#fff;--ink:#1e2132;--ink2:#3b3f54;--muted:#7b8096;--line:#e4ddcf;--line2:#d6cdbb;--soft:#f1ece3;
+  --accent:#6d28d9;--accent-soft:#f3effe;--green:#15803d;--green-soft:#f0fdf4;--amber:#b45309;--amber-soft:#fffbeb;
+  --mono:"JetBrains Mono",ui-monospace,monospace;--sans:"Noto Sans Georgian",system-ui,sans-serif}
+html[data-theme=dark]{color-scheme:dark;--bg:#16181d;--card:#1e2128;--ink:#e6e2da;--ink2:#bebab1;--muted:#8a8e98;--line:#2d313b;--line2:#3c414d;--soft:#252932;
+  --accent:#ab9ff2;--accent-soft:#272439;--green:#8fc8a1;--green-soft:#1d2a23;--amber:#dfa96e;--amber-soft:#2b2720}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16.5px/1.7 var(--sans);-webkit-font-smoothing:antialiased}
+.top{position:sticky;top:0;z-index:5;display:flex;align-items:center;gap:12px;padding:10px 20px;background:color-mix(in srgb,var(--bg) 94%,transparent);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.top .ttl{flex:1;font-weight:700;font-size:15px}
+.top nav{display:flex;gap:6px;flex-wrap:wrap}
+.top nav a{font:600 13px var(--sans);color:var(--ink2);text-decoration:none;border:1px solid var(--line2);border-radius:999px;padding:3px 11px;background:var(--card)}
+.top nav a:hover{border-color:var(--accent);color:var(--accent)}
+.themebtn{font:700 14px var(--sans);line-height:1.25;border:1px solid var(--line2);background:var(--card);color:var(--ink);border-radius:10px;padding:5px 9px;cursor:pointer}
+.themebtn .d{display:none}html[data-theme=dark] .themebtn .l{display:none}html[data-theme=dark] .themebtn .d{display:inline}
+main{max-width:960px;margin:0 auto;padding:28px 20px 120px}
+.k{font:600 14px var(--mono);color:var(--accent)}
+h1{font-size:34px;line-height:1.2;margin:6px 0 10px}
+h2{font-size:24px;margin:46px 0 12px;padding-top:14px;border-top:4px solid var(--accent);scroll-margin-top:70px}
+h3{font-size:18px;margin:0 0 4px}
+.lead{font-size:18px;color:var(--ink2);margin:0 0 6px}
+code{font:600 .86em var(--mono);background:var(--soft);border-radius:6px;padding:1px 6px;color:var(--accent)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px 20px;margin:12px 0}
+.flow{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
+.flow .card{margin:0}
+.flow .n{font:800 13px var(--mono);color:var(--accent)}
+.doms{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px}
+details.dom{background:var(--card);border:1px solid var(--line);border-top:5px solid var(--a);border-radius:14px;padding:14px 18px}
+details.dom[open]{grid-column:1/-1}
+details.dom summary{cursor:pointer;list-style:none;display:flex;gap:12px;align-items:center}
+details.dom summary::-webkit-details-marker{display:none}
+details.dom .e{font-size:34px;line-height:1}
+details.dom .s{font-size:14.5px;color:var(--ink2)}
+.map{width:100%;border-collapse:collapse;margin:12px 0 4px;font-size:15px}
+.map th,.map td{border:1px solid var(--line);padding:6px 10px;text-align:left;vertical-align:top}
+.map th{background:var(--soft);font-size:13.5px}
+.req li{margin:5px 0}
+.tasks{border-collapse:collapse;width:100%;font-size:15px}
+.tasks th,.tasks td{border:1px solid var(--line);padding:8px 10px;text-align:left;vertical-align:top}
+.tasks th{background:var(--soft)}
+.tasks td:first-child{font:700 14px var(--mono);color:var(--accent);white-space:nowrap}
+.tasks tr.test td{background:var(--amber-soft);color:var(--amber);font-weight:700}
+.note{background:var(--amber-soft);border:1px solid color-mix(in srgb,var(--amber) 35%,transparent);border-radius:12px;padding:12px 16px}
+.ok{background:var(--green-soft);border:1px solid color-mix(in srgb,var(--green) 35%,transparent);border-radius:12px;padding:12px 16px}
+.score{display:grid;grid-template-columns:1fr auto;gap:4px 16px;max-width:560px}
+.score b{font-family:var(--mono);text-align:right}
+@media print{.top{display:none}body{background:#fff}details.dom{break-inside:avoid}}
+</style>
+</head>
+<body>
+<div class="top">
+  <div class="ttl">📋 C# · საფინალო პროექტი</div>
+  <nav><a href="#how">როგორ</a><a href="#domains">სფეროები</a><a href="#req">მოთხოვნები</a><a href="#tasks">დავალებები</a><a href="#defense">წარდგენა</a></nav>
+  <button class="themebtn" type="button" title="ღია / მუქი თემა"><span class="l">🌙</span><span class="d">☀️</span></button>
+</div>
+<main>
+<div class="k">C# · ლექციები 14–28</div>
+<h1>საფინალო პროექტი</h1>
+<p class="lead">ლექტორი კლასში <b>Shop</b>-ს (ონლაინ მაღაზია) აწყობს. შენ იმავე დროს იწყებ <b>შენს</b> პროექტს და ყოველი ლექციის შემდეგ სახლში იმავეს ამატებ შენს სფეროში. 28-ე ლექციაზე წარადგენ იმას, რაც 14-იდან ააწყე — ცალკე „საფინალოს წერა“ ბოლოს აღარ გჭირდება.</p>
+
+<h2 id="how">როგორ მუშაობს</h2>
+<div class="flow">
+  <div class="card"><div class="n">1 · ლექცია 14</div><h3>აირჩიე სფერო</h3>ქვემოთ მოცემულიდან ერთი (ან შენი — ლექტორთან შეთანხმებით). შექმენი კონსოლის პროექტი და GitHub რეპო.</div>
+  <div class="card"><div class="n">2 · კლასში</div><h3>ლექტორთან ერთად</h3>ახალი თემა Shop-ზე: პრობლემა → ახსნა → კოდი. საკლასო დავალებაც Shop-ს ან შენს პროექტს ეხება.</div>
+  <div class="card"><div class="n">3 · სახლში</div><h3>შენს პროექტში</h3>იგივე თემა შენს სფეროში — „დავალებების ჩამონათვალი“ ქვემოთ. ყოველი ლექციის შემდეგ ერთი commit მაინც.</div>
+  <div class="card"><div class="n">4 · ლექცია 28</div><h3>წარდგენა</h3>დემო, კოდი, ტესტები და კითხვები. შეფასება — ქვემოთ.</div>
+</div>
+<p class="note">⚠️ საშინაო დავალება = შენი პროექტის შემდეგი ნაბიჯი. თუ ერთ კვირას გამოტოვებ, მომდევნო ლექციის თემა უკვე იმას ეყრდნობა, რაც გამოტოვე — ჩამორჩენა ბოლოს ძალიან რთულად ივსება.</p>
+<p>პროექტი C#-ით არ მთავრდება: <b>SQL</b>-ის კურსზე შენი სფეროსთვის ბაზას დააპროექტებ, <b>EF Core</b>-ზე კი იგივე კონსოლის აპი ამ ბაზას მიუერთდება.</p>
+
+<h2 id="domains">სფეროები</h2>
+<p>ყველა სფერო Shop-ის ფორმისაა: <b>კატალოგი</b> (რასაც ყიდი / გასცემ), <b>კლიენტი</b>, <b>„შეკვეთა“</b> სტატუსით და თარიღით, <b>შეზღუდვა</b> (მარაგი, ადგილი, ვადა) და <b>წესები</b> (ფასდაკლება, ჯარიმა). დააჭირე სფეროს — ნახავ, Shop-ის რა რას შეესაბამება.</p>
+<div class="doms">
+
+<details class="dom" style="--a:#2563eb"><summary><span class="e">📚</span><div><h3>ბიბლიოთეკა</h3><div class="s">წიგნები, მკითხველები, გატანა და დაბრუნება, ვადაგადაცილება</div></div></summary>
+<table class="map"><tr><th>Shop-ში</th><th>შენთან</th></tr>
+<tr><td>Product</td><td><code>Book</code> (სათაური, ავტორი, წელი, ეგზემპლარების რაოდენობა)</td></tr>
+<tr><td>Category (enum)</td><td><code>Genre</code></td></tr>
+<tr><td>Customer</td><td><code>Reader</code></td></tr>
+<tr><td>Order + OrderStatus</td><td><code>Loan</code> — <code>Active</code> / <code>Returned</code> / <code>Overdue</code></td></tr>
+<tr><td>მარაგი / OutOfStock</td><td>თავისუფალი ეგზემპლარი არ არის → <code>NoCopiesLeftException</code></td></tr>
+<tr><td>ფასდაკლება</td><td>ჯარიმა ვადაგადაცილების დღეებით (<code>DateTime</code>, <code>TimeSpan</code>)</td></tr>
+<tr><td>ანგარიშები (LINQ)</td><td>პოპულარული წიგნები, მკითხველები ვადაგადაცილებით, ჟანრების სტატისტიკა</td></tr></table>
+</details>
+
+<details class="dom" style="--a:#db2777"><summary><span class="e">🎬</span><div><h3>კინოთეატრი</h3><div class="s">ფილმები, სეანსები, დარბაზი, ბილეთები</div></div></summary>
+<table class="map"><tr><th>Shop-ში</th><th>შენთან</th></tr>
+<tr><td>Product</td><td><code>Movie</code> და <code>Session</code> (ფილმი + დრო + დარბაზი + ფასი)</td></tr>
+<tr><td>Category (enum)</td><td><code>Genre</code>, <code>AgeRating</code></td></tr>
+<tr><td>Customer</td><td><code>Viewer</code></td></tr>
+<tr><td>Order + OrderStatus</td><td><code>Ticket</code> — <code>Reserved</code> / <code>Paid</code> / <code>Cancelled</code></td></tr>
+<tr><td>მარაგი / OutOfStock</td><td>ადგილი დაკავებულია / დარბაზი სავსეა → <code>SeatTakenException</code></td></tr>
+<tr><td>ფასდაკლება</td><td>დილის სეანსი, სტუდენტური, ოჯახური ბილეთი</td></tr>
+<tr><td>ანგარიშები (LINQ)</td><td>ყველაზე ნანახი ფილმი, შემოსავალი დღეების მიხედვით, დარბაზის დატვირთვა</td></tr></table>
+</details>
+
+<details class="dom" style="--a:#16a34a"><summary><span class="e">🏋️</span><div><h3>სპორტდარბაზი</h3><div class="s">აბონემენტები, წევრები, ვარჯიშები, ვიზიტები</div></div></summary>
+<table class="map"><tr><th>Shop-ში</th><th>შენთან</th></tr>
+<tr><td>Product</td><td><code>MembershipPlan</code> (თვე, 3 თვე, წელი) და <code>Workout</code> (ჯგუფური ვარჯიში)</td></tr>
+<tr><td>Category (enum)</td><td><code>WorkoutType</code></td></tr>
+<tr><td>Customer</td><td><code>Member</code></td></tr>
+<tr><td>Order + OrderStatus</td><td><code>Membership</code> — <code>Active</code> / <code>Frozen</code> / <code>Expired</code></td></tr>
+<tr><td>მარაგი / OutOfStock</td><td>ჯგუფი სავსეა / აბონემენტი ვადაგასულია → <code>MembershipExpiredException</code></td></tr>
+<tr><td>ფასდაკლება</td><td>წლიური აბონემენტი, მეგობრის მოყვანა</td></tr>
+<tr><td>ანგარიშები (LINQ)</td><td>აქტიური წევრები, პოპულარული ვარჯიშები, ვისაც კვირაში ვადა გასდის</td></tr></table>
+</details>
+
+<details class="dom" style="--a:#d97706"><summary><span class="e">🚗</span><div><h3>მანქანების გაქირავება</h3><div class="s">ავტომობილები, კლიენტები, ქირა თარიღებით</div></div></summary>
+<table class="map"><tr><th>Shop-ში</th><th>შენთან</th></tr>
+<tr><td>Product</td><td><code>Car</code> (მარკა, მოდელი, ფასი დღეზე)</td></tr>
+<tr><td>Category (enum)</td><td><code>CarClass</code> (Economy, SUV, Premium), <code>FuelType</code></td></tr>
+<tr><td>Customer</td><td><code>Client</code> (მართვის მოწმობით)</td></tr>
+<tr><td>Order + OrderStatus</td><td><code>Rental</code> — <code>Booked</code> / <code>Active</code> / <code>Returned</code></td></tr>
+<tr><td>მარაგი / OutOfStock</td><td>მანქანა ამ თარიღებში დაკავებულია → <code>CarNotAvailableException</code></td></tr>
+<tr><td>ფასდაკლება</td><td>კვირაზე მეტი — ფასდაკლება; დაგვიანებით დაბრუნება — ჯარიმა</td></tr>
+<tr><td>ანგარიშები (LINQ)</td><td>ყველაზე მომგებიანი მანქანა, თავისუფალი მანქანები თარიღზე, შემოსავალი კლასებით</td></tr></table>
+</details>
+
+<details class="dom" style="--a:#0d9488"><summary><span class="e">💊</span><div><h3>აფთიაქი</h3><div class="s">მედიკამენტები, მარაგი, ვარგისიანობის ვადა, გაყიდვა</div></div></summary>
+<table class="map"><tr><th>Shop-ში</th><th>შენთან</th></tr>
+<tr><td>Product</td><td><code>Medicine</code> (სახელი, ფასი, მარაგი, ვარგისიანობის ვადა)</td></tr>
+<tr><td>Category (enum)</td><td><code>MedicineType</code>; <code>RequiresPrescription</code></td></tr>
+<tr><td>Customer</td><td><code>Customer</code></td></tr>
+<tr><td>Order + OrderStatus</td><td><code>Sale</code> — <code>Completed</code> / <code>Returned</code></td></tr>
+<tr><td>მარაგი / OutOfStock</td><td>არ არის მარაგში / ვადაგასულია / რეცეპტი სჭირდება → შესაბამისი exception</td></tr>
+<tr><td>ფასდაკლება</td><td>პენსიონერის ბარათი, ვადის ახლოს მყოფ მედიკამენტზე ფასდაკლება</td></tr>
+<tr><td>ანგარიშები (LINQ)</td><td>ვადაგასასვლელი მარაგი, ყველაზე გაყიდვადი, რისი შეკვეთაა საჭირო</td></tr></table>
+</details>
+
+<details class="dom" style="--a:#7c3aed"><summary><span class="e">🏨</span><div><h3>სასტუმრო</h3><div class="s">ოთახები, სტუმრები, ჯავშნები თარიღებით</div></div></summary>
+<table class="map"><tr><th>Shop-ში</th><th>შენთან</th></tr>
+<tr><td>Product</td><td><code>Room</code> (ნომერი, ფასი ღამეზე, ტევადობა)</td></tr>
+<tr><td>Category (enum)</td><td><code>RoomType</code> (Single, Double, Suite)</td></tr>
+<tr><td>Customer</td><td><code>Guest</code></td></tr>
+<tr><td>Order + OrderStatus</td><td><code>Booking</code> — <code>Pending</code> / <code>Confirmed</code> / <code>CheckedIn</code> / <code>Cancelled</code></td></tr>
+<tr><td>მარაგი / OutOfStock</td><td>ოთახი ამ თარიღებში დაკავებულია (თარიღების გადაფარვა) → <code>RoomNotAvailableException</code></td></tr>
+<tr><td>ფასდაკლება</td><td>სეზონური ფასი, 7+ ღამე, ადრეული ჯავშანი</td></tr>
+<tr><td>ანგარიშები (LINQ)</td><td>დატვირთვა თვეების მიხედვით, თავისუფალი ოთახები თარიღზე, შემოსავალი ტიპებით</td></tr></table>
+</details>
+
+<details class="dom" style="--a:#dc2626"><summary><span class="e">🎫</span><div><h3>ღონისძიებები და ბილეთები</h3><div class="s">კონცერტები, მატჩები, ადგილები, ბილეთის კატეგორიები</div></div></summary>
+<table class="map"><tr><th>Shop-ში</th><th>შენთან</th></tr>
+<tr><td>Product</td><td><code>Event</code> (სახელი, თარიღი, ადგილი, ტევადობა)</td></tr>
+<tr><td>Category (enum)</td><td><code>EventType</code>, <code>TicketTier</code> (Standard, VIP)</td></tr>
+<tr><td>Customer</td><td><code>Attendee</code></td></tr>
+<tr><td>Order + OrderStatus</td><td><code>Ticket</code> — <code>Reserved</code> / <code>Paid</code> / <code>Used</code> / <code>Refunded</code></td></tr>
+<tr><td>მარაგი / OutOfStock</td><td>ბილეთები გაიყიდა / ღონისძიება უკვე ჩატარდა → exception</td></tr>
+<tr><td>ფასდაკლება</td><td>ადრეული ყიდვა, ჯგუფური ბილეთი</td></tr>
+<tr><td>ანგარიშები (LINQ)</td><td>გაყიდვები ღონისძიებით, მომავალი კვირის ღონისძიებები, VIP-ის წილი</td></tr></table>
+</details>
+
+</div>
+<p class="ok">💡 საკუთარი იდეა? შეიძლება — თუ მას აქვს კატალოგი, კლიენტი, „შეკვეთა“ სტატუსით და თარიღით, შეზღუდვა და მინიმუმ ერთი წესი (ფასდაკლება / ჯარიმა). ლექცია 14-ზე შეუთანხმე ლექტორს.</p>
+
+<h2 id="req">მოთხოვნები — რა უნდა ჰქონდეს წარდგენისას</h2>
+<div class="card"><ul class="req">
+<li><b>მოდელი:</b> მინიმუმ 4 კლასი (კატალოგი, კლიენტი, „შეკვეთა“, მისი ხაზი), 2 <code>enum</code>, ყველა ობიექტს <code>Guid</code> id; ერთი <code>record</code></li>
+<li><b>ინკაფსულაცია:</b> მონაცემი <code>private set</code>-ით, ცვლილება მხოლოდ მეთოდებით; წესები კონსტრუქტორსა და მეთოდებში</li>
+<li><b>შეცდომები:</b> მინიმუმ 2 საკუთარი exception; მენიუ არასწორ შეყვანაზე არ ვარდება</li>
+<li><b>კოლექციები:</b> <code>List</code> და <code>Dictionary</code> (ძებნა id-ით); ერთი საკუთარი generic კლასი ან მეთოდი</li>
+<li><b>დელეგატები და LINQ:</b> ფილტრი <code>Func</code>-ით; მინიმუმ 5 ანგარიში LINQ-ით (მათ შორის <code>GroupBy</code>)</li>
+<li><b>თარიღები:</b> <code>DateTime</code> / <code>TimeSpan</code> — ვადა, ხანგრძლივობა ან თარიღების შედარება</li>
+<li><b>შენახვა:</b> მონაცემი JSON ფაილებში, ჩატვირთვა და შენახვა <code>async</code>-ით</li>
+<li><b>სტრუქტურა:</b> solution — <code>Core</code> (class library), <code>Console</code> (მენიუ), <code>Tests</code> (xUnit)</li>
+<li><b>ტესტები:</b> მინიმუმ 8 unit ტესტი — წესები და exception-ები</li>
+<li><b>Git:</b> GitHub რეპო; მინიმუმ ერთი commit ყოველი ლექციის შემდეგ (ისტორია აჩვენებს, რომ პროექტი ეტაპობრივად აიწყო)</li>
+</ul></div>
+
+<h2 id="tasks">დავალებების ჩამონათვალი</h2>
+<p>ყოველი ლექციის შემდეგ — საშინაოდ შენს პროექტში. მარცხნივ — რა გავაკეთეთ კლასში Shop-ზე, მარჯვნივ — რა ამატებ შენ.</p>
+<table class="tasks">
+<tr><th>#</th><th>კლასში — Shop</th><th>სახლში — შენი პროექტი</th></tr>
+<tr><td>14</td><td><code>Product</code> (<code>Guid</code>), <code>Category</code> / <code>OrderStatus</code> enum, <code>ShopSettings</code> (static), <code>Order.CreatedAt</code>, მენიუ</td><td>აირჩიე სფერო, შექმენი პროექტი და რეპო. კატალოგის კლასი <code>Guid</code> id-ით, 2 enum, ერთი static კლასი პარამეტრებით, თარიღი „შეკვეთაში“. მენიუ: სიის ნახვა და დამატება</td></tr>
+<tr><td>15</td><td><code>OutOfStockException</code>, <code>InvalidQuantityException</code>, მენიუ არ ვარდება</td><td>2 საკუთარი exception შენი სფეროს წესებზე; ყველა შეყვანა <code>TryParse</code> / <code>try-catch</code>-ით</td></tr>
+<tr><td>16</td><td><code>ProductList</code> → <code>MyList&lt;T&gt;</code>, <code>where T : IEntity</code></td><td><code>IEntity</code> ინტერფეისი და <code>MyList&lt;T&gt;</code> (ან საკუთარი generic კლასი); მასივები ჩაანაცვლე მისით</td></tr>
+<tr><td>17</td><td><code>List</code>, <code>Dictionary&lt;Guid, Product&gt;</code>, <code>Cart</code>, <code>HashSet</code>, <code>Queue</code></td><td><code>MyList</code> → <code>List</code>; ძებნა id-ით <code>Dictionary</code>-ით; „შეკვეთის“ ხაზები (კალათა / ჯავშნის პოზიციები)</td></tr>
+<tr><td>18</td><td><code>Filter(Func&lt;Product, bool&gt;)</code>, ფასდაკლების წესები <code>Func</code>-ით</td><td>ფილტრი <code>Func</code>-ით (მინიმუმ 3 სხვადასხვა წესი lambda-თ); შენი ფასდაკლება / ჯარიმა <code>Func</code>-ით</td></tr>
+<tr><td>19</td><td>ფილტრი, დალაგება, ჯამები LINQ-ით</td><td>ციკლებით დაწერილი ძებნა / დალაგება / დათვლა → LINQ</td></tr>
+<tr><td>20</td><td><code>GroupBy</code> ანგარიშები, გვერდები, extension-ები</td><td>2 ანგარიში <code>GroupBy</code>-ით; სია გვერდებად (<code>Skip</code> / <code>Take</code>); 1 საკუთარი extension method</td></tr>
+<tr><td>21</td><td>ბიზნეს-კითხვები → LINQ ანგარიშები</td><td>სულ მინიმუმ 5 ანგარიში მენიუში („ანგარიშები“ პუნქტი)</td></tr>
+<tr class="test"><td>22</td><td colspan="2">ტესტი 3 · პროექტის შუალედური შემოწმება: ლექტორი ათვალიერებს რეპოებს 14–21</td></tr>
+<tr><td>23</td><td><code>record OrderLine</code>, switch expression, nullable</td><td>ერთი <code>record</code>; წესი switch expression-ით; ყველა ყვითელი ხაზი (nullable) გასწორებული</td></tr>
+<tr><td>24</td><td>JSON შენახვა, ჩეკი <code>StringBuilder</code>-ით</td><td>ყველა მონაცემი JSON-ში (ჩატვირთვა გაშვებისას, შენახვა ცვლილებისას); ერთი „დოკუმენტი“ ფაილში <code>StringBuilder</code>-ით (ჩეკი, ბილეთი, ქვითარი)</td></tr>
+<tr><td>25</td><td>async შენახვა, ვალუტის კურსი <code>HttpClient</code>-ით</td><td>ჩატვირთვა / შენახვა <code>async</code>-ით; ერთი გარე API (ვალუტის კურსი ან სხვა, შენს სფეროს რომ ერგება)</td></tr>
+<tr><td>26</td><td><code>Shop.Core</code> / <code>Shop.Console</code> / <code>Shop.Tests</code></td><td>solution სამ პროექტად; მინიმუმ 8 unit ტესტი</td></tr>
+<tr class="test"><td>27</td><td colspan="2">ტესტი 4 · პროექტის საბოლოო შესწორებები</td></tr>
+<tr><td>28</td><td colspan="2"><b>წარდგენა</b></td></tr>
+</table>
+
+<h2 id="defense">წარდგენა — ლექცია 28</h2>
+<div class="card">
+<p><b>თითოეულს ~8 წუთი:</b> 3 წუთი დემო (მენიუ, მთავარი სცენარი, შეცდომის სცენარი, ანგარიშები) → 2 წუთი კოდი (სტრუქტურა, ერთი წესი, ერთი LINQ, ტესტები) → 3 წუთი კითხვები („რატომ ასე?“, „რა მოხდება, თუ…?“).</p>
+<div class="score">
+<span>ფუნქციონალი და მთავარი სცენარი მუშაობს</span><b>25%</b>
+<span>OOP და ინკაფსულაცია — წესები ობიექტის შიგნითაა</span><b>20%</b>
+<span>LINQ, კოლექციები, generic / დელეგატები</span><b>15%</b>
+<span>შეცდომები, JSON, async</span><b>15%</b>
+<span>ტესტები და სტრუქტურა (Core / Console / Tests)</span><b>15%</b>
+<span>კითხვებზე პასუხი და Git-ის ისტორია</span><b>10%</b>
+</div>
+</div>
+<p class="note">🔍 კითხვებზე პასუხი ამოწმებს, რომ კოდი შენია და გესმის. AI-ის დახმარება შეიძლება — მაგრამ თითოეული ხაზი უნდა შეგეძლოს ახსნა.</p>
+</main>
+</body>
+</html>
