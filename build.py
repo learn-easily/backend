@@ -619,12 +619,24 @@ def write_syllabus(cdir, course):
     h = markdown.markdown('\n'.join(lines), extensions=['tables', 'sane_lists'])
     def lec(m):
         num, title, desc = int(m.group(1)), m.group(2), m.group(3) or ''
-        slug = built.get(num)
-        go = (f'<span class="go"><a href="{slug}/">▶ პრეზენტაცია</a><a href="{slug}/study.html">📖 კონსპექტი</a></span>') if slug else ''
-        proj = briefs.get(num, {}).get('project')
-        label = f'💻 {esc(proj)}' if proj else '🎯 მიზნები'
-        info = f'<a class="lms" href="lms/{num:02d}.html" title="რას ისწავლის სტუდენტი{f" და რას ვწერთ {esc(proj)}-ში — კოდით" if proj else ""}">{label}</a>' if num in briefs else ''
-        return f'<div class="lec{" ready" if slug else ""}" id="l-{num}"><h3>{m.group(1)}. {title}{info}{go}</h3>{desc}</div>'
+        slug, b = built.get(num), briefs.get(num, {})
+        proj = b.get('project')
+        links = []   # ⋯ მენიუ: მხოლოდ ის, რაც ნამდვილად არსებობს
+        if slug:
+            links += [f'<a href="{slug}/">▶ პრეზენტაცია</a>', f'<a href="{slug}/study.html">📖 კონსპექტი</a>']
+        if (cdir / 'lms' / f'{num:02d}.md').exists():
+            links.append(f'<a href="lms/{num:02d}.html">💻 კოდი{f" · {esc(proj)}" if proj else ""}</a>')
+        menu = (f'<span class="mw"><button class="more" type="button" title="გახსნა" aria-label="მენიუ">⋯</button>'
+                f'<span class="menu">{"".join(links)}</span></span>') if links else ''
+        body = desc
+        if b.get('learn'):
+            body += '<h4>🎯 რას ისწავლის სტუდენტი</h4><ul>' + ''.join(f'<li>{md_inline(x)}</li>' for x in b['learn']) + '</ul>'
+        if b.get('build'):
+            body += f'<h4>🛠 რას ვწერთ{f" {esc(proj)}-ში" if proj else ""}</h4><ul>' + ''.join(f'<li>{md_inline(x)}</li>' for x in b['build']) + '</ul>'
+        tag = f'<span class="pj">{esc(proj)}</span>' if proj else ''
+        return (f'<div class="lec{" ready" if slug else ""}" id="l-{num}"><div class="lh" role="button" tabindex="0">'
+                f'<span class="chev">›</span><h3>{m.group(1)}. {title}</h3>{tag}{menu}</div>'
+                f'<div class="lb">{body}</div></div>')
     h = re.sub(r'<h3>(\d+)\.\s*(.*?)</h3>\s*(<p>.*?</p>)?', lec, h, flags=re.S)
     titles = {int(a): b_ for a, b_ in re.findall(r'^### (\d+)\.\s*(.+)$', src.read_text(), re.M)}
     write_lms_pages(cdir, course, briefs, titles)
