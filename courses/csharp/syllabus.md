@@ -115,7 +115,7 @@
 
 07–12 ლექციების ტესტი: ინკაფსულაცია, მემკვიდრეობა, პოლიმორფიზმი, აბსტრაქცია, ინტერფეისი.
 
-## ენის ძალა — Shop (8 ლექცია)
+## ენის ძალა — Shop (9 ლექცია)
 
 ### 14. static, enum, struct და მეხსიერება
 
@@ -139,16 +139,26 @@
 🛠 Shop | `OutOfStockException`, `InvalidQuantityException`
 🛠 მენიუ აღარ ვარდება არასწორ შეყვანაზე
 
-### 16. Generics და კოლექციები
+### 16. Generics
 
-**პრობლემა:** მასივს ზომა ფიქსირებული აქვს, ძებნა id-ით ციკლს ითხოვს. **თემები:** რატომ generic; `List<T>`, `Dictionary<TKey,TValue>`, `HashSet<T>`, `Queue<T>`; generic კლასი და მეთოდი; constraints (`where T :`); non-generic კოლექციები მხოლოდ ისტორიულად.
+**პრობლემა:** მასივს ზომა ფიქსირებული აქვს — Shop-ს „მზარდი“ სია სჭირდება. ვწერთ `ProductList`-ს, მერე შეკვეთებისთვის `OrderList`-ს — იგივე კოდი, სხვა ტიპი. **თემები:** რატომ generic (კოპირებული კოდი და `object`-ის პრობლემა); generic კლასი `MyList<T>`; generic მეთოდი; `where T :` constraint.
+
+📚 აუხსნის, რა პრობლემას აგვარებს generic
+📚 დაწერს generic კლასს და მეთოდს
+📚 შეზღუდავს ტიპს `where`-ით
+🛠 Shop | `ProductList` → `OrderList` → ერთი `MyList<T>` (`Add`, `Get`, `Count`, ზრდადი შიდა მასივი)
+🛠 `where T : IEntity` — ძებნა `Id`-ით
+
+### 17. კოლექციები
+
+**პრობლემა:** ის, რაც წინა ლექციაზე დავწერეთ, .NET-ს უკვე აქვს — და უკეთესიც. **თემები:** `List<T>`, `Dictionary<TKey,TValue>`, `HashSet<T>`, `Queue<T>` / `Stack<T>`; როდის რომელი; non-generic კოლექციები მხოლოდ ისტორიულად.
 
 📚 შეარჩევს სწორ კოლექციას ამოცანისთვის
-📚 დაწერს საკუთარ generic კლასს და მეთოდს
-🛠 Shop | `List<Product>` · `Dictionary<Guid, Product>` სწრაფი ძებნისთვის
-🛠 `Cart` — `List<CartItem>` · `Repository<T> where T : IEntity`
+📚 გამოიყენებს `Dictionary`-ს სწრაფი ძებნისთვის და `HashSet`-ს უნიკალურობისთვის
+🛠 Shop | `MyList<T>` → `List<Product>` · `Dictionary<Guid, Product>` · `Cart` — `List<CartItem>`
+🛠 კატეგორიების უნიკალური სია (`HashSet`) · შეკვეთების რიგი (`Queue`)
 
-### 17. დელეგატები და lambda
+### 18. დელეგატები და lambda
 
 **პრობლემა:** ერთი მეთოდი ბევრ სხვადასხვა რამეს უნდა აკეთებდეს — ქცევა (ფილტრი, დალაგება, ფასდაკლების წესი) გარედან უნდა გადავცეთ. **თემები:** დელეგატი — რა დგას `Func`-ის უკან; `Func`, `Action`, `Predicate`; lambda; მეთოდის გადაცემა პარამეტრად — LINQ-ის, Minimal API-ის, DI-სა და EF-ის კონფიგურაციის საფუძველი.
 
@@ -156,7 +166,7 @@
 📚 დაწერს lambda-ს და გამოიყენებს `Func` / `Action` / `Predicate`-ს
 🛠 Shop | `List<Product> Filter(Func<Product, bool> rule)` · ფასდაკლების წესები `Func<decimal, decimal>`-ით
 
-### 18. LINQ I
+### 19. LINQ I
 
 **პრობლემა:** ყოველი ფილტრი, ძებნა და დალაგება — ახალი ციკლი. **თემები:** `Where`, `Select`, `OrderBy` / `ThenBy`, `First` / `FirstOrDefault`, `Any`, `All`, `Count`, `Sum`, `Average`; method syntax და lambda.
 
@@ -164,7 +174,7 @@
 📚 გაფილტრავს, დაალაგებს და დაითვლის მონაცემს
 🛠 Shop | ფილტრი კატეგორიით და ფასით · დალაგება · იაფი / ძვირი · მარაგის ჯამი
 
-### 19. LINQ II და Extension Methods
+### 20. LINQ II და Extension Methods
 
 **პრობლემა:** ანგარიშები: შემოსავალი კატეგორიით, ტოპ-5 პროდუქტი, მყიდველი და მისი შეკვეთები. **თემები:** `GroupBy`, `Join`, `SelectMany`, `Take` / `Skip`, `Distinct`; deferred execution და `ToList()`; query syntax მოკლედ; LINQ თავად extension method-ებია — საკუთარი extension method; `IEnumerable<T>` და `yield` მოკლედ.
 
@@ -174,7 +184,7 @@
 🛠 Shop | შემოსავალი კატეგორიით · შეკვეთების გვერდებად ჩვენება
 🛠 `products.InStock()`, `price.ToGel()` — extension-ები
 
-### 20. LINQ III — პრაქტიკა: Shop-ის ანგარიშები
+### 21. LINQ III — პრაქტიკა: Shop-ის ანგარიშები
 
 LINQ ყოველდღიური ინსტრუმენტია (EF Core-შიც იგივე LINQ-ით ვწერთ), ამიტომ — მხოლოდ პრაქტიკა: ლექტორი ბიზნესის კითხვას სვამს, სტუდენტები ჯერ ფიქრობენ, რომელი მეთოდები სჭირდება, მერე წერენ; ტიპური შეცდომები (`First` vs `FirstOrDefault`, ორმაგი გავლა, `ToList()` ციკლში).
 
@@ -182,13 +192,13 @@ LINQ ყოველდღიური ინსტრუმენტია (EF 
 📚 შეარჩევს სწორ მეთოდს და აირიდებს ტიპურ შეცდომებს
 🛠 Shop | ტოპ-5 პროდუქტი · საუკეთესო მყიდველი · თვის შემოსავალი · მარაგი, რომელიც იწურება · კალათის ჯამი ფასდაკლებით
 
-### 21. ტესტი 3: ენის ძალა და LINQ
+### 22. ტესტი 3: ენის ძალა და LINQ
 
-14–20 ლექციების ტესტი: static / enum / struct, exceptions, generics და კოლექციები, დელეგატები, LINQ.
+14–21 ლექციების ტესტი: static / enum / struct, exceptions, generics, კოლექციები, დელეგატები, LINQ.
 
-## მონაცემები, async და ტესტები (5 ლექცია)
+## მონაცემები, async და ტესტები (4 ლექცია)
 
-### 22. თანამედროვე C#: record, pattern matching, null
+### 23. თანამედროვე C#: record, pattern matching, null
 
 **პრობლემა:** `null` ყველგან ბაგს იწვევს, მონაცემის „ყუთებს“ ბევრი boilerplate აქვს. **თემები:** `record` და `with`; pattern matching (`is`, property / relational patterns, switch expression); nullable reference types, `?`, `??`, `?.`; `required` და `init`.
 
@@ -197,7 +207,7 @@ LINQ ყოველდღიური ინსტრუმენტია (EF 
 📚 დაიცავს კოდს `null`-ისგან კომპილატორის დახმარებით
 🛠 Shop | `record OrderLine` · ფასდაკლების წესები switch expression-ით · nullable ჩართულია
 
-### 23. ფაილები და JSON
+### 24. ფაილები და JSON
 
 **პრობლემა:** პროგრამის დახურვისას ყველაფერი ქრება. **თემები:** `File`, `Directory`, `Path`; stream მოკლედ; `IDisposable` და `using`; `System.Text.Json` — serialize / deserialize, ატრიბუტები (`[JsonPropertyName]`, `[JsonIgnore]`); ბოლოს — JSON-ში შენახვის შეზღუდვები (ძებნა, ერთდროული ცვლილება, კავშირები) → რატომ გვჭირდება ბაზა.
 
@@ -207,7 +217,7 @@ LINQ ყოველდღიური ინსტრუმენტია (EF 
 📚 აუხსნის, რატომ არ კმარა ფაილი და რატომ გვჭირდება ბაზა
 🛠 Shop | `products.json`, `orders.json` — ჩატვირთვა გაშვებისას, შენახვა ცვლილებისას
 
-### 24. async / await
+### 25. async / await
 
 **პრობლემა:** ფაილის წაკითხვა ან სერვერიდან კურსის წამოღება პროგრამას „ყინავს“. **თემები:** synchronous vs asynchronous; `Task` და `Task<T>`; `async` / `await`; async ფაილები; `HttpClient`; `Task.WhenAll`; thread და ThreadPool როგორც კონცეფცია; ტიპური შეცდომები (`.Result`, `async void`).
 
@@ -216,27 +226,21 @@ LINQ ყოველდღიური ინსტრუმენტია (EF 
 📚 გაუშვებს რამდენიმე ოპერაციას პარალელურად `Task.WhenAll`-ით
 🛠 Shop | async შენახვა / ჩატვირთვა · ვალუტის კურსის წამოღება API-დან (`HttpClient`) · ფასი ლარში და დოლარში
 
-### 25. Solution, Class Library და NuGet
+### 26. Solution და Unit Testing
 
-**პრობლემა:** ყველაფერი ერთ პროექტშია — ლოგიკას ვერც ტესტს მიაბამ და ვერც მერე API-ს. **თემები:** solution და რამდენიმე პროექტი; class library (DLL); project reference; NuGet package-ის დაყენება; `internal`.
+**პრობლემა:** ყოველი ცვლილების შემდეგ ხელით ვამოწმებთ, რომ ფასდაკლება და მარაგი ისევ სწორად მუშაობს. ტესტი ცალკე პროექტია — ამიტომ ჯერ solution-ს ვყოფთ. **თემები:** solution და რამდენიმე პროექტი; class library; project reference; NuGet package (xUnit); რა არის unit ტესტი; Arrange–Act–Assert; `[Fact]`, `[Theory]`; exception-ის ტესტი; Test Explorer.
 
-📚 დაყოფს solution-ს რამდენიმე პროექტად
+📚 დაყოფს solution-ს პროექტებად და დააკავშირებს reference-ით
 📚 დააყენებს NuGet package-ს
-🛠 Shop | `Shop.Core` (class library: domain + ლოგიკა) · `Shop.Console` (მენიუ)
-
-### 26. Unit Testing
-
-**პრობლემა:** ყოველი ცვლილების შემდეგ ხელით ვამოწმებთ, რომ ფასდაკლება და მარაგი ისევ სწორად მუშაობს. **თემები:** რა არის unit ტესტი; xUnit; Arrange–Act–Assert; `[Fact]`, `[Theory]`; exception-ის ტესტი; Test Explorer.
-
-📚 დაწერს unit ტესტს xUnit-ით
-📚 შეამოწმებს წესებს და exception-ებს ტესტით
-🛠 Shop | `Shop.Tests` — კალათის ჯამი, ფასდაკლება, მარაგის შემცირება, `OutOfStockException`
+📚 დაწერს unit ტესტს xUnit-ით და შეამოწმებს წესებს და exception-ებს
+🛠 Shop | `Shop.Core` (class library: domain + ლოგიკა) · `Shop.Console` (მენიუ) · `Shop.Tests` (xUnit)
+🛠 ტესტები: კალათის ჯამი, ფასდაკლება, მარაგის შემცირება, `OutOfStockException`
 
 ## ფინალი (2 ლექცია)
 
 ### 27. ტესტი 4: საბოლოო
 
-22–26 ლექციები და მთელი კურსის მთავარი თემები.
+23–26 ლექციები და მთელი კურსის მთავარი თემები.
 
 ### 28. ფინალური პროექტის წარდგენა
 
