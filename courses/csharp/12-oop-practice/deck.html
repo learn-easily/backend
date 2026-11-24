@@ -1,0 +1,692 @@
+<style>
+.stepper{position:absolute;right:90px;top:calc(72px + (var(--h,900px) - 900px) / 2);display:flex;gap:8px;z-index:3}
+.stepper span{font:600 14px var(--mono);padding:6px 13px;border-radius:99px;border:1px solid var(--line2);color:var(--muted);background:#fff}
+.stepper span.done{color:var(--mvc);border-color:color-mix(in srgb,var(--mvc) 45%,#fff)}
+.stepper span.on{background:var(--core);border-color:var(--core);color:#fff;box-shadow:0 6px 16px -8px var(--core)}
+i.codestep{display:none}
+.mono{font-family:var(--mono)}
+.late{opacity:0}
+.shown .late,.shown.late{animation:inFade .6s var(--ease) var(--ld,.9s) forwards}
+.term .pm::before{content:"PM> ";color:var(--core)}
+.term .ok{color:#4ade80}
+.term .warn{color:#fbbf24}
+.term .err{color:#f87171}
+.term .body{font-size:18px;line-height:1.65}
+.tree{font:19px/1.9 var(--mono);color:var(--ink2)}
+.tree .n{display:block;white-space:nowrap}
+.tree .n i{font-style:normal;margin-right:8px}
+.tree .lvl1{padding-left:30px}.tree .lvl2{padding-left:60px}.tree .lvl3{padding-left:90px}.tree .lvl4{padding-left:120px}
+.tree .hi{color:var(--ink);font-weight:700}
+.flowrow{display:flex;align-items:center;gap:18px}
+.fbox{flex:1;border-radius:16px;padding:18px 20px;border:2px solid var(--a);background:color-mix(in srgb,var(--a) 8%,#fff);text-align:center}
+.fbox .e{font-size:38px;line-height:1.2}
+.fbox .l{font-size:21px;font-weight:700;color:var(--ink)}
+.fbox .s{font:15px var(--mono);color:var(--muted)}
+.farrow{font:700 17px var(--mono);color:var(--a);text-align:center;min-width:190px}
+.farrow .ar{display:block;font-size:40px;line-height:1}
+.check li{list-style:none;position:relative;padding-left:44px;margin:11px 0;font-size:21px}
+.check li::before{content:"";position:absolute;left:0;top:.2em;width:26px;height:26px;border-radius:8px;border:2px solid var(--line2);background:#fff}
+.check li.shown::before{content:"✓";color:#fff;background:var(--mvc);border-color:var(--mvc);font:800 18px/26px var(--font);text-align:center}
+.mock{background:#fff;border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);overflow:hidden}
+.mock .mh{background:var(--bg2);padding:10px 16px;font:600 14px var(--mono);color:var(--muted);border-bottom:1px solid var(--line)}
+.mock .mb{padding:18px 20px}
+.phase{text-align:center}
+.phase .em{font-size:72px;line-height:1.1}
+.phase .tt{font:700 15px var(--mono);color:var(--a)}
+/* lecture 2 */
+.crown{font-size:44px;line-height:1}
+.who{display:flex;align-items:center;justify-content:center;gap:26px;margin:26px 0 22px}
+.who .bx{border-radius:16px;padding:20px 26px;border:2px solid var(--a);background:color-mix(in srgb,var(--a) 8%,#fff);text-align:center;min-width:200px}
+.who .bx .e{font-size:52px;line-height:1.2}
+.who .bx .l{font-size:20px;font-weight:700;color:var(--ink)}
+.who .bx.copy{border-style:dashed;opacity:.75}
+.who .ar{font:700 34px var(--mono);color:var(--a)}
+.lane{display:flex;align-items:center;gap:12px;padding:26px 22px;border-radius:16px;border:2px solid color-mix(in srgb,var(--a) 40%,#fff);background:color-mix(in srgb,var(--a) 6%,#fff)}
+.lane .lh{font:800 19px var(--mono);color:var(--a);min-width:180px}
+.lane .lc{font:600 17.5px var(--mono);background:#fff;border:1px solid var(--line2);border-radius:10px;padding:10px 12px;color:var(--ink);white-space:nowrap}
+.lane .la{font:700 22px var(--mono);color:var(--a)}
+.lane .lc.ok{border-color:var(--mvc);color:var(--mvc)}
+.lane .lc.bad{border-color:var(--red);color:var(--red);background:#fef2f2}
+.myth{display:grid;grid-template-columns:1fr 1.35fr;gap:18px;align-items:stretch;margin-bottom:20px}
+.myth .m,.myth .f{border-radius:12px;padding:18px 20px 18px 54px;font-size:21px;line-height:1.45;position:relative}
+.myth .m{background:#fef2f2;border:1px solid #fca5a5;color:#991b1b}
+.myth .f{background:#f0fdf4;border:1px solid #86efac;color:#166534}
+.myth .m::before,.myth .f::before{position:absolute;left:18px;top:19px;font-size:19px}
+.myth .m::before{content:"❌"} .myth .f::before{content:"✅"}
+.scn{display:flex;flex-direction:column;gap:12px}
+.scn{padding:30px 30px!important}
+.scn .e{font-size:56px;line-height:1}
+.card.scn p{font-size:23px;color:var(--ink2);line-height:1.5}
+.ans{align-self:flex-start;font:800 18px var(--mono);padding:8px 16px;border-radius:99px;color:#fff;background:var(--a)}
+.card .rule{font-size:34px;line-height:1.5;text-align:center;color:var(--ink)}
+.data{border-collapse:collapse;font:17px var(--mono);background:#fff;box-shadow:var(--shadow);border-radius:12px;overflow:hidden;width:100%}
+.data caption{caption-side:top;text-align:left;font:700 17px var(--mono);color:var(--a,var(--asp));padding:0 0 8px}
+.data th{background:var(--bg2);color:var(--ink2);font-weight:700;padding:9px 14px;text-align:left;border-bottom:1px solid var(--line)}
+.data td{padding:9px 14px;border-bottom:1px solid var(--line);color:var(--ink)}
+.data tr:last-child td{border-bottom:0}
+.data .fk{background:color-mix(in srgb,var(--api) 10%,#fff);color:var(--api);font-weight:700}
+.data .bad{background:#fef2f2;color:var(--red);font-weight:800}
+.data .new{background:color-mix(in srgb,var(--mvc) 10%,#fff);color:var(--mvc);font-weight:700}
+.data .empty{color:var(--muted);font-style:italic;text-align:center}
+.tlx{position:relative}
+.dot{width:26px;height:26px;border-radius:50%;background:var(--a);border:4px solid #fff;box-shadow:0 0 0 2px var(--a)}
+.gold{display:flex;gap:16px;align-items:flex-start}
+.gold .verb{font-size:46px;line-height:1}
+</style>
+
+<style>
+#deck,#deck *{font-variant-ligatures:none}
+.vs{display:grid;grid-template-columns:1fr 1fr;gap:28px;align-items:start}
+.lang{display:inline-block;font:800 15px var(--mono);padding:5px 14px;border-radius:99px;color:#fff;background:var(--a);margin-bottom:10px;letter-spacing:.04em}
+.same,.diff{display:inline-block;font:800 15px var(--mono);padding:5px 12px;border-radius:99px;white-space:nowrap}
+.same{background:#dcfce7;color:#166534}
+.diff{background:#fef3c7;color:#92400e}
+.chips{display:flex;gap:12px;flex-wrap:wrap;align-items:stretch}
+.chip2{font:700 22px var(--mono);padding:10px 18px;border-radius:12px;border:2px solid var(--a);background:color-mix(in srgb,var(--a) 8%,#fff);color:var(--a);text-align:center}
+.chip2 small{display:block;font:600 15px var(--font);color:var(--muted);margin-top:2px}
+.grid5{display:grid;grid-template-columns:repeat(5,1fr);gap:16px}
+.term .usr{color:#fbbf24}
+.term .g{color:#4ade80}
+.term .cy{color:#22d3ee}
+.term .r{color:#f87171}
+.term .body{font-size:19px;line-height:1.6}
+.stars{color:#ca8a04;font-size:20px;letter-spacing:2px}
+.big{font-size:30px}
+table.t code.i{font-size:.95em}
+table.t td.mono,table.t th.mono{font-family:var(--mono)}
+.answer{font:800 44px var(--mono);color:var(--red)}
+.vsline{display:grid;grid-template-columns:1fr 60px 1fr;align-items:center;gap:10px;margin:10px 0}
+.vsline .js,.vsline .cs{font:600 21px var(--mono);padding:12px 16px;border-radius:12px;background:#fff;border:1px solid var(--line)}
+.vsline .js{border-left:5px solid var(--pink)} .vsline .cs{border-left:5px solid var(--net)}
+.vsline .ar{text-align:center;font:800 26px var(--mono);color:var(--muted)}
+</style>
+<!-- =========================================================
+     C# · ლექცია 12 — OOP შეჯამება: ოთხი პრინციპი ერთ გვერდზე → ხუთი კითხვა → ლექტორი წერს გადახდის სისტემას → სტუდენტები წერენ ზოოპარკს → ტესტის ინფო
+     ========================================================= -->
+<!-- TITLE -->
+<section class="slide" data-section="შესავალი">
+  <div class="vcenter" style="max-width:860px">
+    <div class="kicker in" style="color:var(--net)">C# · ლექცია 12</div>
+    <h1 class="in" style="--d:.15s">შეჯამება:<br><span class="grad">OOP პროექტი ნულიდან</span></h1>
+    <p class="lead in mt" style="--d:.35s">პირველ ნახევარში — მე ვწერ გადახდის სისტემას. მეორეში — თქვენ წერთ ზოოპარკს 🦁</p>
+  </div>
+  <div class="abs" style="right:110px;top:250px">
+    <div class="who" style="flex-direction:column;gap:14px">
+      <div class="bx in" style="--a:var(--net);--d:.4s"><div class="e">💳</div><div class="l">გადახდები · მე</div></div>
+      <div class="bx in" style="--a:var(--mvc);--d:.7s"><div class="e">🦁</div><div class="l">ზოოპარკი · თქვენ</div></div>
+    </div>
+  </div>
+</section>
+<lecture-review/>
+<lecture-homework-review/>
+<lecture-intro/>
+<section class="slide" data-section="შესავალი">
+  <div class="kicker">💡 გავიხსენოთ · ერთ გვერდზე</div>
+  <h2>OOP — <span class="grad">ოთხი პრინციპი</span></h2>
+  <div class="grid4" style="margin-top:20px">
+    <div class="card accent step" style="--a:var(--net)"><h3><span class="ico">🛡️</span>ინკაფსულაცია</h3><p class="small"><code class="i">private</code> ველი · <code class="i">{ get; private set; }</code> · property წესით · მეთოდები — ერთადერთი კარი</p></div>
+    <div class="card accent step" style="--a:var(--mvc)"><h3><span class="ico">🧬</span>მემკვიდრეობა</h3><p class="small"><code class="i">class B : A</code> · <code class="i">: base(...)</code> · <code class="i">protected</code> · ერთი მშობელი</p></div>
+    <div class="card accent step" style="--a:var(--asp)"><h3><span class="ico">🎭</span>პოლიმორფიზმი</h3><p class="small"><code class="i">virtual</code> / <code class="i">override</code> · <code class="i">base.Method()</code> · <code class="i">ToString()</code> · მშობლის ტიპის მასივი</p></div>
+    <div class="card accent step" style="--a:var(--api)"><h3><span class="ico">🎨</span>აბსტრაქცია</h3><p class="small"><code class="i">abstract</code> კლასი და მეთოდი · <code class="i">interface</code> — „შეუძლია“, ბევრი ერთ კლასს</p></div>
+  </div>
+  <aside class="study">
+### 💡 გავიხსენოთ: OOP — ოთხი პრინციპი
+
+1. 🛡️ **ინკაფსულაცია** — `private` ველი, `{ get; private set; }`, property წესით; მონაცემი იცვლება მხოლოდ მეთოდებით.
+2. 🧬 **მემკვიდრეობა** — `class B : A`, `: base(...)`, `protected`; მხოლოდ ერთი მშობელი.
+3. 🎭 **პოლიმორფიზმი** — `virtual` / `override`, `base.Method()`, `override ToString()`; მშობლის ტიპის მასივი და ერთი ციკლი.
+4. 🎨 **აბსტრაქცია** — `abstract` კლასი და მეთოდი; `interface` — „შეუძლია“, ბევრი ერთ კლასს.
+  </aside>
+</section>
+<section class="slide" data-section="შესავალი">
+  <div class="kicker">💡 ახსნა · როგორ ვფიქრობთ</div>
+  <h2>OOP პროექტი — <span class="grad">ხუთი კითხვით</span> იწყება</h2>
+  <div class="col" style="gap:12px;margin-top:20px">
+    <div class="lane step" style="--a:var(--net)"><span class="lh">1 · ვინ / რა?</span><span class="lc">არსებითი სახელები → <b>კლასები</b></span></div>
+    <div class="lane step" style="--a:var(--mvc)"><span class="lh">2 · ვინ „არის“?</span><span class="lc">ბარათით გადახდა <b>არის</b> გადახდა → <b>მემკვიდრეობა</b></span></div>
+    <div class="lane step" style="--a:var(--api)"><span class="lh">3 · რა „შეუძლია“?</span><span class="lc">ზოგს შეუძლია თანხის დაბრუნება → <b>ინტერფეისი</b></span></div>
+    <div class="lane step" style="--a:var(--red)"><span class="lh">4 · რა დავიცვათ?</span><span class="lc">თანხა უარყოფითი არ არის, ბარათის ნომერი დამალულია → <b>private</b> + წესები</span></div>
+    <div class="lane step" style="--a:var(--asp)"><span class="lh">5 · რა განსხვავდება?</span><span class="lc">თითოეული თავისებურად იხდის → <b>abstract</b> / <b>override</b></span></div>
+  </div>
+  <aside class="study">
+### 💡 როგორ ვფიქრობთ: OOP პროექტი ხუთი კითხვით იწყება
+
+1. **ვინ / რა?** — დავალების არსებითი სახელები → კლასები.
+2. **ვინ „არის“ ვინ?** — „ბარათით გადახდა არის გადახდა“ → მემკვიდრეობა.
+3. **რა „შეუძლია“ ზოგს?** — „ზოგს შეუძლია თანხის დაბრუნება“ → ინტერფეისი.
+4. **რა უნდა დავიცვათ?** — „თანხა უარყოფითი არ არის“, „ბარათის ნომერი დამალულია“ → `private` და წესები.
+5. **რა განსხვავდება?** — „თითოეული თავისებურად იხდის“ → `abstract` მეთოდი და `override`.
+
+კოდს მხოლოდ ამის შემდეგ ვწერთ.
+  </aside>
+</section>
+<section class="slide divider" data-section="1 · ლექტორი წერს">
+  <div class="vcenter">
+    <div class="kicker in">ნაწილი 1</div>
+    <h1 class="in" style="--d:.1s">მე ვწერ:<br><span class="grad">გადახდის სისტემა</span> 💳</h1>
+    <p class="lead mt in" style="--d:.3s">თქვენ ერთად წერთ — და ყოველ ნაბიჯზე მეუბნებით, რომელი პრინციპია</p>
+  </div>
+  <div class="big-num">01</div>
+  <aside class="study">
+## ნაწილი 1 · მე ვწერ: გადახდის სისტემა
+
+თქვენ ერთად წერთ — და ყოველ ნაბიჯზე მეუბნებით, რომელი პრინციპია.
+  </aside>
+</section>
+<section class="slide" data-section="1 · ლექტორი წერს">
+  <div class="kicker">🧩 დავალება</div>
+  <h2>ონლაინ მაღაზიის <span class="grad">სალარო</span></h2>
+  <div class="grid2" style="grid-template-columns:1.1fr 1fr;gap:30px;margin-top:14px">
+    <div class="mock in"><div class="mh">📋 მოთხოვნები</div><div class="mb"><ul class="clean small">
+      <li>მომხმარებელი იხდის <b>ბარათით</b>, <b>ნაღდით</b> ან <b>ციფრული საფულით</b></li>
+      <li>თანხა <b>უარყოფითი</b> ვერ იქნება</li>
+      <li>ბარათის ნომრიდან ჩანს მხოლოდ <b>ბოლო 4 ციფრი</b></li>
+      <li>საფულეში ფული თუ არ ჰყოფნის — გადახდა <b>არ ხერხდება</b></li>
+      <li>ბარათით და საფულით გადახდილი თანხა <b>ბრუნდება</b>, ნაღდი — არა</li>
+      <li>სალარო ყველა გადახდას <b>ერთი ციკლით</b> ამუშავებს</li></ul></div></div>
+    <div class="col" style="gap:12px">
+      <div class="callout step" style="--a:var(--net);font-size:18px"><b>1 · კლასები:</b> Payment, CardPayment, CashPayment, WalletPayment</div>
+      <div class="callout step" style="--a:var(--mvc);font-size:18px"><b>2 · არის:</b> ბარათით გადახდა <b>არის</b> გადახდა → <b>abstract Payment</b></div>
+      <div class="callout step" style="--a:var(--api);font-size:18px"><b>3 · შეუძლია:</b> დაბრუნება → <b>IRefundable</b></div>
+      <div class="callout step" style="--a:var(--red);font-size:18px"><b>4 · დავიცვათ:</b> Amount, ბარათის ნომერი, ბალანსი</div>
+      <div class="callout step" style="--a:var(--asp);font-size:18px"><b>5 · განსხვავდება:</b> Pay() → <b>abstract</b></div>
+    </div>
+  </div>
+  <aside class="study">
+### 🧩 დავალება: ონლაინ მაღაზიის სალარო
+
+**მოთხოვნები:**
+
+- მომხმარებელი იხდის ბარათით, ნაღდით ან ციფრული საფულით.
+- თანხა უარყოფითი ვერ იქნება.
+- ბარათის ნომრიდან ჩანს მხოლოდ ბოლო 4 ციფრი.
+- საფულეში ფული თუ არ ჰყოფნის — გადახდა არ ხერხდება.
+- ბარათით და საფულით გადახდილი თანხა ბრუნდება, ნაღდი — არა.
+- სალარო ყველა გადახდას ერთი ციკლით ამუშავებს.
+
+**ხუთი კითხვა:**
+
+1. კლასები: `Payment`, `CardPayment`, `CashPayment`, `WalletPayment`.
+2. ბარათით გადახდა **არის** გადახდა → `abstract class Payment`.
+3. თანხის დაბრუნება **შეუძლია** ზოგს → `interface IRefundable`.
+4. დავიცვათ: თანხა, ბარათის ნომერი, ბალანსი → `private`.
+5. თითოეული თავისებურად იხდის → `abstract bool Pay()`.
+  </aside>
+</section>
+<section class="slide" data-section="1 · ლექტორი წერს">
+  <div class="kicker c-mvc">⌨️ ერთად ვწერთ · Payment.cs · IRefundable.cs</div>
+  <h2>მშობელი და <span class="grad">ხელშეკრულება</span></h2>
+  <div class="grid2" style="grid-template-columns:1.05fr 1fr;gap:26px;align-items:start;margin-top:6px">
+    <code-block id="pay" lang="csharp" cls="xs" title="Payment.cs + IRefundable.cs">
+internal abstract class Payment
+{
+    public decimal Amount { get; private set; }
+
+    public Payment(decimal amount)
+    {
+        if (amount < 0) amount = 0;
+        Amount = amount;
+    }
+
+    public abstract bool Pay();
+
+    public override string ToString()
+    {
+        return $"{Amount} ₾";
+    }
+}
+
+internal interface IRefundable
+{
+    void Refund();
+}
+    </code-block>
+    <div class="col" style="gap:12px">
+      <div class="callout" style="--a:var(--mvc);font-size:17px">ახალი პროექტი: <b>Console App → Checkout</b></div>
+      <i class="codestep" data-for="pay" data-lines="3"></i>
+      <div class="callout step" data-with style="--a:var(--net);font-size:17px">🛡️ <code class="i">decimal</code> — ფულისთვის: ზუსტია. <code class="i">private set</code> + წესი კონსტრუქტორში</div>
+      <i class="codestep" data-for="pay" data-lines="11"></i>
+      <div class="callout step" data-with style="--a:var(--asp);font-size:17px">🎨 <code class="i">abstract Pay()</code> — „ყველა იხდის, <b>როგორ</b> — შვილი იტყვის“. <code class="i">bool</code>: მოხერხდა?</div>
+      <i class="codestep" data-for="pay" data-lines="19-22"></i>
+      <div class="callout step" data-with style="--a:var(--api);font-size:17px">🎨 <code class="i">IRefundable</code> — „<b>შეუძლია</b> დაბრუნება“</div>
+    </div>
+  </div>
+  <aside class="study">
+### ⌨️ Payment.cs + IRefundable.cs: მშობელი და ხელშეკრულება
+
+ახალი პროექტი: **Console App → Checkout**.
+
+```csharp Payment.cs + IRefundable.cs
+internal abstract class Payment
+{
+    public decimal Amount { get; private set; }
+
+    public Payment(decimal amount)
+    {
+        if (amount < 0) amount = 0;
+        Amount = amount;
+    }
+
+    public abstract bool Pay();
+
+    public override string ToString()
+    {
+        return $"{Amount} ₾";
+    }
+}
+
+internal interface IRefundable
+{
+    void Refund();
+}
+```
+
+- 🛡️ `decimal` — ფულისთვის განკუთვნილი ტიპი: `double`-სგან განსხვავებით, თეთრებს არ „კარგავს“. `Amount` — `private set` და წესი კონსტრუქტორში.
+- 🎨 `abstract bool Pay()` — „ყველა იხდის, როგორ — შვილი იტყვის“. `bool` — მოხერხდა თუ არა.
+- 🎨 `IRefundable` — „შეუძლია თანხის დაბრუნება“.
+  </aside>
+</section>
+<section class="slide" data-section="1 · ლექტორი წერს">
+  <div class="kicker c-mvc">⌨️ ერთად ვწერთ · CashPayment.cs</div>
+  <h2>💵 ნაღდი — <span class="grad">უმარტივესი შვილი</span></h2>
+  <div class="grid2" style="grid-template-columns:1.3fr 1fr;gap:26px;align-items:start;margin-top:6px">
+    <code-block id="cash" lang="csharp" cls="sm" title="CashPayment.cs · namespace-ის შიგნით">
+internal class CashPayment : Payment
+{
+    public CashPayment(decimal amount) : base(amount)
+    {
+    }
+
+    public override bool Pay()
+    {
+        Console.WriteLine($"💵 ნაღდი → {Amount} ₾");
+        return true;
+    }
+}
+    </code-block>
+    <div class="col" style="gap:12px">
+      <i class="codestep" data-for="cash" data-lines="3"></i>
+      <div class="callout step" data-with style="--a:var(--mvc);font-size:18px">🧬 <code class="i">: base(amount)</code> — თანხა და მისი წესი <b>მშობელშია</b></div>
+      <i class="codestep" data-for="cash" data-lines="7-11"></i>
+      <div class="callout step" data-with style="--a:var(--asp);font-size:18px">🎭 <code class="i">override Pay()</code> — abstract-მა <b>აიძულა</b></div>
+      <div class="callout step" style="--a:var(--api);font-size:18px"><code class="i">IRefundable</code> არ აქვს — ნაღდი <b>არ ბრუნდება</b></div>
+    </div>
+  </div>
+  <aside class="study">
+### ⌨️ CashPayment.cs — უმარტივესი შვილი
+
+```csharp CashPayment.cs · namespace-ის შიგნით
+internal class CashPayment : Payment
+{
+    public CashPayment(decimal amount) : base(amount)
+    {
+    }
+
+    public override bool Pay()
+    {
+        Console.WriteLine($"💵 ნაღდი → {Amount} ₾");
+        return true;
+    }
+}
+```
+
+- 🧬 `: base(amount)` — თანხა და მისი წესი მშობელშია.
+- 🎭 `override Pay()` — abstract მეთოდმა აიძულა.
+- `IRefundable` არ აქვს — ნაღდი არ ბრუნდება.
+  </aside>
+</section>
+<section class="slide" data-section="1 · ლექტორი წერს">
+  <div class="kicker c-mvc">⌨️ ერთად ვწერთ · CardPayment.cs</div>
+  <h2>💳 ბარათი — <span class="grad">ნომერი დამალულია</span></h2>
+  <div class="grid2" style="grid-template-columns:1.3fr 1fr;gap:26px;align-items:start;margin-top:6px">
+    <code-block id="card" lang="csharp" cls="xs" title="CardPayment.cs · namespace-ის შიგნით">
+internal class CardPayment : Payment, IRefundable
+{
+    private string cardNumber;
+
+    public CardPayment(decimal amount, string number) : base(amount)
+    {
+        cardNumber = number;
+    }
+
+    public string Masked()
+    {
+        return "**** " + cardNumber.Substring(cardNumber.Length - 4);
+    }
+
+    public override bool Pay()
+    {
+        Console.WriteLine($"💳 ბარათი {Masked()} → {Amount} ₾");
+        return true;
+    }
+
+    public void Refund()
+    {
+        Console.WriteLine($"↩️ {Amount} ₾ დაბრუნდა ბარათზე {Masked()}");
+    }
+}
+    </code-block>
+    <div class="col" style="gap:12px">
+      <i class="codestep" data-for="card" data-lines="3"></i>
+      <div class="callout step" data-with style="--a:var(--red);font-size:17px">🛡️ ნომერი — <code class="i">private</code> ველი, <b>property-იც კი არა</b>. გარედან ვერავინ წაიკითხავს</div>
+      <i class="codestep" data-for="card" data-lines="10-13"></i>
+      <div class="callout step" data-with style="--a:var(--pink);font-size:17px"><code class="i">Substring</code> — string-ის მეთოდი: ტექსტი მითითებული ადგილიდან ბოლომდე. ბოლო 4 ციფრი</div>
+      <i class="codestep" data-for="card" data-lines="15-24"></i>
+      <div class="callout step" data-with style="--a:var(--asp);font-size:17px">🎭 Pay() — თავისებურად · 🎨 Refund() — ხელშეკრულება შესრულდა</div>
+    </div>
+  </div>
+  <aside class="study">
+### ⌨️ CardPayment.cs — ნომერი დამალულია
+
+```csharp CardPayment.cs · namespace-ის შიგნით
+internal class CardPayment : Payment, IRefundable
+{
+    private string cardNumber;
+
+    public CardPayment(decimal amount, string number) : base(amount)
+    {
+        cardNumber = number;
+    }
+
+    public string Masked()
+    {
+        return "**** " + cardNumber.Substring(cardNumber.Length - 4);
+    }
+
+    public override bool Pay()
+    {
+        Console.WriteLine($"💳 ბარათი {Masked()} → {Amount} ₾");
+        return true;
+    }
+
+    public void Refund()
+    {
+        Console.WriteLine($"↩️ {Amount} ₾ დაბრუნდა ბარათზე {Masked()}");
+    }
+}
+```
+
+- 🛡️ ბარათის ნომერი — `private` ველი, property-იც კი არა. გარედან ვერავინ წაიკითხავს.
+- `Substring(start)` — string-ის მეთოდი: ტექსტი `start` პოზიციიდან ბოლომდე. `Length - 4` → ბოლო ოთხი ციფრი. ყველაფერი ობიექტია!
+- 🎭 `override Pay()` — თავისებურად; 🎨 `Refund()` — ხელშეკრულება შესრულდა.
+  </aside>
+</section>
+<section class="slide" data-section="1 · ლექტორი წერს">
+  <div class="kicker c-mvc">⌨️ ერთად ვწერთ · WalletPayment.cs</div>
+  <h2>📱 საფულე — <span class="grad">წესით</span></h2>
+  <div class="grid2" style="grid-template-columns:1.1fr 1fr;gap:26px;align-items:start;margin-top:6px">
+    <code-block id="wal" lang="csharp" cls="xs" title="WalletPayment.cs · namespace-ის შიგნით">
+internal class WalletPayment : Payment, IRefundable
+{
+    public decimal Balance { get; private set; }
+
+    public WalletPayment(decimal amount, decimal balance) : base(amount)
+    {
+        Balance = balance;
+    }
+
+    public override bool Pay()
+    {
+        if (Balance < Amount)
+        {
+            Console.WriteLine($"❌ საფულეში მხოლოდ {Balance} ₾ — არ ჰყოფნის");
+            return false;
+        }
+
+        Balance -= Amount;
+        Console.WriteLine($"📱 საფულე → {Amount} ₾ (დარჩა {Balance} ₾)");
+        return true;
+    }
+
+    public void Refund()
+    {
+        Balance += Amount;
+        Console.WriteLine($"↩️ {Amount} ₾ დაბრუნდა საფულეში ({Balance} ₾)");
+    }
+}
+    </code-block>
+    <div class="col" style="gap:12px">
+      <i class="codestep" data-for="wal" data-lines="3"></i>
+      <div class="callout step" data-with style="--a:var(--net);font-size:17px">🛡️ ბალანსი — ჩანს, მაგრამ იცვლება <b>მხოლოდ</b> <code class="i">Pay</code>-ით და <code class="i">Refund</code>-ით</div>
+      <i class="codestep" data-for="wal" data-lines="10-20"></i>
+      <div class="callout step" data-with style="--a:var(--red);font-size:17px">წესი: ფული არ ჰყოფნის → <code class="i">false</code>, ბალანსი <b>არ იცვლება</b></div>
+      <i class="codestep" data-for="wal" data-lines="22-26"></i>
+      <div class="callout step" data-with style="--a:var(--api);font-size:17px">დაბრუნება — ბალანსს ემატება</div>
+    </div>
+  </div>
+  <aside class="study">
+### ⌨️ WalletPayment.cs — საფულე წესით
+
+```csharp WalletPayment.cs · namespace-ის შიგნით
+internal class WalletPayment : Payment, IRefundable
+{
+    public decimal Balance { get; private set; }
+
+    public WalletPayment(decimal amount, decimal balance) : base(amount)
+    {
+        Balance = balance;
+    }
+
+    public override bool Pay()
+    {
+        if (Balance < Amount)
+        {
+            Console.WriteLine($"❌ საფულეში მხოლოდ {Balance} ₾ — არ ჰყოფნის");
+            return false;
+        }
+
+        Balance -= Amount;
+        Console.WriteLine($"📱 საფულე → {Amount} ₾ (დარჩა {Balance} ₾)");
+        return true;
+    }
+
+    public void Refund()
+    {
+        Balance += Amount;
+        Console.WriteLine($"↩️ {Amount} ₾ დაბრუნდა საფულეში ({Balance} ₾)");
+    }
+}
+```
+
+- 🛡️ `Balance` — გარედან ჩანს, მაგრამ იცვლება მხოლოდ `Pay()`-ით და `Refund()`-ით.
+- წესი: ფული არ ჰყოფნის → `false` და ბალანსი არ იცვლება.
+- დაბრუნება — თანხა ბალანსს ემატება.
+  </aside>
+</section>
+<section class="slide" data-section="1 · ლექტორი წერს">
+  <div class="kicker c-mvc">⌨️ ერთად ვწერთ · Program.cs</div>
+  <h2>🧾 სალარო — <span class="grad">ორი ციკლი</span></h2>
+  <div class="grid2" style="grid-template-columns:1.05fr 1fr;gap:26px;align-items:start;margin-top:6px">
+    <code-block id="main" lang="csharp" cls="xs" title="Program.cs · Main">
+Payment[] payments =
+{
+    new CardPayment(45, "4417123456789012"),
+    new CashPayment(20),
+    new WalletPayment(80, 50)
+};
+
+decimal total = 0;
+foreach (Payment p in payments)
+{
+    if (p.Pay()) total += p.Amount;
+}
+Console.WriteLine($"💰 სულ გადახდილია: {total} ₾");
+
+CardPayment card = new CardPayment(30, "5555666677778888");
+WalletPayment wallet = new WalletPayment(10, 100);
+card.Pay();
+wallet.Pay();
+
+IRefundable[] refunds = { card, wallet };
+foreach (IRefundable r in refunds)
+{
+    r.Refund();
+}
+    </code-block>
+    <div class="col" style="gap:12px">
+      <i class="codestep" data-for="main" data-lines="1-13"></i>
+      <div class="callout step" data-with style="--a:var(--asp);font-size:17px">🎭 <code class="i">Payment[]</code> — სამი სხვადასხვა გადახდა, <b>ერთი</b> ციკლი. <code class="i">p.Pay()</code> — ყველა თავისებურად</div>
+      <i class="codestep" data-for="main" data-lines="20-24"></i>
+      <div class="callout step" data-with style="--a:var(--api);font-size:17px">🎨 <code class="i">IRefundable[]</code> — მხოლოდ ისინი, ვისაც <b>შეუძლია</b>. ნაღდი აქ არ ეტევა</div>
+      <div class="term step"><div class="bar"><i></i><i></i><i></i><span>Console</span></div><div class="body" style="font-size:14px">💳 ბარათი **** 9012 → 45 ₾<br>💵 ნაღდი → 20 ₾<br>❌ საფულეში მხოლოდ 50 ₾ — არ ჰყოფნის<br><span class="g">💰 სულ გადახდილია: 65 ₾</span><br>…<br>↩️ 30 ₾ დაბრუნდა ბარათზე **** 8888</div></div>
+    </div>
+  </div>
+  <aside class="study">
+### ⌨️ Program.cs — სალარო
+
+```csharp Program.cs · Main
+Payment[] payments =
+{
+    new CardPayment(45, "4417123456789012"),
+    new CashPayment(20),
+    new WalletPayment(80, 50)
+};
+
+decimal total = 0;
+foreach (Payment p in payments)
+{
+    if (p.Pay()) total += p.Amount;
+}
+Console.WriteLine($"💰 სულ გადახდილია: {total} ₾");
+
+CardPayment card = new CardPayment(30, "5555666677778888");
+WalletPayment wallet = new WalletPayment(10, 100);
+card.Pay();
+wallet.Pay();
+
+IRefundable[] refunds = { card, wallet };
+foreach (IRefundable r in refunds)
+{
+    r.Refund();
+}
+```
+
+```plain Console
+💳 ბარათი **** 9012 → 45 ₾
+💵 ნაღდი → 20 ₾
+❌ საფულეში მხოლოდ 50 ₾ — არ ჰყოფნის
+💰 სულ გადახდილია: 65 ₾
+💳 ბარათი **** 8888 → 30 ₾
+📱 საფულე → 10 ₾ (დარჩა 90 ₾)
+↩️ 30 ₾ დაბრუნდა ბარათზე **** 8888
+↩️ 10 ₾ დაბრუნდა საფულეში (100 ₾)
+```
+
+- 🎭 `Payment[]` — სამი სხვადასხვა გადახდა, ერთი ციკლი. `p.Pay()` — ყველა თავისებურად; საფულემ უარი თქვა, ამიტომ ჯამში არ ჩაითვალა.
+- 🎨 `IRefundable[]` — მხოლოდ ისინი, ვისაც შეუძლია დაბრუნება. ნაღდი აქ ვერ ჩაეტევა — კომპილატორი არ დაუშვებს.
+  </aside>
+</section>
+<section class="slide" data-section="1 · ლექტორი წერს">
+  <div class="kicker">💡 შეჯამება · სად რომელი პრინციპია</div>
+  <h2>სალაროში — <span class="grad">ოთხივე</span></h2>
+  <table class="data" style="font-size:20px;margin-top:18px">
+    <tr><th>პრინციპი</th><th>სად</th><th>რას გვაძლევს</th></tr>
+    <tr><td>🛡️ ინკაფსულაცია</td><td><code class="i">Amount</code>, <code class="i">Balance</code> — private set · <code class="i">cardNumber</code> — private</td><td>უარყოფითი თანხა და ნომრის გაჟონვა <b>შეუძლებელია</b></td></tr>
+    <tr><td>🧬 მემკვიდრეობა</td><td><code class="i">CardPayment : Payment</code></td><td>თანხა და ToString — <b>ერთხელ</b></td></tr>
+    <tr><td>🎭 პოლიმორფიზმი</td><td><code class="i">foreach … p.Pay()</code></td><td>ახალი გადახდის ტიპი — <b>ციკლი არ იცვლება</b></td></tr>
+    <tr><td>🎨 აბსტრაქცია</td><td><code class="i">abstract Payment</code>, <code class="i">IRefundable</code></td><td>„უბრალოდ გადახდა“ არ არსებობს · ნაღდი არ ბრუნდება</td></tr>
+  </table>
+  <aside class="study">
+### 💡 სად რომელი პრინციპია
+
+| პრინციპი | სად | რას გვაძლევს |
+|---|---|---|
+| 🛡️ ინკაფსულაცია | `Amount`, `Balance` — private set; `cardNumber` — private | უარყოფითი თანხა და ნომრის გაჟონვა შეუძლებელია |
+| 🧬 მემკვიდრეობა | `CardPayment : Payment` | თანხა და ToString — ერთხელ |
+| 🎭 პოლიმორფიზმი | `foreach … p.Pay()` | ახალი გადახდის ტიპი — ციკლი არ იცვლება |
+| 🎨 აბსტრაქცია | `abstract Payment`, `IRefundable` | „უბრალოდ გადახდა“ არ არსებობს; ნაღდი არ ბრუნდება |
+  </aside>
+</section>
+<section class="slide divider" data-section="2 · თქვენი ჯერი">
+  <div class="vcenter">
+    <div class="kicker in">ნაწილი 2</div>
+    <h1 class="in" style="--d:.1s">თქვენი ჯერი:<br><span class="grad">ზოოპარკი</span> 🦁</h1>
+    <p class="lead mt in" style="--d:.3s">იგივე ხუთი კითხვა — ახლა თქვენ წერთ</p>
+  </div>
+  <div class="big-num">02</div>
+  <aside class="study">
+## ნაწილი 2 · თქვენი ჯერი: ზოოპარკი
+
+იგივე ხუთი კითხვა — ახლა თქვენ წერთ.
+  </aside>
+</section>
+<section class="slide" data-section="2 · თქვენი ჯერი">
+  <div class="kicker">🧩 დავალება</div>
+  <h2>ზოოპარკი — <span class="grad">ჯერ იფიქრეთ</span>, მერე წერეთ</h2>
+  <div class="grid2" style="grid-template-columns:1.1fr 1fr;gap:30px;margin-top:14px">
+    <div class="mock in"><div class="mh">📋 ზოოპარკის მოთხოვნები</div><div class="mb"><ul class="clean small">
+      <li>ცხოველები: <b>ლომი</b>, <b>თუთიყუში</b>, <b>იხვი</b>, <b>თევზი</b></li>
+      <li>ყველას აქვს <b>სახელი</b> და <b>ენერგია</b> (0–100)</li>
+      <li>ყველა <b>ჭამს</b> და <b>ხმას გამოსცემს</b> — თავისებურად</li>
+      <li>ზოგი <b>დაფრინავს</b>, ზოგი <b>ცურავს</b>, იხვი — <b>ორივეს</b></li>
+      <li>მოძრაობა ენერგიას ხარჯავს</li>
+      <li>„უბრალოდ ცხოველი“ <b>არ არსებობს</b></li></ul></div></div>
+    <div class="col" style="gap:12px">
+      <div class="callout step" style="--a:var(--net);font-size:19px">ჯერ — <b>ხუთი კითხვა</b> რვეულში (5 წუთი)</div>
+      <div class="callout step" style="--a:var(--mvc);font-size:19px">მერე — კოდი, <b>დონეების</b> მიხედვით: ⭐ → ⭐⭐ → ⭐⭐⭐</div>
+      <div class="callout step" style="--a:var(--asp);font-size:19px">ვერ გამოგივიდა? გვერდით მჯდომი → მერე მე</div>
+      <div class="solve step" style="display:block;font-size:19px">ზოოპარკი ზუსტად ისე აეწყობა, როგორც სალარო</div>
+    </div>
+  </div>
+  <aside class="study">
+### 🧩 დავალება: ზოოპარკი — ჯერ იფიქრეთ, მერე წერეთ
+
+**ზოოპარკის მოთხოვნები:**
+
+- ცხოველები: ლომი, თუთიყუში, იხვი, თევზი.
+- ყველას აქვს სახელი და ენერგია (0–100).
+- ყველა ჭამს და ხმას გამოსცემს — თავისებურად.
+- ზოგი დაფრინავს, ზოგი ცურავს, იხვი — ორივეს.
+- მოძრაობა ენერგიას ხარჯავს.
+- „უბრალოდ ცხოველი“ არ არსებობს.
+
+ჯერ რვეულში უპასუხეთ ხუთ კითხვას (5 წუთი): ვინ/რა → კლასები, ვინ არის → მემკვიდრეობა, რა შეუძლია → ინტერფეისი, რა დავიცვათ → private, რა განსხვავდება → abstract/override. მერე — კოდი, დონეების მიხედვით.
+  </aside>
+</section>
+<lecture-classwork/>
+<section class="slide" data-section="2 · თქვენი ჯერი">
+  <div class="kicker">📝 შემდეგ ლექციაზე</div>
+  <h2>ტესტი — <span class="grad">ყველაფერი ერთად</span></h2>
+  <div class="grid3" style="margin-top:22px">
+    <div class="card accent step" style="--a:var(--net)"><h3><span class="ico">📚</span>რა იქნება</h3><p class="small">C#-ის საფუძვლები და მთელი OOP: კლასები, ობიექტები, ოთხი პრინციპი</p></div>
+    <div class="card accent step" style="--a:var(--asp)"><h3><span class="ico">🧩</span>როგორი კითხვები</h3><p class="small">თეორია · „რას დაბეჭდავს?“ · <b>კოდის აწყობა</b> · ცარიელი ადგილი · „იპოვე შეცდომა“</p></div>
+    <div class="card accent step" style="--a:var(--mvc)"><h3><span class="ico">🏁</span>ქულა</h3><p class="small">ტესტის ბოლოს <b>მაშინვე</b> ნახავთ: ქულას, შეცდომებს და სწორ პასუხებს ახსნით</p></div>
+  </div>
+  <div class="solve step" style="display:block;font-size:20px;text-align:center">როგორ მოვემზადოთ: კონსპექტები (P), „შევამოწმოთ“-ის კითხვები და <b>არენის</b> კოდი — თავიდან ბოლომდე</div>
+  <aside class="study">
+### 📝 შემდეგ ლექციაზე — ტესტი
+
+- **რა იქნება:** C#-ის საფუძვლები და მთელი OOP — კლასები, ობიექტები, ოთხი პრინციპი.
+- **როგორი კითხვები:** თეორია, „რას დაბეჭდავს?“, კოდის აწყობა (ხაზების სწორ რიგში დალაგება), ცარიელი ადგილის შევსება, „იპოვე შეცდომა“.
+- **ქულა:** ტესტის ბოლოს მაშინვე ნახავთ ქულას, შეცდომებს და სწორ პასუხებს ახსნით.
+
+**როგორ მოვემზადოთ:** კონსპექტები, ყოველი ლექციის „შევამოწმოთ“-ის კითხვები და არენის კოდი — თავიდან ბოლომდე. სცადეთ, არენა ნულიდან დაწეროთ კონსპექტში ჩაუხედავად.
+  </aside>
+</section>
+<lecture-check/>
+<section class="slide" data-section="შეჯამება">
+  <div class="vcenter" style="max-width:1050px">
+    <div class="kicker in" style="color:var(--net)">დღეს</div>
+    <h1 class="in" style="--d:.1s;font-size:62px">ჯერ იფიქრე —<br><span class="grad">მერე წერე</span></h1>
+    <div class="grid2 mt2">
+      <div class="card accent step" style="--a:var(--mvc)"><h3><span class="ico">🧠</span>დაიმახსოვრე</h3><ul class="clean small"><li>კლასები → „არის“ → „შეუძლია“ → რა დავიცვათ → რა განსხვავდება</li><li>„არის“ — მემკვიდრეობა, „შეუძლია“ — ინტერფეისი</li><li>მშობლის ტიპის მასივი + ერთი ციკლი</li></ul></div>
+      <div class="card accent step" style="--a:var(--net)"><h3><span class="ico">⏭️</span>შემდეგ</h3><p class="small">📝 <b>ტესტი</b> — C#-ის საფუძვლები და მთელი OOP. ქულას ბოლოს მაშინვე ნახავთ</p></div>
+    </div>
+  </div>
+  <div class="abs in" style="--d:.4s;right:110px;top:120px;font-size:120px">🧩</div>
+  <aside class="study">
+## შეჯამება · ჯერ იფიქრე — მერე წერე
+
+**დაიმახსოვრე:**
+
+1. OOP პროექტი ხუთი კითხვით იწყება: ვინ/რა → ვინ „არის“ → რა „შეუძლია“ → რა დავიცვათ → რა განსხვავდება.
+2. „არის“ → მემკვიდრეობა (`abstract` მშობელი); „შეუძლია“ → ინტერფეისი.
+3. დაცვა → `private`, `private set` და წესები მეთოდებში.
+4. მშობლის ან ინტერფეისის ტიპის მასივი + ერთი ციკლი → ახალი ტიპი კოდს არ ცვლის.
+
+### ⏭️ შემდეგ
+
+📝 ტესტი — C#-ის საფუძვლები და მთელი OOP.
+  </aside>
+</section>
+<lecture-homework/>

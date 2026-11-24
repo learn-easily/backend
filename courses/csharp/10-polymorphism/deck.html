@@ -1,0 +1,865 @@
+<style>
+.stepper{position:absolute;right:90px;top:calc(72px + (var(--h,900px) - 900px) / 2);display:flex;gap:8px;z-index:3}
+.stepper span{font:600 14px var(--mono);padding:6px 13px;border-radius:99px;border:1px solid var(--line2);color:var(--muted);background:#fff}
+.stepper span.done{color:var(--mvc);border-color:color-mix(in srgb,var(--mvc) 45%,#fff)}
+.stepper span.on{background:var(--core);border-color:var(--core);color:#fff;box-shadow:0 6px 16px -8px var(--core)}
+i.codestep{display:none}
+.mono{font-family:var(--mono)}
+.late{opacity:0}
+.shown .late,.shown.late{animation:inFade .6s var(--ease) var(--ld,.9s) forwards}
+.term .pm::before{content:"PM> ";color:var(--core)}
+.term .ok{color:#4ade80}
+.term .warn{color:#fbbf24}
+.term .err{color:#f87171}
+.term .body{font-size:18px;line-height:1.65}
+.tree{font:19px/1.9 var(--mono);color:var(--ink2)}
+.tree .n{display:block;white-space:nowrap}
+.tree .n i{font-style:normal;margin-right:8px}
+.tree .lvl1{padding-left:30px}.tree .lvl2{padding-left:60px}.tree .lvl3{padding-left:90px}.tree .lvl4{padding-left:120px}
+.tree .hi{color:var(--ink);font-weight:700}
+.flowrow{display:flex;align-items:center;gap:18px}
+.fbox{flex:1;border-radius:16px;padding:18px 20px;border:2px solid var(--a);background:color-mix(in srgb,var(--a) 8%,#fff);text-align:center}
+.fbox .e{font-size:38px;line-height:1.2}
+.fbox .l{font-size:21px;font-weight:700;color:var(--ink)}
+.fbox .s{font:15px var(--mono);color:var(--muted)}
+.farrow{font:700 17px var(--mono);color:var(--a);text-align:center;min-width:190px}
+.farrow .ar{display:block;font-size:40px;line-height:1}
+.check li{list-style:none;position:relative;padding-left:44px;margin:11px 0;font-size:21px}
+.check li::before{content:"";position:absolute;left:0;top:.2em;width:26px;height:26px;border-radius:8px;border:2px solid var(--line2);background:#fff}
+.check li.shown::before{content:"✓";color:#fff;background:var(--mvc);border-color:var(--mvc);font:800 18px/26px var(--font);text-align:center}
+.mock{background:#fff;border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);overflow:hidden}
+.mock .mh{background:var(--bg2);padding:10px 16px;font:600 14px var(--mono);color:var(--muted);border-bottom:1px solid var(--line)}
+.mock .mb{padding:18px 20px}
+.phase{text-align:center}
+.phase .em{font-size:72px;line-height:1.1}
+.phase .tt{font:700 15px var(--mono);color:var(--a)}
+/* lecture 2 */
+.crown{font-size:44px;line-height:1}
+.who{display:flex;align-items:center;justify-content:center;gap:26px;margin:26px 0 22px}
+.who .bx{border-radius:16px;padding:20px 26px;border:2px solid var(--a);background:color-mix(in srgb,var(--a) 8%,#fff);text-align:center;min-width:200px}
+.who .bx .e{font-size:52px;line-height:1.2}
+.who .bx .l{font-size:20px;font-weight:700;color:var(--ink)}
+.who .bx.copy{border-style:dashed;opacity:.75}
+.who .ar{font:700 34px var(--mono);color:var(--a)}
+.lane{display:flex;align-items:center;gap:12px;padding:26px 22px;border-radius:16px;border:2px solid color-mix(in srgb,var(--a) 40%,#fff);background:color-mix(in srgb,var(--a) 6%,#fff)}
+.lane .lh{font:800 19px var(--mono);color:var(--a);min-width:180px}
+.lane .lc{font:600 17.5px var(--mono);background:#fff;border:1px solid var(--line2);border-radius:10px;padding:10px 12px;color:var(--ink);white-space:nowrap}
+.lane .la{font:700 22px var(--mono);color:var(--a)}
+.lane .lc.ok{border-color:var(--mvc);color:var(--mvc)}
+.lane .lc.bad{border-color:var(--red);color:var(--red);background:#fef2f2}
+.myth{display:grid;grid-template-columns:1fr 1.35fr;gap:18px;align-items:stretch;margin-bottom:20px}
+.myth .m,.myth .f{border-radius:12px;padding:18px 20px 18px 54px;font-size:21px;line-height:1.45;position:relative}
+.myth .m{background:#fef2f2;border:1px solid #fca5a5;color:#991b1b}
+.myth .f{background:#f0fdf4;border:1px solid #86efac;color:#166534}
+.myth .m::before,.myth .f::before{position:absolute;left:18px;top:19px;font-size:19px}
+.myth .m::before{content:"❌"} .myth .f::before{content:"✅"}
+.scn{display:flex;flex-direction:column;gap:12px}
+.scn{padding:30px 30px!important}
+.scn .e{font-size:56px;line-height:1}
+.card.scn p{font-size:23px;color:var(--ink2);line-height:1.5}
+.ans{align-self:flex-start;font:800 18px var(--mono);padding:8px 16px;border-radius:99px;color:#fff;background:var(--a)}
+.card .rule{font-size:34px;line-height:1.5;text-align:center;color:var(--ink)}
+.data{border-collapse:collapse;font:17px var(--mono);background:#fff;box-shadow:var(--shadow);border-radius:12px;overflow:hidden;width:100%}
+.data caption{caption-side:top;text-align:left;font:700 17px var(--mono);color:var(--a,var(--asp));padding:0 0 8px}
+.data th{background:var(--bg2);color:var(--ink2);font-weight:700;padding:9px 14px;text-align:left;border-bottom:1px solid var(--line)}
+.data td{padding:9px 14px;border-bottom:1px solid var(--line);color:var(--ink)}
+.data tr:last-child td{border-bottom:0}
+.data .fk{background:color-mix(in srgb,var(--api) 10%,#fff);color:var(--api);font-weight:700}
+.data .bad{background:#fef2f2;color:var(--red);font-weight:800}
+.data .new{background:color-mix(in srgb,var(--mvc) 10%,#fff);color:var(--mvc);font-weight:700}
+.data .empty{color:var(--muted);font-style:italic;text-align:center}
+.tlx{position:relative}
+.dot{width:26px;height:26px;border-radius:50%;background:var(--a);border:4px solid #fff;box-shadow:0 0 0 2px var(--a)}
+.gold{display:flex;gap:16px;align-items:flex-start}
+.gold .verb{font-size:46px;line-height:1}
+</style>
+
+<style>
+#deck,#deck *{font-variant-ligatures:none}
+.vs{display:grid;grid-template-columns:1fr 1fr;gap:28px;align-items:start}
+.lang{display:inline-block;font:800 15px var(--mono);padding:5px 14px;border-radius:99px;color:#fff;background:var(--a);margin-bottom:10px;letter-spacing:.04em}
+.same,.diff{display:inline-block;font:800 15px var(--mono);padding:5px 12px;border-radius:99px;white-space:nowrap}
+.same{background:#dcfce7;color:#166534}
+.diff{background:#fef3c7;color:#92400e}
+.chips{display:flex;gap:12px;flex-wrap:wrap;align-items:stretch}
+.chip2{font:700 22px var(--mono);padding:10px 18px;border-radius:12px;border:2px solid var(--a);background:color-mix(in srgb,var(--a) 8%,#fff);color:var(--a);text-align:center}
+.chip2 small{display:block;font:600 15px var(--font);color:var(--muted);margin-top:2px}
+.grid5{display:grid;grid-template-columns:repeat(5,1fr);gap:16px}
+.term .usr{color:#fbbf24}
+.term .g{color:#4ade80}
+.term .cy{color:#22d3ee}
+.term .r{color:#f87171}
+.term .body{font-size:19px;line-height:1.6}
+.stars{color:#ca8a04;font-size:20px;letter-spacing:2px}
+.big{font-size:30px}
+table.t code.i{font-size:.95em}
+table.t td.mono,table.t th.mono{font-family:var(--mono)}
+.answer{font:800 44px var(--mono);color:var(--red)}
+.vsline{display:grid;grid-template-columns:1fr 60px 1fr;align-items:center;gap:10px;margin:10px 0}
+.vsline .js,.vsline .cs{font:600 21px var(--mono);padding:12px 16px;border-radius:12px;background:#fff;border:1px solid var(--line)}
+.vsline .js{border-left:5px solid var(--pink)} .vsline .cs{border-left:5px solid var(--net)}
+.vsline .ar{text-align:center;font:800 26px var(--mono);color:var(--muted)}
+</style>
+<!-- =========================================================
+     C# · ლექცია 10 — პოლიმორფიზმი: ციკლი ყოველ ტიპზე → virtual/override → ცვლადის vs ობიექტის ტიპი → ხაფანგები → base. (Mage, ჯავშანი) → object/ToString, override vs overload → Archer + გუნდი vs დრაკონი
+     ========================================================= -->
+<!-- TITLE -->
+<section class="slide" data-section="შესავალი">
+  <div class="vcenter" style="max-width:860px">
+    <div class="kicker in" style="color:var(--net)">C# · ლექცია 10</div>
+    <h1 class="in" style="--d:.15s">პოლიმორფიზმი:<br><span class="grad">ერთი ბრძანება — ბევრი ქცევა</span></h1>
+    <p class="lead in mt" style="--d:.35s"><code class="i">virtual</code>, <code class="i">override</code>, <code class="i">base.</code> და <code class="i">ToString()</code> — და მთელი გუნდი ერთი ციკლით ⚔️</p>
+  </div>
+  <div class="abs" style="right:100px;top:230px">
+    <div class="col" style="gap:12px;width:420px">
+      <div class="fbox in" style="--a:var(--net);--d:.4s;padding:12px"><div class="l">hero.Attack()</div></div>
+      <div class="fbox in" style="--a:var(--mvc);--d:.6s;padding:10px"><div class="l">🛡️ ხმალი · 15–25</div></div>
+      <div class="fbox in" style="--a:var(--asp);--d:.75s;padding:10px"><div class="l">🔮 ცეცხლი · 25–35</div></div>
+      <div class="fbox in" style="--a:var(--api);--d:.9s;padding:10px"><div class="l">🏹 ისარი · კრიტი ×2</div></div>
+    </div>
+  </div>
+</section>
+<lecture-review/>
+<lecture-homework-review/>
+<lecture-intro/>
+<section class="slide" data-section="შესავალი">
+  <div class="kicker c-red">💥 პრობლემა კოდში · წინა ლექციიდან</div>
+  <h2>ყოველ ტიპს — <span class="c-red">საკუთარი ციკლი</span>?</h2>
+  <div class="grid2" style="grid-template-columns:1.1fr 1fr;gap:26px;align-items:start;margin-top:6px">
+    <code-block id="naive" lang="csharp" cls="xs" title="Program.cs · Main">
+Warrior[] warriors = { new Warrior("ლუკა") };
+Mage[] mages = { new Mage("ანა") };
+
+foreach (Warrior w in warriors)
+{
+    dragon.TakeDamage(w.Smash());
+}
+foreach (Mage m in mages)
+{
+    dragon.TakeDamage(m.Fireball());
+}
+// მშვილდოსანი? კიდევ მასივი და ციკლი…
+    </code-block>
+    <div class="col" style="gap:12px">
+      <div class="callout" style="--a:var(--net);font-size:18px"><code class="i">Character[]</code>-ში ყველა ეტევა — მაგრამ <code class="i">c.Attack()</code> ყველასთვის <b>ერთნაირია</b></div>
+      <div class="problem step" style="display:block;font-size:18px">გამოსავალი „შუბლით“: ყოველ ტიპს — <b>თავისი მასივი და ციკლი</b></div>
+      <div class="problem step" style="display:block;font-size:18px">ახალი გმირი → ახალი მასივი, ახალი ციკლი, <b>ბრძოლის კოდის შეცვლა</b></div>
+      <div class="problem step" style="display:block;font-size:18px">დრაკონმა ვის დაარტყას? ახლა <b>სამ მასივში</b> უნდა ეძებოს</div>
+      <div class="solve step" style="display:block;font-size:18px">გვინდა: <b>ერთი</b> მასივი, <b>ერთი</b> ციკლი, <code class="i">c.Attack()</code> — და ყველა თავისებურად ურტყამს</div>
+    </div>
+  </div>
+  <aside class="study">
+### 💥 პრობლემა კოდში: ყოველ ტიპს — საკუთარი ციკლი?
+
+`Character[]`-ში ყველა ეტევა, მაგრამ `c.Attack()` ყველასთვის ერთნაირია (5–15), `Smash()` და `Fireball()` კი `Character`-მა არ იცის. გამოსავალი „შუბლით“:
+
+```csharp Program.cs · Main
+Warrior[] warriors = { new Warrior("ლუკა") };
+Mage[] mages = { new Mage("ანა") };
+
+foreach (Warrior w in warriors)
+{
+    dragon.TakeDamage(w.Smash());
+}
+foreach (Mage m in mages)
+{
+    dragon.TakeDamage(m.Fireball());
+}
+// მშვილდოსანი? კიდევ მასივი და ციკლი…
+```
+
+- ყოველ ტიპს — თავისი მასივი და ციკლი.
+- ახალი გმირი → ახალი მასივი, ახალი ციკლი, ბრძოლის კოდის შეცვლა.
+- დრაკონმა ვის დაარტყას? ახლა სამ მასივში უნდა ეძებოს.
+
+გვინდა: **ერთი** მასივი, **ერთი** ციკლი, `c.Attack()` — და ყველა თავისებურად ურტყამს.
+  </aside>
+</section>
+<section class="slide" data-section="შესავალი">
+  <div class="kicker">💡 ახსნა · პოლიმორფიზმი</div>
+  <h2>„<span class="grad">შეუტიე!</span>“ — და ყველა თავისებურად</h2>
+  <div class="flowrow" style="margin-top:26px">
+    <div class="fbox in" style="--a:var(--net)"><div class="e">📣</div><div class="l">c.Attack()</div><div class="s">ერთი ბრძანება</div></div>
+    <div class="farrow step" style="--a:var(--net);min-width:120px"><span class="ar">→</span>ვინ არის?</div>
+    <div class="col" style="gap:10px;flex:1.3">
+      <div class="fbox step" data-with style="--a:var(--mvc);padding:10px"><div class="l">🛡️ Warrior → ხმლით, 15–25</div></div>
+      <div class="fbox step" data-with style="--a:var(--asp);padding:10px"><div class="l">🔮 Mage → ცეცხლით, 25–35</div></div>
+      <div class="fbox step" data-with style="--a:var(--api);padding:10px"><div class="l">🏹 Archer → ისრით, ზოგჯერ ×2</div></div>
+    </div>
+  </div>
+  <div class="grid2 mt" style="gap:20px">
+    <div class="callout step" style="--a:var(--net);font-size:19px"><b>პოლიმორფიზმი</b> (ბერძნ. „ბევრი ფორმა“) — ერთი და იგივე გამოძახება სხვადასხვა ობიექტზე <b>სხვადასხვანაირად</b> მუშაობს</div>
+    <div class="callout step" style="--a:var(--asp);font-size:19px">მასწავლებელი ამბობს: „წარადგინეთ თავი!“ — <b>ერთი</b> ბრძანება, ყველა <b>თავისებურად</b> პასუხობს</div>
+  </div>
+  <aside class="study">
+### 💡 პოლიმორფიზმი: „შეუტიე!“ — და ყველა თავისებურად
+
+**პოლიმორფიზმი** (ბერძნულად „ბევრი ფორმა“) — ერთი და იგივე გამოძახება სხვადასხვა ობიექტზე სხვადასხვანაირად მუშაობს.
+
+`c.Attack()`: მეომარი ხმლით ურტყამს (15–25), ჯადოქარი — ცეცხლით (25–35), მშვილდოსანი — ისრით, ზოგჯერ ორმაგად.
+
+ცხოვრებიდან: მასწავლებელი ამბობს „წარადგინეთ თავი!“ — ბრძანება ერთია, ყველა თავისებურად პასუხობს.
+
+```terms
+პოლიმორფიზმი — ერთი გამოძახება, სხვადასხვა ქცევა: იმის მიხედვით, ვინ არის ობიექტი სინამდვილეში
+```
+  </aside>
+</section>
+<section class="slide divider" data-section="1 · virtual და override">
+  <div class="vcenter">
+    <div class="kicker in">ნაწილი 1</div>
+    <h1 class="in" style="--d:.1s"><span class="grad">virtual</span> და <span class="grad">override</span></h1>
+    <p class="lead mt in" style="--d:.3s">მშობელი ნებას რთავს — შვილი ცვლის</p>
+  </div>
+  <div class="big-num">01</div>
+  <aside class="study">
+## ნაწილი 1 · virtual და override
+
+მშობელი ნებას რთავს — შვილი ცვლის.
+  </aside>
+</section>
+<section class="slide" data-section="1 · virtual და override">
+  <div class="kicker c-mvc">⌨️ ერთად ვწერთ · Character.cs · Warrior.cs</div>
+  <h2>მშობელი <span class="grad">ნებას რთავს</span>, შვილი <span class="grad">ცვლის</span></h2>
+  <div class="grid2" style="grid-template-columns:1.3fr 1fr;gap:26px;align-items:start;margin-top:6px">
+    <code-block id="vo" lang="csharp" cls="sm" title="Character.cs + Warrior.cs">
+// Character.cs
+public virtual int Attack()
+{
+    return RollDamage(5, 15);
+}
+
+// Warrior.cs — Smash()-ის ნაცვლად
+public override int Attack()
+{
+    return RollDamage(15, 25);
+}
+    </code-block>
+    <div class="col" style="gap:12px">
+      <i class="codestep" data-for="vo" data-lines="2"></i>
+      <div class="callout step" data-with style="--a:var(--net);font-size:18px"><code class="i">virtual</code> — „შვილს <b>შეუძლია</b> ეს მეთოდი შეცვალოს“</div>
+      <i class="codestep" data-for="vo" data-lines="8-11"></i>
+      <div class="callout step" data-with style="--a:var(--mvc);font-size:18px"><code class="i">override</code> — „ვცვლი“. სახელი, პარამეტრები, ტიპი — <b>ზუსტად იგივე</b></div>
+      <div class="callout step" style="--a:var(--asp);font-size:18px"><code class="i">Smash()</code> აღარ გვჭირდება — მეომრის შეტევა ახლა <b>Attack()</b>-ია</div>
+      <div class="callout step" style="--a:var(--pink);font-size:17px">Mage-იც იგივენაირად: <code class="i">Fireball()</code> → <code class="i">override Attack()</code></div>
+    </div>
+  </div>
+  <aside class="study">
+### ⌨️ virtual და override: მშობელი ნებას რთავს, შვილი ცვლის
+
+```csharp Character.cs + Warrior.cs
+// Character.cs
+public virtual int Attack()
+{
+    return RollDamage(5, 15);
+}
+
+// Warrior.cs — Smash()-ის ნაცვლად
+public override int Attack()
+{
+    return RollDamage(15, 25);
+}
+```
+
+- `virtual` მშობელში — „შვილს შეუძლია ეს მეთოდი შეცვალოს“.
+- `override` შვილში — „ვცვლი“. სახელი, პარამეტრები და დასაბრუნებელი ტიპი ზუსტად იგივეა.
+- `Smash()` აღარ გვჭირდება — მეომრის შეტევა ახლა `Attack()`-ია. Mage-იც იგივენაირად: `Fireball()` → `override Attack()` (შემდეგ ნაწილში).
+
+```terms
+virtual — მშობლის მეთოდი, რომლის შეცვლაც შვილს შეუძლია
+override — შვილის საკუთარი ვერსია virtual მეთოდისა
+```
+  </aside>
+</section>
+<section class="slide" data-section="1 · virtual და override">
+  <div class="kicker c-mvc">⌨️ ერთად ვწერთ · ✨ მაგია</div>
+  <h2>ერთი ციკლი — <span class="grad">ყველა თავისებურად</span></h2>
+  <div class="grid2" style="grid-template-columns:1.3fr 1fr;gap:26px;align-items:start;margin-top:6px">
+    <code-block id="magic" lang="csharp" cls="xs" title="Program.cs · Main">
+Character[] party =
+{
+    new Warrior("ლუკა"),
+    new Mage("ანა")
+};
+
+foreach (Character c in party)
+{
+    Console.WriteLine($"{c.Name} → {c.Attack()}");
+}
+    </code-block>
+    <div class="col" style="gap:12px">
+      <i class="codestep" data-for="magic" data-lines="7-10"></i>
+      <div class="callout step" data-with style="--a:var(--net);font-size:18px">ცვლადი — <code class="i">Character</code>. მაგრამ C# <b>გაშვებისას</b> ნახულობს, ვინ არის ობიექტი <b>სინამდვილეში</b></div>
+      <div class="term step"><div class="bar"><i></i><i></i><i></i><span>Console</span></div><div class="body" style="font-size:18px">ლუკა → 21<br>ანა → 31</div></div>
+      <div class="solve step" style="display:block;font-size:19px">ახალი გმირი? მასივში <b>ერთი ხაზი</b>. ციკლი არ იცვლება</div>
+    </div>
+  </div>
+  <aside class="study">
+### ⌨️ ✨ ერთი ციკლი — ყველა თავისებურად
+
+```csharp Program.cs · Main
+Character[] party =
+{
+    new Warrior("ლუკა"),
+    new Mage("ანა")
+};
+
+foreach (Character c in party)
+{
+    Console.WriteLine($"{c.Name} → {c.Attack()}");
+}
+```
+
+```plain Console
+ლუკა → 21
+ანა → 31
+```
+
+- ცვლადი `c` — `Character`-ია. მაგრამ C# პროგრამის **გაშვებისას** ნახულობს, ვინ არის ობიექტი სინამდვილეში, და მის `override`-ს იძახებს.
+- ახალი გმირი? მასივში ერთი ხაზი — ციკლი არ იცვლება.
+  </aside>
+</section>
+<section class="slide" data-section="1 · virtual და override">
+  <div class="kicker">💡 ახსნა · ცვლადის ტიპი და ობიექტის ტიპი</div>
+  <h2><code class="i" style="font-size:.9em">Character c = new Warrior("ლუკა");</code></h2>
+  <div class="grid2" style="gap:26px;margin-top:22px">
+    <div class="card accent step" style="--a:var(--net)"><h3><span class="ico">🏷️</span>ცვლადის ტიპი — Character</h3><p class="small">განსაზღვრავს, <b>რისი გამოძახება შეიძლება</b>: <code class="i">c.Attack()</code> ✓, <code class="i">c.Heal()</code> ✓, <code class="i">c.Smash()</code> ❌</p></div>
+    <div class="card accent step" style="--a:var(--mvc)"><h3><span class="ico">🛡️</span>ობიექტის ტიპი — Warrior</h3><p class="small">განსაზღვრავს, <b>რომელი ვერსია შესრულდება</b>: <code class="i">c.Attack()</code> → Warrior-ის override</p></div>
+  </div>
+  <div class="solve step" style="display:block;font-size:22px;text-align:center">რა შეიძლება — <b>ცვლადი</b> ამბობს. როგორ შესრულდება — <b>ობიექტი</b></div>
+  <aside class="study">
+### 💡 ცვლადის ტიპი და ობიექტის ტიპი
+
+`Character c = new Warrior("ლუკა");`
+
+- **ცვლადის ტიპი** (`Character`) განსაზღვრავს, **რისი გამოძახება შეიძლება**: `c.Attack()` ✓, `c.Heal()` ✓, `c.Smash()` ❌ — Character-ს ასეთი მეთოდი არ აქვს.
+- **ობიექტის ტიპი** (`Warrior`) განსაზღვრავს, **რომელი ვერსია შესრულდება**: `c.Attack()` → Warrior-ის `override`.
+
+რა შეიძლება — ცვლადი ამბობს. როგორ შესრულდება — ობიექტი.
+  </aside>
+</section>
+<section class="slide" data-section="1 · virtual და override">
+  <div class="kicker">⚠ ხაფანგი</div>
+  <h2>ორი <span class="c-red">დავიწყებული</span> სიტყვა</h2>
+  <div class="grid2" style="gap:28px;margin-top:12px">
+    <div class="col" style="gap:12px">
+      <code-block id="trap1" lang="csharp" cls="sm" title="virtual-ის გარეშე">
+// Character.cs — virtual დაგავიწყდა
+public int Attack() { … }
+
+// Warrior.cs
+public override int Attack() { … }   // ❌ CS0506
+    </code-block>
+      <div class="problem step" style="display:block;font-size:18px"><b>შეცდომა</b>: მშობელს ცვლილების ნება არ მიუცია — და ეს <b>კარგია</b>, მაშინვე ჩანს</div>
+    </div>
+    <div class="col" style="gap:12px">
+      <code-block id="trap2" lang="csharp" cls="sm" title="override-ის გარეშე">
+// Character.cs
+public virtual int Attack() { … }
+
+// Warrior.cs — override დაგავიწყდა
+public int Attack() { … }            // ⚠ CS0114
+    </code-block>
+      <div class="problem step" style="display:block;font-size:18px">მხოლოდ <b>გაფრთხილება</b> — კომპილირდება! მაგრამ ციკლში <b>მშობლის</b> ვერსია სრულდება 😱</div>
+    </div>
+  </div>
+  <div class="solve step" style="display:block;font-size:20px;text-align:center">წესი: მშობელში — <b>virtual</b>, შვილში — <b>override</b>. ყოველთვის წყვილად</div>
+  <aside class="study">
+### ⚠ ხაფანგი: ორი დავიწყებული სიტყვა
+
+```csharp virtual-ის გარეშე
+// Character.cs — virtual დაგავიწყდა
+public int Attack() { … }
+
+// Warrior.cs
+public override int Attack() { … }   // ❌ CS0506
+```
+
+**შეცდომა CS0506** — მშობელს ცვლილების ნება არ მიუცია. ეს კარგია: მაშინვე ჩანს.
+
+```csharp override-ის გარეშე
+// Character.cs
+public virtual int Attack() { … }
+
+// Warrior.cs — override დაგავიწყდა
+public int Attack() { … }            // ⚠ CS0114
+```
+
+მხოლოდ **გაფრთხილება CS0114** (*hides inherited member*) — პროგრამა კომპილირდება! მაგრამ `Character[]`-ის ციკლში **მშობლის** ვერსია შესრულდება — მეომარი ისევ 5–15-ს ურტყამს და ვერ ხვდები, რატომ.
+
+**წესი:** მშობელში — `virtual`, შვილში — `override`. ყოველთვის წყვილად.
+  </aside>
+</section>
+<section class="slide divider" data-section="2 · base">
+  <div class="vcenter">
+    <div class="kicker in">ნაწილი 2</div>
+    <h1 class="in" style="--d:.1s"><span class="grad">base.</span> — მშობლის<br>ვერსია + ჩემი</h1>
+    <p class="lead mt in" style="--d:.3s">შვილი მთლად კი არ ცვლის — ამატებს</p>
+  </div>
+  <div class="big-num">02</div>
+  <aside class="study">
+## ნაწილი 2 · base. — მშობლის ვერსია + ჩემი
+
+შვილი მთლად კი არ ცვლის — ამატებს.
+  </aside>
+</section>
+<section class="slide" data-section="2 · base">
+  <div class="kicker c-mvc">⌨️ ერთად ვწერთ · Mage.cs</div>
+  <h2>🔮 მანა გაუთავდა? — <span class="grad">მშობლის შეტევა</span></h2>
+  <div class="grid2" style="grid-template-columns:1.3fr 1fr;gap:26px;align-items:start;margin-top:6px">
+    <code-block id="mage" lang="csharp" cls="sm" title="Mage.cs · class Mage">
+public override int Attack()
+{
+    if (Mana < 20) return base.Attack();
+
+    Mana -= 20;
+    return RollDamage(25, 35);
+}
+    </code-block>
+    <div class="col" style="gap:12px">
+      <i class="codestep" data-for="mage" data-lines="3"></i>
+      <div class="callout step" data-with style="--a:var(--net);font-size:18px"><code class="i">base.Attack()</code> — <b>მშობლის</b> ვერსია: ჩვეულებრივი დარტყმა 5–15</div>
+      <div class="callout step" style="--a:var(--red);font-size:17px"><code class="i">Attack()</code> <code class="i">base.</code>-ის გარეშე — Mage-ის <b>საკუთარ</b> ვერსიას დაიძახებდა, ის კი ისევ თავის თავს… ♾️</div>
+      <i class="codestep" data-for="mage" data-lines="5-6"></i>
+      <div class="callout step" data-with style="--a:var(--asp);font-size:18px">მანა არის — ცეცხლის ბურთი 🔥</div>
+    </div>
+  </div>
+  <aside class="study">
+### ⌨️ 🔮 მანა გაუთავდა? — მშობლის შეტევა
+
+```csharp Mage.cs · class Mage
+public override int Attack()
+{
+    if (Mana < 20) return base.Attack();
+
+    Mana -= 20;
+    return RollDamage(25, 35);
+}
+```
+
+- `base.Attack()` — მშობლის ვერსია: ჩვეულებრივი დარტყმა 5–15.
+- `base.`-ის გარეშე `Attack()` Mage-ის საკუთარ ვერსიას დაიძახებდა — ის კი ისევ თავის თავს, უსასრულოდ.
+- მანა არის — 20 იხარჯება და ცეცხლის ბურთი: 25–35.
+  </aside>
+</section>
+<section class="slide" data-section="2 · base">
+  <div class="kicker c-mvc">⌨️ ერთად ვწერთ · Warrior.cs</div>
+  <h2>🛡️ ჯავშანი — <span class="grad">ჯერ ჩემი წესი, მერე მშობლის</span></h2>
+  <div class="grid2" style="grid-template-columns:1.3fr 1fr;gap:26px;align-items:start;margin-top:6px">
+    <code-block id="arm" lang="csharp" cls="sm" title="Character.cs + Warrior.cs">
+// Character.cs
+public virtual void TakeDamage(int damage) { … }
+
+// Warrior.cs
+public int Armor { get; private set; } = 5;
+
+public override void TakeDamage(int damage)
+{
+    int reduced = damage - Armor;
+    if (reduced < 0) reduced = 0;
+    base.TakeDamage(reduced);
+}
+    </code-block>
+    <div class="col" style="gap:12px">
+      <i class="codestep" data-for="arm" data-lines="2"></i>
+      <div class="callout step" data-with style="--a:var(--net);font-size:18px"><code class="i">TakeDamage</code>-იც <code class="i">virtual</code> ხდება</div>
+      <i class="codestep" data-for="arm" data-lines="7-12"></i>
+      <div class="callout step" data-with style="--a:var(--mvc);font-size:18px">ჯავშანი დაზიანებას 5-ით ამცირებს, <b>მერე</b> მშობლის ჩვეულებრივი წესი: 0-ზე ქვემოთ — არა</div>
+      <div class="callout step" style="--a:var(--red);font-size:17px"><code class="i">Health -= reduced</code> აქ ვერ დავწერდით — <code class="i">private set</code>! <code class="i">base.</code> — ერთადერთი გზა</div>
+      <div class="solve step" style="display:block;font-size:18px">დრაკონი ყველას ერთნაირად ურტყამს — მეომარი <b>ნაკლებს</b> კარგავს</div>
+    </div>
+  </div>
+  <aside class="study">
+### ⌨️ 🛡️ ჯავშანი — ჯერ ჩემი წესი, მერე მშობლის
+
+```csharp Character.cs + Warrior.cs
+// Character.cs
+public virtual void TakeDamage(int damage) { … }
+
+// Warrior.cs
+public int Armor { get; private set; } = 5;
+
+public override void TakeDamage(int damage)
+{
+    int reduced = damage - Armor;
+    if (reduced < 0) reduced = 0;
+    base.TakeDamage(reduced);
+}
+```
+
+- `TakeDamage`-იც `virtual` ხდება.
+- მეომრის ვერსია: ჯავშანი დაზიანებას 5-ით ამცირებს, მერე — მშობლის ჩვეულებრივი წესი (`base.TakeDamage`).
+- `Health -= reduced` აქ ვერ დავწერდით — `Health`-ის `set` Character-ში `private`-ია. `base.` ერთადერთი გზაა — ინკაფსულაცია მუშაობს.
+- დრაკონი ყველას ერთნაირად ურტყამს — მეომარი ნაკლებს კარგავს.
+  </aside>
+</section>
+<section class="slide divider" data-section="3 · ToString">
+  <div class="vcenter">
+    <div class="kicker in">ნაწილი 3</div>
+    <h1 class="in" style="--d:.1s"><span class="grad">ToString()</span> —<br>ყველას წინაპარი</h1>
+    <p class="lead mt in" style="--d:.3s">რატომ ბეჭდავს Console.WriteLine(dragon) „Arena.Dragon“-ს?</p>
+  </div>
+  <div class="big-num">03</div>
+  <aside class="study">
+## ნაწილი 3 · ToString() — ყველას წინაპარი
+
+რატომ ბეჭდავს `Console.WriteLine(dragon)` „Arena.Dragon“-ს?
+  </aside>
+</section>
+<section class="slide" data-section="3 · ToString">
+  <div class="kicker c-mvc">⌨️ ერთად ვწერთ · Character.cs · Mage.cs</div>
+  <h2>ყოველი კლასი — <span class="grad">object</span>-ის შვილია</h2>
+  <div class="grid2" style="grid-template-columns:1.1fr 1fr;gap:24px;align-items:start;margin-top:6px">
+    <div class="col" style="gap:12px">
+      <div class="term"><div class="bar"><i></i><i></i><i></i><span>Console</span></div><div class="body" style="font-size:17px">> Console.WriteLine(dragon);<br><span class="r">Arena.Dragon</span>  🤔</div></div>
+      <div class="step"><code-block id="tos" lang="csharp" cls="sm" title="Character.cs + Mage.cs">
+// Character.cs
+public override string ToString()
+{
+    return $"{Name} ❤️ {Health}/{MaxHealth}";
+}
+
+// Mage.cs
+public override string ToString()
+{
+    return base.ToString() + $" 🔮 {Mana}";
+}
+    </code-block></div>
+    </div>
+    <div class="col" style="gap:12px">
+      <div class="callout step" data-with style="--a:var(--net);font-size:18px">C#-ში ყველა კლასი <b>ჩუმად</b> მემკვიდრეობს <code class="i">object</code>-ს. მისი <code class="i">virtual ToString()</code> — „ტიპის სახელი“</div>
+      <div class="callout step" style="--a:var(--mvc);font-size:18px"><code class="i">Console.WriteLine</code> ობიექტს <code class="i">ToString()</code>-ს ეკითხება — ახლა <b>ჩვენს</b> ვერსიას</div>
+      <div class="term step"><div class="bar"><i></i><i></i><i></i><span>Console</span></div><div class="body" style="font-size:17px">დრაკონი ❤️ 400/400<br>ანა ❤️ 80/80 🔮 60</div></div>
+      <div class="callout step" style="--a:var(--asp);font-size:18px">Mage: <code class="i">base.ToString()</code> + მანა — მშობლის ტექსტი <b>და</b> საკუთარი</div>
+    </div>
+  </div>
+  <aside class="study">
+### ⌨️ ToString(): ყოველი კლასი object-ის შვილია
+
+`Console.WriteLine(dragon)` ბეჭდავს `Arena.Dragon`. რატომ?
+
+C#-ში ყველა კლასი **ჩუმად** მემკვიდრეობს `object`-ს — ყველა კლასის წინაპარს. მას აქვს `virtual string ToString()`, რომელიც ტიპის სახელს აბრუნებს. `Console.WriteLine` კი ობიექტს სწორედ `ToString()`-ს ეკითხება.
+
+```csharp Character.cs + Mage.cs
+// Character.cs
+public override string ToString()
+{
+    return $"{Name} ❤️ {Health}/{MaxHealth}";
+}
+
+// Mage.cs
+public override string ToString()
+{
+    return base.ToString() + $" 🔮 {Mana}";
+}
+```
+
+```plain Console
+დრაკონი ❤️ 400/400
+ანა ❤️ 80/80 🔮 60
+```
+
+- `Character`-ის `override` — ყველა პერსონაჟისთვის.
+- `Mage`: `base.ToString()` + მანა — მშობლის ტექსტი და საკუთარი.
+  </aside>
+</section>
+<section class="slide" data-section="3 · ToString">
+  <div class="kicker">💡 ახსნა · override vs overload</div>
+  <h2>ორი მსგავსი სიტყვა — <span class="grad">ორი სხვა იდეა</span></h2>
+  <div class="grid2" style="gap:26px;margin-top:22px">
+    <div class="card accent step" style="--a:var(--net)"><h3><span class="ico">🎭</span>override — შეცვლა</h3><p class="small">შვილი მშობლის <code class="i">virtual</code> მეთოდს <b>იგივე სახელითა და პარამეტრებით</b> ცვლის. რომელი შესრულდება — <b>ობიექტი</b> წყვეტს</p></div>
+    <div class="card accent step" style="--a:var(--asp)"><h3><span class="ico">📚</span>overload — გადატვირთვა</h3><p class="small">ერთ კლასში, ერთი სახელი, <b>სხვადასხვა პარამეტრები</b>: <code class="i">Student()</code>, <code class="i">Student(string)</code> · <code class="i">Console.WriteLine(5)</code>, <code class="i">WriteLine("ა")</code></p></div>
+  </div>
+  <div class="solve step" style="display:block;font-size:20px;text-align:center">overload-ს უკვე იცნობთ — <b>რამდენიმე კონსტრუქტორი</b> 05 ლექციიდან</div>
+  <aside class="study">
+### 💡 override vs overload
+
+- **override** (შეცვლა) — შვილი მშობლის `virtual` მეთოდს იგივე სახელითა და პარამეტრებით ცვლის. რომელი ვერსია შესრულდება — ობიექტი წყვეტს.
+- **overload** (გადატვირთვა) — ერთ კლასში ერთი სახელი, სხვადასხვა პარამეტრები. ამას უკვე იცნობთ: რამდენიმე კონსტრუქტორი — `Student()`, `Student(string)`. `Console.WriteLine`-საც ბევრი ვერსია აქვს — `WriteLine(5)`, `WriteLine("ა")`.
+
+```terms
+override — შვილის ვერსია მშობლის virtual მეთოდისა (იგივე პარამეტრები)
+overload — ერთი სახელი, სხვადასხვა პარამეტრები ერთ კლასში
+object — C#-ის ყველა კლასის საერთო წინაპარი
+```
+  </aside>
+</section>
+<section class="slide" data-section="3 · ToString">
+  <div class="kicker">❓ შევამოწმოთ · ერთად</div>
+  <h2>რომელი ვერსია <span class="grad">შესრულდება?</span></h2>
+  <div class="grid2" style="gap:16px;margin-top:14px"><div class="card" style="padding:16px 20px"><p style="font:600 18px var(--mono)">A · Character c = new Warrior("ლუკა");<br>c.Attack();</p><p class="step c-mvc b" style="margin-top:8px">✅ Warrior-ის: 15–25</p></div><div class="card" style="padding:16px 20px"><p style="font:600 18px var(--mono)">B · c.TakeDamage(20);<br>// ლუკას სიცოცხლე?</p><p class="step c-mvc b" style="margin-top:8px">✅ 105: ჯავშანი −5</p></div><div class="card" style="padding:16px 20px"><p style="font:600 18px var(--mono)">C · Character d = new Dragon();<br>Console.WriteLine(d);</p><p class="step c-mvc b" style="margin-top:8px">✅ Character-ის ToString: „დრაკონი ❤️ …“</p></div><div class="card" style="padding:16px 20px"><p style="font:600 18px var(--mono)">D · Mage m = new Mage("ანა");<br>// მანა 0 → m.Attack()</p><p class="step c-mvc b" style="margin-top:8px">✅ base.Attack(): 5–15</p></div></div>
+  <aside class="study">
+### ❓ რომელი ვერსია შესრულდება?
+
+```check
+? A — `Character c = new Warrior("ლუკა");
+c.Attack();`
+= ✅ — Warrior-ის: 15–25
+? B — `c.TakeDamage(20);
+// ლუკას სიცოცხლე?`
+= ✅ — 105: ჯავშანი −5
+? C — `Character d = new Dragon();
+Console.WriteLine(d);`
+= ✅ — Character-ის ToString: „დრაკონი ❤️ …“
+? D — `Mage m = new Mage("ანა");
+// მანა 0 → m.Attack()`
+= ✅ — base.Attack(): 5–15
+```
+  </aside>
+</section>
+<section class="slide divider" data-section="4 · არენა">
+  <div class="vcenter">
+    <div class="kicker in">ნაწილი 4</div>
+    <h1 class="in" style="--d:.1s">არენა ⚔️ —<br><span class="grad">გუნდი ერთი ციკლით</span></h1>
+    <p class="lead mt in" style="--d:.3s">მესამე გმირი — და ბრძოლის კოდი, რომელიც აღარასდროს შეიცვლება</p>
+  </div>
+  <div class="big-num">04</div>
+  <aside class="study">
+## ნაწილი 4 · არენა — გუნდი ერთი ციკლით
+
+მესამე გმირი — და ბრძოლის კოდი, რომელიც აღარასდროს შეიცვლება.
+  </aside>
+</section>
+<section class="slide" data-section="4 · არენა">
+  <div class="kicker c-mvc">⌨️ ერთად ვწერთ · Archer.cs</div>
+  <h2>🏹 მშვილდოსანი — <span class="grad">25% კრიტი</span></h2>
+  <div class="grid2" style="grid-template-columns:1.3fr 1fr;gap:26px;align-items:start;margin-top:6px">
+    <code-block id="arch" lang="csharp" cls="sm" title="Archer.cs · namespace-ის შიგნით">
+internal class Archer : Character
+{
+    public Archer(string name) : base(name, 90)
+    {
+    }
+
+    public override int Attack()
+    {
+        int damage = RollDamage(10, 18);
+        if (Random.Shared.Next(100) < 25)
+        {
+            damage *= 2;
+        }
+        return damage;
+    }
+}
+    </code-block>
+    <div class="col" style="gap:12px">
+      <i class="codestep" data-for="arch" data-lines="7-15"></i>
+      <div class="callout step" data-with style="--a:var(--api);font-size:18px"><code class="i">Random.Shared.Next(100) &lt; 25</code> — 100-დან 25 შემთხვევა: <b>კრიტიკული დარტყმა</b>, ორმაგი</div>
+      <div class="solve step" style="display:block;font-size:19px">ახალი გმირი = <b>ახალი კლასი</b>. ბრძოლის კოდს ხელს არ ვახლებთ</div>
+    </div>
+  </div>
+  <aside class="study">
+### ⌨️ 🏹 მშვილდოსანი — 25% კრიტი
+
+```csharp Archer.cs · namespace-ის შიგნით
+internal class Archer : Character
+{
+    public Archer(string name) : base(name, 90)
+    {
+    }
+
+    public override int Attack()
+    {
+        int damage = RollDamage(10, 18);
+        if (Random.Shared.Next(100) < 25)
+        {
+            damage *= 2;
+        }
+        return damage;
+    }
+}
+```
+
+- `Random.Shared.Next(100) < 25` — 100-დან 25 შემთხვევაში კრიტიკული დარტყმა: ორმაგი დაზიანება.
+- ახალი გმირი = ახალი კლასი. ბრძოლის კოდს ხელს არ ვახლებთ.
+  </aside>
+</section>
+<section class="slide" data-section="4 · არენა">
+  <div class="kicker c-mvc">⌨️ ერთად ვწერთ · გუნდი vs დრაკონი</div>
+  <h2>🛡️🔮🏹 <span class="muted">vs</span> 🐉</h2>
+  <div class="grid2" style="grid-template-columns:1.3fr 1fr;gap:26px;align-items:start;margin-top:6px">
+    <code-block id="bat" lang="csharp" cls="xs" title="Program.cs · Main">
+Character[] party =
+{
+    new Warrior("ლუკა"),
+    new Mage("ანა"),
+    new Archer("გიო")
+};
+Dragon dragon = new Dragon();
+
+while (dragon.IsAlive() && AnyAlive(party))
+{
+    Console.WriteLine($"── {dragon}");
+
+    foreach (Character hero in party)
+    {
+        if (hero.IsAlive() && dragon.IsAlive())
+        {
+            dragon.TakeDamage(hero.Attack());
+        }
+    }
+
+    if (dragon.IsAlive())
+    {
+        Character target = RandomAlive(party);
+        target.TakeDamage(dragon.Attack());
+        Console.WriteLine($"🔥 → {target}");
+    }
+    Thread.Sleep(600);
+}
+    </code-block>
+    <div class="col" style="gap:12px">
+      <div class="callout step" style="--a:var(--red);font-size:17px">დრაკონიც <code class="i">override Attack()</code>-ით: <code class="i">FireBreath</code> → <code class="i">Attack</code>, 400 სიცოცხლე, 25–45</div>
+      <i class="codestep" data-for="bat" data-lines="13-19"></i>
+      <div class="callout step" data-with style="--a:var(--net);font-size:18px"><b>ერთი</b> ციკლი, <code class="i">hero.Attack()</code> — ყველა თავისებურად</div>
+      <i class="codestep" data-for="bat" data-lines="23-24"></i>
+      <div class="callout step" data-with style="--a:var(--mvc);font-size:18px"><code class="i">TakeDamage</code> — მეომარზე ჯავშნით. <code class="i">{target}</code> — ჩვენი ToString()</div>
+      <div class="callout step" style="--a:var(--asp);font-size:17px"><code class="i">AnyAlive</code> და <code class="i">RandomAlive</code> — static მეთოდები Program-ში (კონსპექტში)</div>
+    </div>
+  </div>
+  <aside class="study">
+### ⌨️ გუნდი vs დრაკონი — ერთი ციკლით
+
+დრაკონიც `override Attack()`-ს იყენებს: `FireBreath()` → `Attack()`, 400 სიცოცხლე, დარტყმა 25–45.
+
+```csharp Program.cs · Main
+Character[] party =
+{
+    new Warrior("ლუკა"),
+    new Mage("ანა"),
+    new Archer("გიო")
+};
+Dragon dragon = new Dragon();
+
+while (dragon.IsAlive() && AnyAlive(party))
+{
+    Console.WriteLine($"── {dragon}");
+
+    foreach (Character hero in party)
+    {
+        if (hero.IsAlive() && dragon.IsAlive())
+        {
+            dragon.TakeDamage(hero.Attack());
+        }
+    }
+
+    if (dragon.IsAlive())
+    {
+        Character target = RandomAlive(party);
+        target.TakeDamage(dragon.Attack());
+        Console.WriteLine($"🔥 → {target}");
+    }
+    Thread.Sleep(600);
+}
+```
+
+```csharp Program.cs · დამხმარე მეთოდები
+static bool AnyAlive(Character[] team)
+{
+    foreach (Character c in team)
+    {
+        if (c.IsAlive()) return true;
+    }
+    return false;
+}
+
+static Character RandomAlive(Character[] team)
+{
+    Character target = team[Random.Shared.Next(team.Length)];
+    while (!target.IsAlive())
+    {
+        target = team[Random.Shared.Next(team.Length)];
+    }
+    return target;
+}
+```
+
+- ერთი ციკლი, `hero.Attack()` — ყველა თავისებურად ურტყამს.
+- `target.TakeDamage(...)` — მეომარზე ჯავშანი მუშაობს, დანარჩენებზე — ჩვეულებრივი წესი.
+- `{target}` და `{dragon}` — ჩვენი `ToString()`.
+  </aside>
+</section>
+<section class="slide" data-section="4 · არენა">
+  <div class="kicker c-red">🧩 შემდეგი ლექციისთვის</div>
+  <h2>„უბრალოდ პერსონაჟი“ — <span class="c-red">ეს ვინ არის?</span></h2>
+  <div class="grid2" style="grid-template-columns:1.15fr 1fr;gap:30px;margin-top:10px">
+    <code-block id="abs" lang="csharp" cls="sm" title="Program.cs + Rogue.cs">
+Character who = new Character("???", 100);   // 🤔 ვინ არის?
+
+internal class Rogue : Character             // Attack() დაგავიწყდა
+{
+    public Rogue(string name) : base(name, 85) { }
+}
+    </code-block>
+    <div class="col" style="gap:12px">
+      <div class="problem step" style="display:block;font-size:19px"><code class="i">new Character(...)</code> კომპილირდება — თამაშში კი <b>„უბრალოდ პერსონაჟი“ არ არსებობს</b></div>
+      <div class="problem step" style="display:block;font-size:19px">ქურდს <code class="i">override</code> დაავიწყდა — <b>ჩუმად</b> სუსტ 5–15-ს ურტყამს</div>
+      <div class="solve step" style="display:block;font-size:19px">შემდეგი ლექცია: 🎨 <b>აბსტრაქცია</b> — abstract კლასი და ინტერფეისი</div>
+    </div>
+  </div>
+  <aside class="study">
+### 🧩 შემდეგი ლექციისთვის: „უბრალოდ პერსონაჟი“ — ეს ვინ არის?
+
+```csharp Program.cs + Rogue.cs
+Character who = new Character("???", 100);   // 🤔 ვინ არის?
+
+internal class Rogue : Character             // Attack() დაგავიწყდა
+{
+    public Rogue(string name) : base(name, 85) { }
+}
+```
+
+- `new Character(...)` კომპილირდება — თამაშში კი „უბრალოდ პერსონაჟი“ არ არსებობს: ან მეომარია, ან ჯადოქარი…
+- ქურდს `override Attack()` დაავიწყდა — კომპილატორი ჩუმადაა, ქურდი კი სუსტ 5–15-ს ურტყამს.
+
+შემდეგ ლექციაზე — 🎨 **აბსტრაქცია**: `abstract` კლასი და ინტერფეისი.
+  </aside>
+</section>
+<section class="slide" data-section="შეჯამება">
+  <div class="kicker">📸 სურათი გადაუღეთ</div>
+  <h2>TS <span class="muted">→</span> C# · <span class="grad">პოლიმორფიზმი</span></h2>
+  <table class="t" style="font-size:20px;margin-top:6px">
+    <tr><th style="width:40%">TypeScript</th><th style="width:40%">C#</th><th></th></tr>
+    <tr><td class="mono">attack(): number { … }</td><td class="mono">public virtual int Attack()</td><td>C#-ში ნებართვა <b>ცხადად</b>: virtual</td></tr><tr><td class="mono">override attack()</td><td class="mono">public override int Attack()</td><td><span class="same">იგივეა ✓</span></td></tr><tr><td class="mono">super.attack()</td><td class="mono">base.Attack()</td><td>მშობლის ვერსია</td></tr><tr><td class="mono">toString()</td><td class="mono">public override string ToString()</td><td>ობიექტი → ტექსტი</td></tr>
+  </table>
+  <aside class="study">
+### 📸 TS → C# · პოლიმორფიზმი
+
+| TypeScript | C# | |
+|---|---|---|
+| `attack(): number { … }` | `public virtual int Attack()` | C#-ში ნებართვა ცხადად: virtual |
+| `override attack()` | `public override int Attack()` | იგივეა ✓ |
+| `super.attack()` | `base.Attack()` | მშობლის ვერსია |
+| `toString()` | `public override string ToString()` | ობიექტი → ტექსტი |
+  </aside>
+</section>
+<lecture-classwork/>
+<lecture-check/>
+<section class="slide" data-section="შეჯამება">
+  <div class="vcenter" style="max-width:1050px">
+    <div class="kicker in" style="color:var(--net)">დღეს</div>
+    <h1 class="in" style="--d:.1s;font-size:62px">ერთი ბრძანება —<br><span class="grad">ბევრი ქცევა</span></h1>
+    <div class="grid2 mt2">
+      <div class="card accent step" style="--a:var(--mvc)"><h3><span class="ico">🧠</span>დაიმახსოვრე</h3><ul class="clean small"><li><code class="i">virtual</code> მშობელში → <code class="i">override</code> შვილში</li><li>რა შეიძლება — ცვლადი; რა შესრულდება — ობიექტი</li><li><code class="i">base.Method()</code> — მშობლის ვერსია</li><li><code class="i">override ToString()</code> · override ≠ overload</li></ul></div>
+      <div class="card accent step" style="--a:var(--net)"><h3><span class="ico">⏭️</span>შემდეგ</h3><p class="small">🎨 <b>აბსტრაქცია</b>: <code class="i">abstract</code> კლასი და <code class="i">interface</code> — მკურნალები, ოქრო და საბოლოო ბრძოლა 🐉</p></div>
+    </div>
+  </div>
+  <div class="abs in" style="--d:.4s;right:110px;top:120px;font-size:120px">🎭</div>
+  <aside class="study">
+## შეჯამება · ერთი ბრძანება — ბევრი ქცევა
+
+**დაიმახსოვრე:**
+
+1. **პოლიმორფიზმი** — ერთი გამოძახება სხვადასხვა ობიექტზე სხვადასხვანაირად მუშაობს.
+2. `virtual` მშობელში — ნებართვა; `override` შვილში — საკუთარი ვერსია. ყოველთვის წყვილად.
+3. რისი გამოძახება შეიძლება — ცვლადის ტიპი წყვეტს; რომელი ვერსია შესრულდება — ობიექტის ტიპი.
+4. `base.Method()` — მშობლის ვერსია შვილის შიგნიდან.
+5. ყველა კლასი `object`-ის შვილია; `override ToString()` — ობიექტი ტექსტად.
+6. override (შეცვლა, იგივე პარამეტრები) ≠ overload (ერთი სახელი, სხვა პარამეტრები).
+
+### ⏭️ შემდეგ
+
+🎨 აბსტრაქცია: `abstract` კლასი და `interface` — მკურნალები, ოქრო და საბოლოო ბრძოლა.
+  </aside>
+</section>
+<lecture-homework/>

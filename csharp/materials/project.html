@@ -391,49 +391,49 @@ const LECTURES = [
   `static: ${c(d.settings)}`,
   `თარიღი: ${esc(d.date)}`,
   `მენიუ: ${c(d.catalog.code)} — სიის ნახვა და დამატება`]],
- ["HW-15","15","Exceptions","hw", d => [
+ ["HW-15","15","Exceptions და null","hw", d => [
   ...d.ex.map(exText),
   `ისროლე მეთოდში, სადაც წესი ირღვევა; დაიჭირე მენიუში`,
-  `ყველა რიცხვის შეყვანა ${c("TryParse")}-ით — მენიუ არასდროს ვარდება`]],
+  `ყველა რიცხვის შეყვანა ${c("TryParse")}-ით — მენიუ არასდროს ვარდება`,
+  `nullable: ყველა ყვითელი ხაზი გასწორებული; ${c("?")} / ${c("??")} / ${c("?.")} სადაც მნიშვნელობა შეიძლება არ იყოს`]],
  ["HW-16","16","Generics","hw", d => [
-  `${c("Models/IEntity")} (${c("Guid Id")}) — ${[d.catalog.code, d.order.code, "User"].map(c).join(", ")} მას ახორციელებენ`,
-  `${c("Data/MyList<T> where T : IEntity")}: ${["Add","GetById","Count"].map(c).join(", ")}, ზრდადი შიდა მასივი`,
+  `${c("Models/Entity")} — ${c("abstract class")} ${c("Guid Id")}-ით; ${[d.catalog.code, d.order.code, "User"].map(c).join(", ")} მისგან მემკვიდრეობენ`,
+  `${c("Data/MyList<T> where T : Entity")}: ${["Add","GetById","Count"].map(c).join(", ")}, ზრდადი შიდა მასივი`,
   `ყველა მასივი → ${c("MyList")}`]],
- ["HW-17","17","კოლექციები · ავტორიზაცია","hw", d => [
-  `${c("MyList")} → ${c("List")}; ${c(`Dictionary<Guid, ${d.catalog.code}>`)} ძებნისთვის`,
-  `${c(d.order.code)}-ს ${c(`List<${d.line.code}>`)} — ${esc(d.line.fields)}`,
-  `${c("User")} (Name, Email, PasswordHash, Role) · enum ${c("Role")}: ${c(d.admin.code)}, ${c(d.client.code)} · ${c("Dictionary<string, User>")} email-ით`,
-  `რეგისტრაცია და შესვლა · ${c("PasswordHasher")} (ლექციიდან) — პაროლი არასდროს ინახება ღიად`,
+ ["HW-17","17","კოლექციები","hw", d => [
+  `${c("MyList")} → ${c("List")}`,
+  `${c("Data/Database")} — ${[d.catalog.code + "s", d.order.code + "s", "Users"].map(c).join(", ")} სიები ერთ კლასში`,
+  `${c(`Dictionary<Guid, ${d.catalog.code}>`)} სწრაფი ძებნისთვის`,
+  `${c(d.order.code)}-ს ${c(`List<${d.line.code}>`)} — ${esc(d.line.fields)}`]],
+ ["HW-18","18","ავტორიზაცია და როლები","hw", d => [
+  `${c("User")} (Name, Email, PasswordHash, Role) · enum ${c("Role")}: ${c(d.admin.code)}, ${c(d.client.code)}`,
+  `${c("Services/AuthService")} — ${c("Register")}, ${c("Login")} (ძებნა email-ით) · ${c("PasswordHasher")} (ლექციიდან) — პაროლი არასდროს ინახება ღიად`,
   `<b>${esc(d.admin.ka)}ს მენიუ:</b> ${esc(d.admin.does.join(" · "))}`,
   `<b>${esc(d.client.ka)}ს მენიუ:</b> ${esc(d.client.does.join(" · "))}`,
   `პირველი ${esc(d.admin.ka)} — პროგრამის გაშვებისას (seed)`]],
- ["HW-18","18","დელეგატები და lambda","hw", d => [
+ ["HW-19","19","დელეგატები და lambda","hw", d => [
   `${c(`Filter(Func<${d.catalog.code}, bool> rule)`)}`,
   `3 წესი lambda-თ: ${esc(d.filters.join(" · "))}`,
   `წესი ${c("Func")}-ით — ${esc(d.rule)}`]],
- ["HW-19","19","LINQ I","hw", d => [
+ ["HW-20","20","LINQ I","hw", d => [
   `ციკლებით დაწერილი ძებნა, დალაგება და ჯამები → LINQ (${["Where","OrderBy","FirstOrDefault","Any","Sum"].map(c).join(" ")})`,
   `ანგარიში: ${esc(d.reports[0])}`, `ანგარიში: ${esc(d.reports[1])}`]],
- ["HW-20","20","LINQ II და extension methods","hw", d => [
-  `${c("GroupBy")}-ით: ${esc(d.reports[2])}`,
+ ["HW-21","21","LINQ II, record და extension methods","hw", d => [
+  `${c("GroupBy")}-ით: ${esc(d.reports[2])} — შედეგი ${c("record")}-ად`,
   `სია გვერდებად — ${c("Skip")} / ${c("Take")}, 5 თითო გვერდზე`,
   `extension method: ${c(d.ext)}`]],
- ["HW-21","21","LINQ III","hw", d => [
+ ["HW-22","22","LINQ III","hw", d => [
   `მენიუში „ანგარიშები“ — მხოლოდ ${esc(d.admin.ka)}ს`,
-  ...d.reports.map(r => `ანგარიში: ${esc(r)}`)]],
- ["HW-22","22","ტესტი 3 · შუალედური შემოწმება","check", d => [
-  `ლექტორი ათვალიერებს პროექტს: HW-14–21 შესრულებულია?`, `მენიუ მუშაობს და არ ვარდება?`]],
- ["HW-23","23","record, pattern matching, null","hw", d => [
-  `${c(d.record)}`,
-  `წესი switch expression-ით — ${esc(d.rule)}`,
-  `nullable: ყველა ყვითელი ხაზი გასწორებული; ${c("?")} / ${c("??")} სადაც მნიშვნელობა შეიძლება არ იყოს`]],
+  ...d.reports.map(r => `ანგარიში: ${esc(r)}`),
+  `წესი switch expression-ით — ${esc(d.rule)}`]],
+ ["HW-23","23","ტესტი 3 · შუალედური შემოწმება","check", d => [
+  `ლექტორი ათვალიერებს პროექტს: HW-14–22 შესრულებულია?`, `მენიუ მუშაობს და არ ვარდება? ორივე როლით შესვლა მუშაობს?`]],
  ["HW-24","24","ფაილები და JSON","hw", d => [
-  `${c("Data/")}-ში: ${[d.catalog.code, d.order.code, "User"].map(x => c(x.toLowerCase() + "s.json")).join(" ")}`,
-  `ჩატვირთვა გაშვებისას, შენახვა ყოველი ცვლილებისას`,
+  `მთელი ${c("Database")} → ${c("database.json")} — ჩატვირთვა გაშვებისას, შენახვა ყოველი ცვლილებისას`,
   `${esc(d.doc)} — ${c("StringBuilder")}-ით`]],
- ["HW-25","25","async · ელფოსტა · გარე API","hw", d => [
-  `ჩატვირთვა / შენახვა ${c("async")}-ით`,
-  `${c("Services/EmailService")} (MailKit — NuGet-ით, ლექციიდან): ${esc(d.email)}`,
+ ["HW-25","25","async · NuGet · ელფოსტა · გარე API","hw", d => [
+  `${c("database.json")} — ჩატვირთვა / შენახვა ${c("async")}-ით`,
+  `MailKit — NuGet-ით · ${c("Services/EmailService")} (ლექციიდან): ${esc(d.email)}`,
   `პაროლი / app password — კოდის გარეთ, ცალკე პარამეტრების ფაილში (Git-ის გამოყენებისას — .gitignore-ში)`,
   `გარე API ${c("HttpClient")}-ით: ${esc(d.api)}`]],
  ["HW-26","26","Solution და Unit Testing","hw", d => [
@@ -452,10 +452,10 @@ const REQS = [
   ["OOP და ინკაფსულაცია", "<code>private set</code>, ცვლილება მხოლოდ მეთოდებით, წესები ობიექტის შიგნით"],
   ["ავტორიზაცია და როლები", "რეგისტრაცია / შესვლა, 2+ როლი, მენიუ როლით, პაროლი hash-ით (PBKDF2)"],
   ["შეცდომები", "2+ საკუთარი exception; მენიუ არასწორ შეყვანაზე არ ვარდება"],
-  ["კოლექციები და generic", "<code>List</code>, <code>Dictionary</code>; ერთი საკუთარი generic კლასი ან მეთოდი"],
+  ["კოლექციები და generic", "<code>Entity</code> — საერთო მშობელი; <code>List</code>, <code>Dictionary</code>; ერთი საკუთარი generic კლასი ან მეთოდი"],
   ["დელეგატები და LINQ", "ფილტრი <code>Func</code>-ით; 5+ ანგარიში LINQ-ით (მათ შორის <code>GroupBy</code>)"],
   ["თარიღები", "<code>DateTime</code> / <code>TimeSpan</code> — ვადა, ხანგრძლივობა, შედარება"],
-  ["JSON და async", "ყველა მონაცემი JSON-ში, ჩატვირთვა და შენახვა <code>async</code>-ით"],
+  ["JSON და async", "<code>Database</code> კლასი → <code>database.json</code>, ჩატვირთვა და შენახვა <code>async</code>-ით"],
   ["ელფოსტა", "1+ მეილი MailKit-ით; პაროლი კოდში არ წერია"],
   ["ტესტები", "8+ unit ტესტი — წესები და exception-ები"],
   ["ჩაბარება", "პროექტი — GitHub რეპოთი (სასურველია) ან საქაღალდე / zip-ით; ეშვება Visual Studio-ში დამატებითი ნაბიჯების გარეშე"]

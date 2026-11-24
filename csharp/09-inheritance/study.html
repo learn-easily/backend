@@ -1,0 +1,431 @@
+<!doctype html>
+<html lang="ka"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>📖 მემკვიდრეობა — კონსპექტი</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Georgian:wght@400;600;700;800&family=JetBrains+Mono:wght@400;600;700;800&display=swap" rel="stylesheet"><script>(()=>{const d=document.documentElement,K="lectures:theme";try{d.dataset.theme=localStorage.getItem(K)||"light"}catch(e){d.dataset.theme="light"}window.toggleTheme=()=>{const t=d.dataset.theme==="dark"?"light":"dark";d.dataset.theme=t;try{localStorage.setItem(K,t)}catch(e){}};document.addEventListener("click",e=>{const b=e.target.closest(".themebtn");if(b){b.blur();toggleTheme()}});addEventListener("storage",e=>{if(e.key===K)d.dataset.theme=e.newValue||"light"})})()</script>
+<style>
+:root{--bg:#fbf8f3;--card:#fff;--ink:#1e2132;--ink2:#3b3f54;--muted:#7b8096;--line:#e6dfd2;--accent:#6d28d9;--accent-soft:#f3effe;--teal:#0d9488;
+  --green:#15803d;--amber:#b45309;--mono:"JetBrains Mono",ui-monospace,monospace;--sans:"Noto Sans Georgian",system-ui,sans-serif}
+*{box-sizing:border-box}
+html{scroll-padding-top:76px}
+body{margin:0;background:var(--bg);color:var(--ink);font:17.5px/1.75 var(--sans);-webkit-font-smoothing:antialiased}
+a{color:var(--accent)}
+/* top bar */
+.top{position:sticky;top:0;z-index:10;display:flex;align-items:center;gap:14px;padding:10px 20px;background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.top .back{font:600 14px var(--mono);color:var(--muted);text-decoration:none;white-space:nowrap}
+.top .back:hover{color:var(--ink)}
+.top .ttl{flex:1;min-width:0;font-weight:700;font-size:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.top .ttl small{font:500 13px var(--mono);color:var(--muted);margin-right:8px}
+.btn{font:700 14px var(--sans);text-decoration:none;border-radius:10px;padding:7px 14px;white-space:nowrap;border:1px solid var(--line);color:var(--ink);background:var(--card);cursor:pointer}
+.btn.play{background:var(--accent);border-color:var(--accent);color:var(--xc-fff,#fff)}
+.live{display:none;align-items:center;gap:8px;font:600 13px var(--mono);color:var(--teal);background:var(--xb-e6f6f4,#e6f6f4);border:1px solid var(--xb-bfe7e2,#bfe7e2);border-radius:999px;padding:5px 12px;cursor:pointer}
+.live.on{display:flex}
+.live .dot{width:8px;height:8px;border-radius:50%;background:var(--teal);animation:pulse 1.6s infinite}
+.live.off{color:var(--muted);background:var(--card);border-color:var(--line)}.live.off .dot{background:var(--muted);animation:none}
+@keyframes pulse{50%{opacity:.3}}
+/* layout */
+.wrap{display:grid;grid-template-columns:230px minmax(0,1000px);gap:44px;justify-content:center;padding:32px 28px 120px}
+nav.toc{position:sticky;top:84px;align-self:start;font-size:14px;line-height:1.45}
+nav.toc .h{font:700 12px var(--mono);color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px}
+nav.toc a{display:block;color:var(--ink2);text-decoration:none;padding:6px 10px;border-left:2px solid var(--line)}
+nav.toc a:hover{color:var(--accent)}
+nav.toc a.cur{color:var(--accent);border-left-color:var(--accent);font-weight:700}
+nav.toc .mats{margin-top:22px;display:flex;flex-direction:column;gap:6px}
+nav.toc .mats a{border:0;padding:2px 0;font:500 13px var(--mono);color:var(--teal);word-break:break-all}
+header.hero{margin-bottom:8px}
+header.hero .k{font:600 14px var(--mono);color:var(--accent)}
+header.hero h1{font-size:38px;line-height:1.2;margin:6px 0 10px;letter-spacing:-.01em}
+header.hero p{color:var(--muted);margin:0;font-size:15.5px}
+header.hero kbd{font:500 12px var(--mono);border:1px solid var(--line);border-radius:5px;padding:0 5px;background:var(--card)}
+h2.sec{font-size:15px;font:700 13px var(--mono);color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin:48px 0 6px;padding-top:18px;border-top:1px solid var(--line)}
+/* blocks */
+.blk{position:relative;padding:14px 0 6px 22px;margin-left:-22px;border-left:3px solid transparent;transition:border-color .3s,background .3s;border-radius:0 12px 12px 0}
+.blk.cur{border-left-color:var(--accent);background:linear-gradient(90deg,var(--accent-soft),transparent 70%)}
+.anchor{position:absolute;top:0}
+.bh{display:flex;align-items:baseline;justify-content:space-between;gap:12px}
+.bh h3{font-size:22px;line-height:1.35;margin:4px 0 6px}
+.chip{flex:none;font:600 12px var(--mono);color:var(--muted);text-decoration:none;border:1px solid var(--line);border-radius:999px;padding:2px 10px;background:var(--card)}
+.chip:hover{color:var(--accent);border-color:var(--accent)}
+.blk h2{font-size:26px;line-height:1.3;margin:6px 0 10px}
+.blk h3:not(.bh h3){font-size:19px;margin:22px 0 6px}
+.blk h4{font-size:17px;margin:18px 0 4px}
+.blk p{margin:10px 0}
+.blk ul,.blk ol{padding-left:24px;margin:8px 0}
+.blk li{margin:4px 0}
+.blk strong{color:var(--ink)}
+.blk :not(pre)>code{font:600 .86em var(--mono);background:var(--xb-f1ece3,#f1ece3);border-radius:6px;padding:1px 6px;color:var(--xc-5b21b6,#5b21b6)}
+.blk table{border-collapse:collapse;margin:14px 0;font-size:15.5px;width:100%;display:block;overflow-x:auto}
+.blk th,.blk td{border:1px solid var(--line);padding:8px 12px;text-align:left;vertical-align:top}
+.blk th{background:var(--xb-f6f1e8,#f6f1e8)}
+/* code */
+.codebox{margin:14px 0;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:var(--xb-fffdf9,#fffdf9)}
+.codebox .ch,.prompt .ph{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:6px 8px 6px 14px;font:600 12.5px var(--mono);color:var(--muted);background:var(--xb-f6f1e8,#f6f1e8);border-bottom:1px solid var(--line)}
+.copy{font:600 12px var(--mono);border:1px solid var(--line);background:var(--card);color:var(--ink2);border-radius:7px;padding:3px 10px;cursor:pointer}
+.copy:hover{border-color:var(--ink)}
+.copy.ok{color:var(--green);border-color:var(--green)}
+pre.code{margin:0;padding:12px 0;overflow-x:auto;font:14px/1.65 var(--mono)}
+pre.code .ln{display:block;padding:0 16px;white-space:pre}
+.code .ttl{background:var(--bg2);color:var(--muted)}
+.code .ln.hl{background:rgba(109,40,217,.07);box-shadow:inset 3px 0 0 var(--net)}
+.code .ln.dim{opacity:.42}
+.code .k,.code .kd,.code .kn,.code .kr,.code .kc{color:#7c3aed}
+.code .kt{color:#2563eb}
+.code .s,.code .s1,.code .s2,.code .sa,.code .se,.code .si,.code .sd{color:var(--xc-15803d,#15803d)}
+.code .c,.code .c1,.code .cm,.code .cp,.code .ch{color:#8b8fa3}
+.code .m,.code .mi,.code .mf,.code .mh{color:var(--xc-c2410c,#c2410c)}
+.code .nf,.code .fm{color:#1d4ed8}
+.code .nc,.code .nn,.code .nt,.code .nd{color:var(--xc-b45309,#b45309)}
+.code .na{color:#7c3aed} .code .nb{color:var(--xc-0e7490,#0e7490)}
+.code .o,.code .p{color:var(--xc-64748b,#64748b)}
+.code .nv,.code .nx{color:var(--ink)}
+.code .go{color:var(--xc-64748b,#64748b)}
+/* prompt */
+.prompt{margin:16px 0;border:1px solid var(--xb-ddd2fb,#ddd2fb);border-radius:12px;overflow:hidden;background:var(--accent-soft)}
+.prompt .ph{background:var(--xb-ebe3fd,#ebe3fd);border-color:var(--xb-ddd2fb,#ddd2fb);color:var(--accent)}
+.prompt .pb{padding:12px 16px;white-space:pre-wrap;font-size:15.5px;line-height:1.6;color:var(--ink2)}
+/* self check */
+.selfcheck{margin:16px 0;border:1px solid var(--xb-cfe9d6,#cfe9d6);border-radius:12px;background:var(--xb-f3fbf5,#f3fbf5);padding:12px 16px}
+.selfcheck .sh{font-weight:700;color:var(--green);margin-bottom:6px}
+.selfcheck .sh small{font-weight:400;color:var(--muted);font-size:13.5px;margin-left:6px}
+.selfcheck details{border-top:1px solid var(--xb-dcefe1,#dcefe1);padding:8px 0}
+.selfcheck summary{cursor:pointer;font-weight:600;list-style:none;padding-left:26px;position:relative}
+.selfcheck summary::-webkit-details-marker{display:none}
+.selfcheck summary::before{content:"?";position:absolute;left:0;top:2px;width:18px;height:18px;border-radius:50%;background:var(--green);color:var(--xc-fff,#fff);font:700 12px/18px var(--mono);text-align:center}
+.selfcheck details[open] summary::before{content:"✓"}
+.selfcheck .ans{padding:6px 0 2px 26px;color:var(--ink2)}
+/* terms */
+.terms{margin:16px 0;border:1px solid var(--line);border-radius:12px;background:var(--card);padding:12px 16px}
+.terms .th{font-weight:700;margin-bottom:6px}
+.terms dl{display:grid;grid-template-columns:max-content 1fr;gap:6px 18px;margin:0}
+.terms dt{font:600 14.5px var(--mono);color:var(--accent)}
+.terms dd{margin:0;color:var(--ink2)}
+/* callouts */
+.callout{display:flex;gap:12px;margin:14px 0;padding:12px 16px;border-radius:12px;border:1px solid var(--line);background:var(--card)}
+.callout .ci{font-size:20px;line-height:1.6}
+.callout>div>p:first-child{margin-top:0}.callout>div>p:last-child{margin-bottom:0}
+.callout.warn{background:var(--xb-fff8eb,#fff8eb);border-color:var(--xb-f6dfb5,#f6dfb5)}
+.callout.note{background:var(--xb-eef5ff,#eef5ff);border-color:var(--xb-cfe0fb,#cfe0fb)}
+@media (max-width:980px){
+  .wrap{grid-template-columns:minmax(0,1fr);gap:0;padding:20px 16px 100px}
+  nav.toc{position:static;margin-bottom:12px}
+  nav.toc details{border:1px solid var(--line);border-radius:12px;background:var(--card);padding:8px 12px}
+  nav.toc details>summary{cursor:pointer;font-weight:700}
+  nav.toc .h{display:none}
+  header.hero h1{font-size:30px}
+  .blk{padding-left:14px;margin-left:-14px}
+  .top .ttl small{display:none}
+  .terms dl{grid-template-columns:1fr}.terms dd{margin-bottom:8px}
+}
+@media (min-width:981px){nav.toc details>summary{display:none}}
+@media print{.top,nav.toc,.copy,.chip,.live{display:none}.wrap{display:block;padding:0}.selfcheck details{display:block}.blk.cur{background:none}}
+/* მუქი თემა — დანარჩენ ფერებს build.py-ის themeify() ცვლის */
+html[data-theme=dark]{color-scheme:dark;--bg:#16181d;--card:#1e2128;--ink:#e6e2da;--ink2:#bebab1;--muted:#8a8e98;--line:#2d313b;
+  --accent:#ab9ff2;--accent-soft:#272439;--teal:#72bfb3;--green:#8fc8a1;--amber:#dfa96e}
+html[data-theme=dark] .codebox{background:#1a1d23}
+.themebtn .d{display:none}html[data-theme=dark] .themebtn .l{display:none}html[data-theme=dark] .themebtn .d{display:inline}
+</style><style>html[data-theme=dark]{--xb-bfe7e2:#2d5d57;--xb-cfe0fb:#2d3f5d;--xb-cfe9d6:#2d5d3a;--xb-dcefe1:#2d5d39;--xb-ddd2fb:#3a2d5d;--xb-e6f6f4:#1d3532;--xb-ebe3fd:#241d35;--xb-eef5ff:#1d2735;--xb-f1ece3:#3c414d;--xb-f3fbf5:#1d3523;--xb-f6dfb5:#5d4c2d;--xb-f6f1e8:#1d2027;--xb-fff8eb:#352c1d;--xb-fffdf9:#1e2128;--xc-0e7490:#adddeb;--xc-15803d:#adebc4;--xc-5b21b6:#c5adeb;--xc-64748b:#c4cbd4;--xc-b45309:#ebc8ad;--xc-c2410c:#ebbfad;--xc-fff:#16181d}
+</style>
+</head>
+<body>
+<div class="top">
+  <a class="back" href="../../">← ლექციები</a>
+  <div class="ttl"><small>C# · 9</small>მემკვიდრეობა</div>
+  <button class="live" id="live" type="button" title="ჩართული: ტექსტი პრეზენტაციას მიჰყვება"><span class="dot"></span><span class="lt">მიჰყვება სლაიდებს</span></button>
+  <button class="themebtn btn" type="button" title="ღია / მუქი თემა (T)"><span class="l">🌙</span><span class="d">☀️</span></button>
+  <a class="btn play" href="index.html">▶ პრეზენტაცია</a>
+</div>
+<div class="wrap">
+  <nav class="toc"><details id="tocd"><summary>სარჩევი</summary><div class="h">სარჩევი</div><a href="#sec-1">გამეორება</a><a href="#sec-2">საშინაოს განხილვა</a><a href="#sec-3">დღის თემა</a><a href="#sec-4">შესავალი</a><a href="#sec-5">1 · მშობელი და შვილი</a><a href="#sec-6">2 · protected</a><a href="#sec-7">3 · არენა</a><a href="#sec-8">შეჯამება</a><a href="#sec-9">პრაქტიკა</a><a href="#sec-10">შეჯამება</a><a href="#sec-11">საშინაო</a><div class="mats"></div></details></nav>
+  <main>
+    <header class="hero">
+      <div class="k">📖 კონსპექტი · C# · ლექცია 9</div>
+      <h1>მემკვიდრეობა</h1>
+      <p>წაიკითხე ლექციის შემდეგ, ან პრეზენტაციასთან ერთად: პრეზენტაციაში დააჭირე <kbd>P</kbd> და ეს გვერდი სლაიდებს გაჰყვება. კოდი და AI-ს პრომპტები კოპირდება ერთი დაჭერით.</p>
+    </header>
+    <h2 class="sec" id="sec-1">გამეორება</h2>
+<article class="blk" data-slides="1,2"><span class="anchor" id="s-1"></span><span class="anchor" id="s-2"></span><div class="bh"><h3>გავიხსენოთ წინა ლექცია</h3><a class="chip" href="index.html#/1" data-go="1" title="პრეზენტაციაში გახსნა">სლაიდი 1</a></div>
+<p>ლექცია 8 — <strong>ინკაფსულაცია</strong>. ახალ თემამდე ვამოწმებთ, რა დაგვამახსოვრდა. ჯერ თვითონ უპასუხე, მერე გახსენი პასუხი. თუ რომელიმე გაგიჭირდა, <a href="../08-encapsulation/study.html">წინა ლექციის კონსპექტს</a> გადახედე.</p>
+<div class="selfcheck"><div class="sh">✅ შეამოწმე თავი <small>დაფიქრდი, მერე გახსენი პასუხი</small></div><details><summary><code>public</code> და <code>private</code> — რა განსხვავებაა? და რა არის, თუ არაფერი წერია?</summary><div class="ans">public — ყველგან ჩანს · private — მხოლოდ კლასის შიგნით · არაფერი → private</div></details><details><summary><code>public int Health { get; private set; }</code> — <code>knight.Health = 99999;</code> Program.cs-ში?</summary><div class="ans">შეცდომა (CS0272): set private-ია. წაკითხვა შეიძლება, შეცვლა — მხოლოდ კლასის მეთოდებით</div></details><details><summary>property-ის <code>set</code>-ში რა არის <code>value</code>?</summary><div class="ans">მნიშვნელობა, რომელსაც წერენ: <code>knight.Name = ""</code> → value = ""</div></details><details><summary>ველი და property — რა განსხვავებაა?</summary><div class="ans">ველი — უბრალოდ ცვლადი კლასში (private) · property — „კარი“ get/set-ით, შეიძლება წესით</div></details><details><summary>რატომ ამოწმებს <code>TakeDamage</code> უარყოფით დაზიანებას თავად — და არა Program.cs?</summary><div class="ans">წესი ერთ ადგილას — კლასში. ვინც არ უნდა გამოიძახოს, წესი ყოველთვის მუშაობს (ინკაფსულაცია)</div></details></div></article>
+<h2 class="sec" id="sec-2">საშინაოს განხილვა</h2>
+<article class="blk" data-slides="3"><span class="anchor" id="s-3"></span><div class="bh"><h3>საშინაოს განხილვა</h3><a class="chip" href="index.html#/3" data-go="3" title="პრეზენტაციაში გახსნა">სლაიდი 3</a></div>
+<p>წინა ლექციის საშინაო: <strong>⚽ ფეხბურთის კლუბი · ნაწილი 2 — ტრანსფერები</strong>. ქვემოთ არის ერთ-ერთი სწორი ამოხსნა. შენი კოდი შეიძლება სხვანაირად იყოს დაწერილი — მთავარია, მოთხოვნები სრულდებოდეს.</p>
+<h3>მოთხოვნები</h3>
+<ul>
+<li><code>Player</code> დაიცავი: <code>Name</code> — წესით (ცარიელი → „უცნობი“); <code>Shot</code>, <code>Reflex</code>, <code>Stamina</code> — <code>{ get; private set; }</code> და ყოველთვის 0–100; ახალი <code>Price { get; private set; }</code> (კონსტრუქტორში)</li>
+<li><code>Train()</code> და <code>Rest()</code> — <code>Player</code>-ის მეთოდები: <code>Train</code> — <code>Shot</code> +5, <code>Stamina</code> −20 (<code>Stamina</code> 20-ზე ნაკლები → „დაღლილია“ და არაფერი იცვლება); <code>Rest</code> — <code>Stamina</code> +30</li>
+<li>ახალი კლასი <code>Club</code> (<strong>Club.cs</strong>): <code>Name</code>, <code>Budget { get; private set; }</code>, <code>private Player[] squad = new Player[5]</code> (მინი-ფეხბურთი — 5 მოთამაშე), <code>Count { get; private set; }</code></li>
+<li><code>bool Buy(Player p)</code> — გუნდი სავსეა ან ფული არ ჰყოფნის → <code>false</code> და არაფერი იცვლება; <code>void PrintSquad()</code></li>
+<li>Main-ში: კლუბი 100 000 ₾-ით; სცადე 6 მოთამაშის ყიდვა — ერთი ძვირია, მეექვსეს ადგილი აღარ აქვს</li>
+</ul>
+<h3>ამოხსნა</h3>
+<div class="codebox"><div class="ch"><span>Program.cs · Main</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="n">Club</span><span class="w"> </span><span class="n">club</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">Club</span><span class="p">(</span><span class="s">"დინამო"</span><span class="p">,</span><span class="w"> </span><span class="mi">100000</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="n">club</span><span class="p">.</span><span class="n">Buy</span><span class="p">(</span><span class="k">new</span><span class="w"> </span><span class="n">Player</span><span class="p">(</span><span class="s">"ნიკა"</span><span class="p">,</span><span class="w"> </span><span class="mi">80</span><span class="p">,</span><span class="w"> </span><span class="mi">10</span><span class="p">,</span><span class="w"> </span><span class="mi">30000</span><span class="p">)</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="n">club</span><span class="p">.</span><span class="n">Buy</span><span class="p">(</span><span class="k">new</span><span class="w"> </span><span class="n">Player</span><span class="p">(</span><span class="s">"ლუკა"</span><span class="p">,</span><span class="w"> </span><span class="mi">65</span><span class="p">,</span><span class="w"> </span><span class="mi">15</span><span class="p">,</span><span class="w"> </span><span class="mi">20000</span><span class="p">)</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="n">club</span><span class="p">.</span><span class="n">Buy</span><span class="p">(</span><span class="k">new</span><span class="w"> </span><span class="n">Player</span><span class="p">(</span><span class="s">"მესი"</span><span class="p">,</span><span class="w"> </span><span class="mi">99</span><span class="p">,</span><span class="w"> </span><span class="mi">20</span><span class="p">,</span><span class="w"> </span><span class="mi">900000</span><span class="p">)</span><span class="p">)</span><span class="p">;</span><span class="w">   </span><span class="c1">// ❌ ძვირია</span></span><span class="ln"><span class="n">club</span><span class="p">.</span><span class="n">Buy</span><span class="p">(</span><span class="k">new</span><span class="w"> </span><span class="n">Player</span><span class="p">(</span><span class="s">"საბა"</span><span class="p">,</span><span class="w"> </span><span class="mi">20</span><span class="p">,</span><span class="w"> </span><span class="mi">75</span><span class="p">,</span><span class="w"> </span><span class="mi">25000</span><span class="p">)</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="n">club</span><span class="p">.</span><span class="n">Buy</span><span class="p">(</span><span class="k">new</span><span class="w"> </span><span class="n">Player</span><span class="p">(</span><span class="s">"გიო"</span><span class="p">,</span><span class="w"> </span><span class="mi">55</span><span class="p">,</span><span class="w"> </span><span class="mi">10</span><span class="p">,</span><span class="w"> </span><span class="mi">10000</span><span class="p">)</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="n">club</span><span class="p">.</span><span class="n">Buy</span><span class="p">(</span><span class="k">new</span><span class="w"> </span><span class="n">Player</span><span class="p">(</span><span class="s">"დათო"</span><span class="p">,</span><span class="w"> </span><span class="mi">60</span><span class="p">,</span><span class="w"> </span><span class="mi">10</span><span class="p">,</span><span class="w"> </span><span class="mi">10000</span><span class="p">)</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="n">club</span><span class="p">.</span><span class="n">Buy</span><span class="p">(</span><span class="k">new</span><span class="w"> </span><span class="n">Player</span><span class="p">(</span><span class="s">"ბექა"</span><span class="p">,</span><span class="w"> </span><span class="mi">50</span><span class="p">,</span><span class="w"> </span><span class="mi">10</span><span class="p">,</span><span class="w"> </span><span class="mi">5000</span><span class="p">)</span><span class="p">)</span><span class="p">;</span><span class="w">      </span><span class="c1">// ❌ ადგილი აღარ არის</span></span><span class="ln"> </span><span class="ln"><span class="n">club</span><span class="p">.</span><span class="n">PrintSquad</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span></code></pre></div>
+<div class="codebox"><div class="ch"><span>Player.cs · namespace-ის შიგნით</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="k">internal</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">Player</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="k">private</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">""</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="n">Name</span></span><span class="ln"><span class="w">    </span><span class="p">{</span></span><span class="ln"><span class="w">        </span><span class="k">get</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">name</span><span class="p">;</span><span class="w"> </span><span class="p">}</span></span><span class="ln"><span class="w">        </span><span class="k">set</span></span><span class="ln"><span class="w">        </span><span class="p">{</span></span><span class="ln"><span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="k">value</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s">""</span><span class="p">)</span><span class="w"> </span><span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"უცნობი"</span><span class="p">;</span></span><span class="ln"><span class="w">            </span><span class="k">else</span><span class="w"> </span><span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">value</span><span class="p">;</span></span><span class="ln"><span class="w">        </span><span class="p">}</span></span><span class="ln"><span class="w">    </span><span class="p">}</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">Shot</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">get</span><span class="p">;</span><span class="w"> </span><span class="k">private</span><span class="w"> </span><span class="k">set</span><span class="p">;</span><span class="w"> </span><span class="p">}</span></span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">Reflex</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">get</span><span class="p">;</span><span class="w"> </span><span class="k">private</span><span class="w"> </span><span class="k">set</span><span class="p">;</span><span class="w"> </span><span class="p">}</span></span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">Stamina</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">get</span><span class="p">;</span><span class="w"> </span><span class="k">private</span><span class="w"> </span><span class="k">set</span><span class="p">;</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">100</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">Price</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">get</span><span class="p">;</span><span class="w"> </span><span class="k">private</span><span class="w"> </span><span class="k">set</span><span class="p">;</span><span class="w"> </span><span class="p">}</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="nf">Player</span><span class="p">(</span><span class="kt">string</span><span class="w"> </span><span class="n">name</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">shot</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">reflex</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">price</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="p">{</span></span><span class="ln"><span class="w">        </span><span class="n">Name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">name</span><span class="p">;</span></span><span class="ln"><span class="w">        </span><span class="n">Shot</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Limit</span><span class="p">(</span><span class="n">shot</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">        </span><span class="n">Reflex</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Limit</span><span class="p">(</span><span class="n">reflex</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">price</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="n">price</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span></span><span class="ln"><span class="w">        </span><span class="n">Price</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">price</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="p">}</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="k">private</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="nf">Limit</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="k">value</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="p">{</span></span><span class="ln"><span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="k">value</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span></span><span class="ln"><span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="k">value</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">100</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="mi">100</span><span class="p">;</span></span><span class="ln"><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="k">value</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="p">}</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="k">void</span><span class="w"> </span><span class="nf">Train</span><span class="p">(</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="p">{</span></span><span class="ln"><span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">Stamina</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">20</span><span class="p">)</span></span><span class="ln"><span class="w">        </span><span class="p">{</span></span><span class="ln"><span class="w">            </span><span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="s">$"😮‍💨 {Name} დაღლილია"</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">            </span><span class="k">return</span><span class="p">;</span></span><span class="ln"><span class="w">        </span><span class="p">}</span></span><span class="ln"><span class="w">        </span><span class="n">Shot</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Limit</span><span class="p">(</span><span class="n">Shot</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">5</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">        </span><span class="n">Stamina</span><span class="w"> </span><span class="o">-=</span><span class="w"> </span><span class="mi">20</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="p">}</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="k">void</span><span class="w"> </span><span class="nf">Rest</span><span class="p">(</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="p">{</span></span><span class="ln"><span class="w">        </span><span class="n">Stamina</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Limit</span><span class="p">(</span><span class="n">Stamina</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">30</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="p">}</span></span><span class="ln"><span class="p">}</span></span></code></pre></div>
+<div class="codebox"><div class="ch"><span>Club.cs · namespace-ის შიგნით</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="k">internal</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">Club</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="k">private</span><span class="w"> </span><span class="n">Player</span><span class="p">[</span><span class="p">]</span><span class="w"> </span><span class="n">squad</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">Player</span><span class="p">[</span><span class="mi">5</span><span class="p">]</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="n">Name</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">get</span><span class="p">;</span><span class="w"> </span><span class="k">private</span><span class="w"> </span><span class="k">set</span><span class="p">;</span><span class="w"> </span><span class="p">}</span></span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">Budget</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">get</span><span class="p">;</span><span class="w"> </span><span class="k">private</span><span class="w"> </span><span class="k">set</span><span class="p">;</span><span class="w"> </span><span class="p">}</span></span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">Count</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">get</span><span class="p">;</span><span class="w"> </span><span class="k">private</span><span class="w"> </span><span class="k">set</span><span class="p">;</span><span class="w"> </span><span class="p">}</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="nf">Club</span><span class="p">(</span><span class="kt">string</span><span class="w"> </span><span class="n">name</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">budget</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="p">{</span></span><span class="ln"><span class="w">        </span><span class="n">Name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">name</span><span class="p">;</span></span><span class="ln"><span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">budget</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="n">budget</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span></span><span class="ln"><span class="w">        </span><span class="n">Budget</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">budget</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="p">}</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="nf">Buy</span><span class="p">(</span><span class="n">Player</span><span class="w"> </span><span class="n">p</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="p">{</span></span><span class="ln"><span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">Count</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">squad</span><span class="p">.</span><span class="n">Length</span><span class="p">)</span></span><span class="ln"><span class="w">        </span><span class="p">{</span></span><span class="ln"><span class="w">            </span><span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="s">$"❌ {Name}: შემადგენლობა სავსეა"</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">            </span><span class="k">return</span><span class="w"> </span><span class="k">false</span><span class="p">;</span></span><span class="ln"><span class="w">        </span><span class="p">}</span></span><span class="ln"><span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">p</span><span class="p">.</span><span class="n">Price</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="n">Budget</span><span class="p">)</span></span><span class="ln"><span class="w">        </span><span class="p">{</span></span><span class="ln"><span class="w">            </span><span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="s">$"❌ {p.Name}-ისთვის ფული არ ჰყოფნის"</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">            </span><span class="k">return</span><span class="w"> </span><span class="k">false</span><span class="p">;</span></span><span class="ln"><span class="w">        </span><span class="p">}</span></span><span class="ln"> </span><span class="ln"><span class="w">        </span><span class="n">Budget</span><span class="w"> </span><span class="o">-=</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">Price</span><span class="p">;</span></span><span class="ln"><span class="w">        </span><span class="n">squad</span><span class="p">[</span><span class="n">Count</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">p</span><span class="p">;</span></span><span class="ln"><span class="w">        </span><span class="n">Count</span><span class="o">++</span><span class="p">;</span></span><span class="ln"><span class="w">        </span><span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="s">$"✍️ {p.Name} → {Name} ({p.Price} ₾)"</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="k">true</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="p">}</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="k">void</span><span class="w"> </span><span class="nf">PrintSquad</span><span class="p">(</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="p">{</span></span><span class="ln"><span class="w">        </span><span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="s">$"🏟️ {Name} · ბიუჯეტი {Budget} ₾"</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">        </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">Count</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span></span><span class="ln"><span class="w">        </span><span class="p">{</span></span><span class="ln"><span class="w">            </span><span class="n">Player</span><span class="w"> </span><span class="n">p</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">squad</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="p">;</span></span><span class="ln"><span class="w">            </span><span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="s">$"   {p.Name} ⚽ {p.Shot} 🧤 {p.Reflex} ⚡ {p.Stamina}"</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">        </span><span class="p">}</span></span><span class="ln"><span class="w">    </span><span class="p">}</span></span><span class="ln"><span class="p">}</span></span></code></pre></div>
+<div class="callout note"><span class="ci">💡</span><div><p><code>squad</code> — <code>private</code> ველი: გარედან მასივს ვერავინ შეეხება, მოთამაშე მხოლოდ <code>Buy</code>-ით ემატება. <code>Limit</code> — <code>private</code> დამხმარე მეთოდი: შიგნით სამჯერ გვჭირდება, გარედან — არავის. <code>Count</code> გვეუბნება, მასივის რამდენი ადგილია დაკავებული. წინა ნაწილის <code>static Train(Player p)</code> ახლა მოთამაშის საკუთარი მეთოდია — ცვლილების უფლება მხოლოდ მას აქვს.</p></div></div></article>
+<h2 class="sec" id="sec-3">დღის თემა</h2>
+<article class="blk" data-slides="4"><span class="anchor" id="s-4"></span><div class="bh"><h3>დღის თემა: მემკვიდრეობა</h3><a class="chip" href="index.html#/4" data-go="4" title="პრეზენტაციაში გახსნა">სლაიდი 4</a></div>
+<p>არენას მეომარი, ჯადოქარი და დრაკონი სჭირდება — და თითოეულს Hero-ს მთელი კოდი. Copy-paste ნიშნავს: ერთი ბაგი — სამ ფაილში. დღეს ვისწავლით მემკვიდრეობას: საერთო კოდი ერთხელ იწერება <code>Character</code>-ში, შვილები კი მხოლოდ საკუთარს ამატებენ. მერე — <code>protected</code> და გუნდური ბრძოლა დრაკონთან.</p>
+<p><strong>ლექციის ბოლოს შეძლებ:</strong></p>
+<ul>
+<li><code>class Warrior : Character</code> — მშობელი და შვილი, „არის“ კავშირი</li>
+<li><code>: base(...)</code> — მშობლის კონსტრუქტორი და გამოძახების რიგი</li>
+<li><code>protected</code>: public / protected / private — ვინ რას ხედავს</li>
+<li>შვილი მშობლის ტიპის ცვლადში: <code>Character[]</code> — და მისი შეზღუდვა</li>
+</ul></article>
+<h2 class="sec" id="sec-4">შესავალი</h2>
+<article class="blk" data-slides="5"><span class="anchor" id="s-5"></span><div class="bh"><h3>🧩 პრობლემა: სამი კლასი — სამჯერ ერთი და იგივე</h3><a class="chip" href="index.html#/5" data-go="5" title="პრეზენტაციაში გახსნა">სლაიდი 5</a></div>
+<p>არენას სამი ახალი პერსონაჟი სჭირდება: მეომარი (<code>Smash()</code>), ჯადოქარი (<code>Mana</code>, <code>Fireball()</code>) და დრაკონი (<code>FireBreath()</code>). თითოეულს ასევე სჭირდება ყველაფერი, რაც Hero-ს აქვს: <code>Name</code>, <code>Health</code>, <code>MaxHealth</code>, <code>Potions</code>, <code>TakeDamage()</code>, <code>Heal()</code>, <code>UsePotion()</code>, <code>IsAlive()</code>.</p>
+<ul>
+<li>Hero-ს ~70 ხაზი — სამჯერ copy-paste.</li>
+<li>ბაგი <code>TakeDamage</code>-ში? სამ ფაილში უნდა გაასწორო.</li>
+<li>ერთგან დაგავიწყდა — ახლა მხოლოდ ჯადოქარია ბაგიანი, და ძებნა იწყება.</li>
+</ul></article>
+<article class="blk" data-slides="6"><span class="anchor" id="s-6"></span><div class="bh"><h3>💡 მემკვიდრეობა: მეომარი არის პერსონაჟი</h3><a class="chip" href="index.html#/6" data-go="6" title="პრეზენტაციაში გახსნა">სლაიდი 6</a></div>
+<p><strong>მემკვიდრეობა</strong> — ახალი კლასი არსებულზე შენდება: მშობლის ყველაფერი უკვე აქვს და თავისას ამატებს.</p>
+<ul>
+<li><code>Character</code> — <strong>მშობელი</strong> (base class): ყველაფერი საერთო, ერთხელ დაწერილი.</li>
+<li><code>Warrior</code>, <code>Mage</code>, <code>Dragon</code> — <strong>შვილები</strong> (derived class): მშობლის ყველაფერი + საკუთარი.</li>
+</ul>
+<p>შემოწმება — „X <strong>არის</strong> Y?“: მეომარი არის პერსონაჟი ✓, დრაკონი არის პერსონაჟი ✓, ხმალი არის პერსონაჟი ✗ — ხმალი მემკვიდრე არ იქნება.</p>
+<div class="terms"><div class="th">📘 ტერმინები</div><dl><dt>მემკვიდრეობა (inheritance)</dt><dd>კლასი სხვა კლასის ყველაფერს იღებს და თავისას ამატებს</dd><dt>base class</dt><dd>მშობელი კლასი (Character)</dd><dt>derived class</dt><dd>შვილი კლასი (Warrior)</dd></dl></div></article>
+<h2 class="sec" id="sec-5">1 · მშობელი და შვილი</h2>
+<article class="blk" data-slides="7"><span class="anchor" id="s-7"></span><div class="bh"><h3>ნაწილი 1 · მშობელი და შვილი</h3><a class="chip" href="index.html#/7" data-go="7" title="პრეზენტაციაში გახსნა">სლაიდი 7</a></div>
+<p>Hero → Character, და პირველი შვილი — Warrior.</p></article>
+<article class="blk" data-slides="8"><span class="anchor" id="s-8"></span><div class="bh"><h3>⌨️ პირველი შვილი: : Character</h3><a class="chip" href="index.html#/8" data-go="8" title="პრეზენტაციაში გახსნა">სლაიდი 8</a></div>
+<ol>
+<li><strong>Hero.cs → Character.cs</strong>: კლასის სახელზე დააჭირე <strong>F2</strong> (Rename) და ჩაწერე <code>Character</code> — VS ყველგან შეცვლის.</li>
+<li><strong>Add → Class… → Warrior.cs</strong>:</li>
+</ol>
+<div class="codebox"><div class="ch"><span>Warrior.cs · namespace-ის შიგნით</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="k">internal</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">Warrior</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">Character</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="nf">Warrior</span><span class="p">(</span><span class="kt">string</span><span class="w"> </span><span class="n">name</span><span class="p">)</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="k">base</span><span class="p">(</span><span class="n">name</span><span class="p">,</span><span class="w"> </span><span class="mi">120</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="p">}</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="nf">Smash</span><span class="p">(</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="p">{</span></span><span class="ln"><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">Random</span><span class="p">.</span><span class="n">Shared</span><span class="p">.</span><span class="n">Next</span><span class="p">(</span><span class="mi">15</span><span class="p">,</span><span class="w"> </span><span class="mi">26</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="p">}</span></span><span class="ln"><span class="p">}</span></span></code></pre></div>
+<div class="codebox"><div class="ch"><span>Program.cs · Main</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="n">Warrior</span><span class="w"> </span><span class="n">luka</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">Warrior</span><span class="p">(</span><span class="s">"ლუკა"</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="n">luka</span><span class="p">.</span><span class="n">TakeDamage</span><span class="p">(</span><span class="mi">30</span><span class="p">)</span><span class="p">;</span><span class="w">                 </span><span class="c1">// მშობლისგან ✓</span></span><span class="ln"><span class="n">luka</span><span class="p">.</span><span class="n">UsePotion</span><span class="p">(</span><span class="p">)</span><span class="p">;</span><span class="w">                    </span><span class="c1">// მშობლისგან ✓</span></span><span class="ln"><span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="n">luka</span><span class="p">.</span><span class="n">Health</span><span class="p">)</span><span class="p">;</span><span class="w">      </span><span class="c1">// 120</span></span><span class="ln"><span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="n">luka</span><span class="p">.</span><span class="n">Smash</span><span class="p">(</span><span class="p">)</span><span class="p">)</span><span class="p">;</span><span class="w">     </span><span class="o">/</span><span class="o">/</span><span class="w"> </span><span class="n">საკუთარი</span><span class="w"> </span><span class="err">✓</span></span></code></pre></div>
+<ul>
+<li><code>: Character</code> — „Warrior მემკვიდრეობს Character-ს“. მშობლის ყველა public წევრი — <code>Name</code>, <code>Health</code>, <code>TakeDamage()</code>, <code>UsePotion()</code>… — უკვე აქვს.</li>
+<li><code>Smash()</code> — საკუთარი მეთოდი, მხოლოდ მეომარს აქვს.</li>
+<li>Warrior.cs — 10 ხაზი 70-ის ნაცვლად.</li>
+</ul></article>
+<article class="blk" data-slides="9"><span class="anchor" id="s-9"></span><div class="bh"><h3>💡 : base(...) — ჯერ მშობელი იბადება</h3><a class="chip" href="index.html#/9" data-go="9" title="პრეზენტაციაში გახსნა">სლაიდი 9</a></div>
+<div class="codebox"><div class="ch"><span>Warrior.cs</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="k">public</span><span class="w"> </span><span class="nf">Warrior</span><span class="p">(</span><span class="kt">string</span><span class="w"> </span><span class="n">name</span><span class="p">)</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="k">base</span><span class="p">(</span><span class="n">name</span><span class="p">,</span><span class="w"> </span><span class="mi">120</span><span class="p">)</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="p">}</span></span></code></pre></div>
+<ul>
+<li><code>base(name, 120)</code> — მშობლის კონსტრუქტორის გამოძახება. სახელს მეომარი გადასცემს, სიცოცხლე კი ყოველთვის 120-ია.</li>
+<li><code>new Warrior("ლუკა")</code>: <strong>ჯერ</strong> სრულდება <code>Character("ლუკა", 120)</code> — სახელი და სიცოცხლე იწერება, წესებით. <strong>მერე</strong> — Warrior-ის <code>{ }</code>.</li>
+<li><code>: base(...)</code> თუ დაგავიწყდა → შეცდომა <strong>CS7036</strong>: Character-ს ცარიელი კონსტრუქტორი არ აქვს — მშობელი სახელისა და სიცოცხლის გარეშე ვერ დაიბადება.</li>
+</ul></article>
+<article class="blk" data-slides="10"><span class="anchor" id="s-10"></span><div class="bh"><h3>⌨️ ჯადოქარი — საკუთარი მანით</h3><a class="chip" href="index.html#/10" data-go="10" title="პრეზენტაციაში გახსნა">სლაიდი 10</a></div>
+<div class="codebox"><div class="ch"><span>Mage.cs · namespace-ის შიგნით</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="k">internal</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">Mage</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">Character</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">Mana</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">get</span><span class="p">;</span><span class="w"> </span><span class="k">private</span><span class="w"> </span><span class="k">set</span><span class="p">;</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">60</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="nf">Mage</span><span class="p">(</span><span class="kt">string</span><span class="w"> </span><span class="n">name</span><span class="p">)</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="k">base</span><span class="p">(</span><span class="n">name</span><span class="p">,</span><span class="w"> </span><span class="mi">80</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="p">}</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="nf">Fireball</span><span class="p">(</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="p">{</span></span><span class="ln"><span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">Mana</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">20</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">Attack</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="w">        </span><span class="n">Mana</span><span class="w"> </span><span class="o">-=</span><span class="w"> </span><span class="mi">20</span><span class="p">;</span></span><span class="ln"><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">Random</span><span class="p">.</span><span class="n">Shared</span><span class="p">.</span><span class="n">Next</span><span class="p">(</span><span class="mi">25</span><span class="p">,</span><span class="w"> </span><span class="mi">36</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="p">}</span></span><span class="ln"><span class="p">}</span></span></code></pre></div>
+<ul>
+<li><code>Mana</code> — მხოლოდ ჯადოქარს აქვს; ინკაფსულაციით: <code>private set</code>.</li>
+<li><code>base(name, 80)</code> — ჯადოქარი სუსტია, 80 სიცოცხლით.</li>
+<li><code>Fireball()</code>: მანა 20-ზე ნაკლებია? — მშობლის ჩვეულებრივი <code>Attack()</code>. თუ არა — 20 მანა იხარჯება და ძლიერი დარტყმა.</li>
+</ul></article>
+<h2 class="sec" id="sec-6">2 · protected</h2>
+<article class="blk" data-slides="11"><span class="anchor" id="s-11"></span><div class="bh"><h3>ნაწილი 2 · ვინ რას ხედავს?</h3><a class="chip" href="index.html#/11" data-go="11" title="პრეზენტაციაში გახსნა">სლაიდი 11</a></div>
+<p><code>private</code>, <code>public</code> — და ახალი: <code>protected</code>.</p></article>
+<article class="blk" data-slides="12"><span class="anchor" id="s-12"></span><div class="bh"><h3>💥 პრობლემა კოდში: შვილიც კი ვერ ხედავს private-ს</h3><a class="chip" href="index.html#/12" data-go="12" title="პრეზენტაციაში გახსნა">სლაიდი 12</a></div>
+<div class="codebox"><div class="ch"><span>Mage.cs</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="k">public</span><span class="w"> </span><span class="k">void</span><span class="w"> </span><span class="nf">FullRestore</span><span class="p">(</span><span class="p">)</span><span class="w">      </span><span class="c1">// Mage.cs-ში</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="n">Health</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MaxHealth</span><span class="p">;</span><span class="w">        </span><span class="c1">// ❌ CS0272</span></span><span class="ln"><span class="p">}</span></span></code></pre></div>
+<p><code>Health</code>-ის <code>set</code> private-ია <strong>Character-ში</strong>. Mage სხვა კლასია — ამიტომ მასაც ეკრძალება. სწორი გზა — მშობლის public მეთოდი:</p>
+<div class="codebox"><div class="ch"><span>Mage.cs</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="k">public</span><span class="w"> </span><span class="k">void</span><span class="w"> </span><span class="nf">FullRestore</span><span class="p">(</span><span class="p">)</span><span class="w">      </span><span class="c1">// Mage.cs-ში</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="n">Heal</span><span class="p">(</span><span class="n">MaxHealth</span><span class="p">)</span><span class="p">;</span><span class="w">           </span><span class="c1">// ✓ public მეთოდი</span></span><span class="ln"><span class="p">}</span></span></code></pre></div>
+<p>და ეს კარგია: შვილიც კი მშობლის წესებს გვერდს ვერ აუვლის.</p></article>
+<article class="blk" data-slides="13"><span class="anchor" id="s-13"></span><div class="bh"><h3>⌨️ protected — მხოლოდ ოჯახისთვის</h3><a class="chip" href="index.html#/13" data-go="13" title="პრეზენტაციაში გახსნა">სლაიდი 13</a></div>
+<p>ყველა შვილში <code>Random.Shared.Next(15, 26)</code> მეორდება, და ყოველ ჯერზე უნდა გახსოვდეს, რომ ზედა ზღვარი არ შედის („+1“). დამხმარე მეთოდი გვინდა — მაგრამ არა გარედან ხელმისაწვდომი.</p>
+<div class="codebox"><div class="ch"><span>Character.cs + Warrior.cs</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="c1">// Character.cs</span></span><span class="ln"><span class="k">protected</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="nf">RollDamage</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">min</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">max</span><span class="p">)</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">Random</span><span class="p">.</span><span class="n">Shared</span><span class="p">.</span><span class="n">Next</span><span class="p">(</span><span class="n">min</span><span class="p">,</span><span class="w"> </span><span class="n">max</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="p">}</span></span><span class="ln"> </span><span class="ln"><span class="k">public</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="nf">Attack</span><span class="p">(</span><span class="p">)</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nf">RollDamage</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span><span class="w"> </span><span class="mi">15</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="p">}</span></span><span class="ln"> </span><span class="ln"><span class="c1">// Warrior.cs</span></span><span class="ln"><span class="k">public</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="nf">Smash</span><span class="p">(</span><span class="p">)</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nf">RollDamage</span><span class="p">(</span><span class="mi">15</span><span class="p">,</span><span class="w"> </span><span class="mi">25</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="p">}</span></span></code></pre></div>
+<ul>
+<li><code>protected</code> — ჩანს კლასში <strong>და მის შვილებში</strong>. გარედან — არა.</li>
+<li><code>Smash()</code> Warrior-ში — ✓. <code>luka.RollDamage(1, 5)</code> Program.cs-ში — ❌ CS0122.</li>
+<li>„+1“ ახლა ერთ ადგილასაა. Mage-ის <code>Fireball</code>-იც ასე ხდება: <code>return RollDamage(25, 35);</code>.</li>
+</ul></article>
+<article class="blk" data-slides="14"><span class="anchor" id="s-14"></span><div class="bh"><h3>💡 სამი დონე: ვინ ხედავს?</h3><a class="chip" href="index.html#/14" data-go="14" title="პრეზენტაციაში გახსნა">სლაიდი 14</a></div>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>კლასის შიგნით</th>
+<th>შვილებში</th>
+<th>გარედან</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>public</code></td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+</tr>
+<tr>
+<td><code>protected</code></td>
+<td>✅</td>
+<td>✅</td>
+<td>❌</td>
+</tr>
+<tr>
+<td><code>private</code></td>
+<td>✅</td>
+<td>❌</td>
+<td>❌</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li><code>protected</code> — დამხმარე მეთოდები შვილებისთვის: <code>RollDamage</code>.</li>
+<li>C#-ში შვილს მხოლოდ <strong>ერთი</strong> მშობელი ჰყავს: <code>class Paladin : Warrior, Mage</code> — შეცდომა CS1721.</li>
+</ul>
+<div class="terms"><div class="th">📘 ტერმინები</div><dl><dt>protected</dt><dd>ჩანს კლასში და მის შვილებში, გარედან — არა</dd></dl></div></article>
+<article class="blk" data-slides="15"><span class="anchor" id="s-15"></span><div class="bh"><h3>⌨️ Dragon.cs — პარამეტრების გარეშე</h3><a class="chip" href="index.html#/15" data-go="15" title="პრეზენტაციაში გახსნა">სლაიდი 15</a></div>
+<div class="codebox"><div class="ch"><span>Dragon.cs · namespace-ის შიგნით</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="k">internal</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">Dragon</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">Character</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="nf">Dragon</span><span class="p">(</span><span class="p">)</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="k">base</span><span class="p">(</span><span class="s">"დრაკონი"</span><span class="p">,</span><span class="w"> </span><span class="mi">250</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="p">}</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="nf">FireBreath</span><span class="p">(</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="p">{</span></span><span class="ln"><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="nf">RollDamage</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span><span class="w"> </span><span class="mi">30</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="p">}</span></span><span class="ln"><span class="p">}</span></span></code></pre></div>
+<ul>
+<li><code>new Dragon()</code> — სახელსა და სიცოცხლეს დრაკონი თვითონ აწვდის მშობელს: <code>base("დრაკონი", 250)</code>.</li>
+<li><code>RollDamage</code> — protected, ამიტომ შვილისთვის ხელმისაწვდომია.</li>
+<li>დრაკონიც პერსონაჟია: სიცოცხლე, წამლები, დაზიანება — უფასოდ, მშობლისგან.</li>
+</ul></article>
+<article class="blk" data-slides="16"><span class="anchor" id="s-16"></span><div class="bh"><h3>❓ რომელი დაკომპილირდება?</h3><a class="chip" href="index.html#/16" data-go="16" title="პრეზენტაციაში გახსნა">სლაიდი 16</a></div>
+<p><code>luka</code> — Warrior, <code>ana</code> — Mage.</p>
+<div class="selfcheck"><div class="sh">✅ შეამოწმე თავი <small>დაფიქრდი, მერე გახსენი პასუხი</small></div><details><summary>A — <code>luka.Heal(10);</code></summary><div class="ans">✅ — public, მშობლისგან</div></details><details><summary>B — <code>luka.RollDamage(1, 5);</code></summary><div class="ans">❌ — protected — გარედან არა</div></details><details><summary>C — <code>ana.Mana = 100;</code></summary><div class="ans">❌ — Mana-ს set — private</div></details><details><summary>D — `// Warrior.cs-ში:</summary><div class="ans">✅ — შვილი protected-ს ხედავს</div></details><details><summary>E — `// Mage.cs-ში:</summary><div class="ans">❌ — private Character-ში</div></details><details><summary>F — <code>class X : Warrior, Mage</code></summary><div class="ans">❌ — მხოლოდ ერთი მშობელი</div></details></div></article>
+<h2 class="sec" id="sec-7">3 · არენა</h2>
+<article class="blk" data-slides="17"><span class="anchor" id="s-17"></span><div class="bh"><h3>ნაწილი 3 · არენა — გუნდი vs დრაკონი</h3><a class="chip" href="index.html#/17" data-go="17" title="პრეზენტაციაში გახსნა">სლაიდი 17</a></div>
+<p>მეომარი და ჯადოქარი ერთად.</p></article>
+<article class="blk" data-slides="18"><span class="anchor" id="s-18"></span><div class="bh"><h3>⌨️ ბრძოლა: მეომარი და ჯადოქარი vs დრაკონი</h3><a class="chip" href="index.html#/18" data-go="18" title="პრეზენტაციაში გახსნა">სლაიდი 18</a></div>
+<div class="codebox"><div class="ch"><span>Program.cs · Main</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="n">Warrior</span><span class="w"> </span><span class="n">warrior</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">Warrior</span><span class="p">(</span><span class="s">"ლუკა"</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="n">Mage</span><span class="w"> </span><span class="n">mage</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">Mage</span><span class="p">(</span><span class="s">"ანა"</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="n">Dragon</span><span class="w"> </span><span class="n">dragon</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">Dragon</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="kt">int</span><span class="w"> </span><span class="n">round</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="n">dragon</span><span class="p">.</span><span class="n">IsAlive</span><span class="p">(</span><span class="p">)</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="p">(</span><span class="n">warrior</span><span class="p">.</span><span class="n">IsAlive</span><span class="p">(</span><span class="p">)</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">mage</span><span class="p">.</span><span class="n">IsAlive</span><span class="p">(</span><span class="p">)</span><span class="p">)</span><span class="p">)</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="s">$"── {round} ── 🛡️ {warrior.Health} | 🔮 {mage.Health} | 🐉 {dragon.Health}"</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">warrior</span><span class="p">.</span><span class="n">IsAlive</span><span class="p">(</span><span class="p">)</span><span class="p">)</span><span class="w"> </span><span class="n">dragon</span><span class="p">.</span><span class="n">TakeDamage</span><span class="p">(</span><span class="n">warrior</span><span class="p">.</span><span class="n">Smash</span><span class="p">(</span><span class="p">)</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">mage</span><span class="p">.</span><span class="n">IsAlive</span><span class="p">(</span><span class="p">)</span><span class="p">)</span><span class="w"> </span><span class="n">dragon</span><span class="p">.</span><span class="n">TakeDamage</span><span class="p">(</span><span class="n">mage</span><span class="p">.</span><span class="n">Fireball</span><span class="p">(</span><span class="p">)</span><span class="p">)</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">dragon</span><span class="p">.</span><span class="n">IsAlive</span><span class="p">(</span><span class="p">)</span><span class="p">)</span></span><span class="ln"><span class="w">    </span><span class="p">{</span></span><span class="ln"><span class="w">        </span><span class="kt">int</span><span class="w"> </span><span class="n">damage</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">dragon</span><span class="p">.</span><span class="n">FireBreath</span><span class="p">(</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">warrior</span><span class="p">.</span><span class="n">IsAlive</span><span class="p">(</span><span class="p">)</span><span class="p">)</span><span class="w"> </span><span class="n">warrior</span><span class="p">.</span><span class="n">TakeDamage</span><span class="p">(</span><span class="n">damage</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">        </span><span class="k">else</span><span class="w"> </span><span class="n">mage</span><span class="p">.</span><span class="n">TakeDamage</span><span class="p">(</span><span class="n">damage</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="p">}</span></span><span class="ln"> </span><span class="ln"><span class="w">    </span><span class="n">round</span><span class="o">++</span><span class="p">;</span></span><span class="ln"><span class="w">    </span><span class="n">Thread</span><span class="p">.</span><span class="n">Sleep</span><span class="p">(</span><span class="mi">600</span><span class="p">)</span><span class="p">;</span></span><span class="ln"><span class="p">}</span></span><span class="ln"> </span><span class="ln"><span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="n">dragon</span><span class="p">.</span><span class="n">IsAlive</span><span class="p">(</span><span class="p">)</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="s">"💀 დრაკონმა გაიმარჯვა..."</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s">"🏆 გუნდმა გაიმარჯვა!"</span><span class="p">)</span><span class="p">;</span></span></code></pre></div>
+<ul>
+<li>ყოველს თავისი შეტევა აქვს: <code>Smash()</code>, <code>Fireball()</code>, <code>FireBreath()</code>.</li>
+<li><code>TakeDamage</code>, <code>IsAlive</code>, <code>Health</code> — ერთი კოდი მშობლისგან, ყველასთვის.</li>
+<li>დრაკონი ჯერ მეომარს ურტყამს; მეომარი მკვდარია — ჯადოქარს.</li>
+</ul></article>
+<article class="blk" data-slides="19"><span class="anchor" id="s-19"></span><div class="bh"><h3>🧩 შემდეგი ლექციისთვის: Warrior არის Character — მაგრამ…</h3><a class="chip" href="index.html#/19" data-go="19" title="პრეზენტაციაში გახსნა">სლაიდი 19</a></div>
+<div class="codebox"><div class="ch"><span>Program.cs · Main</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="n">Character</span><span class="p">[</span><span class="p">]</span><span class="w"> </span><span class="n">party</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">warrior</span><span class="p">,</span><span class="w"> </span><span class="n">mage</span><span class="w"> </span><span class="p">}</span><span class="p">;</span></span><span class="ln"> </span><span class="ln"><span class="k">foreach</span><span class="w"> </span><span class="p">(</span><span class="n">Character</span><span class="w"> </span><span class="n">c</span><span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="n">party</span><span class="p">)</span></span><span class="ln"><span class="p">{</span></span><span class="ln"><span class="w">    </span><span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="s">$"{c.Name}: {c.Attack()}"</span><span class="p">)</span><span class="p">;</span><span class="w">   </span><span class="c1">// ✓</span></span><span class="ln"><span class="w">    </span><span class="n">c</span><span class="p">.</span><span class="n">Smash</span><span class="p">(</span><span class="p">)</span><span class="p">;</span><span class="w">                                      </span><span class="c1">// ❌ CS1061</span></span><span class="ln"><span class="p">}</span></span></code></pre></div>
+<ul>
+<li>მეომარი <strong>არის</strong> პერსონაჟი — ამიტომ <code>Character[]</code>-ში ეტევა. მთელი გუნდი ერთ მასივშია ✓</li>
+<li>მაგრამ <code>c.Attack()</code> — ყველა ერთნაირად ურტყამს (5–15).</li>
+<li><code>c.Smash()</code> — შეცდომა CS1061: <code>Character</code>-ის ცვლადმა არ იცის, რომ შიგნით მეომარია.</li>
+</ul>
+<p>შემდეგ ლექციაზე — 🎭 <strong>პოლიმორფიზმი</strong>: ერთი <code>Attack()</code>, ყველას თავისებური.</p></article>
+<h2 class="sec" id="sec-8">შეჯამება</h2>
+<article class="blk" data-slides="20"><span class="anchor" id="s-20"></span><div class="bh"><h3>📸 TS → C# · მემკვიდრეობა</h3><a class="chip" href="index.html#/20" data-go="20" title="პრეზენტაციაში გახსნა">სლაიდი 20</a></div>
+<table>
+<thead>
+<tr>
+<th>TypeScript</th>
+<th>C#</th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>class Warrior extends Character</code></td>
+<td><code>class Warrior : Character</code></td>
+<td>მემკვიდრეობა</td>
+</tr>
+<tr>
+<td><code>super(name, 120)</code></td>
+<td><code>: base(name, 120)</code></td>
+<td>მშობლის კონსტრუქტორი</td>
+</tr>
+<tr>
+<td><code>protected rollDamage()</code></td>
+<td><code>protected int RollDamage()</code></td>
+<td>იგივეა ✓</td>
+</tr>
+<tr>
+<td><code>— ერთი მშობელი —</code></td>
+<td><code>— ერთი მშობელი —</code></td>
+<td>იგივეა ✓</td>
+</tr>
+</tbody>
+</table></article>
+<h2 class="sec" id="sec-9">პრაქტიკა</h2>
+<article class="blk" data-slides="21"><span class="anchor" id="s-21"></span><div class="bh"><h3>კლასში დავალება: დავალებები — აირჩიე დონე</h3><a class="chip" href="index.html#/21" data-go="21" title="პრეზენტაციაში გახსნა">სლაიდი 21</a></div>
+<p>ახალი გმირი Arena-ს გუნდში — <code>Character</code>-ის შვილი. წინა საკლასოდან: <code>Gold</code>, <code>BuyPotion</code>, <code>Chest</code></p>
+<h3>ნაბიჯები</h3>
+<ul>
+<li>⭐ <strong>ბერსერკი</strong> — <code>Berserker : Character</code> (100 სიცოცხლე): <code>int Rage()</code> — ძლიერი დარტყმა <code>RollDamage(20, 30)</code>, მაგრამ რისხვა ძვირი ჯდება: ყოველ ჯერზე თავადაც კარგავს 5 სიცოცხლეს</li>
+<li>⭐⭐ <strong>ბერსერკი ბრძოლაში</strong> — <code>Berserker berserker = new Berserker("ნიკა");</code> → ყოველ რაუნდში (თუ ცოცხალია) დრაკონს <code>Rage()</code>-ით ურტყამს. დრაკონის სამიზნე: ჯერ მეომარი, მერე ბერსერკი, მერე ჯადოქარი. <code>while</code>-ის პირობაც შეცვალე</li>
+<li>⭐⭐ <strong>ზარდახშა გუნდისთვის</strong> — <code>Chest.Open(Hero hero)</code> → <code>Open(Character hero)</code>. ბრძოლის შემდეგ ზარდახშას პირველი ცოცხალი გმირი ხსნის</li>
+</ul>
+<h3>✓ მზადაა, როცა</h3>
+<p>ბერსერკს სახელსა და სიცოცხლეს მშობელი აძლევს; ყოველი <code>Rage()</code> მას 5-ით ასუსტებს; <code>berserker.RollDamage(1, 2)</code> Main-ში წითელ ხაზს აჩენს; შეგიძლია ახსნა, რატომ არ უნდა იყოს <code>Chest : Character</code> — ზარდახშა პერსონაჟი <strong>არ არის</strong></p>
+<h3>⭐ ბონუსი</h3>
+<ul>
+<li>⭐⭐⭐ <strong>მეორე ბერსერკი</strong> — დაამატე კიდევ ერთი. დაითვალე, ბრძოლის კოდში რამდენ ადგილას მოგიწია ცვლილება. ეს პრობლემა შემდეგ ლექციაზე გაქრება</li>
+</ul>
+<h3>💡 მინიშნება</h3>
+<p><code>public Berserker(string name) : base(name, 100) { }</code>. <code>Rage()</code>-ში: <code>TakeDamage(5); return RollDamage(20, 30);</code> — <code>TakeDamage</code> მშობლისგან მოდის, <code>RollDamage</code> კი <code>protected</code>-ია: შვილი ხედავს, Main — ვერა. სამიზნე — <code>if / else if / else</code> ჯაჭვი.</p></article>
+<h2 class="sec" id="sec-10">შეჯამება</h2>
+<article class="blk" data-slides="22"><span class="anchor" id="s-22"></span><div class="bh"><h3>შეამოწმე, რა დაგამახსოვრდა</h3><a class="chip" href="index.html#/22" data-go="22" title="პრეზენტაციაში გახსნა">სლაიდი 22</a></div>
+<p>ეს კითხვები შემდეგი ლექციის დასაწყისშიც დაისმება.</p>
+<div class="selfcheck"><div class="sh">✅ შეამოწმე თავი <small>დაფიქრდი, მერე გახსენი პასუხი</small></div><details><summary><code>class Warrior : Character</code> — რას ნიშნავს?</summary><div class="ans">Warrior მემკვიდრეობს Character-ს: მშობლის ყველაფერი უკვე აქვს და თავისას ამატებს. „მეომარი არის პერსონაჟი“</div></details><details><summary><code>public Warrior(string name) : base(name, 120)</code> — რას აკეთებს <code>base</code>? რა მოხდება მის გარეშე?</summary><div class="ans">იძახებს მშობლის კონსტრუქტორს — ის პირველი სრულდება. მის გარეშე CS7036: Character-ს ცარიელი კონსტრუქტორი არ აქვს</div></details><details><summary><code>protected</code> — ვინ ხედავს?</summary><div class="ans">კლასი და მისი შვილები. გარედან (Program.cs) — არა</div></details><details><summary>Mage-ის შიგნით <code>Health = 80;</code> — Health კი Character-ში <code>{ get; private set; }</code>-ია. დაკომპილირდება?</summary><div class="ans">არა — private მხოლოდ Character-ში ჩანს, შვილშიც კი არა. გზა — public მეთოდი: <code>Heal(...)</code></div></details><details><summary><code>Character[] party = { warrior, mage };</code> რატომ კომპილირდება? და <code>party[0].Smash()</code>?</summary><div class="ans">მეომარი არის პერსონაჟი — მასივში ეტევა. Smash — ვერა: Character-ის ცვლადმა მხოლოდ Character-ის წევრები იცის</div></details></div></article>
+<article class="blk" data-slides="23"><span class="anchor" id="s-23"></span><div class="bh"><h3>შეჯამება · ერთხელ დაწერე — ყველამ გამოიყენოს</h3><a class="chip" href="index.html#/23" data-go="23" title="პრეზენტაციაში გახსნა">სლაიდი 23</a></div>
+<p><strong>დაიმახსოვრე:</strong></p>
+<ol>
+<li><strong>მემკვიდრეობა</strong> — <code>class Warrior : Character</code>: შვილს მშობლის ყველაფერი აქვს და თავისას ამატებს. შემოწმება — „არის?“</li>
+<li><code>: base(...)</code> — მშობლის კონსტრუქტორი. ჯერ მშობელი იბადება, მერე შვილი.</li>
+<li><code>private</code> მშობლისა — შვილისთვისაც დახურულია; <code>protected</code> — კლასი და შვილები; <code>public</code> — ყველა.</li>
+<li>C#-ში მხოლოდ ერთი მშობელი.</li>
+<li>შვილი მშობლის ტიპის ცვლადში ეტევა: <code>Character[] party = { warrior, mage };</code></li>
+</ol>
+<h3>⏭️ შემდეგ</h3>
+<p>🎭 პოლიმორფიზმი: <code>virtual</code> და <code>override</code> — ერთი <code>Attack()</code>, ყველას თავისებური.</p></article>
+<h2 class="sec" id="sec-11">საშინაო</h2>
+<article class="blk" data-slides="24"><span class="anchor" id="s-24"></span><div class="bh"><h3>საშინაო დავალება: ⚽ ფეხბურთის კლუბი · ნაწილი 3 — პოზიციები</h3><a class="chip" href="index.html#/24" data-go="24" title="პრეზენტაციაში გახსნა">სლაიდი 24</a></div>
+<p>მეკარე, მცველი და თავდამსხმელი — ყველა მოთამაშეა, მაგრამ თითოეულს თავისი უნარი აქვს</p>
+<h3>მოთხოვნები</h3>
+<ul>
+<li><code>Player</code> — საერთო მშობელი: <code>Name</code>, <code>Stamina</code>, <code>Price</code>, <code>Rest()</code> და <code>protected</code> მეთოდები <code>Roll(int min, int max)</code> და <code>Tire(int amount)</code>. <code>Shot</code> და <code>Reflex</code> აქედან გადის — ისინი პოზიციებს ეკუთვნის</li>
+<li><code>Goalkeeper : Player</code> — <code>Reflex</code>, <code>bool Save(int power)</code> · <code>Defender : Player</code> — <code>Defense</code>, <code>bool Tackle()</code> · <code>Striker : Player</code> — <code>Shot</code>, <code>int Shoot()</code>. ყოველი მოქმედება ენერგიას ხარჯავს <code>Tire</code>-ით</li>
+<li>ფასი უნარიდან: <code>: base(name, reflex * 300)</code></li>
+<li><code>Club</code>-ში <code>Buy(Player p)</code> არ იცვლება — ყველა პოზიციას იღებს; <code>PrintSquad</code>-დან <code>Shot</code>/<code>Reflex</code> ამოდის (ბეჭდავს სახელს, ენერგიას, ფასს). Main-ში კლუბი 120 000 ₾-ით: 1 მეკარე, 2 მცველი, 2 თავდამსხმელი</li>
+<li><code>Penalty</code> გადააკეთე: <code>static bool Penalty(Striker s, Goalkeeper g)</code> → <code>!g.Save(s.Shoot())</code></li>
+</ul>
+<h3>✓ მზადაა, როცა</h3>
+<p><code>Name</code>-ის წესი და ენერგიის კოდი მხოლოდ <code>Player</code>-შია; <code>club.Buy(new Striker(...))</code> მუშაობს; <code>striker.Roll(1, 2)</code> Main-ში წითელ ხაზს აჩენს; <code>PrintSquad</code>-ს უნარების დაბეჭდვა აღარ შეუძლია — რატომ? (ამას შემდეგ ლექციაზე გადავწყვეტთ)</p>
+<h3>⭐ ბონუსი</h3>
+<ul>
+<li><code>Winger : Striker</code> — ფლანგელი: <code>Cross()</code> (ჩაწოდება, 40–70). შვილიშვილს <code>Shoot()</code>-იც აქვს და <code>Rest()</code>-იც</li>
+</ul></article>
+  </main>
+</div>
+<script>
+const DECK = "C# · 9 — მემკვიდრეობა";
+if (matchMedia('(min-width:981px)').matches) document.getElementById('tocd').open = true;
+const blocks = [...document.querySelectorAll('.blk')];
+const tocLinks = [...document.querySelectorAll('nav.toc a[href^="#sec-"]')];
+const secOf = b => { let e = b; while (e && !(e.matches && e.matches('h2.sec'))) e = e.previousElementSibling; return e; };
+function mark(b, toc_only) {
+  if (!toc_only) blocks.forEach(x => x.classList.toggle('cur', x === b));
+  const s = b && secOf(b); tocLinks.forEach(a => a.classList.toggle('cur', s && a.getAttribute('href') === '#' + s.id));
+}
+const blockFor = n => blocks.find(b => b.dataset.slides.split(',').includes(String(n)));
+
+// copy buttons (code: one line per .ln)
+document.addEventListener('click', e => {
+  const btn = e.target.closest('.copy'); if (!btn) return;
+  const box = btn.closest('.codebox, .prompt');
+  const text = box.matches('.prompt') ? box.querySelector('.pb').textContent : [...box.querySelectorAll('.ln')].map(l => l.textContent).join('\n');
+  navigator.clipboard.writeText(text).then(() => { btn.textContent = '✓ დაკოპირდა'; btn.classList.add('ok'); setTimeout(() => { btn.textContent = 'კოპირება'; btn.classList.remove('ok'); }, 1600); });
+});
+
+// live mode: opened from the deck with P — follow the projector
+const live = new URLSearchParams(location.search).has('live');
+let follow = true, bc = null;
+const liveBtn = document.getElementById('live');
+if (live) {
+  try { bc = new BroadcastChannel('deck-' + DECK); } catch (e) {}
+  liveBtn.classList.add('on');
+  liveBtn.onclick = () => { follow = !follow; liveBtn.classList.toggle('off', !follow); liveBtn.querySelector('.lt').textContent = follow ? 'მიჰყვება სლაიდებს' : 'თავისუფლად ვკითხულობ'; };
+  if (bc) {
+    bc.onmessage = ({ data }) => {
+      if (data.t !== 'state' || !follow) return;
+      const b = blockFor(data.i + 1); if (!b || b.classList.contains('cur')) return;
+      mark(b); b.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    };
+    bc.postMessage({ t: 'hello' });
+  }
+  document.addEventListener('click', e => {   // slide chip → move the projector deck
+    const c = e.target.closest('.chip[data-go]'); if (!c || !bc) return;
+    e.preventDefault(); bc.postMessage({ t: 'go', n: +c.dataset.go - 1 });
+  });
+}
+// deep link #s-12
+const h = location.hash.match(/^#s-(\d+)$/);
+if (h) { const b = blockFor(+h[1]); if (b) { mark(b); setTimeout(() => b.scrollIntoView({ block: 'start' }), 50); } }
+// highlight section in the TOC while reading
+const io = new IntersectionObserver(es => es.forEach(x => { if (x.isIntersecting && !(live && follow)) mark(x.target, true); }), { rootMargin: '-30% 0px -60% 0px' });
+blocks.forEach(b => io.observe(b));
+</script>
+</body></html>
