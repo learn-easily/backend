@@ -5,8 +5,7 @@
 # courses/<კურსი>/course.json — {"title", "order"}: ერთი კურსი = ერთი ჩანართი მთავარ გვერდზე (C#, EF Core, ASP.NET, SQL, DevOps)
 # ლექციის საქაღალდე courses/<კურსი>/<NN-slug>/:
 #   deck.html       სლაიდები. ყოველ სლაიდში შეიძლება <aside class="study">…markdown…</aside> — სტუდენტის ახსნა
-#   lecture.json    {"title", "why", "outcomes": [...], "review": [{"q", "a"}, ...], "starts_series": true?,
-#                    "brief": {"learn": [...], "build": [...], "project": "LMS"}?}   ← ქარდის ⓘ drawer: რას ვისწავლით / რას ვწერთ პროექტში
+#   lecture.json    {"title", "why", "outcomes": [...], "review": [{"q", "a"}, ...], "starts_series": true?
 #   classwork.md    კლასში დავალება            homework.md    საშინაო (+ "## ამოხსნა" — ჩანს მხოლოდ შემდეგ ლექციაზე)
 #   materials/      ფაილები ჩამოსატვირთად
 # courses/<კურსი>/syllabus.md — კურსის სილაბუსი → /<კურსი>/syllabus.html (მთავარ გვერდზე „📄 სილაბუსი“)
@@ -396,7 +395,7 @@ def build_lecture(course, cdir, ldir, meta, prev):
     if has_study:
         write_study(out, course, meta, num, title, study, materials)
     print(f'  {cdir.name}/{ldir.name}: {len(slides)} slides' + (f', study {sum(1 for s in study if s["html"])} blocks' if has_study else ''))
-    return {'num': num, 'slug': ldir.name, 'title': meta['title'], 'slides': len(slides), 'materials': materials, 'study': has_study, 'brief': meta.get('brief')}, []
+    return {'num': num, 'slug': ldir.name, 'title': meta['title'], 'slides': len(slides), 'materials': materials, 'study': has_study}, []
 
 def write_study(out, course, meta, num, deck_title, study, materials):
     blocks = []   # [{slides:[n..], title, section, html}]
@@ -443,12 +442,33 @@ def write_syllabus(cdir, course):
         return False
     out.parent.mkdir(parents=True, exist_ok=True)
     built = {int(d.name.split('-', 1)[0]): d.name for d in cdir.iterdir() if (d / 'deck.html').exists() and d.name[:2].isdigit()}
-    h = markdown.markdown(src.read_text(), extensions=['tables', 'sane_lists'])
+    # "📚 a · b" = რას ვისწავლით, "🛠 [პროექტი |] a · b" = რას ვწერთ პროექტში → ლექციის ⓘ drawer (გვერდზე არ ჩანს)
+    briefs, cur, lines = {}, None, []
+    for line in src.read_text().splitlines():
+        m = re.match(r'### (\d+)\.', line)
+        if m:
+            cur = int(m.group(1))
+        if cur is not None and line.startswith(('📚', '🛠')):
+            kind, body = ('learn' if line.startswith('📚') else 'build'), line[1:].strip()
+            if kind == 'build' and '|' in body:
+                briefs.setdefault(cur, {})['project'], body = [x.strip() for x in body.split('|', 1)]
+            briefs.setdefault(cur, {})[kind] = [x.strip() for x in body.split('·') if x.strip()]
+            continue
+        lines.append(line)
+    h = markdown.markdown('\n'.join(lines), extensions=['tables', 'sane_lists'])
     def lec(m):
         num, title, desc = int(m.group(1)), m.group(2), m.group(3) or ''
         slug = built.get(num)
         go = (f'<span class="go"><a href="{slug}/">▶ პრეზენტაცია</a><a href="{slug}/study.html">📖 კონსპექტი</a></span>') if slug else ''
-        return f'<div class="lec{" ready" if slug else ""}" id="l-{num}"><h3>{m.group(1)}. {title}{go}</h3>{desc}</div>'
+        b = briefs.get(num)
+        info = ''
+        if b:
+            li = lambda xs: ''.join(f'<li>{md_inline(x)}</li>' for x in xs)
+            body = (f'<div class="k">ლექცია {m.group(1)}</div><h4 class="dt">{title}</h4>'
+                    + (f'<h5>📚 რას ვისწავლით</h5><ul>{li(b["learn"])}</ul>' if b.get('learn') else '')
+                    + (f'<h5>🛠 რას ვწერთ {esc(b.get("project", "LMS"))}-ში</h5><ul>{li(b["build"])}</ul>' if b.get('build') else ''))
+            info = f'<button class="info" type="button" data-l="{num}" title="რას ვისწავლით და რას ვწერთ">i</button><template id="b-{num}">{body}</template>'
+        return f'<div class="lec{" ready" if slug else ""}" id="l-{num}"><h3>{m.group(1)}. {title}{info}{go}</h3>{desc}</div>'
     h = re.sub(r'<h3>(\d+)\.\s*(.*?)</h3>\s*(<p>.*?</p>)?', lec, h, flags=re.S)
     page = (ENGINE / 'syllabus.html').read_text()
     for k, v in {'{{TITLE}}': esc(course['title']), '{{COUNT}}': str(len(re.findall(r'class="lec', h))), '{{BODY}}': h, '{{FONTS}}': FONTS}.items():
