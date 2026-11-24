@@ -234,7 +234,7 @@ Layers და Vertical Slice Architecture; SRP და DIP; slice: Request · Han
 🛠 `LoggingBehavior` — request-ის სახელი და დრო
 
 
-## LMS-ის დასრულება (3 ლექცია)
+## LMS-ის feature-ები (3 ლექცია)
 
 ### 17. განრიგი და დასწრება + Claude Code
 
@@ -265,19 +265,83 @@ Layers და Vertical Slice Architecture; SRP და DIP; slice: Request · Han
 
 ### 19. Background Jobs და კურსის დასრულება
 
-**პრობლემა:** ზოგი საქმე მოთხოვნის გარეშე უნდა მოხდეს: დედლაინის შეხსენება, ლექტორის გაფრთხილება მე-4 გაცდენაზე. **თემები:** `BackgroundService` და `PeriodicTimer`; Scoped სერვისი background-ში (`IServiceScopeFactory`); შეტყობინებები აპლიკაციის შიგნით (ბაზაში); R6-ის მეორე ნაწილი; R8 (კურსი ჩაბარებულია: საშუალო ≥ 6 და დასწრება ≥ 75%). **LMS:** შეტყობინებები, კურსის დასრულება — **Backend დასრულებულია**.
+**პრობლემა:** ზოგი საქმე მოთხოვნის გარეშე უნდა მოხდეს: დედლაინის შეხსენება, ლექტორის გაფრთხილება მე-4 გაცდენაზე. **თემები:** `BackgroundService` და `PeriodicTimer`; Scoped სერვისი background-ში (`IServiceScopeFactory`); შეტყობინებები ბაზაში და email-ით SMTP-ზე (MailKit, `SmtpOptions`); R6-ის მეორე ნაწილი; R8 (კურსი ჩაბარებულია: საშუალო ≥ 6 და დასწრება ≥ 75%). **LMS:** შეტყობინებები (ბაზა + email), კურსის დასრულება.
 
 📚 დაწერს ფონურ სამუშაოს `BackgroundService`-ით
 📚 გამოიყენებს Scoped სერვისს (DataContext) background-ში `IServiceScopeFactory`-ით
+📚 გააგზავნის email-ს SMTP-ით (MailKit)
 🛠 LMS | `Notification` ბაზაში · `GET /api/notifications/me`
 🛠 `ReminderService` (`PeriodicTimer`) — დედლაინამდე 24 საათით ადრე შეხსენება
 🛠 R6: მე-4 გაცდენაზე ლექტორს შეტყობინება
-🛠 R8: კურსის შედეგი — საშუალო ≥ 6 და დასწრება ≥ 75% → ჩაბარებულია · Backend დასრულებულია
+🛠 R8: კურსის შედეგი — საშუალო ≥ 6 და დასწრება ≥ 75% → ჩაბარებულია
 
+
+## Production-ისთვის: დაცვა, სისწრაფე, გარე სერვისები (3 ლექცია)
+
+### 20. Rate Limiting
+
+**პრობლემა:** login-ზე წამში ასობით პაროლის ცდა (brute force); ერთ კლიენტს შეუძლია მთელი სერვერი დატვირთოს. **თემები:** rate limiting-ის ოთხი ალგორითმი — fixed window, sliding window, token bucket, concurrency — და ცოცხალი შედარება ბევრი მოთხოვნით; partition მომხმარებლით და IP-ით (მენეჯერს და სტუდენტს სხვადასხვა ლიმიტი); `RequireRateLimiting` / `DisableRateLimiting`; 429 ProblemDetails-ით + `Retry-After`; რატომ არ მუშაობს ჩაშენებული limiter რამდენიმე სერვერზე. **LMS:** login-ის დაცვა, ზოგადი ლიმიტი API-ზე.
+
+📚 გაარჩევს rate limiting-ის ალგორითმებს და იცის, რომელი როდის
+📚 დაიცავს endpoint-ებს ლიმიტით მომხმარებლის / IP-ის მიხედვით
+📚 დააბრუნებს 429-ს სწორად (ProblemDetails, `Retry-After`)
+🛠 LMS | `AddRateLimiter`: policy-ები `login` (IP-ით, მკაცრი) და `api` (მომხმარებლით)
+🛠 `POST /api/auth/login` → `RequireRateLimiting("login")`
+🛠 ყველა სხვა endpoint → `api` policy · მენეჯერს უფრო მაღალი ლიმიტი
+🛠 429 → ProblemDetails + `Retry-After` header
+
+### 21. Caching და Redis
+
+**პრობლემა:** კურსების სია და ჯგუფის დეტალები წამში ბევრჯერ იკითხება, თუმცა იშვიათად იცვლება — ბაზა ზედმეტად იტვირთება; მეხსიერებაში ქეში ორ სერვერზე ერთმანეთს არ ემთხვევა. **თემები:** რა ღირს ქეშად და რა არა; in-memory cache და მისი ზღვარი; Redis (Docker-ში) — distributed cache; `HybridCache`: L1 მეხსიერება + L2 Redis, stampede-ისგან დაცვა; ვადა და გასუფთავება ცვლილებისას (tags); ქეში და მონაცემის „სიძველე“. **LMS:** კურსების სიის და ჯგუფის დეტალების ქეში.
+
+📚 გადაწყვეტს, რა მონაცემი ღირს ქეშად და რამდენ ხანს
+📚 გაარჩევს in-memory და distributed cache-ს და იცის, როდის სჭირდება Redis
+📚 გამოიყენებს `HybridCache`-ს და გაასუფთავებს ქეშს ცვლილებისას
+🛠 LMS | Redis Docker-ში · `AddStackExchangeRedisCache` + `AddHybridCache`
+🛠 `GetCourses`, `GetGroupById` → `HybridCache.GetOrCreateAsync` (tag-ებით)
+🛠 Create / Update / Delete / Enroll → `RemoveByTagAsync` — ქეში სუფთავდება
+🛠 ლოგში ჩანს: პირველი მოთხოვნა ბაზიდან, შემდეგი ქეშიდან
+
+### 22. HttpClient და Resilience
+
+**პრობლემა:** მენეჯერი ლექციას დღესასწაულზე ნიშნავს; დღესასწაულების სიას ხელით ვერ ვწერთ — ის გარე API-დან მოდის, და გარე სერვისი შეიძლება ნელი იყოს ან გაითიშოს. **თემები:** რატომ არა `new HttpClient()` (socket exhaustion, DNS); `IHttpClientFactory` და typed client; BaseAddress Options-ით; `GetFromJsonAsync`, `CancellationToken`; გარე სერვისის შეცდომა → `Result`, ჩვენი API არ ვარდება; resilience: retry, timeout, circuit breaker (`AddStandardResilienceHandler`); პასუხის ქეში Redis-ში. **LMS:** ლექცია დღესასწაულზე არ ინიშნება.
+
+📚 გამოიძახებს გარე API-ს სწორად: `IHttpClientFactory`, typed client
+📚 დაიცავს საკუთარ API-ს გარე სერვისის შეცდომებისგან (Result, timeout)
+📚 გამოიყენებს retry-ს და circuit breaker-ს და დაინახავს მათ ლოგში
+🛠 LMS | `HolidaysClient` (typed client) + `HolidaysOptions` (BaseAddress)
+🛠 `AddStandardResilienceHandler` — retry, timeout, circuit breaker
+🛠 დღესასწაულები წლის მიხედვით — `HybridCache`-ში (Redis)
+🛠 `group.ScheduleLecture(...)` — ახალი წესი: დღესასწაულზე → 409
+
+## ტესტები (2 ლექცია)
+
+### 23. Unit ტესტები
+
+**პრობლემა:** ყოველი ცვლილების შემდეგ ყველა წესის ხელით შემოწმება Scalar-ში შეუძლებელია; Claude Code-ის კოდის review-ს მტკიცებულება სჭირდება. **თემები:** რა არის unit ტესტი და რას ვტესტავთ; xUnit: `[Fact]`, `[Theory]`, Arrange-Act-Assert; დომენის წესების ტესტი (Result-ის შემოწმება); `FakeTimeProvider` დროზე დამოკიდებული წესებისთვის; fake დამოკიდებულება (HolidaysClient); ტესტის სახელები და სტრუქტურა. **LMS:** ტესტ-პროექტი, დომენის წესების ტესტები.
+
+📚 დაწერს unit ტესტს xUnit-ით (Arrange-Act-Assert, `[Fact]`, `[Theory]`)
+📚 შეამოწმებს დომენის წესებს და დროზე დამოკიდებულ წესს `FakeTimeProvider`-ით
+📚 ჩაანაცვლებს გარე დამოკიდებულებას fake-ით
+🛠 LMS | `Lms.Tests` პროექტი (xUnit)
+🛠 `Email`, `Course`, `Group.Enroll` (R3), `ScheduleLecture` (R4), `Score`, დედლაინი (R7) — ტესტები
+🛠 R8 (კურსის ჩაბარება) — `[Theory]` რამდენიმე შემთხვევით
+
+### 24. Integration ტესტები
+
+**პრობლემა:** unit ტესტი ამოწმებს წესს, მაგრამ არა იმას, რომ endpoint, auth, ვალიდაცია, ბაზა და ProblemDetails ერთად მუშაობს. **თემები:** `WebApplicationFactory`; სატესტო ბაზა; JWT ტესტში; HTTP სცენარის ტესტი; რა ვტესტავთ integration-ით და რა unit-ით. **LMS:** სრული სცენარების ტესტები — **Backend დასრულებულია**.
+
+📚 დაწერს integration ტესტს `WebApplicationFactory`-ით
+📚 შეამოწმებს სრულ სცენარს: auth → ვალიდაცია → ბაზა → პასუხი
+📚 გაარჩევს, რა ტესტდება unit-ით და რა integration-ით
+🛠 LMS | `LmsApiFactory` — სატესტო ბაზით და JWT-ით
+🛠 სცენარი: ჩარიცხვა → 200 · ბოლო ადგილი → 409 · სხვის ჯგუფზე დასწრება → 403
+🛠 ვალიდაციის შეცდომა → 400 ProblemDetails `errors`-ით · login-ის ლიმიტი → 429
+🛠 Backend დასრულებულია
 
 ## Angular Claude Code-ით (2 ლექცია)
 
-### 20. Angular + Claude Code #1: როგორ ვმუშაობთ AI-სთან
+### 25. Angular + Claude Code #1: როგორ ვმუშაობთ AI-სთან
 
 **თემები:** როგორ ვგეგმავთ AI-სთან: `CLAUDE.md`, plan mode, OpenAPI დოკუმენტი როგორც კონტექსტი; CORS; Angular-ის სტრუქტურა; login, layout, JWT interceptor, ProblemDetails-ის ჩვენება; კურსები და ჯგუფები. სტუდენტები კოდს კითხულობენ, ლექტორი გეგმავს და review-ს აკეთებს.
 
@@ -287,13 +351,11 @@ Layers და Vertical Slice Architecture; SRP და DIP; slice: Request · Han
 🛠 Angular: სტრუქტურა, login, layout, JWT interceptor, ProblemDetails-ის ჩვენება
 🛠 გვერდები: კურსები, ჯგუფები, ჩარიცხვა
 
+### 26. Angular + Claude Code #2
 
-### 21. Angular + Claude Code #2
-
-**თემები:** განრიგი, დასწრება, ნამუშევრის ატვირთვა, ქულები; ბოლო review და შესწორებები. **Frontend დასრულებულია** — სრული აპლიკაცია DevOps-ის კურსში იშვება სერვერზე.
+**თემები:** განრიგი, დასწრება, ნამუშევრის ატვირთვა, ქულები, შეტყობინებები; ბოლო review და შესწორებები; სრული აპლიკაციის დემო. **Frontend დასრულებულია** — სრული აპლიკაცია DevOps-ის კურსში იშვება სერვერზე.
 
 📚 გაივლის სრულ review-ს AI-ის კოდზე და შეასწორებს
 📚 დაინახავს სრულ აპლიკაციას: frontend + backend
 🛠 LMS | Angular: განრიგი, დასწრება, ნამუშევრის ატვირთვა, ქულები, შეტყობინებები
-🛠 ბოლო შესწორებები · Frontend დასრულებულია — მზადაა DevOps-ში გასაშვებად
-
+🛠 ბოლო შესწორებები · სრული აპლიკაციის დემო · მზადაა DevOps-ში გასაშვებად
