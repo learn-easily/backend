@@ -1,102 +1,123 @@
-# ფიგურები 📐
+# ⚽ ფეხბურთის კლუბი · ნაწილი 4 — პირველი მატჩი
 
-ერთი `Area()` — სამი ფორმულა
+ყოველი პოზიცია თავისებურად ფასდება და ვარჯიშობს — კლუბს კი არ აინტერესებს, ვინ ვინ არის
 
 ## მოთხოვნები
 
-- ახალი Console App: **Shapes**
-- `Shape`: `Name`, `virtual double Area()` (აბრუნებს 0), `override ToString()` → „წრე: ფართობი 12.57“
-- `Circle` (რადიუსი), `Rectangle` (სიგანე, სიმაღლე), `Triangle` (ფუძე, სიმაღლე) — სამივე `Shape`-ის შვილი, `override Area()`-ით
-- ზომები — `{ get; private set; }`; უარყოფითი ზომა → 0
-- Main-ში: `Shape[] shapes` — სამივე ტიპი; **ერთი** `foreach`: დაბეჭდე თითოეული, დაითვალე ჯამური ფართობი და იპოვე ყველაზე დიდი
+- `Player`-ში `virtual int Rating()` (`Stamina / 5`) — ყოველი პოზიცია `override`-ით: უნარი + `base.Rating()`
+- `Player`-ში `virtual void Train()` (`Tire(20)`) — მეკარე ავარჯიშებს `Reflex`-ს, მცველი `Defense`-ს, თავდამსხმელი `Shot`-ს (+3, მაქს. 100) და მერე `base.Train()`
+- `override ToString()` — `Player`: „ნიკა ⭐ 96 ⚡ 100“; პოზიციები წინ ამატებენ 🧤 / 🛡️ / ⚽ + `base.ToString()`
+- `Club`-ში: `int Strength()` — ყველა `Rating()`-ის ჯამი; `void TrainAll()` — ვარჯიშობს, ვისაც `Stamina` 20+ აქვს; `PrintSquad` — `Console.WriteLine(squad[i])`
+- Program-ში `static void PlayMatch(Club home, Club away)` — გოლები: `Random.Shared.Next(0, club.Strength() / 100 + 1)`. Main-ში ორი კლუბი: მატჩი → ერთი კლუბი ვარჯიშობს → განმეორებითი მატჩი
 
 ## ✓ მზადაა, როცა
 
-`Console.WriteLine(s)` ფიგურის სახელს და ფართობს ბეჭდავს; ციკლში არცერთი `if` ტიპზე არ არის; ახალი ფიგურა (მაგ. `Square`) მხოლოდ ახალ კლასს მოითხოვს
+`Club`-ში არცერთი `if` პოზიციაზე არ არის; `TrainAll`-ის შემდეგ კლუბის `Strength()` გაიზარდა; ახალი პოზიცია (მაგ. `Winger`) მხოლოდ ახალ კლასს მოითხოვს
 
 ## ⭐ ბონუსი
 
-- `Square : Rectangle` — კვადრატიც მართკუთხედია! `public Square(double side) : base(side, side)` — და `Area()`-ს წერა აღარ სჭირდება. სახელი? `override ToString()`
+- შინ მოთამაშე გუნდს +50 ძალა; `Winger`-ს `override Rating()` — `Shot`-ის ნაცვლად ჩაწოდება ითვლება
 
 ## ამოხსნა
 
 ```csharp Program.cs · Main !
-Shape[] shapes =
-{
-    new Circle(2),
-    new Rectangle(3, 4),
-    new Triangle(6, 5)
-};
+Club dinamo = new Club("დინამო", 120000);
+dinamo.Buy(new Goalkeeper("საბა", 75));
+dinamo.Buy(new Defender("ლუკა", 70));
+dinamo.Buy(new Defender("დათო", 60));
+dinamo.Buy(new Striker("ნიკა", 80));
+dinamo.Buy(new Striker("გიო", 55));
 
-double total = 0;
-Shape largest = shapes[0];
+Club torpedo = new Club("ტორპედო", 120000);
+torpedo.Buy(new Goalkeeper("ზურა", 65));
+torpedo.Buy(new Defender("ოთო", 75));
+torpedo.Buy(new Defender("ბექა", 65));
+torpedo.Buy(new Striker("ლევანი", 70));
+torpedo.Buy(new Striker("ტოკო", 70));
 
-foreach (Shape s in shapes)
-{
-    Console.WriteLine(s);
-    total += s.Area();
-    if (s.Area() > largest.Area()) largest = s;
-}
+dinamo.PrintSquad();
+torpedo.PrintSquad();
+PlayMatch(dinamo, torpedo);
 
-Console.WriteLine($"ჯამური ფართობი: {total:F2}");
-Console.WriteLine($"ყველაზე დიდი: {largest.Name}");
+dinamo.TrainAll();
+dinamo.PrintSquad();
+PlayMatch(torpedo, dinamo);
 ```
 
-```csharp Shape.cs · Circle.cs · Rectangle.cs
-internal class Shape
+```csharp Program.cs · დამხმარე მეთოდები
+static void PlayMatch(Club home, Club away)
 {
-    public string Name { get; private set; }
+    int homeGoals = Random.Shared.Next(0, home.Strength() / 100 + 1);
+    int awayGoals = Random.Shared.Next(0, away.Strength() / 100 + 1);
+    Console.WriteLine($"🏟️ {home.Name} {homeGoals} : {awayGoals} {away.Name}");
+}
+```
 
-    public Shape(string name)
+```csharp Player.cs · ახალი ნაწილი
+public virtual int Rating()
+{
+    return Stamina / 5;
+}
+
+public virtual void Train()
+{
+    Tire(20);
+}
+
+public override string ToString()
+{
+    return $"{Name} ⭐ {Rating()} ⚡ {Stamina}";
+}
+```
+
+```csharp Striker.cs · ახალი ნაწილი
+public override int Rating()
+{
+    return Shot + base.Rating();
+}
+
+public override void Train()
+{
+    Shot += 3;
+    if (Shot > 100) Shot = 100;
+    base.Train();
+}
+
+public override string ToString()
+{
+    return "⚽ " + base.ToString();
+}
+```
+
+```csharp Club.cs · ახალი ნაწილი
+public int Strength()
+{
+    int total = 0;
+    for (int i = 0; i < Count; i++)
     {
-        Name = name;
+        total += squad[i].Rating();
     }
+    return total;
+}
 
-    public virtual double Area()
+public void TrainAll()
+{
+    for (int i = 0; i < Count; i++)
     {
-        return 0;
-    }
-
-    public override string ToString()
-    {
-        return $"{Name}: ფართობი {Area():F2}";
+        if (squad[i].Stamina >= 20) squad[i].Train();
     }
 }
 
-internal class Circle : Shape
+public void PrintSquad()
 {
-    public double Radius { get; private set; }
-
-    public Circle(double radius) : base("წრე")
+    Console.WriteLine($"🏟️ {Name} · 💪 {Strength()} · {Budget} ₾");
+    for (int i = 0; i < Count; i++)
     {
-        if (radius < 0) radius = 0;
-        Radius = radius;
-    }
-
-    public override double Area()
-    {
-        return Math.PI * Radius * Radius;
-    }
-}
-
-internal class Rectangle : Shape
-{
-    public double Width { get; private set; }
-    public double Height { get; private set; }
-
-    public Rectangle(double width, double height) : base("მართკუთხედი")
-    {
-        Width = width;
-        Height = height;
-    }
-
-    public override double Area()
-    {
-        return Width * Height;
+        Console.WriteLine($"   {squad[i]}");
     }
 }
 ```
 
 ```note
-`Triangle` — იგივე სქემით: `Base * Height / 2`. `Math.PI` — C#-ის მზა `Math` კლასიდან. `{Area():F2}` — ორი ციფრი მძიმის შემდეგ. მთავარი: ციკლმა არ იცის, რომელი ფიგურაა — `s.Area()` ყოველთვის სწორ ფორმულას იძახებს. ეს არის პოლიმორფიზმი.
+`Goalkeeper` და `Defender` — ზუსტად `Striker`-ის სქემით (`Reflex`, `Defense`, 🧤, 🛡️). `squad[i].Rating()` ყოველთვის სწორ ფორმულას იძახებს, თუმცა `Club`-მა არ იცის, რომელი პოზიციაა — ეს პოლიმორფიზმია. წინა ნაწილში `PrintSquad` უნარებს ვერ ბეჭდავდა — ახლა `ToString()`-ის `override` ამას თავისით აკეთებს.
 ```

@@ -1,56 +1,89 @@
-# რაინდი და ჯადოქარი vs დრაკონი
+# ⚽ ფეხბურთის კლუბი · ნაწილი 1 — პენალტები
 
-ორი გმირი ერთ დრაკონს ებრძვის
+ვიწყებთ ჩვენს კლუბს: მოთამაშეები, მეკარე და პენალტების სერია. ამ პროექტს ყოველ ლექციაზე გავაგრძელებთ — ბოლოს მთელი სეზონი გაითამაშება
 
 ## მოთხოვნები
 
-- ორი გმირი: `knight` (100) და `mage` (70); დრაკონი — 200 სიცოცხლით
-- რაუნდი: **ყოველი ცოცხალი** გმირი უტევს დრაკონს → დრაკონი (თუ ცოცხალია) **პირველ ცოცხალ** გმირს ურტყამს (ჯერ რაინდს, ის თუ მოკვდა — ჯადოქარს): `dragon.Attack() + 10`
-- ბრძოლა გრძელდება, სანამ დრაკონი ცოცხალია **და** ერთი გმირი მაინც ცოცხალია; ბოლოს — გამარჯვებული
-- Program-ში ორი `static` მეთოდი: `bool AnyAlive(Hero a, Hero b)` და `Hero FirstAlive(Hero a, Hero b)`
+- Console App **FootballClub**, კლასი `Player` (**Player.cs**): `Name`, `Shot` (დარტყმა 0–100), `Reflex` (მეკარის რეაქცია 0–100), `Stamina` (თავიდან 100) — კონსტრუქტორით `Player(string name, int shot, int reflex)`
+- Program-ში `static void Train(Player p)` — `Shot` +5 (მაქს. 100), `Stamina` −20 (მინ. 0)
+- Program-ში `static bool Penalty(Player shooter, Player keeper)` — გოლის შანსი: `shooter.Shot - keeper.Reflex / 2`; შემსრულებელს `Stamina` −5
+- Main-ში: `Player[] shooters` — 3 მოთამაშე, ერთი მეკარე. ერთ-ერთი ივარჯიშოს, მერე 5 პენალტი — შემსრულებლები რიგრიგობით; ყოველი დარტყმა იბეჭდება, ბოლოს — „შედეგი: 3/5“
 
 ## ✓ მზადაა, როცა
 
-მკვდარი გმირი აღარ უტევს და დრაკონი მას აღარ ურტყამს; ბრძოლა სწორად მთავრდება ორივე შემთხვევაში
+`Train(shooters[2])`-ის შემდეგ `shooters[2].Shot` ნამდვილად გაიზარდა; პენალტის შემდეგ შემსრულებელს `Stamina` დააკლდა; შეგიძლია ახსნა, რატომ ცვლის მეთოდი ნამდვილ მოთამაშეს
 
 ## ⭐ ბონუსი
 
-- დრაკონმა **შემთხვევით** ცოცხალ გმირს დაარტყას: თუ ორივე ცოცხალია, `Random.Shared.Next(2)` აირჩევს, ვის; თუ ერთია — მას
+- ორი გუნდის სერია: ორივე გუნდი 5-5 პენალტს ურტყამს (თითოეულს თავისი მეკარე ჰყავს). ფრე? — „ოქროს პენალტი“: სანამ ერთი არ გაიტანს და მეორე არ ააცილებს
 
 ## ამოხსნა
 
 ```csharp Program.cs · Main !
-Hero knight = new Hero("რაინდი", 100);
-Hero mage = new Hero("ჯადოქარი", 70);
-Hero dragon = new Hero("დრაკონი", 200);
-
-while (dragon.IsAlive() && AnyAlive(knight, mage))
+Player[] shooters =
 {
-    if (knight.IsAlive()) dragon.TakeDamage(knight.Attack());
-    if (mage.IsAlive()) dragon.TakeDamage(mage.Attack());
+    new Player("ნიკა", 70, 10),
+    new Player("ლუკა", 60, 10),
+    new Player("გიო", 50, 10)
+};
+Player keeper = new Player("საბა", 20, 60);
 
-    if (dragon.IsAlive())
+Train(shooters[2]);
+Console.WriteLine($"💪 {shooters[2].Name}: დარტყმა {shooters[2].Shot}, ენერგია {shooters[2].Stamina}");
+
+int goals = 0;
+for (int i = 0; i < 5; i++)
+{
+    Player shooter = shooters[i % shooters.Length];
+
+    if (Penalty(shooter, keeper))
     {
-        Hero target = FirstAlive(knight, mage);
-        target.TakeDamage(dragon.Attack() + 10);
+        goals++;
+        Console.WriteLine($"⚽ {shooter.Name} — გოოოლი!");
+    }
+    else
+    {
+        Console.WriteLine($"🧤 {keeper.Name} იგერიებს {shooter.Name}-ის დარტყმას");
     }
 }
-Console.WriteLine(dragon.IsAlive() ? "💀 დრაკონმა გაიმარჯვა" : "🏆 გმირებმა გაიმარჯვეს!");
+Console.WriteLine($"შედეგი: {goals}/5");
 ```
 
 ```csharp Program.cs · დამხმარე მეთოდები
-static bool AnyAlive(Hero a, Hero b)
+static void Train(Player p)
 {
-    return a.IsAlive() || b.IsAlive();
+    p.Shot += 5;
+    if (p.Shot > 100) p.Shot = 100;
+
+    p.Stamina -= 20;
+    if (p.Stamina < 0) p.Stamina = 0;
 }
 
-static Hero FirstAlive(Hero a, Hero b)
+static bool Penalty(Player shooter, Player keeper)
 {
-    if (a.IsAlive()) return a;
-    return b;
+    int chance = shooter.Shot - keeper.Reflex / 2;
+    shooter.Stamina -= 5;
+    return Random.Shared.Next(100) < chance;
+}
+```
+
+```csharp Player.cs · namespace-ის შიგნით
+internal class Player
+{
+    public string Name { get; set; }
+    public int Shot { get; set; }
+    public int Reflex { get; set; }
+    public int Stamina { get; set; } = 100;
+
+    public Player(string name, int shot, int reflex)
+    {
+        Name = name;
+        Shot = shot;
+        Reflex = reflex;
+    }
 }
 ```
 
 ```note
-`FirstAlive` გმირის **მისამართს** აბრუნებს — ამიტომ `target.TakeDamage(...)` ნამდვილ რაინდს ან ჯადოქარს აზიანებს და არა ასლს. ციკლი `FirstAlive`-ს მხოლოდ მაშინ იძახებს, როცა ცოცხალი გმირი ნამდვილად არის.
+`Train` და `Penalty` მოთამაშის **მისამართს** იღებენ — ამიტომ ცვლიან ნამდვილ ობიექტს მასივში და არა ასლს. `Player shooter = shooters[...]` ახალ მოთამაშეს არ ქმნის — იგივე ობიექტზე მეორე „ისარია“. `i % shooters.Length` → 0, 1, 2, 0, 1 — რიგრიგობით. ყურადღება: ახლა Main-ს შეუძლია `keeper.Reflex = 1000;` — ამას შემდეგ ლექციაზე გავასწორებთ.
 ```

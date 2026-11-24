@@ -1,41 +1,52 @@
-# სკოლა 🏫
+# ⚽ ფეხბურთის კლუბი · ნაწილი 3 — პოზიციები
 
-მოსწავლე და მასწავლებელი — ორივე ადამიანია
+მეკარე, მცველი და თავდამსხმელი — ყველა მოთამაშეა, მაგრამ თითოეულს თავისი უნარი აქვს
 
 ## მოთხოვნები
 
-- Console App **School**, კლასები ცალკე ფაილებში. `Person`: `Name` (ცარიელი → „უცნობი“), `Age { get; private set; }` (მინიმუმ 5), `Introduce()`
-- `Student : Person`: `Grade` (1–12, `private set`), `Study()`
-- `Teacher : Person`: `Subject`, `Teach(Student student)` — ბეჭდავს, ვინ ვის ასწავლის. კონსტრუქტორები — `: base(name, age)`-ით
-- Main-ში: 2 მოსწავლე და 1 მასწავლებელი; `Person[] people` → ყველა წარდგება `foreach`-ით; მერე `Study()` და `Teach()`
+- `Player` — საერთო მშობელი: `Name`, `Stamina`, `Price`, `Rest()` და `protected` მეთოდები `Roll(int min, int max)` და `Tire(int amount)`. `Shot` და `Reflex` აქედან გადის — ისინი პოზიციებს ეკუთვნის
+- `Goalkeeper : Player` — `Reflex`, `bool Save(int power)` · `Defender : Player` — `Defense`, `bool Tackle()` · `Striker : Player` — `Shot`, `int Shoot()`. ყოველი მოქმედება ენერგიას ხარჯავს `Tire`-ით
+- ფასი უნარიდან: `: base(name, reflex * 300)`
+- `Club`-ში `Buy(Player p)` არ იცვლება — ყველა პოზიციას იღებს; `PrintSquad`-დან `Shot`/`Reflex` ამოდის (ბეჭდავს სახელს, ენერგიას, ფასს). Main-ში კლუბი 120 000 ₾-ით: 1 მეკარე, 2 მცველი, 2 თავდამსხმელი
+- `Penalty` გადააკეთე: `static bool Penalty(Striker s, Goalkeeper g)` → `!g.Save(s.Shoot())`
 
 ## ✓ მზადაა, როცა
 
-`Name`-ისა და `Age`-ის კოდი მხოლოდ `Person`-შია; `new Student("ანა", 15, 99)` → კლასი 12; `Person[]`-ში ორივე ტიპი ეტევა
+`Name`-ის წესი და ენერგიის კოდი მხოლოდ `Player`-შია; `club.Buy(new Striker(...))` მუშაობს; `striker.Roll(1, 2)` Main-ში წითელ ხაზს აჩენს; `PrintSquad`-ს უნარების დაბეჭდვა აღარ შეუძლია — რატომ? (ამას შემდეგ ლექციაზე გადავწყვეტთ)
 
 ## ⭐ ბონუსი
 
-- `Director : Teacher` — დირექტორიც მასწავლებელია! დაამატე `void Announce(string text)`. შვილის შვილს — `Person`-ის ყველაფერიც აქვს
+- `Winger : Striker` — ფლანგელი: `Cross()` (ჩაწოდება, 40–70). შვილიშვილს `Shoot()`-იც აქვს და `Rest()`-იც
 
 ## ამოხსნა
 
 ```csharp Program.cs · Main !
-Student ana = new Student("ანა", 15, 9);
-Student gio = new Student("გიო", 16, 10);
-Teacher nino = new Teacher("ნინო", 34, "მათემატიკა");
+Club club = new Club("დინამო", 120000);
 
-Person[] people = { ana, gio, nino };
-foreach (Person p in people)
+Goalkeeper saba = new Goalkeeper("საბა", 75);
+Striker nika = new Striker("ნიკა", 80);
+club.Buy(saba);
+club.Buy(new Defender("ლუკა", 70));
+club.Buy(new Defender("დათო", 60));
+club.Buy(nika);
+club.Buy(new Striker("გიო", 55));
+club.PrintSquad();   // Club.cs-ში: Console.WriteLine($"   {p.Name} ⚡ {p.Stamina} · {p.Price} ₾");
+
+for (int i = 0; i < 3; i++)
 {
-    p.Introduce();
+    Console.WriteLine(Penalty(nika, saba) ? "⚽ გოლი!" : "🧤 მოიგერია!");
 }
-
-ana.Study();
-nino.Teach(gio);
 ```
 
-```csharp Person.cs
-internal class Person
+```csharp Program.cs · დამხმარე მეთოდები
+static bool Penalty(Striker s, Goalkeeper g)
+{
+    return !g.Save(s.Shoot());
+}
+```
+
+```csharp Player.cs
+internal class Player
 {
     private string name = "";
 
@@ -49,56 +60,85 @@ internal class Person
         }
     }
 
-    public int Age { get; private set; }
+    public int Stamina { get; private set; } = 100;
+    public int Price { get; private set; }
 
-    public Person(string name, int age)
+    public Player(string name, int price)
     {
         Name = name;
-        if (age < 5) age = 5;
-        Age = age;
+        if (price < 0) price = 0;
+        Price = price;
     }
 
-    public void Introduce()
+    public void Rest()
     {
-        Console.WriteLine($"👋 მე ვარ {Name}, {Age} წლის");
+        Stamina += 30;
+        if (Stamina > 100) Stamina = 100;
+    }
+
+    protected void Tire(int amount)
+    {
+        Stamina -= amount;
+        if (Stamina < 0) Stamina = 0;
+    }
+
+    protected int Roll(int min, int max)
+    {
+        return Random.Shared.Next(min, max + 1);
     }
 }
 ```
 
-```csharp Student.cs · Teacher.cs
-internal class Student : Person
+```csharp Goalkeeper.cs · Defender.cs · Striker.cs
+internal class Goalkeeper : Player
 {
-    public int Grade { get; private set; }
+    public int Reflex { get; private set; }
 
-    public Student(string name, int age, int grade) : base(name, age)
+    public Goalkeeper(string name, int reflex) : base(name, reflex * 300)
     {
-        if (grade < 1) grade = 1;
-        if (grade > 12) grade = 12;
-        Grade = grade;
+        Reflex = reflex;
     }
 
-    public void Study()
+    public bool Save(int power)
     {
-        Console.WriteLine($"📚 {Name} სწავლობს {Grade} კლასში");
+        Tire(5);
+        return Roll(0, 100) < Reflex - power / 2;
     }
 }
 
-internal class Teacher : Person
+internal class Defender : Player
 {
-    public string Subject { get; private set; }
+    public int Defense { get; private set; }
 
-    public Teacher(string name, int age, string subject) : base(name, age)
+    public Defender(string name, int defense) : base(name, defense * 300)
     {
-        Subject = subject;
+        Defense = defense;
     }
 
-    public void Teach(Student student)
+    public bool Tackle()
     {
-        Console.WriteLine($"🧑‍🏫 {Name} → {student.Name} · გაკვეთილი: {Subject}");
+        Tire(10);
+        return Roll(0, 100) < Defense;
+    }
+}
+
+internal class Striker : Player
+{
+    public int Shot { get; private set; }
+
+    public Striker(string name, int shot) : base(name, shot * 300)
+    {
+        Shot = shot;
+    }
+
+    public int Shoot()
+    {
+        Tire(5);
+        return Roll(Shot / 2, Shot);
     }
 }
 ```
 
 ```note
-`Name`-ისა და `Age`-ის წესები მხოლოდ `Person`-შია — `Student` და `Teacher` მათ მემკვიდრეობით იღებენ. `Person[]`-ში ორივე ეტევა, რადგან მოსწავლეც და მასწავლებელიც **არის** ადამიანი. ოღონდ `p.Study()` ციკლში ვერ გამოიძახება — `Person`-მა არ იცის, რომ შიგნით მოსწავლეა.
+`Club`-ში არაფერი შეგვიცვლია: `Player[] squad`-ში ყველა პოზიცია ეტევა, რადგან მეკარეც **არის** მოთამაშე. `PrintSquad`-ში დარჩა მხოლოდ `Name`, `Stamina` და `Price` — `Player`-მა არ იცის, რომ შიგნით თავდამსხმელია და `Shot` აქვს. `Tire` და `Roll` — `protected`: შვილები იყენებენ, Main ვერა.
 ```

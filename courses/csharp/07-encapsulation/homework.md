@@ -1,42 +1,41 @@
-# ტამაგოჩი 🐱
+# ⚽ ფეხბურთის კლუბი · ნაწილი 2 — ტრანსფერები
 
-შინაური ცხოველი, რომელსაც ვერავინ „გატეხავს“
+კლუბს აქვს ბიუჯეტი და შემადგენლობა — და ვერავინ „მოიპარავს“ ფულს ან მოთამაშის მონაცემებს
 
 ## მოთხოვნები
 
-- Console App **Tamagotchi**, კლასი `Pet` (**Pet.cs**): `Name` — property წესით, ცარიელი → „უსახელო“
-- `Hunger` და `Happiness` — 0-დან 10-მდე, `{ get; private set; }`, ორივე თავიდან 5
-- `Feed()` — შიმშილი −3 · `Play()` — ბედნიერება +2, შიმშილი +2; შიმშილი 8+ → უარს ამბობს. მნიშვნელობები 0–10-ს **არასდროს** სცდება
-- Main-ში `do-while` მენიუ: 1 — აჭამე, 2 — ეთამაშე, 0 — გასვლა; ყოველ ჯერზე `PrintStatus()`
+- `Player` დაიცავი: `Name` — წესით (ცარიელი → „უცნობი“); `Shot`, `Reflex`, `Stamina` — `{ get; private set; }` და ყოველთვის 0–100; ახალი `Price { get; private set; }` (კონსტრუქტორში)
+- `Train()` და `Rest()` — `Player`-ის მეთოდები: `Train` — `Shot` +5, `Stamina` −20 (`Stamina` 20-ზე ნაკლები → „დაღლილია“ და არაფერი იცვლება); `Rest` — `Stamina` +30
+- ახალი კლასი `Club` (**Club.cs**): `Name`, `Budget { get; private set; }`, `private Player[] squad = new Player[5]` (მინი-ფეხბურთი — 5 მოთამაშე), `Count { get; private set; }`
+- `bool Buy(Player p)` — გუნდი სავსეა ან ფული არ ჰყოფნის → `false` და არაფერი იცვლება; `void PrintSquad()`
+- Main-ში: კლუბი 100 000 ₾-ით; სცადე 6 მოთამაშის ყიდვა — ერთი ძვირია, მეექვსეს ადგილი აღარ აქვს
 
 ## ✓ მზადაა, როცა
 
-`pet.Hunger = 0` Main-ში წითელ ხაზს აჩენს; რამდენჯერაც არ უნდა აჭამო ან ეთამაშო, მნიშვნელობები 0–10-ში რჩება
+`club.Budget = 999999`, `club.squad[0] = null` და `player.Shot = 100` წითელ ხაზს აჩენს; ბიუჯეტი არასდროს ჩადის მინუსში; მე-6 მოთამაშე არ ემატება
 
 ## ⭐ ბონუსი
 
-- `Sleep()` — ბედნიერება +1, შიმშილი +1; და `bool IsHappy()` — ბედნიერება 7+ და შიმშილი 3-ზე ნაკლები
+- `Club.TrainAll()` — მთელი გუნდი ვარჯიშობს; `bool Sell(int index)` — მოთამაშე იყიდება ნახევარ ფასად, დანარჩენები მასივში ერთით წინ ინაცვლებენ
 
 ## ამოხსნა
 
 ```csharp Program.cs · Main !
-Pet pet = new Pet("მურკა");
-int choice;
+Club club = new Club("დინამო", 100000);
 
-do
-{
-    pet.PrintStatus();
-    Console.Write("1 — აჭამე · 2 — ეთამაშე · 0 — გასვლა: ");
-    choice = int.Parse(Console.ReadLine());
+club.Buy(new Player("ნიკა", 80, 10, 30000));
+club.Buy(new Player("ლუკა", 65, 15, 20000));
+club.Buy(new Player("მესი", 99, 20, 900000));   // ❌ ძვირია
+club.Buy(new Player("საბა", 20, 75, 25000));
+club.Buy(new Player("გიო", 55, 10, 10000));
+club.Buy(new Player("დათო", 60, 10, 10000));
+club.Buy(new Player("ბექა", 50, 10, 5000));      // ❌ ადგილი აღარ არის
 
-    if (choice == 1) pet.Feed();
-    else if (choice == 2) pet.Play();
-}
-while (choice != 0);
+club.PrintSquad();
 ```
 
-```csharp Pet.cs · namespace-ის შიგნით
-internal class Pet
+```csharp Player.cs · namespace-ის შიგნით
+internal class Player
 {
     private string name = "";
 
@@ -45,46 +44,98 @@ internal class Pet
         get { return name; }
         set
         {
-            if (value == "") name = "უსახელო";
+            if (value == "") name = "უცნობი";
             else name = value;
         }
     }
 
-    public int Hunger { get; private set; } = 5;
-    public int Happiness { get; private set; } = 5;
+    public int Shot { get; private set; }
+    public int Reflex { get; private set; }
+    public int Stamina { get; private set; } = 100;
+    public int Price { get; private set; }
 
-    public Pet(string name)
+    public Player(string name, int shot, int reflex, int price)
     {
         Name = name;
+        Shot = Limit(shot);
+        Reflex = Limit(reflex);
+        if (price < 0) price = 0;
+        Price = price;
     }
 
-    public void Feed()
+    private int Limit(int value)
     {
-        Hunger -= 3;
-        if (Hunger < 0) Hunger = 0;
+        if (value < 0) return 0;
+        if (value > 100) return 100;
+        return value;
     }
 
-    public void Play()
+    public void Train()
     {
-        if (Hunger >= 8)
+        if (Stamina < 20)
         {
-            Console.WriteLine($"{Name} ძალიან მშიერია — თამაში არ უნდა 😿");
+            Console.WriteLine($"😮‍💨 {Name} დაღლილია");
             return;
         }
-
-        Happiness += 2;
-        if (Happiness > 10) Happiness = 10;
-        Hunger += 2;
-        if (Hunger > 10) Hunger = 10;
+        Shot = Limit(Shot + 5);
+        Stamina -= 20;
     }
 
-    public void PrintStatus()
+    public void Rest()
     {
-        Console.WriteLine($"🐱 {Name} · შიმშილი {Hunger}/10 · ბედნიერება {Happiness}/10");
+        Stamina = Limit(Stamina + 30);
+    }
+}
+```
+
+```csharp Club.cs · namespace-ის შიგნით
+internal class Club
+{
+    private Player[] squad = new Player[5];
+
+    public string Name { get; private set; }
+    public int Budget { get; private set; }
+    public int Count { get; private set; }
+
+    public Club(string name, int budget)
+    {
+        Name = name;
+        if (budget < 0) budget = 0;
+        Budget = budget;
+    }
+
+    public bool Buy(Player p)
+    {
+        if (Count == squad.Length)
+        {
+            Console.WriteLine($"❌ {Name}: შემადგენლობა სავსეა");
+            return false;
+        }
+        if (p.Price > Budget)
+        {
+            Console.WriteLine($"❌ {p.Name}-ისთვის ფული არ ჰყოფნის");
+            return false;
+        }
+
+        Budget -= p.Price;
+        squad[Count] = p;
+        Count++;
+        Console.WriteLine($"✍️ {p.Name} → {Name} ({p.Price} ₾)");
+        return true;
+    }
+
+    public void PrintSquad()
+    {
+        Console.WriteLine($"🏟️ {Name} · ბიუჯეტი {Budget} ₾");
+        for (int i = 0; i < Count; i++)
+        {
+            Player p = squad[i];
+            Console.WriteLine($"   {p.Name} ⚽ {p.Shot} 🧤 {p.Reflex} ⚡ {p.Stamina}");
+        }
     }
 }
 ```
 
 ```note
-ყველა წესი `Pet`-შია: Main-ს მხოლოდ მეთოდების გამოძახება შეუძლია. `Play`-ში ადრეული `return` თამაშს წყვეტს, თუ ცხოველი მშიერია — დანარჩენი კოდი აღარ სრულდება.
+`squad` — `private` ველი: გარედან მასივს ვერავინ შეეხება, მოთამაშე მხოლოდ `Buy`-ით ემატება. `Limit` — `private` დამხმარე მეთოდი: შიგნით სამჯერ გვჭირდება, გარედან — არავის. `Count` გვეუბნება, მასივის რამდენი ადგილია დაკავებული. წინა ნაწილის `static Train(Player p)` ახლა მოთამაშის საკუთარი მეთოდია — ცვლილების უფლება მხოლოდ მას აქვს.
 ```
