@@ -10,6 +10,7 @@
 | Mapping | `Riok.Mapperly` |
 | API დოკუმენტაცია | `Microsoft.AspNetCore.OpenApi`, `Scalar.AspNetCore` |
 | ვალიდაცია | `FluentValidation` |
+| Mediator (pipeline behaviors) | `MediatR` 12.x — ბოლო უფასო (MIT) ვერსია |
 | პაროლის hash | `Konscious.Security.Cryptography.Argon2` |
 | JWT | `Microsoft.AspNetCore.Authentication.JwtBearer` |
 
@@ -55,43 +56,45 @@ LMS-ის პროექტი; story №1 „მენეჯერი ქმ�
 
 Layers და Vertical Slice Architecture; SRP და DIP; slice: Request · Handler · Endpoint; Controller-ები → Minimal API (`MapGroup`); Swagger → Scalar.
 
-## დომენის მოდელი (5 ლექცია)
+## დომენის მოდელი (2 ლექცია)
 
 ### 10. Rich Entity, Value Object და Result
 
 ანემიური entity-ის პრობლემა; rich entity: დახურული setter-ები, factory მეთოდი, წესები entity-ში; Result pattern შეცდომისთვის exception-ის ნაცვლად; Value Object `Email` (EF Core-ის value conversion); ახალი feature: ჯგუფები (Group).
 
-### 11. მონაცემების წაკითხვა: Projection და სიები
+### 11. Aggregate და Concurrency
 
-დაკავშირებული მონაცემი API-ის პასუხში (ურთიერთობები EF Core-იდან ნაცნობია); Restrict და წაშლა → 409; `Include` და JSON-ის ციკლი; projection `Select`-ით პირდაპირ response DTO-ში; `AsNoTracking`; pagination, ფილტრი და დალაგება.
+ჩარიცხვა ჯგუფში (R3); Aggregate და Aggregate Root (`Group` → `Enrollment`); ცვლილება მხოლოდ root-ის გავლით; პრობლემა: დავიწყებული `Include` და Repository pattern DDD-ში (რას ხსნის, როდის ღირს — კოდში 15-ში); race condition ბოლო ადგილზე; optimistic concurrency (`rowversion`) და unique index; ჯგუფიანი კურსის წაშლა → 409.
 
-### 12. Aggregate და Concurrency
+## პასუხები, შეცდომები და pipeline (3 ლექცია)
 
-ჩარიცხვა ჯგუფში (R3); Aggregate და Aggregate Root (`Group` → `Enrollment`); ცვლილება მხოლოდ root-ის გავლით; race condition ბოლო ადგილზე; optimistic concurrency (`rowversion`) და unique index.
+### 12. Middleware, Pipeline და Logging
 
-### 13. ვალიდაცია, Middleware და შეცდომების ცენტრალური მართვა
+როგორ გადის მოთხოვნა ASP.NET Core-ში: middleware-ების ჯაჭვი და მათი რიგი; ჩაშენებული middleware-ები; საკუთარი middleware (მოთხოვნის ლოგი: მეთოდი, მისამართი, სტატუსი, დრო); `ILogger`, ლოგის დონეები, structured logging.
 
-FluentValidation; ProblemDetails; middleware და pipeline; global exception handler; Result → HTTP პასუხი ერთ ადგილას.
+### 13. შეცდომები და პასუხები: ერთი ფორმა ყველგან
 
-### 14. განრიგი და დასწრება + Claude Code
+API-ის პასუხის ნორმალიზაცია: ნებისმიერი შეცდომა — დომენის, ვალიდაციის, არარსებული მისამართის, 401/403, მოულოდნელი exception — ერთ ფორმაში ბრუნდება (ProblemDetails, RFC 9457); `ErrorType` და სტატუს კოდი ერთ ადგილას; `ResultExtensions` (`ToOk`, `ToCreated`, `ToNoContent`); `AddProblemDetails`, `IExceptionHandler`, `UseStatusCodePages`; production-ში დეტალების გარეშე; concurrency-ის ერთიანი დამუშავება.
 
-ლექციები (R4) და დასწრება (R6); პირველი handler ხელით, `CLAUDE.md` პროექტის წესებით; დანარჩენ slice-ებს Claude Code წერს, ჩვენ review-ს ვუკეთებთ.
+### 14. ვალიდაცია და MediatR
 
-## უსაფრთხოება, ფაილები და ფონური სამუშაო (5 ლექცია)
+FluentValidation; ვალიდაცია handler-ში ხელით → იგივე კოდი ყველა handler-ში; MediatR: `IRequest`, `IRequestHandler`, `ISender`; pipeline behavior-ები: ვალიდაცია და ლოგირება ერთ ადგილას; slice-ები MediatR-ზე.
 
-### 15. Configuration და Logging
+## LMS-ის დასრულება (5 ლექცია)
 
-`appsettings` და environment-ები; Options pattern, `ValidateOnStart`; User Secrets; `ILogger`, ლოგის დონეები და structured logging.
+### 15. განრიგი და დასწრება + Claude Code
 
-### 16. Authentication
+ლექციები (R4) და დასწრება (R6); ჯგუფის aggregate იზრდება → `IGroupRepository` ხელით; პირველი slice ხელით, `CLAUDE.md` პროექტის წესებით (aggregate მხოლოდ Repository-ით); დანარჩენ slice-ებს Claude Code წერს, ჩვენ review-ს ვუკეთებთ; სიები pagination-ით.
 
-ანგარიშები; პაროლის hash Argon2id-ით; JWT: გაცემა და შემოწმება; `RequireAuthorization`, claims; rate limiting login-ზე.
+### 16. Authentication და Configuration
+
+`appsettings` და environment-ები; Options pattern (`JwtOptions`, `ValidateOnStart`); User Secrets; ანგარიშები; პაროლის hash Argon2id-ით; JWT: გაცემა და შემოწმება; claims.
 
 ### 17. Authorization
 
 როლები და policy-ები; resource-based authorization: R5 („მხოლოდ თავისი ჯგუფის ლექტორი“).
 
-### 18. ფაილები და დრო
+### 18. ფაილები, დრო და შეფასება
 
 დავალებები; ნამუშევრის ატვირთვა (`IFormFile`); შეფასება და დედლაინი (R7); `TimeProvider`.
 

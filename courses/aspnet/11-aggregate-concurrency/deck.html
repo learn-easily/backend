@@ -33,13 +33,13 @@ i.codestep{display:none}
 .seats span.x{background:var(--red);outline:3px solid #fecaca}
 </style>
 <!-- =========================================================
-     ლექცია 12 — Aggregate და Concurrency: ჩარიცხვა ჯგუფში (R3)
+     ლექცია 11 — Aggregate და Concurrency: ჩარიცხვა ჯგუფში (R3)
      ფერები: Group / aggregate = teal · Student = core · პრობლემა = წითელი · მენეჯერი A = ლურჯი, B = ნარინჯისფერი
      ========================================================= -->
 
 <section class="slide" data-section="შესავალი">
   <div class="vcenter" style="max-width:760px">
-    <div class="kicker in" style="color:var(--core)">ASP.NET Core Web API · ლექცია 12</div>
+    <div class="kicker in" style="color:var(--core)">ASP.NET Core Web API · ლექცია 11</div>
     <h1 class="in" style="--d:.15s">20 ადგილი.<br><span class="grad">21 სტუდენტი?</span></h1>
     <p class="lead in mt" style="--d:.35s"><b>Aggregate</b> · <b>Aggregate Root</b> · race condition · <b>optimistic concurrency</b></p>
   </div>
@@ -395,10 +395,126 @@ modelBuilder.Entity<Enrollment>(e =>
 ```
 
 - **`DbSet<Enrollment>` არ არის.** EF ცხრილს მაინც შექმნის: Enrollment-ს `Group.Enrollments`-ით პოულობს. ასე `_db.Enrollments.Add(...)` ვერავინ დაწერს: ჩარიცხვის ერთადერთი გზა `group.Enroll`-ია.
-- **Cascade აქ სწორია.** 11 ლექციაზე კურსისთვის Restrict ავირჩიეთ, რადგან ჯგუფი ცალკე aggregate-ია. Enrollment კი ჯგუფის **ნაწილია**: ჯგუფის წაშლისას მისი ჩარიცხვებიც უნდა წაიშალოს.
+- **Cascade აქ სწორია.** Enrollment ჯგუფის **ნაწილია**: ჯგუფის წაშლისას მისი ჩარიცხვებიც უნდა წაიშალოს. კურსთან და ლექტორთან კი Restrict იქნება (შემდეგი სლაიდი).
 - `Student`-თან Restrict: სტუდენტი, რომელიც სადმე ჩარიცხულია, არ წაიშლება.
 
 `Add-Migration AddEnrollments` → `Update-Database`.
+  </aside>
+</section>
+
+<section class="slide" data-section="1 · Aggregate">
+  <div class="kicker">aggregate-ის საზღვარი ბაზაში</div>
+  <h2>ჯგუფი ↔ კურსი: <span class="c-red">Cascade</span> თუ <span class="grad">Restrict</span>?</h2>
+  <div class="grid2" style="grid-template-columns:1.2fr 1fr;gap:26px;align-items:start">
+    <div class="col" style="gap:12px">
+      <code-block lang="csharp" cls="xs" title="Data/DataContext.cs · OnModelCreating → Group">
+group.HasOne<Course>().WithMany()
+    .HasForeignKey(g => g.CourseId).OnDelete(DeleteBehavior.Restrict);
+group.HasOne<Lecturer>().WithMany()
+    .HasForeignKey(g => g.LecturerId).OnDelete(DeleteBehavior.Restrict);
+      </code-block>
+      <code-block lang="csharp" cls="xs step" title="Features/Courses/DeleteCourse/DeleteCourseHandler.cs">
+if (await _db.Groups.AnyAsync(g => g.CourseId == id))
+    return Results.Conflict(CourseErrors.HasGroups);
+      </code-block>
+    </div>
+    <div class="col" style="gap:12px">
+      <div class="reason step" style="--a:#0d9488"><b class="k">შიგნით</b><span>Enrollment — ჯგუფის <b>ნაწილი</b> → <b>Cascade</b></span></div>
+      <div class="reason step" style="--a:var(--core)"><b class="k">გარეთ</b><span>Course, Lecturer — <b>სხვა</b> aggregate → <b>Restrict</b></span></div>
+      <div class="problem step" style="font-size:17px">Restrict: ბაზა უარს ამბობს → <code class="i">DbUpdateException</code> → კლიენტს <b>500</b></div>
+      <div class="solve step" style="font-size:17px">handler წინასწარ ამოწმებს → <b>409</b> · <code class="i">Course.HasGroups</code></div>
+    </div>
+  </div>
+  <aside class="study">
+### aggregate-ის საზღვარი ბაზაში: Cascade თუ Restrict?
+
+წაშლის ქცევა aggregate-ის საზღვარს მიჰყვება:
+
+- **Enrollment ჯგუფის ნაწილია** → Cascade: ჯგუფის წაშლისას მისი ჩარიცხვებიც იშლება.
+- **Course და Lecturer სხვა aggregate-ებია** → Restrict: კურსის წაშლამ ჯგუფები (და მათი ჩარიცხვები) არ უნდა წაშალოს.
+
+ჯგუფი კურსს და ლექტორს Id-ით იცნობს, ამიტომ navigation property არ გვჭირდება: `HasOne<Course>()` FK-ს ბაზაში navigation-ის გარეშე ქმნის.
+
+```csharp Data/DataContext.cs · OnModelCreating → Group
+group.HasOne<Course>().WithMany()
+    .HasForeignKey(g => g.CourseId).OnDelete(DeleteBehavior.Restrict);
+group.HasOne<Lecturer>().WithMany()
+    .HasForeignKey(g => g.LecturerId).OnDelete(DeleteBehavior.Restrict);
+```
+
+Restrict-ის გამო ჯგუფიანი კურსის წაშლაზე ბაზა `DbUpdateException`-ს ისვრის და კლიენტი **500**-ს მიიღებს, თუმცა სწორი პასუხი **409**-ია. ამიტომ DeleteCourse წინასწარ ამოწმებს:
+
+```csharp Features/Courses/DeleteCourse/DeleteCourseHandler.cs
+if (await _db.Groups.AnyAsync(g => g.CourseId == id))
+    return Results.Conflict(CourseErrors.HasGroups);
+```
+
+```csharp Entities/CourseErrors.cs
+public static readonly Error HasGroups = new(
+    "Course.HasGroups", "კურსს ჯგუფები აქვს და ვერ წაიშლება");
+```
+
+09 ლექციის SRP-ის მაგალითში ზუსტად ეს წესი იყო: „წაშლა აიკრძალა, თუ კურსს ჯგუფები აქვს“. ის მხოლოდ DeleteCourse slice-ში ემატება.
+  </aside>
+</section>
+<section class="slide" data-section="1 · Aggregate">
+  <div class="kicker">ერთი ხაზი დაგავიწყდა…</div>
+  <h2><code class="i" style="font-size:.85em">Include</code> არ წერია — <span class="c-red">წესი ჩუმად აღარ მუშაობს</span></h2>
+  <div class="grid2" style="grid-template-columns:1.1fr 1fr;gap:26px;align-items:start">
+    <div class="col" style="gap:12px">
+      <code-block lang="csharp" cls="sm" title="ახალი handler — „გადაყვანა სხვა ჯგუფში“">
+var group = await _db.Groups.FindAsync(groupId);
+var result = group.Enroll(studentId, today, now);
+// _enrollments ცარიელია → AlreadyEnrolled არ მუშაობს
+      </code-block>
+      <div class="problem step" style="font-size:17px">შეცდომა არ არის, exception არ არის — სტუდენტი <b>ორჯერ</b> ჩაირიცხება</div>
+    </div>
+    <div class="col" style="gap:12px">
+      <code-block lang="csharp" cls="sm step" title="Repository pattern (DDD)">
+public interface IGroupRepository
+{
+    Task<Group?> GetAsync(Guid id);   // ყოველთვის Enrollments-ით
+    void Add(Group group);
+}
+      </code-block>
+      <div class="reason step" style="--a:#0d9488"><b class="k">1</b><span>ერთი Repository — ერთ <b>aggregate root</b>-ზე, არა ყველა entity-ზე</span></div>
+      <div class="reason step" style="--a:#0d9488"><b class="k">2</b><span><code class="i">Include</code> იწერება <b>ერთხელ</b> — ვეღარ დაგავიწყდება</span></div>
+      <div class="callout step" style="--a:var(--muted);font-size:17px">დღეს ჯგუფს <b>ერთი</b> handler ტვირთავს — DataContext საკმარისია. <b>15</b>-ში, როცა ბევრი იქნება, დავწერთ</div>
+    </div>
+  </div>
+  <aside class="study">
+### დავიწყებული Include და Repository pattern
+
+ხვალ ვინმე წერს ახალ slice-ს, „სტუდენტის გადაყვანა სხვა ჯგუფში“:
+
+```csharp
+var group = await _db.Groups.FindAsync(groupId);
+var result = group.Enroll(studentId, today, now);
+```
+
+`FindAsync` ჩარიცხვებს არ ტვირთავს: `_enrollments` ცარიელია. `AlreadyEnrolled` არასოდეს ამუშავდება, `EnrolledCount` კი მაინც სწორად შემოწმდება. შეცდომა არ არის, exception არ არის: სტუდენტი უბრალოდ ორჯერ ჩაირიცხება. ეს ყველაზე საშიში ბაგია, რადგან არაფერი გამოჩნდება.
+
+**Repository pattern** DDD-ში ამას ხსნის: ერთი Repository ერთ **aggregate root**-ზე, რომელიც aggregate-ს **ყოველთვის მთლიანად** ტვირთავს:
+
+```csharp
+public interface IGroupRepository
+{
+    Task<Group?> GetAsync(Guid id);   // ყოველთვის Enrollments-ით
+    void Add(Group group);
+}
+```
+
+`Include` ერთ ადგილას იწერება და handler-ს ის ვეღარ დაავიწყდება.
+
+**როდის ღირს და როდის არა:**
+
+- Repository იწერება **aggregate root-ზე** (Group), არა ყველა entity-ზე. Course-ს, Student-ს, Lecturer-ს ის არ სჭირდება: მარტივი entity-ებია და `DataContext` (DbSet) თვითონ არის repository.
+- **Generic repository** (`IRepository<T>` ყველაფრისთვის) ცუდი პრაქტიკაა: EF Core-ის შესაძლებლობებს მალავს და არაფერს იცავს.
+- დღეს ჯგუფს მხოლოდ **ერთი** handler ტვირთავს, ამიტომ interface + იმპლემენტაცია ზედმეტი იქნებოდა. 15 ლექციაზე ჯგუფი გაიზრდება (განრიგი, დასწრება), ბევრი handler ჩატვირთავს მას და `IGroupRepository`-ს მაშინ დავწერთ.
+
+```terms
+Repository (DDD) — კლასი, რომელიც ერთ aggregate-ს მთლიანად ტვირთავს და ინახავს; ერთი aggregate root-ზე ერთი
+```
   </aside>
 </section>
 
