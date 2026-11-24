@@ -1,0 +1,526 @@
+<!-- =========================================================
+     ლექცია 11 — CD · GHCR · GitHub Secrets · SSH deploy · rollback
+     ========================================================= -->
+
+<!-- 1. TITLE -->
+<section class="slide" data-section="შესავალი">
+  <div class="vcenter" style="max-width:860px">
+    <div class="kicker in">DevOps Crash Course · ლექცია 11</div>
+    <h1 class="in" style="--d:.15s"><span class="grad">CD</span> 🚀<br>merge → live</h1>
+    <p class="lead in mt" style="--d:.35s">სრული ავტომატიზაცია: GHCR · GitHub Secrets · SSH · rollback</p>
+  </div>
+  <div class="abs" style="right:90px;top:150px">
+    <svg viewBox="0 0 460 520" width="460" height="520">
+      <g class="in" style="--d:.4s"><rect x="110" y="10" width="240" height="70" rx="16" fill="#123321" stroke="#22c55e" stroke-width="3"/><text x="230" y="53" text-anchor="middle" class="tg b mono" font-size="20">$ git push</text></g>
+      <g class="in fade" style="--d:.6s"><path d="M230 80 V115" stroke="#8b6cff" stroke-width="3" class="flow"/></g>
+      <g class="in" style="--d:.8s"><rect x="80" y="115" width="300" height="70" rx="16" fill="#1d1640" stroke="#8b6cff" stroke-width="3"/><text x="230" y="158" text-anchor="middle" class="tn b" font-size="19">✅ CI · build</text></g>
+      <g class="in fade" style="--d:1s"><path d="M230 185 V220" stroke="#f5a524" stroke-width="3" class="flow"/></g>
+      <g class="in" style="--d:1.2s"><rect x="80" y="220" width="300" height="70" rx="16" fill="#33240b" stroke="#f5a524" stroke-width="3"/><text x="230" y="263" text-anchor="middle" class="to b" font-size="19">📦 image → GHCR</text></g>
+      <g class="in fade" style="--d:1.4s"><path d="M230 290 V325" stroke="#22d3ee" stroke-width="3" class="flow"/></g>
+      <g class="in" style="--d:1.6s"><rect x="80" y="325" width="300" height="70" rx="16" fill="#0e2a33" stroke="#22d3ee" stroke-width="3"/><text x="230" y="368" text-anchor="middle" class="ta b" font-size="19">🔑 SSH → compose up</text></g>
+      <g class="in fade" style="--d:1.8s"><path d="M230 395 V430" stroke="#22c55e" stroke-width="3" class="flow"/></g>
+      <g class="in" style="--d:2s"><rect x="60" y="430" width="340" height="70" rx="16" fill="#123321" stroke="#22c55e" stroke-width="3"/><text x="230" y="473" text-anchor="middle" class="tg b mono" font-size="18">🔒 https://api.giorgi.ge</text></g>
+    </svg>
+  </div>
+</section>
+
+<lecture-review/>
+
+<lecture-homework-review/>
+
+<lecture-intro/>
+
+<!-- ================= PART 1: CD ================= -->
+<section class="slide divider" data-section="1 · CD">
+  <div class="vcenter">
+    <div class="kicker in">ნაწილი 1</div>
+    <h1 class="in" style="--d:.1s"><span class="grad">CD</span> — გეგმა და გასაღებები 🔑</h1>
+    <p class="lead mt in" style="--d:.3s">build გადადის GitHub-ზე, სერვერი მხოლოდ იღებს</p>
+  </div>
+  <div class="big-num">01</div>
+  <aside class="study">
+## ნაწილი 1 · CD — გეგმა და გასაღებები
+
+CI ყოველ PR-ს ამოწმებს. დღეს ჯაჭვს ვაგრძელებთ: merge-ის შემდეგ GitHub Actions image-ს ააწყობს, შეინახავს და სერვერზე თვითონ გაუშვებს.
+  </aside>
+</section>
+
+<section class="slide" data-section="1 · CD">
+  <div class="kicker">პრობლემა</div>
+  <h2>CI მწვანეა — deploy კი <span class="c-red">ისევ ხელით</span></h2>
+  <div class="grid2" style="grid-template-columns:1.1fr 1fr">
+    <code-block lang="console" cls="in" title="merge-ის შემდეგ — ყოველ ჯერზე" style="--d:0.20s">
+# GitHub: PR → CI ✅ → merge
+# Termius → lms-server
+$ cd ~/lms
+$ git pull
+$ docker compose up -d --build   # build 1 GB RAM-ზე 😬
+$ docker compose logs -f api     # მუშაობს?
+    </code-block>
+    <div class="col">
+      <div class="problem in right" style="--d:.4s;display:block">😴 merge გააკეთე, სერვერზე შესვლა <b>დაგავიწყდა</b> → ძველი ვერსია</div>
+      <div class="problem in right" style="--d:.55s;display:block">🐢 build <b>სერვერზე</b> — ნელა, და RAM-ს საიტისგან „იპარავს“</div>
+      <div class="problem in right" style="--d:.7s;display:block">👥 გუნდში 5 ადამიანი — ყველას სერვერის <b>SSH</b> უნდა ჰქონდეს?</div>
+      <div class="callout step" style="--a:var(--mvc)"><b>CD</b> — merge <code class="i">main</code>-ში → სერვერზე <b>ავტომატურად</b>. ხელით — არაფერი</div>
+    </div>
+  </div>
+  <aside class="study">
+### პრობლემა: CI მწვანეა — deploy კი ისევ ხელით
+
+წინა ლექციის შემდეგ `main`-ში მხოლოდ შემოწმებული კოდი ხვდება. მაგრამ სერვერამდე ის ისევ ხელით მიდის:
+
+```console merge-ის შემდეგ — ყოველ ჯერზე
+# Termius → lms-server
+$ cd ~/lms
+$ git pull
+$ docker compose up -d --build
+$ docker compose logs -f api
+```
+
+- 😴 merge გააკეთე და სერვერზე შესვლა დაგავიწყდა — მომხმარებელი ძველ ვერსიას ხედავს;
+- 🐢 image სერვერზე იწყობა — 1 GB RAM-ზე ნელა, და ამ დროს საიტი მეხსიერებისთვის „ეჯიბრება“ build-ს;
+- 👥 გუნდში ხუთი ადამიანია — ყველას სერვერზე SSH წვდომა ჰქონდეს?
+
+**CD (Continuous Deployment)** — `main`-ის ყოველი ცვლილება **ავტომატურად** გადის სერვერზე. დღეს ამას ვაკეთებთ: CI-ს შემდეგ ჯაჭვს ვაგრძელებთ სერვერამდე.
+  </aside>
+</section>
+
+<section class="slide" data-section="1 · CD">
+  <div class="kicker">გეგმა</div>
+  <h2>build — <span class="c-asp">GitHub-ზე</span>, სერვერი მხოლოდ <span class="c-mvc">იღებს</span></h2>
+  <svg viewBox="0 0 1420 300" width="1420" height="300">
+    <g class="in left" style="--d:.2s"><rect x="10" y="20" width="700" height="260" rx="22" fill="#1d1640" stroke="#8b6cff" stroke-width="3" stroke-dasharray="10 8"/><text x="360" y="55" text-anchor="middle" class="tn b" font-size="20">🐙 GitHub Actions runner</text>
+      <rect x="40" y="90" width="190" height="80" rx="12" fill="#123321" stroke="#22c55e" stroke-width="2"/><text x="135" y="137" text-anchor="middle" class="tg b mono" font-size="16">checkout</text>
+      <path d="M230 130 H265" stroke="#8b6cff" stroke-width="3"/>
+      <rect x="265" y="90" width="190" height="80" rx="12" fill="#33240b" stroke="#f5a524" stroke-width="2"/><text x="360" y="128" text-anchor="middle" class="to b mono" font-size="16">docker build</text><text x="360" y="152" text-anchor="middle" class="tm" font-size="13">Dockerfile — იგივე</text>
+      <path d="M455 130 H490" stroke="#8b6cff" stroke-width="3"/>
+      <rect x="490" y="90" width="190" height="80" rx="12" fill="#0e2a33" stroke="#22d3ee" stroke-width="2"/><text x="585" y="128" text-anchor="middle" class="ta b mono" font-size="16">push → GHCR</text><text x="585" y="152" text-anchor="middle" class="tm" font-size="13">:latest · :sha</text>
+      <rect x="265" y="195" width="415" height="65" rx="12" fill="#0a0c16" stroke="#353b6b" stroke-width="2"/><text x="472" y="235" text-anchor="middle" class="tw mono" font-size="16">🔑 ssh → pull + up -d</text></g>
+    <g class="in fade" style="--d:.6s"><path d="M710 225 H830" stroke="#22c55e" stroke-width="4" class="flow"/><text x="770" y="205" text-anchor="middle" class="tg b mono" font-size="15">SSH</text></g>
+    <g class="in right" style="--d:.9s"><rect x="830" y="20" width="580" height="260" rx="22" fill="#0e2a33" stroke="#22d3ee" stroke-width="3"/><text x="1120" y="55" text-anchor="middle" class="ta b" font-size="20">🖥️ lms-server</text>
+      <text x="1120" y="110" text-anchor="middle" class="tw mono" font-size="17">git pull                     (compose.yaml)</text>
+      <text x="1120" y="150" text-anchor="middle" class="tw mono" font-size="17">docker compose pull api  ← GHCR</text>
+      <text x="1120" y="190" text-anchor="middle" class="tw mono" font-size="17">docker compose up -d</text>
+      <text x="1120" y="245" text-anchor="middle" class="tg b" font-size="18">build სერვერზე აღარ ხდება ✓</text></g>
+  </svg>
+  <aside class="study">
+### გეგმა: build — GitHub-ზე, სერვერი მხოლოდ იღებს
+
+მე-8 ლექციაში image-ს **სერვერზე** ვაწყობდით (`up --build`) — 1 GB RAM-ზე ნელა და რისკით. ახლა:
+
+**GitHub Actions runner-ზე:**
+
+1. `checkout` — კოდი;
+2. `docker build` — **იგივე Dockerfile**, მე-7 ლექციიდან;
+3. `push` → **GHCR** (GitHub Container Registry) — image-ს ორი tag-ით ვინახავთ: `latest` და commit-ის **sha** (rollback-ისთვის);
+4. SSH-ით სერვერზე შესვლა.
+
+**სერვერზე** (SSH-ით, ავტომატურად):
+
+```console Termius · lms-server
+$ cd ~/lms
+$ git pull                     # compose.yaml-ის ცვლილებებისთვის
+$ docker compose pull api      # ახალი image GHCR-იდან
+$ docker compose up -d         # კონტეინერის შეცვლა
+```
+
+სერვერი აღარაფერს აწყობს — მხოლოდ მზა image-ს იღებს. ეს უფრო სწრაფია, და რაც მთავარია: **ზუსტად ის image**, რომელიც აეწყო, მიდის სერვერზე.
+
+```terms
+GHCR — ghcr.io, GitHub-ის image-ების საცავი (registry) — როგორც Docker Hub, ოღონდ GitHub-ში
+sha — commit-ის უნიკალური იდენტიფიკატორი (git log-ში ჩანს), image-ის tag-ად ვიყენებთ
+```
+  </aside>
+</section>
+
+<section class="slide" data-section="1 · CD">
+  <div class="kicker">ნაბიჯი 1 · საიდუმლოებები</div>
+  <h2>ცალკე <span class="c-asp">deploy გასაღები</span> + <span class="c-mvc">GitHub Secrets</span></h2>
+  <div class="grid2" style="grid-template-columns:1.15fr 1fr">
+    <code-block lang="console" cls="sm in" title="WSL" style="--d:0.20s">
+$ ssh-keygen -t ed25519 -f ~/.ssh/github-deploy -N "" \
+             -C "github-actions-deploy"
+$ ssh-copy-id -i ~/.ssh/github-deploy.pub lms
+Number of key(s) added: 1
+
+$ ssh -i ~/.ssh/github-deploy giorgi@164.90.12.34 "docker ps"
+CONTAINER ID   IMAGE ...                 ← მუშაობს ✓
+
+$ cat ~/.ssh/github-deploy                ← ეს მიდის GitHub-ში
+-----BEGIN OPENSSH PRIVATE KEY-----
+...
+-----END OPENSSH PRIVATE KEY-----
+    </code-block>
+    <div class="col">
+      <table class="t in" style="--d:0.40s;font-size:18px">
+        <tr><th>Secret</th><th>მნიშვნელობა</th></tr>
+        <tr><td class="mono">SSH_HOST</td><td><code class="i">164.90.12.34</code></td></tr>
+        <tr><td class="mono">SSH_USER</td><td><code class="i">giorgi</code></td></tr>
+        <tr><td class="mono">SSH_KEY</td><td>პირადი გასაღები — <b>მთლიანად</b></td></tr>
+      </table>
+      <p class="tiny in" style="--d:.55s">Settings → Secrets and variables → Actions → New repository secret</p>
+      <div class="callout step" style="--a:var(--asp)">🎫 <code class="i">GITHUB_TOKEN</code> — GitHub თვითონ აძლევს workflow-ს. GHCR-ში ატვირთვას ის ეყოფა</div>
+    </div>
+  </div>
+  <aside class="study">
+### ნაბიჯი 1 · deploy გასაღები და GitHub Secrets
+
+GitHub Actions-ს სერვერზე შესასვლელად SSH გასაღები სჭირდება. **შენს** გასაღებს არ ვაძლევთ — ვქმნით **ცალკე**, მხოლოდ ამ საქმისთვის:
+
+```console WSL
+$ ssh-keygen -t ed25519 -f ~/.ssh/github-deploy -N "" -C "github-actions-deploy"
+$ ssh-copy-id -i ~/.ssh/github-deploy.pub lms
+$ ssh -i ~/.ssh/github-deploy giorgi@164.90.12.34 "docker ps"    # შემოწმება
+```
+
+- `-f` — ფაილის სახელი, `-N ""` — passphrase-ის გარეშე (robot-ს მის აკრეფა არ შეუძლია);
+- `ssh-copy-id` — `.pub`-ს სერვერის `~/.ssh/authorized_keys`-ში ამატებს.
+
+**რატომ ცალკე?** თუ GitHub-ის secret ოდესმე გაჟონავს, საკმარისია ამ **ერთი** ხაზის წაშლა `authorized_keys`-იდან. შენი პირადი გასაღები და სხვა სერვერები ხელშეუხებელია.
+
+**GitHub Secrets** — რეპოს **Settings → Secrets and variables → Actions → New repository secret**:
+
+| Secret | მნიშვნელობა |
+|---|---|
+| `SSH_HOST` | სერვერის IP |
+| `SSH_USER` | `giorgi` |
+| `SSH_KEY` | `cat ~/.ssh/github-deploy`-ის **მთელი** შიგთავსი, `-----BEGIN`-იდან `-----END`-ის ჩათვლით |
+
+workflow მათ `${{ secrets.SSH_KEY }}`-ით კითხულობს. ლოგებში ისინი `***`-ით იმალება, შენახვის შემდეგ კი GitHub მათ აღარავის აჩვენებს — მხოლოდ შეცვლა შეიძლება.
+
+**`GITHUB_TOKEN`** — დროებითი ტოკენი, რომელსაც GitHub ყოველ workflow-ს **თვითონ** აძლევს. GHCR-ში image-ის ატვირთვას ის ეყოფა (თუ workflow-ში `packages: write` უფლებაა).
+  </aside>
+</section>
+
+<section class="slide" data-section="☕ შესვენება">
+  <div class="center">
+    <div class="big-emoji float" style="font-size:120px">☕</div>
+    <h1 class="mt">შესვენება</h1>
+    <p class="lead mt">10 წუთი · მერე — deploy.yml და პირველი ავტომატური deploy</p>
+  </div>
+</section>
+
+<!-- ================= PART 2: DEPLOY ================= -->
+<section class="slide divider" data-section="2 · deploy">
+  <div class="vcenter">
+    <div class="kicker in">ნაწილი 2</div>
+    <h1 class="in" style="--d:.1s"><span class="grad">deploy.yml</span> — merge → live 🚀</h1>
+    <p class="lead mt in" style="--d:.3s">workflow · სერვერი · პირველი ავტომატური deploy · rollback</p>
+  </div>
+  <div class="big-num">02</div>
+  <aside class="study">
+## ნაწილი 2 · deploy.yml — merge → live
+  </aside>
+</section>
+
+<section class="slide" data-section="2 · deploy">
+  <div class="kicker">ნაბიჯი 2 · deploy.yml</div>
+  <h2><span class="mono c-asp">deploy.yml</span> — push <span class="mono">main</span>-ში</h2>
+  <div class="grid2" style="grid-template-columns:1fr 1fr">
+    <code-block lang="yaml" cls="sm in" title=".github/workflows/deploy.yml · 1/2" style="--d:0.20s">
+name: Deploy
+on:
+  push:
+    branches: [main]
+permissions:
+  contents: read
+  packages: write
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+    </code-block>
+    <code-block lang="yaml" cls="sm in" title=".github/workflows/deploy.yml · 2/2" style="--d:0.40s">
+      - uses: docker/build-push-action@v6
+        with:
+          push: true
+          tags: |
+            ghcr.io/${{ github.repository }}:latest
+            ghcr.io/${{ github.repository }}:${{ github.sha }}
+      - uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_KEY }}
+          script: |
+            cd ~/lms
+            git pull
+            docker compose pull api
+            docker compose up -d
+    </code-block>
+  </div>
+  <div class="callout step mt" style="--a:var(--net)">ბოლო <code class="i">script</code> — ზუსტად ის, რასაც ხელით ვკრეფდით</div>
+  <aside class="study">
+### ნაბიჯი 2 · deploy.yml
+
+```yaml .github/workflows/deploy.yml
+name: Deploy
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: docker/build-push-action@v6
+        with:
+          push: true
+          tags: |
+            ghcr.io/${{ github.repository }}:latest
+            ghcr.io/${{ github.repository }}:${{ github.sha }}
+
+      - uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_KEY }}
+          script: |
+            cd ~/lms
+            git pull
+            docker compose pull api
+            docker compose up -d
+```
+
+| ნაწილი | რას აკეთებს |
+|---|---|
+| `on: push: branches: [main]` | ყოველ push-ზე `main`-ში — branch protection-ით ეს მხოლოდ **merge**-ია |
+| `permissions: packages: write` | `GITHUB_TOKEN`-ს GHCR-ში ჩაწერის უფლება |
+| `docker/login-action` | `docker login ghcr.io` |
+| `docker/build-push-action` | `docker build` + `docker push` — ორი tag-ით |
+| `appleboy/ssh-action` | SSH სერვერზე და `script`-ის ბრძანებები |
+
+`${{ … }}` — workflow-ის ცვლადები: `github.repository` = `giorgi/lms`, `github.sha` = commit-ის id, `github.actor` = ვინც გაუშვა.
+
+```warn
+GHCR-ში image-ის სახელი **მხოლოდ პატარა ასოებით** შეიძლება. თუ რეპოს ჰქვია `Giorgi/LMS`, build-push ჩავარდება — გადაარქვი რეპოს სახელი პატარა ასოებით.
+```
+  </aside>
+</section>
+
+<section class="slide" data-section="2 · deploy">
+  <div class="kicker">ნაბიჯი 3 · სერვერი</div>
+  <h2>სერვერზე — <span class="c-mvc">ორი პატარა ცვლილება</span></h2>
+  <div class="grid2" style="grid-template-columns:1fr 1fr">
+    <div class="col">
+      <code-block lang="yaml" cls="big in" title="compose.yaml — api" style="--d:0.20s">
+  api:
+    build: .
+    image: ghcr.io/giorgi/lms:${IMAGE_TAG:-latest}
+    ...
+      </code-block>
+      <div class="callout step" style="--a:var(--net)"><code class="i">build</code> — შენთან (<code class="i">up --build</code>) · <code class="i">image</code> — სერვერზე (<code class="i">pull</code>)</div>
+    </div>
+    <div class="col">
+      <code-block lang="console" cls="in" title="Termius · lms-server · ერთხელ" style="--d:0.40s">
+$ echo "ghp_xxxx" | docker login ghcr.io \
+    -u giorgi --password-stdin
+Login Succeeded
+      </code-block>
+      <div class="card in right" style="--d:.55s;padding:16px 22px"><p class="tiny">🎫 PAT: GitHub → Settings → Developer settings → Personal access tokens → <b>Tokens (classic)</b> → scope მხოლოდ <code class="i">read:packages</code></p></div>
+    </div>
+  </div>
+  <aside class="study">
+### ნაბიჯი 3 · სერვერზე — ორი პატარა ცვლილება
+
+**1. compose.yaml** — `api`-ს ვუმატებთ image-ის სახელს:
+
+```yaml compose.yaml — api
+  api:
+    build: .
+    image: ghcr.io/giorgi/lms:${IMAGE_TAG:-latest}
+    ...
+```
+
+როცა `build` და `image` ერთადაა: `docker compose up --build` (შენთან) ააწყობს და ამ სახელს დაარქმევს; `docker compose pull` (სერვერზე) კი GHCR-იდან ჩამოტვირთავს. `${IMAGE_TAG:-latest}` — ნაგულისხმევად `latest`, rollback-ისთვის კი `.env`-იდან შეგვიძლია შევცვალოთ.
+
+ეს ცვლილება commit → PR → merge — და deploy-ის `git pull` მას სერვერზე თვითონ მიიტანს.
+
+**2. GHCR-ში შესვლა სერვერზე — ერთხელ.** GHCR-ის package ნაგულისხმევად private-ია, ამიტომ სერვერს წაკითხვის უფლება სჭირდება. GitHub → Settings → Developer settings → Personal access tokens → **Tokens (classic)** → Generate, scope **მხოლოდ** `read:packages`:
+
+```console Termius · lms-server
+$ echo "ghp_xxxx" | docker login ghcr.io -u giorgi --password-stdin
+Login Succeeded
+```
+
+`--password-stdin` — ტოკენი ბრძანებების ისტორიაში არ ჩაიწერება ისე, როგორც `-p ghp_…` ჩაიწერებოდა. Docker მას სერვერზე იმახსოვრებს.
+
+```note
+ტოკენი მინიმალური უფლებით (`read:packages`) — იგივე პრინციპი, რაც ცალკე deploy გასაღებისთვის და `User=www-data`-სთვის: ყველას — მხოლოდ ის, რაც სჭირდება.
+```
+  </aside>
+</section>
+
+<section class="slide" data-section="2 · deploy">
+  <div class="kicker">ნაბიჯი 4 · პირველი ავტომატური deploy</div>
+  <h2>merge → <span class="c-mvc">2 წუთი</span> → live</h2>
+  <div class="grid2" style="grid-template-columns:1.1fr 1fr">
+    <div class="card in left" style="--d:0.20s;padding:20px 26px">
+      <p class="tiny">Actions → Deploy · <b>Add course capacity (#12)</b></p>
+      <div class="col mt" style="gap:10px">
+        <div class="row" style="gap:12px;align-items:center"><span>✅</span><span class="mono" style="font-size:17px">Set up job · 2s</span></div>
+        <div class="row" style="gap:12px;align-items:center"><span>✅</span><span class="mono" style="font-size:17px">Run actions/checkout@v4 · 1s</span></div>
+        <div class="row" style="gap:12px;align-items:center"><span>✅</span><span class="mono" style="font-size:17px">Run docker/login-action@v3 · 1s</span></div>
+        <div class="row" style="gap:12px;align-items:center"><span>✅</span><span class="mono" style="font-size:17px">Run docker/build-push-action@v6 · 1m 12s</span></div>
+        <div class="row" style="gap:12px;align-items:center"><span>✅</span><span class="mono" style="font-size:17px">Run appleboy/ssh-action@v1 · 14s</span></div>
+      </div>
+    </div>
+    <div class="col">
+      <div class="row in right" style="--d:.4s;gap:14px;align-items:center"><span class="big-emoji" style="font-size:36px">👩‍💻</span><span style="font-size:21px">ნინო: PR → CI ✅ → review → <b>merge</b></span></div>
+      <div class="row in right" style="--d:.55s;gap:14px;align-items:center"><span class="big-emoji" style="font-size:36px">🤖</span><span style="font-size:21px">Actions: build → GHCR → SSH → up</span></div>
+      <div class="row in right" style="--d:.7s;gap:14px;align-items:center"><span class="big-emoji" style="font-size:36px">🌐</span><span style="font-size:21px"><code class="i">https://api.giorgi.ge</code> — ახალი ვერსია</span></div>
+      <div class="callout step" style="--a:var(--mvc)">ნინოს სერვერზე წვდომა <b>არ</b> სჭირდება. deploy-ს ყველა <b>ერთნაირად</b> აკეთებს — merge-ით</div>
+    </div>
+  </div>
+  <aside class="study">
+### ნაბიჯი 4 · პირველი ავტომატური deploy
+
+`deploy.yml` → commit → PR → CI ✅ → merge. Actions ჩანართში ჩაირთვება **Deploy**:
+
+```plain Actions → Deploy
+✅ Set up job                          2s
+✅ Run actions/checkout@v4             1s
+✅ Run docker/login-action@v3          1s
+✅ Run docker/build-push-action@v6     1m 12s
+✅ Run appleboy/ssh-action@v1          14s
+```
+
+რამდენიმე წუთში `https://api.giorgi.ge` ახალ ვერსიას აჩვენებს — სერვერზე ხელით არაფერი გაგიშვია.
+
+**რა შეიცვალა გუნდისთვის:**
+
+- deploy ყველასთვის **ერთნაირია** — merge `main`-ში. არავის სჭირდება სერვერზე SSH წვდომა;
+- ყოველი deploy **ჩაწერილია** Actions-ში: ვინ, როდის, რომელი commit, რა ლოგით;
+- ჩავარდა? — Actions-ში წითელი step, მისი ლოგი, და GitHub ელ-ფოსტითაც შეგატყობინებს.
+
+```tip
+deploy ჩავარდა SSH-ის ნაბიჯზე? ჯერ — Actions-ის ლოგი (`ssh: handshake failed` → `SSH_KEY` არასწორადაა ჩასმული). მერე სერვერზე — `docker compose ps` და `docker compose logs api`, როგორც მე-8 ლექციაზე.
+```
+  </aside>
+</section>
+
+<section class="slide" data-section="2 · deploy">
+  <div class="kicker">ნაბიჯი 5 · rollback</div>
+  <h2>ახალმა ვერსიამ გატეხა? — <span class="c-mvc">წამებში უკან</span></h2>
+  <div class="grid2" style="grid-template-columns:1.15fr 1fr">
+    <code-block lang="console" cls="in" title="Termius · lms-server · ~/lms" style="--d:0.20s">
+$ git log --oneline -3
+a91c3f2 Add course capacity        ← გატეხა 💥
+7be04d1 Fix grades pagination      ← მუშაობდა ✓
+3f2e9aa Add attendance export
+
+$ echo "IMAGE_TAG=7be04d1..." >> .env      # სრული sha
+$ docker compose up -d
+ ✔ Container lms-api-1  Recreated
+
+# გასწორდა main-ში → .env-იდან IMAGE_TAG-ის წაშლა
+$ docker compose up -d                       # ისევ latest
+    </code-block>
+    <div class="col">
+      <div class="card accent in right" style="--d:0.40s;--a:var(--mvc)"><h3>🏷️ ყოველი image — sha-ით</h3><p>GHCR-ში ინახება <b>ყველა</b> ვერსია. ძველზე დაბრუნება = სხვა tag</p></div>
+      <div class="card accent in right" style="--d:0.55s;--a:var(--asp)"><h3>🗄️ ბაზა?</h3><p>volume-ში რჩება. თუ ახალმა მიგრაციამ სქემა შეცვალა — ჯერ <b>backup</b> (მე-8 ლექცია)</p></div>
+    </div>
+  </div>
+  <aside class="study">
+### ნაბიჯი 5 · rollback
+
+ყოველი image GHCR-ში commit-ის **sha**-ითაცაა მონიშნული. ამიტომ წინა ვერსიაზე დაბრუნება = სხვა tag-ის გაშვება:
+
+```console Termius · lms-server · ~/lms
+$ git log --oneline -3
+a91c3f2 Add course capacity        ← გატეხა
+7be04d1 Fix grades pagination      ← მუშაობდა
+3f2e9aa Add attendance export
+```
+
+GitHub-ზე commit-ის სრული sha (40 სიმბოლო) ჩანს commit-ის გვერდზე ან Actions-ის გაშვებაში:
+
+```console Termius · lms-server · ~/lms
+$ echo "IMAGE_TAG=7be04d1e5c..." >> .env
+$ docker compose up -d
+ ✔ Container lms-api-1  Recreated
+```
+
+`compose.yaml`-ში `image: ghcr.io/giorgi/lms:${IMAGE_TAG:-latest}` — ახლა ის ძველ ვერსიას იღებს. წამებში LMS ისევ მუშაობს, და მშვიდად ასწორებ შეცდომას — ჩვეულებრივ: branch → PR → CI → merge. მერე `.env`-იდან `IMAGE_TAG` შლი და `up -d` — ისევ `latest`.
+
+```warn
+rollback კოდს აბრუნებს, **ბაზას — არა**. თუ ახალმა ვერსიამ მიგრაციით სქემა შეცვალა, ძველი კოდი შეიძლება ახალ სქემასთან ვერ იმუშაოს. ამიტომ რისკიანი მიგრაციების წინ — `pg_dump` backup (მე-8 ლექცია).
+```
+  </aside>
+</section>
+
+<section class="slide" data-section="შეჯამება">
+  <div class="kicker">შპარგალკა</div>
+  <h2>CD — <span class="c-api">მოკლედ</span></h2>
+  <div class="grid2" style="gap:30px">
+    <div class="card accent in" style="--d:0.20s;--a:var(--net)"><h3>🔧 ერთხელ</h3><p style="font-size:19px;line-height:1.8">deploy გასაღები → <code class="i">authorized_keys</code><br>Secrets: <code class="i">SSH_HOST</code> · <code class="i">SSH_USER</code> · <code class="i">SSH_KEY</code><br>compose: <code class="i">image: ghcr.io/…</code><br>სერვერზე <code class="i">docker login ghcr.io</code></p></div>
+    <div class="card accent in" style="--d:0.40s;--a:var(--mvc)"><h3>🔁 ყოველთვის</h3><p style="font-size:19px;line-height:1.8">PR → CI ✅ → <b>merge</b><br>Deploy: build → GHCR → SSH → <code class="i">pull + up -d</code><br>გატეხა? <code class="i">IMAGE_TAG=&lt;sha&gt;</code> → <code class="i">up -d</code></p></div>
+  </div>
+  <aside class="study">
+### შპარგალკა: CD
+
+**ერთხელ:** ცალკე deploy გასაღები (`ssh-keygen -f ~/.ssh/github-deploy`) → `.pub` სერვერის `authorized_keys`-ში; GitHub Secrets — `SSH_HOST`, `SSH_USER`, `SSH_KEY`; `compose.yaml`-ში `image: ghcr.io/<user>/<repo>:${IMAGE_TAG:-latest}`; სერვერზე `docker login ghcr.io` (PAT `read:packages`).
+
+**ყოველთვის:** branch → PR → CI ✅ → merge → **Deploy** workflow: build → GHCR (`latest` + `sha`) → SSH → `git pull`, `compose pull api`, `up -d`.
+
+**გატეხა:** სერვერის `.env`-ში `IMAGE_TAG=<წინა sha>` → `docker compose up -d` → გასწორება → `IMAGE_TAG`-ის წაშლა → `up -d`.
+
+**თუ ჩავარდა:** რომელი step? `build-push` → Dockerfile / რეპოს სახელის დიდი ასოები; `ssh-action` → `SSH_KEY` მთლიანადაა ჩასმული? `SSH_HOST` სწორია? სერვერზე — `docker compose ps`, `docker compose logs api`.
+  </aside>
+</section>
+
+<lecture-classwork/>
+
+<lecture-check/>
+
+<section class="slide" data-section="შეჯამება">
+  <div class="kicker">შეჯამება</div>
+  <h2>დღეს ვისწავლეთ</h2>
+  <div class="col" style="gap:28px;margin-top:30px">
+    <div class="row in left" style="--d:0.20s;gap:20px;align-items:center"><span class="big-emoji" style="font-size:42px">📦</span><span style="font-size:28px"><b>build GitHub-ზე</b> — image → GHCR, tag-ები <code class="i">latest</code> + <code class="i">sha</code></span></div>
+    <div class="row in left" style="--d:0.35s;gap:20px;align-items:center"><span class="big-emoji" style="font-size:42px">🔑</span><span style="font-size:28px"><b>საიდუმლოებები</b> — ცალკე deploy გასაღები, GitHub Secrets</span></div>
+    <div class="row in left" style="--d:0.50s;gap:20px;align-items:center"><span class="big-emoji" style="font-size:42px">🚀</span><span style="font-size:28px"><b>CD</b> — image → GHCR → SSH → compose pull + up</span></div>
+    <div class="row in left" style="--d:0.65s;gap:20px;align-items:center"><span class="big-emoji" style="font-size:42px">⏪</span><span style="font-size:28px"><b>rollback</b> — IMAGE_TAG=&lt;sha&gt; → up -d</span></div>
+  </div>
+  <p class="lead in mt" style="--d:0.85s;text-align:center">შემდეგ ლექციაზე — ფინალი: <b>ფრონტი + მთელი სისტემა ახალ სერვერზე</b> 🏁</p>
+  <aside class="study">
+## შეჯამება · დღეს ვისწავლეთ
+
+- 🔑 **საიდუმლოებები** — ცალკე deploy გასაღები; GitHub Secrets (`SSH_HOST`, `SSH_USER`, `SSH_KEY`); `GITHUB_TOKEN`; სერვერზე PAT მხოლოდ `read:packages`-ით.
+- 🚀 **CD** — `deploy.yml` push-ზე `main`-ში: build → GHCR (`latest` + `sha`) → SSH → `git pull`, `compose pull api`, `up -d`. build სერვერზე აღარ ხდება.
+- ⏪ **rollback** — `IMAGE_TAG=<sha>` `.env`-ში → `up -d`; ბაზისთვის — backup მიგრაციამდე.
+
+**შემდეგ ლექციაზე — ფინალი:** LMS-ს ფრონტი ემატება, და მთელ სისტემას — ფრონტს, API-ს და ბაზას — **ახალ სერვერზე** გადავიტანთ. ნახავ, რამდენად მარტივია ეს, როცა ყველაფერი ავტომატიზებულია.
+
+```prompt გამოცდა მეთერთმეტე ლექციაზე
+ვსწავლობ DevOps-ს. მეთერთმეტე ლექციაზე გავიარეთ CD GitHub Actions-ით: docker/login-action, docker/build-push-action, GHCR, GITHUB_TOKEN და permissions, appleboy/ssh-action, GitHub Secrets, ცალკე deploy SSH გასაღები, image tag-ები latest და sha, rollback IMAGE_TAG-ით.
+დამისვი 8 კითხვა სათითაოდ, მარტივიდან რთულისკენ — ნაწილი სიტუაციური იყოს („deploy ჩავარდა SSH-ის ნაბიჯზე, რას შეამოწმებ?“). ყოველ პასუხზე შემიფასე და ამიხსენი. ბოლოს მითხარი, რა გავიმეორო. ქართულად.
+```
+
+```prompt GitHub Actions-ის workflow ჩავარდა
+ჩემი GitHub Actions workflow ჩავარდა. დამეხმარე მიზეზის პოვნაში ნაბიჯ-ნაბიჯ, მარტივად და ქართულად. workflow ფაილი: [აქ ჩასვი, საიდუმლოებების გარეშე]. რომელ step-ზე ჩავარდა და მისი ლოგის ბოლო ხაზები: [აქ]
+```
+
+  </aside>
+</section>
+
+<lecture-homework/>

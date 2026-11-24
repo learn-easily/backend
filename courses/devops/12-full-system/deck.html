@@ -1,0 +1,878 @@
+<!-- =========================================================
+     ლექცია 12 — ფინალი · ფრონტი სისტემაში · სრული სისტემა ახალ სერვერზე · DevOps-ის რუკა
+     ========================================================= -->
+
+<!-- 1. TITLE -->
+<section class="slide" data-section="შესავალი">
+  <div class="vcenter" style="max-width:860px">
+    <div class="kicker in">DevOps Crash Course · ლექცია 12</div>
+    <h1 class="in" style="--d:.15s">ფინალი 🏁<br><span class="grad">მთელი სისტემა</span> ახალ სერვერზე</h1>
+    <p class="lead in mt" style="--d:.35s">ფრონტი + API + ბაზა — და სერვერის გამოცვლა, როცა ყველაფერი ავტომატიზებულია</p>
+  </div>
+  <div class="abs" style="right:90px;top:170px">
+    <svg viewBox="0 0 460 460" width="460" height="460">
+      <g class="in" style="--d:.4s"><rect x="10" y="20" width="190" height="150" rx="18" fill="#2a1215" stroke="#ef4444" stroke-width="3"/><text x="105" y="80" text-anchor="middle" font-size="44">🖥️</text><text x="105" y="125" text-anchor="middle" class="b" font-size="17" fill="#fca5a5">ძველი</text><text x="105" y="150" text-anchor="middle" class="tm mono" font-size="14">164.90.12.34</text></g>
+      <g class="in fade" style="--d:.7s"><path d="M200 95 H260" stroke="#22c55e" stroke-width="4" class="flow"/><text x="230" y="80" text-anchor="middle" font-size="20">📦</text></g>
+      <g class="in" style="--d:.9s"><rect x="260" y="20" width="190" height="150" rx="18" fill="#123321" stroke="#22c55e" stroke-width="3"/><text x="355" y="80" text-anchor="middle" font-size="44">🖥️</text><text x="355" y="125" text-anchor="middle" class="tg b" font-size="17">ახალი</text><text x="355" y="150" text-anchor="middle" class="tm mono" font-size="14">167.71.40.8</text></g>
+      <g class="in fade" style="--d:1.1s"><path d="M355 170 V230" stroke="#22d3ee" stroke-width="3" class="flow"/></g>
+      <g class="in" style="--d:1.3s"><rect x="60" y="230" width="390" height="210" rx="18" fill="#0e2a33" stroke="#22d3ee" stroke-width="3"/>
+        <text x="255" y="275" text-anchor="middle" class="ta b" font-size="19">🔒 app.giorgi.ge</text>
+        <text x="255" y="320" text-anchor="middle" class="tw mono" font-size="16">web · api · db</text>
+        <text x="255" y="365" text-anchor="middle" class="tm" font-size="16">იგივე მონაცემები</text>
+        <text x="255" y="405" text-anchor="middle" class="tg b" font-size="17">git push → live ✓</text></g>
+    </svg>
+  </div>
+</section>
+
+<lecture-review/>
+
+<lecture-homework-review/>
+
+<lecture-intro/>
+
+<!-- ================= PART 1: FRONTEND ================= -->
+<section class="slide divider" data-section="1 · ფრონტი">
+  <div class="vcenter">
+    <div class="kicker in">ნაწილი 1</div>
+    <h1 class="in" style="--d:.1s"><span class="grad">ფრონტი</span> სისტემაში 🧩</h1>
+    <p class="lead mt in" style="--d:.3s">Dockerfile · Compose · CD — ფრონტიც იმავე გზით, რითაც API</p>
+  </div>
+  <div class="big-num">01</div>
+  <aside class="study">
+## ნაწილი 1 · ფრონტი სისტემაში
+
+API-ის კურსზე LMS-ს ფრონტიც დაეწერა. ახლა ის სისტემის ნაწილი უნდა გახდეს: იგივე Docker, იგივე Compose, იგივე CD — რომ მთელი სისტემა ერთად აეწყოს, ერთად გაეშვას და ერთად გადავიდეს ახალ სერვერზე.
+  </aside>
+</section>
+
+<section class="slide" data-section="1 · ფრონტი">
+  <div class="kicker">პრობლემა</div>
+  <h2>API — <span class="c-mvc">ავტომატურად</span>, ფრონტი — <span class="c-red">ხელით?</span></h2>
+  <div class="grid2" style="grid-template-columns:1fr 1fr">
+    <div class="col">
+      <div class="card accent in left" style="--d:0.20s;--a:var(--mvc)"><h3>⚙️ API</h3><p>merge → CI → GHCR → სერვერზე. <b>ხელით არაფერი</b></p></div>
+      <div class="card accent in left" style="--d:0.35s;--a:var(--red)"><h3>🅰️ ფრონტი — მე-5 ლექციის გზით</h3><p class="mono" style="font-size:17px">ng build → rsync → /var/www/app</p><p class="tiny mt">ყოველ ჯერზე ხელით, შენი ლეპტოპიდან</p></div>
+    </div>
+    <div class="col">
+      <div class="problem in right" style="--d:.5s;display:block">🌐 ფრონტმა API-ს მისამართი სად იპოვოს? <code class="i">https://api.giorgi.ge</code> კოდში → <b>CORS</b>, და ყოველ გარემოს თავისი build</div>
+      <div class="problem in right" style="--d:.65s;display:block">🚚 ახალ სერვერზე — ორი სხვადასხვა გზა გადასატანი</div>
+      <div class="callout step" style="--a:var(--net)">გამოსავალი: ფრონტიც <b>კონტეინერია</b> — Nginx შიგნით, რომელიც ფაილებსაც აძლევს და <code class="i">/api</code>-საც API-ს გადასცემს</div>
+    </div>
+  </div>
+  <aside class="study">
+### პრობლემა: API — ავტომატურად, ფრონტი — ხელით?
+
+API უკვე სრულ გზას გადის: merge → CI → GHCR → სერვერი. ფრონტი კი, თუ მე-5 ლექციის გზით წავიდოდით, ხელით გავიდოდა: `ng build` → `rsync` → `/var/www/app`.
+
+ორი პრობლემა:
+
+- **API-ს მისამართი.** თუ Angular-ის კოდში წერია `https://api.giorgi.ge`, ბრაუზერისთვის ეს **სხვა დომენია** (`app.` ≠ `api.`) — API-ს CORS სჭირდება, და ყოველ გარემოს (შენი ლეპტოპი, სერვერი) თავისი build.
+- **ორი სხვადასხვა გზა.** სერვერის გამოცვლისას ორივე ცალ-ცალკე უნდა გადავიტანოთ.
+
+**გამოსავალი:** ფრონტსაც ვაქცევთ **კონტეინერად**. მის შიგნით — Nginx, რომელიც Angular-ის ფაილებს აძლევს, ხოლო `/api/...` მოთხოვნებს API-ის კონტეინერს გადასცემს. ბრაუზერისთვის ყველაფერი **ერთ დომენზეა** — CORS აღარ სჭირდება, და Angular-ში API-ის მისამართი უბრალოდ `/api`-ა, ნებისმიერ გარემოში.
+  </aside>
+</section>
+
+<section class="slide" data-section="1 · ფრონტი">
+  <div class="kicker">ვაკეთებთ ერთად · ნაბიჯი 1</div>
+  <h2><span class="mono c-asp">web/Dockerfile</span> — node აწყობს, nginx აძლევს</h2>
+  <div class="grid2" style="grid-template-columns:1fr 1fr">
+    <code-block lang="dockerfile" cls="sm in" title="web/Dockerfile" style="--d:0.20s">
+# 1 — აწყობა
+FROM node:24-alpine AS build
+WORKDIR /app
+COPY package*.json ./
+RUN npm ci
+COPY . .
+RUN npm run build
+
+# 2 — გაშვება
+FROM nginx:alpine
+COPY nginx.conf /etc/nginx/conf.d/default.conf
+COPY --from=build /app/dist/lms-web/browser \
+     /usr/share/nginx/html
+    </code-block>
+    <code-block lang="nginx" cls="sm in" title="web/nginx.conf" style="--d:0.40s">
+server {
+    listen 80;
+    root /usr/share/nginx/html;
+    index index.html;
+
+    location /api/ {
+        proxy_pass http://api:8080;
+        proxy_set_header Host $host;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $http_x_forwarded_proto;
+    }
+
+    location / {
+        try_files $uri $uri/ /index.html;
+    }
+}
+    </code-block>
+  </div>
+  <div class="callout step mt" style="--a:var(--mvc)">ორივე ნაცნობია: <b>multi-stage</b> — მე-7 ლექციიდან, <code class="i">try_files</code> და <code class="i">proxy_pass</code> — მე-5 და მე-6-დან. <code class="i">api</code> — სერვისის სახელი Compose-ში</div>
+  <aside class="study">
+### ნაბიჯი 1 · web/Dockerfile — node აწყობს, nginx აძლევს
+
+ფრონტი რეპოს `web/` საქაღალდეშია (API-ის გვერდით). მისი Dockerfile ორეტაპიანია — ზუსტად ისე, როგორც API-ის (მე-7 ლექცია): აწყობას ერთი გარემო სჭირდება, გაშვებას — სხვა, ბევრად პატარა.
+
+```dockerfile web/Dockerfile
+# 1 — აწყობა: Node + npm
+FROM node:24-alpine AS build
+WORKDIR /app
+COPY package*.json ./
+RUN npm ci
+COPY . .
+RUN npm run build
+
+# 2 — გაშვება: მხოლოდ Nginx და მზა ფაილები
+FROM nginx:alpine
+COPY nginx.conf /etc/nginx/conf.d/default.conf
+COPY --from=build /app/dist/lms-web/browser /usr/share/nginx/html
+```
+
+- `npm ci` — ზუსტად `package-lock.json`-ის ვერსიებს აყენებს (CI-სა და Docker-ისთვის ეს ჯობია `npm install`-ს);
+- `dist/lms-web/browser` — Angular-ის build-ის შედეგი; `lms-web` — პროექტის სახელი `angular.json`-დან;
+- საბოლოო image-ში **Node არ არის** — მხოლოდ Nginx და HTML/CSS/JS ფაილები.
+
+```nginx web/nginx.conf
+server {
+    listen 80;
+    root /usr/share/nginx/html;
+    index index.html;
+
+    location /api/ {
+        proxy_pass http://api:8080;
+        proxy_set_header Host $host;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $http_x_forwarded_proto;
+    }
+
+    location / {
+        try_files $uri $uri/ /index.html;
+    }
+}
+```
+
+- `location /api/` — `/api/...` მოთხოვნები API-ის კონტეინერს გადაეცემა. `api` — სერვისის სახელი Compose-ში (როგორც `Host=db` ბაზისთვის, მე-8 ლექცია), `8080` — port **კონტეინერის შიგნით**;
+- `X-Forwarded-Proto` — სერვერის Nginx-მა უკვე იცის, რომ მოთხოვნა HTTPS-ით მოვიდა; ამ ინფორმაციას API-მდე ვატარებთ (მე-9 ლექცია);
+- `try_files … /index.html` — SPA-ს refresh → 404 პრობლემა, მე-5 ლექციიდან.
+
+```warn
+Angular-ში API-ის მისამართი ახლა **ფარდობითია**: `/api/courses`, არა `https://api.giorgi.ge/api/courses`. ასე ერთი და იგივე build ყველგან მუშაობს, და CORS არ გვჭირდება — ბრაუზერისთვის ფრონტიც და API-ც ერთ დომენზეა.
+```
+  </aside>
+</section>
+
+<section class="slide" data-section="1 · ფრონტი">
+  <div class="kicker">ნაბიჯი 2 · Compose + სერვერის Nginx</div>
+  <h2>web — <span class="c-net">მესამე სერვისი</span></h2>
+  <div class="grid2" style="grid-template-columns:1fr 1fr">
+    <code-block lang="yaml" cls="in" title="compose.yaml — web" style="--d:0.20s">
+  web:
+    build: ./web
+    image: ghcr.io/giorgi/lms-web:${IMAGE_TAG:-latest}
+    ports:
+      - "127.0.0.1:4000:80"
+    depends_on:
+      - api
+    restart: unless-stopped
+    </code-block>
+    <div class="col">
+      <code-block lang="nginx" cls="sm in" title="სერვერზე · sites-available/app" style="--d:0.40s">
+server {
+    server_name app.giorgi.ge;
+    location / {
+        proxy_pass http://127.0.0.1:4000;
+        proxy_set_header Host $host;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+    # listen 443 ssl ... — certbot-ის ხაზები უცვლელია
+}
+      </code-block>
+      <div class="callout step" style="--a:var(--asp)"><code class="i">root /var/www/app</code> → <code class="i">proxy_pass</code>. ფაილებს აწი კონტეინერი აძლევს</div>
+    </div>
+  </div>
+  <aside class="study">
+### ნაბიჯი 2 · Compose + სერვერის Nginx
+
+`compose.yaml`-ში მესამე სერვისი ემატება:
+
+```yaml compose.yaml — web
+  web:
+    build: ./web
+    image: ghcr.io/giorgi/lms-web:${IMAGE_TAG:-latest}
+    ports:
+      - "127.0.0.1:4000:80"
+    depends_on:
+      - api
+    restart: unless-stopped
+```
+
+- `build: ./web` — Dockerfile `web/` საქაღალდიდან (შენთან, `up --build`-ისთვის);
+- `image` — იგივე `IMAGE_TAG`, რაც API-ს: ორივე ერთი commit-იდან აეწყობა, და rollback-იც ორივეს ერთად აბრუნებს;
+- `127.0.0.1:4000` — როგორც API-ს `5000`: ინტერნეტიდან პირდაპირ არ ჩანს, მხოლოდ სერვერის Nginx-ისთვის.
+
+შენთან: `docker compose up -d --build` → `http://localhost:4000` — ფრონტი იხსნება და `/api/courses`-ს API-დან იღებს.
+
+**სერვერის Nginx** — `app.giorgi.ge`-ის server block-ში `root /var/www/app` და `try_files` იცვლება `proxy_pass`-ით:
+
+```nginx sites-available/app
+server {
+    server_name app.giorgi.ge;
+    location / {
+        proxy_pass http://127.0.0.1:4000;
+        proxy_set_header Host $host;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+    # listen 443 ssl და ssl_certificate ხაზები — certbot-ისგან, უცვლელი
+}
+```
+
+`sudo nginx -t && sudo systemctl reload nginx`.
+
+```note
+ეს კონფიგი რეპოშიც ჩადე — `deploy/nginx/lms.conf` (`app` და `api` ბლოკები, certbot-ის ხაზების გარეშე). მეორე ნაწილში, ახალ სერვერზე, ის ხელახლა წერის ნაცვლად უბრალოდ დაკოპირდება.
+```
+  </aside>
+</section>
+
+<section class="slide" data-section="1 · ფრონტი">
+  <div class="kicker">ნაბიჯი 3 · CD</div>
+  <h2><span class="mono c-asp">deploy.yml</span> — <span class="c-mvc">ორი image</span></h2>
+  <div class="grid2" style="grid-template-columns:1.1fr 1fr">
+    <code-block lang="yaml" cls="sm in" title=".github/workflows/deploy.yml" style="--d:0.20s">
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:            # ← ხელით გაშვებაც
+...
+      - uses: docker/build-push-action@v6     # api
+        with:
+          push: true
+          tags: |
+            ghcr.io/${{ github.repository }}:latest
+            ghcr.io/${{ github.repository }}:${{ github.sha }}
+      - uses: docker/build-push-action@v6     # web
+        with:
+          context: ./web
+          push: true
+          tags: |
+            ghcr.io/${{ github.repository }}-web:latest
+            ghcr.io/${{ github.repository }}-web:${{ github.sha }}
+      - uses: appleboy/ssh-action@v1
+        with: ...
+          script: |
+            cd ~/lms
+            git pull
+            docker compose pull api web
+            docker compose up -d
+    </code-block>
+    <div class="col">
+      <div class="card accent in right" style="--d:0.40s;--a:var(--net)"><h3>📦 context: ./web</h3><p>ფრონტის build მხოლოდ <code class="i">web/</code> საქაღალდიდან</p></div>
+      <div class="card accent in right" style="--d:0.55s;--a:var(--asp)"><h3>🚫 .dockerignore (root)</h3><p class="mono" style="font-size:17px">web/<br>.github/</p><p class="tiny">API-ის build-ს ფრონტი არ სჭირდება</p></div>
+      <div class="card accent in right" style="--d:0.70s;--a:var(--mvc)"><h3>▶️ workflow_dispatch</h3><p>Deploy-ის <b>ხელით</b> გაშვება — მეორე ნაწილში დაგვჭირდება</p></div>
+      <div class="callout step" style="--a:var(--mvc)">merge → <b>ორივე</b> სერვერზე. გადაამოწმე: <code class="i">https://app.giorgi.ge</code></div>
+    </div>
+  </div>
+  <aside class="study">
+### ნაბიჯი 3 · deploy.yml — ორი image
+
+`deploy.yml`-ში სამი ცვლილებაა:
+
+```yaml .github/workflows/deploy.yml (ცვლილებები)
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+# ... checkout და login — უცვლელი
+
+      - uses: docker/build-push-action@v6     # api — უცვლელი
+        with:
+          push: true
+          tags: |
+            ghcr.io/${{ github.repository }}:latest
+            ghcr.io/${{ github.repository }}:${{ github.sha }}
+
+      - uses: docker/build-push-action@v6     # web — ახალი
+        with:
+          context: ./web
+          push: true
+          tags: |
+            ghcr.io/${{ github.repository }}-web:latest
+            ghcr.io/${{ github.repository }}-web:${{ github.sha }}
+
+      - uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_KEY }}
+          script: |
+            cd ~/lms
+            git pull
+            docker compose pull api web
+            docker compose up -d
+```
+
+1. `workflow_dispatch` — Actions-ში ჩნდება **Run workflow** ღილაკი. ახალ სერვერზე პირველი deploy-ისთვის დაგვჭირდება: ახალი commit არ გვექნება, deploy კი უნდა გაეშვას.
+2. მეორე `build-push-action` — `context: ./web` (Dockerfile და ფაილები `web/`-დან), image-ის სახელი `…-web`.
+3. `docker compose pull api web` — სერვერი ორივე ახალ image-ს იღებს.
+
+root-ის `.dockerignore`-ში ემატება `web/` და `.github/` — API-ის build-ს ისინი არ სჭირდება, და build ასე უფრო სწრაფია.
+
+merge → Actions: Deploy ✅ → `https://app.giorgi.ge` — ფრონტი, რომელიც API-დან მონაცემებს იღებს. ამიერიდან **მთელი სისტემა** ერთი გზით გადის.
+
+```warn
+სერვერზე ერთხელ შეამოწმე, რომ GHCR-ის `read:packages` ტოკენი ახალ `lms-web` package-საც კითხულობს (`docker compose pull web`). ტოკენი მომხმარებლის ყველა package-ზე მოქმედებს, ამიტომ ჩვეულებრივ დამატებით არაფერი სჭირდება.
+```
+  </aside>
+</section>
+
+<section class="slide" data-section="☕ შესვენება">
+  <div class="center">
+    <div class="big-emoji float" style="font-size:120px">☕</div>
+    <h1 class="mt">შესვენება</h1>
+    <p class="lead mt">10 წუთი · მერე — მთელი სისტემა ახალ სერვერზე</p>
+  </div>
+</section>
+
+<!-- ================= PART 2: NEW SERVER ================= -->
+<section class="slide divider" data-section="2 · ახალი სერვერი">
+  <div class="vcenter">
+    <div class="kicker in">ნაწილი 2</div>
+    <h1 class="in" style="--d:.1s"><span class="grad">ახალი სერვერი</span> 🚚</h1>
+    <p class="lead mt in" style="--d:.3s">სერვერი გაფუჭდა, ან უფრო ძლიერი გვჭირდება. რამდენ ხანს წაიღებს გადასვლა?</p>
+  </div>
+  <div class="big-num">02</div>
+  <aside class="study">
+## ნაწილი 2 · ახალი სერვერი
+
+სერვერი შეიძლება გაფუჭდეს, ან LMS-ს მეტი მომხმარებელი ჰყავდეს და 1 GB RAM აღარ ეყოს. მე-6 ლექციაზე მხოლოდ API-ს ხელით გაშვებას მთელი ლექცია დასჭირდა. დღეს მთელ სისტემას — ფრონტს, API-ს და ბაზას მონაცემებით — ახალ სერვერზე ვიტანთ და ვნახავთ, რას გვაძლევს ყველაფერი, რაც კურსზე ავაწყეთ.
+  </aside>
+</section>
+
+<section class="slide" data-section="2 · ახალი სერვერი">
+  <div class="kicker">გეგმა</div>
+  <h2>კოდი თვითონ მიდის — <span class="c-asp">მდგომარეობა</span> კი არა</h2>
+  <div class="grid2" style="grid-template-columns:1fr 1fr">
+    <div class="card accent in left" style="--d:0.20s;--a:var(--mvc)"><h3>✅ Git-შია და GHCR-ში → CD წაიღებს</h3><p style="font-size:20px;line-height:1.8">კოდი · Dockerfile-ები · <code class="i">compose.yaml</code><br>workflow-ები · Nginx-ის კონფიგი<br>image-ები (<code class="i">latest</code> + <code class="i">sha</code>)</p></div>
+    <div class="card accent in right" style="--d:0.40s;--a:var(--asp)"><h3>✋ Git-ში არ არის → ჩვენ გადაგვაქვს</h3><p style="font-size:20px;line-height:1.8">სერვერის მომზადება → <b>cloud-init</b><br><code class="i">.env</code> — საიდუმლოებები → <code class="i">scp</code><br>ბაზის მონაცემები → <code class="i">pg_dump</code><br>DNS და HTTPS სერტიფიკატი</p></div>
+  </div>
+  <div class="row mt2 step" style="gap:10px;flex-wrap:wrap;justify-content:center;font-size:19px">
+    <span class="pill on" style="--a:var(--net)">1 · Droplet + cloud-init</span><span class="pill on" style="--a:var(--net)">2 · მომზადება</span><span class="pill on" style="--a:var(--asp)">3 · მონაცემები</span><span class="pill on" style="--a:var(--mvc)">4 · deploy</span><span class="pill on" style="--a:var(--mvc)">5 · DNS + HTTPS</span><span class="pill on" style="--a:var(--red)">6 · შემოწმება → ძველის წაშლა</span>
+  </div>
+  <aside class="study">
+### გეგმა: კოდი თვითონ მიდის — მდგომარეობა კი არა
+
+სერვერის გამოცვლისას ყველაფერი ორ ჯგუფად იყოფა:
+
+| ✅ Git-შია და GHCR-ში — CD წაიღებს | ✋ Git-ში არ არის — ჩვენ გადაგვაქვს |
+|---|---|
+| კოდი, Dockerfile-ები, `compose.yaml` | სერვერის მომზადება (user, firewall, Docker, Nginx) |
+| workflow-ები, Nginx-ის კონფიგი (`deploy/nginx/`) | `.env` — საიდუმლოებები (Git-ში არასოდეს!) |
+| image-ები GHCR-ში | ბაზის **მონაცემები** |
+| | DNS ჩანაწერები და HTTPS სერტიფიკატი |
+
+რაც Git-შია, ის ახალ სერვერზე CD-ით თვითონ მიდის. დანარჩენი — **მდგომარეობაა** (state): ის სერვერზე ცხოვრობს და მასთან ერთად ქრება. ამიტომ მას ცალკე, ფრთხილად ვიტანთ.
+
+**გეგმა:**
+
+1. ახალი Droplet — **cloud-init**-ით, რომ შექმნისთანავე მზად იყოს;
+2. მომზადება: `git clone`, `.env`, GHCR login, Nginx-ის კონფიგი;
+3. **მონაცემები**: ძველი ბაზა → ახალი;
+4. **deploy**: GitHub-ში `SSH_HOST` → ახალი IP → Deploy;
+5. **DNS** → ახალი IP, მერე **HTTPS**;
+6. შემოწმება → ძველი სერვერის წაშლა.
+
+```tip
+DNS-ის ჩანაწერის TTL **წინა დღეს** ჩამოწიე 300 წამამდე. თორემ ბრაუზერები და პროვაიდერები ძველ IP-ს საათობით დაიმახსოვრებენ, და გადასვლა ლექციაზე ვერ დასრულდება.
+```
+  </aside>
+</section>
+
+<section class="slide" data-section="2 · ახალი სერვერი">
+  <div class="kicker">ნაბიჯი 1 · Droplet + cloud-init</div>
+  <h2>სერვერი მზადდება <span class="c-mvc">თვითონ</span></h2>
+  <div class="grid2" style="grid-template-columns:1.15fr 1fr">
+    <code-block lang="yaml" cls="sm in" title="cloud-init.yaml — Droplet → Advanced → User data" style="--d:0.20s">
+#cloud-config
+users:
+  - name: giorgi
+    groups: sudo
+    shell: /bin/bash
+    sudo: "ALL=(ALL) NOPASSWD:ALL"
+    ssh_authorized_keys:
+      - ssh-ed25519 AAAA... giorgi@laptop
+      - ssh-ed25519 AAAA... github-actions-deploy
+package_update: true
+packages: [nginx, certbot, python3-certbot-nginx]
+runcmd:
+  - curl -fsSL https://get.docker.com | sh
+  - usermod -aG docker giorgi
+  - fallocate -l 2G /swapfile && chmod 600 /swapfile
+  - mkswap /swapfile && swapon /swapfile
+  - echo '/swapfile none swap sw 0 0' >> /etc/fstab
+  - sed -i 's/^#\?PermitRootLogin.*/PermitRootLogin no/' /etc/ssh/sshd_config
+  - systemctl restart ssh
+  - ufw allow OpenSSH && ufw allow 'Nginx Full' && ufw --force enable
+    </code-block>
+    <div class="col">
+      <div class="card accent in right" style="--d:0.40s;--a:var(--net)"><h3>📜 მე-4 ლექციის ყველა ნაბიჯი</h3><p>user · გასაღებები · root-ის აკრძალვა · ufw · swap — <b>ერთ ფაილში</b>, + Docker და Nginx</p></div>
+      <div class="card accent in right" style="--d:0.55s;--a:var(--mvc)"><h3>🔑 ორი გასაღები</h3><p>შენი — Termius-ისთვის · deploy — GitHub Actions-ისთვის. <code class="i">SSH_KEY</code> secret არ იცვლება</p></div>
+      <code-block lang="console" cls="sm step" title="Termius · lms-new">
+$ cloud-init status --wait
+status: done
+$ docker --version && nginx -v
+      </code-block>
+    </div>
+  </div>
+  <aside class="study">
+### ნაბიჯი 1 · Droplet + cloud-init
+
+მე-4 ლექციაზე სერვერს ხელით ვამზადებდით: user, გასაღები, `sshd`, `ufw`, swap. მე-8-ზე — Docker. ახლა ყველაფერს ერთ ფაილში ვწერთ, და Droplet შექმნისთანავე თვითონ ასრულებს.
+
+**cloud-init** — სტანდარტი, რომლითაც ღრუბლოვანი სერვერი პირველ ჩართვაზე თავისით მზადდება. DigitalOcean-ზე: **Create Droplet** → Ubuntu 24.04 → SSH key → **Advanced Options → Add Initialization scripts** → ჩასვი ფაილი:
+
+```yaml cloud-init.yaml
+#cloud-config
+users:
+  - name: giorgi
+    groups: sudo
+    shell: /bin/bash
+    sudo: "ALL=(ALL) NOPASSWD:ALL"
+    ssh_authorized_keys:
+      - ssh-ed25519 AAAA... giorgi@laptop
+      - ssh-ed25519 AAAA... github-actions-deploy
+package_update: true
+packages: [nginx, certbot, python3-certbot-nginx]
+runcmd:
+  - curl -fsSL https://get.docker.com | sh
+  - usermod -aG docker giorgi
+  - fallocate -l 2G /swapfile && chmod 600 /swapfile
+  - mkswap /swapfile && swapon /swapfile
+  - echo '/swapfile none swap sw 0 0' >> /etc/fstab
+  - sed -i 's/^#\?PermitRootLogin.*/PermitRootLogin no/' /etc/ssh/sshd_config
+  - systemctl restart ssh
+  - ufw allow OpenSSH && ufw allow 'Nginx Full' && ufw --force enable
+```
+
+| ნაწილი | რას აკეთებს | ხელით — სად |
+|---|---|---|
+| `users` | user, sudo, ორი საჯარო გასაღები | მე-4 ლექცია |
+| `packages` | Nginx და certbot | მე-5 და მე-9 |
+| `runcmd` | Docker, swap, root-ის აკრძალვა, firewall | მე-4 და მე-8 |
+
+- `ssh_authorized_keys` — შენი გასაღების `.pub` (`cat ~/.ssh/id_ed25519.pub`) და **deploy** გასაღების `.pub` (`cat ~/.ssh/github-deploy.pub`). ასე GitHub Actions ახალ სერვერზეც შევა, და `SSH_KEY` secret-ის შეცვლა არ მოგვიწევს;
+- `NOPASSWD` — user-ს პაროლი არ აქვს (შესვლა მხოლოდ გასაღებით), ამიტომ `sudo` პაროლს არ ითხოვს.
+
+რამდენიმე წუთში: Termius-ში ახალი host **lms-new** (ახალი IP, user `giorgi`) და WSL-ის `~/.ssh/config`-ში `Host lms-new`:
+
+```console Termius · lms-new
+$ cloud-init status --wait
+status: done
+$ docker --version && nginx -v
+```
+
+```warn
+`runcmd` ერთხელ, პირველ ჩართვაზე სრულდება. თუ რამე ჩავარდა, ლოგი აქაა: `sudo tail -50 /var/log/cloud-init-output.log`.
+```
+  </aside>
+</section>
+
+<section class="slide" data-section="2 · ახალი სერვერი">
+  <div class="kicker">ნაბიჯი 2 · მომზადება</div>
+  <h2>რეპო · <span class="c-red">.env</span> · GHCR · Nginx</h2>
+  <div class="grid2" style="grid-template-columns:1fr 1fr">
+    <code-block lang="console" cls="sm in" title="Termius · lms-new" style="--d:0.20s">
+$ git clone https://github.com/giorgi/lms.git ~/lms
+
+$ echo "ghp_xxxx" | docker login ghcr.io \
+    -u giorgi --password-stdin
+Login Succeeded
+
+$ sudo cp ~/lms/deploy/nginx/lms.conf \
+          /etc/nginx/sites-available/lms
+$ sudo ln -s /etc/nginx/sites-available/lms \
+             /etc/nginx/sites-enabled/
+$ sudo rm /etc/nginx/sites-enabled/default
+$ sudo nginx -t && sudo systemctl reload nginx
+    </code-block>
+    <div class="col">
+      <code-block lang="console" cls="sm in" title="WSL · ძველი → ახალი" style="--d:0.40s">
+$ scp -3 lms:~/lms/.env lms-new:~/lms/.env
+$ ssh lms-new "chmod 600 ~/lms/.env"
+      </code-block>
+      <div class="card accent in right" style="--d:0.55s;--a:var(--red)"><h3>🔑 .env — იგივე</h3><p>იგივე <code class="i">DB_PASSWORD</code> და JWT გასაღები: მონაცემები ძველი პაროლით გადმოდის, და სტუდენტები სისტემიდან <b>არ</b> გამოვლენ</p></div>
+      <div class="callout step" style="--a:var(--net)"><code class="i">scp -3</code> — ფაილი ორ სერვერს შორის, <b>შენი კომპიუტერის</b> გავლით</div>
+    </div>
+  </div>
+  <aside class="study">
+### ნაბიჯი 2 · მომზადება: რეპო · .env · GHCR · Nginx
+
+ყველაფერი ნაცნობია — ოღონდ ახლა ხუთ წუთში:
+
+```console Termius · lms-new
+$ git clone https://github.com/giorgi/lms.git ~/lms
+
+$ echo "ghp_xxxx" | docker login ghcr.io -u giorgi --password-stdin
+Login Succeeded
+
+$ sudo cp ~/lms/deploy/nginx/lms.conf /etc/nginx/sites-available/lms
+$ sudo ln -s /etc/nginx/sites-available/lms /etc/nginx/sites-enabled/
+$ sudo rm /etc/nginx/sites-enabled/default
+$ sudo nginx -t && sudo systemctl reload nginx
+```
+
+- `git clone` — `compose.yaml` და Nginx-ის კონფიგი. თუ რეპო private-ია, clone-ს ტოკენი სჭირდება — იგივე PAT-ით, `repo` უფლებით;
+- `docker login ghcr.io` — PAT `read:packages`-ით (მე-11 ლექცია); შეგიძლია ძველი გამოიყენო;
+- Nginx-ის კონფიგი **რეპოდან** მოდის (`deploy/nginx/lms.conf`) — ხელით აღარ ვწერთ. HTTPS-ის ხაზებს certbot მოგვიანებით თვითონ დაამატებს.
+
+**`.env` — Git-ში არ არის**, ამიტომ ძველი სერვერიდან პირდაპირ გადმოგვაქვს:
+
+```console WSL
+$ scp -3 lms:~/lms/.env lms-new:~/lms/.env
+$ ssh lms-new "chmod 600 ~/lms/.env"
+```
+
+`scp -3` ფაილს ორ სერვერს შორის **შენი კომპიუტერის გავლით** აკოპირებს — სერვერებს ერთმანეთის გასაღებები არ სჭირდებათ.
+
+```warn
+`.env` **იგივე** უნდა იყოს. ბაზა ძველი `DB_PASSWORD`-ით გადმოვა, ხოლო ახალი JWT გასაღებით ყველა ძველი ტოკენი გაუქმდებოდა — ყველა მომხმარებელი სისტემიდან გამოვიდოდა.
+```
+  </aside>
+</section>
+
+<section class="slide" data-section="2 · ახალი სერვერი">
+  <div class="kicker">ნაბიჯი 3 · მონაცემები</div>
+  <h2>ბაზა — <span class="c-asp">ძველიდან ახალში</span>, ერთი ხაზით</h2>
+  <code-block lang="console" cls="in" title="WSL" style="--d:0.20s">
+# 1 — ძველზე: ჩაწერა ვაჩერებთ (ბაზა მუშაობს)
+$ ssh lms "cd ~/lms && docker compose stop web api"
+
+# 2 — ახალზე: მხოლოდ ბაზა
+$ ssh lms-new "cd ~/lms && docker compose up -d db"
+
+# 3 — pg_dump ძველზე → psql ახალზე
+$ ssh lms "cd ~/lms && docker compose exec -T db pg_dump -U lms lms" \
+  | ssh lms-new "cd ~/lms && docker compose exec -T db psql -U lms lms"
+
+$ ssh lms-new "cd ~/lms && docker compose exec db psql -U lms -c 'select count(*) from \"Courses\"'"
+    </code-block>
+  <div class="grid2 mt">
+    <div class="callout step" style="--a:var(--asp)">⏸ ძველზე API ჩერდება — რომ გადატანის დროს <b>ახალი</b> ჩანაწერი არ დაიკარგოს</div>
+    <div class="callout step" style="--a:var(--red)" data-with>⚠ ჯერ <b>მონაცემები</b>, მერე API: API ჩართვისას მიგრაციებით <b>ცარიელ</b> ცხრილებს შექმნიდა</div>
+  </div>
+  <aside class="study">
+### ნაბიჯი 3 · მონაცემები: ბაზა ძველიდან ახალში
+
+`pg_dump` და აღდგენა მე-8 ლექციიდან ვიცით. ახლა ორ სერვერს შორის ვაკეთებთ — **pipe-ით**, ფაილის გარეშე:
+
+```console WSL
+# 1 — ძველზე: API-ს და ფრონტს ვაჩერებთ, ბაზა მუშაობს
+$ ssh lms "cd ~/lms && docker compose stop web api"
+
+# 2 — ახალზე: ჯერ მხოლოდ ბაზა
+$ ssh lms-new "cd ~/lms && docker compose up -d db"
+
+# 3 — pg_dump ძველზე → psql ახალზე
+$ ssh lms "cd ~/lms && docker compose exec -T db pg_dump -U lms lms" \
+  | ssh lms-new "cd ~/lms && docker compose exec -T db psql -U lms lms"
+```
+
+- `|` (pipe) — პირველი ბრძანების გამოსავალი მეორის შესავალი ხდება. `pg_dump`-ის SQL ძველი სერვერიდან პირდაპირ ახალი სერვერის `psql`-ში მიედინება;
+- `-T` — `exec` ტერმინალის გარეშე: pipe-ისთვის აუცილებელია;
+- შემოწმება — ცხრილში ჩანაწერების რაოდენობა ორივე სერვერზე ერთნაირი უნდა იყოს.
+
+**რატომ ჩერდება API ძველზე?** თუ გადატანის დროს ვინმე ახალ კურსს შექმნის, ის ძველ ბაზაში ჩაიწერება და ახალში ვეღარ მოხვდება. რამდენიმე წუთი LMS მიუწვდომელია — ეს **დაგეგმილი გაჩერებაა** (maintenance). რეალურ პროექტებში მას წინასწარ აცხადებენ და ღამით აკეთებენ.
+
+```warn
+**თანმიმდევრობა მნიშვნელოვანია:** ჯერ მონაცემები, მერე API. API ჩართვისას მიგრაციებს თვითონ უშვებს (მე-8 ლექცია) — ცარიელ ბაზაზე ის ცარიელ ცხრილებს შექმნიდა, და აღდგენა კონფლიქტით ჩავარდებოდა. თუ ასე მოხდა: `docker compose down -v` ახალზე (**მხოლოდ ახალზე!** `-v` volume-ს შლის) და ნაბიჯი 2-დან თავიდან.
+```
+  </aside>
+</section>
+
+<section class="slide" data-section="2 · ახალი სერვერი">
+  <div class="kicker">ნაბიჯი 4 · deploy</div>
+  <h2>ერთი secret — და <span class="c-mvc">CD აკეთებს დანარჩენს</span></h2>
+  <div class="grid2" style="grid-template-columns:1fr 1.1fr">
+    <div class="col">
+      <div class="card accent in left" style="--d:0.20s;--a:var(--net)"><h3>1️⃣ Settings → Secrets → Actions</h3><p><code class="i">SSH_HOST</code>: <span class="c-red mono">164.90.12.34</span> → <span class="c-mvc mono">167.71.40.8</span></p></div>
+      <div class="card accent in left" style="--d:0.35s;--a:var(--mvc)"><h3>2️⃣ Actions → Deploy → Run workflow</h3><p><code class="i">workflow_dispatch</code> — ახალი commit არ გვჭირდება</p></div>
+    </div>
+    <div class="card in right" style="--d:0.50s;padding:20px 26px">
+      <p class="tiny">Actions → Deploy · <b>manually run by giorgi</b></p>
+      <div class="col mt" style="gap:10px">
+        <div class="row" style="gap:12px;align-items:center"><span>✅</span><span class="mono" style="font-size:17px">build-push · api · 48s</span></div>
+        <div class="row" style="gap:12px;align-items:center"><span>✅</span><span class="mono" style="font-size:17px">build-push · web · 1m 05s</span></div>
+        <div class="row" style="gap:12px;align-items:center"><span>✅</span><span class="mono" style="font-size:17px">ssh-action → lms-new · 31s</span></div>
+      </div>
+      <p class="mono tiny mt">$ docker compose ps<br>lms-db-1   Up (healthy)<br>lms-api-1  Up<br>lms-web-1  Up</p>
+    </div>
+  </div>
+  <aside class="study">
+### ნაბიჯი 4 · deploy: ერთი secret — და CD აკეთებს დანარჩენს
+
+1. GitHub → რეპო → **Settings → Secrets and variables → Actions** → `SSH_HOST` → **ახალი IP**. `SSH_USER` და `SSH_KEY` არ იცვლება — user იგივეა, deploy გასაღები კი cloud-init-მა უკვე დაამატა.
+2. **Actions → Deploy → Run workflow** (`workflow_dispatch`, ნაწილი 1).
+
+Deploy იგივე ნაბიჯებს გადის, ოღონდ ახლა ახალ სერვერზე: image-ები → GHCR → SSH → `git pull`, `compose pull api web`, `up -d`.
+
+```console Termius · lms-new
+$ docker compose ps
+lms-db-1   Up (healthy)
+lms-api-1  Up
+lms-web-1  Up
+```
+
+API ჩაირთო, ბაზაში უკვე ყველა ცხრილი და მონაცემია — მიგრაციებს გასაშვები არაფერი აქვს.
+
+```tip
+DNS ჯერ ძველ IP-ზეა. ახალი სერვერის შემოწმება DNS-ის შეცვლამდეც შეიძლება: `curl --resolve api.giorgi.ge:80:167.71.40.8 http://api.giorgi.ge/api/courses` — `curl` სახელს მითითებულ IP-ზე გაგზავნის, DNS-ის კითხვის გარეშე.
+```
+  </aside>
+</section>
+
+<section class="slide" data-section="2 · ახალი სერვერი">
+  <div class="kicker">ნაბიჯი 5 · DNS + HTTPS</div>
+  <h2>სახელი → <span class="c-mvc">ახალ IP-ზე</span>, მერე სერტიფიკატი</h2>
+  <div class="grid2" style="grid-template-columns:1fr 1.1fr">
+    <div class="col">
+      <table class="t in" style="--d:0.20s;font-size:19px">
+        <tr><th>Type</th><th>Name</th><th>Value</th></tr>
+        <tr><td>A</td><td><code class="i">app</code></td><td class="mono c-mvc">167.71.40.8</td></tr>
+        <tr><td>A</td><td><code class="i">api</code></td><td class="mono c-mvc">167.71.40.8</td></tr>
+      </table>
+      <code-block lang="console" cls="sm in" title="WSL" style="--d:0.40s">
+$ dig +short app.giorgi.ge
+167.71.40.8          ← ✓ ახალი
+      </code-block>
+    </div>
+    <div class="col">
+      <code-block lang="console" cls="sm in" title="Termius · lms-new" style="--d:0.55s">
+$ sudo certbot --nginx -d app.giorgi.ge -d api.giorgi.ge
+Successfully deployed certificate ...
+Congratulations! You have successfully enabled HTTPS
+      </code-block>
+      <div class="callout step" style="--a:var(--red)">⚠ certbot — <b>მხოლოდ DNS-ის შემდეგ</b>: Let's Encrypt დომენს ამოწმებს, და ის უკვე ახალ სერვერზე უნდა მიდიოდეს</div>
+      <div class="callout step" style="--a:var(--asp)" data-with>🧪 რეპეტიცია? <code class="i">--test-cert</code> — Let's Encrypt-ის ლიმიტს არ ხარჯავს</div>
+    </div>
+  </div>
+  <aside class="study">
+### ნაბიჯი 5 · DNS + HTTPS
+
+**DNS** (მე-9 ლექცია): დომენის პანელში `app` და `api` A-ჩანაწერებს ახალ IP-ს ვუწერთ (თუ portfolio-ც ამ სერვერზე იყო — `@` და `www`-საც).
+
+```console WSL
+$ dig +short app.giorgi.ge
+167.71.40.8
+```
+
+TTL-ის წყალობით (წინა დღეს 300 წამზე ჩამოვწიეთ), რამდენიმე წუთში ყველა ახალ IP-ს ხედავს.
+
+**HTTPS** — სერტიფიკატი ძველ სერვერზე დარჩა, ახალზე თავიდან ვიღებთ:
+
+```console Termius · lms-new
+$ sudo certbot --nginx -d app.giorgi.ge -d api.giorgi.ge
+```
+
+certbot რეპოდან მოსულ Nginx-ის კონფიგს `listen 443 ssl` ხაზებს და HTTP → HTTPS redirect-ს თვითონ დაუმატებს — ზუსტად ისე, როგორც მე-9 ლექციაზე.
+
+```warn
+certbot გაუშვი **მხოლოდ მას შემდეგ**, რაც `dig` ახალ IP-ს აჩვენებს. Let's Encrypt ამოწმებს, რომ დომენი ნამდვილად ამ სერვერზე მიდის — თუ DNS ჯერ ძველზეა, შემოწმება ჩავარდება.
+```
+
+```note
+Let's Encrypt-ს ლიმიტები აქვს: ერთი და იგივე დომენების ნაკრებზე კვირაში მხოლოდ რამდენიმე სერტიფიკატი. თუ გადასვლას წინასწარ ცდი, გამოიყენე `--test-cert` — სატესტო სერტიფიკატი, რომელიც ლიმიტს არ ხარჯავს (ბრაუზერი მას არ ენდობა). ნამდვილზე — ბრძანება `--test-cert`-ის გარეშე.
+```
+  </aside>
+</section>
+
+<section class="slide" data-section="2 · ახალი სერვერი">
+  <div class="kicker">ნაბიჯი 6 · შემოწმება</div>
+  <h2>ყველაფერი მუშაობს? — <span class="c-red">მერე</span> ძველის წაშლა</h2>
+  <div class="grid2" style="grid-template-columns:1.1fr 1fr">
+    <div class="col">
+      <div class="row in left" style="--d:0.15s;gap:14px;align-items:center"><span style="font-size:28px">☐</span><span style="font-size:21px"><code class="i">https://app.giorgi.ge</code> 🔒 იხსნება, refresh → არა 404</span></div>
+      <div class="row in left" style="--d:0.30s;gap:14px;align-items:center"><span style="font-size:28px">☐</span><span style="font-size:21px">ძველი <b>მონაცემები</b> ჩანს — კურსები, სტუდენტები</span></div>
+      <div class="row in left" style="--d:0.45s;gap:14px;align-items:center"><span style="font-size:28px">☐</span><span style="font-size:21px">შესვლა მუშაობს — ძველი <b>ტოკენით</b> სისტემიდან არ გამოგაგდო</span></div>
+      <div class="row in left" style="--d:0.60s;gap:14px;align-items:center"><span style="font-size:28px">☐</span><span style="font-size:21px">პატარა PR → merge → Deploy → ცვლილება <b>ახალ</b> სერვერზე</span></div>
+      <div class="row in left" style="--d:0.75s;gap:14px;align-items:center"><span style="font-size:28px">☐</span><span style="font-size:21px"><code class="i">sudo certbot renew --dry-run</code> — განახლება იმუშავებს</span></div>
+    </div>
+    <div class="col">
+      <div class="card accent in right" style="--d:0.90s;--a:var(--asp)"><h3>⏳ ძველი — რამდენიმე დღე</h3><p>გამორთული, მაგრამ <b>არ</b> წაშლილი: თუ რამე დაგავიწყდა, მონაცემები ჯერ კიდევ იქაა</p></div>
+      <div class="card accent step" style="--a:var(--red)"><h3>🗑️ მერე — Destroy</h3><p>Power Off-ზეც <b>ფასიანია</b> (მე-4 ლექცია). გადახდა მხოლოდ Destroy-ის შემდეგ ჩერდება</p></div>
+    </div>
+  </div>
+  <aside class="study">
+### ნაბიჯი 6 · შემოწმება → მერე ძველის წაშლა
+
+ძველ სერვერს მანამდე არ ვშლით, სანამ ახალზე ყველაფერი არ შევამოწმეთ:
+
+- ☐ `https://app.giorgi.ge` 🔒 იხსნება; შიდა გვერდზე refresh — არა 404;
+- ☐ ძველი მონაცემები ჩანს — კურსები, სტუდენტები, ყველაფერი, რაც გადატანამდე იყო;
+- ☐ შესვლა მუშაობს, და ვინც უკვე შესული იყო, სისტემიდან არ გამოაგდო (იგივე JWT გასაღები `.env`-ში);
+- ☐ CD: პატარა PR → merge → Deploy → ცვლილება **ახალ** სერვერზე ჩანს;
+- ☐ `sudo certbot renew --dry-run` — სერტიფიკატი 90 დღეში თვითონ განახლდება.
+
+ყველაფერი ✓? ძველი Droplet რამდენიმე დღე **გამორთული** დატოვე (Power Off) — თუ რამე გამოგრჩა, მონაცემები ჯერ კიდევ იქაა. მერე — **Destroy**: გამორთული Droplet-იც ფასიანია (მე-4 ლექცია).
+
+Termius-ში ძველი host წაშალე, ხოლო `lms-new` გადაარქვი `lms`-ად — და WSL-ის `~/.ssh/config`-შიც.
+  </aside>
+</section>
+
+<section class="slide" data-section="2 · ახალი სერვერი">
+  <div class="kicker">შედარება</div>
+  <h2>მე-6 ლექცია vs <span class="c-mvc">დღეს</span></h2>
+  <table class="t in" style="--d:0.20s;font-size:20px">
+    <tr><th></th><th>მე-6 ლექცია — ხელით</th><th>დღეს</th></tr>
+    <tr><td>სერვერის მომზადება</td><td>user, sshd, ufw, swap, runtime — ბრძანება-ბრძანება</td><td class="c-mvc">cloud-init — Droplet-თან ერთად</td></tr>
+    <tr><td>აპის გაშვება</td><td>publish, rsync, systemd, მიგრაციები</td><td class="c-mvc">secret + Run workflow</td></tr>
+    <tr><td>რა გავიდა</td><td>მხოლოდ API</td><td class="c-mvc">ფრონტი + API + ბაზა მონაცემებით</td></tr>
+    <tr><td>დრო</td><td>მთელი ლექცია</td><td class="c-mvc">~20 წუთი — უმეტესად ლოდინი</td></tr>
+  </table>
+  <div class="callout step mt2" style="--a:var(--net);font-size:22px">ხელით დარჩა: Droplet-ის შექმნა, DNS, <code class="i">.env</code>, მონაცემები. ესეც ავტომატიზდება — <b>Terraform</b>, <b>Ansible</b>: შემდეგი ნაბიჯი რუკაზე 🗺️</div>
+  <aside class="study">
+### შედარება: მე-6 ლექცია vs დღეს
+
+| | მე-6 ლექცია — ხელით | დღეს |
+|---|---|---|
+| სერვერის მომზადება | user, sshd, ufw, swap, runtime — ბრძანება-ბრძანება | cloud-init — Droplet-თან ერთად |
+| აპის გაშვება | publish, rsync, systemd, მიგრაციები | `SSH_HOST` + Run workflow |
+| რა გავიდა | მხოლოდ API | ფრონტი + API + ბაზა მონაცემებით |
+| დრო | მთელი ლექცია | ~20 წუთი, უმეტესად ლოდინი |
+
+ეს არის ავტომატიზაციის მთავარი სარგებელი: სერვერი **ადვილად შესაცვლელი** ხდება. ის აღარ არის „ძვირფასი“ კომპიუტერი, რომელსაც ხელით ააწყობ და ეშინია, რომ გაფუჭდება — ნებისმიერ დროს შეგიძლია ახალი აიღო.
+
+**ხელით რაც დარჩა** — Droplet-ის შექმნა, DNS, `.env` და მონაცემები — ისიც ავტომატიზდება: **Terraform** (სერვერი და DNS კოდით), **Ansible** (სერვერის მომზადება), managed ბაზები (მონაცემები სერვერისგან ცალკე). ეს უკვე შემდეგი დონეა — DevOps-ის რუკაზე.
+  </aside>
+</section>
+
+<!-- ================= PART 3: FINALE ================= -->
+<section class="slide divider" data-section="3 · ფინალი">
+  <div class="vcenter">
+    <div class="kicker in">ნაწილი 3</div>
+    <h1 class="in" style="--d:.1s">კურსის <span class="grad">ფინალი</span> 🏁</h1>
+    <p class="lead mt in" style="--d:.3s">რა გზა გავიარეთ — და რა არის შემდეგ</p>
+  </div>
+  <div class="big-num">03</div>
+  <aside class="study">
+## ნაწილი 3 · კურსის ფინალი
+  </aside>
+</section>
+
+<section class="slide" data-section="3 · ფინალი">
+  <div class="kicker">გავლილი გზა</div>
+  <h2>ლეპტოპიდან — <span class="c-mvc">ადვილად შესაცვლელ სერვერამდე</span></h2>
+  <div class="grid3" style="gap:16px">
+    <div class="card accent in" style="--d:0.10s;--a:var(--net)"><h3>🧭 1 · DevOps</h3><p class="tiny">რა არის, ჰოსტინგი, DNS</p></div>
+    <div class="card accent in" style="--d:0.18s;--a:var(--net)"><h3>📄 2 · Git → Pages</h3><p class="tiny">პირველი deploy — და მისი ზღვარი</p></div>
+    <div class="card accent in" style="--d:0.26s;--a:var(--mvc)"><h3>🐧 3 · Linux</h3><p class="tiny">ფაილები, უფლებები, პროცესები</p></div>
+    <div class="card accent in" style="--d:0.34s;--a:var(--mvc)"><h3>🔑 4 · SSH + Droplet</h3><p class="tiny">საკუთარი სერვერი და მისი დაცვა</p></div>
+    <div class="card accent in" style="--d:0.42s;--a:var(--mvc)"><h3>🌐 5 · Nginx</h3><p class="tiny">portfolio და Angular სერვერზე</p></div>
+    <div class="card accent in" style="--d:0.50s;--a:var(--asp)"><h3>🛠️ 6 · API ხელით</h3><p class="tiny">runtime, ბაზა, systemd, reverse proxy</p></div>
+    <div class="card accent in" style="--d:0.58s;--a:var(--asp)"><h3>📦 7–8 · Docker, Compose</h3><p class="tiny">image, Dockerfile, მთელი სისტემა ერთ ფაილში</p></div>
+    <div class="card accent in" style="--d:0.66s;--a:var(--red)"><h3>🔒 9 · დომენი, HTTPS</h3><p class="tiny">DNS, Let's Encrypt, საიდუმლოებები</p></div>
+    <div class="card accent in" style="--d:0.74s;--a:var(--red)"><h3>🤖 10–12 · CI/CD</h3><p class="tiny">PR → CI → merge → deploy → ახალი სერვერი</p></div>
+  </div>
+  <aside class="study">
+### გავლილი გზა: ლეპტოპიდან — ადვილად შესაცვლელ სერვერამდე
+
+| ლექცია | თემა | რა შეგიძლია ახლა |
+|---|---|---|
+| 1 | DevOps | რა არის DevOps, ჰოსტინგის სახეები, DNS |
+| 2 | Git → GitHub Pages | სტატიკური საიტი ინტერნეტში — და რატომ არ ეყოფა ეს API-ს |
+| 3 | Linux | სერვერზე ორიენტირება, ფაილები, უფლებები, პროცესები |
+| 4 | SSH + Droplet | საკუთარი სერვერი, გასაღები, firewall |
+| 5 | Nginx | ვებ-სერვერი, საიტები, SPA, ლოგები |
+| 6 | API ხელით | runtime, PostgreSQL, systemd, reverse proxy — „შიგნიდან“ |
+| 7 | Docker | აპი გარემოსთან ერთად, Dockerfile |
+| 8 | Compose | მთელი სისტემა ერთ ფაილში, სერვერზე |
+| 9 | დომენი, HTTPS | DNS, Let's Encrypt, საიდუმლოებები |
+| 10 | CI | GitHub Actions, build + test ყოველ PR-ზე, branch protection |
+| 11 | CD | merge → GHCR → სერვერი, rollback |
+| 12 | ფინალი | ფრონტი სისტემაში, cloud-init, სერვერის გამოცვლა მონაცემებით |
+
+ყოველი ლექცია წინა ლექციის **პრობლემიდან** დაიწყო: Pages API-ს ვერ უშვებს → სერვერი; სერვერი ტერმინალია → Linux; ხელით deploy რთულია → Docker; ორი `docker run` → Compose; IP და port → დომენი; გატეხილი კოდი `main`-ში → CI; ხელით განახლება → CD; სერვერი გაფუჭდა → ახალი, ოც წუთში. ასე მუშაობს DevOps რეალურადაც.
+  </aside>
+</section>
+
+<section class="slide" data-section="3 · ფინალი">
+  <div class="kicker">შემდეგი ნაბიჯები</div>
+  <h2>საძირკველი გაქვს — <span class="c-asp">რა არის შემდეგ?</span></h2>
+  <div class="grid2" style="grid-template-columns:1fr 1fr;gap:26px">
+    <div class="col">
+      <div class="method-card in left" style="--d:.2s;--a:var(--net)"><span class="m" style="min-width:44px">📈</span><span class="t"><b>მონიტორინგი</b> — health checks, Grafana, alert-ები: „გაფუჭდა“ — სანამ user შეგატყობინებს</span></div>
+      <div class="method-card in left" style="--d:.35s;--a:var(--mvc)"><span class="m" style="min-width:44px">🏗️</span><span class="t"><b>Infrastructure as Code</b> — Terraform: სერვერიც კოდია</span></div>
+      <div class="method-card in left" style="--d:.5s;--a:var(--asp)"><span class="m" style="min-width:44px">☁️</span><span class="t"><b>Cloud</b> — Azure / AWS / GCP, managed ბაზები</span></div>
+      <div class="method-card in left" style="--d:.65s;--a:var(--red)"><span class="m" style="min-width:44px">☸️</span><span class="t"><b>Kubernetes</b> — ბევრი კონტეინერი ბევრ სერვერზე</span></div>
+    </div>
+    <div class="col">
+      <div class="card accent in right" style="--d:.8s;--a:var(--mvc)"><h3>💼 CV-ში უკვე შეგიძლია ჩაწერო</h3><p>Linux · SSH · Nginx · Docker · Docker Compose · PostgreSQL · GitHub Actions · CI/CD · Let's Encrypt · DigitalOcean</p></div>
+      <div class="callout step" style="--a:var(--net);font-size:22px">და მთავარი: <b>ცოცხალი ლინკი</b> შენს პროექტზე — <code class="i">https://app.&lt;შენი-დომენი&gt;</code></div>
+      <a class="step" href="materials/roadmap.html" target="_blank" style="display:inline-flex;align-items:center;gap:10px;background:var(--net);color:#fff;border-radius:12px;padding:12px 18px;font-weight:800;font-size:20px;text-decoration:none;align-self:flex-start">🗺️ DevOps-ის რუკა: Junior → Middle → Senior</a>
+    </div>
+  </div>
+  <aside class="study">
+### საძირკველი გაქვს — რა არის შემდეგ?
+
+**[🗺️ DevOps-ის რუკა: Junior → Middle → Senior](materials/roadmap.html)** — სრული გეგმა კურსის შემდეგ: რა ისწავლო, რა უნდა შეძლო, რომელი ინსტრუმენტები გამოიყენება, რა სავარჯიშოები და პროექტები გააკეთო და როდის ხარ მზად შემდეგ დონეზე. თითოეული დონე ცალკე ტაბშია, პროგრესი კი ბრაუზერში ინახება.
+
+ეს კურსი DevOps-ის **საფუძველია** (პირველ ლექციაზე ეს ვთქვით). თუ ამ მიმართულებით გინდა გაგრძელება:
+
+- 📈 **მონიტორინგი** — health check endpoint-ები, Prometheus + Grafana, alert-ები: შეიტყო, რომ რაღაც გაფუჭდა, სანამ მომხმარებელი მოგწერს;
+- 🏗️ **Infrastructure as Code** — Terraform: Droplet, DNS, firewall — კოდით, Git-ში, ისევე როგორც `compose.yaml`;
+- ☁️ **დიდი Cloud-ები** — Azure, AWS, GCP: managed ბაზები, load balancer-ები, ავტომატური მასშტაბირება;
+- ☸️ **Kubernetes** — როცა კონტეინერები ბევრია და სერვერებიც ბევრია.
+
+**💼 CV-ში ახლავე:** Linux, SSH, Nginx, Docker, Docker Compose, PostgreSQL, GitHub Actions, CI/CD, Let's Encrypt, DigitalOcean.
+
+და რაც ყველა სიტყვაზე მეტს ამბობს — **ცოცხალი ლინკი** შენს პროექტზე, HTTPS-ით, და GitHub-ის რეპო მწვანე CI badge-ით. დამსაქმებელი მას გახსნის და დაინახავს, რომ შენ არა მარტო კოდს წერ, არამედ მას ბოლომდე — მომხმარებლამდე — მიიტან.
+  </aside>
+</section>
+
+<lecture-classwork/>
+
+<lecture-check/>
+
+<section class="slide" data-section="შეჯამება">
+  <div class="kicker">შეჯამება</div>
+  <h2>დღეს ვისწავლეთ</h2>
+  <div class="col" style="gap:26px;margin-top:30px">
+    <div class="row in left" style="--d:0.20s;gap:20px;align-items:center"><span class="big-emoji" style="font-size:42px">🧩</span><span style="font-size:27px"><b>ფრონტი კონტეინერში</b> — node → nginx; <code class="i">/api</code> → API, CORS-ის გარეშე</span></div>
+    <div class="row in left" style="--d:0.35s;gap:20px;align-items:center"><span class="big-emoji" style="font-size:42px">📜</span><span style="font-size:27px"><b>cloud-init</b> — სერვერი შექმნისთანავე მზადაა</span></div>
+    <div class="row in left" style="--d:0.50s;gap:20px;align-items:center"><span class="big-emoji" style="font-size:42px">🗄️</span><span style="font-size:27px"><b>მდგომარეობა</b> — <code class="i">.env</code> და მონაცემები ცალკე გადადის: ჯერ ბაზა, მერე API</span></div>
+    <div class="row in left" style="--d:0.65s;gap:20px;align-items:center"><span class="big-emoji" style="font-size:42px">🚚</span><span style="font-size:27px"><b>სერვერის გამოცვლა</b> — <code class="i">SSH_HOST</code> → Deploy → DNS → HTTPS</span></div>
+  </div>
+  <p class="lead in mt" style="--d:0.85s;text-align:center">🎉 კურსი დასრულდა — <b>git push → მთელი სისტემა ინტერნეტში</b></p>
+  <aside class="study">
+## შეჯამება · დღეს ვისწავლეთ
+
+- 🧩 **ფრონტი სისტემაში** — `web/Dockerfile` (node აწყობს → nginx აძლევს), `web/nginx.conf` (`try_files` + `/api/` → `http://api:8080`), Compose-ში `web` სერვისი `127.0.0.1:4000`-ზე, `deploy.yml`-ში მეორე image და `workflow_dispatch`.
+- 📜 **cloud-init** — user, გასაღებები, Docker, Nginx, certbot, swap, firewall — Droplet-ის შექმნისას, ერთ ფაილში.
+- 🗄️ **კოდი vs მდგომარეობა** — რაც Git-შია, CD თვითონ წაიღებს; `.env`, მონაცემები, DNS და სერტიფიკატი ცალკე გადადის. ბაზა — `pg_dump | psql` pipe-ით, **API-ის ჩართვამდე**.
+- 🚚 **სერვერის გამოცვლა** — cloud-init → clone, `.env`, GHCR login, Nginx-ის კონფიგი რეპოდან → მონაცემები → `SSH_HOST` + Run workflow → DNS → certbot → შემოწმება → ძველის Destroy.
+
+**შემდეგი ნაბიჯები:** [🗺️ DevOps-ის რუკა](materials/roadmap.html) — Junior, Middle, Senior.
+
+**ფინალური პროექტი (საშინაო):** შენი სრული სისტემა — ფრონტი, API, ბაზა — ახალ სერვერზე, ავტომატური deploy-ით და `https://app.<შენი-დომენი>`-ზე.
+
+```prompt გამოცდა მეთორმეტე ლექციაზე
+ვსწავლობ DevOps-ს. მეთორმეტე ლექციაზე გავიარეთ: Angular ფრონტის multi-stage Dockerfile (node → nginx), Nginx კონტეინერში try_files-ით და /api proxy-ით, ერთი დომენი CORS-ის გარეშე, Compose-ში web სერვისი, deploy.yml ორი image-ით და workflow_dispatch, სერვერის გამოცვლა: cloud-init, კოდი vs მდგომარეობა (.env, ბაზის მონაცემები, DNS, სერტიფიკატი), scp -3, pg_dump | psql pipe-ით ორ სერვერს შორის, რატომ ჯერ მონაცემები და მერე API, DNS TTL, certbot ახალ სერვერზე, Let's Encrypt-ის ლიმიტები.
+დამისვი 8 კითხვა სათითაოდ, მარტივიდან რთულისკენ — ნაწილი სიტუაციური იყოს („ახალ სერვერზე API ჩაირთო, მერე ბაზის აღდგენა კონფლიქტით ჩავარდა. რატომ?“). ყოველ პასუხზე შემიფასე და ამიხსენი. ბოლოს მითხარი, რა გავიმეორო. ქართულად.
+```
+
+```prompt სერვერის გადატანის გეგმა
+მინდა ჩემი პროექტი ახალ სერვერზე გადავიტანო. სისტემა: [აქ აღწერე — მაგ. Angular + ASP.NET Core API + PostgreSQL, Docker Compose, GitHub Actions CD, DigitalOcean]. დამეხმარე ნაბიჯ-ნაბიჯ გეგმის შედგენაში: რა გადადის ავტომატურად, რა — ხელით, რა თანმიმდევრობით, და რა შეიძლება დამავიწყდეს. ჯერ დამისვი კითხვები. ქართულად.
+```
+
+```prompt მთელი კურსის გამეორება
+ვსწავლობ DevOps-ს და დავასრულე კურსი: DevOps-ის საფუძვლები, Git და GitHub Pages, Linux, SSH და DigitalOcean Droplet, Nginx (სტატიკური საიტი, SPA, reverse proxy), ASP.NET Core API-ის ხელით deploy (systemd, PostgreSQL), Docker, Docker Compose, დომენი და HTTPS (certbot), საიდუმლოებები, GitHub Actions CI (build + test, branch protection), CD (GHCR, SSH, rollback), სრული სისტემის გადატანა ახალ სერვერზე (cloud-init, pg_dump). მოამზადე ჩემთვის 15 კითხვიანი გამოცდა მთელ კურსზე — სათითაოდ დამისვი, ყოველ პასუხზე შემიფასე, ბოლოს მითხარი, რომელი თემები გავიმეორო. ქართულად.
+```
+  </aside>
+</section>
+
+<lecture-homework/>

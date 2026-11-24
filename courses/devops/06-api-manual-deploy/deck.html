@@ -1,0 +1,747 @@
+<!-- =========================================================
+     ლექცია 6 — .NET runtime · PostgreSQL · publish · systemd · reverse proxy · ხელით deploy-ის ფასი
+     ========================================================= -->
+
+<!-- 1. TITLE -->
+<section class="slide" data-section="შესავალი">
+  <div class="vcenter" style="max-width:860px">
+    <div class="kicker in">DevOps Crash Course · ლექცია 6</div>
+    <h1 class="in" style="--d:.15s"><span class="grad">LMS API</span><br>სერვერზე — ხელით</h1>
+    <p class="lead in mt" style="--d:.35s">runtime · ბაზა · systemd · Nginx reverse proxy</p>
+  </div>
+  <div class="abs" style="right:80px;top:150px">
+    <svg viewBox="0 0 480 520" width="480" height="520">
+      <g class="in" style="--d:.4s"><rect x="140" y="10" width="200" height="80" rx="16" fill="#0e2a33" stroke="#22d3ee" stroke-width="3"/><text x="240" y="58" text-anchor="middle" class="ta b" font-size="19">🌐 ბრაუზერი</text></g>
+      <g class="in fade" style="--d:.6s"><path d="M240 90 V130" stroke="#22c55e" stroke-width="3" class="flow"/></g>
+      <g class="in" style="--d:.8s"><rect x="120" y="130" width="240" height="80" rx="16" fill="#123321" stroke="#22c55e" stroke-width="3"/><text x="240" y="168" text-anchor="middle" class="tg b" font-size="20">Nginx</text><text x="240" y="194" text-anchor="middle" class="tm mono" font-size="14">proxy_pass</text></g>
+      <g class="in fade" style="--d:1s"><path d="M240 210 V250" stroke="#f5a524" stroke-width="3" class="flow"/></g>
+      <g class="in" style="--d:1.2s"><rect x="100" y="250" width="280" height="110" rx="16" fill="#33240b" stroke="#f5a524" stroke-width="3"/><text x="240" y="292" text-anchor="middle" class="to b" font-size="20">⚙️ LMS API</text><text x="240" y="320" text-anchor="middle" class="tm mono" font-size="14">127.0.0.1:5000</text><text x="240" y="344" text-anchor="middle" class="tm" font-size="14">systemd სერვისი</text></g>
+      <g class="in fade" style="--d:1.4s"><path d="M240 360 V400" stroke="#8b6cff" stroke-width="3" class="flow"/></g>
+      <g class="in" style="--d:1.6s"><rect x="120" y="400" width="240" height="90" rx="16" fill="#1d1640" stroke="#8b6cff" stroke-width="3"/><text x="240" y="440" text-anchor="middle" class="tn b" font-size="20">🗄️ PostgreSQL</text><text x="240" y="468" text-anchor="middle" class="tm mono" font-size="14">localhost:5432</text></g>
+    </svg>
+  </div>
+</section>
+
+<lecture-review/>
+<lecture-homework-review/>
+<lecture-intro/>
+
+<!-- ================= PART 1: SERVER PREP ================= -->
+<section class="slide divider" data-section="1 · მომზადება">
+  <div class="vcenter">
+    <div class="kicker in">ნაწილი 1</div>
+    <h1 class="in" style="--d:.1s">სერვერის <span class="grad">მომზადება</span></h1>
+    <p class="lead mt in" style="--d:.3s">.NET runtime · PostgreSQL · LMS → Npgsql</p>
+  </div>
+  <div class="big-num">01</div>
+  <aside class="study">
+## ნაწილი 1 · სერვერის მომზადება
+
+API-ს გასაშვებად სერვერს ორი რამ აკლია: .NET runtime და ბაზა.
+  </aside>
+</section>
+
+<section class="slide" data-section="1 · მომზადება">
+  <div class="kicker">გეგმა</div>
+  <h2>API-ს <span class="c-asp">რა სჭირდება</span>, რაც საიტს არ სჭირდებოდა</h2>
+  <div class="grid2" style="grid-template-columns:1fr 1fr">
+    <div class="col">
+      <div class="method-card in left" style="--d:.2s;--a:var(--net)"><span class="m" style="min-width:50px">⚙️</span><span class="t"><b>.NET runtime</b> — რომ <code class="i">.dll</code> გაეშვას</span></div>
+      <div class="method-card in left" style="--d:.35s;--a:var(--mvc)"><span class="m" style="min-width:50px">🗄️</span><span class="t"><b>ბაზა</b> — PostgreSQL, user, პაროლი, ცხრილები</span></div>
+      <div class="method-card in left" style="--d:.5s;--a:var(--asp)"><span class="m" style="min-width:50px">♾️</span><span class="t"><b>მუდმივად მუშაობა</b> — terminal-ის გარეშე, crash-ის შემდეგაც</span></div>
+      <div class="method-card in left" style="--d:.65s;--a:var(--api)"><span class="m" style="min-width:50px">🚪</span><span class="t"><b>კარი ინტერნეტში</b> — Nginx, როგორც reverse proxy</span></div>
+    </div>
+    <div class="col">
+      <div class="card accent in right" style="--d:.8s;--a:var(--red)"><h3>⚠ დღეს — განზრახ ხელით</h3><p>ყველა ნაბიჯს ვაკეთებთ ხელით და <b>ვითვლით</b>. ლექციის ბოლოს ვნახავთ, რამდენი იყო — და რა შეიძლება გაფუჭდეს</p></div>
+      <div class="callout step" style="--a:var(--net)">ჯერ ხელით — რომ გაიგო, <b>რას</b> აავტომატებს Docker და CI/CD</div>
+    </div>
+  </div>
+  <aside class="study">
+### გეგმა: API-ს რა სჭირდება, რაც საიტს არ სჭირდებოდა
+
+portfolio-სთვის Nginx-ს მხოლოდ ფაილები სჭირდებოდა. API კი **გაშვებული პროგრამაა** (მე-2 ლექცია), და ოთხი რამ სჭირდება:
+
+1. ⚙️ **.NET runtime** — რომ `.dll` გაეშვას;
+2. 🗄️ **ბაზა** — PostgreSQL, user, პაროლი, ცხრილები;
+3. ♾️ **მუდმივად მუშაობა** — terminal-ის დახურვის შემდეგაც, crash-ის შემდეგაც, reboot-ის შემდეგაც;
+4. 🚪 **კარი ინტერნეტში** — Nginx, რომელიც მოთხოვნებს API-ს გადასცემს.
+
+```warn
+დღეს ყველაფერს **განზრახ ხელით** ვაკეთებთ და ნაბიჯებს ვითვლით. ასე ნახავ, რა არის deploy „შიგნიდან“ — და რატომ გვჭირდება შემდეგ ლექციებზე Docker და CI/CD.
+```
+  </aside>
+</section>
+
+<section class="slide" data-section="1 · მომზადება">
+  <div class="kicker">ნაბიჯი 1 · runtime</div>
+  <h2>.NET 10 — <span class="c-net">runtime</span>, არა SDK</h2>
+  <div class="grid2" style="grid-template-columns:1.2fr 1fr">
+    <code-block lang="console" cls="in" title="Termius · lms-server" style="--d:0.20s">
+$ sudo apt update
+$ sudo apt install -y aspnetcore-runtime-10.0
+
+$ dotnet --list-runtimes
+Microsoft.AspNetCore.App 10.0.x [/usr/lib/dotnet/shared/...]
+Microsoft.NETCore.App 10.0.x [/usr/lib/dotnet/shared/...]
+
+$ dotnet --version
+The command could not be loaded, possibly because:
+  * You intended to execute a .NET SDK command:
+    No .NET SDKs were found.        ← ასეც უნდა იყოს
+    </code-block>
+    <div class="col">
+      <table class="t in" style="--d:0.40s;font-size:19px">
+        <tr><th></th><th>SDK</th><th>runtime</th></tr>
+        <tr><td>რისთვის</td><td>წერა, build</td><td>მხოლოდ გაშვება</td></tr>
+        <tr><td>სად</td><td>შენს ლეპტოპზე</td><td>სერვერზე</td></tr>
+        <tr><td>ზომა</td><td>დიდი</td><td>პატარა</td></tr>
+      </table>
+      <div class="callout step" style="--a:var(--asp)">⚠ ვერსია <b>ზუსტად</b> უნდა ემთხვეოდეს: აპი .NET 10-ზეა → runtime 10.0</div>
+    </div>
+  </div>
+  <aside class="study">
+### ნაბიჯი 1 · .NET runtime
+
+სერვერზე კოდს არ ვწერთ და არ ვაკომპილირებთ — მხოლოდ მზა აპს ვუშვებთ. ამიტომ **SDK** კი არა, **runtime** გვჭირდება. ASP.NET Core აპისთვის — `aspnetcore-runtime`, რომელიც ჩვეულებრივ .NET runtime-საც შეიცავს:
+
+```console Termius · lms-server
+$ sudo apt update
+$ sudo apt install -y aspnetcore-runtime-10.0
+
+$ dotnet --list-runtimes
+Microsoft.AspNetCore.App 10.0.x [/usr/lib/dotnet/shared/Microsoft.AspNetCore.App]
+Microsoft.NETCore.App 10.0.x [/usr/lib/dotnet/shared/Microsoft.NETCore.App]
+```
+
+`dotnet --version` შეცდომას დაწერს — „No .NET SDKs were found“. ეს ნორმალურია: SDK სერვერზე არ გვჭირდება.
+
+| | SDK | runtime |
+|---|---|---|
+| რისთვის | კოდის წერა, build, `dotnet ef` | მხოლოდ გაშვება |
+| სად | დეველოპერის კომპიუტერზე | სერვერზე |
+| ზომა | დიდი | პატარა |
+
+```warn
+runtime-ის ვერსია აპის ვერსიას უნდა ემთხვეოდეს: .NET 10-ის აპი .NET 8-ის runtime-ზე **არ** გაეშვება. ეს ერთ-ერთი კლასიკური „ჩემთან მუშაობს, სერვერზე — არა“.
+```
+  </aside>
+</section>
+
+<section class="slide" data-section="1 · მომზადება">
+  <div class="kicker">ნაბიჯი 2 · ბაზა</div>
+  <h2><span class="c-mvc">PostgreSQL</span> — user და ბაზა LMS-სთვის</h2>
+  <div class="grid2" style="grid-template-columns:1.2fr 1fr">
+    <code-block lang="console" cls="in" title="Termius · lms-server" style="--d:0.20s">
+$ sudo apt install -y postgresql
+$ systemctl status postgresql
+     Active: active (exited)
+
+$ sudo -u postgres psql
+postgres=# CREATE USER lms WITH PASSWORD 'Str0ng!Pass';
+CREATE ROLE
+postgres=# CREATE DATABASE lms OWNER lms;
+CREATE DATABASE
+postgres=# \q
+
+$ sudo ss -tlnp | grep 5432
+LISTEN  127.0.0.1:5432   postgres     ← მხოლოდ შიგნით ✓
+    </code-block>
+    <div class="col">
+      <div class="card accent in right" style="--d:0.40s;--a:var(--mvc)"><h3>👤 user lms</h3><p>API ბაზას <b>ცალკე</b> user-ით უკავშირდება — არა <code class="i">postgres</code> სუპერ-user-ით</p></div>
+      <div class="card accent in right" style="--d:0.55s;--a:var(--net)"><h3>🔒 127.0.0.1</h3><p>ბაზა მხოლოდ სერვერის შიგნიდან ჩანს. ufw-ში 5432 <b>არ</b> ვხსნით</p></div>
+    </div>
+  </div>
+  <aside class="study">
+### ნაბიჯი 2 · PostgreSQL
+
+```console Termius · lms-server
+$ sudo apt install -y postgresql
+$ systemctl status postgresql
+```
+
+PostgreSQL-ის დაყენებისას იქმნება Linux-ის user `postgres` — ბაზის ადმინისტრატორი. მისი სახელით ვხსნით `psql`-ს (ბაზის კონსოლი) და ვქმნით user-ს და ბაზას LMS-სთვის:
+
+```console Termius · lms-server
+$ sudo -u postgres psql
+postgres=# CREATE USER lms WITH PASSWORD 'Str0ng!Pass';
+CREATE ROLE
+postgres=# CREATE DATABASE lms OWNER lms;
+CREATE DATABASE
+postgres=# \q
+```
+
+- `sudo -u postgres` — ბრძანება user `postgres`-ის სახელით;
+- API ბაზას **ცალკე** user-ით (`lms`) უკავშირდება და არა სუპერ-user-ით — თუ API-ს გატეხავენ, ზიანი მხოლოდ ამ ბაზით შემოიფარგლება;
+- `\q` — psql-იდან გამოსვლა.
+
+```console Termius · lms-server
+$ sudo ss -tlnp | grep 5432
+LISTEN  127.0.0.1:5432   postgres
+```
+
+PostgreSQL ნაგულისხმევად მხოლოდ `127.0.0.1`-ზე უსმენს — ინტერნეტიდან ბაზა არ ჩანს. ასეც უნდა დარჩეს: ufw-ში 5432-ს **არ** ვხსნით.
+  </aside>
+</section>
+
+<section class="slide" data-section="1 · მომზადება">
+  <div class="kicker">ნაბიჯი 3 · LMS → PostgreSQL</div>
+  <h2>provider-ის შეცვლა: <span class="c-asp">UseNpgsql</span></h2>
+  <div class="grid2" style="grid-template-columns:1fr 1fr">
+    <div class="col">
+      <code-block lang="console" cls="in" title="LMS-ის პროექტი" style="--d:0.20s">
+$ dotnet add package Npgsql.EntityFrameworkCore.PostgreSQL
+      </code-block>
+      <code-block lang="csharp" cls="in" title="Program.cs" style="--d:0.35s">
+builder.Services.AddDbContext<LmsDbContext>(options =>
+    options.UseNpgsql(
+        builder.Configuration.GetConnectionString("Default")));
+      </code-block>
+      <code-block lang="json" cls="sm in" title="appsettings.Development.json" style="--d:0.50s">
+"ConnectionStrings": {
+  "Default": "Host=localhost;Database=lms;Username=lms;Password=dev"
+}
+      </code-block>
+    </div>
+    <div class="col">
+      <div class="card accent in right" style="--d:0.65s;--a:var(--asp)"><h3>🔄 მიგრაციები თავიდან</h3><p>ძველი მიგრაციები SQL Server-ისთვის დაიწერა → <code class="i">Migrations/</code> წაშალე → <code class="i">dotnet ef migrations add InitialCreate</code></p></div>
+      <div class="callout step" style="--a:var(--net)">EF Core-ის კოდი <b>არ</b> იცვლება — მხოლოდ ერთი ხაზი და connection string</div>
+    </div>
+  </div>
+  <aside class="study">
+### ნაბიჯი 3 · LMS → PostgreSQL
+
+LMS აქამდე SQL Server-ზე მუშაობდა. სერვერზე PostgreSQL გვაქვს — ის უფასოა, მსუბუქია და 1 GB RAM-ში კომფორტულად ეტევა. EF Core-ის წყალობით კოდი თითქმის არ იცვლება:
+
+```console LMS-ის პროექტი
+$ dotnet add package Npgsql.EntityFrameworkCore.PostgreSQL
+```
+
+```csharp Program.cs
+builder.Services.AddDbContext<LmsDbContext>(options =>
+    options.UseNpgsql(builder.Configuration.GetConnectionString("Default")));
+```
+
+```json appsettings.Development.json
+"ConnectionStrings": {
+  "Default": "Host=localhost;Database=lms;Username=lms;Password=dev"
+}
+```
+
+**მიგრაციები თავიდან.** ძველი მიგრაციები SQL Server-ის ტიპებით დაიწერა. წაშალე `Migrations/` საქაღალდე და შექმენი ახალი:
+
+```console LMS-ის პროექტი
+$ dotnet ef migrations add InitialCreate
+```
+
+```note
+ლოკალურად PostgreSQL-ს შემდეგ ლექციაზე Docker-ით გავუშვებთ — ერთი ბრძანებით, ინსტალაციის გარეშე. მანამდე შეგიძლია Windows-ზე დააყენო postgresql.org-იდან.
+```
+  </aside>
+</section>
+
+<!-- ================= PART 2: PUBLISH & RUN ================= -->
+<section class="slide divider" data-section="2 · გაშვება">
+  <div class="vcenter">
+    <div class="kicker in">ნაწილი 2</div>
+    <h1 class="in" style="--d:.1s">publish → ატვირთვა → <span class="grad">გაშვება</span></h1>
+    <p class="lead mt in" style="--d:.3s">და რატომ არ კმარა <code class="i">dotnet Lms.Api.dll</code></p>
+  </div>
+  <div class="big-num">02</div>
+  <aside class="study">
+## ნაწილი 2 · publish → ატვირთვა → გაშვება
+  </aside>
+</section>
+
+<section class="slide" data-section="2 · გაშვება">
+  <div class="kicker">ნაბიჯი 4 · publish და მიგრაციები</div>
+  <h2>შენთან: <span class="c-api">აწყობა</span> → სერვერზე: <span class="c-mvc">ატვირთვა</span></h2>
+  <div class="grid2" style="grid-template-columns:1.15fr 1fr">
+    <code-block lang="console" cls="in" title="WSL · LMS-ის პროექტი" style="--d:0.20s">
+$ dotnet publish -c Release -o ./publish
+Lms.Api -> /home/giorgi/lms/publish/
+
+$ ls publish
+Lms.Api.dll  Lms.Api.deps.json  appsettings.json  Npgsql.dll ...
+
+$ dotnet ef migrations script --idempotent -o migrate.sql
+
+$ ssh lms "sudo mkdir -p /var/www/lms-api && \
+           sudo chown giorgi:giorgi /var/www/lms-api"
+$ rsync -avz --delete publish/ lms:/var/www/lms-api/
+$ scp migrate.sql lms:~
+    </code-block>
+    <div class="col">
+      <div class="card accent in right" style="--d:0.40s;--a:var(--api)"><h3>📦 publish</h3><p>Release build + ყველა საჭირო ფაილი <b>ერთ საქაღალდეში</b></p></div>
+      <div class="card accent in right" style="--d:0.55s;--a:var(--mvc)"><h3>📜 --idempotent</h3><p>SQL სკრიპტი, რომელიც <b>მხოლოდ აკლებულ</b> მიგრაციებს უშვებს — ორჯერ გაშვებაც უსაფრთხოა</p></div>
+      <code-block lang="console" cls="sm step" title="Termius · lms-server">
+$ psql "host=localhost dbname=lms user=lms" -f ~/migrate.sql
+Password: ********
+CREATE TABLE ...
+      </code-block>
+    </div>
+  </div>
+  <aside class="study">
+### ნაბიჯი 4 · publish და მიგრაციები
+
+**შენს კომპიუტერზე** (სადაც SDK და `dotnet ef` გაქვს):
+
+```console WSL · LMS-ის პროექტი
+$ dotnet publish -c Release -o ./publish
+$ ls publish
+Lms.Api.dll  Lms.Api.deps.json  appsettings.json  Npgsql.dll ...
+
+$ dotnet ef migrations script --idempotent -o migrate.sql
+```
+
+- `dotnet publish -c Release` — ოპტიმიზებული build და ყველა საჭირო ფაილი (`.dll`-ები, `appsettings.json`) ერთ საქაღალდეში. ეს არის ის, რაც სერვერზე გაეშვება.
+- `migrations script --idempotent` — მიგრაციები ჩვეულებრივ SQL-ად. **idempotent** ნიშნავს: სკრიპტი თვითონ ამოწმებს, რომელი მიგრაცია უკვე გაეშვა, და მხოლოდ აკლებულს უშვებს — ორჯერ გაშვებაც უსაფრთხოა. სერვერზე `dotnet ef` არ გვაქვს (SDK არ არის) — `psql` კი გვაქვს.
+
+**ატვირთვა:**
+
+```console WSL
+$ ssh lms "sudo mkdir -p /var/www/lms-api && sudo chown giorgi:giorgi /var/www/lms-api"
+$ rsync -avz --delete publish/ lms:/var/www/lms-api/
+$ scp migrate.sql lms:~
+```
+
+`ssh lms "<ბრძანება>"` — ერთი ბრძანება სერვერზე, შესვლის გარეშე. `scp` — ერთი ფაილის კოპირება SSH-ით.
+
+**ცხრილები ბაზაში:**
+
+```console Termius · lms-server
+$ psql "host=localhost dbname=lms user=lms" -f ~/migrate.sql
+Password: ********
+CREATE TABLE
+...
+```
+  </aside>
+</section>
+
+<section class="slide" data-section="2 · გაშვება">
+  <div class="kicker">ნაბიჯი 5 · პირველი გაშვება</div>
+  <h2>მუშაობს! …<span class="c-red">სანამ terminal ღიაა</span></h2>
+  <div class="grid2" style="grid-template-columns:1.25fr 1fr">
+    <div class="col">
+      <code-block lang="console" cls="in" title="Termius · lms-server · tab 1" style="--d:0.20s">
+$ cd /var/www/lms-api
+$ ASPNETCORE_URLS=http://127.0.0.1:5000 \
+  ConnectionStrings__Default="Host=localhost;Database=lms;Username=lms;Password=Str0ng!Pass" \
+  dotnet Lms.Api.dll
+info: Microsoft.Hosting.Lifetime[14]
+      Now listening on: http://127.0.0.1:5000
+info: Microsoft.Hosting.Lifetime[0]
+      Hosting environment: Production
+      </code-block>
+      <code-block lang="console" cls="in" title="Termius · lms-server · tab 2" style="--d:0.40s">
+$ curl http://127.0.0.1:5000/api/courses
+[]
+      </code-block>
+    </div>
+    <div class="col">
+      <div class="card accent in right" style="--d:0.55s;--a:var(--net)"><h3>🔧 __ = :</h3><p><code class="i">ConnectionStrings__Default</code> → <code class="i">ConnectionStrings:Default</code>. გარემოს ცვლადი <b>ფარავს</b> appsettings.json-ს</p></div>
+      <div class="problem step" style="display:block">tab 1 დახურე → API <b>გაჩერდა</b></div>
+      <div class="problem step" style="display:block" data-with>crash → <b>არავინ</b> ჩართავს</div>
+      <div class="problem step" style="display:block" data-with>reboot → API <b>აღარ</b> ირთვება</div>
+    </div>
+  </div>
+  <aside class="study">
+### ნაბიჯი 5 · პირველი გაშვება
+
+```console Termius · lms-server · tab 1
+$ cd /var/www/lms-api
+$ ASPNETCORE_URLS=http://127.0.0.1:5000 \
+  ConnectionStrings__Default="Host=localhost;Database=lms;Username=lms;Password=Str0ng!Pass" \
+  dotnet Lms.Api.dll
+info: Microsoft.Hosting.Lifetime[14]
+      Now listening on: http://127.0.0.1:5000
+info: Microsoft.Hosting.Lifetime[0]
+      Hosting environment: Production
+```
+
+**გარემოს ცვლადები** (environment variables) — ბრძანების წინ დაწერილი `სახელი=მნიშვნელობა`. ASP.NET Core მათ კითხულობს და ისინი `appsettings.json`-ის მნიშვნელობებს **ფარავს**:
+
+- `ASPNETCORE_URLS` — სად უსმინოს Kestrel-მა. `127.0.0.1` — მხოლოდ სერვერის შიგნიდან;
+- `ConnectionStrings__Default` — `__` (ორი ქვედა ტირე) ნიშნავს JSON-ის ჩადგმულ დონეს, ანუ `ConnectionStrings:Default`.
+
+Termius-ის მეორე tab-იდან:
+
+```console Termius · lms-server · tab 2
+$ curl http://127.0.0.1:5000/api/courses
+[]
+```
+
+API მუშაობს და ბაზას უკავშირდება. მაგრამ ზუსტად იგივე პრობლემები, რაც მე-2 ლექციაზე `dotnet run`-ს ჰქონდა:
+
+- tab დახურე → API **გაჩერდა**;
+- crash → **არავინ** ჩართავს თავიდან;
+- სერვერის reboot → API **აღარ** ირთვება.
+
+```note
+Production-ში Swagger ჩვეულებრივ გამორთულია (`if (app.Environment.IsDevelopment())`), ამიტომ ვამოწმებთ `curl`-ით. `curl` — HTTP მოთხოვნა ტერმინალიდან.
+```
+  </aside>
+</section>
+
+<section class="slide" data-section="☕ შესვენება">
+  <div class="center">
+    <div class="big-emoji float" style="font-size:120px">☕</div>
+    <h1 class="mt">შესვენება</h1>
+    <p class="lead mt">10 წუთი · მერე — systemd და reverse proxy</p>
+  </div>
+</section>
+
+<!-- ================= PART 3: SYSTEMD + PROXY ================= -->
+<section class="slide divider" data-section="3 · სერვისი და proxy">
+  <div class="vcenter">
+    <div class="kicker in">ნაწილი 3</div>
+    <h1 class="in" style="--d:.1s"><span class="grad">systemd</span> + reverse proxy</h1>
+    <p class="lead mt in" style="--d:.3s">24/7 მუშაობა და კარი ინტერნეტში</p>
+  </div>
+  <div class="big-num">03</div>
+  <aside class="study">
+## ნაწილი 3 · systemd + reverse proxy
+
+API-ს ვაქცევთ სერვისად — ისევე, როგორც Nginx-ია — და Nginx-ს ვაყენებთ მის წინ.
+  </aside>
+</section>
+
+<section class="slide" data-section="3 · სერვისი და proxy">
+  <div class="kicker">ნაბიჯი 6 · systemd სერვისი</div>
+  <h2>API — <span class="c-mvc">სერვისი</span>, როგორც Nginx</h2>
+  <div class="grid2" style="grid-template-columns:1.25fr 1fr">
+    <code-block lang="ini" cls="sm in" title="/etc/systemd/system/lms-api.service" style="--d:0.20s">
+[Unit]
+Description=LMS API
+After=network.target postgresql.service
+
+[Service]
+WorkingDirectory=/var/www/lms-api
+ExecStart=/usr/bin/dotnet /var/www/lms-api/Lms.Api.dll
+Restart=always
+RestartSec=5
+User=www-data
+Environment=ASPNETCORE_ENVIRONMENT=Production
+Environment=ASPNETCORE_URLS=http://127.0.0.1:5000
+Environment="ConnectionStrings__Default=Host=localhost;Database=lms;Username=lms;Password=Str0ng!Pass"
+
+[Install]
+WantedBy=multi-user.target
+    </code-block>
+    <div class="col">
+      <div class="method-card step" style="--a:var(--net)"><span class="m mono" style="min-width:110px">After</span><span class="t">ჯერ ქსელი და ბაზა, მერე API</span></div>
+      <div class="method-card step" style="--a:var(--asp)"><span class="m mono" style="min-width:110px">ExecStart</span><span class="t">რა გაუშვას</span></div>
+      <div class="method-card step" style="--a:var(--mvc)"><span class="m mono" style="min-width:110px">Restart</span><span class="t">crash → 5 წამში თავიდან</span></div>
+      <div class="method-card step" style="--a:var(--red)"><span class="m mono" style="min-width:110px">User</span><span class="t">არა root — უფლებების მინიმუმი</span></div>
+      <div class="method-card step" style="--a:var(--api)"><span class="m mono" style="min-width:110px">WantedBy</span><span class="t">ჩაირთოს სერვერის ჩართვისას</span></div>
+    </div>
+  </div>
+  <aside class="study">
+### ნაბიჯი 6 · systemd სერვისი
+
+systemd-ს ვუხსნით, როგორ გაუშვას ჩვენი API — **unit ფაილით**:
+
+```console Termius · lms-server
+$ sudo nano /etc/systemd/system/lms-api.service
+```
+
+```ini /etc/systemd/system/lms-api.service
+[Unit]
+Description=LMS API
+After=network.target postgresql.service
+
+[Service]
+WorkingDirectory=/var/www/lms-api
+ExecStart=/usr/bin/dotnet /var/www/lms-api/Lms.Api.dll
+Restart=always
+RestartSec=5
+User=www-data
+Environment=ASPNETCORE_ENVIRONMENT=Production
+Environment=ASPNETCORE_URLS=http://127.0.0.1:5000
+Environment="ConnectionStrings__Default=Host=localhost;Database=lms;Username=lms;Password=Str0ng!Pass"
+
+[Install]
+WantedBy=multi-user.target
+```
+
+| ხაზი | რას ნიშნავს |
+|---|---|
+| `After=` | ჯერ ქსელი და PostgreSQL ჩაირთოს, მერე API |
+| `WorkingDirectory` / `ExecStart` | სად და რა გაუშვას |
+| `Restart=always`, `RestartSec=5` | თუ პროცესი გაჩერდა — 5 წამში თავიდან |
+| `User=www-data` | **არა** root: თუ API-ს გატეხავენ, უფლებები მინიმალურია |
+| `Environment=` | გარემოს ცვლადები — იგივე, რაც ხელით ვწერდით |
+| `WantedBy=multi-user.target` | `enable`-ის შემდეგ სერვერის ჩართვისას ავტომატურად |
+
+```warn
+პაროლი unit ფაილში — დროებითი გადაწყვეტაა. მე-9 ლექციაზე საიდუმლოებს ცალკე ფაილში გავიტანთ, მკაცრი უფლებებით.
+```
+  </aside>
+</section>
+
+<section class="slide" data-section="3 · სერვისი და proxy">
+  <div class="kicker">ნაბიჯი 7 · ჩართვა და ლოგები</div>
+  <h2>enable --now · <span class="c-api">journalctl</span></h2>
+  <div class="grid2" style="grid-template-columns:1.2fr 1fr">
+    <code-block lang="console" cls="in" title="Termius · lms-server" style="--d:0.20s">
+$ sudo systemctl daemon-reload
+$ sudo systemctl enable --now lms-api
+Created symlink ... → /etc/systemd/system/lms-api.service
+
+$ systemctl status lms-api
+● lms-api.service - LMS API
+     Active: active (running) since ...
+   Main PID: 4120 (dotnet)
+
+$ journalctl -u lms-api -f
+info: Now listening on: http://127.0.0.1:5000
+info: Hosting environment: Production
+
+$ sudo kill -9 4120          # „crash“
+$ systemctl status lms-api   # 5 წამში — ახალი PID ✓
+    </code-block>
+    <div class="col">
+      <div class="card accent in right" style="--d:0.40s;--a:var(--net)"><h3>🔄 daemon-reload</h3><p>unit ფაილი შეიცვალა → systemd-მა თავიდან წაიკითხოს</p></div>
+      <div class="card accent in right" style="--d:0.55s;--a:var(--mvc)"><h3>📜 journalctl -u</h3><p>სერვისის ლოგი — ის, რასაც API კონსოლში წერს: <code class="i">-f</code> ცოცხლად, <code class="i">-n 50</code> ბოლო 50</p></div>
+    </div>
+  </div>
+  <aside class="study">
+### ნაბიჯი 7 · ჩართვა და ლოგები
+
+```console Termius · lms-server
+$ sudo systemctl daemon-reload          # systemd-მა ახალი unit ფაილი წაიკითხოს
+$ sudo systemctl enable --now lms-api   # enable + start ერთად
+
+$ systemctl status lms-api
+● lms-api.service - LMS API
+     Active: active (running)
+   Main PID: 4120 (dotnet)
+```
+
+**ლოგები.** ყველაფერი, რასაც API კონსოლში წერს (`ILogger`, შეცდომები), systemd **journal**-ში ინახება:
+
+```console Termius · lms-server
+$ journalctl -u lms-api -f            # ცოცხლად
+$ journalctl -u lms-api -n 50         # ბოლო 50 ხაზი
+$ journalctl -u lms-api --since "10 min ago"
+```
+
+**crash-ის ტესტი:**
+
+```console Termius · lms-server
+$ sudo kill -9 4120             # ვკლავთ პროცესს
+$ systemctl status lms-api      # 5 წამში — active (running), ახალი PID
+```
+
+`Restart=always` მუშაობს. `sudo reboot`-ის შემდეგაც API თავისით ჩაირთვება.
+
+```tip
+unit ფაილის **ყოველი** ცვლილების შემდეგ: `daemon-reload` → `restart lms-api`. ახალი ვერსიის ატვირთვის შემდეგ კი საკმარისია `sudo systemctl restart lms-api`.
+```
+  </aside>
+</section>
+
+<section class="slide" data-section="3 · სერვისი და proxy">
+  <div class="kicker">ნაბიჯი 8 · reverse proxy</div>
+  <h2>Nginx — API-ს <span class="c-asp">„მიმღები“</span></h2>
+  <div class="grid2" style="grid-template-columns:1.1fr 1fr">
+    <div class="col">
+      <code-block lang="nginx" cls="in" title="sites-available/lms-api" style="--d:0.20s">
+server {
+    listen 8081;
+    server_name _;
+
+    location / {
+        proxy_pass http://127.0.0.1:5000;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+}
+      </code-block>
+      <code-block lang="console" cls="sm in" title="Termius · lms-server" style="--d:0.35s">
+$ sudo ln -s /etc/nginx/sites-available/lms-api /etc/nginx/sites-enabled/
+$ sudo nginx -t && sudo systemctl reload nginx
+$ sudo ufw allow 8081/tcp
+      </code-block>
+    </div>
+    <div class="col">
+      <div class="card accent in right" style="--d:0.50s;--a:var(--asp)"><h3>🏨 რატომ proxy?</h3><p>Nginx — სასტუმროს მიმღები: სტუმარს იღებს და სწორ ოთახში აგზავნის. API ოთახშია — <b>ინტერნეტიდან პირდაპირ არ ჩანს</b></p></div>
+      <div class="card in right" style="--d:0.65s"><p class="tiny">✓ ერთ IP-ზე ბევრი აპი · ✓ HTTPS ერთ ადგილას (მე-9 ლექცია) · ✓ ლოგები · ✓ Kestrel-ი დამალულია</p></div>
+      <div class="callout step" style="--a:var(--mvc)">🌐 <code class="i">http://164.90.12.34:8081/api/courses</code> → <b>[ ]</b></div>
+    </div>
+  </div>
+  <aside class="study">
+### ნაბიჯი 8 · Nginx — reverse proxy
+
+API `127.0.0.1:5000`-ზე უსმენს — ინტერნეტიდან არ ჩანს. Nginx-ს ვაყენებთ მის წინ, როგორც **reverse proxy**: ის იღებს მოთხოვნას და API-ს გადასცემს.
+
+```nginx sites-available/lms-api
+server {
+    listen 8081;
+    server_name _;
+
+    location / {
+        proxy_pass http://127.0.0.1:5000;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+}
+```
+
+- `proxy_pass` — სად გადასცეს მოთხოვნა;
+- `proxy_set_header` — API-ს გადაეცემა ორიგინალი დომენი (`Host`), მომხმარებლის ნამდვილი IP (`X-Forwarded-For`) და პროტოკოლი (`X-Forwarded-Proto`: http თუ https). მის გარეშე API-ს ეგონება, რომ ყველა მოთხოვნა Nginx-იდან (127.0.0.1) მოდის.
+
+```console Termius · lms-server
+$ sudo ln -s /etc/nginx/sites-available/lms-api /etc/nginx/sites-enabled/
+$ sudo nginx -t && sudo systemctl reload nginx
+$ sudo ufw allow 8081/tcp
+```
+
+ბრაუზერში `http://<IP>:8081/api/courses` → JSON. 🎉
+
+**რატომ არ ვხსნით Kestrel-ს პირდაპირ?** Nginx — სასტუმროს მიმღებია: სტუმარს იღებს და სწორ ოთახში აგზავნის.
+
+- ერთ სერვერზე ბევრი აპი — portfolio, Angular, API — ყველა Nginx-ის უკან;
+- **HTTPS** ერთ ადგილას — Nginx-ში (მე-9 ლექცია), API-ს ამაზე ფიქრი არ სჭირდება;
+- ლოგები, შეზღუდვები, სტატიკური ფაილები — Nginx ამაში ძლიერია.
+
+```note
+8081 — დროებითია, სანამ დომენი არ გვაქვს. მე-9 ლექციაზე API იქნება `api.<შენი-დომენი>`-ზე, port 443-ზე.
+```
+  </aside>
+</section>
+
+<section class="slide" data-section="3 · სერვისი და proxy">
+  <div class="kicker">ტიპური შეცდომა</div>
+  <h2><span class="c-red">502 Bad Gateway</span> — ვინ არის დამნაშავე?</h2>
+  <div class="grid2" style="grid-template-columns:1.15fr 1fr">
+    <code-block lang="console" cls="sm in" title="Termius · lms-server" style="--d:0.20s">
+$ sudo tail -n 3 /var/log/nginx/error.log
+connect() failed (111: Connection refused) while connecting
+  to upstream, upstream: "http://127.0.0.1:5000/api/courses"
+
+$ systemctl status lms-api
+     Active: activating (auto-restart) (Result: exit-code)
+
+$ journalctl -u lms-api -n 20
+Unhandled exception. Npgsql.PostgresException:
+  28P01: password authentication failed for user "lms"
+    </code-block>
+    <div class="col">
+      <div class="row in right" style="--d:.4s;gap:14px;align-items:center"><span class="big-emoji" style="font-size:34px">1️⃣</span><span style="font-size:21px">Nginx <b>მუშაობს</b> — თორემ 502 არც გამოჩნდებოდა</span></div>
+      <div class="row in right" style="--d:.55s;gap:14px;align-items:center"><span class="big-emoji" style="font-size:34px">2️⃣</span><span style="font-size:21px">API <b>არ</b> პასუხობს → <code class="i">systemctl status</code></span></div>
+      <div class="row in right" style="--d:.7s;gap:14px;align-items:center"><span class="big-emoji" style="font-size:34px">3️⃣</span><span style="font-size:21px"><b>რატომ</b> → <code class="i">journalctl -u lms-api</code></span></div>
+      <div class="callout step" style="--a:var(--mvc)">ზემოდან ქვემოთ: Nginx → API → ბაზა. ყველა ფენას <b>თავისი ლოგი</b> აქვს</div>
+    </div>
+  </div>
+  <aside class="study">
+### 502 Bad Gateway — ვინ არის დამნაშავე?
+
+**502** ნიშნავს: Nginx მუშაობს, მაგრამ მან, ვისაც მოთხოვნა გადასცა (upstream — ჩვენი API), **არ უპასუხა**. ძებნა ფენა-ფენა, ზემოდან ქვემოთ:
+
+```console Termius · lms-server
+$ sudo tail -n 3 /var/log/nginx/error.log
+connect() failed (111: Connection refused) while connecting to upstream,
+  upstream: "http://127.0.0.1:5000/api/courses"
+
+$ systemctl status lms-api
+     Active: activating (auto-restart) (Result: exit-code)
+
+$ journalctl -u lms-api -n 20
+Unhandled exception. Npgsql.PostgresException:
+  28P01: password authentication failed for user "lms"
+```
+
+1. **Nginx** — 502 თვითონ ამბობს, რომ Nginx მუშაობს. `error.log`: API-სთან ვერ დაუკავშირდა.
+2. **API** — `systemctl status`: `auto-restart` — ირთვება, ვარდება, ისევ ირთვება.
+3. **რატომ** — `journalctl`: ბაზის პაროლი არასწორია.
+
+| რას ხედავ | ფენა | სად ეძებ |
+|---|---|---|
+| Can't be reached | ქსელი / Nginx | `ufw status`, `systemctl status nginx` |
+| 502 Bad Gateway | API არ პასუხობს | `systemctl status lms-api`, `journalctl -u lms-api` |
+| 500 Internal Server Error | API-ს კოდი | `journalctl -u lms-api` — exception |
+| password authentication failed | ბაზა / connection string | `Environment=` unit ფაილში |
+  </aside>
+</section>
+
+<section class="slide" data-section="3 · სერვისი და proxy">
+  <div class="kicker">დავთვალოთ</div>
+  <h2>ხელით deploy-ის <span class="c-red">ფასი</span></h2>
+  <div class="grid2" style="grid-template-columns:1.1fr 1fr">
+    <div class="card in left" style="--d:0.20s;padding:20px 28px">
+      <p style="font-size:19px;line-height:1.75">1. runtime-ის დაყენება (<b>სწორი ვერსია</b>)<br>2. PostgreSQL-ის დაყენება<br>3. user + ბაზა <code class="i">psql</code>-ში<br>4. <code class="i">dotnet publish</code><br>5. მიგრაციების სკრიპტი<br>6. rsync + scp<br>7. <code class="i">psql -f migrate.sql</code><br>8. unit ფაილი, ცვლადები, პაროლი<br>9. daemon-reload · enable<br>10. Nginx server block · ufw</p>
+    </div>
+    <div class="col">
+      <div class="problem step" style="display:block">🆕 ახალი სერვერი? — <b>ყველაფერი თავიდან</b>, ხელით</div>
+      <div class="problem step" style="display:block" data-with>👩‍💻 გუნდელს Windows, SQL Server და .NET 9 აქვს — „<b>ჩემთან მუშაობს</b>“</div>
+      <div class="problem step" style="display:block" data-with>🔢 runtime 10.0.1 vs 10.0.3 — ვინ შეამჩნევს?</div>
+      <div class="problem step" style="display:block" data-with>📝 ნაბიჯი დაგავიწყდა — ზუსტად <b>ღამის 2-ზე</b> გაფუჭდება</div>
+      <div class="callout step" style="--a:var(--mvc);font-size:22px">რა იქნება, თუ აპს <b>მთელ გარემოსთან ერთად</b> ჩავალაგებთ ერთ ყუთში? → <b>Docker</b> 📦</div>
+    </div>
+  </div>
+  <aside class="study">
+### ხელით deploy-ის ფასი
+
+დღეს LMS-ის გასაშვებად გადავდგით:
+
+1. .NET runtime-ის დაყენება — **ზუსტად სწორი ვერსიის**;
+2. PostgreSQL-ის დაყენება;
+3. user-ის და ბაზის შექმნა `psql`-ში;
+4. `dotnet publish`;
+5. მიგრაციების SQL სკრიპტი;
+6. `rsync` + `scp`;
+7. `psql -f migrate.sql`;
+8. unit ფაილი, გარემოს ცვლადები, პაროლი;
+9. `daemon-reload`, `enable`;
+10. Nginx server block, `ufw`.
+
+**სად იწყება პრობლემები:**
+
+- 🆕 **ახალი სერვერი** (ან ძველი გაფუჭდა) — ყველაფერი თავიდან, ხელით, მეხსიერებით;
+- 👩‍💻 **გუნდელს** სხვა OS, სხვა ბაზა, სხვა .NET ვერსია აქვს — „ჩემთან მუშაობს“;
+- 🔢 **ვერსიები** — სერვერზე runtime 10.0.1, ლეპტოპზე 10.0.3 — პატარა განსხვავება, უცნაური შეცდომა;
+- 📝 **დავიწყებული ნაბიჯი** — და ის ყველაზე ცუდ დროს გამოჩნდება.
+
+**კითხვა შემდეგი ლექციისთვის:** რა იქნება, თუ აპს **მთელ გარემოსთან ერთად** — სწორი runtime-ით, ყველა ფაილით, ერთი ბრძანებით გასაშვებად — ერთ „ყუთში“ ჩავალაგებთ, რომელიც ყველგან ერთნაირად მუშაობს? ეს არის **Docker**.
+  </aside>
+</section>
+
+<lecture-classwork/>
+<lecture-check/>
+
+<section class="slide" data-section="შეჯამება">
+  <div class="kicker">შეჯამება</div>
+  <h2>დღეს ვისწავლეთ</h2>
+  <div class="col" style="gap:28px;margin-top:30px">
+    <div class="row in left" style="--d:0.20s;gap:20px;align-items:center"><span class="big-emoji" style="font-size:42px">⚙️</span><span style="font-size:28px"><b>runtime + PostgreSQL</b> — სერვერზე მხოლოდ ის, რაც გაშვებას სჭირდება</span></div>
+    <div class="row in left" style="--d:0.35s;gap:20px;align-items:center"><span class="big-emoji" style="font-size:42px">📦</span><span style="font-size:28px"><b>publish + idempotent სკრიპტი</b> — აწყობა შენთან, ატვირთვა rsync-ით</span></div>
+    <div class="row in left" style="--d:0.50s;gap:20px;align-items:center"><span class="big-emoji" style="font-size:42px">♾️</span><span style="font-size:28px"><b>systemd</b> — Restart=always, enable, journalctl</span></div>
+    <div class="row in left" style="--d:0.65s;gap:20px;align-items:center"><span class="big-emoji" style="font-size:42px">🏨</span><span style="font-size:28px"><b>reverse proxy</b> — Nginx → 127.0.0.1:5000; 502 = API არ პასუხობს</span></div>
+  </div>
+  <p class="lead in mt" style="--d:0.85s;text-align:center">შემდეგ ლექციაზე: <b>Docker</b> — აპი გარემოსთან ერთად, ერთ ყუთში 📦</p>
+  <aside class="study">
+## შეჯამება · დღეს ვისწავლეთ
+
+- ⚙️ **სერვერის მომზადება** — `aspnetcore-runtime-10.0` (არა SDK), PostgreSQL, ცალკე user და ბაზა; ბაზა მხოლოდ `127.0.0.1`-ზე.
+- 🔄 **LMS → PostgreSQL** — `Npgsql.EntityFrameworkCore.PostgreSQL`, `UseNpgsql`, მიგრაციები თავიდან.
+- 📦 **publish და მიგრაციები** — `dotnet publish -c Release`, `migrations script --idempotent`, `rsync`, `psql -f`.
+- ♾️ **systemd** — unit ფაილი: `Restart=always`, `User=www-data`, `Environment=`; `enable --now`; ლოგი — `journalctl -u`.
+- 🏨 **reverse proxy** — Nginx `proxy_pass`-ით API-ს გადასცემს მოთხოვნას; API თვითონ ინტერნეტიდან არ ჩანს.
+- 🔎 **502** — Nginx მუშაობს, API არა: `systemctl status` → `journalctl`.
+- 😓 **ხელით deploy** — 10+ ნაბიჯი, ვერსიები, დავიწყებული დეტალები. შემდეგ ლექციაზე — Docker.
+
+```prompt გამოცდა მეექვსე ლექციაზე
+ვსწავლობ DevOps-ს. მეექვსე ლექციაზე ASP.NET Core API (.NET 10) ხელით გავუშვით Ubuntu სერვერზე: aspnetcore-runtime vs SDK, PostgreSQL (user, ბაზა, psql), UseNpgsql, dotnet publish, migrations script --idempotent, გარემოს ცვლადები (ASPNETCORE_URLS, ConnectionStrings__Default), systemd unit ფაილი (Restart=always, User, Environment, enable, journalctl), Nginx reverse proxy (proxy_pass, X-Forwarded-*), 502 Bad Gateway.
+დამისვი 8 კითხვა სათითაოდ, მარტივიდან რთულისკენ — ნაწილი სიტუაციური იყოს („ბრაუზერში 502-ია, რას გააკეთებ?“). ყოველ პასუხზე შემიფასე და ამიხსენი. ბოლოს მითხარი, რა გავიმეორო. ქართულად.
+```
+
+```prompt API სერვერზე არ ირთვება
+ჩემი ASP.NET Core API Ubuntu სერვერზე systemd სერვისად არ ირთვება ან 502-ს ვიღებ. დამეხმარე მიზეზის პოვნაში ნაბიჯ-ნაბიჯ, მარტივად და ქართულად. ჩემი unit ფაილი: [აქ, პაროლის გარეშე]. `systemctl status` შედეგი: [აქ]. `journalctl -u <სერვისი> -n 30` შედეგი: [აქ]
+```
+  </aside>
+</section>
+<lecture-homework/>

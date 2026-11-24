@@ -1,0 +1,635 @@
+<!-- =========================================================
+     ლექცია 9 — დომენი · DNS ჩანაწერები · server_name · HTTPS (certbot) · კონფიგურაცია და საიდუმლოებები
+     ========================================================= -->
+
+<!-- 1. TITLE -->
+<section class="slide" data-section="შესავალი">
+  <div class="vcenter" style="max-width:860px">
+    <div class="kicker in">DevOps Crash Course · ლექცია 9</div>
+    <h1 class="in" style="--d:.15s">დომენი, <span class="grad">HTTPS</span> 🔒<br>და საიდუმლოებები</h1>
+    <p class="lead in mt" style="--d:.35s">IP-ები და port-ები → ნამდვილი, დაცული მისამართი</p>
+  </div>
+  <div class="abs" style="right:90px;top:220px">
+    <svg viewBox="0 0 480 300" width="480" height="300">
+      <g class="in" style="--d:.5s"><rect x="10" y="20" width="460" height="70" rx="14" fill="#3b1218" stroke="#ef4444" stroke-width="3"/><text x="240" y="64" text-anchor="middle" class="tr b mono" font-size="20">⚠ http://164.90.12.34:8081</text></g>
+      <g class="in fade" style="--d:.8s"><path d="M240 95 V150" stroke="#22c55e" stroke-width="4" class="flow"/></g>
+      <g class="in" style="--d:1.1s"><rect x="10" y="155" width="460" height="70" rx="14" fill="#123321" stroke="#22c55e" stroke-width="3"/><text x="240" y="199" text-anchor="middle" class="tg b mono" font-size="22">🔒 https://api.giorgi.ge</text></g>
+    </svg>
+  </div>
+</section>
+
+<lecture-review/>
+<lecture-homework-review/>
+<lecture-intro/>
+
+<!-- ================= PART 1: DOMAIN ================= -->
+<section class="slide divider" data-section="1 · დომენი">
+  <div class="vcenter">
+    <div class="kicker in">ნაწილი 1</div>
+    <h1 class="in" style="--d:.1s"><span class="grad">დომენი</span> და DNS 🌐</h1>
+    <p class="lead mt in" style="--d:.3s">სერვერს სახელს ვაძლევთ</p>
+  </div>
+  <div class="big-num">01</div>
+  <aside class="study">
+## ნაწილი 1 · დომენი და DNS
+
+პირველ ლექციაზე ვთქვით: DNS — ინტერნეტის „მისამართების წიგნია“, სახელი → IP. დღეს ამ წიგნში ჩანაწერს თვითონ ვაკეთებთ.
+  </aside>
+</section>
+
+<section class="slide" data-section="1 · დომენი">
+  <div class="kicker">პრობლემა</div>
+  <h2>ახლა LMS ასე იხსნება: <span class="mono c-red" style="font-size:.8em">http://164.90.12.34:8081</span></h2>
+  <div class="grid3" style="gap:22px">
+    <div class="card accent in" style="--d:0.20s;--a:var(--red)"><h3>🧠 არავინ იმახსოვრებს</h3><p>IP და port — CV-ში ან კლიენტისთვის არ გამოდგება</p></div>
+    <div class="card accent in" style="--d:0.35s;--a:var(--red)"><h3>⚠ Not secure</h3><p>ბრაუზერი აფრთხილებს. მომხმარებელი ტოვებს გვერდს</p></div>
+    <div class="card accent in" style="--d:0.50s;--a:var(--red)"><h3>👀 ღია ტექსტი</h3><p>HTTP-ზე ლოგინი, პაროლი, JWT — ყველაფერი <b>დაუშიფრავად</b> მიდის</p></div>
+  </div>
+  <div class="card in mt2" style="--d:.7s;padding:18px 26px"><p class="mono" style="font-size:18px">☕ კაფეს Wi-Fi → POST /api/auth/login → {"email":"nino@mail.ge","password":"Nino2026!"}</p><p class="tiny mt">ვინც იმავე ქსელშია, შეუძლია ეს დაინახოს</p></div>
+  <aside class="study">
+### პრობლემა: `http://164.90.12.34:8081`
+
+ახლა ჩვენი სამი საიტი ასე იხსნება:
+
+| საიტი | მისამართი |
+|---|---|
+| portfolio | `http://164.90.12.34` |
+| Angular | `http://164.90.12.34:8080` |
+| LMS API | `http://164.90.12.34:8081` |
+
+სამი პრობლემა:
+
+- 🧠 **არავინ დაიმახსოვრებს** — CV-ში, კლიენტთან ან მეგობართან ასეთ ლინკს ვერ გაუგზავნი.
+- ⚠ **Not secure** — ბრაუზერი მისამართის გვერდით აფრთხილებს, ზოგი ფუნქცია (მაგ. Secure cookie) HTTP-ზე საერთოდ არ მუშაობს.
+- 👀 **ღია ტექსტი** — HTTP-ზე ყველაფერი, მათ შორის ლოგინი და პაროლი, დაუშიფრავად მიდის. კაფეს Wi-Fi-ში ვინც იმავე ქსელშია, შეუძლია ეს მოთხოვნა დაინახოს.
+
+გამოსავალი: **დომენი** (სახელი) + **HTTPS** (დაშიფვრა).
+  </aside>
+</section>
+
+<section class="slide" data-section="1 · დომენი">
+  <div class="kicker">ნაბიჯი 1 · დომენი</div>
+  <h2>დომენის <span class="c-asp">ყიდვა</span> და DNS <span class="c-net">ჩანაწერები</span></h2>
+  <div class="grid2" style="grid-template-columns:1fr 1.15fr">
+    <div class="col">
+      <div class="card accent in left" style="--d:0.20s;--a:var(--asp)"><h3>🛒 registrar</h3><p>დომენი წლიურად ქირავდება (~$10/წელი <code class="i">.com</code>-ზე). <code class="i">.ge</code> — ქართულ registrar-თან</p></div>
+      <div class="card in left" style="--d:0.35s"><p class="tiny">💸 უფასო ვარიანტი სწავლისთვის: ქვედომენის სერვისები (მაგ. DuckDNS) — HTTPS-იც იმუშავებს</p></div>
+    </div>
+    <table class="t in" style="--d:0.50s;font-size:20px">
+      <tr><th>Type</th><th>Name</th><th>Value</th><th>რა იქნება</th></tr>
+      <tr><td class="mono">A</td><td class="mono">@</td><td class="mono">164.90.12.34</td><td><code class="i">giorgi.ge</code></td></tr>
+      <tr><td class="mono">CNAME</td><td class="mono">www</td><td class="mono">giorgi.ge</td><td><code class="i">www.giorgi.ge</code></td></tr>
+      <tr><td class="mono">A</td><td class="mono">app</td><td class="mono">164.90.12.34</td><td>Angular</td></tr>
+      <tr><td class="mono">A</td><td class="mono">api</td><td class="mono">164.90.12.34</td><td>LMS API</td></tr>
+    </table>
+  </div>
+  <code-block lang="console" cls="in mt" title="WSL" style="--d:0.70s">
+$ dig +short api.giorgi.ge
+164.90.12.34
+  </code-block>
+  <aside class="study">
+### ნაბიჯი 1 · დომენის ყიდვა და DNS ჩანაწერები
+
+**დომენი** ყიდვით კი არა, **ქირით** იღება — წლიურად, **registrar**-თან (დომენების რეგისტრატორი). `.com`-ის ფასი დაახლოებით $10 წელიწადში; `.ge` — ქართულ registrar-თან.
+
+```tip
+სწავლისთვის არის უფასო ვარიანტიც — სერვისები, რომლებიც უფასო ქვედომენს გაძლევენ (მაგ. DuckDNS: `giorgi.duckdns.org`). ყველაფერი, რასაც დღეს ვაკეთებთ, HTTPS-ის ჩათვლით, მასზეც მუშაობს.
+```
+
+registrar-ის (ან DNS პროვაიდერის) panel-ში ვამატებთ **DNS ჩანაწერებს**:
+
+| Type | Name | Value | შედეგი |
+|---|---|---|---|
+| `A` | `@` | `164.90.12.34` | `giorgi.ge` → სერვერი (portfolio) |
+| `CNAME` | `www` | `giorgi.ge` | `www.giorgi.ge` → იგივე, რაც `giorgi.ge` |
+| `A` | `app` | `164.90.12.34` | `app.giorgi.ge` → Angular |
+| `A` | `api` | `164.90.12.34` | `api.giorgi.ge` → LMS API |
+
+- **A** — სახელი → **IP** მისამართი.
+- **CNAME** — სახელი → **სხვა სახელი**; IP-ს DNS მერე თვითონ პოულობს.
+- `@` — თვითონ დომენი, ქვედომენის გარეშე.
+- **TTL** — რამდენ ხანს ინახავენ სხვა სერვერები ამ პასუხს ქეშში (ნაგულისხმევი მნიშვნელობა საკმარისია).
+
+ოთხივე სახელი **ერთ** სერვერზე მიდის. როგორ გაარჩევს Nginx, რომელი საიტი აჩვენოს — შემდეგ სლაიდზე.
+
+```console WSL
+$ dig +short api.giorgi.ge
+164.90.12.34
+```
+
+ახალი ჩანაწერი რამდენიმე წუთში (ზოგჯერ — საათებში) ვრცელდება. სანამ `dig` IP-ს არ დააბრუნებს, HTTPS-ზე არ გადავდივართ.
+  </aside>
+</section>
+
+<section class="slide" data-section="1 · დომენი">
+  <div class="kicker">ნაბიჯი 2 · server_name</div>
+  <h2>ერთი IP, ერთი port — <span class="c-mvc">სამი საიტი</span></h2>
+  <div class="grid2" style="grid-template-columns:1.1fr 1fr">
+    <div class="col">
+      <code-block lang="nginx" cls="sm in" title="sites-available/portfolio" style="--d:0.20s">
+server {
+    listen 80 default_server;
+    server_name giorgi.ge www.giorgi.ge;
+    root /var/www/portfolio;
+    ...
+}
+      </code-block>
+      <code-block lang="nginx" cls="sm in" title="sites-available/app" style="--d:0.35s">
+server {
+    listen 80;                  # 8080 → 80
+    server_name app.giorgi.ge;
+    root /var/www/app;
+    ...
+}
+      </code-block>
+      <code-block lang="nginx" cls="sm in" title="sites-available/lms-api" style="--d:0.50s">
+server {
+    listen 80;                  # 8081 → 80
+    server_name api.giorgi.ge;
+    location / { proxy_pass http://127.0.0.1:5000; ... }
+}
+      </code-block>
+    </div>
+    <div class="col">
+      <svg viewBox="0 0 560 300" width="560" height="300" class="in" style="--d:.7s">
+        <rect x="10" y="110" width="170" height="80" rx="14" fill="#0e2a33" stroke="#22d3ee" stroke-width="3"/><text x="95" y="145" text-anchor="middle" class="ta b" font-size="16">🌐 ბრაუზერი</text><text x="95" y="172" text-anchor="middle" class="tm mono" font-size="13">Host: api.giorgi.ge</text>
+        <path d="M180 150 H260" stroke="#22c55e" stroke-width="3" class="flow"/>
+        <rect x="260" y="105" width="110" height="90" rx="14" fill="#123321" stroke="#22c55e" stroke-width="3"/><text x="315" y="155" text-anchor="middle" class="tg b" font-size="17">Nginx</text>
+        <path d="M370 130 L420 50" stroke="#353b6b" stroke-width="2"/><path d="M370 150 H420" stroke="#353b6b" stroke-width="2"/><path d="M370 170 L420 250" stroke="#f5a524" stroke-width="3" class="flow"/>
+        <text x="430" y="55" class="tm mono" font-size="15">giorgi.ge</text><text x="430" y="155" class="tm mono" font-size="15">app.giorgi.ge</text><text x="430" y="255" class="to b mono" font-size="15">api.giorgi.ge ✓</text>
+      </svg>
+      <div class="callout step" style="--a:var(--mvc)">ბრაუზერი ყოველ მოთხოვნაში აგზავნის <b>Host</b>-ს → Nginx ადარებს <code class="i">server_name</code>-ს</div>
+    </div>
+  </div>
+  <aside class="study">
+### ნაბიჯი 2 · server_name: ერთი IP, ერთი port — სამი საიტი
+
+აქამდე საიტებს **port-ებით** ვყოფდით (80, 8080, 8081). დომენებით ყველა 80-ზე (და მერე 443-ზე) იქნება — ბრაუზერი ყოველ მოთხოვნაში აგზავნის header-ს `Host: api.giorgi.ge`, და Nginx მას server block-ების `server_name`-ს ადარებს:
+
+```nginx sites-available/portfolio
+server {
+    listen 80 default_server;
+    server_name giorgi.ge www.giorgi.ge;
+    root /var/www/portfolio;
+    ...
+}
+```
+
+```nginx sites-available/app
+server {
+    listen 80;                  # იყო 8080
+    server_name app.giorgi.ge;
+    root /var/www/app;
+    ...
+}
+```
+
+```nginx sites-available/lms-api
+server {
+    listen 80;                  # იყო 8081
+    server_name api.giorgi.ge;
+    location / {
+        proxy_pass http://127.0.0.1:5000;
+        ...
+    }
+}
+```
+
+`default_server` — თუ `Host` არცერთ `server_name`-ს არ ემთხვევა (მაგ. ვინმემ პირდაპირ IP გახსნა), ეს block პასუხობს.
+
+```console Termius · lms-server
+$ sudo nginx -t && sudo systemctl reload nginx
+```
+
+`http://app.giorgi.ge`, `http://api.giorgi.ge/api/courses` — მუშაობს. port-ები 8080/8081 აღარ გვჭირდება — HTTPS-ის შემდეგ მათ ufw-დან წავშლით.
+  </aside>
+</section>
+
+<!-- ================= PART 2: HTTPS ================= -->
+<section class="slide divider" data-section="2 · HTTPS">
+  <div class="vcenter">
+    <div class="kicker in">ნაწილი 2</div>
+    <h1 class="in" style="--d:.1s"><span class="grad">HTTPS</span> — უფასოდ 🔒</h1>
+    <p class="lead mt in" style="--d:.3s">Let's Encrypt + certbot</p>
+  </div>
+  <div class="big-num">02</div>
+  <aside class="study">
+## ნაწილი 2 · HTTPS — უფასოდ
+  </aside>
+</section>
+
+<section class="slide" data-section="2 · HTTPS">
+  <div class="kicker">როგორ მუშაობს</div>
+  <h2>სერტიფიკატი — <span class="c-mvc">„პასპორტი“</span> დომენისთვის</h2>
+  <div class="grid3" style="gap:22px">
+    <div class="card accent in" style="--d:0.20s;--a:var(--mvc)"><h3>🔐 დაშიფვრა</h3><p>ბრაუზერი და სერვერი იმ კავშირს შიფრავენ — გზაში არავინ წაიკითხავს</p></div>
+    <div class="card accent in" style="--d:0.35s;--a:var(--net)"><h3>🪪 სერტიფიკატი</h3><p>ადასტურებს: „ეს ნამდვილად <b>giorgi.ge</b>-ის სერვერია“. გასცემს სანდო ორგანიზაცია</p></div>
+    <div class="card accent in" style="--d:0.50s;--a:var(--asp)"><h3>🆓 Let's Encrypt</h3><p>უფასო სერტიფიკატები, <b>90 დღე</b>, ავტომატური განახლება — <b>certbot</b>-ით</p></div>
+  </div>
+  <div class="callout step mt2" style="--a:var(--net);font-size:22px">ჩვენთან HTTPS <b>Nginx-ზე</b> მთავრდება: ბრაუზერი ⇄ 🔒 ⇄ Nginx ⇄ http ⇄ API (სერვერის შიგნით)</div>
+  <aside class="study">
+### HTTPS: სერტიფიკატი — „პასპორტი“ დომენისთვის
+
+**HTTPS** = HTTP + დაშიფვრა (TLS). ორ რამეს აკეთებს:
+
+- 🔐 **დაშიფვრა** — ბრაუზერსა და სერვერს შორის ყველაფერი დაშიფრულია; კაფეს Wi-Fi-ში ვერავინ წაიკითხავს.
+- 🪪 **ავთენტიკაცია** — **სერტიფიკატი** ადასტურებს, რომ ეს ნამდვილად `giorgi.ge`-ის სერვერია და არა ყალბი. სერტიფიკატს გასცემს ორგანიზაცია, რომელსაც ბრაუზერები ენდობიან (Certificate Authority).
+
+**Let's Encrypt** — უფასო Certificate Authority. მისი სერტიფიკატები **90 დღე** მოქმედებს და **certbot** მათ ავტომატურად აახლებს.
+
+**სად მთავრდება HTTPS?** ჩვენთან — **Nginx-ზე**: ბრაუზერი ⇄ HTTPS ⇄ Nginx ⇄ HTTP ⇄ API. Nginx-სა და API-ს შორის კავშირი სერვერის შიგნითაა (`127.0.0.1`), ამიტომ დაშიფვრა იქ არ სჭირდება. ამას **TLS termination** ჰქვია — და ეს reverse proxy-ს ერთ-ერთი მთავარი სარგებელია (მე-6 ლექცია).
+  </aside>
+</section>
+
+<section class="slide" data-section="2 · HTTPS">
+  <div class="kicker">ვაკეთებთ ერთად · ნაბიჯი 3</div>
+  <h2><span class="c-mvc">certbot --nginx</span> — ერთი ბრძანება</h2>
+  <div class="grid2" style="grid-template-columns:1.25fr 1fr">
+    <code-block lang="console" cls="sm in" title="Termius · lms-server" style="--d:0.20s">
+$ sudo apt install -y certbot python3-certbot-nginx
+$ sudo ufw allow 'Nginx Full'
+$ sudo ufw delete allow 'Nginx HTTP'
+
+$ sudo certbot --nginx -d giorgi.ge -d www.giorgi.ge \
+                       -d app.giorgi.ge -d api.giorgi.ge
+Enter email address: giorgi@mail.ge
+(Y)es/(N)o: Y                          ← პირობები
+Requesting a certificate for giorgi.ge and 3 more domains
+Successfully received certificate.
+Deploying certificate to VirtualHost /etc/nginx/sites-enabled/portfolio
+...
+Congratulations! You have successfully enabled HTTPS
+
+$ sudo certbot renew --dry-run
+Congratulations, all simulated renewals succeeded
+    </code-block>
+    <div class="col">
+      <div class="method-card step" style="--a:var(--net)"><span class="m" style="min-width:44px">1️⃣</span><span class="t">ამოწმებს, რომ დომენი <b>შენს</b> სერვერზეა (port 80)</span></div>
+      <div class="method-card step" style="--a:var(--mvc)"><span class="m" style="min-width:44px">2️⃣</span><span class="t">იღებს სერტიფიკატს → <code class="i">/etc/letsencrypt/</code></span></div>
+      <div class="method-card step" style="--a:var(--asp)"><span class="m" style="min-width:44px">3️⃣</span><span class="t">Nginx-ს უმატებს <code class="i">listen 443 ssl</code> და <b>http → https</b></span></div>
+      <div class="method-card step" style="--a:var(--api)"><span class="m" style="min-width:44px">4️⃣</span><span class="t">timer — <b>ავტომატური</b> განახლება</span></div>
+    </div>
+  </div>
+  <aside class="study">
+### ნაბიჯი 3 · certbot --nginx
+
+```console Termius · lms-server
+$ sudo apt install -y certbot python3-certbot-nginx
+$ sudo ufw allow 'Nginx Full'          # 80 + 443
+$ sudo ufw delete allow 'Nginx HTTP'   # ძველი წესი — Nginx Full მას მოიცავს
+
+$ sudo certbot --nginx -d giorgi.ge -d www.giorgi.ge -d app.giorgi.ge -d api.giorgi.ge
+Enter email address: giorgi@mail.ge
+...
+Successfully received certificate.
+Deploying certificate to VirtualHost /etc/nginx/sites-enabled/portfolio
+...
+Congratulations! You have successfully enabled HTTPS
+```
+
+certbot ოთხ რამეს აკეთებს:
+
+1. **ამოწმებს**, რომ დომენი შენს სერვერზე მიდის: Let's Encrypt `http://<domain>/.well-known/...`-ზე მოითხოვს სპეციალურ ფაილს (ამიტომ port 80 ღია უნდა იყოს და DNS — მზად);
+2. **იღებს სერტიფიკატს** და ინახავს `/etc/letsencrypt/live/<domain>/`-ში;
+3. **ცვლის Nginx-ის კონფიგს**: ამატებს `listen 443 ssl`-ს, სერტიფიკატის გზებს და redirect-ს HTTP → HTTPS;
+4. **ავტომატურ განახლებას** აწყობს: systemd timer დღეში ორჯერ ამოწმებს და ვადის ამოწურვამდე 30 დღით ადრე აახლებს.
+
+```console Termius · lms-server
+$ sudo certbot renew --dry-run      # განახლების „რეპეტიცია“
+Congratulations, all simulated renewals succeeded
+$ systemctl list-timers | grep certbot
+```
+
+`https://giorgi.ge` 🔒, `https://app.giorgi.ge` 🔒, `https://api.giorgi.ge/api/courses` 🔒. `http://`-ით გახსნა ავტომატურად `https://`-ზე გადაგიყვანს.
+  </aside>
+</section>
+
+<section class="slide" data-section="2 · HTTPS">
+  <div class="kicker">რა შეცვალა certbot-მა</div>
+  <h2>Nginx-ის კონფიგი — <span class="c-asp">certbot-ის შემდეგ</span></h2>
+  <div class="grid2" style="grid-template-columns:1.2fr 1fr">
+    <code-block lang="nginx" cls="sm in" title="sites-available/lms-api" style="--d:0.20s">
+server {
+    server_name api.giorgi.ge;
+    location / { proxy_pass http://127.0.0.1:5000; ... }
+
+    listen 443 ssl; # managed by Certbot
+    ssl_certificate /etc/letsencrypt/live/giorgi.ge/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/giorgi.ge/privkey.pem;
+    include /etc/letsencrypt/options-ssl-nginx.conf;
+}
+
+server {
+    if ($host = api.giorgi.ge) {
+        return 301 https://$host$request_uri;
+    }
+    listen 80;
+    server_name api.giorgi.ge;
+    return 404;
+}
+    </code-block>
+    <div class="col">
+      <div class="card accent in right" style="--d:0.40s;--a:var(--mvc)"><h3>🔒 443</h3><p>პირველი block — HTTPS, სერტიფიკატით</p></div>
+      <div class="card accent in right" style="--d:0.55s;--a:var(--asp)"><h3>↪️ 301</h3><p>მეორე — HTTP-ზე მოსულს <b>გადაამისამართებს</b> HTTPS-ზე</p></div>
+      <div class="callout step" style="--a:var(--net)">ამიერიდან ამ ფაილებს ფრთხილად ვცვლით — <code class="i"># managed by Certbot</code> ხაზებს არ ვშლით</div>
+    </div>
+  </div>
+  <aside class="study">
+### რა შეცვალა certbot-მა
+
+certbot-მა server block-ი ორად გაყო:
+
+```nginx sites-available/lms-api (certbot-ის შემდეგ)
+server {
+    server_name api.giorgi.ge;
+    location / { proxy_pass http://127.0.0.1:5000; ... }
+
+    listen 443 ssl; # managed by Certbot
+    ssl_certificate /etc/letsencrypt/live/giorgi.ge/fullchain.pem; # managed by Certbot
+    ssl_certificate_key /etc/letsencrypt/live/giorgi.ge/privkey.pem; # managed by Certbot
+    include /etc/letsencrypt/options-ssl-nginx.conf; # managed by Certbot
+}
+
+server {
+    if ($host = api.giorgi.ge) {
+        return 301 https://$host$request_uri;
+    } # managed by Certbot
+    listen 80;
+    server_name api.giorgi.ge;
+    return 404; # managed by Certbot
+}
+```
+
+- პირველი block — **HTTPS** (port 443): სერტიფიკატი (`fullchain.pem`) და პირადი გასაღები (`privkey.pem`).
+- მეორე block — **HTTP** (port 80): ყველაფერს `301`-ით (მუდმივი redirect) HTTPS-ზე აგზავნის.
+
+```warn
+`privkey.pem` — სერტიფიკატის პირადი გასაღები: იგივე პრინციპი, რაც SSH-ის პირადი გასაღებისთვის. certbot მას დახურული უფლებებით ინახავს — არ დააკოპირო და არ შეცვალო. კონფიგში `# managed by Certbot` ხაზებს არ ვშლით.
+```
+  </aside>
+</section>
+
+<section class="slide" data-section="☕ შესვენება">
+  <div class="center">
+    <div class="big-emoji float" style="font-size:120px">☕</div>
+    <h1 class="mt">შესვენება</h1>
+    <p class="lead mt">10 წუთი · მერე — საიდუმლოებები და გარემოები</p>
+  </div>
+</section>
+
+<!-- ================= PART 3: SECRETS ================= -->
+<section class="slide divider" data-section="3 · საიდუმლოებები">
+  <div class="vcenter">
+    <div class="kicker in">ნაწილი 3</div>
+    <h1 class="in" style="--d:.1s">კონფიგი და <span class="grad">საიდუმლოებები</span> 🔑</h1>
+    <p class="lead mt in" style="--d:.3s">რა სად ინახება — შენთან და სერვერზე</p>
+  </div>
+  <div class="big-num">03</div>
+  <aside class="study">
+## ნაწილი 3 · კონფიგი და საიდუმლოებები
+
+LMS-ს ორი საიდუმლო აქვს: ბაზის პაროლი და — ავთენტიკაციის შემდეგ — JWT-ის ხელმოწერის გასაღები. ვინც JWT გასაღებს გაიგებს, ნებისმიერი user-ის სახელით „ტოკენს დაბეჭდავს“.
+  </aside>
+</section>
+
+<section class="slide" data-section="3 · საიდუმლოებები">
+  <div class="kicker">კონფიგურაციის რიგი</div>
+  <h2>ვინ ვის <span class="c-asp">ფარავს</span> ASP.NET Core-ში</h2>
+  <div class="grid2" style="grid-template-columns:1.1fr 1fr">
+    <div class="col">
+      <div class="method-card in left" style="--d:.2s;--a:var(--muted)"><span class="m mono" style="min-width:44px">1</span><span class="t"><code class="i">appsettings.json</code> — Git-ში · <b>საიდუმლოს გარეშე</b></span></div>
+      <div class="method-card in left" style="--d:.35s;--a:var(--net)"><span class="m mono" style="min-width:44px">2</span><span class="t"><code class="i">appsettings.{Environment}.json</code> — Development / Production</span></div>
+      <div class="method-card in left" style="--d:.5s;--a:var(--asp)"><span class="m mono" style="min-width:44px">3</span><span class="t"><b>user-secrets</b> — მხოლოდ Development, შენს კომპიუტერზე</span></div>
+      <div class="method-card in left" style="--d:.65s;--a:var(--mvc)"><span class="m mono" style="min-width:44px">4</span><span class="t"><b>გარემოს ცვლადები</b> — <code class="i">Jwt__Key</code> (სერვერი: <code class="i">.env</code> → Compose)</span></div>
+    </div>
+    <div class="col">
+      <code-block lang="json" cls="in" title="appsettings.json — Git-ში" style="--d:0.80s">
+{
+  "Jwt": {
+    "Issuer": "https://api.giorgi.ge",
+    "Key": ""
+  }
+}
+      </code-block>
+      <div class="callout step" style="--a:var(--mvc)">ქვემოთ მყოფი <b>ფარავს</b> ზემოთ მყოფს. საიდუმლო — მხოლოდ <b>3</b>-ში ან <b>4</b>-ში</div>
+    </div>
+  </div>
+  <aside class="study">
+### კონფიგურაციის რიგი: ვინ ვის ფარავს
+
+ASP.NET Core კონფიგურაციას რამდენიმე წყაროდან კითხულობს, ამ რიგით — **ყოველი შემდეგი წინას ფარავს**:
+
+1. `appsettings.json` — Git-შია, ამიტომ მასში **საიდუმლო არ იწერება** (მხოლოდ ცარიელი ადგილი ან საჯარო პარამეტრები);
+2. `appsettings.{Environment}.json` — `Development` ან `Production`, ცვლადის `ASPNETCORE_ENVIRONMENT` მიხედვით;
+3. **user-secrets** — მხოლოდ `Development`-ში, შენს კომპიუტერზე, პროექტის საქაღალდის **გარეთ**;
+4. **გარემოს ცვლადები** — `Jwt__Key`, `ConnectionStrings__Default` (`__` = `:`).
+
+```json appsettings.json — Git-ში
+{
+  "Jwt": {
+    "Issuer": "https://api.giorgi.ge",
+    "Key": ""
+  }
+}
+```
+
+კოდი ყოველთვის ერთნაირად კითხულობს — `builder.Configuration["Jwt:Key"]` — და არ აინტერესებს, საიდან მოვიდა მნიშვნელობა.
+
+| სად | საიდუმლოებები | როგორ |
+|---|---|---|
+| შენი კომპიუტერი | user-secrets | `dotnet user-secrets set` |
+| სერვერი | გარემოს ცვლადები | `.env` → `compose.yaml` → კონტეინერი |
+| Git | **არასოდეს** | `.gitignore`, ცარიელი მნიშვნელობები |
+  </aside>
+</section>
+
+<section class="slide" data-section="3 · საიდუმლოებები">
+  <div class="kicker">ნაბიჯი 4 · შენთან და სერვერზე</div>
+  <h2><span class="c-asp">user-secrets</span> შენთან · <span class="c-mvc">.env</span> სერვერზე</h2>
+  <div class="grid2" style="grid-template-columns:1fr 1fr">
+    <div class="col">
+      <code-block lang="console" cls="sm in" title="შენთან · LMS-ის პროექტი" style="--d:0.20s">
+$ dotnet user-secrets init
+$ dotnet user-secrets set "Jwt:Key" "dev-only-key-at-least-32-chars-long!!"
+$ dotnet user-secrets list
+Jwt:Key = dev-only-key-at-least-32-chars-long!!
+      </code-block>
+      <div class="card in left" style="--d:.35s;padding:14px 20px"><p class="tiny">ინახება <code class="i">%APPDATA%\Microsoft\UserSecrets\</code> (Linux/Mac: <code class="i">~/.microsoft/usersecrets/</code>) — <b>რეპოს გარეთ</b></p></div>
+    </div>
+    <div class="col">
+      <code-block lang="console" cls="sm in" title="Termius · lms-server · ~/lms" style="--d:0.50s">
+$ openssl rand -base64 64 | tr -d '\n'
+Xq9v...68 სიმბოლო...Lw==
+$ nano .env
+DB_PASSWORD=h7Kq2-xR9v-Lm4Z
+JWT_KEY=Xq9v...Lw==
+ASPNETCORE_ENVIRONMENT=Production
+      </code-block>
+      <code-block lang="yaml" cls="sm in" title="compose.yaml — api.environment" style="--d:0.65s">
+Jwt__Key: ${JWT_KEY}
+      </code-block>
+    </div>
+  </div>
+  <div class="callout step mt" style="--a:var(--red);font-size:22px">🔑 გასაღები გაჟონა? — <b>ახალი გასაღები</b> → <code class="i">up -d</code>. ყველა ძველი ტოკენი ბათილდება — ასეც უნდა იყოს</div>
+  <aside class="study">
+### ნაბიჯი 4 · user-secrets შენთან, .env სერვერზე
+
+**შენს კომპიუტერზე** — `dotnet user-secrets`:
+
+```console LMS-ის პროექტი
+$ dotnet user-secrets init
+$ dotnet user-secrets set "Jwt:Key" "dev-only-key-at-least-32-chars-long!!"
+$ dotnet user-secrets list
+Jwt:Key = dev-only-key-at-least-32-chars-long!!
+```
+
+`init` `.csproj`-ში ამატებს `UserSecretsId`-ს, თვითონ საიდუმლოებები კი ინახება **რეპოს გარეთ**: Windows-ზე `%APPDATA%\Microsoft\UserSecrets\<id>\secrets.json`. Git-ში შემთხვევით ვერ მოხვდება. ASP.NET Core მათ Development-ში ავტომატურად კითხულობს.
+
+**სერვერზე** — ძლიერი, შემთხვევითი გასაღები:
+
+```console Termius · lms-server · ~/lms
+$ openssl rand -base64 64 | tr -d '\n'
+Xq9v...Lw==
+$ nano .env
+```
+
+```ini .env (სერვერზე)
+DB_PASSWORD=h7Kq2-xR9v-Lm4Z
+JWT_KEY=Xq9v...Lw==
+ASPNETCORE_ENVIRONMENT=Production
+```
+
+```yaml compose.yaml — api.environment
+Jwt__Key: ${JWT_KEY}
+```
+
+```console Termius · lms-server
+$ docker compose up -d      # Compose ხედავს შეცვლილ env-ს და api-ს თავიდან ქმნის
+```
+
+```warn
+**გასაღები გაჟონა** (შემთხვევით commit-ში, ჩატში, სკრინშოტზე)? შეცვალე: ახალი `openssl rand` → `.env` → `up -d`. ყველა ძველი JWT ტოკენი ბათილდება და user-ები ხელახლა შევლენ — ეს სწორი შედეგია. ბაზის პაროლის შეცვლა კი ბაზაშიც სჭირდება (`ALTER USER lms WITH PASSWORD '…';`).
+```
+  </aside>
+</section>
+
+<section class="slide" data-section="3 · საიდუმლოებები">
+  <div class="kicker">ნაბიჯი 5 · proxy-ს უკან</div>
+  <h2>API-ს ჰგონია, რომ <span class="c-red">http</span>-ია</h2>
+  <div class="grid2" style="grid-template-columns:1.1fr 1fr">
+    <div class="col">
+      <svg viewBox="0 0 680 150" width="680" height="150" class="in" style="--d:.2s">
+        <rect x="5" y="40" width="150" height="70" rx="12" fill="#0e2a33" stroke="#22d3ee" stroke-width="3"/><text x="80" y="82" text-anchor="middle" class="ta b" font-size="16">🌐 ბრაუზერი</text>
+        <path d="M155 75 H265" stroke="#22c55e" stroke-width="3" class="flow"/><text x="210" y="62" text-anchor="middle" class="tg b mono" font-size="15">https 🔒</text>
+        <rect x="265" y="40" width="140" height="70" rx="12" fill="#123321" stroke="#22c55e" stroke-width="3"/><text x="335" y="82" text-anchor="middle" class="tg b" font-size="16">Nginx</text>
+        <path d="M405 75 H515" stroke="#f5a524" stroke-width="3" class="flow"/><text x="460" y="62" text-anchor="middle" class="to b mono" font-size="15">http</text><text x="460" y="138" text-anchor="middle" class="tm mono" font-size="13">X-Forwarded-Proto: https</text>
+        <rect x="515" y="40" width="160" height="70" rx="12" fill="#33240b" stroke="#f5a524" stroke-width="3"/><text x="595" y="82" text-anchor="middle" class="to b" font-size="16">⚙️ API</text>
+      </svg>
+      <div class="problem step" style="display:block">Request.Scheme = <b>http</b> · RemoteIp = Docker-ის IP — <b>ყველა მომხმარებლის</b></div>
+    </div>
+    <div class="col">
+      <code-block lang="yaml" cls="in" title="compose.yaml — api.environment" style="--d:0.50s">
+ASPNETCORE_FORWARDEDHEADERS_ENABLED: "true"
+      </code-block>
+      <div class="solve step" style="display:block">Request.Scheme = <b>https</b> · RemoteIp = მომხმარებლის <b>ნამდვილი</b> IP</div>
+      <div class="callout step" style="--a:var(--net)">Nginx ამ header-ებს მე-6 ლექციიდან აგზავნის — ახლა API მათ <b>კითხულობს</b></div>
+    </div>
+  </div>
+  <aside class="study">
+### ნაბიჯი 5 · proxy-ს უკან: API-ს ჰგონია, რომ http-ია
+
+HTTPS **Nginx-ზე** მთავრდება (TLS termination). API-მდე მოთხოვნა უკვე `http`-ით მიდის, Docker-ის შიდა მისამართიდან. ამიტომ API-ისთვის:
+
+- `Request.Scheme` = `http` — აპის მიერ შექმნილი ლინკები და redirect-ები `http://`-ით იქნება;
+- `RemoteIpAddress` = Docker-ის შიდა IP — ლოგებში ყველა მომხმარებელი ერთი IP-დან ჩანს.
+
+Nginx ნამდვილ მონაცემებს header-ებით გადასცემს (მე-6 ლექციიდან გვაქვს): `X-Forwarded-Proto: https` და `X-Forwarded-For: <მომხმარებლის IP>`. API-მ ისინი უნდა **წაიკითხოს** — ამას ASP.NET Core-ის **Forwarded Headers** აკეთებს. ერთი გარემოს ცვლადით:
+
+```yaml compose.yaml — api.environment
+ASPNETCORE_FORWARDEDHEADERS_ENABLED: "true"
+```
+
+ეს ცვლადი რთავს Forwarded Headers-ს `X-Forwarded-For`-ისთვის და `X-Forwarded-Proto`-სთვის, და ენდობა proxy-ს Docker-ის ქსელიდანაც. ახლა `Request.Scheme` = `https`, IP — მომხმარებლის ნამდვილი.
+
+```note
+ეს ცვლადი სწორია, როცა API-ზე მხოლოდ Nginx-ის გავლით მიდიან — ჩვენთან ასეა: port `127.0.0.1`-ზეა გამოტანილი (მე-8 ლექცია). თუ API ინტერნეტში პირდაპირ იქნებოდა ღია, ვინმე ამ header-ებს გააყალბებდა.
+```
+  </aside>
+</section>
+
+<section class="slide" data-section="შეჯამება">
+  <div class="kicker">შპარგალკა</div>
+  <h2>დომენი · HTTPS · <span class="c-api">საიდუმლოებები</span></h2>
+  <div class="grid3" style="gap:22px">
+    <div class="card accent in" style="--d:0.20s;--a:var(--net)"><h3>🌐 DNS + Nginx</h3><p class="mono" style="font-size:16px;line-height:1.85">A @ / api / app → IP<br>CNAME www → @<br>dig +short domain<br>server_name domain;</p></div>
+    <div class="card accent in" style="--d:0.35s;--a:var(--mvc)"><h3>🔒 HTTPS</h3><p class="mono" style="font-size:16px;line-height:1.85">apt install certbot<br>  python3-certbot-nginx<br>ufw allow 'Nginx Full'<br>certbot --nginx -d …<br>certbot renew --dry-run</p></div>
+    <div class="card accent in" style="--d:0.50s;--a:var(--asp)"><h3>🔑 საიდუმლოებები</h3><p class="mono" style="font-size:16px;line-height:1.85">dotnet user-secrets set<br>openssl rand -base64 64<br>.env → ${JWT_KEY}<br>Jwt__Key<br>FORWARDEDHEADERS_ENABLED</p></div>
+  </div>
+  <aside class="study">
+### შპარგალკა
+
+**🌐 დომენი და Nginx**
+
+| ნაბიჯი | როგორ |
+|---|---|
+| DNS | `A @ → IP`, `CNAME www → @`, `A api → IP`, `A app → IP` |
+| შემოწმება | `dig +short api.giorgi.ge` |
+| Nginx | `listen 80;` + `server_name api.giorgi.ge;` → `nginx -t` → `reload` |
+
+**🔒 HTTPS**
+
+```console Termius · lms-server
+$ sudo apt install -y certbot python3-certbot-nginx
+$ sudo ufw allow 'Nginx Full' && sudo ufw delete allow 'Nginx HTTP'
+$ sudo certbot --nginx -d giorgi.ge -d www.giorgi.ge -d app.giorgi.ge -d api.giorgi.ge
+$ sudo certbot renew --dry-run
+```
+
+**🔑 საიდუმლოებები**
+
+| სად | რა |
+|---|---|
+| Git (`appsettings.json`) | მხოლოდ არასაიდუმლო; `"Key": ""` |
+| შენთან | `dotnet user-secrets set "Jwt:Key" "…"` |
+| სერვერზე | `.env` (`chmod 600`) → `compose.yaml`: `Jwt__Key: ${JWT_KEY}` |
+| გაჟონვისას | ახალი გასაღები → `docker compose up -d` |
+
+**proxy-ს უკან:** `ASPNETCORE_FORWARDEDHEADERS_ENABLED: "true"` — `Request.Scheme` = `https`, ნამდვილი IP.
+  </aside>
+</section>
+
+<lecture-classwork/>
+<lecture-check/>
+
+<section class="slide" data-section="შეჯამება">
+  <div class="kicker">შეჯამება</div>
+  <h2>დღეს ვისწავლეთ</h2>
+  <div class="col" style="gap:28px;margin-top:30px">
+    <div class="row in left" style="--d:0.20s;gap:20px;align-items:center"><span class="big-emoji" style="font-size:42px">🌐</span><span style="font-size:28px"><b>DNS</b> — A (სახელი → IP), CNAME (სახელი → სახელი); <code class="i">dig</code></span></div>
+    <div class="row in left" style="--d:0.35s;gap:20px;align-items:center"><span class="big-emoji" style="font-size:42px">🏷️</span><span style="font-size:28px"><b>server_name</b> — ერთი IP, ერთი port, ბევრი საიტი</span></div>
+    <div class="row in left" style="--d:0.50s;gap:20px;align-items:center"><span class="big-emoji" style="font-size:42px">🔒</span><span style="font-size:28px"><b>HTTPS</b> — Let's Encrypt + certbot, 301 redirect, ავტომატური განახლება</span></div>
+    <div class="row in left" style="--d:0.65s;gap:20px;align-items:center"><span class="big-emoji" style="font-size:42px">🔑</span><span style="font-size:28px"><b>საიდუმლოებები</b> — user-secrets შენთან, .env სერვერზე, Git-ში არასოდეს</span></div>
+  </div>
+  <p class="lead in mt" style="--d:0.85s;text-align:center">შემდეგ ლექციაზე: <b>CI</b> — GitHub Actions ყოველ push-ზე ამოწმებს კოდს 🤖</p>
+  <aside class="study">
+## შეჯამება · დღეს ვისწავლეთ
+
+- 🌐 **დომენი და DNS** — დომენი registrar-თან ქირავდება; `A` ჩანაწერი სახელს IP-ს უკავშირებს, `CNAME` — სხვა სახელს; შემოწმება — `dig +short`.
+- 🏷️ **server_name** — ბრაუზერი `Host` header-ს აგზავნის, Nginx მის მიხედვით ირჩევს საიტს. port-ები 8080/8081 აღარ გვჭირდება.
+- 🔒 **HTTPS** — Let's Encrypt-ის უფასო სერტიფიკატი `certbot --nginx`-ით: ამოწმებს დომენს, ცვლის Nginx-ს (443 + 301 redirect), 90 დღეში ერთხელ თავისით აახლებს.
+- 🔑 **კონფიგურაცია და საიდუმლოებები** — `appsettings.json` → `appsettings.{Env}.json` → user-secrets → გარემოს ცვლადები; Git-ში საიდუმლო არასოდეს; JWT გასაღები — `openssl rand`; გაჟონვისას — ცვლა.
+- 🔁 **proxy-ს უკან** — `ASPNETCORE_FORWARDEDHEADERS_ENABLED=true`, რომ API-მ HTTPS და ნამდვილი IP დაინახოს.
+
+**შემდეგ ლექციაზე — CI:** დღემდე ყოველი განახლება ხელით იყო: `ssh` → `git pull` → `up`, და `main`-ში ისეთი კოდიც შეიძლება მოხვდეს, რომელიც არც კი იკომპილირდება. ორ ლექციაში ამას GitHub Actions-ს გადავცემთ: ჯერ ავტომატური შემოწმება (CI), მერე ავტომატური deploy (CD).
+
+```prompt გამოცდა მეცხრე ლექციაზე
+ვსწავლობ DevOps-ს. მეცხრე ლექციაზე გავიარეთ: დომენი და DNS (A, CNAME, @, TTL, dig), Nginx server_name ერთ IP-ზე რამდენიმე საიტისთვის, HTTPS (TLS, სერტიფიკატი, Let's Encrypt, certbot --nginx, 301 redirect, certbot renew), TLS termination Nginx-ზე, ASP.NET Core-ის კონფიგურაციის რიგი (appsettings, environment, user-secrets, გარემოს ცვლადები, Jwt__Key), .env სერვერზე, openssl rand, ASPNETCORE_FORWARDEDHEADERS_ENABLED.
+დამისვი 8 კითხვა სათითაოდ, მარტივიდან რთულისკენ — ნაწილი სიტუაციური იყოს („certbot ვერ ამოწმებს დომენს, რა შევამოწმო?“). ყოველ პასუხზე შემიფასე და ამიხსენი. ბოლოს მითხარი, რა გავიმეორო. ქართულად.
+```
+
+```prompt HTTPS ან დომენი არ მუშაობს
+ჩემი დომენი ან HTTPS Ubuntu სერვერზე (Nginx + certbot) არ მუშაობს. დამეხმარე პრობლემის პოვნაში ნაბიჯ-ნაბიჯ, მარტივად და ქართულად. დომენი: [აქ]. `dig +short <domain>` შედეგი: [აქ]. რას ხედავ ბრაუზერში ან certbot-ის შეცდომის ტექსტი: [აქ]
+```
+  </aside>
+</section>
+<lecture-homework/>

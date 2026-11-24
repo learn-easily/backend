@@ -1,0 +1,676 @@
+<!-- =========================================================
+     ლექცია 5 — Nginx · systemctl · rsync · server block · Angular SPA · ლოგები
+     ========================================================= -->
+
+<!-- 1. TITLE -->
+<section class="slide" data-section="შესავალი">
+  <div class="vcenter" style="max-width:860px">
+    <div class="kicker in">DevOps Crash Course · ლექცია 5</div>
+    <h1 class="in" style="--d:.15s"><span class="grad">Nginx</span> 🌐<br>საიტი შენს სერვერზე</h1>
+    <p class="lead in mt" style="--d:.35s">my-portfolio და Angular — GitHub-ის გარეშე</p>
+  </div>
+  <div class="abs" style="right:90px;top:170px">
+    <svg viewBox="0 0 480 440" width="480" height="440">
+      <g class="in" style="--d:.5s"><rect x="150" y="10" width="180" height="100" rx="18" fill="#0e2a33" stroke="#22d3ee" stroke-width="3"/><text x="240" y="58" text-anchor="middle" font-size="36">🌐</text><text x="240" y="92" text-anchor="middle" class="ta b" font-size="17">ბრაუზერი</text></g>
+      <g class="in fade" style="--d:.8s"><path d="M240 110 V160" stroke="#22c55e" stroke-width="3" class="flow"/></g>
+      <g class="in" style="--d:1s"><rect x="120" y="160" width="240" height="100" rx="18" fill="#123321" stroke="#22c55e" stroke-width="3"/><text x="240" y="205" text-anchor="middle" class="tg b" font-size="26">Nginx</text><text x="240" y="238" text-anchor="middle" class="tm mono" font-size="16">:80 · :8080</text></g>
+      <g class="in fade" style="--d:1.3s"><path d="M200 260 L110 320" stroke="#8b6cff" stroke-width="3" class="flow"/><path d="M280 260 L370 320" stroke="#f5a524" stroke-width="3" class="flow"/></g>
+      <g class="in" style="--d:1.5s"><rect x="10" y="320" width="200" height="100" rx="18" fill="#1d1640" stroke="#8b6cff" stroke-width="3"/><text x="110" y="365" text-anchor="middle" font-size="30">📄</text><text x="110" y="400" text-anchor="middle" class="tn b mono" font-size="15">/var/www/portfolio</text>
+        <rect x="270" y="320" width="200" height="100" rx="18" fill="#33240b" stroke="#f5a524" stroke-width="3"/><text x="370" y="365" text-anchor="middle" font-size="30">🅰️</text><text x="370" y="400" text-anchor="middle" class="to b mono" font-size="15">/var/www/app</text></g>
+    </svg>
+  </div>
+</section>
+
+<lecture-review/>
+<lecture-homework-review/>
+<lecture-intro/>
+
+<!-- ================= PART 1: NGINX ================= -->
+<section class="slide divider" data-section="1 · Nginx">
+  <div class="vcenter">
+    <div class="kicker in">ნაწილი 1</div>
+    <h1 class="in" style="--d:.1s">ვებ-სერვერი <span class="grad">Nginx</span></h1>
+    <p class="lead mt in" style="--d:.3s">ვინ პასუხობს ბრაუზერს?</p>
+  </div>
+  <div class="big-num">01</div>
+  <aside class="study">
+## ნაწილი 1 · ვებ-სერვერი Nginx
+
+სერვერი გვაქვს. ახლა გვჭირდება პროგრამა, რომელიც ბრაუზერს უპასუხებს.
+  </aside>
+</section>
+
+<section class="slide" data-section="1 · Nginx">
+  <div class="kicker">პრობლემა</div>
+  <h2><span class="mono">http://164.90.12.34</span> → <span class="c-red">არაფერი</span></h2>
+  <div class="grid2">
+    <div class="card accent in left" style="--d:0.20s;--a:var(--red)"><h3>🌐 ბრაუზერი</h3>
+      <p class="mono" style="font-size:20px">This site can't be reached<br>164.90.12.34 took too long to respond</p></div>
+    <code-block lang="console" cls="in" title="Termius · lms-server" style="--d:0.40s">
+$ sudo ss -tlnp
+State   Local Address:Port   Process
+LISTEN  0.0.0.0:22           sshd
+# port 80-ს არავინ უსმენს 🤷
+
+$ sudo ufw status
+OpenSSH   ALLOW   Anywhere
+# და 80 დახურულიც არის
+    </code-block>
+  </div>
+  <div class="callout step mt2" style="--a:var(--mvc);font-size:24px">გვჭირდება <b>ვებ-სერვერი</b>: პროგრამა, რომელიც port 80-ს უსმენს და ბრაუზერს ფაილებს აძლევს. GitHub Pages-ზე ამას GitHub აკეთებდა — ახლა <b>ჩვენ</b>.</div>
+  <aside class="study">
+### პრობლემა: სერვერის IP → არაფერი
+
+ბრაუზერში `http://164.90.12.34` გახსენი — „This site can't be reached“. წინა ლექციის ბრძანებებით ვხედავთ მიზეზს:
+
+```console Termius · lms-server
+$ sudo ss -tlnp
+State   Local Address:Port   Process
+LISTEN  0.0.0.0:22           sshd
+```
+
+port **80**-ს (HTTP) **არავინ უსმენს** — მხოლოდ SSH (22). თან `ufw` 80-ს ბლოკავს.
+
+გვჭირდება **ვებ-სერვერი** — პროგრამა, რომელიც port 80-ს უსმენს, ბრაუზერის მოთხოვნას იღებს და პასუხად ფაილს აძლევს. GitHub Pages-ზე ამას GitHub აკეთებდა — ახლა ამას ჩვენ ვაწყობთ.
+  </aside>
+</section>
+
+<section class="slide" data-section="1 · Nginx">
+  <div class="kicker">ვაკეთებთ ერთად · ნაბიჯი 1</div>
+  <h2>Nginx-ის <span class="c-api">დაყენება</span></h2>
+  <div class="grid2" style="grid-template-columns:1.15fr 1fr">
+    <code-block lang="console" cls="in" title="Termius · lms-server" style="--d:0.20s">
+$ sudo apt install -y nginx
+$ systemctl status nginx
+● nginx.service - A high performance web server
+     Active: active (running)
+
+$ sudo ufw allow 'Nginx HTTP'
+$ sudo ufw status
+OpenSSH      ALLOW   Anywhere
+Nginx HTTP   ALLOW   Anywhere
+    </code-block>
+    <div class="col">
+      <div class="card accent in right" style="--d:0.40s;--a:var(--mvc)"><h3>🌐 http://164.90.12.34</h3><p style="font-size:26px;margin-top:8px"><b>Welcome to nginx!</b></p><p class="tiny">If you see this page, the nginx web server is successfully installed…</p></div>
+      <div class="card in right" style="--d:0.55s"><h3>🟢 რა არის Nginx</h3><p>ყველაზე პოპულარული ვებ-სერვერი: სწრაფი, მსუბუქი. ფაილებს აძლევს — და შემდეგ ლექციაზე <b>API-საც</b> „წინ დაუდგება“</p></div>
+    </div>
+  </div>
+  <aside class="study">
+### ნაბიჯი 1 · Nginx-ის დაყენება
+
+**Nginx** („ენჯინ-ექს“) — ერთ-ერთი ყველაზე პოპულარული ვებ-სერვერი: სწრაფი, მსუბუქი, ათასობით მომხმარებელს ერთდროულად უძლებს. ის ფაილებს (HTML, CSS, JS, სურათები) აძლევს ბრაუზერს — და შემდეგ ლექციაზე API-ს წინაც დადგება, როგორც **reverse proxy**.
+
+```console Termius · lms-server
+$ sudo apt install -y nginx
+$ systemctl status nginx
+● nginx.service - A high performance web server and a reverse proxy server
+     Active: active (running)
+
+$ sudo ufw allow 'Nginx HTTP'      # port 80
+$ sudo ufw status
+OpenSSH      ALLOW   Anywhere
+Nginx HTTP   ALLOW   Anywhere
+```
+
+ბრაუზერში `http://<IP>` — **Welcome to nginx!** 🎉 სერვერმა ინტერნეტს პირველად უპასუხა.
+
+```note
+`'Nginx HTTP'` — ufw-ის მზა პროფილი (port 80). არის `'Nginx HTTPS'` (443) და `'Nginx Full'` (ორივე) — HTTPS-ს მე-9 ლექციაზე ჩავრთავთ.
+```
+  </aside>
+</section>
+
+<section class="slide" data-section="1 · Nginx">
+  <div class="kicker">სერვისები</div>
+  <h2><span class="c-api">systemctl</span> — ფონური პროგრამების მართვა</h2>
+  <div class="grid2" style="grid-template-columns:1fr 1fr">
+    <table class="t in" style="--d:0.20s;font-size:20px">
+      <tr><th>ბრძანება</th><th>რას აკეთებს</th></tr>
+      <tr><td class="mono">systemctl status nginx</td><td>მუშაობს? შეცდომები?</td></tr>
+      <tr><td class="mono">sudo systemctl stop nginx</td><td>გაჩერება</td></tr>
+      <tr><td class="mono">sudo systemctl start nginx</td><td>ჩართვა</td></tr>
+      <tr><td class="mono">sudo systemctl restart nginx</td><td>გამორთვა + ჩართვა</td></tr>
+      <tr><td class="mono">sudo systemctl reload nginx</td><td>კონფიგის თავიდან წაკითხვა, <b>გათიშვის გარეშე</b></td></tr>
+      <tr><td class="mono">sudo systemctl enable nginx</td><td>ჩაირთოს სერვერის ჩართვისას</td></tr>
+    </table>
+    <div class="col">
+      <div class="card accent in right" style="--d:0.40s;--a:var(--asp)"><h3>⚙️ სერვისი</h3><p>პროგრამა, რომელიც <b>ფონზე</b> მუშაობს — terminal-ის დახურვის შემდეგაც, reboot-ის შემდეგაც</p></div>
+      <div class="callout step" style="--a:var(--mvc)">შემდეგ ლექციაზე ჩვენს <b>API-საც</b> სერვისად ვაქცევთ — <code class="i">dotnet run</code>-ის პრობლემა სწორედ ეს იყო</div>
+    </div>
+  </div>
+  <aside class="study">
+### systemctl — ფონური პროგრამების მართვა
+
+Nginx **სერვისია** — პროგრამა, რომელიც ფონზე მუშაობს: terminal-ის დახურვის შემდეგაც და სერვერის გადატვირთვის შემდეგაც. Linux-ში სერვისებს **systemd** მართავს, ბრძანებით `systemctl`:
+
+| ბრძანება | რას აკეთებს |
+|---|---|
+| `systemctl status nginx` | მუშაობს? ბოლო ლოგის ხაზები |
+| `sudo systemctl stop nginx` | გაჩერება |
+| `sudo systemctl start nginx` | ჩართვა |
+| `sudo systemctl restart nginx` | გამორთვა და ჩართვა |
+| `sudo systemctl reload nginx` | კონფიგის თავიდან წაკითხვა — **მომხმარებლების გათიშვის გარეშე** |
+| `sudo systemctl enable nginx` | ავტომატურად ჩაირთოს სერვერის ჩართვისას |
+
+`apt install nginx` სერვისს თვითონ რთავს და `enable`-საც აკეთებს.
+
+```tip
+მე-2 ლექციაზე `dotnet run`-ის პრობლემა ვნახეთ: terminal დახურე — API გაჩერდა. შემდეგ ლექციაზე API-ს ჩვენს საკუთარ systemd სერვისად ვაქცევთ — ზუსტად ისე, როგორც Nginx მუშაობს.
+```
+  </aside>
+</section>
+
+<section class="slide" data-section="1 · Nginx">
+  <div class="kicker">სად რა დევს</div>
+  <h2>Nginx-ის <span class="c-asp">რუკა</span></h2>
+  <div class="grid2" style="grid-template-columns:1.1fr 1fr">
+    <code-block lang="plain" cls="big in" title="Termius · lms-server" style="--d:0.20s">
+/etc/nginx/
+├── nginx.conf           ← მთავარი (არ ვეხებით)
+├── sites-available/     ← ყველა საიტის კონფიგი
+│   ├── default
+│   └── portfolio        ← ჩვენ ვწერთ
+└── sites-enabled/       ← ჩართულები (symlink)
+    └── portfolio → ../sites-available/portfolio
+
+/var/www/portfolio/      ← საიტის ფაილები
+/var/log/nginx/          ← access.log · error.log
+    </code-block>
+    <div class="col">
+      <div class="card accent in right" style="--d:0.40s;--a:var(--net)"><h3>📚 available</h3><p>„თარო“ — ყველა კონფიგი, ჩართულიც და გამორთულიც</p></div>
+      <div class="card accent in right" style="--d:0.55s;--a:var(--mvc)"><h3>✅ enabled</h3><p>რასაც Nginx რეალურად კითხულობს — <b>მალსახმობები</b> (symlink)</p></div>
+      <div class="callout step" style="--a:var(--asp)">საიტის გამორთვა = symlink-ის წაშლა. კონფიგი თაროზე რჩება</div>
+    </div>
+  </div>
+  <aside class="study">
+### Nginx-ის რუკა: სად რა დევს
+
+```plain Termius · lms-server
+/etc/nginx/
+├── nginx.conf           ← მთავარი კონფიგი (არ ვეხებით)
+├── sites-available/     ← ყველა საიტის კონფიგი
+│   ├── default          ← „Welcome to nginx!“
+│   └── portfolio        ← ჩვენ ვწერთ
+└── sites-enabled/       ← ჩართული საიტები (symlink-ები)
+    └── portfolio → ../sites-available/portfolio
+
+/var/www/portfolio/      ← საიტის ფაილები
+/var/log/nginx/          ← access.log · error.log
+```
+
+- `sites-available/` — „თარო“: ყველა საიტის კონფიგი, ჩართულიც და გამორთულიც.
+- `sites-enabled/` — რასაც Nginx **რეალურად კითხულობს**. აქ ფაილები კი არა, **symlink**-ებია — მალსახმობები `sites-available`-ის ფაილებზე (როგორც Windows-ის Shortcut).
+
+საიტის გამოსართავად symlink-ს შლი — კონფიგი თაროზე რჩება და ერთი ბრძანებით ისევ ჩაირთვება.
+
+```terms
+symlink — ფაილის მალსახმობი: ln -s <რაზე> <სად>
+server block — ერთი საიტის კონფიგი Nginx-ში
+```
+  </aside>
+</section>
+
+<!-- ================= PART 2: PORTFOLIO ================= -->
+<section class="slide divider" data-section="2 · portfolio">
+  <div class="vcenter">
+    <div class="kicker in">ნაწილი 2</div>
+    <h1 class="in" style="--d:.1s">my-portfolio → <span class="grad">სერვერზე</span></h1>
+    <p class="lead mt in" style="--d:.3s">ატვირთვა · კონფიგი · ჩართვა</p>
+  </div>
+  <div class="big-num">02</div>
+  <aside class="study">
+## ნაწილი 2 · my-portfolio → სერვერზე
+
+სამი ნაბიჯი: ფაილების ატვირთვა, server block-ის დაწერა, ჩართვა.
+  </aside>
+</section>
+
+<section class="slide" data-section="2 · portfolio">
+  <div class="kicker">ნაბიჯი 2 · ატვირთვა</div>
+  <h2>ფაილები სერვერზე — <span class="c-mvc">rsync</span></h2>
+  <div class="grid2" style="grid-template-columns:1.2fr 1fr">
+    <div class="col">
+      <code-block lang="console" cls="in" title="Termius · lms-server" style="--d:0.20s">
+$ sudo mkdir -p /var/www/portfolio
+$ sudo chown -R $USER:$USER /var/www/portfolio
+      </code-block>
+      <code-block lang="console" cls="in" title="WSL · ~/my-portfolio" style="--d:0.40s">
+$ rsync -avz --delete --exclude .git ./ lms:/var/www/portfolio/
+sending incremental file list
+./
+index.html
+projects.html
+style.css
+sent 4,210 bytes  received 76 bytes
+      </code-block>
+    </div>
+    <div class="col">
+      <table class="t in" style="--d:0.60s;font-size:19px">
+        <tr><th>ოფცია</th><th>რას ნიშნავს</th></tr>
+        <tr><td class="mono">-a</td><td>ყველაფერი, უფლებებით</td></tr>
+        <tr><td class="mono">-v -z</td><td>აჩვენე · შეკუმშე</td></tr>
+        <tr><td class="mono">--delete</td><td>სერვერზეც წაშალე, რაც შენთან წაშალე</td></tr>
+        <tr><td class="mono">./ lms:/…/</td><td>საიდან → სად</td></tr>
+      </table>
+      <div class="callout step" style="--a:var(--net)">მეორედ — მხოლოდ <b>შეცვლილი</b> ფაილები მიდის</div>
+    </div>
+  </div>
+  <aside class="study">
+### ნაბიჯი 2 · ფაილები სერვერზე — rsync
+
+ჯერ სერვერზე საქაღალდე, რომელიც შენს user-ს ეკუთვნის (რომ ატვირთვას `sudo` არ სჭირდებოდეს):
+
+```console Termius · lms-server
+$ sudo mkdir -p /var/www/portfolio
+$ sudo chown -R $USER:$USER /var/www/portfolio
+```
+
+მერე **შენს კომპიუტერზე** (WSL), my-portfolio-ს საქაღალდეში:
+
+```console WSL · ~/my-portfolio
+$ rsync -avz --delete --exclude .git ./ lms:/var/www/portfolio/
+sending incremental file list
+./
+index.html
+projects.html
+style.css
+```
+
+| ოფცია | რას ნიშნავს |
+|---|---|
+| `-a` | archive: ყველა ფაილი და საქაღალდე, უფლებებით |
+| `-v` / `-z` | აჩვენე რა მიდის / შეკუმშე გზაში |
+| `--delete` | რაც შენთან წაშალე, სერვერზეც წაიშალოს |
+| `--exclude .git` | Git-ის ისტორია სერვერზე არ გვჭირდება |
+| `./` → `lms:/var/www/portfolio/` | საიდან → სად (`lms` — `~/.ssh/config`-იდან) |
+
+**rsync** SSH-ით მუშაობს და ჭკვიანია: მეორედ მხოლოდ **შეცვლილ** ფაილებს აგზავნის.
+
+```warn
+`./`-ის ბოლოს `/` მნიშვნელოვანია: `./` = საქაღალდის **შიგთავსი**. `--delete`-ით ფრთხილად: თუ დანიშნულება შეგეშალა, იქ არსებულ ფაილებს წაშლის.
+```
+  </aside>
+</section>
+
+<section class="slide" data-section="2 · portfolio">
+  <div class="kicker">ნაბიჯი 3 · server block</div>
+  <h2>Nginx-ს ვუხსნით: <span class="c-asp">სად არის საიტი</span></h2>
+  <div class="grid2" style="grid-template-columns:1.1fr 1fr">
+    <div class="col">
+      <code-block lang="console" cls="in" title="Termius · lms-server" style="--d:0.20s">
+$ sudo nano /etc/nginx/sites-available/portfolio
+      </code-block>
+      <code-block lang="nginx" cls="big in" title="sites-available/portfolio" style="--d:0.35s">
+server {
+    listen 80 default_server;
+    server_name _;
+
+    root /var/www/portfolio;
+    index index.html;
+
+    location / {
+        try_files $uri $uri/ =404;
+    }
+}
+      </code-block>
+    </div>
+    <div class="col">
+      <div class="method-card step" style="--a:var(--net)"><span class="m mono" style="min-width:120px">listen</span><span class="t">რომელ port-ს უსმინოს</span></div>
+      <div class="method-card step" style="--a:var(--net)"><span class="m mono" style="min-width:120px">server_name</span><span class="t">რომელ დომენზე; <code class="i">_</code> = ნებისმიერი (დომენი ჯერ არ გვაქვს)</span></div>
+      <div class="method-card step" style="--a:var(--mvc)"><span class="m mono" style="min-width:120px">root</span><span class="t">სად დევს ფაილები</span></div>
+      <div class="method-card step" style="--a:var(--mvc)"><span class="m mono" style="min-width:120px">index</span><span class="t"><code class="i">/</code>-ზე რომელი ფაილი</span></div>
+      <div class="method-card step" style="--a:var(--asp)"><span class="m mono" style="min-width:120px">try_files</span><span class="t">ფაილი? → საქაღალდე? → <b>404</b></span></div>
+    </div>
+  </div>
+  <aside class="study">
+### ნაბიჯი 3 · server block
+
+```console Termius · lms-server
+$ sudo nano /etc/nginx/sites-available/portfolio
+```
+
+```nginx sites-available/portfolio
+server {
+    listen 80 default_server;
+    server_name _;
+
+    root /var/www/portfolio;
+    index index.html;
+
+    location / {
+        try_files $uri $uri/ =404;
+    }
+}
+```
+
+| დირექტივა | რას ნიშნავს |
+|---|---|
+| `listen 80 default_server` | port 80-ს უსმინე; ეს არის ნაგულისხმევი საიტი ამ port-ზე |
+| `server_name _` | რომელ დომენზე პასუხობს; `_` = ნებისმიერი (დომენი მე-9 ლექციაზე გვექნება) |
+| `root` | სად დევს საიტის ფაილები |
+| `index` | რა გაიხსნას, როცა მისამართი `/`-ით მთავრდება |
+| `location / { … }` | წესები ყველა მისამართისთვის |
+| `try_files $uri $uri/ =404` | მოძებნე ასეთი ფაილი → ასეთი საქაღალდე → თუ არ არის, 404 |
+
+`$uri` — მოთხოვნილი გზა: `/projects.html`-ზე Nginx ეძებს `/var/www/portfolio/projects.html`-ს.
+
+```warn
+Nginx-ის კონფიგში ყოველი ხაზი `;`-ით მთავრდება, ბლოკები `{ }`-შია. გამოტოვებული `;` — ყველაზე ხშირი შეცდომა. ამიტომ ყოველი ცვლილების შემდეგ — `nginx -t`.
+```
+  </aside>
+</section>
+
+<section class="slide" data-section="2 · portfolio">
+  <div class="kicker">ნაბიჯი 4 · ჩართვა</div>
+  <h2>symlink → test → <span class="c-mvc">reload</span></h2>
+  <div class="grid2" style="grid-template-columns:1.25fr 1fr">
+    <code-block lang="console" cls="in" title="Termius · lms-server" style="--d:0.20s">
+$ sudo ln -s /etc/nginx/sites-available/portfolio \
+             /etc/nginx/sites-enabled/
+$ sudo rm /etc/nginx/sites-enabled/default
+
+$ sudo nginx -t
+nginx: configuration file /etc/nginx/nginx.conf
+       syntax is ok
+nginx: configuration file /etc/nginx/nginx.conf
+       test is successful
+
+$ sudo systemctl reload nginx
+    </code-block>
+    <div class="col">
+      <div class="card accent in right" style="--d:0.40s;--a:var(--mvc)"><h3>🌐 http://164.90.12.34</h3><p style="font-size:24px">გამარჯობა, მე გიორგი ვარ 👋</p><p class="tiny">შენი portfolio — <b>შენს</b> სერვერზე</p></div>
+      <div class="callout step" style="--a:var(--red)">⚠ <b>ყოველთვის</b> <code class="i">nginx -t</code> reload-მდე. შეცდომიანი კონფიგი + restart = <b>ყველა საიტი</b> გაჩერდა</div>
+    </div>
+  </div>
+  <aside class="study">
+### ნაბიჯი 4 · ჩართვა: symlink → test → reload
+
+```console Termius · lms-server
+$ sudo ln -s /etc/nginx/sites-available/portfolio /etc/nginx/sites-enabled/
+$ sudo rm /etc/nginx/sites-enabled/default      # „Welcome to nginx“ აღარ გვჭირდება
+
+$ sudo nginx -t
+nginx: the configuration file /etc/nginx/nginx.conf syntax is ok
+nginx: configuration file /etc/nginx/nginx.conf test is successful
+
+$ sudo systemctl reload nginx
+```
+
+1. `ln -s` — symlink `sites-enabled`-ში: საიტი ჩართულია.
+2. `default`-ის **symlink**-ს ვშლით (ფაილი `sites-available`-ში რჩება) — ორი `default_server` 80-ზე ერთად ვერ იქნება.
+3. `nginx -t` — კონფიგის შემოწმება **ამოქმედებამდე**.
+4. `reload` — ახალი კონფიგი, გათიშვის გარეშე.
+
+ბრაუზერში `http://<IP>` — შენი portfolio, შენს სერვერზე. 🎉
+
+```warn
+**ყოველთვის** `sudo nginx -t` reload/restart-მდე. თუ კონფიგში შეცდომაა და `restart` გაუშვი, Nginx ვეღარ ჩაირთვება — და ერთ სერვერზე მყოფი **ყველა** საიტი გაჩერდება. `nginx -t` გეტყვის ფაილს და ხაზს, სადაც შეცდომაა.
+```
+  </aside>
+</section>
+
+<section class="slide" data-section="2 · portfolio">
+  <div class="kicker">ლოგები · პრობლემების პოვნა</div>
+  <h2>რა <span class="c-red">გაფუჭდა?</span> — ლოგი გეტყვის</h2>
+  <div class="grid2" style="grid-template-columns:1.1fr 1fr">
+    <code-block lang="console" cls="sm in" title="Termius · lms-server" style="--d:0.20s">
+$ sudo tail -f /var/log/nginx/access.log
+85.117.x.x - - [28/Nov/2026:12:01:15] "GET / HTTP/1.1" 200 1520
+85.117.x.x - - [28/Nov/2026:12:01:15] "GET /style.css HTTP/1.1" 200 310
+85.117.x.x - - [28/Nov/2026:12:01:20] "GET /about HTTP/1.1" 404 162
+
+$ sudo tail -n 5 /var/log/nginx/error.log
+open() "/var/www/portfolio/about" failed
+  (2: No such file or directory)
+    </code-block>
+    <table class="t in" style="--d:0.40s;font-size:18px">
+      <tr><th>რას ხედავ</th><th>სად ეძებ</th></tr>
+      <tr><td>Can't be reached</td><td><code class="i">systemctl status nginx</code> · <code class="i">ufw status</code></td></tr>
+      <tr><td><b>404</b> Not Found</td><td>ფაილი არ არის — <code class="i">ls /var/www/…</code>, სახელის ასოები</td></tr>
+      <tr><td><b>403</b> Forbidden</td><td>უფლებები ან <code class="i">index.html</code> აკლია — error.log</td></tr>
+      <tr><td>ძველი ვერსია</td><td>rsync გაუშვი? <code class="i">Ctrl+F5</code></td></tr>
+    </table>
+  </div>
+  <aside class="study">
+### ლოგები: რა გაფუჭდა?
+
+Nginx ყველა მოთხოვნას ორ ფაილში იწერს:
+
+- `/var/log/nginx/access.log` — **ყოველი** მოთხოვნა: ვინ (IP), როდის, რა ითხოვა, რა სტატუსი მიიღო, რამდენი ბაიტი;
+- `/var/log/nginx/error.log` — **შეცდომები** და მათი მიზეზი.
+
+```console Termius · lms-server
+$ sudo tail -f /var/log/nginx/access.log
+85.117.x.x - - [28/Nov/2026:12:01:15] "GET / HTTP/1.1" 200 1520
+85.117.x.x - - [28/Nov/2026:12:01:15] "GET /style.css HTTP/1.1" 200 310
+85.117.x.x - - [28/Nov/2026:12:01:20] "GET /about HTTP/1.1" 404 162
+
+$ sudo tail -n 5 /var/log/nginx/error.log
+open() "/var/www/portfolio/about" failed (2: No such file or directory)
+```
+
+| რას ხედავ | სად ეძებ |
+|---|---|
+| This site can't be reached | Nginx მუშაობს? `systemctl status nginx` · port ღიაა? `ufw status` |
+| **404** Not Found | ფაილი არ არის: `ls /var/www/portfolio`, სახელის ასოები |
+| **403** Forbidden | Nginx-ს (user `www-data`) წაკითხვის უფლება არ აქვს, ან `index.html` აკლია → `error.log` |
+| ძველი ვერსია | `rsync` გაუშვი? ბრაუზერის cache — `Ctrl+F5` |
+
+```tip
+`tail -f access.log` ერთ ფანჯარაში + საიტი ბრაუზერში = ხედავ ყოველ მოთხოვნას რეალურ დროში. ეს **მონიტორინგის** პირველი ნაბიჯია. ლოგების ნახვას sudo სჭირდება, რადგან ისინი `adm` ჯგუფს ეკუთვნის.
+```
+  </aside>
+</section>
+
+<section class="slide" data-section="☕ შესვენება">
+  <div class="center">
+    <div class="big-emoji float" style="font-size:120px">☕</div>
+    <h1 class="mt">შესვენება</h1>
+    <p class="lead mt">10 წუთი · მერე — Angular აპი სერვერზე</p>
+  </div>
+</section>
+
+<!-- ================= PART 3: ANGULAR ================= -->
+<section class="slide divider" data-section="3 · Angular">
+  <div class="vcenter">
+    <div class="kicker in">ნაწილი 3</div>
+    <h1 class="in" style="--d:.1s"><span class="grad">Angular</span> აპი 🅰️</h1>
+    <p class="lead mt in" style="--d:.3s">მეორე საიტი იმავე სერვერზე — და SPA-ს ხაფანგი</p>
+  </div>
+  <div class="big-num">03</div>
+  <aside class="study">
+## ნაწილი 3 · Angular აპი
+
+Frontend კურსზე დაწერილი Angular აპიც სტატიკური ფაილებია — build-ის შემდეგ. ვაქვეყნებთ იმავე სერვერზე, მეორე საიტად.
+  </aside>
+</section>
+
+<section class="slide" data-section="3 · Angular">
+  <div class="kicker">ნაბიჯი 5 · build და ატვირთვა</div>
+  <h2><span class="mono c-asp">ng build</span> → ფაილები → სერვერი</h2>
+  <div class="grid2" style="grid-template-columns:1.1fr 1fr">
+    <div class="col">
+      <code-block lang="console" cls="in" title="WSL · Angular-ის პროექტი" style="--d:0.20s">
+$ ng build
+Application bundle generation complete.
+Output location: dist/my-app
+
+$ ls dist/my-app/browser
+index.html  main-HX3K.js  styles-QZ2A.css  favicon.ico
+
+$ rsync -avz --delete dist/my-app/browser/ lms:/var/www/app/
+      </code-block>
+      <code-block lang="nginx" cls="in" title="sites-available/app" style="--d:0.40s">
+server {
+    listen 8080;
+    server_name _;
+    root /var/www/app;
+    index index.html;
+    location / {
+        try_files $uri $uri/ =404;    # ← ჯერ ასე
+    }
+}
+      </code-block>
+    </div>
+    <div class="col">
+      <div class="card accent in right" style="--d:0.60s;--a:var(--asp)"><h3>📦 build</h3><p>TypeScript → რამდენიმე <b>JS, CSS და index.html</b>. სერვერისთვის — უბრალო ფაილები, ისევე როგორც portfolio</p></div>
+      <div class="card in right" style="--d:0.75s"><h3>🚪 port 8080</h3><p>80 portfolio-ს აქვს. დომენამდე მეორე საიტი — სხვა port-ზე: <code class="i">ufw allow 8080/tcp</code></p></div>
+    </div>
+  </div>
+  <aside class="study">
+### ნაბიჯი 5 · Angular: build და ატვირთვა
+
+Angular-ის კოდი (TypeScript, კომპონენტები) ბრაუზერისთვის პირდაპირ გამოუსადეგარია. `ng build` მას რამდენიმე **სტატიკურ ფაილად** აქცევს:
+
+```console WSL · Angular-ის პროექტი
+$ ng build
+Application bundle generation complete.
+Output location: dist/my-app
+
+$ ls dist/my-app/browser
+index.html  main-HX3K.js  styles-QZ2A.css  favicon.ico
+```
+
+სერვერისთვის ეს ისეთივე ფაილებია, როგორც portfolio — Nginx-ს მეტი არაფერი სჭირდება:
+
+```console Termius · lms-server
+$ sudo mkdir -p /var/www/app && sudo chown -R $USER:$USER /var/www/app
+$ sudo ufw allow 8080/tcp
+```
+
+```console WSL
+$ rsync -avz --delete dist/my-app/browser/ lms:/var/www/app/
+```
+
+port 80 portfolio-ს უკავია. სანამ დომენი გვექნება (მე-9 ლექცია), მეორე საიტი სხვა port-ზე — **8080** — დავსვათ:
+
+```nginx sites-available/app
+server {
+    listen 8080;
+    server_name _;
+    root /var/www/app;
+    index index.html;
+    location / {
+        try_files $uri $uri/ =404;
+    }
+}
+```
+
+symlink → `nginx -t` → `reload` → `http://<IP>:8080` — აპი იხსნება. მაგრამ...
+  </aside>
+</section>
+
+<section class="slide" data-section="3 · Angular">
+  <div class="kicker">SPA-ს ხაფანგი</div>
+  <h2>ლინკით მუშაობს, <span class="c-red">refresh-ზე — 404</span></h2>
+  <svg viewBox="0 0 1420 230" width="1420" height="230">
+    <g class="in left" style="--d:.2s"><rect x="20" y="20" width="640" height="190" rx="20" fill="#123321" stroke="#22c55e" stroke-width="3"/><text x="340" y="65" text-anchor="middle" class="tg b" font-size="22">✅ აპში ლინკზე დაჭერა</text>
+      <text x="340" y="110" text-anchor="middle" class="tw mono" font-size="18">/ → index.html იტვირთება ერთხელ</text><text x="340" y="145" text-anchor="middle" class="tw" font-size="18">„კურსები“ → Angular Router ცვლის გვერდს</text><text x="340" y="180" text-anchor="middle" class="tm" font-size="16">სერვერთან ახალი მოთხოვნა არ მიდის</text></g>
+    <g class="step"><rect x="760" y="20" width="640" height="190" rx="20" fill="#3b1218" stroke="#ef4444" stroke-width="3"/><text x="1080" y="65" text-anchor="middle" class="tr b" font-size="22">❌ refresh /courses-ზე</text>
+      <text x="1080" y="110" text-anchor="middle" class="tw mono" font-size="18">GET /courses → Nginx</text><text x="1080" y="145" text-anchor="middle" class="tw mono" font-size="18">/var/www/app/courses — არ არის</text><text x="1080" y="180" text-anchor="middle" class="tr b mono" font-size="18">404 Not Found</text></g>
+  </svg>
+  <div class="grid2 mt" style="grid-template-columns:1fr 1fr">
+    <code-block lang="nginx" cls="big step" title="sites-available/app">
+location / {
+    try_files $uri $uri/ /index.html;
+}
+    </code-block>
+    <div class="callout step" style="--a:var(--mvc);font-size:22px" data-with>ფაილი არ არის? → <b>index.html</b>. Angular ჩაიტვირთება, ნახავს <code class="i">/courses</code>-ს და <b>თვითონ</b> გახსნის სწორ გვერდს</div>
+  </div>
+  <aside class="study">
+### SPA-ს ხაფანგი: refresh → 404
+
+Angular — **SPA** (Single Page Application): `index.html` ერთხელ იტვირთება, მერე გვერდებს **Angular Router** ცვლის ბრაუზერში, სერვერთან ახალი მოთხოვნის გარეშე.
+
+- აპში ლინკზე „კურსები“ — მისამართი ხდება `/courses`, გვერდი იხსნება. სერვერი ამაში არ მონაწილეობს. ✅
+- **refresh** `/courses`-ზე (ან ლინკი მეგობრისგან) — ბრაუზერი სერვერს ეკითხება `GET /courses`. Nginx ეძებს ფაილს `/var/www/app/courses` — **არ არის** → **404**. ❌
+
+**გადაწყვეტა** — თუ ფაილი არ მოიძებნა, დააბრუნე `index.html`:
+
+```nginx sites-available/app
+location / {
+    try_files $uri $uri/ /index.html;
+}
+```
+
+ახლა `/courses`-ზე Nginx აბრუნებს `index.html`-ს → Angular იტვირთება → Router ხედავს `/courses`-ს და სწორ კომპონენტს აჩვენებს. ნამდვილი ფაილები (`main-HX3K.js`, `styles.css`) ისევ პირდაპირ იძებნება — პირველი პირობით (`$uri`).
+
+```note
+ეს ეხება ყველა SPA-ს: Angular, React, Vue. portfolio-ში კი `=404` სწორია — იქ ყოველი გვერდი ნამდვილი ფაილია.
+```
+  </aside>
+</section>
+
+<section class="slide" data-section="შეჯამება">
+  <div class="kicker">შპარგალკა</div>
+  <h2>სტატიკური საიტი — <span class="c-api">ხელით deploy</span></h2>
+  <div class="grid2" style="gap:30px">
+    <div class="card accent in" style="--d:0.20s;--a:var(--net)"><h3>🛠️ ერთხელ (სერვერზე)</h3><p class="mono" style="font-size:17px;line-height:1.85">apt install nginx<br>ufw allow 'Nginx HTTP'<br>mkdir /var/www/site · chown<br>sites-available/site<br>ln -s → sites-enabled<br>nginx -t · reload</p></div>
+    <div class="card accent in" style="--d:0.40s;--a:var(--mvc)"><h3>🔁 ყოველ ცვლილებაზე (შენთან)</h3><p class="mono" style="font-size:17px;line-height:1.85">ng build   (Angular)<br>rsync -avz --delete ./ lms:/var/www/site/<br><br>🔎 tail -f /var/log/nginx/access.log</p></div>
+  </div>
+  <aside class="study">
+### შპარგალკა: სტატიკური საიტის ხელით deploy
+
+**🛠️ ერთხელ, სერვერზე:**
+
+```console Termius · lms-server
+$ sudo apt install -y nginx
+$ sudo ufw allow 'Nginx HTTP'
+$ sudo mkdir -p /var/www/site && sudo chown -R $USER:$USER /var/www/site
+$ sudo nano /etc/nginx/sites-available/site
+$ sudo ln -s /etc/nginx/sites-available/site /etc/nginx/sites-enabled/
+$ sudo nginx -t && sudo systemctl reload nginx
+```
+
+**🔁 ყოველ ცვლილებაზე, შენთან:**
+
+```console WSL
+$ ng build                                               # თუ Angular-ია
+$ rsync -avz --delete ./ lms:/var/www/site/              # portfolio
+$ rsync -avz --delete dist/my-app/browser/ lms:/var/www/app/   # Angular
+```
+
+**🔎 პრობლემისას:** `systemctl status nginx` · `sudo nginx -t` · `sudo tail -f /var/log/nginx/error.log`
+
+| საიტის ტიპი | `try_files`-ის ბოლო |
+|---|---|
+| ჩვეულებრივი (portfolio) | `=404` |
+| SPA (Angular, React) | `/index.html` |
+  </aside>
+</section>
+
+<lecture-classwork/>
+<lecture-check/>
+
+<section class="slide" data-section="შეჯამება">
+  <div class="kicker">შეჯამება</div>
+  <h2>დღეს ვისწავლეთ</h2>
+  <div class="col" style="gap:30px;margin-top:30px">
+    <div class="row in left" style="--d:0.20s;gap:20px;align-items:center"><span class="big-emoji" style="font-size:44px">🌐</span><span style="font-size:29px"><b>Nginx</b> — ვებ-სერვერი; სერვისი, რომელსაც <code class="i">systemctl</code> მართავს</span></div>
+    <div class="row in left" style="--d:0.35s;gap:20px;align-items:center"><span class="big-emoji" style="font-size:44px">📄</span><span style="font-size:29px"><b>server block</b> — listen · root · index · try_files; <code class="i">nginx -t</code> → reload</span></div>
+    <div class="row in left" style="--d:0.50s;gap:20px;align-items:center"><span class="big-emoji" style="font-size:44px">🅰️</span><span style="font-size:29px"><b>SPA</b> — <code class="i">try_files … /index.html</code>, თორემ refresh → 404</span></div>
+    <div class="row in left" style="--d:0.65s;gap:20px;align-items:center"><span class="big-emoji" style="font-size:44px">🔎</span><span style="font-size:29px"><b>ლოგები</b> — access.log ყველა მოთხოვნა, error.log მიზეზი</span></div>
+  </div>
+  <p class="lead in mt" style="--d:0.85s;text-align:center">შემდეგ ლექციაზე: <b>შენი API</b> სერვერზე — ხელით, ბაზით 🛠️</p>
+  <aside class="study">
+## შეჯამება · დღეს ვისწავლეთ
+
+- 🌐 **Nginx** — ვებ-სერვერი: port 80-ს უსმენს და ფაილებს აძლევს. ის **სერვისია** — `systemctl status/start/stop/restart/reload`.
+- 📄 **server block** — `sites-available`-ში ვწერთ, `sites-enabled`-ში symlink-ით ვრთავთ; `listen`, `server_name`, `root`, `index`, `try_files`. ყოველთვის `nginx -t` → `reload`.
+- 📤 **rsync** — ფაილები სერვერზე SSH-ით; მეორედ მხოლოდ შეცვლილი.
+- 🅰️ **SPA** — Angular აპისთვის `try_files $uri $uri/ /index.html;`, თორემ შიდა გვერდზე refresh → 404.
+- 🔎 **ლოგები** — `access.log` (ყველა მოთხოვნა) და `error.log` (რატომ ჩავარდა).
+
+**შემდეგ ლექციაზე:** სტატიკური ფაილები ადვილია. ახლა — შენი **LMS API**: .NET, ბაზა, სერვისი და Nginx, როგორც reverse proxy.
+
+```prompt გამოცდა მეხუთე ლექციაზე
+ვსწავლობ DevOps-ს. მეხუთე ლექციაზე გავიარეთ Nginx Ubuntu სერვერზე: დაყენება, systemctl (status/reload/restart/enable), sites-available და sites-enabled (symlink), server block (listen, server_name, root, index, try_files), nginx -t, ფაილების ატვირთვა rsync-ით, Angular SPA და try_files /index.html, access.log და error.log, შეცდომები 403/404.
+დამისვი 8 კითხვა სათითაოდ, მარტივიდან რთულისკენ — ნაწილი სიტუაციური იყოს („საიტი 403-ს აბრუნებს, რას შეამოწმებ?“). ყოველ პასუხზე შემიფასე და ამიხსენი. ბოლოს მითხარი, რა გავიმეორო. ქართულად.
+```
+
+```prompt Nginx-ის კონფიგი არ მუშაობს
+ჩემი Nginx-ის კონფიგი Ubuntu-ზე არ მუშაობს სწორად. დამეხმარე პრობლემის პოვნაში მარტივად და ქართულად — ჯერ ამიხსენი, რას აკეთებს ჩემი კონფიგის თითოეული ხაზი, მერე მითხარი, რა შეიძლება იყოს შეცდომა. კონფიგი: [აქ]. რას ვხედავ ბრაუზერში: [აქ]. error.log-ის ბოლო ხაზები: [აქ]
+```
+  </aside>
+</section>
+<lecture-homework/>

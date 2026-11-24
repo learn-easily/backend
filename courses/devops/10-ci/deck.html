@@ -1,0 +1,523 @@
+<!-- =========================================================
+     ლექცია 10 — GitHub Actions · პირველი workflow · CI (build + test) · branch protection
+     ========================================================= -->
+
+<!-- 1. TITLE -->
+<section class="slide" data-section="შესავალი">
+  <div class="vcenter" style="max-width:860px">
+    <div class="kicker in">DevOps Crash Course · ლექცია 10</div>
+    <h1 class="in" style="--d:.15s"><span class="grad">CI</span> ✅<br>ყოველი push — შემოწმებული</h1>
+    <p class="lead in mt" style="--d:.35s">GitHub Actions — როგორ იწერება და როგორ მუშაობს workflow</p>
+  </div>
+  <div class="abs" style="right:90px;top:170px">
+    <svg viewBox="0 0 460 460" width="460" height="460">
+      <g class="in" style="--d:.4s"><rect x="110" y="10" width="240" height="70" rx="16" fill="#123321" stroke="#22c55e" stroke-width="3"/><text x="230" y="53" text-anchor="middle" class="tg b mono" font-size="20">$ git push</text></g>
+      <g class="in fade" style="--d:.6s"><path d="M230 80 V115" stroke="#8b6cff" stroke-width="3" class="flow"/></g>
+      <g class="in" style="--d:.8s"><rect x="80" y="115" width="300" height="70" rx="16" fill="#1d1640" stroke="#8b6cff" stroke-width="3"/><text x="230" y="158" text-anchor="middle" class="tn b" font-size="19">⚙️ dotnet build</text></g>
+      <g class="in fade" style="--d:1s"><path d="M230 185 V220" stroke="#f5a524" stroke-width="3" class="flow"/></g>
+      <g class="in" style="--d:1.2s"><rect x="80" y="220" width="300" height="70" rx="16" fill="#33240b" stroke="#f5a524" stroke-width="3"/><text x="230" y="263" text-anchor="middle" class="to b" font-size="19">🧪 dotnet test</text></g>
+      <g class="in fade" style="--d:1.4s"><path d="M230 290 V325" stroke="#22d3ee" stroke-width="3" class="flow"/></g>
+      <g class="in" style="--d:1.6s"><rect x="60" y="325" width="340" height="90" rx="16" fill="#0e2a33" stroke="#22d3ee" stroke-width="3"/><text x="230" y="365" text-anchor="middle" font-size="26">✅ merge · ❌ stop</text><text x="230" y="398" text-anchor="middle" class="tm" font-size="16">გატეხილი კოდი main-ში ვერ შევა</text></g>
+    </svg>
+  </div>
+</section>
+
+<lecture-review/>
+
+<lecture-homework-review/>
+
+<lecture-intro/>
+
+<!-- ================= PART 1: GITHUB ACTIONS ================= -->
+<section class="slide divider" data-section="1 · GitHub Actions">
+  <div class="vcenter">
+    <div class="kicker in">ნაწილი 1</div>
+    <h1 class="in" style="--d:.1s"><span class="grad">GitHub Actions</span> ⚙️</h1>
+    <p class="lead mt in" style="--d:.3s">როგორ იწერება workflow და როგორ მუშაობს</p>
+  </div>
+  <div class="big-num">01</div>
+  <aside class="study">
+## ნაწილი 1 · GitHub Actions
+
+მე-2 ლექციაზე Actions ჩანართში პირველი workflow ვნახეთ — `pages build and deployment`, რომელიც GitHub-მა თვითონ შექმნა. დღეს საკუთარს ვწერთ: ჯერ ყველაზე მარტივს, რომ ვნახოთ, როგორ მუშაობს, მერე — ნამდვილ CI-ს LMS-ისთვის.
+  </aside>
+</section>
+
+<section class="slide" data-section="1 · GitHub Actions">
+  <div class="kicker">პრობლემა</div>
+  <h2>ყოველი განახლება — <span class="c-red">ხელით</span></h2>
+  <div class="grid2" style="grid-template-columns:1.1fr 1fr">
+    <code-block lang="console" cls="in" title="ყოველ ჯერზე" style="--d:0.20s">
+$ git push                       # შენთან
+# Termius → lms-server
+$ cd ~/lms
+$ git pull
+$ docker compose up -d --build   # build 1 GB RAM-ზე 😬
+$ docker compose logs -f api     # მუშაობს?
+    </code-block>
+    <div class="col">
+      <div class="problem in right" style="--d:.4s;display:block">😴 დაგავიწყდა → სერვერზე <b>ძველი</b> ვერსიაა</div>
+      <div class="problem in right" style="--d:.55s;display:block">💥 <code class="i">main</code>-ში მოხვდა კოდი, რომელიც <b>არ იკომპილირდება</b> → deploy ჩავარდა</div>
+      <div class="problem in right" style="--d:.7s;display:block">👥 გუნდში 5 ადამიანი — ყველას სერვერის <b>SSH</b> უნდა ჰქონდეს?</div>
+      <div class="callout step" style="--a:var(--mvc)"><b>CI</b> — ყოველი ცვლილების შემოწმება (<b>დღეს</b>) · <b>CD</b> — ყოველი ცვლილების deploy (<b>შემდეგ ლექციაზე</b>)</div>
+    </div>
+  </div>
+  <aside class="study">
+### პრობლემა: ყოველი განახლება — ხელით
+
+მე-8 ლექციის შემდეგ LMS-ის განახლება ასე გამოიყურება:
+
+```console ყოველ ჯერზე
+$ git push
+# Termius → lms-server
+$ cd ~/lms
+$ git pull
+$ docker compose up -d --build
+$ docker compose logs -f api
+```
+
+- 😴 დაგავიწყდა — სერვერზე ძველი ვერსიაა;
+- 💥 `main`-ში მოხვდა კოდი, რომელიც არც კი იკომპილირდება — deploy ჩავარდება;
+- 👥 გუნდში ხუთი ადამიანია — ყველას სერვერზე SSH წვდომა ჰქონდეს?
+- 🐢 build 1 GB RAM-იან სერვერზე — ნელი და სახიფათო.
+
+**CI (Continuous Integration)** — ყოველი ცვლილება **ავტომატურად მოწმდება** (build, ტესტები), სანამ `main`-ში მოხვდება.
+**CD (Continuous Deployment)** — `main`-ის ყოველი ცვლილება **ავტომატურად** გადის სერვერზე.
+
+ორივეს GitHub Actions აკეთებს — ზუსტად იმ ნაბიჯებით, რასაც აქამდე ხელით ვაკეთებდით. დღეს ვიწყებთ **CI**-ით: ჯერ ვრწმუნდებით, რომ `main`-ში მხოლოდ შემოწმებული კოდი ხვდება. შემდეგ ლექციაზე, **CD**-ით, ამ შემოწმებულ კოდს სერვერზე ავტომატურად გავიტანთ.
+  </aside>
+</section>
+
+<section class="slide" data-section="1 · GitHub Actions">
+  <div class="kicker">ცნებები</div>
+  <h2>workflow · trigger · job · <span class="c-asp">runner</span> · step</h2>
+  <div class="grid2" style="grid-template-columns:1fr 1fr">
+    <div class="col">
+      <div class="method-card in left" style="--d:.2s;--a:var(--net)"><span class="m mono" style="min-width:110px">workflow</span><span class="t">YAML ფაილი <code class="i">.github/workflows/</code>-ში</span></div>
+      <div class="method-card in left" style="--d:.32s;--a:var(--asp)"><span class="m mono" style="min-width:110px">on</span><span class="t">trigger — <b>როდის</b>: push, pull_request, ხელით…</span></div>
+      <div class="method-card in left" style="--d:.44s;--a:var(--mvc)"><span class="m mono" style="min-width:110px">job</span><span class="t">ნაბიჯების ჯგუფი, რომელიც ერთ მანქანაზე სრულდება</span></div>
+      <div class="method-card in left" style="--d:.56s;--a:var(--api)"><span class="m mono" style="min-width:110px">runs-on</span><span class="t"><b>runner</b> — GitHub-ის სუფთა ვირტუალური Ubuntu, ყოველ ჯერზე ახალი</span></div>
+      <div class="method-card in left" style="--d:.68s;--a:var(--red)"><span class="m mono" style="min-width:110px">steps</span><span class="t"><code class="i">uses:</code> მზა action · <code class="i">run:</code> ბრძანება</span></div>
+    </div>
+    <div class="col">
+      <div class="card accent in right" style="--d:.8s;--a:var(--asp)"><h3>🖥️ runner = ცარიელი Droplet</h3><p>შენი კოდი იქ <b>არ არის</b> → პირველი ნაბიჯი ყოველთვის <code class="i">checkout</code>. .NET არ არის → <code class="i">setup-dotnet</code></p></div>
+      <div class="card accent in right" style="--d:.95s;--a:var(--net)"><h3>🧩 actions</h3><p>მზა „ბლოკები“ Marketplace-იდან: <code class="i">owner/name@ვერსია</code> — როგორც NuGet პაკეტი</p></div>
+    </div>
+  </div>
+  <aside class="study">
+### ცნებები: workflow · trigger · job · runner · step
+
+| ცნება | რა არის |
+|---|---|
+| **workflow** | YAML ფაილი რეპოს `.github/workflows/` საქაღალდეში |
+| **trigger** (`on:`) | **როდის** გაეშვას: `push`, `pull_request`, ხელით (`workflow_dispatch`), განრიგით |
+| **job** | ნაბიჯების ჯგუფი, რომელიც ერთ მანქანაზე სრულდება |
+| **runner** (`runs-on:`) | ეს მანქანა: GitHub-ის **ვირტუალური Ubuntu**, ყოველ გაშვებაზე ახალი და სუფთა |
+| **step** | ერთი ნაბიჯი: `uses:` — მზა action, `run:` — ბრძანება ტერმინალში |
+| **action** | მზა „ბლოკი“ (`actions/checkout@v4`) — `მფლობელი/სახელი@ვერსია`, როგორც NuGet პაკეტი |
+
+**runner = ცარიელი სერვერი.** მასზე შენი კოდი არ არის — ამიტომ პირველი ნაბიჯი ყოველთვის `actions/checkout` (რეპოს ჩამოტვირთვა). .NET SDK არ არის — `actions/setup-dotnet`. ეს ზუსტად ის, რასაც მე-6 ლექციაზე სერვერზე ხელით ვაკეთებდით, ოღონდ ყოველ ჯერზე ავტომატურად.
+
+```note
+public რეპოებისთვის GitHub-ის runner-ები უფასოა; private-ისთვის — თვეში შეზღუდული წუთები.
+```
+  </aside>
+</section>
+
+<section class="slide" data-section="1 · GitHub Actions">
+  <div class="kicker">ვაკეთებთ ერთად · პირველი workflow</div>
+  <h2><span class="mono c-mvc">hello.yml</span> — რა ხდება runner-ზე?</h2>
+  <div class="grid2" style="grid-template-columns:1.05fr 1fr">
+    <code-block lang="yaml" cls="in" title=".github/workflows/hello.yml" style="--d:0.20s">
+name: Hello
+
+on:
+  push:
+  workflow_dispatch:      # ღილაკი Actions-ში
+
+jobs:
+  hello:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "გამარჯობა, $GITHUB_ACTOR"
+      - run: uname -a && whoami
+      - run: ls -la         # 🤔 ცარიელია!
+      - uses: actions/checkout@v4
+      - run: ls -la         # ✓ ახლა კოდი აქაა
+    </code-block>
+    <div class="col">
+      <div class="card in right" style="--d:0.40s;padding:18px 24px">
+        <p class="tiny">Actions → Hello → hello</p>
+        <p class="mono mt" style="font-size:16px;line-height:1.7">✅ Run echo "გამარჯობა…"<br>✅ Run uname -a … <span class="tm">Linux · runner</span><br>✅ Run ls -la <span class="c-red">total 0</span><br>✅ Run actions/checkout@v4<br>✅ Run ls -la <span class="c-mvc">Program.cs …</span></p>
+      </div>
+      <div class="callout step" style="--a:var(--asp)">runner = <b>ცარიელი Ubuntu</b>: ყოველ გაშვებაზე ახალი, და შენი კოდი იქ <b>checkout-მდე</b> არ არის</div>
+      <div class="callout step" style="--a:var(--net)" data-with>YAML: მხოლოდ <b>space</b> (არა Tab) · <code class="i">-</code> = სიის ელემენტი · შეწევა = ვის ეკუთვნის</div>
+    </div>
+  </div>
+  <aside class="study">
+### პირველი workflow — რა ხდება runner-ზე?
+
+სანამ LMS-ისთვის CI-ს დავწერთ, ვნახოთ, როგორ მუშაობს workflow ყველაზე მარტივ მაგალითზე. რეპოში ვქმნით ფაილს `.github/workflows/hello.yml`:
+
+```yaml .github/workflows/hello.yml
+name: Hello
+
+on:
+  push:
+  workflow_dispatch:
+
+jobs:
+  hello:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "გამარჯობა, $GITHUB_ACTOR"
+      - run: uname -a && whoami
+      - run: ls -la
+      - uses: actions/checkout@v4
+      - run: ls -la
+```
+
+- `on: push` — ყოველ push-ზე ნებისმიერ branch-ში; `workflow_dispatch` — Actions ჩანართში ჩნდება ღილაკი **Run workflow**, ხელით გასაშვებად;
+- `run:` — ჩვეულებრივი Linux ბრძანება, ზუსტად ისე, როგორც Termius-ში;
+- პირველი `ls -la` **ცარიელს** აჩვენებს: runner ახალი, სუფთა მანქანაა, შენი კოდი მასზე ჯერ არ არის;
+- `actions/checkout@v4` რეპოს ჩამოტვირთავს — მეორე `ls -la` უკვე ფაილებს აჩვენებს.
+
+push → **Actions** ჩანართი → **Hello** → job **hello** → ყოველი step-ის ლოგი ცალკე იხსნება.
+
+```warn
+YAML-ში შეწევა (indentation) მნიშვნელობას ცვლის — ის აჩვენებს, რა რას ეკუთვნის. მხოლოდ **space**-ები, Tab — არასოდეს. `-` სიის ელემენტია: ყოველი step `-`-ით იწყება. თუ workflow Actions-ში საერთოდ არ გამოჩნდა — ჯერ შეამოწმე, ფაილი ზუსტად `.github/workflows/`-შია და YAML სწორადაა შეწეული.
+```
+
+```check
+? რატომ აჩვენებს პირველი `ls -la` ცარიელ საქაღალდეს?
+= runner ყოველ გაშვებაზე ახალი, სუფთა ვირტუალური მანქანაა — შენი კოდი იქ `actions/checkout`-მდე არ არის
+```
+  </aside>
+</section>
+
+<section class="slide" data-section="☕ შესვენება">
+  <div class="center">
+    <div class="big-emoji float" style="font-size:120px">☕</div>
+    <h1 class="mt">შესვენება</h1>
+    <p class="lead mt">10 წუთი · მერე — CI LMS-ისთვის: build + test</p>
+  </div>
+</section>
+
+<!-- ================= PART 2: CI ================= -->
+<section class="slide divider" data-section="2 · CI">
+  <div class="vcenter">
+    <div class="kicker in">ნაწილი 2</div>
+    <h1 class="in" style="--d:.1s"><span class="grad">CI</span> LMS-ისთვის 🧪</h1>
+    <p class="lead mt in" style="--d:.3s">build + test ყოველ Pull Request-ზე — და გატეხილი კოდი main-ში აღარ შევა</p>
+  </div>
+  <div class="big-num">02</div>
+  <aside class="study">
+## ნაწილი 2 · CI LMS-ისთვის
+
+workflow-ის აწყობა ვიცით. ახლა ვწერთ ნამდვილს: ყოველ Pull Request-ზე LMS უნდა აეწყოს და ტესტები გაიაროს.
+  </aside>
+</section>
+
+<section class="slide" data-section="2 · CI">
+  <div class="kicker">რა შეამოწმოს CI-მ</div>
+  <h2>build საკმარისი არ არის — <span class="c-asp">ტესტი</span></h2>
+  <div class="grid2" style="grid-template-columns:1fr 1.1fr">
+    <div class="col">
+      <div class="card accent in left" style="--d:0.20s;--a:var(--net)"><h3>⚙️ build ✓</h3><p>კოდი <b>იკომპილირდება</b> — მაგრამ შეიძლება <b>არასწორად</b> მუშაობდეს</p></div>
+      <div class="card accent in left" style="--d:0.35s;--a:var(--asp)"><h3>🧪 test ✓</h3><p>კოდი <b>იმას აკეთებს</b>, რასაც უნდა: ტესტი ამოწმებს შედეგს</p></div>
+      <code-block lang="console" cls="sm step" title="ტერმინალი · solution-ის საქაღალდე">
+$ dotnet new xunit -n Lms.Tests
+$ dotnet sln add Lms.Tests
+$ dotnet add Lms.Tests reference Lms.Api
+$ dotnet test
+Passed!  - Failed: 0, Passed: 1
+      </code-block>
+    </div>
+    <code-block lang="csharp" cls="in" title="Lms.Tests/CourseTests.cs" style="--d:0.50s">
+public class CourseTests
+{
+    [Fact]
+    public void Enroll_WhenCourseIsFull_ReturnsFalse()
+    {
+        var course = new Course { Title = "DevOps", Capacity = 1 };
+        course.Enroll(Guid.NewGuid());
+
+        var enrolled = course.Enroll(Guid.NewGuid());
+
+        Assert.False(enrolled);
+    }
+}
+    </code-block>
+  </div>
+  <aside class="study">
+### build საკმარისი არ არის — ტესტი
+
+`dotnet build` ამოწმებს, რომ კოდი **იკომპილირდება**. მაგრამ კოდი, რომელიც იკომპილირდება, შეიძლება არასწორად მუშაობდეს: კურსზე ტევადობაზე მეტი სტუდენტი ჩაეწეროს, ფასი არასწორად დაითვალოს. ამას **ტესტი** ამოწმებს — პატარა მეთოდი, რომელიც შენს კოდს იძახებს და შედეგს ამოწმებს.
+
+ტესტების სრული თემა ცალკე საკითხია. CI-სთვის ერთი ტესტიც საკმარისია, რომ ნახო, როგორ აჩერებს ის გატეხილ კოდს:
+
+```console ტერმინალი · solution-ის საქაღალდე
+$ dotnet new xunit -n Lms.Tests
+$ dotnet sln add Lms.Tests
+$ dotnet add Lms.Tests reference Lms.Api
+$ dotnet test
+Passed!  - Failed: 0, Passed: 1
+```
+
+```csharp Lms.Tests/CourseTests.cs
+public class CourseTests
+{
+    [Fact]
+    public void Enroll_WhenCourseIsFull_ReturnsFalse()
+    {
+        var course = new Course { Title = "DevOps", Capacity = 1 };
+        course.Enroll(Guid.NewGuid());
+
+        var enrolled = course.Enroll(Guid.NewGuid());
+
+        Assert.False(enrolled);
+    }
+}
+```
+
+- `[Fact]` — ეს მეთოდი ტესტია; xUnit მას თვითონ პოულობს და უშვებს;
+- ტესტი სამი ნაწილისგანაა: **მომზადება** (კურსი 1 ადგილით, ერთი სტუდენტი უკვე ჩაწერილია) → **მოქმედება** (მეორე სტუდენტის ჩაწერა) → **შემოწმება** (`Assert.False` — ჩაწერა არ უნდა მოხდეს).
+
+```note
+`Course` და `Enroll` — მაგალითია. შენს პროექტში აიღე ნებისმიერი მეთოდი, რომელიც რაღაცას ითვლის ან ამოწმებს, და დაუწერე ერთი ტესტი. თუ ტესტი ბაზას ან HTTP-ს არ ეხება, ის წამის ნაწილში სრულდება — CI-ისთვის სწორედ ასეთი გვჭირდება.
+```
+  </aside>
+</section>
+
+<section class="slide" data-section="2 · CI">
+  <div class="kicker">ვაკეთებთ ერთად · ნაბიჯი 1</div>
+  <h2><span class="mono c-mvc">ci.yml</span> — ყოველ Pull Request-ზე</h2>
+  <div class="grid2" style="grid-template-columns:1.15fr 1fr">
+    <code-block lang="yaml" cls="in" title=".github/workflows/ci.yml" style="--d:0.20s">
+name: CI
+
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+      - run: dotnet restore
+      - run: dotnet build --no-restore -c Release
+      - run: dotnet test --no-build -c Release
+    </code-block>
+    <div class="col">
+      <div class="card in right" style="--d:0.40s;padding:18px 24px">
+        <p class="tiny">PR #12 · Add course capacity</p>
+        <div class="row mt" style="gap:12px;align-items:center"><span style="font-size:26px">❌</span><span class="mono" style="font-size:18px">CI / build — <span class="c-red">Failing</span></span></div>
+        <p class="mono tiny mt">error CS1002: ; expected · ან ტესტი ჩავარდა</p>
+        <div class="row mt" style="gap:12px;align-items:center"><span style="font-size:26px">✅</span><span class="mono" style="font-size:18px">CI / build — <span class="c-mvc">Successful</span></span></div>
+      </div>
+      <div class="callout step" style="--a:var(--net)">შეცდომას GitHub პოულობს — <b>merge-მდე</b>, და არა სერვერი, deploy-ის დროს</div>
+    </div>
+  </div>
+  <aside class="study">
+### ნაბიჯი 1 · ci.yml — ყოველ Pull Request-ზე
+
+```yaml .github/workflows/ci.yml
+name: CI
+
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+      - run: dotnet restore
+      - run: dotnet build --no-restore -c Release
+      - run: dotnet test --no-build -c Release
+```
+
+- `on: pull_request` → `branches: [main]` — ყოველ PR-ზე, რომელიც `main`-ში უნდა შეირწყას (და მის ყოველ ახალ push-ზე);
+- `jobs: build:` — ერთი job, სახელით `build` (ეს სახელი branch protection-ში დაგვჭირდება);
+- `with:` — action-ის პარამეტრები; `10.0.x` — .NET 10-ის უახლესი patch;
+- `--no-restore` / `--no-build` — წინა ნაბიჯი უკვე გაკეთდა, თავიდან აღარ ვაკეთებთ.
+
+push → Actions ჩანართში ჩანს გაშვება: ყოველი step-ის ლოგი, ხანგრძლივობა, შეცდომა. PR-ის გვერდზე კი — ❌ ან ✅.
+
+```tip
+შეადარე ხელით deploy-ს (მე-6 ლექცია): იქაც restore → build → publish ვაკეთებდით, ოღონდ სერვერზე და ხელით. CI იგივე ბრძანებებია, ოღონდ ყოველ PR-ზე, ავტომატურად და სუფთა მანქანაზე.
+```
+  </aside>
+</section>
+
+<section class="slide" data-section="2 · CI">
+  <div class="kicker">ვაკეთებთ ერთად · ნაბიჯი 2</div>
+  <h2>განზრახ ვამტვრევთ — <span class="c-red">❌</span> → <span class="c-mvc">✅</span></h2>
+  <div class="grid2" style="grid-template-columns:1.1fr 1fr">
+    <code-block lang="console" cls="in" title="Actions → CI → build → Run dotnet test" style="--d:0.20s">
+[xUnit.net] Lms.Tests.CourseTests
+  Enroll_WhenCourseIsFull_ReturnsFalse [FAIL]
+    Assert.False() Failure
+    Expected: False
+    Actual:   True
+  at Lms.Tests.CourseTests... CourseTests.cs:line 11
+
+Failed!  - Failed: 1, Passed: 0
+Error: Process completed with exit code 1.
+    </code-block>
+    <div class="col">
+      <div class="row in right" style="--d:0.40s;gap:14px;align-items:center"><span class="big-emoji" style="font-size:36px">💥</span><span style="font-size:21px"><code class="i">Enroll</code>-ში ტევადობის შემოწმება წავშალეთ → PR</span></div>
+      <div class="row in right" style="--d:0.55s;gap:14px;align-items:center"><span class="big-emoji" style="font-size:36px">❌</span><span style="font-size:21px">PR-ზე: <b>CI / build — Failing</b></span></div>
+      <div class="row in right" style="--d:0.70s;gap:14px;align-items:center"><span class="big-emoji" style="font-size:36px">🔎</span><span style="font-size:21px">ლოგი: <b>რომელი</b> ტესტი, <b>რა</b> ელოდა, <b>რა</b> მიიღო</span></div>
+      <div class="row in right" style="--d:0.85s;gap:14px;align-items:center"><span class="big-emoji" style="font-size:36px">✅</span><span style="font-size:21px">გავასწორეთ → push იმავე branch-ზე → CI თავიდან</span></div>
+      <div class="callout step" style="--a:var(--mvc)"><b>exit code 1</b> — ნებისმიერი ბრძანება, რომელიც შეცდომით მთავრდება, job-ს აჩერებს</div>
+    </div>
+  </div>
+  <aside class="study">
+### განზრახ ვამტვრევთ: ❌ → ✅
+
+CI-ს აზრი მაშინ ჩანს, როცა ის **აჩერებს** რაღაცას. ამიტომ განზრახ ვამტვრევთ:
+
+1. branch `feature/break-enroll` → `Enroll`-ში ტევადობის შემოწმებას ვშლით → commit → push → **Pull Request**;
+2. PR-ის გვერდზე: **CI / build — Failing** ❌;
+3. **Details** → ლოგი:
+
+```console Actions → CI → build → Run dotnet test
+  Enroll_WhenCourseIsFull_ReturnsFalse [FAIL]
+    Assert.False() Failure
+    Expected: False
+    Actual:   True
+Failed!  - Failed: 1, Passed: 0
+Error: Process completed with exit code 1.
+```
+
+ლოგი ყველაფერს ამბობს: **რომელი** ტესტი ჩავარდა, **რა** ელოდა (`False`) და **რა** მიიღო (`True`), და ფაილის რომელ ხაზზე.
+
+4. ვასწორებთ → push **იმავე branch-ზე** → CI თავისით ეშვება თავიდან → ✅.
+
+```terms
+exit code — რიცხვი, რომლითაც პროგრამა მთავრდება: 0 = წარმატება, სხვა = შეცდომა. Actions ყოველი step-ის exit code-ს ამოწმებს და შეცდომაზე job-ს აჩერებს
+```
+
+```tip
+CI ჩავარდა? თანმიმდევრობა ყოველთვის ერთია: **რომელ step-ზე** → მისი ლოგის **ბოლო ხაზები** → იგივე ბრძანება **შენთან** (`dotnet build`, `dotnet test`). თუ შენთან მუშაობს და CI-ზე არა — ეძებე განსხვავება გარემოში: .NET-ის ვერსია, ფაილის სახელის ასოები (Linux!), ფაილი, რომელიც `.gitignore`-შია.
+```
+  </aside>
+</section>
+
+<section class="slide" data-section="2 · CI">
+  <div class="kicker">ნაბიჯი 3 · branch protection</div>
+  <h2><span class="mono c-red">main</span> — მხოლოდ <span class="c-mvc">მწვანე</span> PR-ით</h2>
+  <svg viewBox="0 0 1420 190" width="1420" height="190">
+    <g class="in left" style="--d:.2s"><rect x="10" y="50" width="230" height="90" rx="16" fill="#123321" stroke="#22c55e" stroke-width="3"/><text x="125" y="90" text-anchor="middle" class="tg b mono" font-size="17">feature/capacity</text><text x="125" y="120" text-anchor="middle" class="tm" font-size="15">git push</text></g>
+    <g class="in fade" style="--d:.4s"><path d="M240 95 H330" stroke="#22c55e" stroke-width="3" class="flow"/></g>
+    <g class="in" style="--d:.55s"><rect x="330" y="50" width="220" height="90" rx="16" fill="#1d1640" stroke="#8b6cff" stroke-width="3"/><text x="440" y="90" text-anchor="middle" class="tn b" font-size="18">Pull Request</text><text x="440" y="120" text-anchor="middle" class="tm" font-size="15">ცვლილების აღწერა</text></g>
+    <g class="in fade" style="--d:.7s"><path d="M550 95 H640" stroke="#8b6cff" stroke-width="3" class="flow"/></g>
+    <g class="in" style="--d:.85s"><rect x="640" y="50" width="200" height="90" rx="16" fill="#0e2a33" stroke="#22d3ee" stroke-width="3"/><text x="740" y="90" text-anchor="middle" class="ta b" font-size="18">CI ✅</text><text x="740" y="120" text-anchor="middle" class="tm" font-size="15">ავტომატურად</text></g>
+    <g class="in fade" style="--d:1s"><path d="M840 95 H930" stroke="#22d3ee" stroke-width="3" class="flow"/></g>
+    <g class="in" style="--d:1.15s"><rect x="930" y="50" width="200" height="90" rx="16" fill="#33240b" stroke="#f5a524" stroke-width="3"/><text x="1030" y="90" text-anchor="middle" class="to b" font-size="18">review 👀</text><text x="1030" y="120" text-anchor="middle" class="tm" font-size="15">გუნდელი</text></g>
+    <g class="in fade" style="--d:1.3s"><path d="M1130 95 H1220" stroke="#f5a524" stroke-width="3" class="flow"/></g>
+    <g class="in right" style="--d:1.45s"><rect x="1220" y="50" width="190" height="90" rx="16" fill="#123321" stroke="#22c55e" stroke-width="3"/><text x="1315" y="90" text-anchor="middle" class="tg b" font-size="18">merge → main</text><text x="1315" y="120" text-anchor="middle" class="tm" font-size="15">→ deploy (CD)</text></g>
+  </svg>
+  <div class="grid2 mt">
+    <div class="card accent step" style="--a:var(--net)"><h3>⚙️ Settings → Rules → Rulesets</h3><p>Target: <code class="i">main</code> · ✓ Require a pull request before merging · ✓ Require status checks → <code class="i">build</code></p></div>
+    <div class="card accent step" style="--a:var(--red)" data-with><h3>🚫 შედეგი</h3><p class="mono" style="font-size:16px">$ git push origin main<br>! [remote rejected] main (push declined due to repository rule violations)</p></div>
+  </div>
+  <aside class="study">
+### ნაბიჯი 2 · branch protection: main — მხოლოდ მწვანე PR-ით
+
+CI სასარგებლოა მხოლოდ მაშინ, თუ წითელ PR-ს **ვერ** შეურწყავ. ამას **branch protection** აკეთებს.
+
+რეპოს **Settings → Rules → Rulesets → New branch ruleset** (ძველ ინტერფეისში: Settings → Branches → Add branch protection rule):
+
+- **Target branches:** `main` (Include default branch);
+- ✓ **Require a pull request before merging** — პირდაპირ push `main`-ში აკრძალულია;
+- ✓ **Require status checks to pass** → დაამატე `build` (ჩვენი CI job-ის სახელი).
+
+```warn
+`build` სიაში მხოლოდ მას შემდეგ ჩნდება, რაც CI ერთხელ მაინც გაეშვა. ამიტომ ჯერ PR და CI, მერე — ruleset.
+```
+
+ამიერიდან გზა ერთია — ის, რაც მე-2 ლექციაზე branch-ებით დავიწყეთ:
+
+1. `feature/...` branch → `git push`;
+2. **Pull Request** GitHub-ზე — ცვლილების აღწერა;
+3. **CI** ავტომატურად აწყობს კოდს → ❌ ან ✅;
+4. **review** — გუნდელი კითხულობს კოდს, წერს კომენტარებს;
+5. **merge** `main`-ში → შემდეგ ლექციაზე აქედან ავტომატური deploy დაიწყება (CD).
+
+```console WSL
+$ git push origin main
+! [remote rejected] main -> main (push declined due to repository rule violations)
+```
+
+```tip
+Pull Request-ში review გუნდურ მუშაობაში ერთ-ერთი ყველაზე მნიშვნელოვანი ჩვევაა — junior-ისთვის მის კოდზე დაწერილი კომენტარი ყველაზე სწრაფი სწავლაა.
+```
+  </aside>
+</section>
+
+<section class="slide" data-section="შეჯამება">
+  <div class="kicker">შპარგალკა</div>
+  <h2>CI — <span class="c-api">მოკლედ</span></h2>
+  <div class="grid2" style="gap:30px">
+    <div class="card accent in" style="--d:0.20s;--a:var(--net)"><h3>📄 workflow-ის ჩონჩხი</h3><p class="mono" style="font-size:18px;line-height:1.8">.github/workflows/ci.yml<br>on → jobs → runs-on → steps<br>uses: actions/checkout@v4<br>run: dotnet build / test</p></div>
+    <div class="card accent in" style="--d:0.40s;--a:var(--mvc)"><h3>🔁 გზა main-მდე</h3><p style="font-size:20px;line-height:1.8">branch → push → <b>PR</b><br>CI ❌ → ლოგი → გასწორება → push<br>CI ✅ → review → <b>merge</b></p></div>
+  </div>
+  <aside class="study">
+### შპარგალკა: CI
+
+**workflow-ის ჩონჩხი:** `.github/workflows/*.yml` → `on` (როდის) → `jobs` → `runs-on: ubuntu-latest` → `steps` (`uses` — მზა action, `run` — ბრძანება).
+
+**CI-ის ნაბიჯები .NET-ისთვის:** `actions/checkout@v4` → `actions/setup-dotnet@v4` (`10.0.x`) → `dotnet restore` → `dotnet build --no-restore -c Release` → `dotnet test --no-build -c Release`.
+
+**გზა `main`-მდე:** branch → push → Pull Request → CI ❌ → ლოგი → გასწორება → push → CI ✅ → review → merge.
+
+**თუ არ მუშაობს:** workflow არ ჩანს → ფაილი `.github/workflows/`-შია? YAML-ში Tab ხომ არ არის? → step წითელია → მისი ლოგის ბოლო ხაზები → იგივე ბრძანება შენთან.
+  </aside>
+</section>
+
+<lecture-classwork/>
+
+<lecture-check/>
+
+<section class="slide" data-section="შეჯამება">
+  <div class="kicker">შეჯამება</div>
+  <h2>დღეს ვისწავლეთ</h2>
+  <div class="col" style="gap:28px;margin-top:30px">
+    <div class="row in left" style="--d:0.20s;gap:20px;align-items:center"><span class="big-emoji" style="font-size:42px">⚙️</span><span style="font-size:28px"><b>GitHub Actions</b> — workflow, trigger, job, runner, step</span></div>
+    <div class="row in left" style="--d:0.35s;gap:20px;align-items:center"><span class="big-emoji" style="font-size:42px">🖥️</span><span style="font-size:28px"><b>runner</b> — სუფთა Ubuntu: checkout → setup → ბრძანებები</span></div>
+    <div class="row in left" style="--d:0.50s;gap:20px;align-items:center"><span class="big-emoji" style="font-size:42px">🧪</span><span style="font-size:28px"><b>CI</b> — ყოველ PR-ზე build + test; ❌ → ლოგი → გასწორება</span></div>
+    <div class="row in left" style="--d:0.65s;gap:20px;align-items:center"><span class="big-emoji" style="font-size:42px">🛡️</span><span style="font-size:28px"><b>branch protection</b> — main-ში მხოლოდ მწვანე PR</span></div>
+  </div>
+  <p class="lead in mt" style="--d:0.85s;text-align:center">შემდეგ ლექციაზე: <b>CD</b> — merge → LMS ავტომატურად სერვერზე 🚀</p>
+  <aside class="study">
+## შეჯამება · დღეს ვისწავლეთ
+
+- ⚙️ **GitHub Actions** — `.github/workflows/*.yml`: trigger (`on`), job, runner (`runs-on: ubuntu-latest`), steps (`uses` / `run`).
+- 🖥️ **runner** — GitHub-ის სუფთა ვირტუალური Ubuntu, ყოველ გაშვებაზე ახალი: კოდი მხოლოდ `actions/checkout`-ის შემდეგ ჩნდება, .NET — `actions/setup-dotnet`-ის შემდეგ.
+- 🧪 **CI** — `ci.yml` ყოველ PR-ზე: checkout → setup-dotnet → restore → build → test. ჩავარდნისას: რომელი step → ლოგის ბოლო ხაზები → იგივე ბრძანება შენთან.
+- 🛡️ **branch protection** — `main`-ში პირდაპირ push აღარ შეიძლება, merge — მხოლოდ მწვანე CI-ით.
+
+**შემდეგ ლექციაზე:** CI ამოწმებს — მაგრამ სერვერზე განახლება ისევ ხელით ხდება. CD-ით merge-ის შემდეგ LMS სერვერზე თვითონ ავა.
+
+```prompt გამოცდა მეათე ლექციაზე
+ვსწავლობ DevOps-ს. მეათე ლექციაზე გავიარეთ GitHub Actions და CI: workflow, on (push, pull_request, workflow_dispatch), jobs, runs-on, runner როგორც სუფთა მანქანა, steps (uses და run), actions/checkout, actions/setup-dotnet, YAML-ის შეწევა, xUnit ტესტი, dotnet build/test CI-ში, exit code, ჩავარდნილი CI-ის ლოგის კითხვა, branch protection (rulesets, required status checks).
+დამისვი 7 კითხვა სათითაოდ, მარტივიდან რთულისკენ — ნაწილი სიტუაციური იყოს („PR-ზე CI წითელია, შენთან კი ყველაფერი მუშაობს. რას შეამოწმებ?“). ყოველ პასუხზე შემიფასე და ამიხსენი. ბოლოს მითხარი, რა გავიმეორო. ქართულად.
+```
+
+```prompt GitHub Actions-ის workflow ჩავარდა
+ჩემი GitHub Actions workflow ჩავარდა. დამეხმარე მიზეზის პოვნაში ნაბიჯ-ნაბიჯ, მარტივად და ქართულად. workflow ფაილი: [აქ ჩასვი, საიდუმლოებების გარეშე]. რომელ step-ზე ჩავარდა და მისი ლოგის ბოლო ხაზები: [აქ]
+```
+  </aside>
+</section>
+
+<lecture-homework/>

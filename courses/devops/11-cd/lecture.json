@@ -1,0 +1,33 @@
+{
+  "title": "CD — merge → LMS სერვერზე",
+  "why": "CI ყოველ PR-ს ამოწმებს — მაგრამ merge-ის შემდეგ სერვერზე განახლება ისევ ხელით ხდება: ssh → git pull → docker compose up --build, და image სერვერზე, 1 GB RAM-ზე იწყობა. დღეს ჯაჭვს ბოლომდე ვაგრძელებთ: merge-ის შემდეგ GitHub Actions image-ს ააწყობს, GHCR-ში შეინახავს და SSH-ით სერვერზე გაუშვებს. ხელით — არაფერი, და თუ ახალმა ვერსიამ რამე გატეხა, წამებში დავბრუნდებით წინაზე.",
+  "outcomes": [
+    "CD-ის გეგმა: build GitHub-ზე, სერვერი მხოლოდ მზა image-ს იღებს",
+    "image-ის აწყობა და ატვირთვა GHCR-ში `latest` და commit-ის `sha` tag-ებით",
+    "GitHub Secrets და ცალკე deploy SSH გასაღები",
+    "`deploy.yml`: push `main`-ში → build → GHCR → SSH → `compose pull` + `up -d`",
+    "rollback წინა ვერსიაზე commit-ის sha-ით მონიშნული image-ით"
+  ],
+  "review": [
+    {
+      "q": "CI და CD — რა განსხვავებაა?",
+      "a": "CI (Continuous Integration) — ყოველი ცვლილების ავტომატური შემოწმება (build, ტესტები) `main`-ში შერწყმამდე. CD (Continuous Deployment) — `main`-ის ყოველი ცვლილების ავტომატური გაშვება სერვერზე"
+    },
+    {
+      "q": "SSH-ის პირადი გასაღები workflow-ს როგორ მივაწოდოთ?",
+      "a": "GitHub Secrets-ში (`Settings → Secrets and variables → Actions`) — workflow მას `${{ secrets.SSH_KEY }}`-ით კითხულობს, ლოგებში კი ის `***`-ით იმალება. YAML-ში პირდაპირ — არასოდეს"
+    },
+    {
+      "q": "რატომ ვიყენებთ deploy-ისთვის ცალკე SSH გასაღებს და არა საკუთარს?",
+      "a": "თუ GitHub-ის secret გაჟონავს, საკმარისია ამ ერთი გასაღების წაშლა სერვერის `authorized_keys`-იდან — შენი პირადი გასაღები და სხვა სერვერები დაცული რჩება"
+    },
+    {
+      "q": "რატომ ვაწყობთ image-ს GitHub Actions-ზე და არა სერვერზე?",
+      "a": "სერვერს მცირე RAM აქვს და build საიტს ანელებს; Actions-ზე აწყობილი image GHCR-ში ინახება და სერვერი მხოლოდ მზას იღებს — სწრაფად, და ზუსტად იმას, რაც აეწყო"
+    },
+    {
+      "q": "ახალმა ვერსიამ LMS გატეხა. როგორ დავბრუნდეთ წინაზე?",
+      "a": "ყოველი image commit-ის sha-ითაცაა მონიშნული. სერვერის `.env`-ში `IMAGE_TAG=<წინა sha>` → `docker compose up -d` — წამებში ძველი ვერსია მუშაობს"
+    }
+  ]
+}
