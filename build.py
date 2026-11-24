@@ -442,7 +442,7 @@ def write_syllabus(cdir, course):
         return False
     out.parent.mkdir(parents=True, exist_ok=True)
     built = {int(d.name.split('-', 1)[0]): d.name for d in cdir.iterdir() if (d / 'deck.html').exists() and d.name[:2].isdigit()}
-    # "📚 a · b" = რას ვისწავლით, "🛠 [პროექტი |] a · b" = რას ვწერთ პროექტში → ლექციის ⓘ drawer (გვერდზე არ ჩანს)
+    # "📚 …" = რას ისწავლის სტუდენტი, "🛠 [პროექტი |] …" = რას ვწერთ პროექტში (ერთი ხაზი = ერთი პუნქტი) → ლექციის ⓘ drawer (გვერდზე არ ჩანს)
     briefs, cur, lines = {}, None, []
     for line in src.read_text().splitlines():
         m = re.match(r'### (\d+)\.', line)
@@ -452,7 +452,7 @@ def write_syllabus(cdir, course):
             kind, body = ('learn' if line.startswith('📚') else 'build'), line[1:].strip()
             if kind == 'build' and '|' in body:
                 briefs.setdefault(cur, {})['project'], body = [x.strip() for x in body.split('|', 1)]
-            briefs.setdefault(cur, {})[kind] = [x.strip() for x in body.split('·') if x.strip()]
+            briefs.setdefault(cur, {}).setdefault(kind, []).append(body)   # ერთი ხაზი = ერთი პუნქტი
             continue
         lines.append(line)
     h = markdown.markdown('\n'.join(lines), extensions=['tables', 'sane_lists'])
@@ -465,7 +465,7 @@ def write_syllabus(cdir, course):
         if b:
             li = lambda xs: ''.join(f'<li>{md_inline(x)}</li>' for x in xs)
             body = (f'<div class="k">ლექცია {m.group(1)}</div><h4 class="dt">{title}</h4>'
-                    + (f'<h5>📚 რას ვისწავლით</h5><ul>{li(b["learn"])}</ul>' if b.get('learn') else '')
+                    + (f'<h5>🎯 რას ისწავლის სტუდენტი</h5><ul>{li(b["learn"])}</ul>' if b.get('learn') else '')
                     + (f'<h5>🛠 რას ვწერთ {esc(b.get("project", "LMS"))}-ში</h5><ul>{li(b["build"])}</ul>' if b.get('build') else ''))
             info = f'<button class="info" type="button" data-l="{num}" title="რას ვისწავლით და რას ვწერთ">i</button><template id="b-{num}">{body}</template>'
         return f'<div class="lec{" ready" if slug else ""}" id="l-{num}"><h3>{m.group(1)}. {title}{info}{go}</h3>{desc}</div>'
