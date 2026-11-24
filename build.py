@@ -8,6 +8,7 @@
 #   lecture.json    {"title", "why", "outcomes": [...], "review": [{"q", "a"}, ...], "starts_series": true?}
 #   classwork.md    კლასში დავალება            homework.md    საშინაო (+ "## ამოხსნა" — ჩანს მხოლოდ შემდეგ ლექციაზე)
 #   materials/      ფაილები ჩამოსატვირთად
+# courses/<კურსი>/syllabus.md — კურსის სილაბუსი → /<კურსი>/syllabus.html (მთავარ გვერდზე „📄 სილაბუსი“)
 #
 # HTML გვერდები იშიფრება კოდით (.access-code ან LECTURES_CODE) — engine/gate.html კოდს ერთხელ ითხოვს.
 # გამონაკლისი: study.html (კონსპექტი) და materials/ — ღიაა, სტუდენტები კოდის გარეშე ხსნიან.
@@ -431,6 +432,29 @@ def write_study(out, course, meta, num, deck_title, study, materials):
     write_page(out / 'study.html', page, encrypt=False)
 
 # ---------- everything ----------
+# კურსის სილაბუსი: courses/<კურსი>/syllabus.md → /<კურსი>/syllabus.html
+#   "## ნაწილი (N ლექცია)" = ნაწილი; "### 01. სათაური" + აღწერა = ლექცია; აწყობილ ლექციას გვერდით ბმულები უჩნდება
+def write_syllabus(cdir, course):
+    src = cdir / 'syllabus.md'
+    out = OUT / cdir.name / 'syllabus.html'
+    if not src.exists():
+        out.unlink(missing_ok=True)
+        return False
+    out.parent.mkdir(parents=True, exist_ok=True)
+    built = {int(d.name.split('-', 1)[0]): d.name for d in cdir.iterdir() if (d / 'deck.html').exists() and d.name[:2].isdigit()}
+    h = markdown.markdown(src.read_text(), extensions=['tables', 'sane_lists'])
+    def lec(m):
+        num, title, desc = int(m.group(1)), m.group(2), m.group(3) or ''
+        slug = built.get(num)
+        go = (f'<span class="go"><a href="{slug}/">▶ პრეზენტაცია</a><a href="{slug}/study.html">📖 კონსპექტი</a></span>') if slug else ''
+        return f'<div class="lec{" ready" if slug else ""}" id="l-{num}"><h3>{m.group(1)}. {title}{go}</h3>{desc}</div>'
+    h = re.sub(r'<h3>(\d+)\.\s*(.*?)</h3>\s*(<p>.*?</p>)?', lec, h, flags=re.S)
+    page = (ENGINE / 'syllabus.html').read_text()
+    for k, v in {'{{TITLE}}': esc(course['title']), '{{COUNT}}': str(len(re.findall(r'class="lec', h))), '{{BODY}}': h, '{{FONTS}}': FONTS}.items():
+        page = page.replace(k, v)
+    write_page(out, page)
+    return True
+
 def main(filters):
     OUT.mkdir(parents=True, exist_ok=True)
     marker = OUT / GENERATED
@@ -456,7 +480,8 @@ def main(filters):
             prev = {'meta': meta, 'num': int(ldir.name.split('-', 1)[0]), 'homework': md_doc(ldir / 'homework.md'),
                     'href': f'../{ldir.name}/'}
         catalog.append({'slug': cdir.name, 'title': course['title'], 'order': course.get('order', 99), 'lectures': lectures,
-                        'links': course.get('links', []), 'color': course.get('color')})   # extra pages (e.g. a roadmap), href relative to the course folder
+                        'links': course.get('links', []), 'color': course.get('color'),
+                        'syllabus': write_syllabus(cdir, course)})   # extra pages (e.g. a roadmap), href relative to the course folder
     catalog.sort(key=lambda c: c['order'])
     if not filters:
         page = (ENGINE / 'index.html').read_text().replace('/*CATALOG*/[]', json.dumps(catalog, ensure_ascii=False))

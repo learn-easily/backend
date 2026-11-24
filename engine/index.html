@@ -34,6 +34,8 @@ h1{font-size:34px;line-height:1.1;margin:0;font-weight:800;letter-spacing:-.01em
 .course>h2{display:flex;align-items:center;gap:12px;font-size:28px;margin:0 0 18px;font-weight:800}
 .course>h2::before{content:"";width:6px;height:28px;border-radius:3px;background:var(--c)}
 .course>h2 small{font:500 13px var(--mono);color:var(--muted)}
+.course>h2 .syl{margin-left:auto;font:700 14px var(--sans);color:var(--c);text-decoration:none;border:1.5px solid var(--c);border-radius:10px;padding:6px 14px}
+.course>h2 .syl:hover{background:var(--c);color:#fff}
 .links{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(560px,100%),1fr));gap:16px;margin:0 0 16px}
 .link{display:flex;gap:16px;align-items:center;background:linear-gradient(135deg,color-mix(in srgb,var(--c) 10%,#fff),#fff);border:1px solid color-mix(in srgb,var(--c) 30%,var(--line));border-radius:16px;padding:16px 18px}
 .link .ic{font-size:40px;line-height:1}
@@ -121,7 +123,7 @@ document.addEventListener('click', e => {
 });
 document.getElementById('courses').innerHTML = courses.map(c => `
   <section class="course" data-cat="${esc(c.slug)}" style="--c:${c.color}">
-    <h2>${esc(c.title)}<small>${c.count} ლექცია</small></h2>
+    <h2>${esc(c.title)}<small>${c.count} ლექცია</small>${c.syllabus ? `<a class="syl" href="${esc(c.slug)}/syllabus.html">📄 სილაბუსი</a>` : ``}</h2>
     ${(c.links || []).length ? `<div class="links">${c.links.map(linkCard(c)).join('')}</div>` : ''}
     ${c.count ? `<div class="grid">${c.lectures.map(card(c)).join('')}</div>` : `<div class="soon">ლექციები მალე დაემატება</div>`}
   </section>`).join('');
