@@ -60,54 +60,54 @@ Layers და Vertical Slice Architecture; SRP და DIP; slice: Request · Han
 
 ### 10. Rich Entity, Value Object და Result
 
-ანემიური entity-ის პრობლემა; rich entity: დახურული setter-ები, factory მეთოდი, წესები entity-ში; Result pattern შეცდომისთვის exception-ის ნაცვლად; Value Object `Email` (EF Core-ის value conversion); ახალი feature: ჯგუფები (Group).
+**პრობლემა:** ერთი წესი Create-შიც და Update-შიც მეორდება, Email ოთხ ადგილას სუფთავდება, `course.DurationWeeks = -5` კი კომპილირდება. **თემები:** ანემიური vs rich entity (private set, private constructor, `Create` / `Update`); Result pattern (`Result`, `Result<T>`, `Error`: Code + Message) — მოსალოდნელი შეცდომა exception-ის გარეშე; რომელი წესი entity-ში და რომელი handler-ში (ბაზის საჭიროება: R1, R2); Value Object `Email` (`sealed record`, EF Core `HasConversion`). **LMS:** Course, Student, Lecturer → rich · ახალი entity Group (≤ 20 ადგილი, წარსულში ვერ დაიწყება): Create, GetById.
 
 ### 11. Aggregate და Concurrency
 
-ჩარიცხვა ჯგუფში (R3); Aggregate და Aggregate Root (`Group` → `Enrollment`); ცვლილება მხოლოდ root-ის გავლით; პრობლემა: დავიწყებული `Include` და Repository pattern DDD-ში (რას ხსნის, როდის ღირს — კოდში 15-ში); race condition ბოლო ადგილზე; optimistic concurrency (`rowversion`) და unique index; ჯგუფიანი კურსის წაშლა → 409.
+**პრობლემა:** R3 მთელ ჯგუფს ეხება; handler-ში დაწერილ შემოწმებას სხვა slice გვერდს აუვლის, ორი ერთდროული მოთხოვნა კი 20-ადგილიან ჯგუფში 21-ე სტუდენტს რიცხავს. **თემები:** Aggregate და Aggregate Root (`Group` → `Enrollment`), ცვლილება მხოლოდ root-ით, `DbSet` შვილზე არ არის; 400 vs 409; Cascade aggregate-ის შიგნით, Restrict გარეთ (ჯგუფიანი კურსის წაშლა → 409); დავიწყებული `Include` და Repository pattern DDD-ში — რას ხსნის, როდის ღირს (კოდში 15-ში); race condition (ცოცხალი ცდა); pessimistic vs optimistic; `rowversion` + `DbUpdateConcurrencyException` → 409; unique index. **LMS:** ჩარიცხვა ჯგუფში (R3).
 
 ## პასუხები, შეცდომები და pipeline (3 ლექცია)
 
 ### 12. Middleware, Pipeline და Logging
 
-როგორ გადის მოთხოვნა ASP.NET Core-ში: middleware-ების ჯაჭვი და მათი რიგი; ჩაშენებული middleware-ები; საკუთარი middleware (მოთხოვნის ლოგი: მეთოდი, მისამართი, სტატუსი, დრო); `ILogger`, ლოგის დონეები, structured logging.
+**პრობლემა:** „ხანდახან ნელა მუშაობს“ — რომელი endpoint? `Stopwatch` ყველა handler-ში 20 ასლია: რაც ყველა მოთხოვნას ეხება, handler-ის საქმე არ არის. **თემები:** მოთხოვნის გზა — middleware-ების ჯაჭვი და პასუხი უკან; `Program.cs`-ის `Use…` ხაზები middleware-ებია; `app.Use(…, next)`: წინ / შემდეგ; რიგი მნიშვნელოვანია; short-circuit (ტექნიკური სამუშაოები → 503); საკუთარი middleware class-ად (`RequestDelegate`, `InvokeAsync`, `UseMiddleware`); DI ხაფანგი: Scoped სერვისი `InvokeAsync`-ში, არა constructor-ში; `ILogger<T>`, დონეები, ფილტრი `appsettings`-ში; structured logging (message template vs interpolation, JSON console). **LMS:** მოთხოვნის დროის middleware · ლოგები ჩარიცხვის handler-ში.
 
 ### 13. შეცდომები და პასუხები: ერთი ფორმა ყველგან
 
-API-ის პასუხის ნორმალიზაცია: ნებისმიერი შეცდომა — დომენის, ვალიდაციის, არარსებული მისამართის, 401/403, მოულოდნელი exception — ერთ ფორმაში ბრუნდება (ProblemDetails, RFC 9457); `ErrorType` და სტატუს კოდი ერთ ადგილას; `ResultExtensions` (`ToOk`, `ToCreated`, `ToNoContent`); `AddProblemDetails`, `IExceptionHandler`, `UseStatusCodePages`; production-ში დეტალების გარეშე; concurrency-ის ერთიანი დამუშავება.
+**პრობლემა:** ყოველი handler თვითონ წყვეტს სტატუსს და შეცდომის ფორმას; exception → stack trace, არარსებული მისამართი → ცარიელი 404 — frontend-ს ხუთი სხვადასხვა ფორმის გარჩევა უწევს. **თემები:** ProblemDetails (RFC 9457) — ერთი ფორმა ყველა შეცდომაზე, წყაროს მიუხედავად; `ErrorType` (Validation, NotFound, Conflict…) → სტატუსი ერთ ადგილას; `ResultExtensions`: `ToOk()`, `ToCreated(uri)`, `ToNoContent()`, შეცდომა → ProblemDetails; `AddProblemDetails`, `IExceptionHandler` + `UseExceptionHandler` (500 დეტალების გარეშე production-ში, ლოგი), `UseStatusCodePages` (404/405); concurrency ერთ ადგილას. **LMS:** ყველა handler ResultExtensions-ზე · try/catch handler-ებში აღარ არის.
 
 ### 14. ვალიდაცია და MediatR
 
-FluentValidation; ვალიდაცია handler-ში ხელით → იგივე კოდი ყველა handler-ში; MediatR: `IRequest`, `IRequestHandler`, `ISender`; pipeline behavior-ები: ვალიდაცია და ლოგირება ერთ ადგილას; slice-ები MediatR-ზე.
+**პრობლემა:** ვალიდაცია (ცარიელი ველები, ფორმატი, სიგრძე) entity-მდე უნდა მოხდეს და ყველა ველის შეცდომა ერთად უნდა დაბრუნდეს; validator-ის ხელით გამოძახება ყველა handler-ში მეორდება. **თემები:** FluentValidation (წესები, შეცდომები ველების მიხედვით → ValidationProblem); MediatR 12.x: `IRequest`, `IRequestHandler`, `ISender` — slice-ები MediatR-ზე; pipeline behavior: `ValidationBehavior` და `LoggingBehavior` ერთ ადგილას; middleware vs pipeline behavior: რომელი რისთვის. **LMS:** validator-ები ყველა Create/Update-ზე · ყველა slice MediatR-ზე.
 
 ## LMS-ის დასრულება (5 ლექცია)
 
 ### 15. განრიგი და დასწრება + Claude Code
 
-ლექციები (R4) და დასწრება (R6); ჯგუფის aggregate იზრდება → `IGroupRepository` ხელით; პირველი slice ხელით, `CLAUDE.md` პროექტის წესებით (aggregate მხოლოდ Repository-ით); დანარჩენ slice-ებს Claude Code წერს, ჩვენ review-ს ვუკეთებთ; სიები pagination-ით.
+**პრობლემა:** ჯგუფის aggregate იზრდება (ლექციები, დასწრება) და მას ბევრი handler ტვირთავს — ყველგან სწორი `Include` სჭირდება; feature-ები მეორდება ნაცნობი pattern-ით. **თემები:** `IGroupRepository` ხელით (`GetAsync`, `Add`), Enroll მასზე; R4 (ლექციები დროში არ ფარავს ერთმანეთს — ჯგუფის წესი; ლექტორი ერთ დროს ერთ ლექციაზე — handler-ის წესი); R6 (15 წთ-ზე მეტი დაგვიანება = გაცდენა); Claude Code: `CLAUDE.md` (VSA, MediatR, Result, aggregate მხოლოდ Repository-ით), პირველი slice ხელით → დანარჩენს AI წერს → review; სია pagination-ით (Skip/Take, `PagedResponse`). **LMS:** განრიგი და დასწრება.
 
 ### 16. Authentication და Configuration
 
-`appsettings` და environment-ები; Options pattern (`JwtOptions`, `ValidateOnStart`); User Secrets; ანგარიშები; პაროლის hash Argon2id-ით; JWT: გაცემა და შემოწმება; claims.
+**პრობლემა:** API ყველასთვის ღიაა; JWT-ს გასაღები და ვადა კოდში არ უნდა ეწეროს. **თემები:** `appsettings` და environment-ები; Options pattern (`JwtOptions`, `ValidateOnStart`); User Secrets; ანგარიშები და პაროლის hash Argon2id-ით; login → JWT გაცემა; JWT შემოწმება (`AddJwtBearer`), claims, `RequireAuthorization`; 401 ProblemDetails-ით. **LMS:** ანგარიშები სამ როლზე (მენეჯერი, ლექტორი, სტუდენტი), login.
 
 ### 17. Authorization
 
-როლები და policy-ები; resource-based authorization: R5 („მხოლოდ თავისი ჯგუფის ლექტორი“).
+**პრობლემა:** შესული მომხმარებელი ყველაფერს ვერ უნდა აკეთებდეს; ლექტორის როლი საკმარისი არ არის — ჯგუფი მისი უნდა იყოს. **თემები:** როლები და policy-ები; resource-based authorization: R5 („დასწრებას აღრიცხავს და აფასებს მხოლოდ ამ ჯგუფის ლექტორი“); მიმდინარე მომხმარებელი handler-ში (claims); 403 ProblemDetails-ით. **LMS:** policy-ები ყველა endpoint-ზე · R5 დასწრებაზე.
 
 ### 18. ფაილები, დრო და შეფასება
 
-დავალებები; ნამუშევრის ატვირთვა (`IFormFile`); შეფასება და დედლაინი (R7); `TimeProvider`.
+**პრობლემა:** სტუდენტი ნამუშევარს ფაილად აბარებს; დედლაინის წესი დროზეა დამოკიდებული და `DateTime.UtcNow`-ით შეუმოწმებელია. **თემები:** დავალებები; ფაილის ატვირთვა (`IFormFile`, ზომა და ტიპი, შენახვა) და ჩამოტვირთვა; `TimeProvider` (`DateTime.UtcNow`-ის ნაცვლად); R7 (დედლაინის შემდეგ არ მიიღება, მენეჯერს გადაწევა შეუძლია; ქულა 1–12 — Value Object). **LMS:** დავალებები, ნამუშევრის ატვირთვა, შეფასება.
 
 ### 19. Background Jobs და კურსის დასრულება
 
-`BackgroundService`; შეხსენებები და მე-4 გაცდენის შეტყობინება (R6); კურსის ჩაბარება (R8). Backend დასრულებულია.
+**პრობლემა:** ზოგი საქმე მოთხოვნის გარეშე უნდა მოხდეს: დედლაინის შეხსენება, ლექტორის გაფრთხილება მე-4 გაცდენაზე. **თემები:** `BackgroundService` და `PeriodicTimer`; Scoped სერვისი background-ში (`IServiceScopeFactory`); შეტყობინებები აპლიკაციის შიგნით (ბაზაში); R6-ის მეორე ნაწილი; R8 (კურსი ჩაბარებულია: საშუალო ≥ 6 და დასწრება ≥ 75%). **LMS:** შეტყობინებები, კურსის დასრულება — **Backend დასრულებულია**.
 
 ## Angular Claude Code-ით (2 ლექცია)
 
 ### 20. Angular + Claude Code #1: როგორ ვმუშაობთ AI-სთან
 
-დაგეგმვა: `CLAUDE.md`, plan mode, OpenAPI როგორც კონტექსტი AI-სთვის; CORS; login, layout, JWT interceptor, კურსები და ჯგუფები.
+**თემები:** როგორ ვგეგმავთ AI-სთან: `CLAUDE.md`, plan mode, OpenAPI დოკუმენტი როგორც კონტექსტი; CORS; Angular-ის სტრუქტურა; login, layout, JWT interceptor, ProblemDetails-ის ჩვენება; კურსები და ჯგუფები. სტუდენტები კოდს კითხულობენ, ლექტორი გეგმავს და review-ს აკეთებს.
 
 ### 21. Angular + Claude Code #2
 
-განრიგი, დასწრება, ნამუშევრის ატვირთვა, ქულები; ბოლო review და შესწორებები. Frontend დასრულებულია; სრული აპლიკაცია DevOps-ის კურსში იშვება სერვერზე.
+**თემები:** განრიგი, დასწრება, ნამუშევრის ატვირთვა, ქულები; ბოლო review და შესწორებები. **Frontend დასრულებულია** — სრული აპლიკაცია DevOps-ის კურსში იშვება სერვერზე.
