@@ -1,0 +1,695 @@
+<style>
+i.codestep{display:none}
+.mono{font-family:var(--mono)}
+.opt{display:flex;gap:16px;align-items:flex-start;background:#fff;border:1px solid var(--line);border-left:6px solid var(--a);border-radius:12px;padding:12px 18px;box-shadow:var(--shadow)}
+.opt .n{font:800 26px var(--mono);color:var(--a);line-height:1}
+.opt h3{font-size:20px;margin-bottom:3px}
+.opt p{font-size:17px}
+.flowrow{display:flex;align-items:center;gap:12px}
+.fbox{flex:1;border-radius:14px;padding:12px 14px;border:2px solid var(--a);background:color-mix(in srgb,var(--a) 8%,#fff);text-align:center}
+.fbox .e{font-size:30px;line-height:1.2}
+.fbox .l{font-size:19px;font-weight:800;color:var(--ink)}
+.fbox .s{font:14px var(--mono);color:var(--muted)}
+.farrow{font:800 24px var(--mono);color:var(--muted)}
+.reason{display:flex;gap:10px;align-items:center;border-radius:10px;padding:8px 12px;background:#fff;border:1px solid var(--line);font-size:17px;color:var(--ink2);box-shadow:var(--shadow)}
+.reason b.k{font:800 14px var(--mono);color:#fff;background:var(--a);border-radius:6px;padding:2px 8px}
+/* aggregate boundary */
+.agg{border:3px dashed #0d9488;border-radius:20px;padding:16px;position:relative;background:color-mix(in srgb,#0d9488 4%,#fff)}
+.agg .tag2{position:absolute;top:-14px;left:18px;background:#0d9488;color:#fff;font:800 13px var(--mono);border-radius:999px;padding:2px 12px}
+.agg .root{border:3px solid #0d9488;border-radius:14px;background:#fff;padding:10px 14px;text-align:center;font:800 18px var(--mono)}
+.agg .kids{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;justify-content:center}
+.agg .kid{border:2px solid #0d9488;border-radius:10px;background:#fff;padding:4px 10px;font:700 14px var(--mono);color:#115e59}
+.outside{border:2px solid var(--a);border-radius:12px;padding:8px 12px;font:700 15px var(--mono);background:#fff;text-align:center}
+/* race timeline */
+.race{display:grid;grid-template-columns:110px 1fr 1fr;gap:8px 12px;font:600 15px var(--mono)}
+.race .t{color:var(--muted);font-weight:800}
+.race .h{font-weight:800;text-align:center;padding:4px;border-radius:8px;color:#fff;background:var(--a)}
+.race .c{background:#fff;border:1px solid var(--line);border-left:5px solid var(--a);border-radius:8px;padding:6px 10px;color:var(--ink2)}
+.race .c.bad{background:color-mix(in srgb,var(--red) 8%,#fff);border-left-color:var(--red);color:#991b1b;font-weight:800}
+.race .c.ok{background:#f0fdf4;border-left-color:#16a34a;color:#166534;font-weight:800}
+.race .e{visibility:hidden}
+.seats{display:flex;gap:4px;flex-wrap:wrap;max-width:420px}
+.seats span{width:26px;height:26px;border-radius:6px;background:#0d9488}
+.seats span.x{background:var(--red);outline:3px solid #fecaca}
+</style>
+<!-- =========================================================
+     ლექცია 12 — Aggregate და Concurrency: ჩარიცხვა ჯგუფში (R3)
+     ფერები: Group / aggregate = teal · Student = core · პრობლემა = წითელი · მენეჯერი A = ლურჯი, B = ნარინჯისფერი
+     ========================================================= -->
+
+<section class="slide" data-section="შესავალი">
+  <div class="vcenter" style="max-width:760px">
+    <div class="kicker in" style="color:var(--core)">ASP.NET Core Web API · ლექცია 12</div>
+    <h1 class="in" style="--d:.15s">20 ადგილი.<br><span class="grad">21 სტუდენტი?</span></h1>
+    <p class="lead in mt" style="--d:.35s"><b>Aggregate</b> · <b>Aggregate Root</b> · race condition · <b>optimistic concurrency</b></p>
+  </div>
+  <div class="abs" style="right:100px;top:240px;width:440px">
+    <div class="seats in" style="--d:.5s"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span class="x"></span></div>
+    <p class="tiny in" style="--d:.9s;margin-top:14px">ორი მენეჯერი · ერთი ბოლო ადგილი · ერთი და იგივე წამი</p>
+  </div>
+</section>
+<lecture-review/>
+<lecture-homework-review/>
+<lecture-intro/>
+<section class="slide" data-section="დღის თემა">
+  <div class="kicker">story: „მენეჯერი რიცხავს სტუდენტს ჯგუფში“</div>
+  <h2><span class="c-core">R3</span> — სამი წესი</h2>
+  <div class="grid3" style="grid-template-columns:1fr 1fr 1fr;gap:18px;align-items:start">
+    <div class="opt step" style="--a:#0d9488"><span class="n">1</span><div><h3>ადგილი</h3><p>ჯგუფში მაქსიმუმ <b>Capacity</b> სტუდენტი (≤ 20)</p></div></div>
+    <div class="opt step" style="--a:#0d9488"><span class="n">2</span><div><h3>ერთხელ</h3><p>სტუდენტი ერთ ჯგუფში <b>ორჯერ</b> ვერ ჩაირიცხება</p></div></div>
+    <div class="opt step" style="--a:#0d9488"><span class="n">3</span><div><h3>პირველი კვირა</h3><p>დაწყებულ ჯგუფში — მხოლოდ <b>პირველ 7 დღეში</b></p></div></div>
+  </div>
+  <div class="callout step mt" style="--a:var(--core)">სამივე წესი <b>მთელ ჯგუფს</b> ეხება: მის ყველა ჩარიცხვას ერთად. ვინ უნდა დაიცვას?</div>
+  <aside class="study">
+### story: „მენეჯერი რიცხავს სტუდენტს ჯგუფში“
+
+07 ლექციის R3 სამ წესს შეიცავს:
+
+1. **ადგილი:** ჯგუფში მაქსიმუმ `Capacity` სტუდენტია (≤ 20, 10 ლექციიდან).
+2. **ერთხელ:** სტუდენტი ერთ ჯგუფში ორჯერ ვერ ჩაირიცხება.
+3. **პირველი კვირა:** თუ ჯგუფი უკვე დაიწყო, ჩარიცხვა მხოლოდ პირველ 7 დღეშია შესაძლებელი.
+
+10 ლექციის წესები ერთ ობიექტს ეხებოდა: კურსის სახელი, ჯგუფის ადგილები. R3 სხვანაირია: მის შესამოწმებლად **ჯგუფის ყველა ჩარიცხვა** უნდა ვიცოდეთ. ვინ უნდა დაიცვას ასეთი წესი?
+  </aside>
+</section>
+
+<!-- ================= PART 1 ================= -->
+<section class="slide divider" data-section="1 · Aggregate">
+  <div class="vcenter">
+    <div class="kicker in">ნაწილი 1</div>
+    <h1 class="in" style="--d:.1s"><span class="grad">Aggregate</span></h1>
+    <p class="lead mt in" style="--d:.3s">რაც ერთად იცვლება — ერთი კარით</p>
+  </div>
+  <div class="big-num">01</div>
+  <aside class="study">
+## ნაწილი 1 · Aggregate
+
+ჯერ ჩარიცხვას ისე დავწერთ, როგორც დღემდე ვწერდით, და ვნახავთ, რატომ არის საშიში. მერე DDD-ის ერთ-ერთ მთავარ ცნებას გავიცნობთ: Aggregate.
+  </aside>
+</section>
+<section class="slide" data-section="1 · Aggregate">
+  <div class="kicker">პირველი მცდელობა</div>
+  <h2>წესები handler-ში — <span class="c-red">კარი ღიაა</span></h2>
+  <div class="grid2" style="grid-template-columns:1.35fr 1fr;gap:26px;align-items:start">
+    <code-block id="nv" lang="csharp" cls="xs" title="EnrollStudentHandler.cs — ასე არა">
+var group = await _db.Groups.FindAsync(groupId);
+
+var count = await _db.Enrollments.CountAsync(e => e.GroupId == groupId);
+if (count >= group.Capacity)
+    return Results.Conflict("ჯგუფი სავსეა");
+
+if (await _db.Enrollments.AnyAsync(e => e.GroupId == groupId && e.StudentId == studentId))
+    return Results.Conflict("უკვე ჩარიცხულია");
+
+// + პირველი კვირის შემოწმება …
+
+_db.Enrollments.Add(new Enrollment { GroupId = groupId, StudentId = studentId });
+await _db.SaveChangesAsync();
+    </code-block>
+    <div class="col" style="gap:12px">
+      <div class="problem step" style="font-size:18px">ხვალ ახალი slice: „სტუდენტის <b>გადაყვანა</b> სხვა ჯგუფში“. იქაც უნდა დაწერო სამივე შემოწმება — <b>თუ გაგახსენდა</b></div>
+      <div class="problem step" style="font-size:18px"><code class="i">_db.Enrollments.Add(...)</code> — ნებისმიერ handler-ს შეუძლია, <b>წესების გვერდის ავლით</b></div>
+      <div class="callout step" style="--a:#0d9488;font-size:18px">წესი ეკუთვნის <b>ჯგუფს</b>. ჩარიცხვა უნდა იყოს <b>ჯგუფის ნაწილი</b> და მხოლოდ ჯგუფით იცვლებოდეს</div>
+    </div>
+  </div>
+  <aside class="study">
+### პირველი მცდელობა: წესები handler-ში
+
+```csharp EnrollStudentHandler.cs — ასე არა
+var group = await _db.Groups.FindAsync(groupId);
+
+var count = await _db.Enrollments.CountAsync(e => e.GroupId == groupId);
+if (count >= group.Capacity)
+    return Results.Conflict("ჯგუფი სავსეა");
+
+if (await _db.Enrollments.AnyAsync(e => e.GroupId == groupId && e.StudentId == studentId))
+    return Results.Conflict("უკვე ჩარიცხულია");
+
+// + პირველი კვირის შემოწმება …
+
+_db.Enrollments.Add(new Enrollment { GroupId = groupId, StudentId = studentId });
+await _db.SaveChangesAsync();
+```
+
+მუშაობს, მაგრამ ორი პრობლემა აქვს:
+
+- **წესი ერთ slice-შია.** ხვალ დაემატება „სტუდენტის გადაყვანა სხვა ჯგუფში“. იქაც სამივე შემოწმება უნდა დაწერო, თუ გაგახსენდა. 10 ლექციის პრობლემა ბრუნდება.
+- **კარი ღიაა.** `_db.Enrollments.Add(...)` ნებისმიერ handler-ს შეუძლია, ყველა წესის გვერდის ავლით.
+
+R3 **ჯგუფის** წესია. ჩარიცხვა ჯგუფის ნაწილი უნდა იყოს და მხოლოდ ჯგუფის გავლით უნდა იცვლებოდეს.
+  </aside>
+</section>
+<section class="slide" data-section="1 · Aggregate">
+  <div class="kicker">DDD</div>
+  <h2>Aggregate — <span class="grad">ერთი ერთეული, ერთი კარი</span></h2>
+  <div class="grid2" style="grid-template-columns:1fr 1fr;gap:30px;align-items:center">
+    <div class="col" style="gap:14px">
+      <div class="agg step">
+        <span class="tag2">Aggregate</span>
+        <div class="root">👥 Group <small style="font-weight:600;color:var(--muted)">· root</small></div>
+        <div class="kids"><span class="kid">Enrollment</span><span class="kid">Enrollment</span><span class="kid">Enrollment</span><span class="kid">…</span></div>
+      </div>
+      <div class="flowrow step">
+        <div class="outside" style="--a:var(--core);flex:1">🎓 Student</div>
+        <div class="outside" style="--a:var(--core);flex:1">📚 Course</div>
+      </div>
+      <p class="tiny step" style="text-align:center">სხვა aggregate-ები — <b>Id-ით</b>: <code class="i">StudentId</code>, <code class="i">CourseId</code></p>
+    </div>
+    <div class="col" style="gap:10px">
+      <div class="reason step" style="--a:#0d9488"><b class="k">1</b><span>გარედან მივმართავთ <b>მხოლოდ root-ს</b> (Group)</span></div>
+      <div class="reason step" style="--a:#0d9488"><b class="k">2</b><span>შვილები იცვლება <b>მხოლოდ root-ის მეთოდით</b>: <code class="i">group.Enroll(...)</code></span></div>
+      <div class="reason step" style="--a:#0d9488"><b class="k">3</b><span>იტვირთება და ინახება <b>მთლიანად</b>, ერთ ტრანზაქციაში</span></div>
+      <div class="reason step" style="--a:#0d9488"><b class="k">4</b><span><b>პატარაა</b>: მხოლოდ ის, რაც წესს სჭირდება</span></div>
+    </div>
+  </div>
+  <aside class="study">
+### Aggregate და Aggregate Root
+
+**Aggregate** არის ობიექტების ჯგუფი, რომელიც **ერთად იცვლება** და **ერთად იცავს** წესს. ჩვენთან: `Group` და მისი `Enrollment`-ები.
+
+**Aggregate Root** ამ ჯგუფის „კარია“: ჩვენთან `Group`. ოთხი წესი:
+
+1. **გარედან მივმართავთ მხოლოდ root-ს.** handler-ი ჯგუფს ტვირთავს, არა ცალკე ჩარიცხვებს.
+2. **შვილები მხოლოდ root-ის მეთოდით იცვლება:** `group.Enroll(...)`. ასე R3 ერთ ადგილას ცხოვრობს და ყველა slice, „გადაყვანაც“, მას ემორჩილება.
+3. **aggregate იტვირთება და ინახება მთლიანად**, ერთ ტრანზაქციაში: ჯგუფი თავისი ჩარიცხვებით.
+4. **aggregate პატარაა:** მხოლოდ ის, რაც წესს სჭირდება. `Student` და `Course` ცალკე aggregate-ებია და ჯგუფი მათ **Id-ით** იცნობს. სტუდენტის სახელის შესაცვლელად ჯგუფის ჩატვირთვა არ გვჭირდება.
+
+```terms
+Aggregate — ობიექტების ჯგუფი, რომელიც ერთად იცვლება და ერთად იცავს ბიზნესის წესს
+Aggregate Root — aggregate-ის მთავარი entity; ერთადერთი, რასაც გარედან მივმართავთ
+```
+  </aside>
+</section>
+<section class="slide" data-section="1 · Aggregate">
+  <div class="kicker">კოდი</div>
+  <h2><span style="color:#0d9488">group.Enroll(...)</span> — R3 ერთ ადგილას</h2>
+  <div class="grid2" style="grid-template-columns:1.45fr 1fr;gap:26px;align-items:start">
+    <code-block id="en" lang="csharp" cls="xs" title="Entities/Group.cs">
+private readonly List<Enrollment> _enrollments = [];
+public IReadOnlyCollection<Enrollment> Enrollments => _enrollments;
+public int EnrolledCount { get; private set; }
+
+public Result Enroll(Guid studentId, DateOnly today, DateTime now)
+{
+    if (_enrollments.Any(e => e.StudentId == studentId))
+        return Result.Failure(GroupErrors.AlreadyEnrolled);
+    if (EnrolledCount >= Capacity)
+        return Result.Failure(GroupErrors.Full);
+    if (today >= StartDate.AddDays(7))
+        return Result.Failure(GroupErrors.EnrollmentClosed);
+
+    _enrollments.Add(new Enrollment(Id, studentId, now));
+    EnrolledCount++;
+    return Result.Success();
+}
+    </code-block>
+    <div class="col" style="gap:12px">
+      <i class="codestep" data-for="en" data-lines="1-2"></i>
+      <div class="reason step" data-with style="--a:#0d9488"><b class="k">1</b><span>ჩარიცხვები — ჯგუფის <b>შიგნით</b>, გარედან მხოლოდ წასაკითხად</span></div>
+      <i class="codestep" data-for="en" data-lines="7-12"></i>
+      <div class="reason step" data-with style="--a:#0d9488"><b class="k">2</b><span>R3-ის სამივე ნაწილი · თითოს თავისი <code class="i">Error</code></span></div>
+      <i class="codestep" data-for="en" data-lines="14-15"></i>
+      <div class="reason step" data-with style="--a:#0d9488"><b class="k">3</b><span>დამატება + მრიცხველი — <b>ერთად</b></span></div>
+      <code-block lang="csharp" cls="xs step" title="Entities/Enrollment.cs">
+public class Enrollment
+{
+    public Guid Id { get; private set; }
+    public Guid GroupId { get; private set; }
+    public Guid StudentId { get; private set; }
+    public DateTime EnrolledAt { get; private set; }
+
+    private Enrollment() { }
+
+    internal Enrollment(Guid groupId, Guid studentId, DateTime enrolledAt)
+    {
+        Id = Guid.CreateVersion7();
+        GroupId = groupId;
+        StudentId = studentId;
+        EnrolledAt = enrolledAt;
+    }
+}
+      </code-block>
+    </div>
+  </div>
+  <aside class="study">
+### group.Enroll: R3 ერთ ადგილას
+
+```csharp Entities/Group.cs · ახალი ნაწილი
+private readonly List<Enrollment> _enrollments = [];
+public IReadOnlyCollection<Enrollment> Enrollments => _enrollments;
+public int EnrolledCount { get; private set; }
+
+public Result Enroll(Guid studentId, DateOnly today, DateTime now)
+{
+    if (_enrollments.Any(e => e.StudentId == studentId))
+        return Result.Failure(GroupErrors.AlreadyEnrolled);
+    if (EnrolledCount >= Capacity)
+        return Result.Failure(GroupErrors.Full);
+    if (today >= StartDate.AddDays(7))
+        return Result.Failure(GroupErrors.EnrollmentClosed);
+
+    _enrollments.Add(new Enrollment(Id, studentId, now));
+    EnrolledCount++;
+    return Result.Success();
+}
+```
+
+```csharp Entities/Enrollment.cs
+public class Enrollment
+{
+    public Guid Id { get; private set; }
+    public Guid GroupId { get; private set; }
+    public Guid StudentId { get; private set; }
+    public DateTime EnrolledAt { get; private set; }
+
+    private Enrollment() { }   // EF Core-ისთვის
+
+    internal Enrollment(Guid groupId, Guid studentId, DateTime enrolledAt)
+    {
+        Id = Guid.CreateVersion7();
+        GroupId = groupId;
+        StudentId = studentId;
+        EnrolledAt = enrolledAt;
+    }
+}
+```
+
+```csharp Entities/GroupErrors.cs · ახალი
+public static readonly Error NotFound = new("Group.NotFound", "ჯგუფი ვერ მოიძებნა");
+public static readonly Error AlreadyEnrolled = new("Group.AlreadyEnrolled", "სტუდენტი ამ ჯგუფში უკვე ჩარიცხულია");
+public static readonly Error Full = new("Group.Full", "ჯგუფში თავისუფალი ადგილი აღარ არის");
+public static readonly Error EnrollmentClosed = new("Group.EnrollmentClosed", "ჩარიცხვა მხოლოდ ჯგუფის პირველ კვირაშია შესაძლებელი");
+```
+
+- ჩარიცხვები ჯგუფის **შიგნითაა** (`_enrollments`), გარედან მხოლოდ წასაკითხად ჩანს: `group.Enrollments.Add(...)` არ კომპილირდება.
+- **R3-ის სამივე ნაწილი** ერთ მეთოდშია, თითოს თავისი `Error` აქვს.
+- **„პირველი კვირა“:** `today >= StartDate.AddDays(7)` → დაკეტილია. თუ ჯგუფი ჯერ არ დაწყებულა, ეს პირობა თავისით არ სრულდება.
+- **`EnrolledCount`** ჩარიცხულთა რაოდენობაა. ჯერ ის `_enrollments.Count`-ის ტოლია და ზედმეტი ჩანს. რატომ გვჭირდება, ნაწილ 2-ში გამოჩნდება.
+- **`internal` constructor:** Enrollment-ის შექმნა მხოლოდ ამ პროექტის შიგნით შეიძლება. ერთ პროექტში C# ამას ბოლომდე ვერ აკრძალავს, ამიტომ მეორე დაცვაც გვაქვს: DataContext-ში **`DbSet<Enrollment>` არ არის** (შემდეგი სლაიდი).
+- `today` და `now` handler-იდან მოდის, როგორც 10 ლექციაზე.
+  </aside>
+</section>
+<section class="slide" data-section="1 · Aggregate">
+  <div class="kicker">handler + EF</div>
+  <h2>ჩატვირთე <span class="grad">მთლიანად</span> — შეცვალე root-ით</h2>
+  <div class="grid2" style="grid-template-columns:1.35fr 1fr;gap:26px;align-items:start">
+    <code-block id="eh" lang="csharp" cls="xs" title="Features/Groups/EnrollStudent/EnrollStudentHandler.cs">
+public async Task<IResult> HandleAsync(Guid groupId, EnrollStudentRequest request)
+{
+    var group = await _db.Groups
+        .Include(g => g.Enrollments)
+        .FirstOrDefaultAsync(g => g.Id == groupId);
+    if (group is null)
+        return Results.NotFound(GroupErrors.NotFound);
+
+    if (!await _db.Students.AnyAsync(s => s.Id == request.StudentId))
+        return Results.NotFound(StudentErrors.NotFound);
+
+    var now = DateTime.UtcNow;
+    var result = group.Enroll(request.StudentId, DateOnly.FromDateTime(now), now);
+    if (result.IsFailure)
+        return Results.Conflict(result.Error);
+
+    await _db.SaveChangesAsync();
+    return Results.Ok(new EnrollmentResponse(group.Id, request.StudentId,
+        group.EnrolledCount, group.Capacity));
+}
+    </code-block>
+    <div class="col" style="gap:12px">
+      <i class="codestep" data-for="eh" data-lines="3-5"></i>
+      <div class="reason step" data-with style="--a:#0d9488"><b class="k">1</b><span>aggregate — <b>მთლიანად</b>: <code class="i">Include(Enrollments)</code></span></div>
+      <i class="codestep" data-for="eh" data-lines="12-15"></i>
+      <div class="reason step" data-with style="--a:var(--red)"><b class="k">2</b><span>მოთხოვნა სწორია, მაგრამ <b>მდგომარეობას</b> ეწინააღმდეგება → <b>409</b></span></div>
+      <code-block lang="csharp" cls="xs step" title="Data/DataContext.cs · OnModelCreating">
+group.HasMany(g => g.Enrollments)
+    .WithOne()
+    .HasForeignKey(e => e.GroupId)
+    .OnDelete(DeleteBehavior.Cascade);
+
+modelBuilder.Entity<Enrollment>(e =>
+{
+    e.HasOne<Student>().WithMany()
+        .HasForeignKey(x => x.StudentId)
+        .OnDelete(DeleteBehavior.Restrict);
+});
+// DbSet<Enrollment> — არ არის!
+      </code-block>
+    </div>
+  </div>
+  <aside class="study">
+### handler და EF კონფიგურაცია
+
+```csharp Features/Groups/EnrollStudent/EnrollStudentRequest.cs
+public record EnrollStudentRequest(Guid StudentId);
+
+public record EnrollmentResponse(Guid GroupId, Guid StudentId, int EnrolledCount, int Capacity);
+```
+
+```csharp Features/Groups/EnrollStudent/EnrollStudentHandler.cs
+public async Task<IResult> HandleAsync(Guid groupId, EnrollStudentRequest request)
+{
+    var group = await _db.Groups
+        .Include(g => g.Enrollments)
+        .FirstOrDefaultAsync(g => g.Id == groupId);
+    if (group is null)
+        return Results.NotFound(GroupErrors.NotFound);
+
+    if (!await _db.Students.AnyAsync(s => s.Id == request.StudentId))
+        return Results.NotFound(StudentErrors.NotFound);
+
+    var now = DateTime.UtcNow;
+    var result = group.Enroll(request.StudentId, DateOnly.FromDateTime(now), now);
+    if (result.IsFailure)
+        return Results.Conflict(result.Error);
+
+    await _db.SaveChangesAsync();
+    return Results.Ok(new EnrollmentResponse(group.Id, request.StudentId,
+        group.EnrolledCount, group.Capacity));
+}
+```
+
+```csharp Features/Groups/EnrollStudent/EnrollStudentEndpoint.cs
+app.MapPost("/{groupId:guid}/enrollments", async (Guid groupId,
+        EnrollStudentRequest request, EnrollStudentHandler handler) =>
+    await handler.HandleAsync(groupId, request));
+```
+
+- **aggregate მთლიანად იტვირთება:** `Include(g => g.Enrollments)`. ჯგუფში ≤ 20 ჩარიცხვაა, ეს მცირეა. ამიტომაც უნდა იყოს aggregate პატარა.
+- **409, არა 400.** 10 ლექციაზე `Capacity = 25` იყო **400**: მოთხოვნა თავისთავად არასწორია, ნებისმიერ დროს. „ჯგუფი სავსეა“ კი **409 Conflict**-ია: მოთხოვნა სწორია, მაგრამ ეწინააღმდეგება ჯგუფის **ახლანდელ** მდგომარეობას. ხვალ, თუ ვინმე გაირიცხა, იგივე მოთხოვნა გავა.
+- `SaveChangesAsync` ერთ ტრანზაქციაში ჩაწერს ახალ Enrollment-ს და ჯგუფის `EnrolledCount`-ს.
+
+```csharp Data/DataContext.cs · OnModelCreating (Group-ის კონფიგურაციაში)
+group.HasMany(g => g.Enrollments)
+    .WithOne()
+    .HasForeignKey(e => e.GroupId)
+    .OnDelete(DeleteBehavior.Cascade);
+```
+
+```csharp Data/DataContext.cs · OnModelCreating
+modelBuilder.Entity<Enrollment>(e =>
+{
+    e.HasOne<Student>().WithMany()
+        .HasForeignKey(x => x.StudentId)
+        .OnDelete(DeleteBehavior.Restrict);
+});
+```
+
+- **`DbSet<Enrollment>` არ არის.** EF ცხრილს მაინც შექმნის: Enrollment-ს `Group.Enrollments`-ით პოულობს. ასე `_db.Enrollments.Add(...)` ვერავინ დაწერს: ჩარიცხვის ერთადერთი გზა `group.Enroll`-ია.
+- **Cascade აქ სწორია.** 11 ლექციაზე კურსისთვის Restrict ავირჩიეთ, რადგან ჯგუფი ცალკე aggregate-ია. Enrollment კი ჯგუფის **ნაწილია**: ჯგუფის წაშლისას მისი ჩარიცხვებიც უნდა წაიშალოს.
+- `Student`-თან Restrict: სტუდენტი, რომელიც სადმე ჩარიცხულია, არ წაიშლება.
+
+`Add-Migration AddEnrollments` → `Update-Database`.
+  </aside>
+</section>
+
+<section class="slide" data-section="შესვენება">
+  <div class="center">
+    <div class="big-emoji in" style="font-size:120px">☕</div>
+    <h1 class="in" style="--d:.15s">10 წუთი</h1>
+    <p class="lead in" style="--d:.3s">შემდეგ: <b class="c-red">ორი მენეჯერი, ერთი ბოლო ადგილი</b></p>
+  </div>
+</section>
+
+<!-- ================= PART 2 ================= -->
+<section class="slide divider" data-section="2 · Concurrency">
+  <div class="vcenter">
+    <div class="kicker in">ნაწილი 2</div>
+    <h1 class="in" style="--d:.1s"><span class="grad">Concurrency</span></h1>
+    <p class="lead mt in" style="--d:.3s">როცა ორი მოთხოვნა ერთდროულად მოდის</p>
+  </div>
+  <div class="big-num">02</div>
+  <aside class="study">
+## ნაწილი 2 · Concurrency
+
+`Enroll` ადგილს ამოწმებს. მაგრამ სერვერი ერთდროულად ბევრ მოთხოვნას ამუშავებს (05 ლექცია: async, thread pool). რა მოხდება, თუ ორი მოთხოვნა ერთსა და იმავე ჯგუფს ერთდროულად შეცვლის?
+  </aside>
+</section>
+<section class="slide" data-section="2 · Concurrency">
+  <div class="kicker">ცოცხალი ცდა</div>
+  <h2>ორი მენეჯერი · <span class="c-red">ერთი ბოლო ადგილი</span></h2>
+  <div class="grid2" style="grid-template-columns:1.25fr 1fr;gap:26px;align-items:start">
+    <div class="race">
+      <span></span><span class="h" style="--a:#2563eb">მენეჯერი A</span><span class="h" style="--a:#ea580c">მენეჯერი B</span>
+      <span class="t step">0 ms</span><span class="c" data-with style="--a:#2563eb">ჩატვირთა ჯგუფი: <b>19/20</b></span><span class="c" data-with style="--a:#ea580c">ჩატვირთა ჯგუფი: <b>19/20</b></span>
+      <span class="t step">1 ms</span><span class="c ok" data-with>19 &lt; 20 ✓</span><span class="c ok" data-with>19 &lt; 20 ✓</span>
+      <span class="t step">2 ms</span><span class="c" data-with style="--a:#2563eb">INSERT ნინო · Count = <b>20</b></span><span class="c" data-with style="--a:#ea580c">INSERT ლუკა · Count = <b>20</b></span>
+      <span class="t step">3 ms</span><span class="c bad" data-with>✅ 200</span><span class="c bad" data-with>✅ 200</span>
+    </div>
+    <div class="col" style="gap:12px">
+      <code-block lang="csharp" cls="xs step" title="ცდისთვის, დროებით — handler-ში">
+var result = group.Enroll(...);
+await Task.Delay(5000);   // „ნელი ქსელი“
+await _db.SaveChangesAsync();
+      </code-block>
+      <div class="problem step" style="font-size:18px">ცხრილში <b>21</b> ჩარიცხვა · <code class="i">EnrolledCount</code> = <b>20</b> — მონაცემი <b>არეულია</b></div>
+      <div class="callout step" style="--a:var(--red);font-size:17px"><b>race condition</b>: შემოწმება და ჩაწერა ერთი ნაბიჯი არ არის. მათ შორის სხვამ <b>უკვე შეცვალა</b></div>
+    </div>
+  </div>
+  <aside class="study">
+### ორი მენეჯერი, ერთი ბოლო ადგილი
+
+ჯგუფში 19 სტუდენტია, ადგილი 20. ორი მენეჯერი ერთსა და იმავე წამს რიცხავს ორ სხვადასხვა სტუდენტს:
+
+| დრო | მენეჯერი A | მენეჯერი B |
+|---|---|---|
+| 0 ms | ჩატვირთა ჯგუფი: 19/20 | ჩატვირთა ჯგუფი: 19/20 |
+| 1 ms | 19 < 20 ✓ | 19 < 20 ✓ |
+| 2 ms | INSERT ნინო, `EnrolledCount = 20` | INSERT ლუკა, `EnrolledCount = 20` |
+| 3 ms | 200 OK | 200 OK |
+
+შედეგი: ცხრილში **21 ჩარიცხვაა**, `EnrolledCount` კი **20**-ს წერს. ჯგუფი გადავსებულია და მონაცემიც არეულია.
+
+**კლასში ასე ვნახავთ:** handler-ში დროებით `await Task.Delay(5000);` ჩავსვამთ `Enroll`-სა და `SaveChangesAsync`-ს შორის („ნელი ქსელი“), და Scalar-ის ორი ჩანართიდან ორ მოთხოვნას ზედიზედ გავგზავნით. ორივე 200-ს დააბრუნებს.
+
+ეს არის **race condition**: შემოწმება (`EnrolledCount >= Capacity`) და ჩაწერა (`SaveChanges`) ორი სხვადასხვა ნაბიჯია. მათ შორის სხვა მოთხოვნამ მონაცემი უკვე შეცვალა, ჩვენი შემოწმება კი ძველ მონაცემზე გაკეთდა. სერვერზე ეს იშვიათია, მაგრამ ჩარიცხვის დაწყების დღეს, როცა ყველა ერთად აჭერს ღილაკს, აუცილებლად მოხდება.
+
+```terms
+Race condition — შედეგი დამოკიდებულია იმაზე, ორი ერთდროული ოპერაციიდან რომელი „მოასწრებს“
+Concurrency — რამდენიმე ოპერაცია ერთსა და იმავე მონაცემზე ერთდროულად
+```
+  </aside>
+</section>
+<section class="slide" data-section="2 · Concurrency">
+  <div class="kicker">ორი მიდგომა</div>
+  <h2>ჩაკეტვა <span class="muted">თუ</span> <span class="grad">შემოწმება შენახვისას</span>?</h2>
+  <div class="grid2" style="grid-template-columns:1fr 1fr;gap:28px;align-items:start">
+    <div class="opt step" style="--a:var(--muted)"><span class="n">🔒</span><div><h3>Pessimistic</h3><p>წაკითხვისას <b>ჩაკეტე</b> ჯგუფი — B <b>ელოდება</b>, სანამ A არ დაასრულებს</p><p class="small muted">ნელია · deadlock-ის რისკი · ვებში იშვიათად</p></div></div>
+    <div class="opt step" style="--a:#16a34a"><span class="n">✓</span><div><h3>Optimistic</h3><p>არ ჩაკეტო. <b>შენახვისას</b> ჰკითხე ბაზას: „ჩემი წაკითხვის მერე ვინმემ შეცვალა?“ თუ კი — უარი</p><p class="small muted">კონფლიქტი იშვიათია · არავინ ელოდება · ვებში სტანდარტი</p></div></div>
+  </div>
+  <div class="flowrow mt step">
+    <div class="fbox" style="--a:#0d9488"><div class="l">წაიკითხე</div><div class="s">RowVersion = 0x07D1</div></div><span class="farrow">→</span>
+    <div class="fbox" style="--a:#0d9488"><div class="l">შეამოწმე, შეცვალე</div><div class="s">C#-ში</div></div><span class="farrow">→</span>
+    <div class="fbox" style="--a:#16a34a"><div class="l">UPDATE … WHERE</div><div class="s">RowVersion = 0x07D1?</div></div>
+  </div>
+  <aside class="study">
+### pessimistic vs optimistic
+
+**Pessimistic concurrency** (პესიმისტური): ვვარაუდობთ, რომ კონფლიქტი ხშირია. წაკითხვისას ჯგუფს **ვკეტავთ** და B ელოდება, სანამ A არ დაასრულებს. სანდოა, მაგრამ ნელია, ბაზაში ჩაკეტვები გროვდება და შეიძლება deadlock-იც მოხდეს (ორი მოთხოვნა ერთმანეთს ელოდება). ვებ API-ში იშვიათად იყენებენ.
+
+**Optimistic concurrency** (ოპტიმისტური): ვვარაუდობთ, რომ კონფლიქტი იშვიათია. არაფერს ვკეტავთ. **შენახვისას** ბაზას ვეკითხებით: „ჩემი წაკითხვის შემდეგ ეს ჩანაწერი ვინმემ შეცვალა?“. თუ შეცვალა, შენახვა არ ხდება და კლიენტს ვეუბნებით, თავიდან სცადოს.
+
+ამისთვის ჩანაწერს **ვერსია** სჭირდება: წაკითხვისას ვიმახსოვრებთ, შენახვისას ვადარებთ.
+  </aside>
+</section>
+<section class="slide" data-section="2 · Concurrency">
+  <div class="kicker">კოდი</div>
+  <h2><code class="i" style="font-size:.85em">rowversion</code> — ბაზა თვითონ <span class="grad">ითვლის ვერსიას</span></h2>
+  <div class="grid2" style="grid-template-columns:1.2fr 1fr;gap:26px;align-items:start">
+    <div class="col" style="gap:12px">
+      <code-block id="rv" lang="csharp" cls="xs" title="Entities/Group.cs · Data/DataContext.cs">
+// Group
+public byte[] RowVersion { get; private set; } = [];
+
+// OnModelCreating → Group
+group.Property(g => g.RowVersion).IsRowVersion();
+      </code-block>
+      <code-block lang="sql" cls="xs step" title="SaveChanges → SQL">
+INSERT INTO Enrollments (Id, GroupId, StudentId, EnrolledAt) VALUES (…);
+
+UPDATE Groups SET EnrolledCount = 20
+WHERE Id = @id AND RowVersion = 0x07D1;   -- 0 რიგი?
+      </code-block>
+    </div>
+    <div class="col" style="gap:12px">
+      <i class="codestep" data-for="rv" data-lines="2"></i>
+      <div class="reason step" data-with style="--a:var(--net)"><b class="k">1</b><span>SQL Server <code class="i">rowversion</code> — <b>ყოველ</b> UPDATE-ზე თვითონ იცვლება</span></div>
+      <div class="reason step" style="--a:var(--net)"><b class="k">2</b><span>B-ს UPDATE: ვერსია უკვე <b>სხვაა</b> → 0 რიგი → <code class="i">DbUpdateConcurrencyException</code></span></div>
+      <div class="reason step" style="--a:var(--net)"><b class="k">3</b><span>ტრანზაქცია — <b>მთლიანად</b> უკან: ლუკას INSERT-იც</span></div>
+      <div class="problem step" style="font-size:17px">Enrollment-ის INSERT ჯგუფის რიგს <b>არ ცვლის</b>! ამიტომ გვჭირდება <code class="i">EnrolledCount++</code> — root-ს <b>ვეხებით</b></div>
+    </div>
+  </div>
+  <aside class="study">
+### rowversion: ვერსიას ბაზა თვითონ ითვლის
+
+```csharp Entities/Group.cs
+public byte[] RowVersion { get; private set; } = [];
+```
+
+```csharp Data/DataContext.cs · OnModelCreating → Group
+group.Property(g => g.RowVersion).IsRowVersion();
+```
+
+SQL Server-ს აქვს სპეციალური ტიპი **`rowversion`**: ბაზა მას **ყოველ UPDATE-ზე** თვითონ ცვლის. ჩვენ მასში არაფერს ვწერთ.
+
+`IsRowVersion()`-ის შემდეგ EF ჯგუფის UPDATE-ს ასე წერს:
+
+```sql
+UPDATE Groups SET EnrolledCount = 20
+WHERE Id = @id AND RowVersion = 0x07D1;
+```
+
+`0x07D1` ის ვერსიაა, რომელიც **ჩვენ წავიკითხეთ**. ახლა ჩვენი ცდა:
+
+1. A და B ორივე კითხულობს ჯგუფს ვერსიით `0x07D1`.
+2. A ინახავს: ვერსია ემთხვევა, 1 რიგი შეიცვალა. ბაზამ ვერსია `0x07D2`-ად შეცვალა.
+3. B ინახავს: `WHERE RowVersion = 0x07D1` ვეღარ პოულობს, **0 რიგი** შეიცვალა. EF ამას ხედავს და ისვრის **`DbUpdateConcurrencyException`**-ს.
+4. `SaveChanges` ერთი ტრანზაქციაა, ამიტომ ლუკას INSERT-იც **უკან ბრუნდება**. ბაზაში 20 ჩარიცხვა რჩება.
+
+**აი, რატომ გვჭირდება `EnrolledCount`.** `rowversion` მხოლოდ მაშინ იცვლება, როცა **Groups-ის რიგი** იცვლება. Enrollment-ის დამატება სხვა ცხრილში INSERT-ია: ჯგუფის რიგი ხელუხლებელი რჩება და დაცვა არ იმუშავებდა. `EnrolledCount++` ჯგუფის რიგს ცვლის და aggregate-ის **ყოველი** ცვლილება root-ის ვერსიას ზრდის. რეალურ სისტემებშიც ასე აკეთებენ: aggregate-ის ცვლილება ყოველთვის root-ს „ეხება“.
+
+```terms
+rowversion — SQL Server-ის ტიპი, რომლის მნიშვნელობას ბაზა ყოველ UPDATE-ზე თვითონ ცვლის
+Optimistic concurrency token — ველი, რომლითაც EF შენახვისას ამოწმებს, ჩანაწერი სხვამ ხომ არ შეცვალა
+```
+  </aside>
+</section>
+<section class="slide" data-section="2 · Concurrency">
+  <div class="kicker">handler</div>
+  <h2>კონფლიქტი → <span class="grad">409</span>, არა 500</h2>
+  <div class="grid2" style="grid-template-columns:1.3fr 1fr;gap:26px;align-items:start">
+    <code-block id="cc" lang="csharp" cls="xs" title="EnrollStudentHandler.cs · ბოლო ნაწილი">
+var result = group.Enroll(request.StudentId, DateOnly.FromDateTime(now), now);
+if (result.IsFailure)
+    return Results.Conflict(result.Error);
+
+try
+{
+    await _db.SaveChangesAsync();
+}
+catch (DbUpdateConcurrencyException)
+{
+    return Results.Conflict(GroupErrors.ConcurrentChange);
+}
+
+return Results.Ok(new EnrollmentResponse(group.Id, request.StudentId,
+    group.EnrolledCount, group.Capacity));
+    </code-block>
+    <div class="col" style="gap:12px">
+      <div class="race step">
+        <span></span><span class="h" style="--a:#2563eb">A</span><span class="h" style="--a:#ea580c">B</span>
+        <span class="t">შედეგი</span><span class="c ok">200 · 20/20</span><span class="c bad">409 · ConcurrentChange</span>
+      </div>
+      <div class="callout step" style="--a:var(--muted);font-size:17px">B თავიდან ცდის → ჩატვირთავს 20/20 → <code class="i">Enroll</code> → <b>409 · Group.Full</b> ✓</div>
+      <div class="callout step" style="--a:#0d9488;font-size:17px">მეორე დაცვა ბაზაში: unique index <code class="i">(GroupId, StudentId)</code></div>
+    </div>
+  </div>
+  <aside class="study">
+### კონფლიქტი → 409
+
+```csharp Features/Groups/EnrollStudent/EnrollStudentHandler.cs · ბოლო ნაწილი
+var result = group.Enroll(request.StudentId, DateOnly.FromDateTime(now), now);
+if (result.IsFailure)
+    return Results.Conflict(result.Error);
+
+try
+{
+    await _db.SaveChangesAsync();
+}
+catch (DbUpdateConcurrencyException)
+{
+    return Results.Conflict(GroupErrors.ConcurrentChange);
+}
+
+return Results.Ok(new EnrollmentResponse(group.Id, request.StudentId,
+    group.EnrolledCount, group.Capacity));
+```
+
+```csharp Entities/GroupErrors.cs
+public static readonly Error ConcurrentChange = new("Group.ConcurrentChange",
+    "ჯგუფი ამ დროს სხვამ შეცვალა. სცადე თავიდან");
+```
+
+- **concurrency exception მოსალოდნელია**, ამიტომ handler-ში ვიჭერთ და **409**-ად ვაქცევთ, არა 500-ად. ეს ერთადერთი ადგილია, სადაც exception-ს ვიჭერთ: ის EF-იდან მოდის და Result-ად ვერ დაბრუნდება.
+- **B თავიდან ცდის:** ახლა ჯგუფს ჩატვირთავს 20/20-ით, `Enroll` დააბრუნებს `Group.Full`-ს და ის ზუსტ მიზეზს მიიღებს.
+- ცდის შემდეგ `Task.Delay` წაშალე!
+
+**მეორე დაცვა ბაზაში:** „სტუდენტი ჯგუფში ერთხელ“ unique index-ითაც დავიცვათ:
+
+```csharp Data/DataContext.cs · Enrollment
+e.HasIndex(x => new { x.GroupId, x.StudentId }).IsUnique();
+```
+
+კოდი R3-ს ისედაც ამოწმებს, მაგრამ ბაზა ბოლო ზღუდეა: თუ ოდესმე ვინმე სხვა გზით (SQL სკრიპტით, ბაგით) ჩაწერს, ბაზა არ მიიღებს. `Add-Migration AddGroupRowVersion` → `Update-Database`.
+
+```tip
+კონფლიქტზე სერვერს თვითონაც შეუძლია თავიდან ცდა (retry): ჯგუფის ხელახლა ჩატვირთვა და `Enroll`-ის გამეორება. ჩვენ უფრო მარტივ და გამჭვირვალე გზას ვირჩევთ: კლიენტი იღებს 409-ს და თვითონ წყვეტს.
+```
+  </aside>
+</section>
+<section class="slide" data-section="საშინაოსთვის">
+  <div class="kicker">გაჭედე?</div>
+  <h2>ხშირი შეცდომები</h2>
+  <table class="t" style="font-size:16px">
+    <tr><th style="width:38%">რას ხედავ</th><th style="width:30%">მიზეზი</th><th>გამოსწორება</th></tr>
+    <tr class="step fade"><td class="mono" style="font-size:14px">ორი ერთდროული მოთხოვნა — ორივე 200</td><td>ჯგუფის რიგი არ იცვლება (მხოლოდ INSERT)</td><td>root-ის ველი (<code class="i">EnrolledCount++</code>) · <code class="i">IsRowVersion()</code></td></tr>
+    <tr class="step fade"><td class="mono" style="font-size:14px">„უკვე ჩარიცხულია“ არ მუშაობს</td><td><code class="i">Include(g =&gt; g.Enrollments)</code> აკლია — სია ცარიელია</td><td>aggregate მთლიანად ჩატვირთე</td></tr>
+    <tr class="step fade"><td class="mono" style="font-size:14px">DbUpdateConcurrencyException → 500</td><td>არ დაიჭირე</td><td><code class="i">try/catch</code> → 409</td></tr>
+    <tr class="step fade"><td class="mono" style="font-size:14px">Cannot insert duplicate key … IX_Enrollments_GroupId_StudentId</td><td>unique index მუშაობს — კოდში შემოწმება გამოტოვე</td><td><code class="i">Enroll</code>-ში <code class="i">AlreadyEnrolled</code></td></tr>
+    <tr class="step fade"><td class="mono" style="font-size:14px">The entity type 'Enrollment' requires a primary key</td><td>Id აკლია ან private set-ის გარეშე</td><td><code class="i">public Guid Id { get; private set; }</code></td></tr>
+  </table>
+  <aside class="study">
+### ხშირი შეცდომები
+
+| რას ხედავ | მიზეზი და გამოსწორება |
+|---|---|
+| ორი ერთდროული მოთხოვნა ორივე 200-ს აბრუნებს | ჯგუფის რიგი არ იცვლება, მხოლოდ INSERT ხდება → root-ის ველი (`EnrolledCount++`) და `IsRowVersion()` |
+| „უკვე ჩარიცხულია“ არ მუშაობს | `Include(g => g.Enrollments)` აკლია და სია ცარიელია → aggregate მთლიანად ჩატვირთე |
+| `DbUpdateConcurrencyException` → 500 | exception არ დაიჭირე → `try/catch` → 409 |
+| `Cannot insert duplicate key … IX_Enrollments_GroupId_StudentId` | unique index მუშაობს, კოდში შემოწმება გამოგრჩა → `Enroll`-ში `AlreadyEnrolled` |
+| `The entity type 'Enrollment' requires a primary key` | Id აკლია → `public Guid Id { get; private set; }` |
+
+```prompt ჩემი aggregate — შეამოწმე
+ვსწავლობ ASP.NET Core Web API-ს (.NET 10, EF Core 10, SQL Server) და DDD-ს. დავწერე aggregate: root entity, მისი შვილები private სიაში, ცვლილება მხოლოდ root-ის მეთოდით (Result-ით), DbSet შვილებზე არ არის. concurrency-სთვის rowversion (IsRowVersion) და DbUpdateConcurrencyException → 409.
+აი ჩემი კოდი: [ჩასვი root entity, შვილი entity, handler, OnModelCreating]
+შეამოწმე: შეიძლება თუ არა წესის გვერდის ავლა? ყოველი ცვლილება ცვლის თუ არა root-ის ვერსიას? სწორია 400 / 404 / 409? მზა კოდი ნუ დამიწერე, მიმითითე და ამიხსენი რატომ. ქართულად.
+```
+  </aside>
+</section>
+<lecture-check/>
+<section class="slide" data-section="შეჯამება">
+  <div class="kicker in" style="color:var(--core)">დღეს</div>
+  <h2 class="in" style="--d:.1s">ერთი კარი · <span class="grad">ერთი ვერსია</span></h2>
+  <div class="grid2" style="grid-template-columns:1fr 1.05fr;gap:36px;align-items:start">
+    <div class="col" style="gap:16px">
+      <div class="card accent step" style="--a:var(--mvc)"><h3><span class="ico">🧠</span>დაიმახსოვრე</h3><ul class="clean small"><li><b>Aggregate</b> — ერთად იცვლება · <b>root</b> — ერთადერთი კარი</li><li>შვილები — private სია · <b>DbSet არ არის</b></li><li>400 — მოთხოვნა არასწორია · <b>409</b> — მდგომარეობას ეწინააღმდეგება</li><li><b>race condition</b>: შემოწმება ≠ ჩაწერა</li><li><b>optimistic</b>: <code class="i">IsRowVersion()</code> · root-ს <b>ეხები</b> · catch → 409</li></ul></div>
+      <div class="card accent step" style="--a:var(--pink)"><h3><span class="ico">🏠</span>საშინაოზე</h3><p class="small"><b>შენი სფერო</b> — შენი „ჩარიცხვა“ „ჯგუფის“ გავლით, ბოლო ადგილი → 409</p></div>
+    </div>
+    <div class="col step" data-with style="gap:12px">
+      <div class="agg">
+        <span class="tag2">Group · RowVersion</span>
+        <div class="root">group.Enroll(...)</div>
+        <div class="kids"><span class="kid">Enrollment</span><span class="kid">Enrollment</span><span class="kid">EnrolledCount++</span></div>
+      </div>
+      <code-block lang="sql" cls="sm" title="შენახვისას">
+UPDATE Groups … WHERE Id = @id AND RowVersion = @old
+      </code-block>
+    </div>
+  </div>
+  <aside class="study">
+## შეჯამება · ერთი კარი, ერთი ვერსია
+
+1. **Aggregate** ობიექტების ჯგუფია, რომელიც ერთად იცვლება და ერთად იცავს წესს: `Group` + `Enrollment`-ები. **Root** (`Group`) ერთადერთი კარია.
+2. შვილები root-ის **private სიაშია**, იცვლება მხოლოდ root-ის მეთოდით (`group.Enroll`). DataContext-ს შვილებზე **`DbSet` არ აქვს**.
+3. aggregate **მთლიანად იტვირთება** (`Include`) და ერთ ტრანზაქციაში ინახება. ის **პატარაა**: სხვა aggregate-ებს Id-ით იცნობს.
+4. **400** — მოთხოვნა თავისთავად არასწორია. **409** — მოთხოვნა სწორია, მაგრამ მიმდინარე მდგომარეობას ეწინააღმდეგება (ჯგუფი სავსეა).
+5. **Race condition:** შემოწმება და ჩაწერა ორი ნაბიჯია; მათ შორის სხვა მოთხოვნამ შეიძლება მონაცემი შეცვალოს.
+6. **Optimistic concurrency:** `rowversion` + `IsRowVersion()`. EF შენახვისას ვერსიას ადარებს; თუ სხვამ შეცვალა → `DbUpdateConcurrencyException` → **409**. aggregate-ის ყოველმა ცვლილებამ root-ის რიგი უნდა შეცვალოს (`EnrolledCount++`).
+7. ბაზა ბოლო ზღუდეა: unique index `(GroupId, StudentId)`.
+
+```prompt Aggregate და concurrency — გასაუბრებისთვის
+ვემზადები .NET Junior გასაუბრებისთვის. დამისვი კითხვები: რა არის Aggregate და Aggregate Root, რატომ უნდა იყოს aggregate პატარა, aggregate-ებს შორის მიმართვა Id-ით, race condition, optimistic vs pessimistic concurrency, rowversion / concurrency token EF Core-ში, DbUpdateConcurrencyException, 400 vs 409.
+სათითაოდ დასვი, დაელოდე ჩემს პასუხს, შემიფასე და აუხსენი, რა გამომრჩა. 8 კითხვა. ქართულად.
+```
+  </aside>
+</section>
+<lecture-homework/>
