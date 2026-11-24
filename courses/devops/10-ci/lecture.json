@@ -1,17 +1,25 @@
 {
-  "title": "CI — GitHub Actions და ავტომატური შემოწმება",
-  "why": "LMS დომენზეა, HTTPS-ით, კონტეინერებში. მაგრამ `main`-ში შეიძლება ისეთი კოდი მოხვდეს, რომელიც არც კი იკომპილირდება ან არასწორად მუშაობს — და ამას სერვერზე, deploy-ის დროს გაიგებ. დღეს ვსწავლობთ GitHub Actions-ს: როგორ იწერება workflow, რა ხდება runner-ზე, და ვწერთ CI-ს, რომელიც ყოველ Pull Request-ზე LMS-ს აწყობს და ტესტებს უშვებს. ჩავარდა — merge აღარ ხდება.",
+  "title": "CI/CD — თეორია და CI პრაქტიკაში",
+  "why": "LMS დომენზეა, HTTPS-ით, კონტეინერებში. მაგრამ ყოველი განახლება ჯერ კიდევ ხელით ხდება, და `main`-ში შეიძლება ისეთი კოდი მოხვდეს, რომელიც არც კი იკომპილირდება — ამას სერვერზე, deploy-ის დროს გაიგებ. დღეს ვნახავთ მთლიან სურათს: რა არის CI/CD, რა ნაბიჯებისგან შედგება pipeline და რატომ მუშაობს ასე ყველა თანამედროვე გუნდი. პრაქტიკაში კი ვწერთ CI-ს GitHub Actions-ით: ყოველ Pull Request-ზე LMS აეწყობა და ტესტებს გაივლის. CD — შემდეგ ლექციაზე.",
   "outcomes": [
-    "GitHub Actions-ის ცნებები: workflow, trigger, job, runner, step, `uses` და `run`",
-    "პირველი workflow-ის დაწერა და მისი ლოგების კითხვა Actions ჩანართში",
-    "CI ყოველ Pull Request-ზე: restore → build → test",
-    "ჩავარდნილი CI-ის მიზეზის პოვნა ლოგით და გასწორება",
+    "CI/CD-ის ახსნა: pipeline-ის ნაბიჯები build → test → artifact → deploy",
+    "Continuous Integration, Continuous Delivery და Continuous Deployment-ის გარჩევა და CI/CD-ის პრინციპები",
+    "GitHub Actions-ის ცნებები და პირველი workflow: trigger, job, runner, step, `uses` და `run`",
+    "CI ყოველ Pull Request-ზე: restore → build → test, და ჩავარდნილი CI-ის მიზეზის პოვნა ლოგით",
     "branch protection — `main`-ში მხოლოდ მწვანე PR"
   ],
   "review": [
     {
       "q": "CI და CD — რა განსხვავებაა?",
       "a": "CI (Continuous Integration) — ყოველი ცვლილების ავტომატური შემოწმება (build, ტესტები) `main`-ში შერწყმამდე. CD (Continuous Deployment) — `main`-ის ყოველი ცვლილების ავტომატური გაშვება სერვერზე"
+    },
+    {
+      "q": "Continuous Delivery და Continuous Deployment — რა განსხვავებაა?",
+      "a": "Delivery: `main` ყოველთვის მზადაა გასაშვებად, production-ში გატანას ადამიანი წყვეტს ღილაკით. Deployment: merge-ის შემდეგ ახალი ვერსია production-ში ავტომატურად მიდის — ჩვენ LMS-ისთვის ამას ვაკეთებთ"
+    },
+    {
+      "q": "pipeline-ში ტესტი ჩავარდა. რა მოხდება შემდეგ ნაბიჯებზე?",
+      "a": "pipeline ჩერდება: artifact (image) არ აეწყობა და deploy არ მოხდება — გატეხილი კოდი production-მდე ვერ მივა"
     },
     {
       "q": "`uses:` და `run:` — რა განსხვავებაა step-ში?",

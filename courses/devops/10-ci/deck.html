@@ -1,13 +1,13 @@
 <!-- =========================================================
-     ლექცია 10 — GitHub Actions · პირველი workflow · CI (build + test) · branch protection
+     ლექცია 10 — CI/CD თეორია (pipeline, CI vs Delivery vs Deployment) · GitHub Actions · CI პრაქტიკაში
      ========================================================= -->
 
 <!-- 1. TITLE -->
 <section class="slide" data-section="შესავალი">
   <div class="vcenter" style="max-width:860px">
     <div class="kicker in">DevOps Crash Course · ლექცია 10</div>
-    <h1 class="in" style="--d:.15s"><span class="grad">CI</span> ✅<br>ყოველი push — შემოწმებული</h1>
-    <p class="lead in mt" style="--d:.35s">GitHub Actions — როგორ იწერება და როგორ მუშაობს workflow</p>
+    <h1 class="in" style="--d:.15s"><span class="grad">CI/CD</span> 🤖<br>თეორია + CI პრაქტიკაში</h1>
+    <p class="lead in mt" style="--d:.35s">ავტომატური გზა commit-იდან production-მდე — და GitHub Actions</p>
   </div>
   <div class="abs" style="right:90px;top:170px">
     <svg viewBox="0 0 460 460" width="460" height="460">
@@ -28,22 +28,22 @@
 
 <lecture-intro/>
 
-<!-- ================= PART 1: GITHUB ACTIONS ================= -->
-<section class="slide divider" data-section="1 · GitHub Actions">
+<!-- ================= PART 1: CI/CD THEORY ================= -->
+<section class="slide divider" data-section="1 · CI/CD">
   <div class="vcenter">
     <div class="kicker in">ნაწილი 1</div>
-    <h1 class="in" style="--d:.1s"><span class="grad">GitHub Actions</span> ⚙️</h1>
-    <p class="lead mt in" style="--d:.3s">როგორ იწერება workflow და როგორ მუშაობს</p>
+    <h1 class="in" style="--d:.1s"><span class="grad">CI/CD</span> — რა არის და რატომ 🔁</h1>
+    <p class="lead mt in" style="--d:.3s">ავტომატური გზა commit-იდან მომხმარებლამდე</p>
   </div>
   <div class="big-num">01</div>
   <aside class="study">
-## ნაწილი 1 · GitHub Actions
+## ნაწილი 1 · CI/CD — რა არის და რატომ
 
-მე-2 ლექციაზე Actions ჩანართში პირველი workflow ვნახეთ — `pages build and deployment`, რომელიც GitHub-მა თვითონ შექმნა. დღეს საკუთარს ვწერთ: ჯერ ყველაზე მარტივს, რომ ვნახოთ, როგორ მუშაობს, მერე — ნამდვილ CI-ს LMS-ისთვის.
+მე-2 ლექციაზე Actions ჩანართში პირველი pipeline ვნახეთ — `pages build and deployment`, რომელიც GitHub-მა თვითონ შექმნა. დღეს ვხედავთ მთლიან სურათს: რა არის CI/CD, რა ნაბიჯებისგან შედგება და რატომ მუშაობს ასე ყველა თანამედროვე გუნდი. მერე პრაქტიკაში ვწერთ CI-ს; CD — შემდეგ ლექციაზე.
   </aside>
 </section>
 
-<section class="slide" data-section="1 · GitHub Actions">
+<section class="slide" data-section="1 · CI/CD">
   <div class="kicker">პრობლემა</div>
   <h2>ყოველი განახლება — <span class="c-red">ხელით</span></h2>
   <div class="grid2" style="grid-template-columns:1.1fr 1fr">
@@ -59,7 +59,7 @@ $ docker compose logs -f api     # მუშაობს?
       <div class="problem in right" style="--d:.4s;display:block">😴 დაგავიწყდა → სერვერზე <b>ძველი</b> ვერსიაა</div>
       <div class="problem in right" style="--d:.55s;display:block">💥 <code class="i">main</code>-ში მოხვდა კოდი, რომელიც <b>არ იკომპილირდება</b> → deploy ჩავარდა</div>
       <div class="problem in right" style="--d:.7s;display:block">👥 გუნდში 5 ადამიანი — ყველას სერვერის <b>SSH</b> უნდა ჰქონდეს?</div>
-      <div class="callout step" style="--a:var(--mvc)"><b>CI</b> — ყოველი ცვლილების შემოწმება (<b>დღეს</b>) · <b>CD</b> — ყოველი ცვლილების deploy (<b>შემდეგ ლექციაზე</b>)</div>
+      <div class="callout step" style="--a:var(--mvc)"><b>CI</b> — ყოველი ცვლილების შემოწმება · <b>CD</b> — ყოველი ცვლილების deploy. <b>ავტომატურად</b></div>
     </div>
   </div>
   <aside class="study">
@@ -84,11 +84,128 @@ $ docker compose logs -f api
 **CI (Continuous Integration)** — ყოველი ცვლილება **ავტომატურად მოწმდება** (build, ტესტები), სანამ `main`-ში მოხვდება.
 **CD (Continuous Deployment)** — `main`-ის ყოველი ცვლილება **ავტომატურად** გადის სერვერზე.
 
-ორივეს GitHub Actions აკეთებს — ზუსტად იმ ნაბიჯებით, რასაც აქამდე ხელით ვაკეთებდით. დღეს ვიწყებთ **CI**-ით: ჯერ ვრწმუნდებით, რომ `main`-ში მხოლოდ შემოწმებული კოდი ხვდება. შემდეგ ლექციაზე, **CD**-ით, ამ შემოწმებულ კოდს სერვერზე ავტომატურად გავიტანთ.
+ორივეს GitHub Actions აკეთებს — ზუსტად იმ ნაბიჯებით, რასაც აქამდე ხელით ვაკეთებდით. დღეს ვხედავთ მთლიან სურათს და პრაქტიკაში ვწერთ **CI**-ს: `main`-ში მხოლოდ შემოწმებული კოდი უნდა მოხვდეს. შემდეგ ლექციაზე — **CD** პრაქტიკაში: შემოწმებულ კოდს სერვერზე ავტომატურად გავიტანთ.
   </aside>
 </section>
 
-<section class="slide" data-section="1 · GitHub Actions">
+<section class="slide" data-section="1 · CI/CD">
+  <div class="kicker">სრული სურათი</div>
+  <h2>pipeline — <span class="c-net">commit-იდან production-მდე</span></h2>
+  <svg viewBox="0 0 1420 330" width="1420" height="330">
+    <g class="in left" style="--d:.15s"><rect x="10" y="20" width="830" height="290" rx="22" fill="#1d1640" stroke="#8b6cff" stroke-width="3" stroke-dasharray="10 8"/><text x="425" y="58" text-anchor="middle" class="tn b" font-size="22">CI — Continuous Integration</text></g>
+    <g class="in right" style="--d:.3s"><rect x="860" y="20" width="550" height="290" rx="22" fill="#0e2a33" stroke="#22d3ee" stroke-width="3" stroke-dasharray="10 8"/><text x="1135" y="58" text-anchor="middle" class="ta b" font-size="22">CD — Continuous Delivery / Deployment</text></g>
+    <g class="in" style="--d:.45s"><rect x="30" y="100" width="150" height="120" rx="16" fill="#123321" stroke="#22c55e" stroke-width="2"/><text x="105" y="150" text-anchor="middle" font-size="34">💻</text><text x="105" y="195" text-anchor="middle" class="tg b" font-size="17">commit · PR</text></g>
+    <g class="in fade" style="--d:.55s"><path d="M180 160 H215" stroke="#8b6cff" stroke-width="3" class="flow"/></g>
+    <g class="in" style="--d:.65s"><rect x="215" y="100" width="190" height="120" rx="16" fill="#33240b" stroke="#f5a524" stroke-width="2"/><text x="310" y="150" text-anchor="middle" font-size="34">⚙️</text><text x="310" y="195" text-anchor="middle" class="to b" font-size="17">build</text></g>
+    <g class="in fade" style="--d:.75s"><path d="M405 160 H440" stroke="#8b6cff" stroke-width="3" class="flow"/></g>
+    <g class="in" style="--d:.85s"><rect x="440" y="100" width="170" height="120" rx="16" fill="#33240b" stroke="#f5a524" stroke-width="2"/><text x="525" y="150" text-anchor="middle" font-size="34">🧪</text><text x="525" y="195" text-anchor="middle" class="to b" font-size="17">test</text></g>
+    <g class="in fade" style="--d:.95s"><path d="M610 160 H645" stroke="#8b6cff" stroke-width="3" class="flow"/></g>
+    <g class="in" style="--d:1.05s"><rect x="645" y="100" width="180" height="120" rx="16" fill="#1d1640" stroke="#8b6cff" stroke-width="2"/><text x="735" y="150" text-anchor="middle" font-size="34">📦</text><text x="735" y="195" text-anchor="middle" class="tn b" font-size="17">artifact</text></g>
+    <g class="in fade" style="--d:1.15s"><path d="M825 160 H880" stroke="#22d3ee" stroke-width="3" class="flow"/></g>
+    <g class="in" style="--d:1.25s"><rect x="880" y="100" width="240" height="120" rx="16" fill="#0e2a33" stroke="#22d3ee" stroke-width="2"/><text x="1000" y="150" text-anchor="middle" font-size="34">🚀</text><text x="1000" y="195" text-anchor="middle" class="ta b" font-size="17">deploy</text></g>
+    <g class="in fade" style="--d:1.35s"><path d="M1120 160 H1155" stroke="#22d3ee" stroke-width="3" class="flow"/></g>
+    <g class="in" style="--d:1.45s"><rect x="1155" y="100" width="235" height="120" rx="16" fill="#123321" stroke="#22c55e" stroke-width="2"/><text x="1272" y="150" text-anchor="middle" font-size="34">🌍</text><text x="1272" y="195" text-anchor="middle" class="tg b" font-size="17">production</text></g>
+    <g class="in fade" style="--d:1.6s"><text x="425" y="270" text-anchor="middle" class="tm" font-size="17">„კოდი სწორია?“ — ყოველ ცვლილებაზე, merge-მდე</text><text x="1135" y="270" text-anchor="middle" class="tm" font-size="17">„კოდი მომხმარებელთანაა?“ — merge-ის შემდეგ</text></g>
+  </svg>
+  <div class="callout step mt" style="--a:var(--mvc);font-size:22px">❌ ნებისმიერ ნაბიჯზე → pipeline <b>ჩერდება</b>, და გატეხილი კოდი შემდეგ ნაბიჯამდე ვერ მიდის</div>
+  <aside class="study">
+### pipeline — commit-იდან production-მდე
+
+**pipeline** — ავტომატური ნაბიჯების ჯაჭვი, რომელსაც ყოველი ცვლილება გადის, სანამ მომხმარებლამდე მივა:
+
+| ნაბიჯი | რას აკეთებს | ჩვენთან |
+|---|---|---|
+| **commit · PR** | ცვლილება Git-ში | `feature/...` → Pull Request |
+| **build** | კოდი იკომპილირდება? | `dotnet build` |
+| **test** | კოდი სწორად მუშაობს? | `dotnet test` |
+| **artifact** | გასაშვებად მზა „პაკეტი“ | Docker image |
+| **deploy** | artifact სერვერზე | `docker compose pull && up -d` |
+| **production** | მომხმარებელი ახალ ვერსიას ხედავს | `https://api.giorgi.ge` |
+
+ჯაჭვი ორ ნაწილად იყოფა:
+
+- **CI (Continuous Integration)** — build და test **ყოველ** ცვლილებაზე, `main`-ში შერწყმამდე. პასუხობს კითხვას: „კოდი სწორია?“
+- **CD (Continuous Delivery / Deployment)** — შემოწმებული კოდიდან artifact-ის შექმნა და მისი გატანა სერვერზე. პასუხობს კითხვას: „კოდი მომხმარებელთანაა?“
+
+მთავარი წესი: **ნებისმიერ ნაბიჯზე შეცდომა pipeline-ს აჩერებს.** ტესტი ჩავარდა — image არ აეწყობა და deploy არ მოხდება. ამიტომ გატეხილი კოდი production-მდე ვერ აღწევს.
+
+```terms
+pipeline — ავტომატური ნაბიჯების ჯაჭვი: build → test → artifact → deploy
+artifact — pipeline-ის შედეგი, გასაშვებად მზა: ჩვენთან Docker image
+production — „ცოცხალი“ გარემო, რომელსაც ნამდვილი მომხმარებლები იყენებენ
+```
+  </aside>
+</section>
+
+<section class="slide" data-section="1 · CI/CD">
+  <div class="kicker">ტერმინები და პრინციპები</div>
+  <h2>CI · <span class="c-asp">Delivery</span> · <span class="c-mvc">Deployment</span></h2>
+  <div class="grid3" style="gap:20px">
+    <div class="card accent in" style="--d:0.20s;--a:var(--net)"><h3>🔁 Continuous Integration</h3><p>ყოველი ცვლილება — build + test. ბევრი პატარა merge დღეში, და არა ერთი დიდი — თვეში</p></div>
+    <div class="card accent in" style="--d:0.35s;--a:var(--asp)"><h3>📦 Continuous Delivery</h3><p><code class="i">main</code> ყოველთვის <b>მზადაა</b> გასაშვებად. production-ში გატანა — <b>ღილაკით</b>, ადამიანის გადაწყვეტილებით</p></div>
+    <div class="card accent in" style="--d:0.50s;--a:var(--mvc)"><h3>🚀 Continuous Deployment</h3><p>merge → production <b>ავტომატურად</b>, ადამიანის გარეშე. ჩვენ ამას ვაკეთებთ</p></div>
+  </div>
+  <div class="grid2 mt2" style="gap:20px">
+    <div class="col">
+      <div class="row step" style="gap:14px;align-items:center"><span class="big-emoji" style="font-size:32px">🐜</span><span style="font-size:20px"><b>პატარა ცვლილებები</b> — პრობლემა მალე ჩანს და ადვილად ბრუნდება</span></div>
+      <div class="row step" style="gap:14px;align-items:center"><span class="big-emoji" style="font-size:32px">⚡</span><span style="font-size:20px"><b>სწრაფი პასუხი</b> — შეცდომა წუთებში, და არა მომხმარებლისგან</span></div>
+    </div>
+    <div class="col">
+      <div class="row step" style="gap:14px;align-items:center"><span class="big-emoji" style="font-size:32px">🏗️</span><span style="font-size:20px"><b>ერთხელ აეწყობა</b> — ერთი და იგივე artifact ყველგან</span></div>
+      <div class="row step" style="gap:14px;align-items:center"><span class="big-emoji" style="font-size:32px">🤖</span><span style="font-size:20px"><b>ყველაფერი კოდით</b> — pipeline Git-შია, როგორც აპი</span></div>
+    </div>
+  </div>
+  <aside class="study">
+### CI · Continuous Delivery · Continuous Deployment
+
+„CD“ ორ რამეს ნიშნავს, და ინტერვიუზე ამ განსხვავებას ხშირად კითხულობენ:
+
+| | რა ხდება ავტომატურად | ვინ წყვეტს production-ს |
+|---|---|---|
+| **Continuous Integration** | build + test ყოველ ცვლილებაზე | — |
+| **Continuous Delivery** | build, test და artifact; `main` ყოველთვის გასაშვებად მზადაა | **ადამიანი** — ღილაკით (მაგ. ბანკები, სადაც გამოშვებას ამოწმებენ) |
+| **Continuous Deployment** | ყველაფერი, production-ის ჩათვლით | **pipeline** — merge-ის შემდეგ თვითონ |
+
+ჩვენ LMS-ისთვის **Continuous Deployment**-ს ვაკეთებთ: merge `main`-ში = ახალი ვერსია სერვერზე.
+
+**პრინციპები, რომლებზეც CI/CD დგას:**
+
+- 🐜 **პატარა, ხშირი ცვლილებები.** ერთდღიანი branch და პატარა PR. თვის განმავლობაში დაგროვილი დიდი merge — conflict-ები და „რომელმა ცვლილებამ გატეხა?“.
+- ⚡ **სწრაფი პასუხი.** შეცდომა უნდა გამოჩნდეს წუთებში, PR-ზე — და არა მაშინ, როცა მომხმარებელი მოგწერს.
+- 🏗️ **ერთხელ აეწყობა — ყველგან ერთი.** image ერთხელ იწყობა, და ზუსტად ის მიდის სერვერზე. სერვერზე ხელახლა აწყობა = რისკი, რომ სხვა რამ აეწყოს.
+- 🤖 **ყველაფერი კოდით.** pipeline YAML ფაილია რეპოში — მისი ცვლილებაც PR-ით და review-თი გადის.
+
+```check
+? რა განსხვავებაა Continuous Delivery-სა და Continuous Deployment-ს შორის?
+= Delivery: კოდი ყოველთვის მზადაა გასაშვებად, production-ში გატანას ადამიანი წყვეტს ღილაკით. Deployment: merge-ის შემდეგ production-ში ავტომატურად მიდის
+```
+  </aside>
+</section>
+
+<section class="slide" data-section="☕ შესვენება">
+  <div class="center">
+    <div class="big-emoji float" style="font-size:120px">☕</div>
+    <h1 class="mt">შესვენება</h1>
+    <p class="lead mt">10 წუთი · მერე — GitHub Actions და CI პრაქტიკაში</p>
+  </div>
+</section>
+
+<!-- ================= PART 2: GITHUB ACTIONS + CI ================= -->
+<section class="slide divider" data-section="2 · CI">
+  <div class="vcenter">
+    <div class="kicker in">ნაწილი 2</div>
+    <h1 class="in" style="--d:.1s"><span class="grad">GitHub Actions</span> და CI 🧪</h1>
+    <p class="lead mt in" style="--d:.3s">როგორ იწერება workflow — და CI, რომელიც LMS-ს ყოველ PR-ზე ამოწმებს</p>
+  </div>
+  <div class="big-num">02</div>
+  <aside class="study">
+## ნაწილი 2 · GitHub Actions და CI
+
+თეორია ვიცით. ახლა ვნახავთ, როგორ მუშაობს GitHub Actions ყველაზე მარტივ მაგალითზე, და მერე ვწერთ ნამდვილ CI-ს: ყოველ Pull Request-ზე LMS უნდა აეწყოს და ტესტები გაიაროს.
+  </aside>
+</section>
+
+<section class="slide" data-section="2 · CI">
   <div class="kicker">ცნებები</div>
   <h2>workflow · trigger · job · <span class="c-asp">runner</span> · step</h2>
   <div class="grid2" style="grid-template-columns:1fr 1fr">
@@ -124,7 +241,7 @@ public რეპოებისთვის GitHub-ის runner-ები უ�
   </aside>
 </section>
 
-<section class="slide" data-section="1 · GitHub Actions">
+<section class="slide" data-section="2 · CI">
   <div class="kicker">ვაკეთებთ ერთად · პირველი workflow</div>
   <h2><span class="mono c-mvc">hello.yml</span> — რა ხდება runner-ზე?</h2>
   <div class="grid2" style="grid-template-columns:1.05fr 1fr">
@@ -192,29 +309,6 @@ YAML-ში შეწევა (indentation) მნიშვნელობა�
 ? რატომ აჩვენებს პირველი `ls -la` ცარიელ საქაღალდეს?
 = runner ყოველ გაშვებაზე ახალი, სუფთა ვირტუალური მანქანაა — შენი კოდი იქ `actions/checkout`-მდე არ არის
 ```
-  </aside>
-</section>
-
-<section class="slide" data-section="☕ შესვენება">
-  <div class="center">
-    <div class="big-emoji float" style="font-size:120px">☕</div>
-    <h1 class="mt">შესვენება</h1>
-    <p class="lead mt">10 წუთი · მერე — CI LMS-ისთვის: build + test</p>
-  </div>
-</section>
-
-<!-- ================= PART 2: CI ================= -->
-<section class="slide divider" data-section="2 · CI">
-  <div class="vcenter">
-    <div class="kicker in">ნაწილი 2</div>
-    <h1 class="in" style="--d:.1s"><span class="grad">CI</span> LMS-ისთვის 🧪</h1>
-    <p class="lead mt in" style="--d:.3s">build + test ყოველ Pull Request-ზე — და გატეხილი კოდი main-ში აღარ შევა</p>
-  </div>
-  <div class="big-num">02</div>
-  <aside class="study">
-## ნაწილი 2 · CI LMS-ისთვის
-
-workflow-ის აწყობა ვიცით. ახლა ვწერთ ნამდვილს: ყოველ Pull Request-ზე LMS უნდა აეწყოს და ტესტები გაიაროს.
   </aside>
 </section>
 
@@ -493,6 +587,7 @@ Pull Request-ში review გუნდურ მუშაობაში ერ
   <div class="kicker">შეჯამება</div>
   <h2>დღეს ვისწავლეთ</h2>
   <div class="col" style="gap:28px;margin-top:30px">
+    <div class="row in left" style="--d:0.10s;gap:20px;align-items:center"><span class="big-emoji" style="font-size:42px">🔁</span><span style="font-size:28px"><b>CI/CD</b> — build → test → artifact → deploy; Delivery vs Deployment</span></div>
     <div class="row in left" style="--d:0.20s;gap:20px;align-items:center"><span class="big-emoji" style="font-size:42px">⚙️</span><span style="font-size:28px"><b>GitHub Actions</b> — workflow, trigger, job, runner, step</span></div>
     <div class="row in left" style="--d:0.35s;gap:20px;align-items:center"><span class="big-emoji" style="font-size:42px">🖥️</span><span style="font-size:28px"><b>runner</b> — სუფთა Ubuntu: checkout → setup → ბრძანებები</span></div>
     <div class="row in left" style="--d:0.50s;gap:20px;align-items:center"><span class="big-emoji" style="font-size:42px">🧪</span><span style="font-size:28px"><b>CI</b> — ყოველ PR-ზე build + test; ❌ → ლოგი → გასწორება</span></div>
@@ -502,6 +597,7 @@ Pull Request-ში review გუნდურ მუშაობაში ერ
   <aside class="study">
 ## შეჯამება · დღეს ვისწავლეთ
 
+- 🔁 **CI/CD** — pipeline: commit → build → test → artifact → deploy → production; ნებისმიერ ნაბიჯზე შეცდომა მას აჩერებს. CI — „კოდი სწორია?“, CD — „კოდი მომხმარებელთანაა?“. Continuous **Delivery** — production-ს ადამიანი წყვეტს ღილაკით; Continuous **Deployment** — merge-ის შემდეგ ავტომატურად. პრინციპები: პატარა ცვლილებები, სწრაფი პასუხი, ერთხელ აეწყობა, ყველაფერი კოდით.
 - ⚙️ **GitHub Actions** — `.github/workflows/*.yml`: trigger (`on`), job, runner (`runs-on: ubuntu-latest`), steps (`uses` / `run`).
 - 🖥️ **runner** — GitHub-ის სუფთა ვირტუალური Ubuntu, ყოველ გაშვებაზე ახალი: კოდი მხოლოდ `actions/checkout`-ის შემდეგ ჩნდება, .NET — `actions/setup-dotnet`-ის შემდეგ.
 - 🧪 **CI** — `ci.yml` ყოველ PR-ზე: checkout → setup-dotnet → restore → build → test. ჩავარდნისას: რომელი step → ლოგის ბოლო ხაზები → იგივე ბრძანება შენთან.
@@ -510,7 +606,7 @@ Pull Request-ში review გუნდურ მუშაობაში ერ
 **შემდეგ ლექციაზე:** CI ამოწმებს — მაგრამ სერვერზე განახლება ისევ ხელით ხდება. CD-ით merge-ის შემდეგ LMS სერვერზე თვითონ ავა.
 
 ```prompt გამოცდა მეათე ლექციაზე
-ვსწავლობ DevOps-ს. მეათე ლექციაზე გავიარეთ GitHub Actions და CI: workflow, on (push, pull_request, workflow_dispatch), jobs, runs-on, runner როგორც სუფთა მანქანა, steps (uses და run), actions/checkout, actions/setup-dotnet, YAML-ის შეწევა, xUnit ტესტი, dotnet build/test CI-ში, exit code, ჩავარდნილი CI-ის ლოგის კითხვა, branch protection (rulesets, required status checks).
+ვსწავლობ DevOps-ს. მეათე ლექციაზე გავიარეთ CI/CD-ის თეორია (pipeline, build/test/artifact/deploy, CI vs Continuous Delivery vs Continuous Deployment, პრინციპები) და GitHub Actions-ით CI: workflow, on (push, pull_request, workflow_dispatch), jobs, runs-on, runner როგორც სუფთა მანქანა, steps (uses და run), actions/checkout, actions/setup-dotnet, YAML-ის შეწევა, xUnit ტესტი, dotnet build/test CI-ში, exit code, ჩავარდნილი CI-ის ლოგის კითხვა, branch protection (rulesets, required status checks).
 დამისვი 7 კითხვა სათითაოდ, მარტივიდან რთულისკენ — ნაწილი სიტუაციური იყოს („PR-ზე CI წითელია, შენთან კი ყველაფერი მუშაობს. რას შეამოწმებ?“). ყოველ პასუხზე შემიფასე და ამიხსენი. ბოლოს მითხარი, რა გავიმეორო. ქართულად.
 ```
 
