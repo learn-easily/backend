@@ -34,12 +34,12 @@ code{font:600 .86em var(--mono);background:var(--soft);border-radius:6px;padding
 .flow .card{margin:0}
 .flow .n{font:800 13px var(--mono);color:var(--accent)}
 .doms{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px}
-details.dom{background:var(--card);border:1px solid var(--line);border-top:5px solid var(--a);border-radius:14px;padding:14px 18px}
-details.dom[open]{grid-column:1/-1}
-details.dom summary{cursor:pointer;list-style:none;display:flex;gap:12px;align-items:center}
-details.dom summary::-webkit-details-marker{display:none}
-details.dom .e{font-size:34px;line-height:1}
-details.dom .s{font-size:14.5px;color:var(--ink2)}
+details.domx{background:var(--card);border:1px solid var(--line);border-top:5px solid var(--a);border-radius:14px;padding:14px 18px}
+details.domx[open]{grid-column:1/-1}
+details.domx summary{cursor:pointer;list-style:none;display:flex;gap:12px;align-items:center}
+details.domx summary::-webkit-details-marker{display:none}
+details.domx .e{font-size:34px;line-height:1}
+details.domx .s{font-size:14.5px;color:var(--ink2)}
 .map{width:100%;border-collapse:collapse;margin:12px 0 4px;font-size:15px}
 .map th,.map td{border:1px solid var(--line);padding:6px 10px;text-align:left;vertical-align:top}
 .map th{background:var(--soft);font-size:13.5px}
@@ -53,162 +53,359 @@ details.dom .s{font-size:14.5px;color:var(--ink2)}
 .ok{background:var(--green-soft);border:1px solid color-mix(in srgb,var(--green) 35%,transparent);border-radius:12px;padding:12px 16px}
 .score{display:grid;grid-template-columns:1fr auto;gap:4px 16px;max-width:560px}
 .score b{font-family:var(--mono);text-align:right}
-@media print{.top{display:none}body{background:#fff}details.dom{break-inside:avoid}}
+@media print{.top{display:none}body{background:#fff}details.domx{break-inside:avoid}}
+
+.dom{position:relative;background:var(--card);border:1px solid var(--line);border-top:5px solid var(--a);border-radius:14px;padding:14px 16px;cursor:pointer;text-align:left;font:inherit;color:inherit;display:flex;gap:12px;align-items:flex-start;transition:transform .12s,box-shadow .12s}
+.dom:hover{transform:translateY(-2px);box-shadow:0 10px 24px -12px rgba(0,0,0,.25)}
+.dom.cur{outline:3px solid var(--a);outline-offset:-1px}
+.dom .e{font-size:32px;line-height:1}
+.dom h3{margin:0}.dom .s{font-size:14px;color:var(--ink2);line-height:1.5}
+.badge{position:absolute;top:10px;right:10px;font:800 11px var(--mono);border-radius:999px;padding:2px 8px;background:var(--accent-soft);color:var(--accent)}
+.badge.ok{background:var(--green-soft);color:var(--green)}
+.detail{border-top:6px solid var(--a)}
+.detail .row{display:flex;gap:14px;align-items:center;flex-wrap:wrap}
+.detail .big{font-size:44px;line-height:1}
+.pick{margin-left:auto;border:0;background:var(--a);color:#fff;font:800 15px var(--sans);border-radius:10px;padding:10px 16px;cursor:pointer}
+.pick.done{background:var(--green);color:var(--card)}
+.roles{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;margin:12px 0}
+.role{border:2px solid var(--a);border-radius:12px;padding:10px 14px}
+.role .t{font-weight:800;color:var(--a)}
+.role ul{margin:4px 0 0;padding-left:20px;font-size:15px}
+.mine{display:none;background:var(--green-soft);border:1px solid color-mix(in srgb,var(--green) 40%,transparent);color:var(--green);font-weight:700;border-radius:12px;padding:8px 14px;margin:8px 0}
+.mine.on{display:block}
+.tasks tr:target td{background:var(--accent-soft)}
+.tasks td:nth-child(2){font-weight:700;width:170px}
 </style>
 </head>
 <body>
 <div class="top">
   <div class="ttl">📋 C# · საფინალო პროექტი</div>
-  <nav><a href="#how">როგორ</a><a href="#domains">სფეროები</a><a href="#req">მოთხოვნები</a><a href="#tasks">დავალებები</a><a href="#defense">წარდგენა</a></nav>
+  <nav><a href="#how">როგორ</a><a href="#domains">სფეროები</a><a href="#tasks">დავალებები</a><a href="#req">მოთხოვნები</a><a href="#defense">წარდგენა</a></nav>
   <button class="themebtn" type="button" title="ღია / მუქი თემა"><span class="l">🌙</span><span class="d">☀️</span></button>
 </div>
 <main>
 <div class="k">C# · ლექციები 14–28</div>
 <h1>საფინალო პროექტი</h1>
 <p class="lead">ლექტორი კლასში <b>Shop</b>-ს (ონლაინ მაღაზია) აწყობს. შენ იმავე დროს იწყებ <b>შენს</b> პროექტს და ყოველი ლექციის შემდეგ სახლში იმავეს ამატებ შენს სფეროში. 28-ე ლექციაზე წარადგენ იმას, რაც 14-იდან ააწყე — ცალკე „საფინალოს წერა“ ბოლოს აღარ გჭირდება.</p>
+<div class="mine" id="mine"></div>
 
 <h2 id="how">როგორ მუშაობს</h2>
 <div class="flow">
-  <div class="card"><div class="n">1 · ლექცია 14</div><h3>აირჩიე სფერო</h3>ქვემოთ მოცემულიდან ერთი (ან შენი — ლექტორთან შეთანხმებით). შექმენი კონსოლის პროექტი და GitHub რეპო.</div>
-  <div class="card"><div class="n">2 · კლასში</div><h3>ლექტორთან ერთად</h3>ახალი თემა Shop-ზე: პრობლემა → ახსნა → კოდი. საკლასო დავალებაც Shop-ს ან შენს პროექტს ეხება.</div>
-  <div class="card"><div class="n">3 · სახლში</div><h3>შენს პროექტში</h3>იგივე თემა შენს სფეროში — „დავალებების ჩამონათვალი“ ქვემოთ. ყოველი ლექციის შემდეგ ერთი commit მაინც.</div>
-  <div class="card"><div class="n">4 · ლექცია 28</div><h3>წარდგენა</h3>დემო, კოდი, ტესტები და კითხვები. შეფასება — ქვემოთ.</div>
+  <div class="card"><div class="n">1 · ლექცია 14</div><h3>აირჩიე სფერო</h3>ქვემოთ მოცემულიდან ერთი (ან შენი — ლექტორთან შეთანხმებით) და დააჭირე „ეს ავირჩიე“. დავალებები შენს სფეროზე გამოჩნდება.</div>
+  <div class="card"><div class="n">2 · კლასში</div><h3>ლექტორთან ერთად</h3>ახალი თემა Shop-ზე: პრობლემა → ახსნა → კოდი.</div>
+  <div class="card"><div class="n">3 · სახლში — HW</div><h3>შენს პროექტში</h3>ლექციის ნომრის საშინაო (HW-15, HW-16, …) — ზუსტად შენი სფეროს კლასებით. ყოველი HW — ერთი commit მაინც.</div>
+  <div class="card"><div class="n">4 · ლექცია 28</div><h3>წარდგენა</h3>დემო, კოდი, ტესტები და კითხვები.</div>
 </div>
-<p class="note">⚠️ საშინაო დავალება = შენი პროექტის შემდეგი ნაბიჯი. თუ ერთ კვირას გამოტოვებ, მომდევნო ლექციის თემა უკვე იმას ეყრდნობა, რაც გამოტოვე — ჩამორჩენა ბოლოს ძალიან რთულად ივსება.</p>
-<p>პროექტი C#-ით არ მთავრდება: <b>SQL</b>-ის კურსზე შენი სფეროსთვის ბაზას დააპროექტებ, <b>EF Core</b>-ზე კი იგივე კონსოლის აპი ამ ბაზას მიუერთდება.</p>
+<p class="note">⚠️ საშინაო = შენი პროექტის შემდეგი ნაბიჯი. ყოველი ლექცია წინაზე დგება — გამოტოვებული HW მომდევნო ლექციის საშინაოს ვერ გაგაკეთებინებს.</p>
+<p>პროექტი C#-ით არ მთავრდება: <b>SQL</b>-ზე შენი სფეროსთვის ბაზას დააპროექტებ, <b>EF Core</b>-ზე კი იგივე კონსოლის აპი ამ ბაზას მიუერთდება.</p>
 
 <h2 id="domains">სფეროები</h2>
-<p>ყველა სფერო Shop-ის ფორმისაა: <b>კატალოგი</b> (რასაც ყიდი / გასცემ), <b>კლიენტი</b>, <b>„შეკვეთა“</b> სტატუსით და თარიღით, <b>შეზღუდვა</b> (მარაგი, ადგილი, ვადა) და <b>წესები</b> (ფასდაკლება, ჯარიმა). დააჭირე სფეროს — ნახავ, Shop-ის რა რას შეესაბამება.</p>
-<div class="doms">
+<p>ყველა სფერო Shop-ის ფორმისაა: <b>კატალოგი</b>, <b>კლიენტი</b>, <b>„შეკვეთა“</b> ხაზებით, სტატუსით და თარიღით, <b>შეზღუდვა</b>, <b>წესი</b> (ფასდაკლება / ჯარიმა) და <b>ორი როლი</b>. დააჭირე — ნახავ დეტალებს და შენს დავალებებს.</p>
+<div class="doms" id="doms"></div>
+<div id="detail"></div>
+<p class="ok">💡 საკუთარი იდეა? შეიძლება — თუ მას აქვს კატალოგი, კლიენტი, „შეკვეთა“ სტატუსით და თარიღით, შეზღუდვა, მინიმუმ ერთი წესი და ორი როლი. 14-ე ლექციაზე შეუთანხმე ლექტორს და დავალებებს Shop-ის მიხედვით გაიყოლებ.</p>
 
-<details class="dom" style="--a:#2563eb"><summary><span class="e">📚</span><div><h3>ბიბლიოთეკა</h3><div class="s">წიგნები, მკითხველები, გატანა და დაბრუნება, ვადაგადაცილება</div></div></summary>
-<table class="map"><tr><th>Shop-ში</th><th>შენთან</th></tr>
-<tr><td>Product</td><td><code>Book</code> (სათაური, ავტორი, წელი, ეგზემპლარების რაოდენობა)</td></tr>
-<tr><td>Category (enum)</td><td><code>Genre</code></td></tr>
-<tr><td>Customer</td><td><code>Reader</code></td></tr>
-<tr><td>Order + OrderStatus</td><td><code>Loan</code> — <code>Active</code> / <code>Returned</code> / <code>Overdue</code></td></tr>
-<tr><td>მარაგი / OutOfStock</td><td>თავისუფალი ეგზემპლარი არ არის → <code>NoCopiesLeftException</code></td></tr>
-<tr><td>ფასდაკლება</td><td>ჯარიმა ვადაგადაცილების დღეებით (<code>DateTime</code>, <code>TimeSpan</code>)</td></tr>
-<tr><td>ანგარიშები (LINQ)</td><td>პოპულარული წიგნები, მკითხველები ვადაგადაცილებით, ჟანრების სტატისტიკა</td></tr></table>
-</details>
-
-<details class="dom" style="--a:#db2777"><summary><span class="e">🎬</span><div><h3>კინოთეატრი</h3><div class="s">ფილმები, სეანსები, დარბაზი, ბილეთები</div></div></summary>
-<table class="map"><tr><th>Shop-ში</th><th>შენთან</th></tr>
-<tr><td>Product</td><td><code>Movie</code> და <code>Session</code> (ფილმი + დრო + დარბაზი + ფასი)</td></tr>
-<tr><td>Category (enum)</td><td><code>Genre</code>, <code>AgeRating</code></td></tr>
-<tr><td>Customer</td><td><code>Viewer</code></td></tr>
-<tr><td>Order + OrderStatus</td><td><code>Ticket</code> — <code>Reserved</code> / <code>Paid</code> / <code>Cancelled</code></td></tr>
-<tr><td>მარაგი / OutOfStock</td><td>ადგილი დაკავებულია / დარბაზი სავსეა → <code>SeatTakenException</code></td></tr>
-<tr><td>ფასდაკლება</td><td>დილის სეანსი, სტუდენტური, ოჯახური ბილეთი</td></tr>
-<tr><td>ანგარიშები (LINQ)</td><td>ყველაზე ნანახი ფილმი, შემოსავალი დღეების მიხედვით, დარბაზის დატვირთვა</td></tr></table>
-</details>
-
-<details class="dom" style="--a:#16a34a"><summary><span class="e">🏋️</span><div><h3>სპორტდარბაზი</h3><div class="s">აბონემენტები, წევრები, ვარჯიშები, ვიზიტები</div></div></summary>
-<table class="map"><tr><th>Shop-ში</th><th>შენთან</th></tr>
-<tr><td>Product</td><td><code>MembershipPlan</code> (თვე, 3 თვე, წელი) და <code>Workout</code> (ჯგუფური ვარჯიში)</td></tr>
-<tr><td>Category (enum)</td><td><code>WorkoutType</code></td></tr>
-<tr><td>Customer</td><td><code>Member</code></td></tr>
-<tr><td>Order + OrderStatus</td><td><code>Membership</code> — <code>Active</code> / <code>Frozen</code> / <code>Expired</code></td></tr>
-<tr><td>მარაგი / OutOfStock</td><td>ჯგუფი სავსეა / აბონემენტი ვადაგასულია → <code>MembershipExpiredException</code></td></tr>
-<tr><td>ფასდაკლება</td><td>წლიური აბონემენტი, მეგობრის მოყვანა</td></tr>
-<tr><td>ანგარიშები (LINQ)</td><td>აქტიური წევრები, პოპულარული ვარჯიშები, ვისაც კვირაში ვადა გასდის</td></tr></table>
-</details>
-
-<details class="dom" style="--a:#d97706"><summary><span class="e">🚗</span><div><h3>მანქანების გაქირავება</h3><div class="s">ავტომობილები, კლიენტები, ქირა თარიღებით</div></div></summary>
-<table class="map"><tr><th>Shop-ში</th><th>შენთან</th></tr>
-<tr><td>Product</td><td><code>Car</code> (მარკა, მოდელი, ფასი დღეზე)</td></tr>
-<tr><td>Category (enum)</td><td><code>CarClass</code> (Economy, SUV, Premium), <code>FuelType</code></td></tr>
-<tr><td>Customer</td><td><code>Client</code> (მართვის მოწმობით)</td></tr>
-<tr><td>Order + OrderStatus</td><td><code>Rental</code> — <code>Booked</code> / <code>Active</code> / <code>Returned</code></td></tr>
-<tr><td>მარაგი / OutOfStock</td><td>მანქანა ამ თარიღებში დაკავებულია → <code>CarNotAvailableException</code></td></tr>
-<tr><td>ფასდაკლება</td><td>კვირაზე მეტი — ფასდაკლება; დაგვიანებით დაბრუნება — ჯარიმა</td></tr>
-<tr><td>ანგარიშები (LINQ)</td><td>ყველაზე მომგებიანი მანქანა, თავისუფალი მანქანები თარიღზე, შემოსავალი კლასებით</td></tr></table>
-</details>
-
-<details class="dom" style="--a:#0d9488"><summary><span class="e">💊</span><div><h3>აფთიაქი</h3><div class="s">მედიკამენტები, მარაგი, ვარგისიანობის ვადა, გაყიდვა</div></div></summary>
-<table class="map"><tr><th>Shop-ში</th><th>შენთან</th></tr>
-<tr><td>Product</td><td><code>Medicine</code> (სახელი, ფასი, მარაგი, ვარგისიანობის ვადა)</td></tr>
-<tr><td>Category (enum)</td><td><code>MedicineType</code>; <code>RequiresPrescription</code></td></tr>
-<tr><td>Customer</td><td><code>Customer</code></td></tr>
-<tr><td>Order + OrderStatus</td><td><code>Sale</code> — <code>Completed</code> / <code>Returned</code></td></tr>
-<tr><td>მარაგი / OutOfStock</td><td>არ არის მარაგში / ვადაგასულია / რეცეპტი სჭირდება → შესაბამისი exception</td></tr>
-<tr><td>ფასდაკლება</td><td>პენსიონერის ბარათი, ვადის ახლოს მყოფ მედიკამენტზე ფასდაკლება</td></tr>
-<tr><td>ანგარიშები (LINQ)</td><td>ვადაგასასვლელი მარაგი, ყველაზე გაყიდვადი, რისი შეკვეთაა საჭირო</td></tr></table>
-</details>
-
-<details class="dom" style="--a:#7c3aed"><summary><span class="e">🏨</span><div><h3>სასტუმრო</h3><div class="s">ოთახები, სტუმრები, ჯავშნები თარიღებით</div></div></summary>
-<table class="map"><tr><th>Shop-ში</th><th>შენთან</th></tr>
-<tr><td>Product</td><td><code>Room</code> (ნომერი, ფასი ღამეზე, ტევადობა)</td></tr>
-<tr><td>Category (enum)</td><td><code>RoomType</code> (Single, Double, Suite)</td></tr>
-<tr><td>Customer</td><td><code>Guest</code></td></tr>
-<tr><td>Order + OrderStatus</td><td><code>Booking</code> — <code>Pending</code> / <code>Confirmed</code> / <code>CheckedIn</code> / <code>Cancelled</code></td></tr>
-<tr><td>მარაგი / OutOfStock</td><td>ოთახი ამ თარიღებში დაკავებულია (თარიღების გადაფარვა) → <code>RoomNotAvailableException</code></td></tr>
-<tr><td>ფასდაკლება</td><td>სეზონური ფასი, 7+ ღამე, ადრეული ჯავშანი</td></tr>
-<tr><td>ანგარიშები (LINQ)</td><td>დატვირთვა თვეების მიხედვით, თავისუფალი ოთახები თარიღზე, შემოსავალი ტიპებით</td></tr></table>
-</details>
-
-<details class="dom" style="--a:#dc2626"><summary><span class="e">🎫</span><div><h3>ღონისძიებები და ბილეთები</h3><div class="s">კონცერტები, მატჩები, ადგილები, ბილეთის კატეგორიები</div></div></summary>
-<table class="map"><tr><th>Shop-ში</th><th>შენთან</th></tr>
-<tr><td>Product</td><td><code>Event</code> (სახელი, თარიღი, ადგილი, ტევადობა)</td></tr>
-<tr><td>Category (enum)</td><td><code>EventType</code>, <code>TicketTier</code> (Standard, VIP)</td></tr>
-<tr><td>Customer</td><td><code>Attendee</code></td></tr>
-<tr><td>Order + OrderStatus</td><td><code>Ticket</code> — <code>Reserved</code> / <code>Paid</code> / <code>Used</code> / <code>Refunded</code></td></tr>
-<tr><td>მარაგი / OutOfStock</td><td>ბილეთები გაიყიდა / ღონისძიება უკვე ჩატარდა → exception</td></tr>
-<tr><td>ფასდაკლება</td><td>ადრეული ყიდვა, ჯგუფური ბილეთი</td></tr>
-<tr><td>ანგარიშები (LINQ)</td><td>გაყიდვები ღონისძიებით, მომავალი კვირის ღონისძიებები, VIP-ის წილი</td></tr></table>
-</details>
-
-</div>
-<p class="ok">💡 საკუთარი იდეა? შეიძლება — თუ მას აქვს კატალოგი, კლიენტი, „შეკვეთა“ სტატუსით და თარიღით, შეზღუდვა და მინიმუმ ერთი წესი (ფასდაკლება / ჯარიმა). ლექცია 14-ზე შეუთანხმე ლექტორს.</p>
+<h2 id="tasks">დავალებები — <span id="tasksFor"></span></h2>
+<p>ყოველი ლექციის შემდეგ — სახლში, შენს პროექტში. კლასში იგივეს Shop-ზე ვაკეთებთ, ასე რომ, ყოველთვის გაქვს ნიმუში.</p>
+<table class="tasks" id="tasksTbl"></table>
 
 <h2 id="req">მოთხოვნები — რა უნდა ჰქონდეს წარდგენისას</h2>
 <div class="card"><ul class="req">
-<li><b>მოდელი:</b> მინიმუმ 4 კლასი (კატალოგი, კლიენტი, „შეკვეთა“, მისი ხაზი), 2 <code>enum</code>, ყველა ობიექტს <code>Guid</code> id; ერთი <code>record</code></li>
-<li><b>ინკაფსულაცია:</b> მონაცემი <code>private set</code>-ით, ცვლილება მხოლოდ მეთოდებით; წესები კონსტრუქტორსა და მეთოდებში</li>
+<li><b>კონსოლის აპი და სტრუქტურა:</b> საქაღალდეები <code>Models</code> · <code>Enums</code> · <code>Services</code> · <code>Data</code> · <code>Exceptions</code>; ბოლოს solution სამ პროექტად — <code>Core</code> / <code>Console</code> / <code>Tests</code></li>
+<li><b>მოდელები:</b> სწორად დაგეგმილი — მინიმუმ 5 კლასი (კატალოგი, კლიენტი, „შეკვეთა“, მისი ხაზი, <code>User</code>), 2+ <code>enum</code>, ყველა ობიექტს <code>Guid</code> id; ერთი <code>record</code></li>
+<li><b>OOP და ინკაფსულაცია:</b> მონაცემი <code>private set</code>-ით, ცვლილება მხოლოდ მეთოდებით; წესები ობიექტის შიგნით</li>
+<li><b>ავტორიზაცია და როლები:</b> რეგისტრაცია / შესვლა, მინიმუმ 2 როლი, მენიუ როლის მიხედვით; პაროლი მხოლოდ hash-ით (PBKDF2)</li>
 <li><b>შეცდომები:</b> მინიმუმ 2 საკუთარი exception; მენიუ არასწორ შეყვანაზე არ ვარდება</li>
-<li><b>კოლექციები:</b> <code>List</code> და <code>Dictionary</code> (ძებნა id-ით); ერთი საკუთარი generic კლასი ან მეთოდი</li>
+<li><b>კოლექციები და generic:</b> <code>List</code>, <code>Dictionary</code>; ერთი საკუთარი generic კლასი ან მეთოდი</li>
 <li><b>დელეგატები და LINQ:</b> ფილტრი <code>Func</code>-ით; მინიმუმ 5 ანგარიში LINQ-ით (მათ შორის <code>GroupBy</code>)</li>
 <li><b>თარიღები:</b> <code>DateTime</code> / <code>TimeSpan</code> — ვადა, ხანგრძლივობა ან თარიღების შედარება</li>
-<li><b>შენახვა:</b> მონაცემი JSON ფაილებში, ჩატვირთვა და შენახვა <code>async</code>-ით</li>
-<li><b>სტრუქტურა:</b> solution — <code>Core</code> (class library), <code>Console</code> (მენიუ), <code>Tests</code> (xUnit)</li>
+<li><b>JSON და async:</b> ყველა მონაცემი JSON ფაილებში, ჩატვირთვა და შენახვა <code>async</code>-ით</li>
+<li><b>ელფოსტა:</b> მინიმუმ ერთი მეილი SMTP-ით (დადასტურება ან შეხსენება); პაროლი კოდში არ წერია</li>
 <li><b>ტესტები:</b> მინიმუმ 8 unit ტესტი — წესები და exception-ები</li>
-<li><b>Git:</b> GitHub რეპო; მინიმუმ ერთი commit ყოველი ლექციის შემდეგ (ისტორია აჩვენებს, რომ პროექტი ეტაპობრივად აიწყო)</li>
+<li><b>Git:</b> GitHub რეპო, README; მინიმუმ ერთი commit ყოველი HW-ის შემდეგ</li>
 </ul></div>
-
-<h2 id="tasks">დავალებების ჩამონათვალი</h2>
-<p>ყოველი ლექციის შემდეგ — საშინაოდ შენს პროექტში. მარცხნივ — რა გავაკეთეთ კლასში Shop-ზე, მარჯვნივ — რა ამატებ შენ.</p>
-<table class="tasks">
-<tr><th>#</th><th>კლასში — Shop</th><th>სახლში — შენი პროექტი</th></tr>
-<tr><td>14</td><td><code>Product</code> (<code>Guid</code>), <code>Category</code> / <code>OrderStatus</code> enum, <code>ShopSettings</code> (static), <code>Order.CreatedAt</code>, მენიუ</td><td>აირჩიე სფერო, შექმენი პროექტი და რეპო. კატალოგის კლასი <code>Guid</code> id-ით, 2 enum, ერთი static კლასი პარამეტრებით, თარიღი „შეკვეთაში“. მენიუ: სიის ნახვა და დამატება</td></tr>
-<tr><td>15</td><td><code>OutOfStockException</code>, <code>InvalidQuantityException</code>, მენიუ არ ვარდება</td><td>2 საკუთარი exception შენი სფეროს წესებზე; ყველა შეყვანა <code>TryParse</code> / <code>try-catch</code>-ით</td></tr>
-<tr><td>16</td><td><code>ProductList</code> → <code>MyList&lt;T&gt;</code>, <code>where T : IEntity</code></td><td><code>IEntity</code> ინტერფეისი და <code>MyList&lt;T&gt;</code> (ან საკუთარი generic კლასი); მასივები ჩაანაცვლე მისით</td></tr>
-<tr><td>17</td><td><code>List</code>, <code>Dictionary&lt;Guid, Product&gt;</code>, <code>Cart</code>, <code>HashSet</code>, <code>Queue</code></td><td><code>MyList</code> → <code>List</code>; ძებნა id-ით <code>Dictionary</code>-ით; „შეკვეთის“ ხაზები (კალათა / ჯავშნის პოზიციები)</td></tr>
-<tr><td>18</td><td><code>Filter(Func&lt;Product, bool&gt;)</code>, ფასდაკლების წესები <code>Func</code>-ით</td><td>ფილტრი <code>Func</code>-ით (მინიმუმ 3 სხვადასხვა წესი lambda-თ); შენი ფასდაკლება / ჯარიმა <code>Func</code>-ით</td></tr>
-<tr><td>19</td><td>ფილტრი, დალაგება, ჯამები LINQ-ით</td><td>ციკლებით დაწერილი ძებნა / დალაგება / დათვლა → LINQ</td></tr>
-<tr><td>20</td><td><code>GroupBy</code> ანგარიშები, გვერდები, extension-ები</td><td>2 ანგარიში <code>GroupBy</code>-ით; სია გვერდებად (<code>Skip</code> / <code>Take</code>); 1 საკუთარი extension method</td></tr>
-<tr><td>21</td><td>ბიზნეს-კითხვები → LINQ ანგარიშები</td><td>სულ მინიმუმ 5 ანგარიში მენიუში („ანგარიშები“ პუნქტი)</td></tr>
-<tr class="test"><td>22</td><td colspan="2">ტესტი 3 · პროექტის შუალედური შემოწმება: ლექტორი ათვალიერებს რეპოებს 14–21</td></tr>
-<tr><td>23</td><td><code>record OrderLine</code>, switch expression, nullable</td><td>ერთი <code>record</code>; წესი switch expression-ით; ყველა ყვითელი ხაზი (nullable) გასწორებული</td></tr>
-<tr><td>24</td><td>JSON შენახვა, ჩეკი <code>StringBuilder</code>-ით</td><td>ყველა მონაცემი JSON-ში (ჩატვირთვა გაშვებისას, შენახვა ცვლილებისას); ერთი „დოკუმენტი“ ფაილში <code>StringBuilder</code>-ით (ჩეკი, ბილეთი, ქვითარი)</td></tr>
-<tr><td>25</td><td>async შენახვა, ვალუტის კურსი <code>HttpClient</code>-ით</td><td>ჩატვირთვა / შენახვა <code>async</code>-ით; ერთი გარე API (ვალუტის კურსი ან სხვა, შენს სფეროს რომ ერგება)</td></tr>
-<tr><td>26</td><td><code>Shop.Core</code> / <code>Shop.Console</code> / <code>Shop.Tests</code></td><td>solution სამ პროექტად; მინიმუმ 8 unit ტესტი</td></tr>
-<tr class="test"><td>27</td><td colspan="2">ტესტი 4 · პროექტის საბოლოო შესწორებები</td></tr>
-<tr><td>28</td><td colspan="2"><b>წარდგენა</b></td></tr>
-</table>
 
 <h2 id="defense">წარდგენა — ლექცია 28</h2>
 <div class="card">
-<p><b>თითოეულს ~8 წუთი:</b> 3 წუთი დემო (მენიუ, მთავარი სცენარი, შეცდომის სცენარი, ანგარიშები) → 2 წუთი კოდი (სტრუქტურა, ერთი წესი, ერთი LINQ, ტესტები) → 3 წუთი კითხვები („რატომ ასე?“, „რა მოხდება, თუ…?“).</p>
+<p><b>თითოეულს ~8 წუთი:</b> 3 წუთი დემო (შესვლა ორივე როლით, მთავარი სცენარი, შეცდომის სცენარი, ანგარიშები, მეილი) → 2 წუთი კოდი (სტრუქტურა, მოდელები, ერთი წესი, ერთი LINQ, ტესტები) → 3 წუთი კითხვები („რატომ ასე?“, „რა მოხდება, თუ…?“).</p>
 <div class="score">
-<span>ფუნქციონალი და მთავარი სცენარი მუშაობს</span><b>25%</b>
-<span>OOP და ინკაფსულაცია — წესები ობიექტის შიგნითაა</span><b>20%</b>
+<span>ფუნქციონალი და მთავარი სცენარი მუშაობს</span><b>20%</b>
+<span>მოდელები, OOP და ინკაფსულაცია</span><b>20%</b>
+<span>ავტორიზაცია, როლები, hash</span><b>10%</b>
 <span>LINQ, კოლექციები, generic / დელეგატები</span><b>15%</b>
-<span>შეცდომები, JSON, async</span><b>15%</b>
-<span>ტესტები და სტრუქტურა (Core / Console / Tests)</span><b>15%</b>
+<span>შეცდომები, JSON, async, მეილი</span><b>10%</b>
+<span>ტესტები და სტრუქტურა</span><b>15%</b>
 <span>კითხვებზე პასუხი და Git-ის ისტორია</span><b>10%</b>
 </div>
 </div>
 <p class="note">🔍 კითხვებზე პასუხი ამოწმებს, რომ კოდი შენია და გესმის. AI-ის დახმარება შეიძლება — მაგრამ თითოეული ხაზი უნდა შეგეძლოს ახსნა.</p>
 </main>
+<script>
+const esc = s => String(s).replace(/[&<>"]/g, ch => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[ch]);
+const DOMAINS = [
+{ id:"shop", example:true, e:"🛒", name:"ონლაინ მაღაზია", brand:"Shop", color:"#6d28d9",
+  tagline:"პროდუქტები, კალათა, შეკვეთები, მარაგი, ფასდაკლება. ამას ლექტორი აწყობს კლასში.",
+  brief:"მაღაზია ყიდის პროდუქტებს რამდენიმე კატეგორიაში. მყიდველი რეგისტრირდება, ათვალიერებს კატალოგს, ამატებს კალათაში და აფორმებს შეკვეთას. მარაგზე მეტს ვერ იყიდის. ადმინი მართავს პროდუქტებს, ხედავს შეკვეთებს და ანგარიშებს.",
+  admin:{ka:"ადმინი",code:"Admin",does:["პროდუქტების დამატება / რედაქტირება","შეკვეთების სტატუსის შეცვლა","ანგარიშები"]},
+  client:{ka:"მყიდველი",code:"Customer",does:["კატალოგი და ძებნა","კალათა და შეკვეთა","ჩემი შეკვეთები"]},
+  catalog:{ka:"პროდუქტი",code:"Product",fields:"Name, Price, Stock, Category"},
+  cat:{code:"Category",values:"Electronics, Books, Clothing, Food"},
+  person:{ka:"მყიდველი",code:"Customer"},
+  order:{ka:"შეკვეთა",code:"Order"}, line:{ka:"შეკვეთის ხაზი",code:"OrderLine",fields:"ProductId, Quantity, UnitPrice"},
+  status:{code:"OrderStatus",values:"Pending, Paid, Shipped, Cancelled"},
+  settings:"ShopSettings.TaxRate = 0.18m",
+  date:"Order.CreatedAt — შეკვეთის დრო; „ბოლო 7 დღის შეკვეთები“",
+  ex:["OutOfStockException — მარაგზე მეტი","InvalidQuantityException — რაოდენობა ≤ 0"],
+  filters:["იაფი (< 50 ₾)","მარაგში არსებული","კატეგორიით"],
+  rule:"ფასდაკლება: 3+ ერთეულზე −10%, 200 ₾-ზე მეტ შეკვეთაზე −5%",
+  ext:"products.InStock()",
+  reports:["შემოსავალი კატეგორიით","ტოპ-5 გაყიდვადი პროდუქტი","საუკეთესო მყიდველი","თვის შემოსავალი","მარაგი, რომელიც იწურება (< 5)"],
+  record:"record OrderLine(Guid ProductId, int Quantity, decimal UnitPrice)",
+  doc:"ჩეკი — receipts/<id>.txt",
+  email:"შეკვეთა გაფორმდა → მყიდველს დადასტურების მეილი",
+  api:"ვალუტის კურსი (ეროვნული ბანკი) — ფასი ლარში და დოლარში",
+  tests:["კალათის ჯამი","ფასდაკლება 3+ ერთეულზე","მარაგი მცირდება შეკვეთის შემდეგ","მარაგზე მეტი → OutOfStockException","არასწორი პაროლით შესვლა ვერ ხერხდება"] },
+
+{ id:"library", e:"📚", name:"ბიბლიოთეკა", brand:"Library", color:"#2563eb",
+  tagline:"წიგნები, მკითხველები, გატანა და დაბრუნება, ვადაგადაცილების ჯარიმა.",
+  brief:"ბიბლიოთეკას აქვს წიგნები, თითოეულისგან რამდენიმე ეგზემპლარი. მკითხველს ერთდროულად მაქსიმუმ 3 წიგნის გატანა შეუძლია 14 დღით. დაგვიანებით დაბრუნებაზე ყოველ დღეს 0.5 ₾ ჯარიმა ერიცხება. ბიბლიოთეკარი ამატებს წიგნებს და ხედავს, ვინ აგვიანებს.",
+  admin:{ka:"ბიბლიოთეკარი",code:"Librarian",does:["წიგნების დამატება / რედაქტირება","გატანის დაფიქსირება და დაბრუნება","ვადაგადაცილებულების სია"]},
+  client:{ka:"მკითხველი",code:"Reader",does:["კატალოგი და ძებნა","ჩემი გატანილი წიგნები და ვადები","ჩემი ჯარიმა"]},
+  catalog:{ka:"წიგნი",code:"Book",fields:"Title, Author, Year, TotalCopies, AvailableCopies, Genre"},
+  cat:{code:"Genre",values:"Fiction, Science, History, Children, Tech"},
+  person:{ka:"მკითხველი",code:"Reader"},
+  order:{ka:"გატანა",code:"Loan"}, line:{ka:"გატანის ხაზი",code:"LoanItem",fields:"BookId, DueDate, ReturnedAt?"},
+  status:{code:"LoanStatus",values:"Active, Returned, Overdue"},
+  settings:"LibrarySettings.MaxBooks = 3; LoanDays = 14; FinePerDay = 0.5m",
+  date:"DueDate = გატანის თარიღი + 14 დღე; დაგვიანების დღეები TimeSpan-ით",
+  ex:["NoCopiesLeftException — თავისუფალი ეგზემპლარი არ არის","LoanLimitException — უკვე 3 წიგნი აქვს"],
+  filters:["ავტორით","თავისუფალი ეგზემპლარით","გამოცემის წლით (2000-ის შემდეგ)"],
+  rule:"ჯარიმა: დაგვიანებულ დღეზე 0.5 ₾, მაქსიმუმ 20 ₾",
+  ext:"books.Available()",
+  reports:["ყველაზე პოპულარული 5 წიგნი","მკითხველები ვადაგადაცილებით","ჟანრების სტატისტიკა","ჯარიმების ჯამი თვეში","წიგნები, რომლებიც არავის წაუღია"],
+  record:"record LoanItem(Guid BookId, DateTime DueDate)",
+  doc:"ქვითარი — loans/<id>.txt (წიგნები და დაბრუნების თარიღი)",
+  email:"დაბრუნების ვადამდე 1 დღე / ვადა გადაცდა → შეხსენება მეილზე",
+  api:"ღია წიგნების API (მაგ. Open Library) — წიგნის აღწერა ISBN-ით",
+  tests:["4-ე წიგნის გატანა → LoanLimitException","ჯარიმა 3 დღის დაგვიანებაზე = 1.5 ₾","ჯარიმა არ აღემატება 20 ₾-ს","დაბრუნების შემდეგ ეგზემპლარი თავისუფლდება"] },
+
+{ id:"cinema", e:"🎬", name:"კინოთეატრი", brand:"Cinema", color:"#db2777",
+  tagline:"ფილმები, სეანსები, დარბაზები, ადგილები და ბილეთები.",
+  brief:"კინოთეატრს რამდენიმე დარბაზი აქვს, თითოეულს — თავისი ადგილების რაოდენობა. ფილმი გადის სეანსებად (ფილმი + დარბაზი + დრო + ფასი). მაყურებელი ირჩევს სეანსს და ადგილს. ერთ ადგილს ორჯერ ვერ გაყიდი, დაწყებულ სეანსზე ბილეთი აღარ იყიდება.",
+  admin:{ka:"მენეჯერი",code:"Manager",does:["ფილმების და სეანსების დამატება","ბილეთის გაუქმება","გაყიდვების ანგარიშები"]},
+  client:{ka:"მაყურებელი",code:"Viewer",does:["სეანსები დღის მიხედვით","ადგილის არჩევა და ბილეთის ყიდვა","ჩემი ბილეთები"]},
+  catalog:{ka:"სეანსი",code:"Session",fields:"MovieId, Hall, StartsAt, Price"},
+  cat:{code:"Genre",values:"Action, Comedy, Drama, Animation, Horror"},
+  person:{ka:"მაყურებელი",code:"Viewer"},
+  order:{ka:"შეკვეთა",code:"Booking"}, line:{ka:"ბილეთი",code:"Ticket",fields:"SessionId, Row, Seat, Price"},
+  status:{code:"TicketStatus",values:"Reserved, Paid, Cancelled"},
+  settings:"CinemaSettings.MorningDiscount = 0.3m; StudentDiscount = 0.2m",
+  date:"Session.StartsAt; „დღევანდელი სეანსები“; დაწყებულ სეანსზე ყიდვა აკრძალულია",
+  ex:["SeatTakenException — ადგილი დაკავებულია","SessionStartedException — სეანსი დაიწყო"],
+  filters:["დღის მიხედვით","ჟანრით","ფასით (< 15 ₾)"],
+  rule:"ფასი: 12:00-მდე −30%, სტუდენტს −20%, 4+ ბილეთზე −10%",
+  ext:"sessions.Today()",
+  reports:["ყველაზე ნანახი ფილმი","შემოსავალი დღეების მიხედვით","დარბაზის დატვირთვა %","ყველაზე აქტიური მაყურებელი","სეანსები ცარიელი ადგილებით"],
+  record:"record Seat(int Row, int Number)",
+  doc:"ბილეთი — tickets/<id>.txt (ფილმი, დარბაზი, რიგი, ადგილი)",
+  email:"ბილეთი გაიყიდა → ბილეთი მეილზე",
+  api:"ფილმის ინფორმაცია (მაგ. OMDb) — რეიტინგი და აღწერა",
+  tests:["ერთი ადგილი ორჯერ → SeatTakenException","დილის ფასდაკლება სწორად ითვლება","დაწყებულ სეანსზე ყიდვა ვერ ხერხდება","გაუქმებული ბილეთის ადგილი თავისუფლდება"] },
+
+{ id:"gym", e:"🏋️", name:"სპორტდარბაზი", brand:"Gym", color:"#16a34a",
+  tagline:"აბონემენტები, წევრები, ჯგუფური ვარჯიშები, ვიზიტები.",
+  brief:"დარბაზი ყიდის აბონემენტებს (1 თვე, 3 თვე, წელი). წევრი ჯგუფურ ვარჯიშზე ეწერება, თუ ადგილია და აბონემენტი აქტიურია. აბონემენტი შეიძლება გაიყინოს 14 დღემდე. ყოველი შესვლა ვიზიტად ფიქსირდება.",
+  admin:{ka:"ადმინისტრატორი",code:"Admin",does:["აბონემენტის გაყიდვა და გაყინვა","ვარჯიშების დამატება","ვიზიტების და ვადების ანგარიში"]},
+  client:{ka:"წევრი",code:"Member",does:["ჩემი აბონემენტი და ვადა","ვარჯიშზე ჩაწერა / გაუქმება","ჩემი ვიზიტები"]},
+  catalog:{ka:"ჯგუფური ვარჯიში",code:"Workout",fields:"Title, Trainer, StartsAt, Capacity, Type"},
+  cat:{code:"WorkoutType",values:"Yoga, Crossfit, Boxing, Pilates, Spinning"},
+  person:{ka:"წევრი",code:"Member"},
+  order:{ka:"აბონემენტი",code:"Membership"}, line:{ka:"ჩაწერა ვარჯიშზე",code:"WorkoutBooking",fields:"WorkoutId, MemberId, BookedAt"},
+  status:{code:"MembershipStatus",values:"Active, Frozen, Expired"},
+  settings:"GymSettings.MaxFreezeDays = 14; MonthPrice = 90m",
+  date:"Membership.EndsAt; „ვისაც კვირაში ვადა გასდის“; გაყინვა ვადას აგრძელებს",
+  ex:["WorkoutFullException — ვარჯიში სავსეა","MembershipExpiredException — აბონემენტი ვადაგასულია"],
+  filters:["ტიპით","დღის მიხედვით","თავისუფალი ადგილით"],
+  rule:"ფასი: 3 თვე −10%, წელი −20%, მეგობრის მოყვანა −15 ₾",
+  ext:"workouts.WithFreeSpots()",
+  reports:["აქტიური წევრები","ყველაზე პოპულარული ვარჯიში","ტრენერების დატვირთვა","ვისაც 7 დღეში ვადა გასდის","ვიზიტები კვირის დღეების მიხედვით"],
+  record:"record Visit(Guid MemberId, DateTime At)",
+  doc:"აბონემენტის ქვითარი — receipts/<id>.txt",
+  email:"აბონემენტს 3 დღე დარჩა → შეხსენება მეილზე",
+  api:"ამინდი (მაგ. Open-Meteo) — გარე ვარჯიშის გაფრთხილება",
+  tests:["სავსე ვარჯიშზე ჩაწერა → WorkoutFullException","ვადაგასულით ჩაწერა ვერ ხერხდება","გაყინვა ვადას აგრძელებს","წლიური ფასი −20%"] },
+
+{ id:"cars", e:"🚗", name:"მანქანების გაქირავება", brand:"CarRental", color:"#d97706",
+  tagline:"ავტომობილები, კლიენტები, ქირა თარიღებით, დაგვიანების ჯარიმა.",
+  brief:"კომპანიას აქვს მანქანები სხვადასხვა კლასში, თითოეულს — ფასი დღეზე. კლიენტი ქირაობს თარიღიდან თარიღამდე; ერთი მანქანა ერთ დროს ორ კლიენტს ვერ მიექირავება. კვირაზე მეტი ქირა იაფდება, დაგვიანებით დაბრუნება ჯარიმდება.",
+  admin:{ka:"ოპერატორი",code:"Operator",do:[],does:["მანქანების დამატება","ქირის გაცემა და დაბრუნების მიღება","შემოსავლის ანგარიშები"]},
+  client:{ka:"კლიენტი",code:"Client",does:["თავისუფალი მანქანები თარიღებზე","ჯავშანი","ჩემი ქირები"]},
+  catalog:{ka:"მანქანა",code:"Car",fields:"Brand, Model, Year, PricePerDay, Class, Fuel"},
+  cat:{code:"CarClass",values:"Economy, Comfort, SUV, Premium"},
+  person:{ka:"კლიენტი",code:"Client"},
+  order:{ka:"ქირა",code:"Rental"}, line:{ka:"დამატებითი სერვისი",code:"RentalExtra",fields:"Name, PricePerDay (GPS, ბავშვის სავარძელი)"},
+  status:{code:"RentalStatus",values:"Booked, Active, Returned, Cancelled"},
+  settings:"RentalSettings.LatePerHour = 10m; WeekDiscount = 0.15m",
+  date:"From / To — დღეების რაოდენობა TimeSpan-ით; თარიღების გადაფარვის შემოწმება",
+  ex:["CarNotAvailableException — მანქანა ამ თარიღებში დაკავებულია","InvalidPeriodException — To ≤ From"],
+  filters:["კლასით","ფასით დღეზე","საწვავის ტიპით"],
+  rule:"ფასი: 7+ დღე −15%; დაგვიანებით დაბრუნება — 10 ₾ საათში",
+  ext:"cars.AvailableBetween(from, to)",
+  reports:["ყველაზე მომგებიანი მანქანა","შემოსავალი კლასებით","თავისუფალი მანქანები ხვალ","საშუალო ქირის ხანგრძლივობა","ყველაზე აქტიური კლიენტი"],
+  record:"record Period(DateTime From, DateTime To)",
+  doc:"ხელშეკრულება — contracts/<id>.txt",
+  email:"ჯავშანი დადასტურდა / ხვალ დასაბრუნებელია → მეილი",
+  api:"ვალუტის კურსი (ეროვნული ბანკი) — ფასი ლარში და დოლარში",
+  tests:["გადაფარული თარიღები → CarNotAvailableException","7 დღეზე ფასდაკლება","2 საათის დაგვიანება = 20 ₾","To ≤ From → InvalidPeriodException"] },
+
+{ id:"pharmacy", e:"💊", name:"აფთიაქი", brand:"Pharmacy", color:"#0d9488",
+  tagline:"მედიკამენტები, მარაგი, ვარგისიანობის ვადა, რეცეპტი, გაყიდვა.",
+  brief:"აფთიაქი ყიდის მედიკამენტებს; ზოგს რეცეპტი სჭირდება. თითოეულს აქვს მარაგი და ვარგისიანობის ვადა — ვადაგასულს ვერ გაყიდი. პენსიონერს ფასდაკლება აქვს. ფარმაცევტი ხედავს, რა იწურება და რას გასდის ვადა.",
+  admin:{ka:"ფარმაცევტი",code:"Pharmacist",does:["მედიკამენტების დამატება და მარაგის შევსება","გაყიდვა (რეცეპტის შემოწმებით)","ვადის და მარაგის ანგარიშები"]},
+  client:{ka:"მყიდველი",code:"Customer",does:["ძებნა სახელით","შეკვეთა","ჩემი შენაძენები"]},
+  catalog:{ka:"მედიკამენტი",code:"Medicine",fields:"Name, Price, Stock, ExpiresAt, RequiresPrescription, Type"},
+  cat:{code:"MedicineType",values:"Painkiller, Antibiotic, Vitamin, Allergy, Cold"},
+  person:{ka:"მყიდველი",code:"Customer"},
+  order:{ka:"გაყიდვა",code:"Sale"}, line:{ka:"გაყიდვის ხაზი",code:"SaleLine",fields:"MedicineId, Quantity, UnitPrice"},
+  status:{code:"SaleStatus",values:"Completed, Returned"},
+  settings:"PharmacySettings.PensionerDiscount = 0.1m; ExpiryWarningDays = 30",
+  date:"ExpiresAt — ვადაგასულის აკრძალვა; „30 დღეში ვადაგასასვლელი“",
+  ex:["OutOfStockException — არ არის მარაგში","ExpiredMedicineException — ვადაგასულია","PrescriptionRequiredException — რეცეპტი სჭირდება"],
+  filters:["ტიპით","რეცეპტის გარეშე","ფასით"],
+  rule:"ფასი: პენსიონერს −10%; ვადამდე 30 დღეზე ნაკლები — −25%",
+  ext:"medicines.ExpiringWithin(30)",
+  reports:["30 დღეში ვადაგასასვლელი","ყველაზე გაყიდვადი 5","შესავსები მარაგი (< 10)","შემოსავალი ტიპებით","რეცეპტიანი გაყიდვების წილი"],
+  record:"record SaleLine(Guid MedicineId, int Quantity, decimal UnitPrice)",
+  doc:"ჩეკი — receipts/<id>.txt",
+  email:"მარაგი იწურება → ფარმაცევტს მეილი",
+  api:"ვალუტის კურსი (ეროვნული ბანკი) — იმპორტის ფასი დოლარიდან",
+  tests:["ვადაგასულის გაყიდვა → ExpiredMedicineException","რეცეპტიანი რეცეპტის გარეშე → exception","პენსიონერის ფასდაკლება","მარაგი მცირდება"] },
+
+{ id:"hotel", e:"🏨", name:"სასტუმრო", brand:"Hotel", color:"#7c3aed",
+  tagline:"ოთახები, სტუმრები, ჯავშნები თარიღებით, სეზონური ფასი.",
+  brief:"სასტუმროს აქვს ოთახები ტიპებით და ფასით ღამეზე. სტუმარი ჯავშნის თარიღიდან თარიღამდე; ერთ ოთახზე ჯავშნები არ უნდა გადაიფაროს. ზაფხულში ფასი იზრდება, 7+ ღამეზე იკლებს. რეცეფცია აფიქსირებს მისვლას და წასვლას.",
+  admin:{ka:"რეცეფცია",code:"Receptionist",does:["ოთახების დამატება","check-in / check-out","დატვირთვის ანგარიშები"]},
+  client:{ka:"სტუმარი",code:"Guest",does:["თავისუფალი ოთახები თარიღებზე","ჯავშანი და გაუქმება","ჩემი ჯავშნები"]},
+  catalog:{ka:"ოთახი",code:"Room",fields:"Number, Type, PricePerNight, Capacity"},
+  cat:{code:"RoomType",values:"Single, Double, Family, Suite"},
+  person:{ka:"სტუმარი",code:"Guest"},
+  order:{ka:"ჯავშანი",code:"Booking"}, line:{ka:"დამატებითი სერვისი",code:"BookingExtra",fields:"Name, Price (საუზმე, ტრანსფერი)"},
+  status:{code:"BookingStatus",values:"Pending, Confirmed, CheckedIn, CheckedOut, Cancelled"},
+  settings:"HotelSettings.SummerMarkup = 0.2m; LongStayDiscount = 0.1m",
+  date:"CheckIn / CheckOut — ღამეების რაოდენობა; თარიღების გადაფარვა; ზაფხულის თვეები",
+  ex:["RoomNotAvailableException — ოთახი დაკავებულია","CapacityExceededException — სტუმრები მეტია ტევადობაზე"],
+  filters:["ტიპით","ფასით","ტევადობით"],
+  rule:"ფასი: ივნისი–აგვისტო +20%, 7+ ღამე −10%",
+  ext:"rooms.FreeBetween(from, to)",
+  reports:["დატვირთვა თვეების მიხედვით","შემოსავალი ოთახის ტიპებით","დღეს მოსული / წასული სტუმრები","საშუალო დარჩენის ხანგრძლივობა","ყველაზე ხშირი სტუმარი"],
+  record:"record Stay(DateTime CheckIn, DateTime CheckOut)",
+  doc:"ინვოისი — invoices/<id>.txt",
+  email:"ჯავშანი დადასტურდა → მეილი სტუმარს",
+  api:"ვალუტის კურსი (ეროვნული ბანკი) — ფასი ლარში და ევროში",
+  tests:["გადაფარული ჯავშანი → RoomNotAvailableException","ზაფხულის ფასი +20%","7 ღამე −10%","ტევადობაზე მეტი → exception"] },
+
+{ id:"events", e:"🎫", name:"ღონისძიებები და ბილეთები", brand:"Events", color:"#dc2626",
+  tagline:"კონცერტები, მატჩები, ბილეთის კატეგორიები, ადგილების ლიმიტი.",
+  brief:"პლატფორმა ყიდის ბილეთებს ღონისძიებებზე. თითოეულს აქვს ტევადობა და კატეგორიები (Standard, VIP) სხვადასხვა ფასით. ჩატარებულზე ბილეთი აღარ იყიდება. ადრე ყიდვას ფასდაკლება აქვს, ერთ ადამიანს მაქსიმუმ 6 ბილეთი.",
+  admin:{ka:"ორგანიზატორი",code:"Organizer",does:["ღონისძიებების დამატება","ბილეთის დაბრუნება","გაყიდვების ანგარიშები"]},
+  client:{ka:"მყიდველი",code:"Attendee",does:["მომავალი ღონისძიებები","ბილეთის ყიდვა","ჩემი ბილეთები"]},
+  catalog:{ka:"ღონისძიება",code:"Event",fields:"Title, Venue, StartsAt, Capacity, Type"},
+  cat:{code:"EventType",values:"Concert, Sport, Theatre, Conference"},
+  person:{ka:"მყიდველი",code:"Attendee"},
+  order:{ka:"შეკვეთა",code:"Purchase"}, line:{ka:"ბილეთი",code:"Ticket",fields:"EventId, Tier, Price"},
+  status:{code:"TicketStatus",values:"Reserved, Paid, Used, Refunded"},
+  settings:"EventSettings.MaxTicketsPerPerson = 6; EarlyBirdDays = 30",
+  date:"StartsAt — ჩატარებულზე აკრძალვა; 30 დღით ადრე ყიდვა = ფასდაკლება",
+  ex:["SoldOutException — ბილეთები გაიყიდა","EventPassedException — ღონისძიება ჩატარდა"],
+  filters:["ტიპით","მომავალი კვირა","ფასით"],
+  rule:"ფასი: VIP ×2.5; 30 დღით ადრე −15%; 6-ზე მეტი ბილეთი — აკრძალულია",
+  ext:"events.Upcoming()",
+  reports:["გაყიდვები ღონისძიებით","VIP-ის წილი","მომავალი კვირის ღონისძიებები","ყველაზე სავსე ღონისძიება (%)","შემოსავალი ტიპებით"],
+  record:"record TicketPrice(TicketTier Tier, decimal Amount)",
+  doc:"ბილეთი — tickets/<id>.txt",
+  email:"ბილეთი გაიყიდა → ბილეთი მეილზე",
+  api:"ვალუტის კურსი (ეროვნული ბანკი) — უცხოელისთვის ფასი დოლარში",
+  tests:["სავსე ღონისძიება → SoldOutException","ადრეული ყიდვის ფასდაკლება","VIP ფასი ×2.5","მე-7 ბილეთი → exception"] }
+];
+
+// [ID, ლექცია, თემა, f(domain)] — ერთი ლექცია = ერთი საშინაო
+const c = x => `<code>${esc(x)}</code>`;
+const LECTURES = [
+ ["HW-14","14","static, enum, Guid, DateTime · მოდელები", d => `
+  <b>1. დაგეგმე</b> (ქაღალდზე ან README-ში): კლასები ${c(d.catalog.code)}, ${c(d.person.code)}, ${c(d.order.code)} → ${c(d.line.code)}, ${c("User")} — რა ველები აქვს, ვინ ვის ეკუთვნის.<br>
+  <b>2. პროექტი</b> ${c(d.brand)} და GitHub რეპო; საქაღალდეები ${c("Models")} · ${c("Enums")} · ${c("Services")} · ${c("Data")} · ${c("Exceptions")}.<br>
+  <b>3. კოდი:</b> ${c(d.catalog.code)} (${d.catalog.fields}) — ${c("Guid Id")}; enum-ები ${c(d.cat.code)} (${d.cat.values}) და ${c(d.status.code)} (${d.status.values}); static ${c(d.settings)}; თარიღი: ${d.date}.<br>
+  <b>4. მენიუ:</b> ${c(d.catalog.code)} — სიის ნახვა და დამატება.`],
+ ["HW-15","15","Exceptions", d => `საკუთარი exception-ები: ${d.ex.map(c).join(" · ")}. ისროლე სწორ ადგილას (მეთოდში, სადაც წესი ირღვევა), დაიჭირე მენიუში. ყველა რიცხვის შეყვანა ${c("TryParse")}-ით — მენიუ არასდროს ვარდება.`],
+ ["HW-16","16","Generics", d => `${c("Models/IEntity")} (${c("Guid Id")}) — ${c(d.catalog.code)}, ${c(d.person.code)}, ${c(d.order.code)} მას ახორციელებენ. ${c("Data/MyList<T> where T : IEntity")}: ${c("Add")}, ${c("GetById")}, ${c("Count")}, ზრდადი მასივი. ყველა მასივი → ${c("MyList")}.`],
+ ["HW-17","17","კოლექციები · ავტორიზაცია", d => `
+  ${c("MyList")} → ${c("List")}; ${c(`Dictionary<Guid, ${d.catalog.code}>`)} ძებნისთვის; ${c(d.order.code)}-ს ${c(`List<${d.line.code}>`)} (${d.line.fields}).<br>
+  <b>ავტორიზაცია:</b> ${c("User")} (Email, PasswordHash, Role) · enum ${c("Role")} — ${c(d.admin.code)} და ${c(d.client.code)} · ${c("Dictionary<string, User>")} email-ით · რეგისტრაცია და შესვლა · ${c("PasswordHasher")} (ლექციიდან) — პაროლი არასდროს ინახება ღიად.<br>
+  <b>მენიუ როლით:</b> ${d.admin.ka} — ${d.admin.does.join(", ")}; ${d.client.ka} — ${d.client.does.join(", ")}. პირველი ${d.admin.ka} — პროგრამის გაშვებისას (seed).`],
+ ["HW-18","18","დელეგატები და lambda", d => `${c(`Filter(Func<${d.catalog.code}, bool> rule)`)} და 3 წესი lambda-თ: ${d.filters.join(" · ")}. წესი ${c("Func")}-ით: ${d.rule}.`],
+ ["HW-19","19","LINQ I", d => `ციკლებით დაწერილი ძებნა, დალაგება და ჯამები → LINQ (${c("Where")}, ${c("OrderBy")}, ${c("FirstOrDefault")}, ${c("Any")}, ${c("Sum")}). პირველი 2 ანგარიში: ${d.reports.slice(0,2).join(" · ")}.`],
+ ["HW-20","20","LINQ II და extension methods", d => `${c("GroupBy")}-ით: ${d.reports[2]}. სია გვერდებად (${c("Skip")} / ${c("Take")}, 5 თითო გვერდზე). extension method: ${c(d.ext)}.`],
+ ["HW-21","21","LINQ III", d => `მენიუში პუნქტი „ანგარიშები“ (მხოლოდ ${d.admin.ka}ს) — სულ 5: ${d.reports.join(" · ")}.`],
+ ["HW-22","22","ტესტი 3 · შუალედური შემოწმება", d => `ლექტორი ათვალიერებს რეპოს: HW-14–21 შესრულებულია? commit-ები ყოველი ლექციის შემდეგ?`],
+ ["HW-23","23","record, pattern matching, null", d => `${c(d.record)}; წესი switch expression-ით (${d.rule}); nullable — ყველა ყვითელი ხაზი გასწორებული, ${c("?")} / ${c("??")} სადაც მნიშვნელობა შეიძლება არ იყოს.`],
+ ["HW-24","24","ფაილები და JSON", d => `${c("Data/")}-ში JSON ფაილები — ${[d.catalog.code, d.person.code, d.order.code, "User"].map(x => c(x.toLowerCase() + "s.json")).join(" · ")} — ჩატვირთვა გაშვებისას, შენახვა ცვლილებისას. ${esc(d.doc)} — ${c("StringBuilder")}-ით.`],
+ ["HW-25","25","async · ელფოსტა · გარე API", d => `ჩატვირთვა / შენახვა ${c("async")}-ით. ${c("Services/EmailService")} (SMTP, ლექციიდან): ${d.email}; პაროლი / app password — კოდის გარეთ (ფაილში, რომელიც Git-ში არ მიდის). გარე API ${c("HttpClient")}-ით: ${d.api}.`],
+ ["HW-26","26","Solution და Unit Testing", d => `solution: ${c(d.brand+".Core")} (Models, Enums, Services, Data, Exceptions) · ${c(d.brand+".Console")} (მენიუ) · ${c(d.brand+".Tests")} (xUnit). მინიმუმ 8 ტესტი, მათ შორის: ${d.tests.join(" · ")}.`],
+ ["HW-27","27","ტესტი 4 · საბოლოო შესწორებები", d => `README: რა არის პროექტი, როლები, როგორ გავუშვა (მეილის პარამეტრები). ჩამონათვალი „მოთხოვნებიდან“ — ყველა პუნქტი ✓.`],
+ ["HW-28","28","წარდგენა", d => `დემო: შესვლა ორივე როლით → მთავარი სცენარი (${d.order.ka}) → შეცდომის სცენარი (${d.ex[0].split(" — ")[0]}) → ანგარიშები → მეილი.`]
+];
+
+const KEY = "csharp:domain";
+let saved = null; try { saved = localStorage.getItem(KEY); } catch (e) {}
+const byId = id => DOMAINS.find(d => d.id === id);
+function current() {
+  const m = location.hash.match(/^#d=(\w+)/);
+  return byId(m && m[1]) || byId(saved) || DOMAINS[0];
+}
+function render(scroll) {
+  const d = current();
+  document.getElementById("doms").innerHTML = DOMAINS.map(x => `
+    <button class="dom${x.id === d.id ? " cur" : ""}" style="--a:${x.color}" data-id="${x.id}">
+      ${x.example ? '<span class="badge">ლექტორი</span>' : x.id === saved ? '<span class="badge ok">✓ ჩემი</span>' : ""}
+      <span class="e">${x.e}</span><span><h3>${esc(x.name)}</h3><span class="s">${esc(x.tagline)}</span></span>
+    </button>`).join("");
+  const roles = [d.admin, d.client].map(r => `<div class="role"><div class="t">${esc(r.ka)} · <code>${r.code}</code></div><ul>${r.does.map(x => `<li>${esc(x)}</li>`).join("")}</ul></div>`).join("");
+  const rows = [
+    ["კატალოგი", `<code>${d.catalog.code}</code> — ${esc(d.catalog.fields)}`],
+    ["კატეგორია (enum)", `<code>${d.cat.code}</code> — ${esc(d.cat.values)}`],
+    ["კლიენტი", `<code>${d.person.code}</code> · ანგარიში — <code>User</code>`],
+    ["„შეკვეთა“ და ხაზი", `<code>${d.order.code}</code> → <code>${d.line.code}</code> (${esc(d.line.fields)})`],
+    ["სტატუსი (enum)", `<code>${d.status.code}</code> — ${esc(d.status.values)}`],
+    ["შეზღუდვა", d.ex.map(x => `<code>${esc(x.split(" — ")[0])}</code> — ${esc(x.split(" — ")[1] || "")}`).join("<br>")],
+    ["წესი", esc(d.rule)],
+    ["თარიღები", esc(d.date)],
+    ["მეილი", esc(d.email)]
+  ].map(([a, b]) => `<tr><td>${a}</td><td>${b}</td></tr>`).join("");
+  document.getElementById("detail").innerHTML = `
+    <div class="card detail" style="--a:${d.color}">
+      <div class="row"><span class="big">${d.e}</span><div><h3 style="font-size:22px">${esc(d.name)} · <code>${d.brand}</code></h3>${d.example ? "ნიმუში — კლასში ლექტორი აწყობს" : ""}</div>
+      ${d.example ? "" : `<button class="pick${d.id === saved ? " done" : ""}" type="button" data-pick="${d.id}">${d.id === saved ? "✓ ჩემი სფეროა" : "ეს ავირჩიე"}</button>`}</div>
+      <p class="note" style="margin-top:12px">💼 ${esc(d.brief)}</p>
+      <div class="roles">${roles}</div>
+      <table class="map"><tr><th>Shop-ის ფორმა</th><th>${esc(d.name)}</th></tr>${rows}</table>
+    </div>`;
+  document.getElementById("tasksFor").textContent = d.e + " " + d.name;
+  document.getElementById("tasksTbl").innerHTML = `<tr><th>ID</th><th>ლექცია</th><th>რა ამატებ</th></tr>` + LECTURES.map(([id, n, t, f]) =>
+    `<tr id="hw-${n}"${n === "22" || n === "27" ? ' class="test"' : ""}><td>${id}</td><td>${n} · ${esc(t)}</td><td>${f(d)}</td></tr>`).join("");
+  const mine = document.getElementById("mine");
+  if (saved && byId(saved)) { const s = byId(saved); mine.innerHTML = `✓ შენი სფერო: ${s.e} ${esc(s.name)} — დავალებები ქვემოთ შენს სფეროზეა`; mine.classList.add("on"); }
+  else mine.classList.remove("on");
+  if (scroll) document.getElementById("detail").scrollIntoView({ behavior: "smooth", block: "start" });
+}
+document.addEventListener("click", e => {
+  const b = e.target.closest(".dom");
+  if (b) { history.replaceState(null, "", "#d=" + b.dataset.id); render(true); return; }
+  const p = e.target.closest("[data-pick]");
+  if (p) { saved = p.dataset.pick; try { localStorage.setItem(KEY, saved); } catch (e) {} render(false); }
+});
+render(false);
+// #hw-15 ბმული სილაბუსიდან — ცხრილის შესაბამის ხაზზე
+if (/^#hw-\d+/.test(location.hash)) { const r = document.querySelector(location.hash); if (r) setTimeout(() => r.scrollIntoView({ block: "center" }), 50); }
+</script>
 </body>
 </html>
