@@ -593,7 +593,9 @@ def write_syllabus(cdir, course):
         out.unlink(missing_ok=True)
         return False
     out.parent.mkdir(parents=True, exist_ok=True)
-    built = {int(d.name.split('-', 1)[0]): d.name for d in cdir.iterdir() if (d / 'deck.html').exists() and d.name[:2].isdigit()}
+    # სილაბუსის ლექცია ↔ დეკი: საქაღალდის ნომრით, ან lecture.json-ის "syllabus" ველით (თუ დეკი სხვა ნომერზეა)
+    built = {json.loads((d / 'lecture.json').read_text()).get('syllabus', int(d.name.split('-', 1)[0])): d.name
+             for d in cdir.iterdir() if (d / 'deck.html').exists() and d.name[:2].isdigit()}
     # "📚 …" = რას ისწავლის სტუდენტი, "🛠 [პროექტი |] …" = რას ვწერთ პროექტში (ერთი ხაზი = ერთი პუნქტი) → ლექციის ⓘ drawer (გვერდზე არ ჩანს)
     briefs, cur, lines = {}, None, []
     for line in src.read_text().splitlines():
@@ -612,7 +614,9 @@ def write_syllabus(cdir, course):
         num, title, desc = int(m.group(1)), m.group(2), m.group(3) or ''
         slug = built.get(num)
         go = (f'<span class="go"><a href="{slug}/">▶ პრეზენტაცია</a><a href="{slug}/study.html">📖 კონსპექტი</a></span>') if slug else ''
-        info = f'<a class="lms" href="lms/{num:02d}.html" title="რას ისწავლის სტუდენტი და რას ვწერთ LMS-ში — კოდით">💻 LMS</a>' if num in briefs else ''
+        proj = briefs.get(num, {}).get('project')
+        label = f'💻 {esc(proj)}' if proj else '🎯 მიზნები'
+        info = f'<a class="lms" href="lms/{num:02d}.html" title="რას ისწავლის სტუდენტი{f" და რას ვწერთ {esc(proj)}-ში — კოდით" if proj else ""}">{label}</a>' if num in briefs else ''
         return f'<div class="lec{" ready" if slug else ""}" id="l-{num}"><h3>{m.group(1)}. {title}{info}{go}</h3>{desc}</div>'
     h = re.sub(r'<h3>(\d+)\.\s*(.*?)</h3>\s*(<p>.*?</p>)?', lec, h, flags=re.S)
     titles = {int(a): b_ for a, b_ in re.findall(r'^### (\d+)\.\s*(.+)$', src.read_text(), re.M)}
