@@ -80,6 +80,12 @@ THEME_HEAD = ('<script>(()=>{const d=document.documentElement,K="lectures:theme"
               'addEventListener("storage",e=>{if(e.key===K)d.dataset.theme=e.newValue||"light"})})()</script>')
 THEME_BTN = '<button class="themebtn" type="button" title="ღია / მუქი თემა (T)"><span class="l">🌙</span><span class="d">☀️</span></button>'
 THEME_BTN_CSS = ('.themebtn .d{display:none}html[data-theme=dark] .themebtn .l{display:none}html[data-theme=dark] .themebtn .d{display:inline}')
+# სილაბუსის / LMS-ის გვერდები: მუქი ცვლადები + ღილაკის სტილი ({{THEME}} შაბლონში)
+PAGE_THEME = (THEME_HEAD + '<style>html[data-theme=dark]{color-scheme:dark;--bg:#16181d;--card:#1e2128;--ink:#e6e2da;--ink2:#bebab1;'
+              '--muted:#8a8e98;--line:#2d313b;--line2:#3c414d;--accent:#ab9ff2;--accent-soft:#272439;--teal:#72bfb3;--green:#8fc8a1;'
+              '--soft:#252932;--code-ink:#cfc6ff}'
+              '.top .themebtn{font:700 14px var(--sans);line-height:1.25;border:1px solid var(--line2);background:var(--card);color:var(--ink);'
+              'border-radius:10px;padding:5px 9px;cursor:pointer}' + THEME_BTN_CSS + '</style>')
 _HEX = re.compile(r'#(?:[0-9a-fA-F]{6}|[0-9a-fA-F]{3})\b')
 _PAPER = {'#f1ece3', '#f6f1e8', '#fbf8f3', '#f4efe6', '#efe8dc', '#fffdf9', '#ebe5d8', '#e6dfd2', '#e4ddcf', '#cfc6b6', '#d6ccbb', '#d6cdbb'}   # თბილი „ქაღალდი“ — მუქში ნეიტრალური
 _TEXT_PROPS = ('color', '-webkit-text-fill-color', 'caret-color')
@@ -580,9 +586,10 @@ def write_lms_pages(cdir, course, briefs, titles):
         nav = (f'<a href="{prev_n:02d}.html">← {prev_n:02d}</a>' if prev_n else '') + (f'<a href="{next_n:02d}.html">{next_n:02d} →</a>' if next_n else '')
         page = (ENGINE / 'lms.html').read_text()
         for key, v in {'{{TITLE}}': f'{num:02d} · ' + esc(titles.get(num, '')), '{{NUM}}': str(num), '{{NAV}}': nav,
-                       '{{BODY}}': '\n'.join(parts), '{{FONTS}}': FONTS, '{{TOKEN_CSS}}': TOKEN_CSS}.items():
+                       '{{BODY}}': '\n'.join(parts), '{{FONTS}}': FONTS, '{{TOKEN_CSS}}': TOKEN_CSS,
+                       '{{THEME}}': PAGE_THEME, '{{THEME_BTN}}': THEME_BTN}.items():
             page = page.replace(key, v)
-        write_page(out_dir / f'{num:02d}.html', page)
+        write_page(out_dir / f'{num:02d}.html', themeify(page))
 
 # კურსის სილაბუსი: courses/<კურსი>/syllabus.md → /<კურსი>/syllabus.html
 #   "## ნაწილი (N ლექცია)" = ნაწილი; "### 01. სათაური" + აღწერა = ლექცია; აწყობილ ლექციას გვერდით ბმულები უჩნდება
@@ -622,9 +629,10 @@ def write_syllabus(cdir, course):
     titles = {int(a): b_ for a, b_ in re.findall(r'^### (\d+)\.\s*(.+)$', src.read_text(), re.M)}
     write_lms_pages(cdir, course, briefs, titles)
     page = (ENGINE / 'syllabus.html').read_text()
-    for k, v in {'{{TITLE}}': esc(course['title']), '{{COUNT}}': str(len(re.findall(r'class="lec', h))), '{{BODY}}': h, '{{FONTS}}': FONTS}.items():
+    for k, v in {'{{TITLE}}': esc(course['title']), '{{COUNT}}': str(len(re.findall(r'class="lec', h))), '{{BODY}}': h, '{{FONTS}}': FONTS,
+                 '{{THEME}}': PAGE_THEME, '{{THEME_BTN}}': THEME_BTN}.items():
         page = page.replace(k, v)
-    write_page(out, page)
+    write_page(out, themeify(page))
     return True
 
 def main(filters):
