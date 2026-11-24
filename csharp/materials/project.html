@@ -169,10 +169,10 @@ html[data-theme=dark] .ck:checked::after{color:#16181d}
 <main class="wrap">
 <section class="pane" id="pane-domain">
   <h2>აირჩიე სფერო</h2>
-  <p class="sub">ყველა Shop-ის ფორმისაა: კატალოგი, კლიენტი, „შეკვეთა“ ხაზებით და სტატუსით, შეზღუდვა, წესი და ორი როლი. დააჭირე — ნახავ დეტალებს.</p>
+  <p class="sub">ყველა Shop-ის ფორმისაა: კატალოგი, მომხმარებელი (<code>User</code>) ორი როლით, „შეკვეთა“ ხაზებით და სტატუსით, შეზღუდვა და წესი. დააჭირე — ნახავ დეტალებს.</p>
   <div class="doms" id="doms"></div>
   <div id="detail"></div>
-  <p class="hint">💡 საკუთარი იდეა? შეიძლება, თუ აქვს კატალოგი, კლიენტი, „შეკვეთა“ სტატუსით და თარიღით, შეზღუდვა, მინიმუმ ერთი წესი და ორი როლი — 14-ზე შეუთანხმე ლექტორს და დავალებებს Shop-ის მიხედვით გაიყოლებ.</p>
+  <p class="hint">💡 საკუთარი იდეა? შეიძლება, თუ აქვს კატალოგი, მომხმარებელი ორი როლით, „შეკვეთა“ სტატუსით და თარიღით, შეზღუდვა, მინიმუმ ერთი წესი და ორი როლი — 14-ზე შეუთანხმე ლექტორს და დავალებებს Shop-ის მიხედვით გაიყოლებ.</p>
 </section>
 <section class="pane" id="pane-tasks">
   <h2 id="tasksTitle">დავალებები</h2>
@@ -207,7 +207,6 @@ const DOMAINS = [
   client:{ka:"მყიდველი",code:"Customer",does:["კატალოგი და ძებნა","კალათა და შეკვეთა","ჩემი შეკვეთები"]},
   catalog:{ka:"პროდუქტი",code:"Product",fields:"Name, Price, Stock, Category"},
   cat:{code:"Category",values:"Electronics, Books, Clothing, Food"},
-  person:{ka:"მყიდველი",code:"Customer"},
   order:{ka:"შეკვეთა",code:"Order"}, line:{ka:"შეკვეთის ხაზი",code:"OrderItem",fields:"ProductId, Quantity, UnitPrice"},
   status:{code:"OrderStatus",values:"Pending, Paid, Shipped, Cancelled"},
   settings:"ShopSettings.TaxRate = 0.18m",
@@ -230,7 +229,6 @@ const DOMAINS = [
   client:{ka:"მკითხველი",code:"Reader",does:["კატალოგი და ძებნა","ჩემი გატანილი წიგნები და ვადები","ჩემი ჯარიმა"]},
   catalog:{ka:"წიგნი",code:"Book",fields:"Title, Author, Year, TotalCopies, AvailableCopies, Genre"},
   cat:{code:"Genre",values:"Fiction, Science, History, Children, Tech"},
-  person:{ka:"მკითხველი",code:"Reader"},
   order:{ka:"გატანა",code:"Loan"}, line:{ka:"გატანის ხაზი",code:"LoanItem",fields:"BookId, DueDate, ReturnedAt?"},
   status:{code:"LoanStatus",values:"Active, Returned, Overdue"},
   settings:"LibrarySettings.MaxBooks = 3; LoanDays = 14; FinePerDay = 0.5m",
@@ -253,7 +251,6 @@ const DOMAINS = [
   client:{ka:"მაყურებელი",code:"Viewer",does:["სეანსები დღის მიხედვით","ადგილის არჩევა და ბილეთის ყიდვა","ჩემი ბილეთები"]},
   catalog:{ka:"სეანსი",code:"Session",fields:"MovieId, Hall, StartsAt, Price"},
   cat:{code:"Genre",values:"Action, Comedy, Drama, Animation, Horror"},
-  person:{ka:"მაყურებელი",code:"Viewer"},
   order:{ka:"შეკვეთა",code:"Booking"}, line:{ka:"ბილეთი",code:"Ticket",fields:"SessionId, Row, Seat, Price"},
   status:{code:"TicketStatus",values:"Reserved, Paid, Cancelled"},
   settings:"CinemaSettings.MorningDiscount = 0.3m; StudentDiscount = 0.2m",
@@ -276,7 +273,6 @@ const DOMAINS = [
   client:{ka:"წევრი",code:"Member",does:["ჩემი აბონემენტი და ვადა","ვარჯიშზე ჩაწერა / გაუქმება","ჩემი ვიზიტები"]},
   catalog:{ka:"ჯგუფური ვარჯიში",code:"Workout",fields:"Title, Trainer, StartsAt, Capacity, Type"},
   cat:{code:"WorkoutType",values:"Yoga, Crossfit, Boxing, Pilates, Spinning"},
-  person:{ka:"წევრი",code:"Member"},
   order:{ka:"აბონემენტი",code:"Membership"}, line:{ka:"ჩაწერა ვარჯიშზე",code:"WorkoutBooking",fields:"WorkoutId, MemberId, BookedAt"},
   status:{code:"MembershipStatus",values:"Active, Frozen, Expired"},
   settings:"GymSettings.MaxFreezeDays = 14; MonthPrice = 90m",
@@ -299,7 +295,6 @@ const DOMAINS = [
   client:{ka:"კლიენტი",code:"Client",does:["თავისუფალი მანქანები თარიღებზე","ჯავშანი","ჩემი ქირები"]},
   catalog:{ka:"მანქანა",code:"Car",fields:"Brand, Model, Year, PricePerDay, Class, Fuel"},
   cat:{code:"CarClass",values:"Economy, Comfort, SUV, Premium"},
-  person:{ka:"კლიენტი",code:"Client"},
   order:{ka:"ქირა",code:"Rental"}, line:{ka:"დამატებითი სერვისი",code:"RentalExtra",fields:"Name, PricePerDay (GPS, ბავშვის სავარძელი)"},
   status:{code:"RentalStatus",values:"Booked, Active, Returned, Cancelled"},
   settings:"RentalSettings.LatePerHour = 10m; WeekDiscount = 0.15m",
@@ -322,7 +317,6 @@ const DOMAINS = [
   client:{ka:"მყიდველი",code:"Customer",does:["ძებნა სახელით","შეკვეთა","ჩემი შენაძენები"]},
   catalog:{ka:"მედიკამენტი",code:"Medicine",fields:"Name, Price, Stock, ExpiresAt, RequiresPrescription, Type"},
   cat:{code:"MedicineType",values:"Painkiller, Antibiotic, Vitamin, Allergy, Cold"},
-  person:{ka:"მყიდველი",code:"Customer"},
   order:{ka:"გაყიდვა",code:"Sale"}, line:{ka:"გაყიდვის ხაზი",code:"SaleLine",fields:"MedicineId, Quantity, UnitPrice"},
   status:{code:"SaleStatus",values:"Completed, Returned"},
   settings:"PharmacySettings.PensionerDiscount = 0.1m; ExpiryWarningDays = 30",
@@ -345,7 +339,6 @@ const DOMAINS = [
   client:{ka:"სტუმარი",code:"Guest",does:["თავისუფალი ოთახები თარიღებზე","ჯავშანი და გაუქმება","ჩემი ჯავშნები"]},
   catalog:{ka:"ოთახი",code:"Room",fields:"Number, Type, PricePerNight, Capacity"},
   cat:{code:"RoomType",values:"Single, Double, Family, Suite"},
-  person:{ka:"სტუმარი",code:"Guest"},
   order:{ka:"ჯავშანი",code:"Booking"}, line:{ka:"დამატებითი სერვისი",code:"BookingExtra",fields:"Name, Price (საუზმე, ტრანსფერი)"},
   status:{code:"BookingStatus",values:"Pending, Confirmed, CheckedIn, CheckedOut, Cancelled"},
   settings:"HotelSettings.SummerMarkup = 0.2m; LongStayDiscount = 0.1m",
@@ -368,7 +361,6 @@ const DOMAINS = [
   client:{ka:"მყიდველი",code:"Attendee",does:["მომავალი ღონისძიებები","ბილეთის ყიდვა","ჩემი ბილეთები"]},
   catalog:{ka:"ღონისძიება",code:"Event",fields:"Title, Venue, StartsAt, Capacity, Type"},
   cat:{code:"EventType",values:"Concert, Sport, Theatre, Conference"},
-  person:{ka:"მყიდველი",code:"Attendee"},
   order:{ka:"შეკვეთა",code:"Purchase"}, line:{ka:"ბილეთი",code:"Ticket",fields:"EventId, Tier, Price"},
   status:{code:"TicketStatus",values:"Reserved, Paid, Used, Refunded"},
   settings:"EventSettings.MaxTicketsPerPerson = 6; EarlyBirdDays = 30",
@@ -392,7 +384,7 @@ const exText = x => `${c(exName(x))} — ${esc(x.split(" — ")[1] || "")}`;
 // [ID, ლექცია, თემა, ტიპი, f(domain) → პუნქტები]
 const LECTURES = [
  ["HW-14","14","static, enum, Guid, DateTime · მოდელები","hw", d => [
-  `<b>დაგეგმე</b> (ქაღალდზე ან სქემად): ${[d.catalog.code, d.person.code, d.order.code, d.line.code, "User"].map(c).join(", ")} — რა ველები აქვს, ვინ ვის ეკუთვნის`,
+  `<b>დაგეგმე</b> (ქაღალდზე ან სქემად): ${[d.catalog.code, d.order.code, d.line.code, "User"].map(c).join(", ")} — რა ველები აქვს, ვინ ვის ეკუთვნის (${c(d.order.code + ".UserId")}); კლიენტისთვის ცალკე კლასი არ გვჭირდება — ის <code>User</code>-ია როლით`,
   `<b>პროექტი</b> ${c(d.brand)} (თუ Git-ს იყენებ — GitHub რეპოც); საქაღალდეები ${["Models","Enums","Services","Data","Exceptions"].map(c).join(" ")}`,
   `${c(d.catalog.code)} — ${esc(d.catalog.fields)}; ${c("Guid Id")}`,
   `enum ${c(d.cat.code)} (${esc(d.cat.values)}) და ${c(d.status.code)} (${esc(d.status.values)})`,
@@ -404,13 +396,13 @@ const LECTURES = [
   `ისროლე მეთოდში, სადაც წესი ირღვევა; დაიჭირე მენიუში`,
   `ყველა რიცხვის შეყვანა ${c("TryParse")}-ით — მენიუ არასდროს ვარდება`]],
  ["HW-16","16","Generics","hw", d => [
-  `${c("Models/IEntity")} (${c("Guid Id")}) — ${[d.catalog.code, d.person.code, d.order.code].map(c).join(", ")} მას ახორციელებენ`,
+  `${c("Models/IEntity")} (${c("Guid Id")}) — ${[d.catalog.code, d.order.code, "User"].map(c).join(", ")} მას ახორციელებენ`,
   `${c("Data/MyList<T> where T : IEntity")}: ${["Add","GetById","Count"].map(c).join(", ")}, ზრდადი შიდა მასივი`,
   `ყველა მასივი → ${c("MyList")}`]],
  ["HW-17","17","კოლექციები · ავტორიზაცია","hw", d => [
   `${c("MyList")} → ${c("List")}; ${c(`Dictionary<Guid, ${d.catalog.code}>`)} ძებნისთვის`,
   `${c(d.order.code)}-ს ${c(`List<${d.line.code}>`)} — ${esc(d.line.fields)}`,
-  `${c("User")} (Email, PasswordHash, Role) · enum ${c("Role")}: ${c(d.admin.code)}, ${c(d.client.code)} · ${c("Dictionary<string, User>")} email-ით`,
+  `${c("User")} (Name, Email, PasswordHash, Role) · enum ${c("Role")}: ${c(d.admin.code)}, ${c(d.client.code)} · ${c("Dictionary<string, User>")} email-ით`,
   `რეგისტრაცია და შესვლა · ${c("PasswordHasher")} (ლექციიდან) — პაროლი არასდროს ინახება ღიად`,
   `<b>${esc(d.admin.ka)}ს მენიუ:</b> ${esc(d.admin.does.join(" · "))}`,
   `<b>${esc(d.client.ka)}ს მენიუ:</b> ${esc(d.client.does.join(" · "))}`,
@@ -436,7 +428,7 @@ const LECTURES = [
   `წესი switch expression-ით — ${esc(d.rule)}`,
   `nullable: ყველა ყვითელი ხაზი გასწორებული; ${c("?")} / ${c("??")} სადაც მნიშვნელობა შეიძლება არ იყოს`]],
  ["HW-24","24","ფაილები და JSON","hw", d => [
-  `${c("Data/")}-ში: ${[d.catalog.code, d.person.code, d.order.code, "User"].map(x => c(x.toLowerCase() + "s.json")).join(" ")}`,
+  `${c("Data/")}-ში: ${[d.catalog.code, d.order.code, "User"].map(x => c(x.toLowerCase() + "s.json")).join(" ")}`,
   `ჩატვირთვა გაშვებისას, შენახვა ყოველი ცვლილებისას`,
   `${esc(d.doc)} — ${c("StringBuilder")}-ით`]],
  ["HW-25","25","async · ელფოსტა · გარე API","hw", d => [
@@ -456,7 +448,7 @@ const LECTURES = [
 
 const REQS = [
   ["კონსოლის აპი და სტრუქტურა", "საქაღალდეები <code>Models</code> <code>Enums</code> <code>Services</code> <code>Data</code> <code>Exceptions</code>; ბოლოს <code>Core</code> / <code>Console</code> / <code>Tests</code>"],
-  ["მოდელები", "სწორად დაგეგმილი — 5+ კლასი (მათ შორის <code>User</code>), 2+ <code>enum</code>, <code>Guid</code> id, ერთი <code>record</code>"],
+  ["მოდელები", "სწორად დაგეგმილი — კატალოგი, „შეკვეთა“, მისი ხაზი და <code>User</code> (როლები — enum, არა ცალკე კლასები); 2+ <code>enum</code>, <code>Guid</code> id, ერთი <code>record</code>"],
   ["OOP და ინკაფსულაცია", "<code>private set</code>, ცვლილება მხოლოდ მეთოდებით, წესები ობიექტის შიგნით"],
   ["ავტორიზაცია და როლები", "რეგისტრაცია / შესვლა, 2+ როლი, მენიუ როლით, პაროლი hash-ით (PBKDF2)"],
   ["შეცდომები", "2+ საკუთარი exception; მენიუ არასწორ შეყვანაზე არ ვარდება"],
@@ -496,7 +488,7 @@ function renderDomain() {
   const rows = [
     ["კატალოგი", `<code>${d.catalog.code}</code> ${esc(d.catalog.fields)}`],
     ["კატეგორია", `<code>${d.cat.code}</code> ${esc(d.cat.values)}`],
-    ["კლიენტი", `<code>${d.person.code}</code> + ანგარიში <code>User</code>`],
+    ["მომხმარებელი", `<code>User</code> (Name, Email, PasswordHash, Role) — <code>${d.admin.code}</code> / <code>${d.client.code}</code>`],
     ["„შეკვეთა“", `<code>${d.order.code}</code> → <code>${d.line.code}</code>`],
     ["სტატუსი", `<code>${d.status.code}</code> ${esc(d.status.values)}`],
     ["შეზღუდვა", d.ex.map(exText).join("<br>")],
