@@ -32,20 +32,8 @@ th{background:var(--soft)}
 code{font:600 .86em var(--mono);background:var(--soft);border-radius:6px;padding:1px 6px;color:var(--code-ink)}
 hr{display:none}
 @media print{.top,.go{display:none}body{background:#fff}}
-h3 .info{all:unset;cursor:pointer;width:24px;height:24px;border-radius:50%;display:inline-grid;place-items:center;font:700 13px var(--mono);color:var(--accent);border:1.5px solid color-mix(in srgb,var(--accent) 45%,transparent);flex:none}
-h3 .info:hover{background:var(--accent);color:#fff}
-.dim{position:fixed;inset:0;background:rgba(20,22,40,.35);opacity:0;pointer-events:none;transition:opacity .2s;z-index:20}
-.dim.on{opacity:1;pointer-events:auto}
-.drawer{position:fixed;top:0;right:0;bottom:0;width:min(440px,100vw);background:var(--card);border-left:1px solid var(--line);box-shadow:-12px 0 40px rgba(30,33,50,.15);transform:translateX(100%);transition:transform .25s ease;z-index:21;overflow-y:auto;padding:22px 24px 32px}
-.drawer.on{transform:none}
-.drawer .x{all:unset;cursor:pointer;position:absolute;top:14px;right:16px;font:700 20px var(--mono);color:var(--muted);padding:4px 8px;border-radius:8px}
-.drawer .x:hover{background:var(--bg);color:var(--ink)}
-.drawer .k{font:700 13px var(--mono);color:var(--accent)}
-.drawer .dt{font-size:20px;line-height:1.3;margin:6px 34px 16px 0}
-.drawer h5{font-size:15px;margin:18px 0 6px}
-.drawer ul{margin:0;padding-left:20px;line-height:1.55;font-size:15.5px}
-.drawer li{margin:4px 0}
-@media print{.info,.drawer,.dim{display:none}}
+.lms{font:700 12.5px var(--mono);text-decoration:none;border:1.5px solid var(--accent);color:var(--accent);border-radius:999px;padding:1px 10px}
+.lms:hover{background:var(--accent);color:#fff}
 </style></head>
 <body>
 <div class="top">
@@ -56,16 +44,4 @@ h3 .info:hover{background:var(--accent);color:#fff}
 <div class="k">📄 სილაბუსი · {{COUNT}} ლექცია</div>
 {{BODY}}
 </main>
-<div class="dim" id="dim"></div>
-<aside class="drawer" id="drawer" aria-hidden="true"><button class="x" type="button" aria-label="დახურვა">✕</button><div id="db"></div></aside>
-<script>
-const dim = document.getElementById('dim'), drawer = document.getElementById('drawer'), db = document.getElementById('db');
-const close = () => { drawer.classList.remove('on'); dim.classList.remove('on'); drawer.setAttribute('aria-hidden', 'true'); };
-document.addEventListener('click', e => {
-  const b = e.target.closest('.info');
-  if (b) { db.innerHTML = document.getElementById('b-' + b.dataset.l).innerHTML; drawer.classList.add('on'); dim.classList.add('on'); drawer.setAttribute('aria-hidden', 'false'); return; }
-  if (e.target === dim || e.target.closest('.drawer .x')) close();
-});
-document.addEventListener('keydown', e => { if (e.key === 'Escape') close(); });
-</script>
 </body></html>

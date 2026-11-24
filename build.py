@@ -432,6 +432,80 @@ def write_study(out, course, meta, num, deck_title, study, materials):
     write_page(out / 'study.html', page, encrypt=False)
 
 # ---------- everything ----------
+
+# ---------- LMS-ის კოდის გვერდები: courses/<კურსი>/lms/NN.md → /<კურსი>/lms/NN.html ----------
+# NN.md: ჩვეულებრივი markdown + ```lang Path/To/File.cs ბლოკები — ფაილის სრული შიგთავსი ამ ლექციის შემდეგ.
+# ფაილების მდგომარეობა იკრიბება 01..NN-ით: ახალი ფაილი → „ახალი“, შეცვლილი → „შეცვლილი“ (ახალი/შეცვლილი ხაზები მონიშნულია).
+# "🗑 Path/To/File.cs" — ფაილი წაიშალა.
+import difflib
+FILE_FENCE = re.compile(r'^```(\w+) +(\S+\.\w+)\n(.*?)^```\s*$', re.M | re.S)
+
+def lms_files(text):
+    return [(m.group(1), m.group(2), m.group(3).rstrip('\n')) for m in FILE_FENCE.finditer(text)]
+
+def write_lms_pages(cdir, course, briefs, titles):
+    out_dir = OUT / cdir.name / 'lms'
+    src_dir = cdir / 'lms'
+    state = {}
+    nums = sorted(briefs)
+    if not nums:
+        return
+    out_dir.mkdir(parents=True, exist_ok=True)
+    for i, num in enumerate(nums):
+        f = src_dir / f'{num:02d}.md'
+        text = f.read_text() if f.exists() else ''
+        b = briefs[num]
+        parts = [f'<div class="k">{esc(course["title"])} · ლექცია {num:02d}</div><h1>{md_inline(titles.get(num, ""))}</h1>']
+        if b.get('learn'):
+            parts.append('<div class="box"><h3>🎯 რას ისწავლის სტუდენტი</h3><ul>' + ''.join(f'<li>{md_inline(x)}</li>' for x in b['learn']) + '</ul></div>')
+        proj = b.get('project', 'LMS')
+        if b.get('build'):
+            parts.append(f'<div class="box"><h3>🛠 რას ვწერთ {esc(proj)}-ში</h3><ul>' + ''.join(f'<li>{md_inline(x)}</li>' for x in b['build']) + '</ul></div>')
+        files = lms_files(text)
+        deleted = re.findall(r'^🗑\s+(\S+)', text, re.M)
+        if not files and not deleted:
+            parts.append('<div class="empty">კოდი ამ ლექციისთვის ჯერ არ დაწერილა</div>')
+        else:
+            prose = FILE_FENCE.sub('', re.sub(r'^🗑.*$', '', text, flags=re.M)).strip()
+            if prose:
+                parts.append('<h2>მიმოხილვა</h2>' + markdown.markdown(prose, extensions=['tables', 'sane_lists', 'fenced_code']))
+            parts.append('<h2>ფაილები</h2><p class="legend"><span class="tag new">ახალი</span><span class="tag mod">შეცვლილი</span><span class="tag del">წაშლილი</span> · <i></i>ახალი / შეცვლილი ხაზი</p>')
+            toc, boxes = [], []
+            for k, (lang, path, body) in enumerate(files):
+                prev = state.get(path)
+                lines = body.split('\n')
+                if prev is None:
+                    tag, add = '<span class="tag new">ახალი</span>', set()
+                else:
+                    tag, add = '<span class="tag mod">შეცვლილი</span>', set()
+                    for op, a1, a2, b1, b2 in difflib.SequenceMatcher(None, prev.split('\n'), lines, autojunk=False).get_opcodes():
+                        if op in ('replace', 'insert'):
+                            add.update(range(b1, b2))
+                html_code = highlight(body, lang)
+                n = [0]
+                def mark(m):
+                    idx = n[0]; n[0] += 1
+                    return '<span class="ln add">' if idx in add else '<span class="ln">'
+                html_code = re.sub(r'<span class="ln">', mark, html_code)
+                fid = f'f{k}'
+                toc.append(f'<a href="#{fid}">{tag}{esc(path)}</a>')
+                boxes.append(f'<div class="codebox" id="{fid}"><div class="ch"><span>{tag}{esc(path)}</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code>{html_code}</code></pre></div>')
+                state[path] = body
+            for path in deleted:
+                state.pop(path, None)
+                toc.append(f'<a><span class="tag del">წაშლილი</span>{esc(path)}</a>')
+            parts.append('<div class="toc">' + '<br>'.join(toc) + '</div>' + ''.join(boxes))
+        if state:
+            parts.append('<h2>პროექტი ამ ლექციის შემდეგ</h2><div class="tree">' + esc('\n'.join(sorted(state))) + '</div>')
+        prev_n = nums[i - 1] if i else None
+        next_n = nums[i + 1] if i + 1 < len(nums) else None
+        nav = (f'<a href="{prev_n:02d}.html">← {prev_n:02d}</a>' if prev_n else '') + (f'<a href="{next_n:02d}.html">{next_n:02d} →</a>' if next_n else '')
+        page = (ENGINE / 'lms.html').read_text()
+        for key, v in {'{{TITLE}}': f'{num:02d} · ' + esc(titles.get(num, '')), '{{NUM}}': str(num), '{{NAV}}': nav,
+                       '{{BODY}}': '\n'.join(parts), '{{FONTS}}': FONTS, '{{TOKEN_CSS}}': TOKEN_CSS}.items():
+            page = page.replace(key, v)
+        write_page(out_dir / f'{num:02d}.html', page)
+
 # კურსის სილაბუსი: courses/<კურსი>/syllabus.md → /<კურსი>/syllabus.html
 #   "## ნაწილი (N ლექცია)" = ნაწილი; "### 01. სათაური" + აღწერა = ლექცია; აწყობილ ლექციას გვერდით ბმულები უჩნდება
 def write_syllabus(cdir, course):
@@ -460,16 +534,11 @@ def write_syllabus(cdir, course):
         num, title, desc = int(m.group(1)), m.group(2), m.group(3) or ''
         slug = built.get(num)
         go = (f'<span class="go"><a href="{slug}/">▶ პრეზენტაცია</a><a href="{slug}/study.html">📖 კონსპექტი</a></span>') if slug else ''
-        b = briefs.get(num)
-        info = ''
-        if b:
-            li = lambda xs: ''.join(f'<li>{md_inline(x)}</li>' for x in xs)
-            body = (f'<div class="k">ლექცია {m.group(1)}</div><h4 class="dt">{title}</h4>'
-                    + (f'<h5>🎯 რას ისწავლის სტუდენტი</h5><ul>{li(b["learn"])}</ul>' if b.get('learn') else '')
-                    + (f'<h5>🛠 რას ვწერთ {esc(b.get("project", "LMS"))}-ში</h5><ul>{li(b["build"])}</ul>' if b.get('build') else ''))
-            info = f'<button class="info" type="button" data-l="{num}" title="რას ვისწავლით და რას ვწერთ">i</button><template id="b-{num}">{body}</template>'
+        info = f'<a class="lms" href="lms/{num:02d}.html" title="რას ისწავლის სტუდენტი და რას ვწერთ LMS-ში — კოდით">💻 LMS</a>' if num in briefs else ''
         return f'<div class="lec{" ready" if slug else ""}" id="l-{num}"><h3>{m.group(1)}. {title}{info}{go}</h3>{desc}</div>'
     h = re.sub(r'<h3>(\d+)\.\s*(.*?)</h3>\s*(<p>.*?</p>)?', lec, h, flags=re.S)
+    titles = {int(a): b_ for a, b_ in re.findall(r'^### (\d+)\.\s*(.+)$', src.read_text(), re.M)}
+    write_lms_pages(cdir, course, briefs, titles)
     page = (ENGINE / 'syllabus.html').read_text()
     for k, v in {'{{TITLE}}': esc(course['title']), '{{COUNT}}': str(len(re.findall(r'class="lec', h))), '{{BODY}}': h, '{{FONTS}}': FONTS}.items():
         page = page.replace(k, v)
