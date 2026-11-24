@@ -58,6 +58,9 @@
       if (!last || last.dataset.lines === 'all') { lines.forEach(l => l.classList.remove('hl', 'dim')); return; }
       const set = ranges(last.dataset.lines);
       lines.forEach((l, n) => { const on = set.has(n + 1); l.classList.toggle('hl', on); l.classList.toggle('dim', !on); });
+      // a scrolling block brings the highlighted lines into view
+      const first = lines.find(l => l.classList.contains('hl'));
+      if (first && pre.scrollHeight > pre.clientHeight) pre.scrollTo({ top: Math.max(first.offsetTop - 40, 0), behavior: 'smooth' });
     });
     // animations
     if (i !== prevI) {
