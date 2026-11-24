@@ -1,17 +1,17 @@
 {
-  "title": "მონაცემების წაკითხვა: Relationships, Projection და სიები",
+  "title": "მონაცემების წაკითხვა: Projection და სიები",
   "repo": "aspnet-api-11-reading-data",
-  "why": "ჯგუფი შეიქმნა, მაგრამ `GET /api/groups/{id}` მხოლოდ `CourseId`-ს და `LecturerId`-ს აბრუნებს. frontend-ს კი ეკრანზე „.NET Backend · ნინო გელაშვილი“ უნდა ეწეროს, არა ორი Guid. სამი მოთხოვნა ერთი ეკრანისთვის ნელია და ზედმეტი. დღეს ცხრილებს ურთიერთობებით დავაკავშირებთ, ვნახავთ, რატომ არ ვაბრუნებთ entity-ს, და projection-ით ავიღებთ ზუსტად იმას, რაც პასუხს სჭირდება. ბოლოს ჯგუფების სიას ავაწყობთ ისე, როგორც რეალურ API-შია: გვერდებით, ფილტრით და დალაგებით.",
+  "why": "ჯგუფი შეიქმნა, მაგრამ `GET /api/groups/{id}` მხოლოდ `CourseId`-ს და `LecturerId`-ს აბრუნებს. frontend-ს კი ეკრანზე „.NET Backend · ნინო გელაშვილი“ უნდა ეწეროს, არა ორი Guid. სამი მოთხოვნა ერთი ეკრანისთვის ნელია და ზედმეტი. ურთიერთობების აწყობა EF Core-იდან იცით: დღეს ვნახავთ, რა ხდება, როცა დაკავშირებული მონაცემი API-ის პასუხში უნდა გავიდეს: რატომ არ ვაბრუნებთ entity-ს და როგორ ავიღოთ projection-ით ზუსტად ის, რაც პასუხს სჭირდება. ბოლოს ჯგუფების სიას ავაწყობთ ისე, როგორც რეალურ API-შია: გვერდებით, ფილტრით და დალაგებით.",
   "outcomes": [
-    "Navigation property-ები და ურთიერთობები: `HasOne` / `WithMany`, FK და `OnDelete`",
+    "ურთიერთობა API-ში: Restrict და წაშლა → 409, არა 500",
     "`Include` და JSON-ის ციკლი: რატომ არ ვაბრუნებთ entity-ს",
     "Projection: `Select` პირდაპირ response DTO-ში · `AsNoTracking`",
     "სია ბოლომდე: pagination, ფილტრი, დალაგება · `IQueryable` და `[AsParameters]`"
   ],
   "review": [
     {
-      "q": "რას აკეთებს navigation property და რატომ არის `group.Course` null `FindAsync`-ის შემდეგ?",
-      "a": "C#-ში ურთიერთობას აჩვენებს: `group.Course.Title` · EF დაკავშირებულ მონაცემს თავისით არ ტვირთავს: ან `Include` უნდა, ან projection (`Select`)"
+      "q": "GetGroupById-ში რატომ არ გვჭირდება `Include`, როცა `Select`-ში `g.Course.Title`-ს ვწერთ?",
+      "a": "projection-ში EF `g.Course.Title`-ს ხედავს და JOIN-ს თვითონ ამატებს · `Include` საჭიროა მხოლოდ მაშინ, როცა მთელ entity-ს ვტვირთავთ"
     },
     {
       "q": "რატომ ავირჩიეთ `OnDelete(DeleteBehavior.Restrict)` და რა იცვლება DeleteCourse-ში?",

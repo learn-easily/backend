@@ -61,9 +61,9 @@ Layers და Vertical Slice Architecture; SRP და DIP; slice: Request · Han
 
 ანემიური entity-ის პრობლემა; rich entity: დახურული setter-ები, factory მეთოდი, წესები entity-ში; Result pattern შეცდომისთვის exception-ის ნაცვლად; Value Object `Email` (EF Core-ის value conversion); ახალი feature: ჯგუფები (Group).
 
-### 11. მონაცემების წაკითხვა: Relationships, Projection და სიები
+### 11. მონაცემების წაკითხვა: Projection და სიები
 
-Navigation property-ები და ურთიერთობები API-ში; `Include` და JSON-ის ციკლი; projection `Select`-ით პირდაპირ response DTO-ში; `AsNoTracking`; pagination, ფილტრი და დალაგება.
+დაკავშირებული მონაცემი API-ის პასუხში (ურთიერთობები EF Core-იდან ნაცნობია); Restrict და წაშლა → 409; `Include` და JSON-ის ციკლი; projection `Select`-ით პირდაპირ response DTO-ში; `AsNoTracking`; pagination, ფილტრი და დალაგება.
 
 ### 12. Aggregate და Concurrency
 

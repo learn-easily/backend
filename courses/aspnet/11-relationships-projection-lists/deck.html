@@ -91,61 +91,49 @@ HW-10-ის ბოლო კითხვა: `GetGroupById` პასუხშ�
 </section>
 
 <!-- ================= PART 1 ================= -->
-<section class="slide divider" data-section="1 · ურთიერთობები">
+<section class="slide divider" data-section="1 · ჯგუფი → კურსი, ლექტორი">
   <div class="vcenter">
     <div class="kicker in">ნაწილი 1</div>
-    <h1 class="in" style="--d:.1s"><span class="grad">ურთიერთობები</span> EF Core-ში</h1>
-    <p class="lead mt in" style="--d:.3s">Guid-იდან — navigation property-მდე</p>
+    <h1 class="in" style="--d:.1s">ურთიერთობა — <span class="grad">API-ში</span></h1>
+    <p class="lead mt in" style="--d:.3s">EF Core-იდან ნაცნობი · რა იცვლება, როცა პასუხს ვაბრუნებთ</p>
   </div>
   <div class="big-num">01</div>
   <aside class="study">
-## ნაწილი 1 · ურთიერთობები EF Core-ში
+## ნაწილი 1 · ურთიერთობა API-ში
 
-ჯგუფს უკვე აქვს `CourseId` და `LecturerId`, მაგრამ ბაზაში ეს ჯერ უბრალო სვეტებია: არც FK constraint არის და არც C#-ში შეგვიძლია `group.Course.Title`-ს დაწერა. დავაკავშიროთ.
+ურთიერთობების აწყობა EF Core-ის კურსიდან იცით. აქ ახალი ისაა, რა ხდება, როცა დაკავშირებული მონაცემი **API-ის პასუხში** უნდა გავიდეს.
   </aside>
 </section>
-<section class="slide" data-section="1 · ურთიერთობები">
-  <div class="kicker">ერთი-ბევრთან (1 : N)</div>
-  <h2>ერთ კურსს — <span class="grad">ბევრი ჯგუფი</span></h2>
-  <div class="grid2" style="grid-template-columns:1fr 1.25fr;gap:28px;align-items:start">
-    <div class="flowrow step" style="align-items:flex-start">
-      <div class="tbl" style="--a:var(--core);flex:1"><div class="h">Courses</div><div class="r">Id</div><div class="r">Title</div><div class="r">DurationWeeks</div></div>
-      <span class="farrow" style="margin-top:40px">1 ← N</span>
-      <div class="tbl" style="--a:#0d9488;flex:1"><div class="h">Groups</div><div class="r">Id</div><div class="r fk" style="--a:var(--core)">CourseId FK</div><div class="r fk" style="--a:#ea580c">LecturerId FK</div><div class="r">Name</div></div>
-    </div>
-    <code-block id="nv" lang="csharp" cls="xs" title="Entities/Group.cs · Entities/Course.cs">
+<section class="slide" data-section="1 · ჯგუფი → კურსი, ლექტორი">
+  <div class="kicker">ნაცნობი EF Core-იდან</div>
+  <h2>ჯგუფს ვუკავშირებთ <span class="c-core">კურსს</span> და <span style="color:#ea580c">ლექტორს</span></h2>
+  <div class="grid2" style="grid-template-columns:1fr 1.15fr;gap:26px;align-items:start">
+    <code-block lang="csharp" cls="xs" title="Entities/Group.cs · Entities/Course.cs">
 // Group
-public Guid CourseId { get; private set; }
 public Course Course { get; private set; } = null!;
-
-public Guid LecturerId { get; private set; }
 public Lecturer Lecturer { get; private set; } = null!;
 
-// Course
+// Course — ჯგუფები მხოლოდ წასაკითხად
 private readonly List<Group> _groups = [];
 public IReadOnlyCollection<Group> Groups => _groups;
     </code-block>
-  </div>
-  <div class="grid3 mt" style="grid-template-columns:1fr 1fr 1fr;gap:14px">
-    <i class="codestep" data-for="nv" data-lines="2-3"></i>
-    <div class="reason step" data-with style="--a:#0d9488"><b class="k">FK</b><span><code class="i">CourseId</code> რჩება — ბაზის სვეტი</span></div>
-    <i class="codestep" data-for="nv" data-lines="3"></i>
-    <div class="reason step" data-with style="--a:var(--core)"><b class="k">nav</b><span><code class="i">Course</code> — C#-ში ურთიერთობა</span></div>
-    <i class="codestep" data-for="nv" data-lines="9-10"></i>
-    <div class="reason step" data-with style="--a:var(--core)"><b class="k">N</b><span>Course-ის ჯგუფები — <b>მხოლოდ წასაკითხი</b></span></div>
+    <div class="col" style="gap:12px">
+      <code-block lang="csharp" cls="xs" title="Data/DataContext.cs · OnModelCreating">
+group.HasOne(g => g.Course).WithMany(c => c.Groups)
+    .HasForeignKey(g => g.CourseId).OnDelete(DeleteBehavior.Restrict);
+group.HasOne(g => g.Lecturer).WithMany()
+    .HasForeignKey(g => g.LecturerId).OnDelete(DeleteBehavior.Restrict);
+      </code-block>
+      <div class="callout step" style="--a:var(--red);font-size:17px">API-ში ახალი: ჯგუფიანი კურსის წაშლა → ბაზა უარს ამბობს → <b>500</b>. DeleteCourse წინასწარ ამოწმებს → <b>409</b></div>
+    </div>
   </div>
   <aside class="study">
-### ერთი-ბევრთან: Course → Groups
+### ჯგუფს ვუკავშირებთ კურსს და ლექტორს
 
-ერთ კურსს ბევრი ჯგუფი აქვს, ერთ ჯგუფს კი ერთი კურსი. SQL-დან ეს იცით: `Groups` ცხრილში `CourseId` **Foreign Key**-ა.
-
-C#-ში ურთიერთობას **navigation property** აჩვენებს:
+ურთიერთობის აწყობა EF Core-ის კურსიდან იცით, ამიტომ მხოლოდ ის ჩავწერთ, რაც LMS-ს ემატება:
 
 ```csharp Entities/Group.cs
-public Guid CourseId { get; private set; }
 public Course Course { get; private set; } = null!;
-
-public Guid LecturerId { get; private set; }
 public Lecturer Lecturer { get; private set; } = null!;
 ```
 
@@ -154,94 +142,29 @@ private readonly List<Group> _groups = [];
 public IReadOnlyCollection<Group> Groups => _groups;
 ```
 
-- **`CourseId` რჩება.** ის ბაზის სვეტია და ხშირად მარტო ის გვჭირდება (მაგ. ფილტრისთვის), ურთიერთობის ჩატვირთვის გარეშე.
-- **`Course Course`** C#-ში საშუალებას გვაძლევს დავწეროთ `group.Course.Title`.
-- **`Course.Groups`** კურსის ჯგუფებია. `IReadOnlyCollection` და `private` სია (`_groups`) იმისთვისაა, რომ გარედან `course.Groups.Add(...)` ვერავინ დაწეროს: ჯგუფს მხოლოდ `Group.Create`-ით ვქმნით. EF Core `_groups` ველს სახელით თვითონ პოულობს.
-- **Lecturer → Groups** ცალმხრივია: ლექტორს ჯერ ჯგუფების სია არ სჭირდება, ამიტომ `Lecturer`-ში არაფერს ვამატებთ.
+`Course.Groups` მხოლოდ წასაკითხადაა: ჯგუფი მხოლოდ `Group.Create`-ით იქმნება, `course.Groups.Add(...)` ვერავინ დაწერს. EF `_groups` ველს სახელით თვითონ პოულობს.
 
-```terms
-Navigation property — C#-ის თვისება, რომელიც დაკავშირებულ entity-ზე მიუთითებს (group.Course)
-Foreign Key (FK) — სვეტი, რომელიც სხვა ცხრილის Id-ს ინახავს (Groups.CourseId)
-```
-  </aside>
-</section>
-<section class="slide" data-section="1 · ურთიერთობები">
-  <div class="kicker">DataContext</div>
-  <h2>ურთიერთობა <span class="grad">ცხადად</span> — და რა ხდება წაშლისას?</h2>
-  <div class="grid2" style="grid-template-columns:1.3fr 1fr;gap:26px;align-items:start">
-    <code-block id="cfg" lang="csharp" cls="xs" title="Data/DataContext.cs · OnModelCreating">
-modelBuilder.Entity<Group>(group =>
-{
-    group.HasOne(g => g.Course)
-        .WithMany(c => c.Groups)
-        .HasForeignKey(g => g.CourseId)
-        .OnDelete(DeleteBehavior.Restrict);
-
-    group.HasOne(g => g.Lecturer)
-        .WithMany()
-        .HasForeignKey(g => g.LecturerId)
-        .OnDelete(DeleteBehavior.Restrict);
-
-    group.Property(g => g.Name).HasMaxLength(50);
-});
-    </code-block>
-    <div class="col" style="gap:12px">
-      <i class="codestep" data-for="cfg" data-lines="3-5"></i>
-      <div class="reason step" data-with style="--a:var(--core)"><b class="k">1</b><span>ჯგუფს <b>ერთი</b> კურსი · კურსს <b>ბევრი</b> ჯგუფი · FK = CourseId</span></div>
-      <i class="codestep" data-for="cfg" data-lines="8-10"></i>
-      <div class="reason step" data-with style="--a:#ea580c"><b class="k">2</b><span><code class="i">WithMany()</code> ცარიელი — ლექტორის მხარეს სია არ არის</span></div>
-      <i class="codestep" data-for="cfg" data-lines="6"></i>
-      <div class="problem step" data-with style="font-size:17px">default: <b>Cascade</b> — კურსის წაშლა ჯგუფებს <b>წაშლის</b>, მერე ჩარიცხვებს, დასწრებას…</div>
-      <div class="solve step" style="font-size:17px"><b>Restrict</b>: ჯგუფიანი კურსი არ წაიშლება · handler → <b>409</b></div>
-      <code-block lang="powershell" cls="xs step" title="Package Manager Console">
-Add-Migration AddGroupRelations
-Update-Database
-      </code-block>
-    </div>
-  </div>
-  <aside class="study">
-### ურთიერთობის კონფიგურაცია
-
-EF Core ბევრს თვითონ მიხვდება სახელებით (`Course` + `CourseId`), მაგრამ ცხადად ჩაწერა ჯობია: კოდის მკითხველი ხედავს, რა ხდება, და წაშლის ქცევას ჩვენ ვირჩევთ.
-
-```csharp Data/DataContext.cs · OnModelCreating
-modelBuilder.Entity<Group>(group =>
-{
-    group.HasOne(g => g.Course)
-        .WithMany(c => c.Groups)
-        .HasForeignKey(g => g.CourseId)
-        .OnDelete(DeleteBehavior.Restrict);
-
-    group.HasOne(g => g.Lecturer)
-        .WithMany()
-        .HasForeignKey(g => g.LecturerId)
-        .OnDelete(DeleteBehavior.Restrict);
-
-    group.Property(g => g.Name).HasMaxLength(50);
-});
+```csharp Data/DataContext.cs · OnModelCreating → Group
+group.HasOne(g => g.Course).WithMany(c => c.Groups)
+    .HasForeignKey(g => g.CourseId).OnDelete(DeleteBehavior.Restrict);
+group.HasOne(g => g.Lecturer).WithMany()
+    .HasForeignKey(g => g.LecturerId).OnDelete(DeleteBehavior.Restrict);
 ```
 
-- `HasOne(g => g.Course).WithMany(c => c.Groups)`: ჯგუფს ერთი კურსი აქვს, კურსს ბევრი ჯგუფი.
-- `WithMany()` ცარიელი: ლექტორის მხარეს ჯგუფების სია არ გვაქვს.
-- **`OnDelete`.** Default ქცევა **Cascade**-ია: კურსის წაშლა მის ჯგუფებსაც წაშლის, შემდეგ ლექციებზე ჩარიცხვებს, დასწრებას და ქულებსაც. ბიზნესისთვის ეს კატასტროფაა. **Restrict**: ბაზა არ მოგვცემს ჯგუფიანი კურსის წაშლას.
+`Add-Migration AddGroupRelations` → `Update-Database`.
 
-ბაზა დაგვიცავს, მაგრამ შეცდომა exception-ად მოვა (`DbUpdateException`) და კლიენტი 500-ს მიიღებს. ამიტომ DeleteCourse-მა **წინასწარ** უნდა შეამოწმოს:
+**API-ში ახალი:** Restrict-ის გამო ჯგუფიანი კურსის წაშლაზე ბაზა `DbUpdateException`-ს ისვრის და კლიენტი **500**-ს მიიღებს, თუმცა სწორი პასუხი **409**-ია. ამიტომ DeleteCourse წინასწარ ამოწმებს:
 
 ```csharp Features/Courses/DeleteCourse/DeleteCourseHandler.cs
 if (await _db.Groups.AnyAsync(g => g.CourseId == id))
     return Results.Conflict(CourseErrors.HasGroups);
 ```
 
-09 ლექციაზე SRP-ის მაგალითში ზუსტად ეს წესი ვახსენეთ: „წაშლა აიკრძალა, თუ კურსს ჯგუფები აქვს“. ახლა ის DeleteCourse slice-ში ემატება და სხვა slice-ებს არ ეხება.
-
-```terms
-Cascade — მშობლის წაშლა შვილებსაც შლის
-Restrict — მშობელი არ წაიშლება, სანამ შვილები აქვს
-```
+09 ლექციის SRP-ის მაგალითში ზუსტად ეს წესი იყო: „წაშლა აიკრძალა, თუ კურსს ჯგუფები აქვს“. ის მხოლოდ DeleteCourse slice-ში ემატება.
   </aside>
 </section>
-<section class="slide" data-section="1 · ურთიერთობები">
-  <div class="kicker">პირველი მცდელობა</div>
+<section class="slide" data-section="1 · ჯგუფი → კურსი, ლექტორი">
+  <div class="kicker">გახსენება EF Core-იდან + API-ის პრობლემა</div>
   <h2><code class="i" style="font-size:.85em">group.Course</code> — <span class="c-red">null</span>?!</h2>
   <div class="grid2" style="grid-template-columns:1.2fr 1fr;gap:28px;align-items:start">
     <div class="col" style="gap:12px">
@@ -282,9 +205,7 @@ var group = await _db.Groups.FindAsync(id);
 var title = group.Course.Title;   // NullReferenceException
 ```
 
-EF Core დაკავშირებულ მონაცემს **თავისით არ ტვირთავს**. თუ ყოველ მოთხოვნაზე ყველაფერს ჩატვირთავდა, ერთი ჯგუფის წაკითხვა კურსს, მის ყველა ჯგუფს, მათ ლექტორებს… წამოიღებდა.
-
-**`Include`**-ით ვეუბნებით, რა ჩატვირთოს:
+EF Core-იდან იცით: დაკავშირებულ მონაცემს EF **თავისით არ ტვირთავს**, `Include` სჭირდება:
 
 ```csharp
 var group = await _db.Groups
@@ -729,8 +650,8 @@ Scalar-ში ოთხივე პარამეტრი ცალკე ვ
   <h2 class="in" style="--d:.1s">აიღე <span class="grad">ზუსტად ის, რაც საჭიროა</span></h2>
   <div class="grid2" style="grid-template-columns:1fr 1.05fr;gap:36px;align-items:start">
     <div class="col" style="gap:16px">
-      <div class="card accent step" style="--a:var(--mvc)"><h3><span class="ico">🧠</span>დაიმახსოვრე</h3><ul class="clean small"><li>navigation + FK · <code class="i">HasOne / WithMany</code> · <b>Restrict</b></li><li>EF ურთიერთობას <b>თავისით არ ტვირთავს</b></li><li>entity პასუხად → <b>ციკლი</b> · DTO</li><li><b>Projection</b>: <code class="i">Select</code> → DTO, JOIN თვითონ</li><li>სია: <b>IQueryable</b> → filter → OrderBy + ThenBy(Id) → Count → Skip/Take</li></ul></div>
-      <div class="card accent step" style="--a:var(--pink)"><h3><span class="ico">🏠</span>საშინაოზე</h3><p class="small"><b>შენი სფერო</b> — ურთიერთობები, დეტალები projection-ით, „ჯგუფების“ სია გვერდებით</p></div>
+      <div class="card accent step" style="--a:var(--mvc)"><h3><span class="ico">🧠</span>დაიმახსოვრე</h3><ul class="clean small"><li>Restrict → Delete-ში წინასწარ შემოწმება → <b>409</b>, არა 500</li><li>entity პასუხად → <b>ციკლი</b> · DTO</li><li><b>Projection</b>: <code class="i">Select</code> → DTO, JOIN თვითონ</li><li>სია: <b>IQueryable</b> → filter → OrderBy + ThenBy(Id) → Count → Skip/Take</li></ul></div>
+      <div class="card accent step" style="--a:var(--pink)"><h3><span class="ico">🏠</span>საშინაოზე</h3><p class="small"><b>შენი სფერო</b> — დეტალები projection-ით, „ჯგუფების“ სია გვერდებით</p></div>
     </div>
     <div class="col step" data-with style="gap:12px">
       <div class="flowrow">
@@ -747,13 +668,11 @@ ORDER BY … OFFSET 10 ROWS FETCH NEXT 10 ROWS ONLY
   <aside class="study">
 ## შეჯამება · აიღე ზუსტად ის, რაც საჭიროა
 
-1. **Navigation property** (`group.Course`) C#-ში ურთიერთობას აჩვენებს, FK (`CourseId`) ბაზის სვეტად რჩება. კონფიგურაცია: `HasOne / WithMany / HasForeignKey`.
-2. **`OnDelete(Restrict)`**: ჯგუფიანი კურსი არ წაიშლება. handler-ი ამას წინასწარ ამოწმებს და 409-ს აბრუნებს.
-3. EF ურთიერთობას **თავისით არ ტვირთავს**: ან `Include`, ან projection.
-4. entity-ის პირდაპირ დაბრუნება **JSON-ის ციკლს** იწვევს. პასუხი ყოველთვის DTO-ა.
-5. **Projection** (`Select` → DTO): ერთი SQL, JOIN-ით, მხოლოდ საჭირო სვეტები, Mapper-ისა და tracking-ის გარეშე. წაკითხვისას ეს ძირითადი გზაა.
-6. **`AsNoTracking`**: როცა entity-ს მხოლოდ წასაკითხად ტვირთავ.
-7. **სია:** `IQueryable` → ფილტრი → `OrderBy` + `ThenBy(Id)` → `CountAsync` → `Skip/Take` → `Select` → `ToListAsync`. query string → record: `[AsParameters]`.
+1. **`OnDelete(Restrict)`** API-ში: ჯგუფიანი კურსის წაშლაზე ბაზა exception-ს ისვრის, ამიტომ handler-ი წინასწარ ამოწმებს და **409**-ს აბრუნებს, არა 500-ს.
+2. entity-ის პირდაპირ დაბრუნება **JSON-ის ციკლს** იწვევს. პასუხი ყოველთვის DTO-ა.
+3. **Projection** (`Select` → DTO): ერთი SQL, JOIN-ით, მხოლოდ საჭირო სვეტები, Mapper-ისა და tracking-ის გარეშე. წაკითხვისას ეს ძირითადი გზაა.
+4. **`AsNoTracking`**: როცა entity-ს მხოლოდ წასაკითხად ტვირთავ.
+5. **სია:** `IQueryable` → ფილტრი → `OrderBy` + `ThenBy(Id)` → `CountAsync` → `Skip/Take` → `Select` → `ToListAsync`. query string → record: `[AsParameters]`.
 
 ```prompt EF Core-ში წაკითხვა — გასაუბრებისთვის
 ვემზადები .NET Junior გასაუბრებისთვის. დამისვი კითხვები: navigation property და FK, Cascade vs Restrict, eager loading (Include) vs projection, N+1 პრობლემა, JSON-ის ციკლი, AsNoTracking და Change Tracker, IQueryable vs IEnumerable, pagination (Skip/Take, რატომ სჭირდება OrderBy).
