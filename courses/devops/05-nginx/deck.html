@@ -51,10 +51,6 @@ $ sudo ss -tlnp
 State   Local Address:Port   Process
 LISTEN  0.0.0.0:22           sshd
 # port 80-ს არავინ უსმენს 🤷
-
-$ sudo ufw status
-OpenSSH   ALLOW   Anywhere
-# და 80 დახურულიც არის
     </code-block>
   </div>
   <div class="callout step mt2" style="--a:var(--mvc);font-size:24px">გვჭირდება <b>ვებ-სერვერი</b>: პროგრამა, რომელიც port 80-ს უსმენს და ბრაუზერს ფაილებს აძლევს. GitHub Pages-ზე ამას GitHub აკეთებდა — ახლა <b>ჩვენ</b>.</div>
@@ -69,7 +65,7 @@ State   Local Address:Port   Process
 LISTEN  0.0.0.0:22           sshd
 ```
 
-port **80**-ს (HTTP) **არავინ უსმენს** — მხოლოდ SSH (22). თან `ufw` 80-ს ბლოკავს.
+port **80**-ს (HTTP) **არავინ უსმენს** — მხოლოდ SSH (22).
 
 გვჭირდება **ვებ-სერვერი** — პროგრამა, რომელიც port 80-ს უსმენს, ბრაუზერის მოთხოვნას იღებს და პასუხად ფაილს აძლევს. GitHub Pages-ზე ამას GitHub აკეთებდა — ახლა ამას ჩვენ ვაწყობთ.
   </aside>
@@ -84,11 +80,6 @@ $ sudo apt install -y nginx
 $ systemctl status nginx
 ● nginx.service - A high performance web server
      Active: active (running)
-
-$ sudo ufw allow 'Nginx HTTP'
-$ sudo ufw status
-OpenSSH      ALLOW   Anywhere
-Nginx HTTP   ALLOW   Anywhere
     </code-block>
     <div class="col">
       <div class="card accent in right" style="--d:0.40s;--a:var(--mvc)"><h3>🌐 http://164.90.12.34</h3><p style="font-size:26px;margin-top:8px"><b>Welcome to nginx!</b></p><p class="tiny">If you see this page, the nginx web server is successfully installed…</p></div>
@@ -105,17 +96,70 @@ $ sudo apt install -y nginx
 $ systemctl status nginx
 ● nginx.service - A high performance web server and a reverse proxy server
      Active: active (running)
-
-$ sudo ufw allow 'Nginx HTTP'      # port 80
-$ sudo ufw status
-OpenSSH      ALLOW   Anywhere
-Nginx HTTP   ALLOW   Anywhere
 ```
 
 ბრაუზერში `http://<IP>` — **Welcome to nginx!** 🎉 სერვერმა ინტერნეტს პირველად უპასუხა.
 
-```note
-`'Nginx HTTP'` — ufw-ის მზა პროფილი (port 80). არის `'Nginx HTTPS'` (443) და `'Nginx Full'` (ორივე) — HTTPS-ს მე-9 ლექციაზე ჩავრთავთ.
+```warn
+საიტი გაიხსნა — მაგრამ სერვერის **ყველა** port ინტერნეტისთვის ღიაა: რაც დღეს ან მომავალში port-ს გახსნის (მაგ. ბაზა — 5432), გარედან მისაწვდომი იქნება. ამიტომ ახლა — firewall.
+```
+  </aside>
+</section>
+
+<section class="slide" data-section="1 · Nginx">
+  <div class="kicker">ვაკეთებთ ერთად · firewall</div>
+  <h2><span class="c-api">ufw</span> — ყველა კარი დახურულია, გარდა 22-ის და 80-ის</h2>
+  <div class="grid2" style="grid-template-columns:1.1fr 1fr">
+    <code-block lang="console" cls="in" title="Termius · lms-server" style="--d:0.20s">
+$ sudo ufw allow OpenSSH        # 22 — ჯერ ეს!
+$ sudo ufw allow 'Nginx HTTP'   # 80
+$ sudo ufw enable
+Command may disrupt existing ssh connections.
+Proceed with operation (y|n)? y
+Firewall is active and enabled on system startup
+
+$ sudo ufw status
+Status: active
+To           Action   From
+OpenSSH      ALLOW    Anywhere
+Nginx HTTP   ALLOW    Anywhere
+    </code-block>
+    <div class="col">
+      <svg viewBox="0 0 560 250" width="560" height="250" class="in" style="--d:.4s">
+        <rect x="200" y="20" width="160" height="210" rx="16" fill="#0e2a33" stroke="#22d3ee" stroke-width="3"/><text x="280" y="120" text-anchor="middle" font-size="40">🖥️</text><text x="280" y="165" text-anchor="middle" class="ta b" font-size="18">სერვერი</text>
+        <path d="M30 60 H200" stroke="#22c55e" stroke-width="3" class="flow"/><text x="110" y="48" text-anchor="middle" class="tg mono b" font-size="17">:22 SSH ✓</text>
+        <path d="M30 125 H200" stroke="#22c55e" stroke-width="3" class="flow"/><text x="110" y="113" text-anchor="middle" class="tg mono b" font-size="17">:80 HTTP ✓</text>
+        <path d="M30 190 H185" stroke="#f43f5e" stroke-width="3"/><text x="110" y="178" text-anchor="middle" class="tr mono" font-size="17">:5432 ✗</text>
+        <rect x="183" y="165" width="10" height="45" fill="#f43f5e"/>
+      </svg>
+      <div class="callout step" style="--a:var(--red)">⚠ <code class="i">enable</code>-მდე <b>აუცილებლად</b> <code class="i">allow OpenSSH</code> — თორემ საკუთარ თავს ჩაკეტავ</div>
+    </div>
+  </div>
+  <aside class="study">
+### firewall: ufw
+
+**firewall** — „დაცვა კარებთან“: წყვეტს, რომელ port-ზე შეიძლება ინტერნეტიდან შემოსვლა. Ubuntu-ში მისი მარტივი ინტერფეისია **ufw** (uncomplicated firewall). ჩართვის შემდეგ **ყველა** შემოსული კავშირი იბლოკება, გარდა იმისა, რაც ცალკე დაუშვი.
+
+ახლა, როცა სერვერზე პირველი სერვისი გამოჩნდა, ზუსტად ვიცით, რა უნდა იყოს ღია: **22** (SSH — რომ ჩვენ შევიდეთ) და **80** (HTTP — რომ საიტი გაიხსნას).
+
+```console Termius · lms-server
+$ sudo ufw allow OpenSSH        # port 22 — ჯერ ეს!
+$ sudo ufw allow 'Nginx HTTP'   # port 80
+$ sudo ufw enable
+Command may disrupt existing ssh connections. Proceed with operation (y|n)? y
+Firewall is active and enabled on system startup
+
+$ sudo ufw status
+Status: active
+To           Action   From
+OpenSSH      ALLOW    Anywhere
+Nginx HTTP   ALLOW    Anywhere
+```
+
+`'Nginx HTTP'` — ufw-ის მზა პროფილი (port 80). არის `'Nginx HTTPS'` (443) და `'Nginx Full'` (ორივე) — HTTPS-ს მე-9 ლექციაზე ჩავრთავთ. ბაზის port (5432) კი **არასოდეს** გაიხსნება ინტერნეტისთვის.
+
+```warn
+`ufw enable`-მდე **აუცილებლად** `ufw allow OpenSSH` — სხვა შემთხვევაში firewall შენს SSH კავშირსაც დაბლოკავს და სერვერზე ვეღარ შეხვალ (დაგრჩება მხოლოდ Droplet Console).
 ```
   </aside>
 </section>
@@ -605,7 +649,7 @@ location / {
   <div class="kicker">შპარგალკა</div>
   <h2>სტატიკური საიტი — <span class="c-api">ხელით deploy</span></h2>
   <div class="grid2" style="gap:30px">
-    <div class="card accent in" style="--d:0.20s;--a:var(--net)"><h3>🛠️ ერთხელ (სერვერზე)</h3><p class="mono" style="font-size:17px;line-height:1.85">apt install nginx<br>ufw allow 'Nginx HTTP'<br>mkdir /var/www/site · chown<br>sites-available/site<br>ln -s → sites-enabled<br>nginx -t · reload</p></div>
+    <div class="card accent in" style="--d:0.20s;--a:var(--net)"><h3>🛠️ ერთხელ (სერვერზე)</h3><p class="mono" style="font-size:17px;line-height:1.85">apt install nginx<br>ufw allow OpenSSH · 'Nginx HTTP' · enable<br>mkdir /var/www/site · chown<br>sites-available/site<br>ln -s → sites-enabled<br>nginx -t · reload</p></div>
     <div class="card accent in" style="--d:0.40s;--a:var(--mvc)"><h3>🔁 ყოველ ცვლილებაზე (შენთან)</h3><p class="mono" style="font-size:17px;line-height:1.85">ng build   (Angular)<br>rsync -avz --delete ./ lms:/var/www/site/<br><br>🔎 tail -f /var/log/nginx/access.log</p></div>
   </div>
   <aside class="study">
@@ -615,7 +659,7 @@ location / {
 
 ```console Termius · lms-server
 $ sudo apt install -y nginx
-$ sudo ufw allow 'Nginx HTTP'
+$ sudo ufw allow OpenSSH && sudo ufw allow 'Nginx HTTP' && sudo ufw enable
 $ sudo mkdir -p /var/www/site && sudo chown -R $USER:$USER /var/www/site
 $ sudo nano /etc/nginx/sites-available/site
 $ sudo ln -s /etc/nginx/sites-available/site /etc/nginx/sites-enabled/

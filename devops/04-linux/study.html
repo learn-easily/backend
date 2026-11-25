@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="ka"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>📖 Linux — სერვერის ენა — კონსპექტი</title>
+<title>📖 Linux — user-ები, ფაილები, უფლებები და სერვერის მომზადება — კონსპექტი</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Georgian:wght@400;600;700;800&family=JetBrains+Mono:wght@400;600;700;800&display=swap" rel="stylesheet"><script>(()=>{const d=document.documentElement,K="lectures:theme";try{d.dataset.theme=localStorage.getItem(K)||"light"}catch(e){d.dataset.theme="light"}window.toggleTheme=()=>{const t=d.dataset.theme==="dark"?"light":"dark";d.dataset.theme=t;try{localStorage.setItem(K,t)}catch(e){}};document.addEventListener("click",e=>{const b=e.target.closest(".themebtn");if(b){b.blur();toggleTheme()}});addEventListener("storage",e=>{if(e.key===K)d.dataset.theme=e.newValue||"light"})})()</script>
 <style>
 :root{--bg:#fbf8f3;--card:#fff;--ink:#1e2132;--ink2:#3b3f54;--muted:#7b8096;--line:#e6dfd2;--accent:#6d28d9;--accent-soft:#f3effe;--teal:#0d9488;
@@ -128,53 +128,52 @@ html[data-theme=dark] .codebox{background:#1a1d23}
 <body>
 <div class="top">
   <a class="back" href="../../">← ლექციები</a>
-  <div class="ttl"><small>DevOps · 4</small>Linux — სერვერის ენა</div>
+  <div class="ttl"><small>DevOps · 4</small>Linux — user-ები, ფაილები, უფლებები და სერვერის მომზადება</div>
   <button class="live" id="live" type="button" title="ჩართული: ტექსტი პრეზენტაციას მიჰყვება"><span class="dot"></span><span class="lt">მიჰყვება სლაიდებს</span></button>
   <button class="themebtn btn" type="button" title="ღია / მუქი თემა (T)"><span class="l">🌙</span><span class="d">☀️</span></button>
   <a class="btn play" href="index.html">▶ პრეზენტაცია</a>
 </div>
 <div class="wrap">
-  <nav class="toc"><details id="tocd"><summary>სარჩევი</summary><div class="h">სარჩევი</div><a href="#sec-1">გამეორება</a><a href="#sec-2">საშინაოს განხილვა</a><a href="#sec-3">დღის თემა</a><a href="#sec-4">1 · ფაილები</a><a href="#sec-5">2 · ვინ და რა</a><a href="#sec-6">შეჯამება</a><a href="#sec-7">პრაქტიკა</a><a href="#sec-8">შეჯამება</a><a href="#sec-9">საშინაო</a><div class="mats"></div></details></nav>
+  <nav class="toc"><details id="tocd"><summary>სარჩევი</summary><div class="h">სარჩევი</div><a href="#sec-1">გამეორება</a><a href="#sec-2">საშინაოს განხილვა</a><a href="#sec-3">დღის თემა</a><a href="#sec-4">შესავალი</a><a href="#sec-5">1 · user-ები</a><a href="#sec-6">2 · ფაილები</a><a href="#sec-7">3 · უფლებები</a><a href="#sec-8">4 · მომზადება</a><a href="#sec-9">შეჯამება</a><a href="#sec-10">პრაქტიკა</a><a href="#sec-11">შეჯამება</a><a href="#sec-12">საშინაო</a><div class="mats"></div></details></nav>
   <main>
     <header class="hero">
       <div class="k">📖 კონსპექტი · DevOps · ლექცია 4</div>
-      <h1>Linux — სერვერის ენა</h1>
+      <h1>Linux — user-ები, ფაილები, უფლებები და სერვერის მომზადება</h1>
       <p>წაიკითხე ლექციის შემდეგ, ან პრეზენტაციასთან ერთად: პრეზენტაციაში დააჭირე <kbd>P</kbd> და ეს გვერდი სლაიდებს გაჰყვება. კოდი და AI-ს პრომპტები კოპირდება ერთი დაჭერით.</p>
     </header>
     <h2 class="sec" id="sec-1">გამეორება</h2>
 <article class="blk" data-slides="1,2"><span class="anchor" id="s-1"></span><span class="anchor" id="s-2"></span><div class="bh"><h3>გავიხსენოთ წინა ლექცია</h3><a class="chip" href="index.html#/1" data-go="1" title="პრეზენტაციაში გახსნა">სლაიდი 1</a></div>
-<p>ლექცია 3 — <strong>SSH და Droplet — საკუთარი სერვერი</strong>. ახალ თემამდე ვამოწმებთ, რა დაგვამახსოვრდა. ჯერ თვითონ უპასუხე, მერე გახსენი პასუხი. თუ რომელიმე გაგიჭირდა, <a href="../03-ssh-droplet/study.html">წინა ლექციის კონსპექტს</a> გადახედე.</p>
-<div class="selfcheck"><div class="sh">✅ შეამოწმე თავი <small>დაფიქრდი, მერე გახსენი პასუხი</small></div><details><summary>SSH-ის რომელი გასაღები რჩება შენთან და რომელი მიდის სერვერზე?</summary><div class="ans">პირადი (<code>id_ed25519</code>) — მხოლოდ შენს კომპიუტერზე, არავის აჩვენო. საჯარო (<code>id_ed25519.pub</code>) — სერვერზე, <code>~/.ssh/authorized_keys</code>-ში</div></details><details><summary>რატომ ჯობია გასაღები პაროლს?</summary><div class="ans">პაროლს ბოტები უწყვეტად არჩევენ (brute force); გასაღების გამოცნობა პრაქტიკულად შეუძლებელია და მისი „მოპარვა“ სერვერიდან არ შეიძლება — იქ მხოლოდ საჯარო ნაწილია</div></details><details><summary>რატომ ვქმნით ცალკე user-ს და ვკრძალავთ root-ით შესვლას?</summary><div class="ans">root-ს ყველაფრის უფლება აქვს და მის სახელს ყველა ბოტი იცის. ცალკე user-ით ვმუშაობთ, საჭიროებისას <code>sudo</code>-თი — შეცდომაც და შეტევაც ნაკლებ ზიანს აყენებს</div></details><details><summary>რას აკეთებს <code>ufw</code> და რომელი port უნდა გავხსნათ ჩართვამდე?</summary><div class="ans"><code>ufw</code> — firewall: ყველა შემოსულ კავშირს ბლოკავს, გარდა ნებადართულისა. ჩართვამდე აუცილებლად <code>ufw allow OpenSSH</code> (port 22) — თორემ საკუთარ თავს ჩაკეტავ</div></details><details><summary>SSH-ის კონფიგი შეცვალე. რა გააკეთო, ძველ ფანჯარას რომ დახურავ?</summary><div class="ans">ჯერ Termius-ის ახალ tab-ში შეამოწმე, რომ ახალი user-ით შესვლა მუშაობს. ძველი სესია ღია დატოვე — თუ რამე გაფუჭდა, მისით გაასწორებ</div></details><details><summary>Droplet გამოვრთე (Power Off). ფული აღარ ჩამოგეჭრება?</summary><div class="ans">ჩამოგეჭრება — გამორთული Droplet-იც ფასიანია, რადგან რესურსი შენთვისაა დაჯავშნილი. გადახდა მხოლოდ <strong>Destroy</strong>-ის შემდეგ ჩერდება</div></details></div></article>
+<p>ლექცია 3 — <strong>საკუთარი სერვერი — არჩევა, ყიდვა და SSH</strong>. ახალ თემამდე ვამოწმებთ, რა დაგვამახსოვრდა. ჯერ თვითონ უპასუხე, მერე გახსენი პასუხი. თუ რომელიმე გაგიჭირდა, <a href="../03-ssh-droplet/study.html">წინა ლექციის კონსპექტს</a> გადახედე.</p>
+<div class="selfcheck"><div class="sh">✅ შეამოწმე თავი <small>დაფიქრდი, მერე გახსენი პასუხი</small></div><details><summary>რატომ არ გამოდგება ჩემი ლეპტოპი API-ს სერვერად?</summary><div class="ans">სერვერი 24/7 უნდა იყოს ჩართული და ჰქონდეს საჯარო, მუდმივი IP. ლეპტოპს ხურავ, სახლის IP იცვლება და გარედან მიუწვდომელია — ამიტომ ვქირაობთ VPS-ს</div></details><details><summary>როგორ მივხვდეთ, რა ზომის სერვერი გვჭირდება?</summary><div class="ans">ვწერთ, რა იმუშავებს მასზე (Ubuntu, Nginx, API, ბაზა) და ვთვლით მათ RAM-ს ერთად. ჩვენთვის ~0.7 GB → 1 GB RAM, 1 vCPU, 25 GB. ვიწყებთ პატარით — საჭიროებისას Resize</div></details><details><summary>SSH გასაღების რომელი ნაწილი სად ინახება?</summary><div class="ans">საჯარო (საკეტი, <code>.pub</code>) — სერვერზე; პირადი (გასაღები) — მხოლოდ შენს კომპიუტერზე. შესვლისას პირადი გასაღები ქსელში არ მიდის — მიდის მხოლოდ სერვერის ამოცანის ამოხსნა</div></details><details><summary>რატომ ვირჩევთ SSH Key-ს და არა Password-ს?</summary><div class="ans">ბოტები ინტერნეტის ყველა IP-ზე უწყვეტად არჩევენ პაროლებს. გასაღების გამოცნობა პრაქტიკულად შეუძლებელია, ხოლო SSH Key-ით შექმნილ Droplet-ზე პაროლით შესვლა საერთოდ გამორთულია</div></details><details><summary>თუ ტერმინალით <code>ssh root@IP</code> მუშაობს, რისთვის გვჭირდება Termius?</summary><div class="ans">Termius შიგნით იგივე SSH-ს აკეთებს, მაგრამ ინახავს სერვერების სიას, გასაღებებს, ხსნის რამდენიმე tab-ს და აქვს SFTP — IP-ს და პარამეტრებს ყოველ ჯერზე აღარ კრეფ</div></details><details><summary>Droplet გამოვრთე (Power Off). ფული აღარ ჩამოგეჭრება?</summary><div class="ans">ჩამოგეჭრება — გამორთული Droplet-იც ფასიანია, რადგან რესურსი შენთვისაა დაჯავშნილი. გადახდა მხოლოდ <strong>Destroy</strong>-ის შემდეგ ჩერდება</div></details></div></article>
 <h2 class="sec" id="sec-2">საშინაოს განხილვა</h2>
 <article class="blk" data-slides="3"><span class="anchor" id="s-3"></span><div class="bh"><h3>საშინაოს განხილვა</h3><a class="chip" href="index.html#/3" data-go="3" title="პრეზენტაციაში გახსნა">სლაიდი 3</a></div>
-<p>წინა ლექციის საშინაო: <strong>სერვერის დაცვა</strong>. ქვემოთ არის ერთ-ერთი სწორი ამოხსნა. შენი კოდი შეიძლება სხვანაირად იყოს დაწერილი — მთავარია, მოთხოვნები სრულდებოდეს.</p>
+<p>წინა ლექციის საშინაო: <strong>ჩემი სერვერის პასპორტი</strong>. ქვემოთ არის ერთ-ერთი სწორი ამოხსნა. შენი კოდი შეიძლება სხვანაირად იყოს დაწერილი — მთავარია, მოთხოვნები სრულდებოდეს.</p>
 <h3>მოთხოვნები</h3>
 <ul>
-<li><code>apt upgrade</code> · <code>00-hardening.conf</code>: root და პაროლი აკრძალულია → <code>restart ssh</code> (ჯერ Termius-ის ახალ tab-ში შეამოწმეთ!)</li>
-<li><code>ufw</code>: მხოლოდ <code>OpenSSH</code> → <code>enable</code></li>
-<li>swap 2 GB (<code>/etc/fstab</code>-ითაც) · WSL-ში <code>~/.ssh/config</code> → <code>ssh lms</code></li>
+<li>ჩამოწერეთ თქვენი პროექტისთვის (LMS): რა იმუშავებს სერვერზე და რატომ არის 1 GB RAM საკმარისი</li>
+<li>Termius-ით სერვერზე: <code>whoami</code>, <code>hostname</code>, <code>cat /etc/os-release</code>, <code>nproc</code>, <code>free -h</code>, <code>df -h /</code>, <code>uptime</code> — ჩაიწერეთ შედეგები</li>
+<li><code>cd /</code> → <code>ls</code> → შედით სამ საქაღალდეში (<code>cd</code>) და ყოველში <code>pwd</code> + <code>ls</code></li>
+<li>საკუთარი სიტყვებით, 3-4 წინადადებით: როგორ შედიხართ სერვერზე პაროლის გარეშე — რომელი ნაწილი სად არის და რა ხდება შესვლისას</li>
 </ul>
 <h3>ამოხსნა</h3>
-<div class="codebox"><div class="ch"><span>Termius · lms-server</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="gp">$ </span>sudo<span class="w"> </span>nano<span class="w"> </span>/etc/ssh/sshd_config.d/00-hardening.conf</span><span class="ln"><span class="go">PermitRootLogin no</span></span><span class="ln"><span class="go">PasswordAuthentication no</span></span><span class="ln"> </span><span class="ln"><span class="gp">$ </span>sudo<span class="w"> </span>sshd<span class="w"> </span>-t<span class="w">                     </span><span class="c1"># ცარიელი პასუხი = OK</span></span><span class="ln"><span class="gp">$ </span>sudo<span class="w"> </span>systemctl<span class="w"> </span>restart<span class="w"> </span>ssh</span><span class="ln"> </span><span class="ln"><span class="gp">$ </span>sudo<span class="w"> </span>ufw<span class="w"> </span>allow<span class="w"> </span>OpenSSH</span><span class="ln"><span class="gp">$ </span>sudo<span class="w"> </span>ufw<span class="w"> </span><span class="nb">enable</span></span><span class="ln"><span class="gp">$ </span>sudo<span class="w"> </span>ufw<span class="w"> </span>status</span><span class="ln"><span class="go">Status: active</span></span></code></pre></div>
-<div class="codebox"><div class="ch"><span>Termius · lms-server</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="gp">$ </span>sudo<span class="w"> </span>apt<span class="w"> </span>update<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>sudo<span class="w"> </span>apt<span class="w"> </span>upgrade<span class="w"> </span>-y</span><span class="ln"> </span><span class="ln"><span class="gp">$ </span>sudo<span class="w"> </span>fallocate<span class="w"> </span>-l<span class="w"> </span>2G<span class="w"> </span>/swapfile</span><span class="ln"><span class="gp">$ </span>sudo<span class="w"> </span>chmod<span class="w"> </span><span class="m">600</span><span class="w"> </span>/swapfile</span><span class="ln"><span class="gp">$ </span>sudo<span class="w"> </span>mkswap<span class="w"> </span>/swapfile</span><span class="ln"><span class="gp">$ </span>sudo<span class="w"> </span>swapon<span class="w"> </span>/swapfile</span><span class="ln"><span class="gp">$ </span><span class="nb">echo</span><span class="w"> </span><span class="s1">'/swapfile none swap sw 0 0'</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>sudo<span class="w"> </span>tee<span class="w"> </span>-a<span class="w"> </span>/etc/fstab</span></code></pre></div>
-<div class="codebox"><div class="ch"><span>~/.ssh/config (WSL-ში)</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln">Host lms</span><span class="ln">    HostName 164.90.12.34</span><span class="ln">    User giorgi</span><span class="ln">    IdentityFile ~/.ssh/id_ed25519</span></code></pre></div>
-<p>ფაილის სახელი <code>00-</code> იწყება, რადგან SSH ერთ პარამეტრზე <strong>პირველ</strong> ნანახ მნიშვნელობას იღებს, ფაილებს კი ანბანით კითხულობს — <code>00</code> ყველაზე ადრე იკითხება.</p></article>
+<div class="codebox"><div class="ch"><span>Termius · root@lms-server</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="gp"># </span>cat<span class="w"> </span>/etc/os-release</span><span class="ln"><span class="go">PRETTY_NAME="Ubuntu 24.04.3 LTS"</span></span><span class="ln"><span class="gp"># </span>nproc</span><span class="ln"><span class="go">1</span></span><span class="ln"><span class="gp"># </span>free<span class="w"> </span>-h</span><span class="ln"><span class="go">Mem:   961Mi  310Mi  420Mi</span></span><span class="ln"><span class="gp"># </span>df<span class="w"> </span>-h<span class="w"> </span>/</span><span class="ln"><span class="go">/dev/vda1    24G  2.1G   22G   9% /</span></span><span class="ln"><span class="gp"># </span><span class="nb">cd</span><span class="w"> </span>/</span><span class="ln"><span class="gp"># </span>ls</span><span class="ln"><span class="go">bin  boot  etc  home  root  tmp  usr  var ...</span></span><span class="ln"><span class="gp"># </span><span class="nb">cd</span><span class="w"> </span>/var</span><span class="ln"><span class="gp"># </span><span class="nb">pwd</span></span><span class="ln"><span class="go">/var</span></span><span class="ln"><span class="gp"># </span>ls</span></code></pre></div>
+<p><strong>SSH:</strong> ჩემს კომპიუტერზე ორი ნაწილი შევქმენი <code>ssh-keygen</code>-ით. საჯარო ნაწილი (საკეტი) Droplet-ის შექმნისას სერვერზე დაიდო, პირადი (გასაღები) მხოლოდ ჩემთანაა. შესვლისას სერვერი მიგზავნის ამოცანას, რომელსაც მხოლოდ ჩემი პირადი გასაღები ხსნის — თავად გასაღები ქსელში არ მიდის.</p>
+<p><strong>ბონუსი:</strong> <code>sshd_config</code> — SSH <strong>სერვერის</strong> პარამეტრები (<code>d</code> = daemon, ფონური პროგრამა); <code>ssh_config</code> — SSH <strong>კლიენტის</strong>.</p></article>
 <h2 class="sec" id="sec-3">დღის თემა</h2>
-<article class="blk" data-slides="4"><span class="anchor" id="s-4"></span><div class="bh"><h3>დღის თემა: Linux — სერვერის ენა</h3><a class="chip" href="index.html#/4" data-go="4" title="პრეზენტაციაში გახსნა">სლაიდი 4</a></div>
-<p>სერვერს ეკრანი, მაუსი და „Start“ ღილაკი არ აქვს — მხოლოდ შავი ფანჯარა და ტერმინალი. წინა ლექციაზე სერვერი შევქმენით — და მასზე ყველაფერს ბრძანებებით გააკეთებ: ფაილების ატვირთვას, პროგრამების დაყენებას, ლოგების კითხვას. დღეს ამ ენას ვსწავლობთ — პირდაპირ სერვერზე, Termius-ში.</p>
+<article class="blk" data-slides="4"><span class="anchor" id="s-4"></span><div class="bh"><h3>დღის თემა: Linux — user-ები, ფაილები, უფლებები და სერვერის მომზადება</h3><a class="chip" href="index.html#/4" data-go="4" title="პრეზენტაციაში გახსნა">სლაიდი 4</a></div>
+<p>სერვერი გვაქვს და Termius-ით ვუკავშირდებით — მაგრამ root-ით, რომელსაც ყველაფრის გაფუჭება შეუძლია. დღეს Linux-ს სიღრმეში ვსწავლობთ: ვქმნით საკუთარ user-ს <code>sudo</code>-თი, ვმუშაობთ ფაილებთან, ვიგებთ უფლებებს და პროცესებს — და ამ ცოდნით სერვერს სამუშაოდ ვამზადებთ: root-ით და პაროლით შესვლა აკრძალულია, swap დამატებულია, WSL-იდან <code>ssh lms</code>-ით შევდივართ.</p>
 <p><strong>ლექციის ბოლოს შეძლებ:</strong></p>
 <ul>
+<li>ცალკე user-ის შექმნა <code>sudo</code>-ს უფლებით და <code>apt</code>-ით პროგრამების დაყენება</li>
 <li>Linux-ის ფაილურ სისტემაში ორიენტირება: <code>/</code>, <code>~</code>, <code>/etc</code>, <code>/var/log</code>, <code>/var/www</code></li>
 <li>ფაილებთან მუშაობა: <code>ls</code>, <code>cd</code>, <code>mkdir</code>, <code>cp</code>, <code>mv</code>, <code>rm</code>, <code>cat</code>, <code>tail -f</code>, <code>nano</code></li>
-<li><code>sudo</code> და <code>apt</code>-ით პროგრამების დაყენება</li>
 <li>უფლებების წაკითხვა და შეცვლა: <code>ls -l</code>, <code>chmod 644/755/600</code>, <code>chown</code></li>
 <li>პროცესების და port-ების ნახვა: <code>ps</code>, <code>htop</code>, <code>kill</code>, <code>ss -tlnp</code></li>
+<li>სერვერის მომზადება: root-ით და პაროლით შესვლის აკრძალვა, swap, <code>~/.ssh/config</code> WSL-ის ბრძანებებისთვის</li>
 </ul></article>
-<h2 class="sec" id="sec-4">1 · ფაილები</h2>
-<article class="blk" data-slides="5"><span class="anchor" id="s-5"></span><div class="bh"><h3>ნაწილი 1 · ტერმინალი და ფაილები</h3><a class="chip" href="index.html#/5" data-go="5" title="პრეზენტაციაში გახსნა">სლაიდი 5</a></div>
-<p>სად ვარ, რა არის აქ, როგორ შევცვალო. ყველაფერს სერვერზე, Termius-ში ვაკეთებთ — Ubuntu 24.04-ზე, რომელიც წინა ლექციაზე შევქმენით.</p></article>
-<article class="blk" data-slides="6"><span class="anchor" id="s-6"></span><div class="bh"><h3>პრობლემა: სერვერზე არ არის ეკრანი და მაუსი</h3><a class="chip" href="index.html#/6" data-go="6" title="პრეზენტაციაში გახსნა">სლაიდი 6</a></div>
-<p>Windows-ში ფანჯრებით, ღილაკებით და მაუსით მუშაობ. სერვერზე ამის <strong>არცერთი არ არის</strong>: გრაფიკული ინტერფეისი მეხსიერებას ჭამს და დამატებითი რისკია. დაგხვდება მხოლოდ ტერმინალი:</p>
+<h2 class="sec" id="sec-4">შესავალი</h2>
+<article class="blk" data-slides="5"><span class="anchor" id="s-5"></span><div class="bh"><h3>პრობლემა: სერვერზე არ არის ეკრანი და მაუსი</h3><a class="chip" href="index.html#/5" data-go="5" title="პრეზენტაციაში გახსნა">სლაიდი 5</a></div>
+<p>Windows-ში ფანჯრებით, ღილაკებით და მაუსით მუშაობ. სერვერზე ამის <strong>არცერთი არ არის</strong>: გრაფიკული ინტერფეისი მეხსიერებას ჭამს და დამატებითი რისკია. წინა ლექციაზე ნახე — დაგხვდა მხოლოდ ტერმინალი:</p>
 <div class="codebox"><div class="ch"><span>სერვერი</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code></code></pre></div>
 <p><strong>რატომ Linux და არა Windows სერვერებზე:</strong></p>
 <ul>
@@ -184,53 +183,26 @@ html[data-theme=dark] .codebox{background:#1a1d23}
 </ul>
 <p><strong>Linux</strong> — ოპერაციული სისტემის ბირთვი. მის გარშემო აწყობილ სრულ სისტემას <strong>დისტრიბუტივი</strong> ჰქვია: Ubuntu, Debian, Fedora, Alpine... ჩვენ ვიყენებთ <strong>Ubuntu 24.04 LTS</strong>-ს — LTS ნიშნავს Long Term Support: განახლებები წლების განმავლობაში. სწორედ ის გვიდგას ჩვენს Droplet-ზე.</p>
 <div class="terms"><div class="th">📘 ტერმინები</div><dl><dt>დისტრიბუტივი</dt><dd>Linux + პროგრამების ნაკრები (Ubuntu, Debian...)</dd></dl></div></article>
-<article class="blk" data-slides="7"><span class="anchor" id="s-7"></span><div class="bh"><h3>ტერმინალის ანატომია</h3><a class="chip" href="index.html#/7" data-go="7" title="პრეზენტაციაში გახსნა">სლაიდი 7</a></div>
-<div class="codebox"><div class="ch"><span>Termius · giorgi@lms-server</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code></code></pre></div>
-<table>
-<thead>
-<tr>
-<th>ნაწილი</th>
-<th>რას ნიშნავს</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>giorgi</code></td>
-<td>ვინ ხარ — user</td>
-</tr>
-<tr>
-<td><code>lms-server</code></td>
-<td>რომელ კომპიუტერზე ხარ (Droplet-ის Hostname)</td>
-</tr>
-<tr>
-<td><code>~</code></td>
-<td>სად ხარ ახლა (<code>~</code> = სახლის საქაღალდე)</td>
-</tr>
-<tr>
-<td><code>$</code></td>
-<td>ჩვეულებრივი user; <code>#</code> — root (ადმინისტრატორი)</td>
-</tr>
-<tr>
-<td><code>ls</code></td>
-<td>ბრძანება — რა გააკეთოს</td>
-</tr>
-<tr>
-<td><code>-la</code></td>
-<td>ოფციები — როგორ (<code>-l</code> დეტალურად, <code>-a</code> ფარულებიც)</td>
-</tr>
-<tr>
-<td><code>/var/log</code></td>
-<td>არგუმენტი — რაზე</td>
-</tr>
-</tbody>
-</table>
-<p><strong>სამი ღილაკი, რომელიც დროს დაგიზოგავს:</strong></p>
-<ul>
-<li><code>Tab</code> — ფაილის ან ბრძანების სახელის ავტოშევსება; ორჯერ <code>Tab</code> — შესაძლო ვარიანტები.</li>
-<li><code>↑</code> / <code>↓</code> — წინა ბრძანებები; <code>history</code> — მთელი სია.</li>
-<li><code>Ctrl + C</code> — გაშვებული ბრძანების <strong>გაჩერება</strong> (ტერმინალში ეს კოპირება არ არის!). Termius-ში კოპირება — მონიშვნა, ჩასმა — მარჯვენა ღილაკი ან <code>Ctrl + Shift + V</code>.</li>
-</ul></article>
-<article class="blk" data-slides="8"><span class="anchor" id="s-8"></span><div class="bh"><h3>ფაილური სისტემა — ერთი ხე /-დან</h3><a class="chip" href="index.html#/8" data-go="8" title="პრეზენტაციაში გახსნა">სლაიდი 8</a></div>
+<h2 class="sec" id="sec-5">1 · user-ები</h2>
+<article class="blk" data-slides="6"><span class="anchor" id="s-6"></span><div class="bh"><h3>ნაწილი 1 · საკუთარი user</h3><a class="chip" href="index.html#/6" data-go="6" title="პრეზენტაციაში გახსნა">სლაიდი 6</a></div>
+<p>root-ით მუშაობა სახიფათოა. ვქმნით საკუთარ user-ს და ვსწავლობთ <code>sudo</code>-ს და <code>apt</code>-ს.</p></article>
+<article class="blk" data-slides="7"><span class="anchor" id="s-7"></span><div class="bh"><h3>root-ის ნაცვლად — საკუთარი user</h3><a class="chip" href="index.html#/7" data-go="7" title="პრეზენტაციაში გახსნა">სლაიდი 7</a></div>
+<p>წინა ლექციაზე ყველაფერს <strong>root</strong>-ით ვაკეთებდით. root-ს ყველაფრის უფლება აქვს — შეცდომით გაშვებული ერთი ბრძანებაც სისტემას აფუჭებს, და მის სახელს ყველა ბოტი იცის. ამიტომ ვქმნით ჩვეულებრივ user-ს, რომელიც root-ის უფლებას მხოლოდ საჭიროებისას, <code>sudo</code>-თი იღებს:</p>
+<div class="codebox"><div class="ch"><span>Termius · root@lms-server</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="gp"># </span>adduser<span class="w"> </span>giorgi<span class="w">                   </span><span class="c1"># ახალი user — ითხოვს პაროლს, დანარჩენზე Enter</span></span><span class="ln"><span class="gp"># </span>usermod<span class="w"> </span>-aG<span class="w"> </span>sudo<span class="w"> </span>giorgi<span class="w">          </span><span class="c1"># -aG: დაამატე ჯგუფში sudo</span></span></code></pre></div>
+<p>ბოლო ბრძანება root-ის <code>~/.ssh</code> საქაღალდეს (შენი საჯარო გასაღებით) ახალ user-ს უკოპირებს და მფლობელად მას ნიშნავს — ასე <code>giorgi</code>-თიც გასაღებით შეხვალ.</p>
+<p>Termius-ში შექმენი <strong>მეორე Host</strong> — იგივე IP და გასაღები, ოღონდ Username: <code>giorgi</code> (Label: <code>lms-server</code>). ძველი, root-ის Host შეგიძლია წაშალო, როცა ყველაფერი შემოწმდება. ახალი Host → Connect:</p>
+<div class="codebox"><div class="ch"><span>Termius · giorgi@lms-server</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="gp">giorgi@lms-server:~$ </span>sudo<span class="w"> </span>whoami</span><span class="ln"><span class="go">[sudo] password for giorgi:</span></span></code></pre></div>
+<p><code>adduser</code>-ში მითითებული პაროლი <strong>შესვლისთვის არ გამოიყენება</strong> — ის მხოლოდ <code>sudo</code>-სთვისაა. შესვლა ისევ გასაღებით ხდება.</p></article>
+<article class="blk" data-slides="8"><span class="anchor" id="s-8"></span><div class="bh"><h3>user-ები, root და sudo</h3><a class="chip" href="index.html#/8" data-go="8" title="პრეზენტაციაში გახსნა">სლაიდი 8</a></div>
+<p>Linux-ში ყველა მოქმედებას რომელიმე <strong>user</strong> აკეთებს (<code>whoami</code> — ვინ ვარ). განსაკუთრებული user-ია <strong>root</strong> — ადმინისტრატორი, რომელსაც ყველაფრის უფლება აქვს, მათ შორის სისტემის გაფუჭების.</p>
+<p>ამიტომ ჩვეულებრივ user-ით ვმუშაობთ, და მხოლოდ საჭირო ბრძანებას ვუშვებთ root-ის უფლებით — <strong><code>sudo</code></strong>-თი (super user do). პირველად ის <strong>შენს</strong> პაროლს ითხოვს (რამდენიმე წუთი იმახსოვრებს). პაროლის აკრეფისას ეკრანზე არაფერი ჩანს — ეს ნორმალურია.</p>
+<div class="codebox"><div class="ch"><span>Termius · giorgi@lms-server</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="gp">$ </span>apt<span class="w"> </span>install<span class="w"> </span>tree</span><span class="ln"><span class="go">E: Could not open lock file ... Permission denied</span></span><span class="ln"><span class="go">E: Unable to acquire the dpkg frontend lock, are you root?</span></span><span class="ln"> </span><span class="ln"><span class="gp">$ </span>sudo<span class="w"> </span>apt<span class="w"> </span>update<span class="w">                </span><span class="c1"># პაკეტების სიის განახლება</span></span></code></pre></div>
+<p><strong>apt</strong> — Ubuntu-ს პროგრამების „მაღაზია“. <code>apt update</code> პაკეტების <strong>სიას</strong> აახლებს, <code>apt install</code> — აყენებს, <code>apt upgrade</code> — დაყენებულებს აახლებს, <code>apt remove</code> — შლის. სერვერზე Nginx-ს, .NET-ს და Docker-ს სწორედ ასე დავაყენებთ.</p>
+<div class="callout warn"><span class="ci">⚠️</span><div><p>ბრძანება „Permission denied“-ით ჩავარდა? ჯერ იფიქრე, <strong>რატომ</strong> სჭირდება root — და მხოლოდ მერე დაუმატე <code>sudo</code>. ყველაფრის sudo-თი გაშვება ცუდი ჩვევაა.</p></div></div></article>
+<h2 class="sec" id="sec-6">2 · ფაილები</h2>
+<article class="blk" data-slides="9"><span class="anchor" id="s-9"></span><div class="bh"><h3>ნაწილი 2 · ფაილები და საქაღალდეები</h3><a class="chip" href="index.html#/9" data-go="9" title="პრეზენტაციაში გახსნა">სლაიდი 9</a></div>
+<p>წინა ლექციის <code>pwd</code>, <code>ls</code>, <code>cd</code>-ს შემდეგ — ფაილური სისტემა სიღრმეში და ფაილებთან მუშაობა.</p></article>
+<article class="blk" data-slides="10"><span class="anchor" id="s-10"></span><div class="bh"><h3>ფაილური სისტემა — ერთი ხე /-დან</h3><a class="chip" href="index.html#/10" data-go="10" title="პრეზენტაციაში გახსნა">სლაიდი 10</a></div>
 <p>Windows-ში დისკები ასოებითაა (<code>C:\</code>, <code>D:\</code>). Linux-ში <strong>ერთი ხეა</strong>, რომელიც <code>/</code>-დან (root) იწყება — ყველაფერი, დისკებიც, მის შიგნითაა.</p>
 <div class="codebox"><div class="ch"><span>tree</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln">/                    ← root, ყველაფრის დასაწყისი</span><span class="ln">├── home/</span><span class="ln">│   └── giorgi/      ← ~ (შენი სახლი)</span><span class="ln">├── etc/             ← კონფიგურაცია</span><span class="ln">│   └── nginx/</span><span class="ln">├── var/</span><span class="ln">│   ├── log/         ← ლოგები</span><span class="ln">│   └── www/         ← საიტები</span><span class="ln">├── usr/bin/         ← პროგრამები</span><span class="ln">├── tmp/             ← დროებითი</span></code></pre></div>
 <table>
@@ -270,7 +242,7 @@ html[data-theme=dark] .codebox{background:#1a1d23}
 </tbody>
 </table>
 <div class="callout warn"><span class="ci">⚠️</span><div><p>Linux-ში <strong>დიდი და პატარა ასოები განსხვავდება</strong>: <code>Index.html</code> და <code>index.html</code> ორი სხვადასხვა ფაილია. წინა ლექციაზე GitHub Pages-ზე სწორედ ამის გამო „ქრებოდა“ CSS.</p></div></div></article>
-<article class="blk" data-slides="9"><span class="anchor" id="s-9"></span><div class="bh"><h3>ნავიგაცია: pwd · ls · cd</h3><a class="chip" href="index.html#/9" data-go="9" title="პრეზენტაციაში გახსნა">სლაიდი 9</a></div>
+<article class="blk" data-slides="11"><span class="anchor" id="s-11"></span><div class="bh"><h3>ნავიგაცია: pwd · ls · cd</h3><a class="chip" href="index.html#/11" data-go="11" title="პრეზენტაციაში გახსნა">სლაიდი 11</a></div>
 <div class="codebox"><div class="ch"><span>Termius · giorgi@lms-server</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="gp">$ </span><span class="nb">pwd</span></span><span class="ln"><span class="go">/home/giorgi</span></span><span class="ln"> </span><span class="ln"><span class="gp">$ </span>ls</span><span class="ln"><span class="go">my-portfolio  notes.txt</span></span><span class="ln"> </span><span class="ln"><span class="gp">$ </span>ls<span class="w"> </span>-la</span><span class="ln"><span class="go">drwxr-x--- 4 giorgi giorgi 4096 .</span></span><span class="ln"><span class="go">drwxr-xr-x 3 root   root   4096 ..</span></span><span class="ln"><span class="go">-rw-r--r-- 1 giorgi giorgi  220 .bashrc</span></span></code></pre></div>
 <ul>
 <li><code>pwd</code> (print working directory) — სად ვარ.</li>
@@ -279,7 +251,7 @@ html[data-theme=dark] .codebox{background:#1a1d23}
 </ul>
 <div class="codebox"><div class="ch"><span>Termius · giorgi@lms-server</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="gp">$ </span><span class="nb">cd</span><span class="w"> </span>/var/log<span class="w">      </span><span class="c1"># აბსოლუტური გზა — ფესვიდან</span></span><span class="ln"><span class="gp">$ </span><span class="nb">cd</span><span class="w"> </span>..<span class="w">            </span><span class="c1"># ერთით ზემოთ → /var</span></span><span class="ln"><span class="gp">$ </span><span class="nb">cd</span><span class="w"> </span>www<span class="w">           </span><span class="c1"># ფარდობითი — აქედან → /var/www</span></span><span class="ln"><span class="gp">$ </span><span class="nb">cd</span><span class="w"> </span>~<span class="w">             </span><span class="c1"># სახლში (ან უბრალოდ: cd)</span></span></code></pre></div>
 <p><strong>გზის ორი სახე:</strong> <code>/</code>-ით დაწყებული — <strong>აბსოლუტური</strong>, ფესვიდან ითვლება და ყველგან ერთნაირად მუშაობს. დანარჩენი — <strong>ფარდობითი</strong>, მიმდინარე საქაღალდიდან. <code>.</code> — მიმდინარე საქაღალდე, <code>..</code> — ერთით ზემოთ.</p></article>
-<article class="blk" data-slides="10"><span class="anchor" id="s-10"></span><div class="bh"><h3>შექმნა · კოპირება · წაშლა</h3><a class="chip" href="index.html#/10" data-go="10" title="პრეზენტაციაში გახსნა">სლაიდი 10</a></div>
+<article class="blk" data-slides="12"><span class="anchor" id="s-12"></span><div class="bh"><h3>შექმნა · კოპირება · წაშლა</h3><a class="chip" href="index.html#/12" data-go="12" title="პრეზენტაციაში გახსნა">სლაიდი 12</a></div>
 <div class="codebox"><div class="ch"><span>Termius · giorgi@lms-server</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="gp">$ </span>mkdir<span class="w"> </span>backups</span><span class="ln"><span class="gp">$ </span>mkdir<span class="w"> </span>-p<span class="w"> </span>site/css/img<span class="w">       </span><span class="c1"># მთელი გზა ერთად (-p = parents)</span></span><span class="ln"><span class="gp">$ </span>touch<span class="w"> </span>notes.txt<span class="w">             </span><span class="c1"># ცარიელი ფაილი</span></span><span class="ln"> </span><span class="ln"><span class="gp">$ </span>cp<span class="w"> </span>notes.txt<span class="w"> </span>backups/<span class="w">       </span><span class="c1"># ფაილის კოპირება</span></span><span class="ln"><span class="gp">$ </span>cp<span class="w"> </span>-r<span class="w"> </span>site<span class="w"> </span>backups/<span class="w">         </span><span class="c1"># საქაღალდის კოპირება: -r</span></span><span class="ln"><span class="gp">$ </span>mv<span class="w"> </span>notes.txt<span class="w"> </span>todo.txt<span class="w">       </span><span class="c1"># სახელის შეცვლა</span></span><span class="ln"><span class="gp">$ </span>mv<span class="w"> </span>todo.txt<span class="w"> </span>backups/<span class="w">        </span><span class="c1"># გადატანა</span></span><span class="ln"> </span><span class="ln"><span class="gp">$ </span>rm<span class="w"> </span>backups/todo.txt<span class="w">         </span><span class="c1"># ფაილის წაშლა</span></span></code></pre></div>
 <table>
 <thead>
@@ -312,7 +284,7 @@ html[data-theme=dark] .codebox{background:#1a1d23}
 </tbody>
 </table>
 <div class="callout warn"><span class="ci">⚠️</span><div><p>Linux-ში <strong>სანაგვე ყუთი არ არის</strong>: <code>rm</code> ფაილს სამუდამოდ შლის, შეკითხვის გარეშე. <code>-f</code> (force) კიდევ უფრო „ჩუმად“ შლის. ინტერნეტში ნანახი <code>sudo rm -rf /</code> მთელ სისტემას შლის — არასოდეს გაუშვა ბრძანება, რომლის მნიშვნელობაც არ იცი.</p></div></div></article>
-<article class="blk" data-slides="11,12"><span class="anchor" id="s-11"></span><span class="anchor" id="s-12"></span><div class="bh"><h3>კითხვა და რედაქტირება: cat · tail -f · nano</h3><a class="chip" href="index.html#/11" data-go="11" title="პრეზენტაციაში გახსნა">სლაიდი 11</a></div>
+<article class="blk" data-slides="13,14"><span class="anchor" id="s-13"></span><span class="anchor" id="s-14"></span><div class="bh"><h3>კითხვა და რედაქტირება: cat · tail -f · nano</h3><a class="chip" href="index.html#/13" data-go="13" title="პრეზენტაციაში გახსნა">სლაიდი 13</a></div>
 <p><strong>წაკითხვა:</strong></p>
 <div class="codebox"><div class="ch"><span>Termius · giorgi@lms-server</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="gp">$ </span>cat<span class="w"> </span>index.html<span class="w">          </span><span class="c1"># მთლიანად ეკრანზე</span></span><span class="ln"><span class="gp">$ </span>less<span class="w"> </span>/var/log/syslog<span class="w">    </span><span class="c1"># გვერდებად: ↑↓, Space, / ძებნა, q — გასვლა</span></span><span class="ln"><span class="gp">$ </span>head<span class="w"> </span>-n<span class="w"> </span><span class="m">5</span><span class="w"> </span>app.log<span class="w">       </span><span class="c1"># პირველი 5 ხაზი</span></span><span class="ln"><span class="gp">$ </span>tail<span class="w"> </span>-n<span class="w"> </span><span class="m">20</span><span class="w"> </span>app.log<span class="w">      </span><span class="c1"># ბოლო 20 ხაზი</span></span></code></pre></div>
 <p><code>tail -f</code> სერვერზე ერთ-ერთი ყველაზე ხშირი ბრძანებაა: გახსნი ლოგს, ბრაუზერში საიტს განაახლებ — და ხედავ, რა მოხდა იმ წამს. ეს <strong>მონიტორინგის</strong> უმარტივესი ფორმაა.</p>
@@ -344,16 +316,10 @@ html[data-theme=dark] .codebox{background:#1a1d23}
 </tbody>
 </table>
 <div class="callout tip"><span class="ci">👉</span><div><p>სერვერზე კონფიგურაციის ფაილებს (<code>/etc/nginx/...</code>) სწორედ <code>nano</code>-თი შეცვლი. სხვა პოპულარული რედაქტორია <code>vim</code> — ძლიერია, მაგრამ თავიდან რთული. თუ შემთხვევით გაიხსნა: <code>Esc</code>, მერე <code>:q!</code> და <code>Enter</code>.</p></div></div></article>
-<h2 class="sec" id="sec-5">2 · ვინ და რა</h2>
-<article class="blk" data-slides="13"><span class="anchor" id="s-13"></span><div class="bh"><h3>ნაწილი 2 · ვინ, რისი უფლებით, რა მუშაობს</h3><a class="chip" href="index.html#/13" data-go="13" title="პრეზენტაციაში გახსნა">სლაიდი 13</a></div>
-<p>user-ები და <code>sudo</code>, პროგრამების დაყენება <code>apt</code>-ით, ფაილების უფლებები და გაშვებული პროცესები.</p></article>
-<article class="blk" data-slides="14"><span class="anchor" id="s-14"></span><div class="bh"><h3>user-ები, root და sudo</h3><a class="chip" href="index.html#/14" data-go="14" title="პრეზენტაციაში გახსნა">სლაიდი 14</a></div>
-<p>Linux-ში ყველა მოქმედებას რომელიმე <strong>user</strong> აკეთებს (<code>whoami</code> — ვინ ვარ). განსაკუთრებული user-ია <strong>root</strong> — ადმინისტრატორი, რომელსაც ყველაფრის უფლება აქვს, მათ შორის სისტემის გაფუჭების.</p>
-<p>ამიტომ ჩვეულებრივ user-ით ვმუშაობთ, და მხოლოდ საჭირო ბრძანებას ვუშვებთ root-ის უფლებით — <strong><code>sudo</code></strong>-თი (super user do). პირველად ის <strong>შენს</strong> პაროლს ითხოვს (რამდენიმე წუთი იმახსოვრებს). პაროლის აკრეფისას ეკრანზე არაფერი ჩანს — ეს ნორმალურია.</p>
-<div class="codebox"><div class="ch"><span>Termius · giorgi@lms-server</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="gp">$ </span>apt<span class="w"> </span>install<span class="w"> </span>tree</span><span class="ln"><span class="go">E: Could not open lock file ... Permission denied</span></span><span class="ln"><span class="go">E: Unable to acquire the dpkg frontend lock, are you root?</span></span><span class="ln"> </span><span class="ln"><span class="gp">$ </span>sudo<span class="w"> </span>apt<span class="w"> </span>update<span class="w">                </span><span class="c1"># პაკეტების სიის განახლება</span></span></code></pre></div>
-<p><strong>apt</strong> — Ubuntu-ს პროგრამების „მაღაზია“. <code>apt update</code> პაკეტების <strong>სიას</strong> აახლებს, <code>apt install</code> — აყენებს, <code>apt upgrade</code> — დაყენებულებს აახლებს, <code>apt remove</code> — შლის. სერვერზე Nginx-ს, .NET-ს და Docker-ს სწორედ ასე დავაყენებთ.</p>
-<div class="callout warn"><span class="ci">⚠️</span><div><p>ბრძანება „Permission denied“-ით ჩავარდა? ჯერ იფიქრე, <strong>რატომ</strong> სჭირდება root — და მხოლოდ მერე დაუმატე <code>sudo</code>. ყველაფრის sudo-თი გაშვება ცუდი ჩვევაა.</p></div></div></article>
-<article class="blk" data-slides="15"><span class="anchor" id="s-15"></span><div class="bh"><h3>უფლებები: ვის რისი უფლება აქვს</h3><a class="chip" href="index.html#/15" data-go="15" title="პრეზენტაციაში გახსნა">სლაიდი 15</a></div>
+<h2 class="sec" id="sec-7">3 · უფლებები</h2>
+<article class="blk" data-slides="15"><span class="anchor" id="s-15"></span><div class="bh"><h3>ნაწილი 3 · უფლებები და პროცესები</h3><a class="chip" href="index.html#/15" data-go="15" title="პრეზენტაციაში გახსნა">სლაიდი 15</a></div>
+<p>ვის რისი უფლება აქვს და რა მუშაობს სერვერზე.</p></article>
+<article class="blk" data-slides="16"><span class="anchor" id="s-16"></span><div class="bh"><h3>უფლებები: ვის რისი უფლება აქვს</h3><a class="chip" href="index.html#/16" data-go="16" title="პრეზენტაციაში გახსნა">სლაიდი 16</a></div>
 <p><code>ls -l</code> ყოველ ფაილზე აჩვენებს 10 სიმბოლოს:</p>
 <div class="codebox"><div class="ch"><span>Termius · giorgi@lms-server</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="gp">$ </span>ls<span class="w"> </span>-l<span class="w"> </span>index.html</span></code></pre></div>
 <ul>
@@ -420,7 +386,7 @@ html[data-theme=dark] .codebox{background:#1a1d23}
 </table>
 <div class="codebox"><div class="ch"><span>Termius · giorgi@lms-server</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="gp">$ </span>chmod<span class="w"> </span><span class="m">600</span><span class="w"> </span>secret.txt<span class="w">           </span><span class="c1"># უფლებები რიცხვით</span></span><span class="ln"><span class="gp">$ </span>chmod<span class="w"> </span>+x<span class="w"> </span>deploy.sh<span class="w">             </span><span class="c1"># გაშვების უფლება დაამატე</span></span></code></pre></div>
 <div class="callout tip"><span class="ci">👉</span><div><p>SSH-ის გასაღებები (<code>~/.ssh</code>) უნდა იყოს <code>600</code> — თუ სხვებსაც შეუძლიათ მისი წაკითხვა, SSH მის გამოყენებაზე უარს იტყვის. ხოლო როცა Nginx საიტს ვერ აჩვენებს, ხშირად მიზეზი სწორედ უფლებებია.</p></div></div></article>
-<article class="blk" data-slides="16"><span class="anchor" id="s-16"></span><div class="bh"><h3>პროცესები და port-ები: რა მუშაობს ახლა?</h3><a class="chip" href="index.html#/16" data-go="16" title="პრეზენტაციაში გახსნა">სლაიდი 16</a></div>
+<article class="blk" data-slides="17"><span class="anchor" id="s-17"></span><div class="bh"><h3>პროცესები და port-ები: რა მუშაობს ახლა?</h3><a class="chip" href="index.html#/17" data-go="17" title="პრეზენტაციაში გახსნა">სლაიდი 17</a></div>
 <p><strong>პროცესი</strong> — გაშვებული პროგრამა. ყველას აქვს უნიკალური ნომერი — <strong>PID</strong>.</p>
 <div class="codebox"><div class="ch"><span>Termius · giorgi@lms-server</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="gp">$ </span>ps<span class="w"> </span>aux<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>dotnet<span class="w">     </span><span class="c1"># ყველა პროცესიდან — მხოლოდ dotnet</span></span><span class="ln"><span class="go">giorgi  2481  3.1  2.4 ... dotnet run</span></span><span class="ln"> </span><span class="ln"><span class="gp">$ </span>htop<span class="w">                     </span><span class="c1"># „Task Manager“ ტერმინალში: CPU, RAM; q — გასვლა</span></span><span class="ln"> </span><span class="ln"><span class="gp">$ </span><span class="nb">kill</span><span class="w"> </span><span class="m">2481</span><span class="w">                </span><span class="c1"># PID 2481-ის გაჩერება</span></span></code></pre></div>
 <p><strong>port</strong> — „კარი“, რომელსაც პროგრამა ქსელიდან მოთხოვნებისთვის უსმენს. API-ს <code>dotnet run</code> რომ გაუშვი, ის port <code>5080</code>-ს უსმენდა. სტანდარტული port-ები: <strong>22</strong> — SSH, <strong>80</strong> — HTTP, <strong>443</strong> — HTTPS, <strong>5432</strong> — PostgreSQL.</p>
@@ -428,15 +394,70 @@ html[data-theme=dark] .codebox{background:#1a1d23}
 <p><code>ss -tlnp</code> — ვინ რომელ port-ს უსმენს (<code>t</code> TCP, <code>l</code> listening, <code>n</code> რიცხვებით, <code>p</code> პროცესი). <code>0.0.0.0</code> — ყველასთვის ღიაა; <code>127.0.0.1</code> — მხოლოდ ამავე კომპიუტერიდან.</p>
 <p><strong><code>|</code> (pipe)</strong> — ერთი ბრძანების შედეგი მეორეს გადაეცემა: <code>ps aux | grep dotnet</code> — ყველა პროცესიდან <code>grep</code> მხოლოდ <code>dotnet</code>-იან ხაზებს ტოვებს. <code>grep</code> ლოგებშიც გამოგადგება: <code>grep ERROR app.log</code>.</p>
 <div class="callout tip"><span class="ci">👉</span><div><p>„საიტი არ იხსნება“ — DevOps-ის პირველი კითხვა: პროცესი <strong>გაშვებულია</strong>? (<code>ps</code>) და port-ს <strong>უსმენს</strong>? (<code>ss -tlnp</code>). ეს ორი ბრძანება პრობლემების ნახევარს პოულობს.</p></div></div></article>
-<article class="blk" data-slides="17"><span class="anchor" id="s-17"></span><div class="bh"><h3>ვაკეთებთ ერთად: my-portfolio სერვერზე</h3><a class="chip" href="index.html#/17" data-go="17" title="პრეზენტაციაში გახსნა">სლაიდი 17</a></div>
+<article class="blk" data-slides="18"><span class="anchor" id="s-18"></span><div class="bh"><h3>ვაკეთებთ ერთად: my-portfolio სერვერზე</h3><a class="chip" href="index.html#/18" data-go="18" title="პრეზენტაციაში გახსნა">სლაიდი 18</a></div>
 <p>ვამზადებთ საიტის საქაღალდეს სერვერზე:</p>
 <div class="codebox"><div class="ch"><span>Termius · giorgi@lms-server</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="gp">$ </span><span class="nb">cd</span><span class="w"> </span>~</span><span class="ln"><span class="gp">$ </span>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/giorgi/my-portfolio.git</span><span class="ln"><span class="gp">$ </span>sudo<span class="w"> </span>mkdir<span class="w"> </span>-p<span class="w"> </span>/var/www/portfolio</span><span class="ln"><span class="gp">$ </span>sudo<span class="w"> </span>cp<span class="w"> </span>-r<span class="w"> </span>my-portfolio/*<span class="w"> </span>/var/www/portfolio/</span><span class="ln"><span class="gp">$ </span>ls<span class="w"> </span>-l<span class="w"> </span>/var/www/portfolio</span><span class="ln"><span class="go">-rw-r--r-- 1 root root 1520 index.html</span></span></code></pre></div>
 <p><code>/var/www</code> root-ს ეკუთვნის, ამიტომ საქაღალდის შექმნას და კოპირებას <code>sudo</code> სჭირდება — და ფაილებიც root-ის გახდა. ჩვენ გვინდა, რომ შემდეგში ფაილები <code>sudo</code>-ს გარეშე განვაახლოთ:</p>
 <div class="codebox"><div class="ch"><span>Termius · giorgi@lms-server</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="gp">$ </span>sudo<span class="w"> </span>chown<span class="w"> </span>-R<span class="w"> </span><span class="nv">$USER</span>:<span class="nv">$USER</span><span class="w"> </span>/var/www/portfolio</span><span class="ln"><span class="gp">$ </span>ls<span class="w"> </span>-l<span class="w"> </span>/var/www/portfolio</span></code></pre></div>
 <p><code>$USER</code> — ცვლადი, რომელშიც შენი user-ის სახელია. <code>-R</code> — რეკურსიულად, ყველა შიგნით არსებულ ფაილზე.</p>
 <div class="callout note"><span class="ci">💡</span><div><p><code>git</code> Ubuntu-ს სერვერზე უკვე დაყენებულია. თუ არა — <code>sudo apt install -y git</code>.</p></div></div></article>
-<h2 class="sec" id="sec-6">შეჯამება</h2>
-<article class="blk" data-slides="18"><span class="anchor" id="s-18"></span><div class="bh"><h3>შპარგალკა: დღევანდელი ბრძანებები</h3><a class="chip" href="index.html#/18" data-go="18" title="პრეზენტაციაში გახსნა">სლაიდი 18</a></div>
+<h2 class="sec" id="sec-8">4 · მომზადება</h2>
+<article class="blk" data-slides="19"><span class="anchor" id="s-19"></span><div class="bh"><h3>ნაწილი 4 · სერვერის მომზადება</h3><a class="chip" href="index.html#/19" data-go="19" title="პრეზენტაციაში გახსნა">სლაიდი 19</a></div>
+<p>რაც ვისწავლეთ — <code>sudo</code>, <code>nano</code>, <code>chmod</code> — ახლა სერვერის მოსამზადებლად გამოგვადგება.</p></article>
+<article class="blk" data-slides="20"><span class="anchor" id="s-20"></span><div class="bh"><h3>სერვერის მომზადება · 1: root-ით და პაროლით — აკრძალულია</h3><a class="chip" href="index.html#/20" data-go="20" title="პრეზენტაციაში გახსნა">სლაიდი 20</a></div>
+<p>SSH სერვერის (<code>sshd</code>) პარამეტრები <code>/etc/ssh/</code>-შია. მთავარ ფაილს არ ვეხებით — ვქმნით საკუთარს <code>sshd_config.d</code> საქაღალდეში:</p>
+<div class="codebox"><div class="ch"><span>Termius · giorgi@lms-server</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code></code></pre></div>
+<div class="codebox"><div class="ch"><span>00-hardening.conf</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="na">PermitRootLogin no</span></span><span class="ln"><span class="na">PasswordAuthentication no</span></span></code></pre></div>
+<ul>
+<li><code>PermitRootLogin no</code> — root-ით შესვლა აკრძალულია (მის სახელს ყველა ბოტი იცის).</li>
+<li><code>PasswordAuthentication no</code> — პაროლით შესვლა აკრძალულია, მხოლოდ გასაღებით.</li>
+</ul>
+<div class="codebox"><div class="ch"><span>Termius · giorgi@lms-server</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="gp">$ </span>sudo<span class="w"> </span>sshd<span class="w"> </span>-t<span class="w">                  </span><span class="c1"># სინტაქსის შემოწმება: ცარიელი პასუხი = OK</span></span><span class="ln"><span class="gp">$ </span>sudo<span class="w"> </span>systemctl<span class="w"> </span>restart<span class="w"> </span>ssh<span class="w">    </span><span class="c1"># ცვლილების ამოქმედება</span></span><span class="ln"><span class="gp">$ </span>sudo<span class="w"> </span>sshd<span class="w"> </span>-T<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>-E<span class="w"> </span><span class="s2">"permitrootlogin|passwordauthentication"</span></span><span class="ln"><span class="go">permitrootlogin no</span></span></code></pre></div>
+<p><code>sshd -T</code> აჩვენებს <strong>საბოლოო</strong> პარამეტრებს, რომლითაც SSH რეალურად მუშაობს.</p>
+<p><strong>რატომ <code>00-</code>?</strong> SSH ერთ პარამეტრზე <strong>პირველ</strong> ნანახ მნიშვნელობას იღებს, <code>sshd_config.d</code>-ის ფაილებს კი ანბანის მიხედვით კითხულობს. DigitalOcean-ს იქ შეიძლება უკვე ედოს <code>50-cloud-init.conf</code> — <code>00</code> მასზე ადრე იკითხება.</p>
+<div class="callout warn"><span class="ci">⚠️</span><div><p><strong>მიმდინარე Termius-ის tab არ დახურო</strong>, სანამ <strong>ახალ</strong> tab-ში არ შეამოწმებ, რომ <code>giorgi</code>-ს Host-ით შესვლა მუშაობს. თუ რამე შეგეშალა, ძველი სესიით გაასწორებ. თუ მაინც ჩაიკეტე — Droplet-ის <strong>Console</strong> ბრაუზერში.</p></div></div></article>
+<article class="blk" data-slides="21"><span class="anchor" id="s-21"></span><div class="bh"><h3>სერვერის მომზადება · 2</h3><a class="chip" href="index.html#/21" data-go="21" title="პრეზენტაციაში გახსნა">სლაიდი 21</a></div>
+<p><strong>განახლებები</strong> — ახალ სერვერზე პირველივე დღეს ვაყენებთ (უსაფრთხოების პატჩები):</p>
+<div class="codebox"><div class="ch"><span>Termius · giorgi@lms-server</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code></code></pre></div>
+<p><code>&amp;&amp;</code> — მეორე ბრძანება მხოლოდ მაშინ სრულდება, თუ პირველი წარმატებით დასრულდა.</p>
+<p><strong>swap</strong> — დისკზე გამოყოფილი ადგილი, რომელსაც სისტემა RAM-ად იყენებს, როცა ნამდვილი RAM ივსება. დისკი RAM-ზე ბევრად ნელია, მაგრამ swap-ის გარეშე მეხსიერების ამოწურვისას Linux პროცესებს <strong>კლავს</strong> (OOM killer). ჩვენს 1 GB-იან სერვერზე მოგვიანებით .NET-ის build-იც მოგვიწევს და ბაზაც — swap დაგვაზღვევს.</p>
+<div class="codebox"><div class="ch"><span>Termius · giorgi@lms-server</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="gp">$ </span>sudo<span class="w"> </span>fallocate<span class="w"> </span>-l<span class="w"> </span>2G<span class="w"> </span>/swapfile<span class="w">                          </span><span class="c1"># 2 GB ფაილი</span></span><span class="ln"><span class="gp">$ </span>sudo<span class="w"> </span>chmod<span class="w"> </span><span class="m">600</span><span class="w"> </span>/swapfile<span class="w">                                </span><span class="c1"># მხოლოდ root</span></span><span class="ln"><span class="gp">$ </span>sudo<span class="w"> </span>mkswap<span class="w"> </span>/swapfile<span class="w">                                   </span><span class="c1"># swap-ად მომზადება</span></span><span class="ln"><span class="gp">$ </span>sudo<span class="w"> </span>swapon<span class="w"> </span>/swapfile<span class="w">                                   </span><span class="c1"># ჩართვა</span></span><span class="ln"><span class="gp">$ </span><span class="nb">echo</span><span class="w"> </span><span class="s1">'/swapfile none swap sw 0 0'</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>sudo<span class="w"> </span>tee<span class="w"> </span>-a<span class="w"> </span>/etc/fstab<span class="w">   </span><span class="c1"># reboot-ის შემდეგაც</span></span><span class="ln"> </span><span class="ln"><span class="gp">$ </span>free<span class="w"> </span>-h</span><span class="ln"><span class="go">       total   used   free</span></span><span class="ln"><span class="go">Mem:   961Mi  320Mi  410Mi</span></span></code></pre></div>
+<p><code>/etc/fstab</code> — ფაილი, რომელსაც სისტემა ჩართვისას კითხულობს. <code>tee -a</code> ფაილის ბოლოს ამატებს ხაზს root-ის უფლებით (<code>sudo echo ... &gt;&gt; file</code> არ იმუშავებს — გადამისამართებას შენი user აკეთებს და არა sudo).</p></article>
+<article class="blk" data-slides="22"><span class="anchor" id="s-22"></span><div class="bh"><h3>~/.ssh/config — WSL-ის ბრძანებებისთვის</h3><a class="chip" href="index.html#/22" data-go="22" title="პრეზენტაციაში გახსნა">სლაიდი 22</a></div>
+<p>სერვერზე ჩვენ Termius-ით ვმუშაობთ. მაგრამ შემდეგ ლექციებზე <strong>შენი კომპიუტერიდან</strong> (WSL) გავუშვებთ ბრძანებებს, რომლებიც სერვერს თვითონ უკავშირდება: <code>rsync</code> (ფაილების ატვირთვა), <code>scp</code>, <code>ssh-copy-id</code>, <code>deploy.sh</code>. Termius-ის Host-ებს ისინი ვერ ხედავენ — მათ WSL-ის „მისამართების წიგნი“ სჭირდებათ, <code>~/.ssh/config</code>:</p>
+<div class="codebox"><div class="ch"><span>~/.ssh/config</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln">Host lms</span><span class="ln">    HostName 164.90.12.34</span><span class="ln">    User giorgi</span><span class="ln">    IdentityFile ~/.ssh/id_ed25519</span></code></pre></div>
+<p>შემოწმება — WSL-იდან:</p>
+<div class="codebox"><div class="ch"><span>WSL</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="gp">$ </span>ssh<span class="w"> </span>lms</span></code></pre></div>
+<p><code>lms</code> — შენ მიერ მოფიქრებული მოკლე სახელი. ის იმუშავებს ყველა SSH-ზე დაფუძნებულ ბრძანებაში — შემდეგ ლექციაზე ფაილებს ასე ავტვირთავთ: <code>rsync -avz ./ lms:/var/www/portfolio/</code>.</p></article>
+<h2 class="sec" id="sec-9">შეჯამება</h2>
+<article class="blk" data-slides="23"><span class="anchor" id="s-23"></span><div class="bh"><h3>შპარგალკა: დღევანდელი ბრძანებები</h3><a class="chip" href="index.html#/23" data-go="23" title="პრეზენტაციაში გახსნა">სლაიდი 23</a></div>
+<p><strong>👤 user-ები</strong></p>
+<table>
+<thead>
+<tr>
+<th>ბრძანება</th>
+<th>რას აკეთებს</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>adduser giorgi</code> · <code>usermod -aG sudo giorgi</code></td>
+<td>ახალი user, sudo ჯგუფში</td>
+</tr>
+<tr>
+<td><code>rsync --archive --chown=giorgi:giorgi ~/.ssh /home/giorgi</code></td>
+<td>გასაღები ახალ user-ს</td>
+</tr>
+<tr>
+<td><code>whoami</code> / <code>sudo &lt;ბრძანება&gt;</code></td>
+<td>ვინ ვარ / root-ის უფლებით</td>
+</tr>
+<tr>
+<td><code>sudo apt update</code> / <code>install -y</code></td>
+<td>პაკეტების სია / დაყენება</td>
+</tr>
+</tbody>
+</table>
 <p><strong>📁 ფაილები</strong></p>
 <table>
 <thead>
@@ -468,7 +489,7 @@ html[data-theme=dark] .codebox{background:#1a1d23}
 </tr>
 </tbody>
 </table>
-<p><strong>🔐 user-ები და უფლებები</strong></p>
+<p><strong>🔐 უფლებები და ⚙️ პროცესები</strong></p>
 <table>
 <thead>
 <tr>
@@ -477,18 +498,6 @@ html[data-theme=dark] .codebox{background:#1a1d23}
 </tr>
 </thead>
 <tbody>
-<tr>
-<td><code>whoami</code></td>
-<td>ვინ ვარ</td>
-</tr>
-<tr>
-<td><code>sudo &lt;ბრძანება&gt;</code></td>
-<td>root-ის უფლებით</td>
-</tr>
-<tr>
-<td><code>sudo apt update</code> / <code>install -y</code></td>
-<td>პაკეტების სია / დაყენება</td>
-</tr>
 <tr>
 <td><code>chmod 644 / 755 / 600</code></td>
 <td>უფლებები</td>
@@ -497,40 +506,53 @@ html[data-theme=dark] .codebox{background:#1a1d23}
 <td><code>chown -R user:group</code></td>
 <td>მფლობელის შეცვლა</td>
 </tr>
-</tbody>
-</table>
-<p><strong>⚙️ პროცესები და port-ები</strong></p>
-<table>
-<thead>
-<tr>
-<th>ბრძანება</th>
-<th>რას აკეთებს</th>
-</tr>
-</thead>
-<tbody>
 <tr>
 <td><code>ps aux</code>, <code>grep &lt;სახელი&gt;</code></td>
-<td>პროცესის პოვნა (pipe-ით: ps aux, მერე grep)</td>
+<td>პროცესის პოვნა</td>
 </tr>
 <tr>
-<td><code>htop</code></td>
-<td>CPU/RAM ცოცხლად</td>
-</tr>
-<tr>
-<td><code>kill &lt;PID&gt;</code></td>
-<td>პროცესის გაჩერება</td>
+<td><code>htop</code> / <code>kill &lt;PID&gt;</code></td>
+<td>CPU/RAM ცოცხლად / პროცესის გაჩერება</td>
 </tr>
 <tr>
 <td><code>sudo ss -tlnp</code></td>
 <td>ვინ რომელ port-ს უსმენს</td>
 </tr>
 </tbody>
+</table>
+<p><strong>🛡️ სერვერის მომზადება — ყოველ ახალ სერვერზე</strong></p>
+<table>
+<thead>
+<tr>
+<th>ნაბიჯი</th>
+<th>ბრძანება</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>SSH-ის დაცვა</td>
+<td><code>00-hardening.conf</code> → <code>sshd -t</code> → <code>systemctl restart ssh</code> (ძველი ფანჯარა ღიაა!)</td>
+</tr>
+<tr>
+<td>განახლება</td>
+<td><code>apt update &amp;&amp; apt upgrade -y</code></td>
+</tr>
+<tr>
+<td>swap</td>
+<td><code>fallocate</code> · <code>chmod 600</code> · <code>mkswap</code> · <code>swapon</code> · <code>/etc/fstab</code></td>
+</tr>
+<tr>
+<td>WSL</td>
+<td><code>~/.ssh/config</code> → <code>Host lms</code> → <code>ssh lms</code></td>
+</tr>
+</tbody>
 </table></article>
-<h2 class="sec" id="sec-7">პრაქტიკა</h2>
-<article class="blk" data-slides="19"><span class="anchor" id="s-19"></span><div class="bh"><h3>კლასში დავალება: საიტის საქაღალდე სერვერზე</h3><a class="chip" href="index.html#/19" data-go="19" title="პრეზენტაციაში გახსნა">სლაიდი 19</a></div>
+<h2 class="sec" id="sec-10">პრაქტიკა</h2>
+<article class="blk" data-slides="24"><span class="anchor" id="s-24"></span><div class="bh"><h3>კლასში დავალება: საიტის საქაღალდე სერვერზე</h3><a class="chip" href="index.html#/24" data-go="24" title="პრეზენტაციაში გახსნა">სლაიდი 24</a></div>
 <p>დავალება · my-portfolio „სერვერის სტილში“</p>
 <h3>ნაბიჯები</h3>
 <ul>
+<li>root-ით: <code>adduser &lt;სახელი&gt;</code> → <code>usermod -aG sudo &lt;სახელი&gt;</code> → <code>rsync --archive --chown=&lt;სახელი&gt;:&lt;სახელი&gt; ~/.ssh /home/&lt;სახელი&gt;</code> → Termius-ში ახალი Host ამ user-ით → <code>sudo whoami</code></li>
 <li><code>cd ~</code> → <code>git clone https://github.com/&lt;username&gt;/my-portfolio.git</code> → <code>cd my-portfolio</code> → <code>ls -la</code></li>
 <li><code>sudo mkdir -p /var/www/portfolio</code> → <code>sudo cp -r ~/my-portfolio/* /var/www/portfolio/</code></li>
 <li><code>ls -l /var/www/portfolio</code> — ვისია ფაილები? → <code>sudo chown -R $USER:$USER /var/www/portfolio</code> → ისევ <code>ls -l</code></li>
@@ -538,7 +560,7 @@ html[data-theme=dark] .codebox{background:#1a1d23}
 <li><code>sudo apt update &amp;&amp; sudo apt install -y tree htop</code> → <code>tree /var/www</code></li>
 </ul>
 <h3>✓ მზადაა, როცა</h3>
-<p><code>tree /var/www</code> აჩვენებს <code>portfolio</code>-ს ფაილებით, <code>ls -l</code>-ში მფლობელი თქვენი user-ია, <code>index.html</code>-ში ცვლილება ჩანს</p>
+<p>ახალი user-ით შედიხართ და <code>sudo whoami</code> აბრუნებს <code>root</code>, <code>tree /var/www</code> აჩვენებს <code>portfolio</code>-ს ფაილებით, <code>ls -l</code>-ში მფლობელი თქვენი user-ია, <code>index.html</code>-ში ცვლილება ჩანს</p>
 <h3>⭐ ბონუსი</h3>
 <ul>
 <li><code>htop</code> გახსენით → იპოვეთ პროცესი <code>bash</code> → გამოდით <code>q</code>-თი. მეორე ტერმინალში <code>sleep 1000</code> → პირველიდან იპოვეთ მისი PID <code>ps aux | grep sleep</code>-ით და <code>kill</code>-ით გააჩერეთ</li>
@@ -546,32 +568,33 @@ html[data-theme=dark] .codebox{background:#1a1d23}
 <h3>💡 მინიშნება</h3>
 <div class="codebox"><div class="ch"><span>bash</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="nb">pwd</span><span class="w">                 </span><span class="c1"># სად ვარ?</span></span><span class="ln">ls<span class="w"> </span>-la<span class="w">              </span><span class="c1"># რა არის აქ (ფარული ფაილებითაც)</span></span><span class="ln"><span class="nb">cd</span><span class="w"> </span>~<span class="w">                </span>#<span class="w"> </span>სახლში<span class="w"> </span>დაბრუნება</span></code></pre></div>
 <p><code>Tab</code> — სახელის ავტოშევსება. <code>↑</code> — წინა ბრძანება. დაიკარგეთ? <code>pwd</code>.</p></article>
-<h2 class="sec" id="sec-8">შეჯამება</h2>
-<article class="blk" data-slides="20"><span class="anchor" id="s-20"></span><div class="bh"><h3>შეამოწმე, რა დაგამახსოვრდა</h3><a class="chip" href="index.html#/20" data-go="20" title="პრეზენტაციაში გახსნა">სლაიდი 20</a></div>
+<h2 class="sec" id="sec-11">შეჯამება</h2>
+<article class="blk" data-slides="25"><span class="anchor" id="s-25"></span><div class="bh"><h3>შეამოწმე, რა დაგამახსოვრდა</h3><a class="chip" href="index.html#/25" data-go="25" title="პრეზენტაციაში გახსნა">სლაიდი 25</a></div>
 <p>ეს კითხვები შემდეგი ლექციის დასაწყისშიც დაისმება.</p>
-<div class="selfcheck"><div class="sh">✅ შეამოწმე თავი <small>დაფიქრდი, მერე გახსენი პასუხი</small></div><details><summary>რას ნიშნავს <code>/</code>, <code>~</code> და <code>..</code>?</summary><div class="ans"><code>/</code> — ფაილური სისტემის ფესვი (root), ყველაფერი აქედან იწყება; <code>~</code> — შენი სახლის საქაღალდე (<code>/home/giorgi</code>); <code>..</code> — ერთი საქაღალდით ზემოთ</div></details><details><summary>სად ინახება Linux-ზე პროგრამების კონფიგურაცია, ლოგები და საიტები?</summary><div class="ans">კონფიგურაცია — <code>/etc</code>, ლოგები — <code>/var/log</code>, საიტები — ჩვეულებრივ <code>/var/www</code></div></details><details><summary>რატომ არის <code>rm -r</code> სახიფათო?</summary><div class="ans">Linux-ში სანაგვე ყუთი არ არის: წაშლილი ფაილი სამუდამოდ ქრება. <code>rm -r</code> საქაღალდეს მთელი შიგთავსით შლის</div></details><details><summary>რას ნიშნავს <code>-rw-r--r--</code> და რომელი რიცხვია?</summary><div class="ans">მფლობელი: წაკითხვა+ჩაწერა (6), ჯგუფი: წაკითხვა (4), დანარჩენები: წაკითხვა (4) → <code>644</code></div></details><details><summary>რისთვის ვიყენებთ <code>sudo</code>-ს?</summary><div class="ans">ბრძანების ადმინისტრატორის (root) უფლებით გასაშვებად — მაგ. <code>sudo apt install</code>, ან ფაილის შეცვლა <code>/etc</code>-ში</div></details><details><summary>როგორ ნახავ, რომელი პროგრამა უსმენს port 5080-ს?</summary><div class="ans"><code>sudo ss -tlnp</code> — ჩამოთვლის port-ებს და პროცესებს, რომლებიც მათ უსმენენ (<code>| grep 5080</code> — გასაფილტრად)</div></details></div></article>
-<article class="blk" data-slides="21"><span class="anchor" id="s-21"></span><div class="bh"><h3>შეჯამება · დღეს ვისწავლეთ</h3><a class="chip" href="index.html#/21" data-go="21" title="პრეზენტაციაში გახსნა">სლაიდი 21</a></div>
+<div class="selfcheck"><div class="sh">✅ შეამოწმე თავი <small>დაფიქრდი, მერე გახსენი პასუხი</small></div><details><summary>რატომ ვქმნით ცალკე user-ს და ვკრძალავთ root-ით შესვლას?</summary><div class="ans">root-ს ყველაფრის უფლება აქვს და მის სახელს ყველა ბოტი იცის. ცალკე user-ით ვმუშაობთ, საჭიროებისას <code>sudo</code>-თი — შეცდომაც და შეტევაც ნაკლებ ზიანს აყენებს</div></details><details><summary>რას ნიშნავს <code>/</code>, <code>~</code> და <code>..</code>?</summary><div class="ans"><code>/</code> — ფაილური სისტემის ფესვი (root), ყველაფერი აქედან იწყება; <code>~</code> — შენი სახლის საქაღალდე (<code>/home/giorgi</code>); <code>..</code> — ერთი საქაღალდით ზემოთ</div></details><details><summary>სად ინახება Linux-ზე პროგრამების კონფიგურაცია, ლოგები და საიტები?</summary><div class="ans">კონფიგურაცია — <code>/etc</code>, ლოგები — <code>/var/log</code>, საიტები — ჩვეულებრივ <code>/var/www</code></div></details><details><summary>რატომ არის <code>rm -r</code> სახიფათო?</summary><div class="ans">Linux-ში სანაგვე ყუთი არ არის: წაშლილი ფაილი სამუდამოდ ქრება. <code>rm -r</code> საქაღალდეს მთელი შიგთავსით შლის</div></details><details><summary>რას ნიშნავს <code>-rw-r--r--</code> და რომელი რიცხვია?</summary><div class="ans">მფლობელი: წაკითხვა+ჩაწერა (6), ჯგუფი: წაკითხვა (4), დანარჩენები: წაკითხვა (4) → <code>644</code></div></details><details><summary>რისთვის ვიყენებთ <code>sudo</code>-ს?</summary><div class="ans">ბრძანების ადმინისტრატორის (root) უფლებით გასაშვებად — მაგ. <code>sudo apt install</code>, ან ფაილის შეცვლა <code>/etc</code>-ში</div></details><details><summary>როგორ ნახავ, რომელი პროგრამა უსმენს port 5080-ს?</summary><div class="ans"><code>sudo ss -tlnp</code> — ჩამოთვლის port-ებს და პროცესებს, რომლებიც მათ უსმენენ (<code>| grep 5080</code> — გასაფილტრად)</div></details><details><summary>SSH-ის კონფიგი შეცვალე. რა გააკეთო, ძველ ფანჯარას რომ დახურავ?</summary><div class="ans">ჯერ Termius-ის ახალ tab-ში შეამოწმე, რომ ახალი user-ით შესვლა მუშაობს. ძველი სესია ღია დატოვე — თუ რამე გაფუჭდა, მისით გაასწორებ</div></details></div></article>
+<article class="blk" data-slides="26"><span class="anchor" id="s-26"></span><div class="bh"><h3>შეჯამება · დღეს ვისწავლეთ</h3><a class="chip" href="index.html#/26" data-go="26" title="პრეზენტაციაში გახსნა">სლაიდი 26</a></div>
 <ul>
-<li>🌳 <strong>ფაილური სისტემა</strong> — ერთი ხე <code>/</code>-დან. <code>~</code> = სახლი, <code>/etc</code> = კონფიგურაცია, <code>/var/log</code> = ლოგები, <code>/var/www</code> = საიტები. დიდი და პატარა ასოები განსხვავდება.</li>
-<li>📁 <strong>ფაილები</strong> — <code>pwd</code>, <code>ls -la</code>, <code>cd</code>, <code>mkdir -p</code>, <code>cp -r</code>, <code>mv</code>, <code>rm -r</code>, <code>cat</code>, <code>tail -f</code>, <code>nano</code>. სანაგვე ყუთი არ არის.</li>
-<li>🔐 <strong>user-ები და უფლებები</strong> — <code>sudo</code> ერთ ბრძანებას root-ის უფლებით უშვებს; <code>apt</code> პროგრამებს აყენებს; <code>chmod 644/755/600</code>, <code>chown</code>.</li>
-<li>⚙️ <strong>პროცესები</strong> — <code>ps aux | grep</code>, <code>htop</code>, <code>kill</code>; <code>ss -tlnp</code> — ვინ რომელ port-ს უსმენს.</li>
+<li>👤 <strong>საკუთარი user</strong> — root-ის ნაცვლად <code>giorgi</code>, რომელიც საჭირო ბრძანებას <code>sudo</code>-თი უშვებს; პაროლი მხოლოდ sudo-სთვისაა, შესვლა — გასაღებით. <code>apt</code> პროგრამებს აყენებს.</li>
+<li>📁 <strong>ფაილები</strong> — ერთი ხე <code>/</code>-დან: <code>/etc</code> კონფიგი, <code>/var/log</code> ლოგები, <code>/var/www</code> საიტები. <code>mkdir -p</code>, <code>cp -r</code>, <code>mv</code>, <code>rm -r</code>, <code>cat</code>, <code>tail -f</code>, <code>nano</code>. სანაგვე ყუთი არ არის; დიდი და პატარა ასოები განსხვავდება.</li>
+<li>🔐 <strong>უფლებები და პროცესები</strong> — <code>chmod 644/755/600</code>, <code>chown</code>; <code>ps aux | grep</code>, <code>htop</code>, <code>kill</code>; <code>ss -tlnp</code> — ვინ რომელ port-ს უსმენს.</li>
+<li>🛡️ <strong>სერვერის მომზადება</strong> — <code>PermitRootLogin no</code>, <code>PasswordAuthentication no</code>; <code>apt upgrade</code>; swap; <code>~/.ssh/config</code> → <code>ssh lms</code> WSL-იდან.</li>
 </ul>
-<p><strong>შემდეგ ლექციაზე:</strong> სერვერზე ვაყენებთ Nginx-ს და ვაქვეყნებთ my-portfolio-ს და შენს Angular აპს — ამჯერად საკუთარ სერვერზე.</p>
-<div class="prompt"><div class="ph"><span>🤖 გამოცდა მეოთხე ლექციაზე</span><button class="copy" type="button">კოპირება</button></div><div class="pb">ვსწავლობ DevOps-ს. მეოთხე ლექციაზე გავიარეთ Linux-ის საფუძვლები Ubuntu-ში: ფაილური სისტემა (/, ~, /etc, /var/log, /var/www), ნავიგაცია (pwd, ls -la, cd), ფაილები (mkdir -p, cp -r, mv, rm -r, cat, tail -f, nano), sudo და apt, უფლებები (ls -l, chmod 644/755/600, chown), პროცესები და port-ები (ps aux, grep, htop, kill, ss -tlnp).
+<p><strong>შემდეგ ლექციაზე:</strong> სერვერზე ვაყენებთ Nginx-ს, ვხსნით port-ებს firewall-ში და ვაქვეყნებთ my-portfolio-ს და შენს Angular აპს.</p>
+<div class="prompt"><div class="ph"><span>🤖 გამოცდა მეოთხე ლექციაზე</span><button class="copy" type="button">კოპირება</button></div><div class="pb">ვსწავლობ DevOps-ს. მეოთხე ლექციაზე Ubuntu სერვერზე გავიარეთ: ცალკე user და sudo (adduser, usermod -aG sudo), apt, ფაილური სისტემა (/, ~, /etc, /var/log, /var/www), ფაილები (mkdir -p, cp -r, mv, rm -r, cat, tail -f, nano), უფლებები (ls -l, chmod 644/755/600, chown), პროცესები და port-ები (ps aux, grep, htop, kill, ss -tlnp), sshd-ის დაცვა (PermitRootLogin no, PasswordAuthentication no), swap, ~/.ssh/config.
 დამისვი 10 კითხვა სათითაოდ, მარტივიდან რთულისკენ — ნაწილი პრაქტიკული იყოს („რა ბრძანებას გაუშვებ, როცა…“). ყოველ პასუხზე შემიფასე და ამიხსენი. ბოლოს მითხარი, რა გავიმეორო. ქართულად.</div></div>
 <div class="prompt"><div class="ph"><span>🤖 Linux-ის ბრძანება არ მესმის</span><button class="copy" type="button">კოპირება</button></div><div class="pb">ვსწავლობ Linux-ს (Ubuntu). ამიხსენი ეს ბრძანება მარტივად, ქართულად: რას აკეთებს თითოეული ნაწილი, როდის ვიყენებ, რა შეიძლება გაფუჭდეს, და ერთი მაგალითი ტერმინალის გამოსავლით. ბრძანება: [აქ ჩასვი ბრძანება]</div></div></article>
-<h2 class="sec" id="sec-9">საშინაო</h2>
-<article class="blk" data-slides="22"><span class="anchor" id="s-22"></span><div class="bh"><h3>საშინაო დავალება: Linux-ის ქვესტი</h3><a class="chip" href="index.html#/22" data-go="22" title="პრეზენტაციაში გახსნა">სლაიდი 22</a></div>
+<h2 class="sec" id="sec-12">საშინაო</h2>
+<article class="blk" data-slides="27"><span class="anchor" id="s-27"></span><div class="bh"><h3>საშინაო დავალება: Linux-ის ქვესტი და სერვერის მომზადება</h3><a class="chip" href="index.html#/27" data-go="27" title="პრეზენტაციაში გახსნა">სლაიდი 27</a></div>
 <p>შემდეგ ლექციაზე სერვერზე Nginx-ს ვაყენებთ</p>
 <h3>მოთხოვნები</h3>
 <ul>
 <li>სერვერზე, <code>~/linux-quest</code>-ში: <code>logs/</code>, <code>scripts/</code>, <code>notes/</code>; <code>notes/commands.md</code> — 10 ბრძანება თქვენი ახსნით</li>
 <li><code>scripts/hello.sh</code> (<code>echo "გამარჯობა, $USER"</code>) → გასაშვები → <code>./scripts/hello.sh</code></li>
 <li><code>logs/app.log</code> — 3 ხაზი, ერთში <code>ERROR</code> → <code>grep</code>-ით მხოლოდ ის</li>
+<li>თუ კლასში ვერ მოასწარით: <code>00-hardening.conf</code> (root და პაროლი აკრძალულია → <code>restart ssh</code>, ჯერ ახალ tab-ში შეამოწმეთ!) · swap 2 GB (<code>/etc/fstab</code>-ითაც) · WSL-ში <code>~/.ssh/config</code> → <code>ssh lms</code></li>
 </ul>
 <h3>✓ მზადაა, როცა</h3>
-<p><code>hello.sh</code> ეშვება, <code>grep</code> ერთ ხაზს აბრუნებს</p>
+<p><code>hello.sh</code> ეშვება, <code>grep</code> ერთ ხაზს აბრუნებს, <code>sshd -T</code> — <code>no</code>/<code>no</code>, <code>free -h</code> — Swap 2.0Gi, <code>ssh lms</code> შედის</p>
 <h3>⭐ ბონუსი</h3>
 <ul>
 <li><code>tail -f ~/linux-quest/logs/app.log</code> ერთ ტერმინალში, მეორედან <code>echo "new line" &gt;&gt; logs/app.log</code> — ნახეთ, როგორ ჩნდება ხაზი „ცოცხლად“</li>
@@ -579,7 +602,7 @@ html[data-theme=dark] .codebox{background:#1a1d23}
   </main>
 </div>
 <script>
-const DECK = "DevOps · 4 — Linux — სერვერის ენა";
+const DECK = "DevOps · 4 — Linux — user-ები, ფაილები, უფლებები და სერვერის მომზადება";
 if (matchMedia('(min-width:981px)').matches) document.getElementById('tocd').open = true;
 const blocks = [...document.querySelectorAll('.blk')];
 const tocLinks = [...document.querySelectorAll('nav.toc a[href^="#sec-"]')];

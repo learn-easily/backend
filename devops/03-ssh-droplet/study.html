@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="ka"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>📖 SSH და Droplet — საკუთარი სერვერი — კონსპექტი</title>
+<title>📖 საკუთარი სერვერი — არჩევა, ყიდვა და SSH — კონსპექტი</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Georgian:wght@400;600;700;800&family=JetBrains+Mono:wght@400;600;700;800&display=swap" rel="stylesheet"><script>(()=>{const d=document.documentElement,K="lectures:theme";try{d.dataset.theme=localStorage.getItem(K)||"light"}catch(e){d.dataset.theme="light"}window.toggleTheme=()=>{const t=d.dataset.theme==="dark"?"light":"dark";d.dataset.theme=t;try{localStorage.setItem(K,t)}catch(e){}};document.addEventListener("click",e=>{const b=e.target.closest(".themebtn");if(b){b.blur();toggleTheme()}});addEventListener("storage",e=>{if(e.key===K)d.dataset.theme=e.newValue||"light"})})()</script>
 <style>
 :root{--bg:#fbf8f3;--card:#fff;--ink:#1e2132;--ink2:#3b3f54;--muted:#7b8096;--line:#e6dfd2;--accent:#6d28d9;--accent-soft:#f3effe;--teal:#0d9488;
@@ -128,17 +128,17 @@ html[data-theme=dark] .codebox{background:#1a1d23}
 <body>
 <div class="top">
   <a class="back" href="../../">← ლექციები</a>
-  <div class="ttl"><small>DevOps · 3</small>SSH და Droplet — საკუთარი სერვერი</div>
+  <div class="ttl"><small>DevOps · 3</small>საკუთარი სერვერი — არჩევა, ყიდვა და SSH</div>
   <button class="live" id="live" type="button" title="ჩართული: ტექსტი პრეზენტაციას მიჰყვება"><span class="dot"></span><span class="lt">მიჰყვება სლაიდებს</span></button>
   <button class="themebtn btn" type="button" title="ღია / მუქი თემა (T)"><span class="l">🌙</span><span class="d">☀️</span></button>
   <a class="btn play" href="index.html">▶ პრეზენტაცია</a>
 </div>
 <div class="wrap">
-  <nav class="toc"><details id="tocd"><summary>სარჩევი</summary><div class="h">სარჩევი</div><a href="#sec-1">გამეორება</a><a href="#sec-2">საშინაოს განხილვა</a><a href="#sec-3">დღის თემა</a><a href="#sec-4">1 · SSH</a><a href="#sec-5">2 · Droplet</a><a href="#sec-6">3 · დაცვა</a><a href="#sec-7">შეჯამება</a><a href="#sec-8">პრაქტიკა</a><a href="#sec-9">შეჯამება</a><a href="#sec-10">საშინაო</a><div class="mats"></div></details></nav>
+  <nav class="toc"><details id="tocd"><summary>სარჩევი</summary><div class="h">სარჩევი</div><a href="#sec-1">გამეორება</a><a href="#sec-2">საშინაოს განხილვა</a><a href="#sec-3">დღის თემა</a><a href="#sec-4">1 · არჩევა</a><a href="#sec-5">2 · SSH</a><a href="#sec-6">3 · დაკავშირება</a><a href="#sec-7">4 · სერვერზე</a><a href="#sec-8">შეჯამება</a><a href="#sec-9">პრაქტიკა</a><a href="#sec-10">შეჯამება</a><a href="#sec-11">საშინაო</a><div class="mats"></div></details></nav>
   <main>
     <header class="hero">
       <div class="k">📖 კონსპექტი · DevOps · ლექცია 3</div>
-      <h1>SSH და Droplet — საკუთარი სერვერი</h1>
+      <h1>საკუთარი სერვერი — არჩევა, ყიდვა და SSH</h1>
       <p>წაიკითხე ლექციის შემდეგ, ან პრეზენტაციასთან ერთად: პრეზენტაციაში დააჭირე <kbd>P</kbd> და ეს გვერდი სლაიდებს გაჰყვება. კოდი და AI-ს პრომპტები კოპირდება ერთი დაჭერით.</p>
     </header>
     <h2 class="sec" id="sec-1">გამეორება</h2>
@@ -162,65 +162,98 @@ html[data-theme=dark] .codebox{background:#1a1d23}
 <div class="codebox"><div class="ch"><span>Ubuntu</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="gp">$ </span>lsb_release<span class="w"> </span>-a</span><span class="ln"><span class="go">Distributor ID: Ubuntu</span></span><span class="ln"><span class="go">Description:    Ubuntu 24.04.3 LTS</span></span></code></pre></div>
 <div class="codebox"><div class="ch"><span>404.html</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="cp">&lt;!DOCTYPE html&gt;</span></span><span class="ln"><span class="p">&lt;</span><span class="nt">html</span> <span class="na">lang</span><span class="o">=</span><span class="s">"ka"</span><span class="p">&gt;</span></span><span class="ln"><span class="p">&lt;</span><span class="nt">head</span><span class="p">&gt;</span><span class="p">&lt;</span><span class="nt">meta</span> <span class="na">charset</span><span class="o">=</span><span class="s">"UTF-8"</span><span class="p">&gt;</span><span class="p">&lt;</span><span class="nt">title</span><span class="p">&gt;</span>ვერ მოიძებნა<span class="p">&lt;</span><span class="p">/</span><span class="nt">title</span><span class="p">&gt;</span><span class="p">&lt;</span><span class="p">/</span><span class="nt">head</span><span class="p">&gt;</span></span><span class="ln"><span class="p">&lt;</span><span class="nt">body</span><span class="p">&gt;</span></span><span class="ln">  <span class="p">&lt;</span><span class="nt">h1</span><span class="p">&gt;</span>404 — ეს გვერდი არ არსებობს 🤷<span class="p">&lt;</span><span class="p">/</span><span class="nt">h1</span><span class="p">&gt;</span></span><span class="ln">  <span class="p">&lt;</span><span class="nt">a</span> <span class="na">href</span><span class="o">=</span><span class="s">"/my-portfolio/"</span><span class="p">&gt;</span>მთავარზე დაბრუნება<span class="p">&lt;</span><span class="p">/</span><span class="nt">a</span><span class="p">&gt;</span></span><span class="ln"><span class="p">&lt;</span><span class="p">/</span><span class="nt">body</span><span class="p">&gt;</span></span><span class="ln"><span class="p">&lt;</span><span class="p">/</span><span class="nt">html</span><span class="p">&gt;</span></span></code></pre></div></article>
 <h2 class="sec" id="sec-3">დღის თემა</h2>
-<article class="blk" data-slides="4"><span class="anchor" id="s-4"></span><div class="bh"><h3>დღის თემა: SSH და Droplet — საკუთარი სერვერი</h3><a class="chip" href="index.html#/4" data-go="4" title="პრეზენტაციაში გახსნა">სლაიდი 4</a></div>
-<p>API-ს სჭირდება კომპიუტერი, რომელიც 24/7 ჩართულია და ინტერნეტიდან მისაწვდომია. დღეს ასეთს ვქირაობთ DigitalOcean-ზე — Droplet-ს — და ვუკავშირდებით მას SSH-ით, პაროლის გარეშე, გასაღებით. სერვერის შექმნიდან რამდენიმე წუთში მას ბოტები შეუტევენ, ამიტომ პირველივე დღეს მას ვიცავთ.</p>
+<article class="blk" data-slides="4"><span class="anchor" id="s-4"></span><div class="bh"><h3>დღის თემა: საკუთარი სერვერი — არჩევა, ყიდვა და SSH</h3><a class="chip" href="index.html#/4" data-go="4" title="პრეზენტაციაში გახსნა">სლაიდი 4</a></div>
+<p>API-ს სჭირდება კომპიუტერი, რომელიც 24/7 ჩართულია და ინტერნეტიდან მისაწვდომია. დღეს ასეთს ვარჩევთ და ვყიდულობთ: ვთვლით, რა გვჭირდება, ვქმნით DigitalOcean Droplet-ს, ვიგებთ, როგორ შევდივართ მასში პაროლის გარეშე — SSH გასაღებით — და ვუკავშირდებით ჯერ ტერმინალით, მერე Termius-ით. ბოლოს სერვერზე პირველ ბრძანებებს ვუშვებთ.</p>
 <p><strong>ლექციის ბოლოს შეძლებ:</strong></p>
 <ul>
-<li>SSH გასაღებების წყვილის შექმნა და ახსნა: public vs private</li>
-<li>Droplet-ის შექმნა: region, Ubuntu 24.04, ზომა, SSH key</li>
-<li>სერვერზე შესვლა <code>ssh</code>-ით და ცალკე sudo user-ის შექმნა</li>
-<li>სერვერის დაცვა: root-ით და პაროლით შესვლის აკრძალვა, <code>ufw</code> firewall</li>
-<li>Termius-ით სერვერთან კავშირი და <code>~/.ssh/config</code> WSL-ის ბრძანებებისთვის: <code>rsync … lms:</code></li>
+<li>სერვერის ზომის არჩევა იმის მიხედვით, რა იმუშავებს მასზე: RAM, CPU, დისკი, region</li>
+<li>Droplet-ის შექმნა DigitalOcean-ზე: Ubuntu 24.04, ზომა, SSH Key</li>
+<li>ახსნა, როგორ მუშაობს SSH გასაღები: საჯარო ნაწილი სერვერზე, პირადი შენთან</li>
+<li>სერვერთან დაკავშირება ტერმინალით (<code>ssh root@IP</code>) და Termius-ით</li>
+<li>პირველი ბრძანებები სერვერზე: <code>whoami</code>, <code>pwd</code>, <code>ls</code>, <code>cd</code>, <code>cat</code>, <code>free -h</code>, <code>df -h</code></li>
 </ul></article>
-<h2 class="sec" id="sec-4">1 · SSH</h2>
-<article class="blk" data-slides="5"><span class="anchor" id="s-5"></span><div class="bh"><h3>ნაწილი 1 · SSH</h3><a class="chip" href="index.html#/5" data-go="5" title="პრეზენტაციაში გახსნა">სლაიდი 5</a></div>
-<p>ტერმინალი სხვა ქვეყანაში მდგარ კომპიუტერზე — დაშიფრული და პაროლის გარეშე.</p></article>
-<article class="blk" data-slides="6"><span class="anchor" id="s-6"></span><div class="bh"><h3>პრობლემა: სერვერი ფრანკფურტშია — როგორ „დავჯდე“ მასთან?</h3><a class="chip" href="index.html#/6" data-go="6" title="პრეზენტაციაში გახსნა">სლაიდი 6</a></div>
-<p>სერვერი მონაცემთა ცენტრშია, სხვა ქვეყანაში. ფიზიკურად მასთან ვერ მიხვალ — და არც გჭირდება. <strong>SSH</strong> (Secure Shell) შენს ტერმინალს სერვერს აკავშირებს: შენ კრეფ, ბრძანება <strong>სერვერზე</strong> სრულდება, შედეგი შენთან ჩანს. მთელი კავშირი <strong>დაშიფრულია</strong>.</p>
-<div class="codebox"><div class="ch"><span>WSL</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="gp">$ </span>ssh<span class="w"> </span>giorgi@164.90.12.34</span></code></pre></div>
-<p><strong>პაროლის პრობლემა.</strong> ინტერნეტში ბოტები უწყვეტად ამოწმებენ ყველა IP მისამართს და SSH-ზე პაროლებს არჩევენ (<code>admin/admin</code>, <code>root/123456</code>...). ახალი სერვერის ლოგში ასეთი ხაზები <strong>რამდენიმე წუთში</strong> ჩნდება:</p>
-<div class="codebox"><div class="ch"><span>journalctl -u ssh</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln">Invalid user admin from 45.x.x.x</span><span class="ln">Invalid user test from 103.x.x.x</span><span class="ln">Failed password for root from 194.x.x.x</span></code></pre></div>
-<p>გამოსავალი — პაროლის ნაცვლად <strong>SSH გასაღები</strong>.</p></article>
-<article class="blk" data-slides="7"><span class="anchor" id="s-7"></span><div class="bh"><h3>SSH გასაღები: საკეტი და გასაღები</h3><a class="chip" href="index.html#/7" data-go="7" title="პრეზენტაციაში გახსნა">სლაიდი 7</a></div>
-<p>SSH გასაღები <strong>წყვილია</strong> — ორი ფაილი, რომლებიც მათემატიკურად ერთმანეთს ემთხვევა:</p>
+<h2 class="sec" id="sec-4">1 · არჩევა</h2>
+<article class="blk" data-slides="5"><span class="anchor" id="s-5"></span><div class="bh"><h3>ნაწილი 1 · სერვერის არჩევა</h3><a class="chip" href="index.html#/5" data-go="5" title="პრეზენტაციაში გახსნა">სლაიდი 5</a></div>
+<p>რა სერვერი გვჭირდება, როგორ გამოვთვალოთ მისი ზომა და სად ვიყიდოთ.</p></article>
+<article class="blk" data-slides="6"><span class="anchor" id="s-6"></span><div class="bh"><h3>პრობლემა: API-ს სჭირდება კომპიუტერი, რომელიც არასოდეს ითიშება</h3><a class="chip" href="index.html#/6" data-go="6" title="პრეზენტაციაში გახსნა">სლაიდი 6</a></div>
+<p>წინა ლექციაზე ვნახეთ: GitHub Pages მხოლოდ ფაილებს აჩვენებს. API კი <strong>გაშვებული პროგრამაა</strong> — მას სჭირდება კომპიუტერი, რომელიც:</p>
+<ul>
+<li><strong>24/7 ჩართულია</strong> — ლეპტოპს დახურავ და საიტი ქრება;</li>
+<li><strong>საჯარო, მუდმივი IP</strong> აქვს — სახლის ინტერნეტის IP ხშირად იცვლება და გარედან მიუწვდომელია;</li>
+<li><strong>სტაბილურ დენზე და ინტერნეტზეა</strong>.</li>
+</ul>
+<p>საკუთარი სერვერის ყიდვა და მოვლა (რკინა, გაგრილება, ხაზი, შეკეთება) ცალკე ბიზნესია. ამიტომ სერვერს <strong>ვქირაობთ</strong>: <strong>VPS</strong> (Virtual Private Server) — მონაცემთა ცენტრის დიდი კომპიუტერის ვირტუალური „ნაჭერი“, რომელიც მხოლოდ შენ გეკუთვნის. პირველი ლექციის ანალოგიით — ნაქირავები ბინა.</p>
+<div class="terms"><div class="th">📘 ტერმინები</div><dl><dt>VPS</dt><dd>Virtual Private Server: ნაქირავები ვირტუალური სერვერი</dd><dt>მონაცემთა ცენტრი</dt><dd>შენობა ათასობით სერვერით, მუდმივი დენით და ინტერნეტით</dd></dl></div></article>
+<article class="blk" data-slides="7"><span class="anchor" id="s-7"></span><div class="bh"><h3>როგორ მივხვდეთ, რა გვჭირდება</h3><a class="chip" href="index.html#/7" data-go="7" title="პრეზენტაციაში გახსნა">სლაიდი 7</a></div>
+<p>სერვერს „თვალით“ არ ვარჩევთ. ჯერ ვწერთ, <strong>რა იმუშავებს</strong> მასზე, და ვთვლით, რამდენი რესურსი სჭირდება ყველას ერთად. ჩვენი LMS-ისთვის:</p>
 <table>
 <thead>
 <tr>
-<th>ფაილი</th>
-<th>ანალოგია</th>
-<th>სად ცხოვრობს</th>
+<th>რა მუშაობს</th>
+<th>RAM (დაახლოებით)</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td><code>~/.ssh/id_ed25519.pub</code> — <strong>საჯარო</strong></td>
-<td>🔒 საკეტი</td>
-<td>სერვერზე (<code>~/.ssh/authorized_keys</code>), GitHub-ზე — ნებისმიერ ადგილას, სადაც შესვლა გინდა</td>
+<td>Ubuntu (ოპერაციული სისტემა)</td>
+<td>~300 MB</td>
 </tr>
 <tr>
-<td><code>~/.ssh/id_ed25519</code> — <strong>პირადი</strong></td>
-<td>🔑 გასაღები</td>
-<td><strong>მხოლოდ</strong> შენს კომპიუტერზე</td>
+<td>Nginx + frontend-ის ფაილები</td>
+<td>~20 MB</td>
+</tr>
+<tr>
+<td>LMS API (.NET)</td>
+<td>~150–250 MB</td>
+</tr>
+<tr>
+<td>PostgreSQL</td>
+<td>~100–200 MB</td>
+</tr>
+<tr>
+<td><strong>ჯამში</strong></td>
+<td><strong>~0.6–0.8 GB</strong></td>
 </tr>
 </tbody>
 </table>
-<p>შესვლისას სერვერი გამოწვევას აგზავნის, რომლის სწორად „გახსნაც“ მხოლოდ შესაბამის პირად გასაღებს შეუძლია. თავად პირადი გასაღები ქსელში <strong>არასოდეს</strong> მიდის.</p>
-<p>საჯარო ნაწილის მოპარვა საშიში არ არის — საკეტით კარს ვერ გააღებ. პირადი კი პაროლზე მნიშვნელოვანია: ვისაც ის აქვს, ის შედის შენს ყველა სერვერზე.</p>
-<div class="callout warn"><span class="ci">⚠️</span><div><p>პირადი გასაღები <strong>არ</strong> გაუგზავნო არავის, <strong>არ</strong> ჩასვა ჩატში და <strong>არ</strong> ატვირთო GitHub-ზე. მისი უფლება უნდა იყოს <code>600</code> (მხოლოდ შენ) — უფლებებს და <code>chmod</code>-ს შემდეგ ლექციაზე დეტალურად ვნახავთ.</p></div></div></article>
-<article class="blk" data-slides="8"><span class="anchor" id="s-8"></span><div class="bh"><h3>ნაბიჯი 1 · გასაღების შექმნა</h3><a class="chip" href="index.html#/8" data-go="8" title="პრეზენტაციაში გახსნა">სლაიდი 8</a></div>
-<p>WSL-ში (ერთხელ — ეს გასაღები ყველა სერვერზე და GitHub-ზეც გამოგადგება):</p>
-<div class="codebox"><div class="ch"><span>WSL</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="gp">$ </span>ssh-keygen<span class="w"> </span>-t<span class="w"> </span>ed25519<span class="w"> </span>-C<span class="w"> </span><span class="s2">"giorgi@mail.ge"</span></span><span class="ln"><span class="go">Generating public/private ed25519 key pair.</span></span><span class="ln"><span class="go">Enter file in which to save the key (/home/giorgi/.ssh/id_ed25519):   ← Enter</span></span><span class="ln"><span class="go">Enter passphrase (empty for no passphrase):                           ← სურვილისამებრ</span></span><span class="ln"><span class="go">Your identification has been saved in /home/giorgi/.ssh/id_ed25519</span></span></code></pre></div>
+<p>სამი მთავარი პარამეტრი:</p>
 <ul>
-<li><code>-t ed25519</code> — ალგორითმი: თანამედროვე, მოკლე და ძლიერი (ძველი ალტერნატივაა RSA).</li>
-<li><code>-C</code> — კომენტარი, რომ მოგვიანებით იცოდე, ვისი გასაღებია.</li>
-<li><strong>passphrase</strong> — პირადი გასაღების პაროლი. თუ ლეპტოპი მოიპარეს, მის გარეშე გასაღები უსარგებლოა. სწავლისას შეგიძლია ცარიელი დატოვო.</li>
+<li>🧠 <strong>RAM</strong> — ყველაზე მნიშვნელოვანი: ყველა პროგრამა ერთდროულად უნდა ჩაეტიოს. ჩვენთვის <strong>1 GB</strong> საკმარისია.</li>
+<li>⚡ <strong>CPU (vCPU)</strong> — პროცესორის ბირთვები. სასწავლო პროექტს, რომელსაც ცოტა მომხმარებელი ჰყავს, <strong>1 vCPU</strong> ჰყოფნის.</li>
+<li>💾 <strong>დისკი</strong> — სისტემა, პროგრამები, ბაზა, ლოგები. <strong>25 GB</strong> საკმარისია.</li>
 </ul>
-<div class="codebox"><div class="ch"><span>WSL</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="gp">$ </span>ls<span class="w"> </span>-l<span class="w"> </span>~/.ssh</span><span class="ln"><span class="go">-rw------- 1 giorgi giorgi 411 id_ed25519        ← 600: მხოლოდ შენ</span></span><span class="ln"><span class="go">-rw-r--r-- 1 giorgi giorgi  98 id_ed25519.pub    ← 644: საჯარო</span></span><span class="ln"> </span><span class="ln"><span class="gp">$ </span>cat<span class="w"> </span>~/.ssh/id_ed25519.pub</span></code></pre></div>
-<p><code>.pub</code>-ის ეს ერთი ხაზი არის ის, რასაც სერვერს მივცემთ.</p></article>
-<h2 class="sec" id="sec-5">2 · Droplet</h2>
-<article class="blk" data-slides="9"><span class="anchor" id="s-9"></span><div class="bh"><h3>ნაწილი 2 · Droplet</h3><a class="chip" href="index.html#/9" data-go="9" title="პრეზენტაციაში გახსნა">სლაიდი 9</a></div>
-<p><strong>Droplet</strong> — DigitalOcean-ის ვირტუალური სერვერი (VPS). პირველი ლექციის ანალოგიით — ნაქირავები ბინა.</p></article>
-<article class="blk" data-slides="10"><span class="anchor" id="s-10"></span><div class="bh"><h3>ნაბიჯი 2 · Droplet-ის შექმნა</h3><a class="chip" href="index.html#/10" data-go="10" title="პრეზენტაციაში გახსნა">სლაიდი 10</a></div>
+<div class="callout tip"><span class="ci">👉</span><div><p><strong>იწყებ პატარით.</strong> სერვერის ზომა მოგვიანებით იზრდება (DigitalOcean-ში — <strong>Resize</strong>). თავიდანვე დიდის ყიდვა უბრალოდ ზედმეტი ხარჯია. როცა დატვირთვა გაიზრდება, მონიტორინგი გეტყვის, რა გაზარდო.</p></div></div></article>
+<article class="blk" data-slides="8"><span class="anchor" id="s-8"></span><div class="bh"><h3>სად ვიყიდოთ</h3><a class="chip" href="index.html#/8" data-go="8" title="პრეზენტაციაში გახსნა">სლაიდი 8</a></div>
+<p>VPS-ს ბევრი კომპანია ყიდის — არსი ყველგან ერთია, განსხვავდება სახელი, ფასი და panel:</p>
+<table>
+<thead>
+<tr>
+<th>პროვაიდერი</th>
+<th>VPS-ს ჰქვია</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>DigitalOcean</strong></td>
+<td>Droplet</td>
+</tr>
+<tr>
+<td>Hetzner</td>
+<td>Cloud Server</td>
+</tr>
+<tr>
+<td>AWS</td>
+<td>EC2 / Lightsail</td>
+</tr>
+<tr>
+<td>Azure, Google Cloud</td>
+<td>Virtual Machine</td>
+</tr>
+</tbody>
+</table>
+<p>ჩვენ ვიყენებთ <strong>DigitalOcean</strong>-ს: მარტივი panel, სერვერი დაახლოებით ერთ წუთში იქმნება და GitHub Student Pack-ით სტუდენტს კრედიტი ეძლევა. რასაც აქ ისწავლი, სხვა პროვაიდერზეც იგივეა.</p>
+<div class="callout warn"><span class="ci">⚠️</span><div><p><strong>ფასი საათობრივად ითვლება</strong>, თვეში რამდენიმე დოლარამდე. Droplet-ის გამორთვა (Power Off) გადახდას <strong>არ</strong> აჩერებს — რესურსი შენთვისაა დაჯავშნილი. გადახდა მხოლოდ <strong>Destroy</strong>-ის შემდეგ ჩერდება. ანგარიშზე დააყენე <strong>Billing alert</strong>.</p></div></div></article>
+<article class="blk" data-slides="9"><span class="anchor" id="s-9"></span><div class="bh"><h3>ნაბიჯი 1 · Droplet-ის ფორმა</h3><a class="chip" href="index.html#/9" data-go="9" title="პრეზენტაციაში გახსნა">სლაიდი 9</a></div>
 <p>DigitalOcean-ის panel-ში: <strong>Create → Droplets</strong>.</p>
 <table>
 <thead>
@@ -234,116 +267,167 @@ html[data-theme=dark] .codebox{background:#1a1d23}
 <tr>
 <td><strong>Region</strong></td>
 <td>Frankfurt</td>
-<td>საქართველოსთან ახლოს — სწრაფი პასუხი</td>
+<td>სერვერი მომხმარებლებთან ახლოს უნდა იყოს — მოთხოვნა ნაკლებ გზას გადის და სწრაფად ბრუნდება</td>
 </tr>
 <tr>
 <td><strong>Image</strong></td>
 <td>Ubuntu 24.04 (LTS) x64</td>
-<td>სერვერების ყველაზე პოპულარული Linux; LTS — წლების განმავლობაში განახლებები</td>
+<td>სერვერების ყველაზე პოპულარული Linux; <strong>LTS</strong> (Long Term Support) — განახლებები წლების განმავლობაში</td>
 </tr>
 <tr>
 <td><strong>Size</strong></td>
-<td>Basic → Regular → უმცირესი (1 vCPU, 1 GB RAM)</td>
-<td>საკმარისია API-სთვის და ბაზისთვის</td>
-</tr>
-<tr>
-<td><strong>Authentication</strong></td>
-<td><strong>SSH Key</strong> → New SSH Key → ჩასვი <code>.pub</code>-ის ხაზი</td>
-<td>პაროლი არ გვინდა</td>
+<td>Basic → Regular → 1 vCPU · 1 GB RAM · 25 GB</td>
+<td>ზუსტად ის, რაც წინა სლაიდზე გამოვთვალეთ</td>
 </tr>
 <tr>
 <td><strong>Hostname</strong></td>
 <td><code>lms-server</code></td>
-<td>სერვერის სახელი prompt-ში</td>
+<td>სერვერის სახელი — ტერმინალში ის გამოჩნდება</td>
+</tr>
+<tr>
+<td><strong>Authentication</strong></td>
+<td>?</td>
+<td>Password თუ SSH Key — ეს შემდეგი ნაწილის თემაა</td>
 </tr>
 </tbody>
 </table>
-<p><strong>Create Droplet</strong> → დაახლოებით ერთ წუთში Droplet-ის გვერდზე გამოჩნდება მისი <strong>IPv4 მისამართი</strong>, მაგ. <code>164.90.12.34</code>.</p>
-<div class="callout warn"><span class="ci">⚠️</span><div><p><strong>ფასი საათობრივად ითვლება</strong>, თვეში რამდენიმე დოლარამდე. Droplet-ის გამორთვა (Power Off) გადახდას <strong>არ</strong> აჩერებს — რესურსი შენთვისაა დაჯავშნილი. გადახდა მხოლოდ <strong>Destroy</strong>-ის შემდეგ ჩერდება. ანგარიშზე დააყენე <strong>Billing alert</strong>.</p></div></div>
-<div class="callout tip"><span class="ci">👉</span><div><p>თუ ოდესმე SSH-ით ვეღარ შედიხარ (მაგ. firewall-ით საკუთარი თავი ჩაკეტე), Droplet-ის გვერდზე არის <strong>Console</strong> — ტერმინალი პირდაპირ ბრაუზერში. ეს სათადარიგო კარია.</p></div></div></article>
-<article class="blk" data-slides="11"><span class="anchor" id="s-11"></span><div class="bh"><h3>ნაბიჯი 3 · Termius — სერვერთან კავშირი</h3><a class="chip" href="index.html#/11" data-go="11" title="პრეზენტაციაში გახსნა">სლაიდი 11</a></div>
-<p><strong>Termius</strong> — SSH კლიენტი: სერვერების სია, შენახული გასაღებები, რამდენიმე tab ერთად და ჩაშენებული SFTP (ფაილების დათვალიერება). შიგნით ის ზუსტად იმას აკეთებს, რასაც ტერმინალში <code>ssh root@164.90.12.34</code> — უბრალოდ IP-ს და პარამეტრებს ყოველ ჯერზე აღარ კრეფ.</p>
-<p><strong>1. გასაღების შემოტანა.</strong> გასაღები უკვე შევქმენით WSL-ში (ნაბიჯი 1). Termius-ს იგივე გასაღებს ვაძლევთ — ახალს არ ვქმნით, რომ WSL-იდანაც და Termius-იდანაც ერთი გასაღებით შევიდეთ:</p>
+<p>ფორმის ბოლოს <strong>Authentication</strong>-ში უნდა ავირჩიოთ, როგორ შევალთ სერვერზე. სანამ ავირჩევთ, უნდა გავიგოთ, რა არის SSH.</p></article>
+<h2 class="sec" id="sec-5">2 · SSH</h2>
+<article class="blk" data-slides="10"><span class="anchor" id="s-10"></span><div class="bh"><h3>ნაწილი 2 · SSH</h3><a class="chip" href="index.html#/10" data-go="10" title="პრეზენტაციაში გახსნა">სლაიდი 10</a></div>
+<p>სერვერთან ფიზიკურად ვერ მიხვალ. როგორ შეხვიდე მასში — და ისე, რომ სხვამ ვერ შეძლოს.</p></article>
+<article class="blk" data-slides="11"><span class="anchor" id="s-11"></span><div class="bh"><h3>პრობლემა: Password? — ბოტები უკვე გელოდებიან</h3><a class="chip" href="index.html#/11" data-go="11" title="პრეზენტაციაში გახსნა">სლაიდი 11</a></div>
+<p>სერვერი მონაცემთა ცენტრშია, სხვა ქვეყანაში — ფიზიკურად მასთან ვერ მიხვალ. <strong>SSH</strong> (Secure Shell) შენს ტერმინალს სერვერს აკავშირებს: შენ კრეფ, ბრძანება <strong>სერვერზე</strong> სრულდება, შედეგი შენთან ჩანს. მთელი კავშირი <strong>დაშიფრულია</strong>.</p>
+<p>შესასვლელად სერვერმა უნდა იცოდეს, რომ ეს <strong>შენ</strong> ხარ. პირველი აზრი — პაროლი. მაგრამ ინტერნეტში ბოტები უწყვეტად ამოწმებენ ყველა IP მისამართს და SSH-ზე პაროლებს არჩევენ (<code>admin/admin</code>, <code>root/123456</code>...). ახალი სერვერის ლოგში ასეთი ცდები <strong>რამდენიმე წუთში</strong> ჩნდება:</p>
+<div class="codebox"><div class="ch"><span>სერვერის შესვლის ლოგი</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln">Invalid user admin from 45.x.x.x</span><span class="ln">Invalid user test from 103.x.x.x</span><span class="ln">Failed password for root from 194.x.x.x</span></code></pre></div>
+<p>ამიტომ Authentication-ში ვირჩევთ <strong>SSH Key</strong>-ს — პაროლი საერთოდ არ იქნება, და ბოტებს გამოსაცნობი არაფერი დარჩებათ.</p></article>
+<article class="blk" data-slides="12"><span class="anchor" id="s-12"></span><div class="bh"><h3>როგორ მუშაობს SSH გასაღები</h3><a class="chip" href="index.html#/12" data-go="12" title="პრეზენტაციაში გახსნა">სლაიდი 12</a></div>
+<p>SSH გასაღები <strong>ორი ნაწილისგან</strong> შედგება, რომლებიც ერთმანეთს მათემატიკურად ემთხვევა — როგორც საკეტი და მისი გასაღები:</p>
+<ul>
+<li>🔒 <strong>საჯარო ნაწილი (საკეტი)</strong> — ინახება <strong>სერვერზე</strong>. სერვერმა იცის: „ვისაც ამ საკეტის გასაღები აქვს, ის შევუშვა“.</li>
+<li>🔑 <strong>პირადი ნაწილი (გასაღები)</strong> — ინახება <strong>მხოლოდ შენთან</strong>, შენს კომპიუტერზე.</li>
+</ul>
+<p><strong>როგორ ხდება შესვლა:</strong></p>
+<ol>
+<li>შენ სერვერს ეუბნები: „შემიშვი“.</li>
+<li>სერვერი საჯარო ნაწილით ამზადებს ამოცანას, რომლის ამოხსნაც <strong>მხოლოდ</strong> შესაბამის პირად გასაღებს შეუძლია, და გიგზავნის.</li>
+<li>შენი კომპიუტერი ამოცანას პირადი გასაღებით ხსნის და პასუხს უბრუნებს. სწორია — შეხვედი.</li>
+</ol>
+<p>მთავარი: <strong>პირადი გასაღები ქსელში არასოდეს მიდის</strong> — მიდის მხოლოდ ამოხსნა. ამიტომ მისი „მოსმენა“ ან სერვერიდან მოპარვა შეუძლებელია: სერვერზე მხოლოდ საკეტია.</p>
+<p>საჯარო ნაწილის მოპარვა საშიში არ არის — საკეტით კარს ვერ გააღებ. ამიტომ ერთ საკეტს ბევრ კარზე კიდებ: ყველა შენს სერვერზე, GitHub-ზეც. პირადი კი პაროლზე მნიშვნელოვანია.</p>
+<div class="callout warn"><span class="ci">⚠️</span><div><p>პირადი გასაღები <strong>არ</strong> გაუგზავნო არავის, <strong>არ</strong> ჩასვა ჩატში და <strong>არ</strong> ატვირთო GitHub-ზე.</p></div></div></article>
+<article class="blk" data-slides="13,14"><span class="anchor" id="s-13"></span><span class="anchor" id="s-14"></span><div class="bh"><h3>ნაბიჯი 2 · გასაღების გენერაცია, ჩასმა და ყიდვა</h3><a class="chip" href="index.html#/13" data-go="13" title="პრეზენტაციაში გახსნა">სლაიდი 13</a></div>
+<p><strong>1. გენერაცია — შენს კომპიუტერზე</strong> (Windows-ზე WSL-ში, macOS-ზე Terminal-ში). ერთხელ იქმნება — ყველა სერვერზე და GitHub-ზეც გამოგადგება:</p>
+<div class="codebox"><div class="ch"><span>WSL</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="gp">$ </span>ssh-keygen<span class="w"> </span>-t<span class="w"> </span>ed25519<span class="w"> </span>-C<span class="w"> </span><span class="s2">"giorgi@mail.ge"</span></span><span class="ln"><span class="go">Enter file in which to save the key (/home/giorgi/.ssh/id_ed25519):   ← Enter</span></span><span class="ln"><span class="go">Enter passphrase (empty for no passphrase):                           ← სურვილისამებრ</span></span><span class="ln"><span class="go">Your identification has been saved in /home/giorgi/.ssh/id_ed25519</span></span></code></pre></div>
+<ul>
+<li><code>-t ed25519</code> — ალგორითმი: თანამედროვე, მოკლე და ძლიერი.</li>
+<li><code>-C</code> — კომენტარი, რომ იცოდე, ვისი გასაღებია.</li>
+<li><strong>passphrase</strong> — პირადი გასაღების პაროლი: თუ ლეპტოპი მოიპარეს, მის გარეშე გასაღები უსარგებლოა. სწავლისას შეგიძლია ცარიელი დატოვო.</li>
+</ul>
+<p>შეიქმნა ორი ნაწილი: <code>id_ed25519</code> — პირადი 🔑 (რჩება შენთან), <code>id_ed25519.pub</code> — საჯარო 🔒 (მიდის სერვერზე).</p>
+<p><strong>2. ჩასმა.</strong> საჯარო ნაწილის ტექსტი:</p>
+<div class="codebox"><div class="ch"><span>WSL</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="gp">$ </span>cat<span class="w"> </span>~/.ssh/id_ed25519.pub</span></code></pre></div>
+<p>Droplet-ის ფორმაში: <strong>Authentication → SSH Key → New SSH Key</strong> → ჩასვი ეს ერთი ხაზი, დაარქვი სახელი (მაგ. <code>laptop</code>).</p>
+<p><strong>3. ყიდვა.</strong> <strong>Create Droplet</strong> → დაახლოებით ერთ წუთში Droplet-ის გვერდზე გამოჩნდება მისი <strong>IPv4 მისამართი</strong>, მაგ. <code>164.90.12.34</code>. DigitalOcean-მა საკეტი უკვე დადო სერვერზე — და რადგან Password არ ავირჩიეთ, პაროლით შესვლა იქ საერთოდ გამორთულია.</p>
+<div class="callout tip"><span class="ci">👉</span><div><p>თუ ოდესმე SSH-ით ვეღარ შედიხარ, Droplet-ის გვერდზე არის <strong>Console</strong> — ტერმინალი პირდაპირ ბრაუზერში. ეს სათადარიგო კარია.</p></div></div></article>
+<h2 class="sec" id="sec-6">3 · დაკავშირება</h2>
+<article class="blk" data-slides="15"><span class="anchor" id="s-15"></span><div class="bh"><h3>ნაწილი 3 · სერვერთან დაკავშირება</h3><a class="chip" href="index.html#/15" data-go="15" title="პრეზენტაციაში გახსნა">სლაიდი 15</a></div>
+<p>ჯერ ჩვეულებრივი ტერმინალით — რომ დავინახოთ, რა ხდება სინამდვილეში. მერე Termius-ით — რომ გავიგოთ, რატომ გვჭირდება ცალკე აპლიკაცია.</p></article>
+<article class="blk" data-slides="16"><span class="anchor" id="s-16"></span><div class="bh"><h3>ნაბიჯი 3 · დაკავშირება ტერმინალით</h3><a class="chip" href="index.html#/16" data-go="16" title="პრეზენტაციაში გახსნა">სლაიდი 16</a></div>
+<div class="codebox"><div class="ch"><span>WSL</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="gp">giorgi@laptop:~$ </span>ssh<span class="w"> </span>root@164.90.12.34</span><span class="ln"><span class="go">The authenticity of host '164.90.12.34' can't be established.</span></span><span class="ln"><span class="go">ED25519 key fingerprint is SHA256:Xb9...</span></span><span class="ln"><span class="go">Are you sure you want to continue connecting (yes/no)? yes</span></span><span class="ln"> </span><span class="ln"><span class="go">Welcome to Ubuntu 24.04.3 LTS</span></span></code></pre></div>
+<ul>
+<li><code>ssh root@164.90.12.34</code> — <strong>ვინ</strong> შედის (<code>root</code>) <strong>@</strong> <strong>სად</strong> (IP). ახალ სერვერზე ერთადერთი user root-ია — ადმინისტრატორი.</li>
+<li><strong>fingerprint</strong> — სერვერის „თითის ანაბეჭდი“. ამ სერვერს პირველად ვხედავთ, ამიტომ ვეკითხებით — <code>yes</code>. კომპიუტერი მას იმახსოვრებს და თუ შემდეგში შეიცვლება, გაგაფრთხილებს (შეიძლება ვინმე შუაში ჩაჯდა).</li>
+<li>პაროლი <strong>არ</strong> უკითხავს: <code>ssh</code>-მა შენი პირადი გასაღები თვითონ იპოვა (<code>~/.ssh/id_ed25519</code>) და ამოცანა ამოხსნა.</li>
+</ul>
+<p><strong>ყურადღება prompt-ს:</strong> იყო <code>giorgi@laptop</code>, გახდა <code>root@lms-server</code>. ერთ ფანჯარაში ხარ, მაგრამ ბრძანებები უკვე <strong>სერვერზე</strong> სრულდება.</p>
+<div class="codebox"><div class="ch"><span>Droplet</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="gp">root@lms-server:~# </span><span class="nb">exit</span></span><span class="ln"><span class="go">logout</span></span></code></pre></div>
+<p><code>exit</code> — კავშირის დახურვა, ისევ შენს კომპიუტერზე ხარ.</p></article>
+<article class="blk" data-slides="17"><span class="anchor" id="s-17"></span><div class="bh"><h3>ნაბიჯი 4 · რატომ Termius</h3><a class="chip" href="index.html#/17" data-go="17" title="პრეზენტაციაში გახსნა">სლაიდი 17</a></div>
+<p>ტერმინალით შესვლა მუშაობს, მაგრამ ყოველ ჯერზე უნდა გახსოვდეს IP, user და რომელი გასაღები. როცა სერვერი ხუთია — ხუთი IP. და ერთ ფანჯარაში ერთი სერვერია.</p>
+<p><strong>Termius</strong> — SSH კლიენტი, რომელიც ამას ალაგებს:</p>
+<ul>
+<li>სერვერების <strong>სია</strong> — სახელით, ერთი დაჭერით შესვლა;</li>
+<li>შენახული <strong>გასაღებები</strong>;</li>
+<li>რამდენიმე <strong>tab</strong> ერთად (ერთში ლოგი, მეორეში ბრძანებები);</li>
+<li>ჩაშენებული <strong>SFTP</strong> — სერვერის ფაილების დათვალიერება.</li>
+</ul>
+<p>შიგნით ის ზუსტად იმას აკეთებს, რაც წინა სლაიდზე ტერმინალში — <code>ssh root@164.90.12.34</code>.</p>
+<p><strong>1. გასაღების შემოტანა.</strong> Termius-ს იგივე პირად გასაღებს ვაძლევთ — ახალს არ ვქმნით, რომ ტერმინალიდანაც და Termius-იდანაც ერთი გასაღებით შევიდეთ:</p>
 <div class="codebox"><div class="ch"><span>WSL</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="gp">$ </span>cat<span class="w"> </span>~/.ssh/id_ed25519</span><span class="ln"><span class="go">-----BEGIN OPENSSH PRIVATE KEY-----</span></span><span class="ln"><span class="go">...</span></span></code></pre></div>
-<p>Termius → <strong>Keychain</strong> → <strong>Key</strong> → <strong>Import</strong> (ან New Key) → მთელი ტექსტი, <code>-----BEGIN</code>-იდან <code>-----END</code>-ის ჩათვლით, ჩასვი <strong>Private key</strong> ველში.</p>
-<p><strong>2. Host.</strong> <strong>Hosts → New Host</strong>:</p>
+<p>Termius → <strong>Keychain</strong> → <strong>Key</strong> → <strong>Import</strong> → მთელი ტექსტი, <code>-----BEGIN</code>-იდან <code>-----END</code>-ის ჩათვლით, ჩასვი <strong>Private key</strong> ველში.</p>
+<p><strong>2. Host.</strong> <strong>Hosts → New Host</strong>: Label <code>lms-server</code>, Address — Droplet-ის IP, Username <code>root</code>, Key — ის, რაც ახლა შემოვიტანეთ.</p>
+<p><strong>3. Connect</strong> — ორჯერ დააჭირე Host-ს. პირველად Termius-იც იკითხავს fingerprint-ს — <strong>Continue</strong>.</p>
+<div class="callout warn"><span class="ci">⚠️</span><div><p>პირადი გასაღების ტექსტი მხოლოდ Termius-ის ველში ჩასვი — <strong>არა</strong> ჩატში, არა სხვაგან.</p></div></div>
+<div class="callout note"><span class="ci">💡</span><div><p>ამიერიდან <strong>სერვერზე</strong> ყველაფერს Termius-ში ვაკეთებთ. შენს კომპიუტერზე (<code>git</code>, <code>ssh-keygen</code>, მოგვიანებით <code>rsync</code> და <code>docker</code>) — WSL-ში.</p></div></div></article>
+<h2 class="sec" id="sec-7">4 · სერვერზე</h2>
+<article class="blk" data-slides="18"><span class="anchor" id="s-18"></span><div class="bh"><h3>ნაწილი 4 · სერვერზე — პირველი ბრძანებები</h3><a class="chip" href="index.html#/18" data-go="18" title="პრეზენტაციაში გახსნა">სლაიდი 18</a></div>
+<p>სერვერს ეკრანი და მაუსი არ აქვს — მხოლოდ ტერმინალი. დღეს საბაზისო ბრძანებებს ვსწავლობთ; Linux-ს სიღრმეში შემდეგ ლექციაზე გავივლით.</p></article>
+<article class="blk" data-slides="19"><span class="anchor" id="s-19"></span><div class="bh"><h3>ტერმინალის ანატომია</h3><a class="chip" href="index.html#/19" data-go="19" title="პრეზენტაციაში გახსნა">სლაიდი 19</a></div>
+<div class="codebox"><div class="ch"><span>Termius · root@lms-server</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code></code></pre></div>
 <table>
 <thead>
 <tr>
-<th>ველი</th>
-<th>მნიშვნელობა</th>
+<th>ნაწილი</th>
+<th>რას ნიშნავს</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>Label</td>
+<td><code>root</code></td>
+<td>ვინ ხარ — user</td>
+</tr>
+<tr>
 <td><code>lms-server</code></td>
+<td>რომელ კომპიუტერზე ხარ (Droplet-ის Hostname)</td>
 </tr>
 <tr>
-<td>Address</td>
-<td>Droplet-ის IP</td>
+<td><code>~</code></td>
+<td>სად ხარ ახლა (<code>~</code> = სახლის საქაღალდე)</td>
 </tr>
 <tr>
-<td>Username</td>
-<td><code>root</code> (ცალკე user-ს მოგვიანებით შევქმნით)</td>
+<td><code>#</code></td>
+<td>root — ადმინისტრატორი; ჩვეულებრივ user-ს <code>$</code> აქვს</td>
 </tr>
 <tr>
-<td>Key</td>
-<td>ის, რაც ახლა შემოვიტანეთ</td>
+<td><code>ls</code></td>
+<td>ბრძანება — რა გააკეთოს</td>
+</tr>
+<tr>
+<td><code>-la</code></td>
+<td>ოფციები — როგორ</td>
+</tr>
+<tr>
+<td><code>/etc</code></td>
+<td>არგუმენტი — რაზე</td>
 </tr>
 </tbody>
 </table>
-<p><strong>3. Connect.</strong> პირველად Termius იტყვის, რომ სერვერის „თითის ანაბეჭდი“ (fingerprint) უცნობია: ამ სერვერს პირველად ვხედავთ — <strong>Continue</strong>. Termius მას იმახსოვრებს და თუ შემდეგში შეიცვლება, გაგაფრთხილებს (შეიძლება ვინმე შუაში ჩაჯდა).</p>
-<div class="callout warn"><span class="ci">⚠️</span><div><p>გასაღების ტექსტი მხოლოდ Termius-ის ველში ჩასვი — <strong>არა</strong> ჩატში, არა სხვაგან. ის პაროლზე მნიშვნელოვანია.</p></div></div>
-<div class="callout note"><span class="ci">💡</span><div><p>გასაღებს Termius-ში <strong>არ</strong> ვქმნით: მაშინ ის მხოლოდ Termius-ში იცხოვრებდა, WSL-ის ბრძანებები კი (<code>rsync</code>, <code>scp</code>, <code>ssh-copy-id</code>, <code>deploy.sh</code>) — მომდევნო ლექციებზე — ვერ შევიდოდნენ.</p></div></div></article>
-<article class="blk" data-slides="12,13"><span class="anchor" id="s-12"></span><span class="anchor" id="s-13"></span><div class="bh"><h3>ნაბიჯი 4 · პირველი შესვლა</h3><a class="chip" href="index.html#/12" data-go="12" title="პრეზენტაციაში გახსნა">სლაიდი 12</a></div>
-<p>Termius-ში <code>lms-server</code> → Connect:</p>
-<div class="codebox"><div class="ch"><span>Termius · root@lms-server</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="go">Welcome to Ubuntu 24.04.3 LTS</span></span><span class="ln"><span class="gp">root@lms-server:~# hostname          # </span>სერვერის<span class="w"> </span>სახელი</span><span class="ln"><span class="go">lms-server</span></span><span class="ln"><span class="gp">root@lms-server:~# </span>df<span class="w"> </span>-h<span class="w"> </span>/<span class="w">           </span><span class="c1"># დისკი: რამდენია თავისუფალი</span></span><span class="ln"><span class="go">/dev/vda1    24G  2.1G   22G   9% /</span></span><span class="ln"><span class="gp">root@lms-server:~# </span>free<span class="w"> </span>-h<span class="w">           </span><span class="c1"># RAM</span></span><span class="ln"><span class="go">Mem:   961Mi  310Mi  420Mi</span></span></code></pre></div>
-<p>ეს ნამდვილი Ubuntu 24.04 სერვერია ფრანკფურტში. ეკრანი და მაუსი არ აქვს — მხოლოდ ტერმინალი. Linux-ის ბრძანებებს შემდეგ ლექციაზე სწორედ აქ, Termius-ში ვისწავლით.</p>
-<p>prompt-ში <code>#</code> ნიშნავს, რომ <strong>root</strong> ხარ. root-ით მუშაობა სახიფათოა — ამიტომ პირველივე საქმე ცალკე user-ის შექმნაა.</p></article>
-<h2 class="sec" id="sec-6">3 · დაცვა</h2>
-<article class="blk" data-slides="14"><span class="anchor" id="s-14"></span><div class="bh"><h3>ნაწილი 3 · პირველი დღის დაცვა</h3><a class="chip" href="index.html#/14" data-go="14" title="პრეზენტაციაში გახსნა">სლაიდი 14</a></div>
-<p>ბოტები ახალ სერვერს წუთებში პოულობენ. ოთხი ნაბიჯი, რომელიც ყოველ ახალ სერვერზე ვაკეთებთ.</p></article>
-<article class="blk" data-slides="15"><span class="anchor" id="s-15"></span><div class="bh"><h3>ნაბიჯი 5 · ცალკე user</h3><a class="chip" href="index.html#/15" data-go="15" title="პრეზენტაციაში გახსნა">სლაიდი 15</a></div>
-<p>root-ის ნაცვლად ვქმნით ჩვეულებრივ user-ს, რომელსაც საჭიროებისას <code>sudo</code> შეუძლია:</p>
-<div class="codebox"><div class="ch"><span>Termius · root@lms-server</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="gp"># </span>adduser<span class="w"> </span>giorgi<span class="w">                   </span><span class="c1"># ახალი user — ითხოვს პაროლს, დანარჩენზე Enter</span></span><span class="ln"><span class="gp"># </span>usermod<span class="w"> </span>-aG<span class="w"> </span>sudo<span class="w"> </span>giorgi<span class="w">          </span><span class="c1"># -aG: დაამატე ჯგუფში sudo</span></span></code></pre></div>
-<p>ბოლო ბრძანება root-ის <code>~/.ssh</code> საქაღალდეს (შენი საჯარო გასაღებით) ახალ user-ს უკოპირებს და მფლობელად მას ნიშნავს — ასე <code>giorgi</code>-თიც გასაღებით შეხვალ.</p>
-<p>Termius-ში შექმენი <strong>მეორე Host</strong> — იგივე IP და გასაღები, ოღონდ Username: <code>giorgi</code> (Label: <code>lms-server</code>). ძველი, root-ის Host შეგიძლია წაშალო, როცა ყველაფერი შემოწმდება. ახალი Host → Connect:</p>
-<div class="codebox"><div class="ch"><span>Termius · giorgi@lms-server</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="gp">giorgi@lms-server:~$ </span>sudo<span class="w"> </span>whoami</span><span class="ln"><span class="go">[sudo] password for giorgi:</span></span></code></pre></div>
-<p><code>adduser</code>-ში მითითებული პაროლი <strong>შესვლისთვის არ გამოიყენება</strong> — ის მხოლოდ <code>sudo</code>-სთვისაა. შესვლა ისევ გასაღებით ხდება.</p></article>
-<article class="blk" data-slides="16"><span class="anchor" id="s-16"></span><div class="bh"><h3>ნაბიჯი 6 · SSH-ის კონფიგი: root-ით და პაროლით — აკრძალულია</h3><a class="chip" href="index.html#/16" data-go="16" title="პრეზენტაციაში გახსნა">სლაიდი 16</a></div>
-<p>SSH სერვერის (<code>sshd</code>) პარამეტრები <code>/etc/ssh/</code>-შია. მთავარ ფაილს არ ვეხებით — ვქმნით საკუთარს <code>sshd_config.d</code> საქაღალდეში:</p>
-<div class="codebox"><div class="ch"><span>Termius · giorgi@lms-server</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code></code></pre></div>
-<div class="codebox"><div class="ch"><span>00-hardening.conf</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="na">PermitRootLogin no</span></span><span class="ln"><span class="na">PasswordAuthentication no</span></span></code></pre></div>
+<p><strong>სამი ღილაკი, რომელიც დროს დაგიზოგავს:</strong></p>
 <ul>
-<li><code>PermitRootLogin no</code> — root-ით შესვლა აკრძალულია (მის სახელს ყველა ბოტი იცის).</li>
-<li><code>PasswordAuthentication no</code> — პაროლით შესვლა აკრძალულია, მხოლოდ გასაღებით.</li>
+<li><code>Tab</code> — ფაილის ან ბრძანების სახელის ავტოშევსება.</li>
+<li><code>↑</code> / <code>↓</code> — წინა ბრძანებები.</li>
+<li><code>Ctrl + C</code> — გაშვებული ბრძანების <strong>გაჩერება</strong> (ტერმინალში ეს კოპირება არ არის!). Termius-ში კოპირება — მონიშვნა, ჩასმა — მარჯვენა ღილაკი.</li>
 </ul>
-<div class="codebox"><div class="ch"><span>Termius · giorgi@lms-server</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="gp">$ </span>sudo<span class="w"> </span>sshd<span class="w"> </span>-t<span class="w">                  </span><span class="c1"># სინტაქსის შემოწმება: ცარიელი პასუხი = OK</span></span><span class="ln"><span class="gp">$ </span>sudo<span class="w"> </span>systemctl<span class="w"> </span>restart<span class="w"> </span>ssh<span class="w">    </span><span class="c1"># ცვლილების ამოქმედება</span></span><span class="ln"><span class="gp">$ </span>sudo<span class="w"> </span>sshd<span class="w"> </span>-T<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>-E<span class="w"> </span><span class="s2">"permitrootlogin|passwordauthentication"</span></span><span class="ln"><span class="go">permitrootlogin no</span></span></code></pre></div>
-<p><code>sshd -T</code> აჩვენებს <strong>საბოლოო</strong> პარამეტრებს, რომლითაც SSH რეალურად მუშაობს.</p>
-<p><strong>რატომ <code>00-</code>?</strong> SSH ერთ პარამეტრზე <strong>პირველ</strong> ნანახ მნიშვნელობას იღებს, <code>sshd_config.d</code>-ის ფაილებს კი ანბანის მიხედვით კითხულობს. DigitalOcean-ს იქ შეიძლება უკვე ედოს <code>50-cloud-init.conf</code> — <code>00</code> მასზე ადრე იკითხება.</p>
-<div class="callout warn"><span class="ci">⚠️</span><div><p><strong>მიმდინარე Termius-ის tab არ დახურო</strong>, სანამ <strong>ახალ</strong> tab-ში არ შეამოწმებ, რომ <code>giorgi</code>-ს Host-ით შესვლა მუშაობს. თუ რამე შეგეშალა, ძველი სესიით გაასწორებ. თუ მაინც ჩაიკეტე — Droplet-ის <strong>Console</strong> ბრაუზერში.</p></div></div></article>
-<article class="blk" data-slides="17"><span class="anchor" id="s-17"></span><div class="bh"><h3>ნაბიჯი 7 · firewall: ufw</h3><a class="chip" href="index.html#/17" data-go="17" title="პრეზენტაციაში გახსნა">სლაიდი 17</a></div>
-<p><strong>firewall</strong> — „დაცვა კარებთან“: წყვეტს, რომელ port-ზე შეიძლება ინტერნეტიდან შემოსვლა. Ubuntu-ში მისი მარტივი ინტერფეისია <strong>ufw</strong> (uncomplicated firewall). ჩართვის შემდეგ <strong>ყველა</strong> შემოსული კავშირი იბლოკება, გარდა იმისა, რაც ცალკე დაუშვი.</p>
-<div class="codebox"><div class="ch"><span>Termius · giorgi@lms-server</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="gp">$ </span>sudo<span class="w"> </span>ufw<span class="w"> </span>allow<span class="w"> </span>OpenSSH<span class="w">        </span><span class="c1"># port 22 — ჯერ ეს!</span></span><span class="ln"><span class="gp">$ </span>sudo<span class="w"> </span>ufw<span class="w"> </span><span class="nb">enable</span></span><span class="ln"><span class="go">Command may disrupt existing ssh connections. Proceed with operation (y|n)? y</span></span><span class="ln"><span class="go">Firewall is active and enabled on system startup</span></span><span class="ln"> </span><span class="ln"><span class="gp">$ </span>sudo<span class="w"> </span>ufw<span class="w"> </span>status</span><span class="ln"><span class="go">Status: active</span></span><span class="ln"><span class="go">To          Action   From</span></span></code></pre></div>
-<p>შემდეგ ლექციაზე, Nginx-ის დაყენებისას, დავამატებთ port 80-ს (HTTP), მოგვიანებით — 443-ს (HTTPS). ბაზის port (5432) კი <strong>არასოდეს</strong> გაიხსნება ინტერნეტისთვის.</p>
-<div class="callout warn"><span class="ci">⚠️</span><div><p><code>ufw enable</code>-მდე <strong>აუცილებლად</strong> <code>ufw allow OpenSSH</code> — სხვა შემთხვევაში firewall შენს SSH კავშირსაც დაბლოკავს და სერვერზე ვეღარ შეხვალ (დაგრჩება მხოლოდ Droplet Console).</p></div></div></article>
-<article class="blk" data-slides="18"><span class="anchor" id="s-18"></span><div class="bh"><h3>ნაბიჯი 8 · განახლება და swap</h3><a class="chip" href="index.html#/18" data-go="18" title="პრეზენტაციაში გახსნა">სლაიდი 18</a></div>
-<p><strong>განახლებები</strong> — ახალ სერვერზე პირველივე დღეს ვაყენებთ (უსაფრთხოების პატჩები):</p>
-<div class="codebox"><div class="ch"><span>Termius · giorgi@lms-server</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code></code></pre></div>
-<p><code>&amp;&amp;</code> — მეორე ბრძანება მხოლოდ მაშინ სრულდება, თუ პირველი წარმატებით დასრულდა.</p>
-<p><strong>swap</strong> — დისკზე გამოყოფილი ადგილი, რომელსაც სისტემა RAM-ად იყენებს, როცა ნამდვილი RAM ივსება. დისკი RAM-ზე ბევრად ნელია, მაგრამ swap-ის გარეშე მეხსიერების ამოწურვისას Linux პროცესებს <strong>კლავს</strong> (OOM killer). ჩვენს 1 GB-იან სერვერზე მოგვიანებით .NET-ის build-იც მოგვიწევს და ბაზაც — swap დაგვაზღვევს.</p>
-<div class="codebox"><div class="ch"><span>Termius · giorgi@lms-server</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="gp">$ </span>sudo<span class="w"> </span>fallocate<span class="w"> </span>-l<span class="w"> </span>2G<span class="w"> </span>/swapfile<span class="w">                          </span><span class="c1"># 2 GB ფაილი</span></span><span class="ln"><span class="gp">$ </span>sudo<span class="w"> </span>chmod<span class="w"> </span><span class="m">600</span><span class="w"> </span>/swapfile<span class="w">                                </span><span class="c1"># მხოლოდ root</span></span><span class="ln"><span class="gp">$ </span>sudo<span class="w"> </span>mkswap<span class="w"> </span>/swapfile<span class="w">                                   </span><span class="c1"># swap-ად მომზადება</span></span><span class="ln"><span class="gp">$ </span>sudo<span class="w"> </span>swapon<span class="w"> </span>/swapfile<span class="w">                                   </span><span class="c1"># ჩართვა</span></span><span class="ln"><span class="gp">$ </span><span class="nb">echo</span><span class="w"> </span><span class="s1">'/swapfile none swap sw 0 0'</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>sudo<span class="w"> </span>tee<span class="w"> </span>-a<span class="w"> </span>/etc/fstab<span class="w">   </span><span class="c1"># reboot-ის შემდეგაც</span></span><span class="ln"> </span><span class="ln"><span class="gp">$ </span>free<span class="w"> </span>-h</span><span class="ln"><span class="go">       total   used   free</span></span><span class="ln"><span class="go">Mem:   961Mi  320Mi  410Mi</span></span></code></pre></div>
-<p><code>/etc/fstab</code> — ფაილი, რომელსაც სისტემა ჩართვისას კითხულობს. <code>tee -a</code> ფაილის ბოლოს ამატებს ხაზს root-ის უფლებით (<code>sudo echo ... &gt;&gt; file</code> არ იმუშავებს — გადამისამართებას შენი user აკეთებს და არა sudo).</p></article>
-<article class="blk" data-slides="19"><span class="anchor" id="s-19"></span><div class="bh"><h3>ნაბიჯი 9 · ~/.ssh/config — WSL-ის ბრძანებებისთვის</h3><a class="chip" href="index.html#/19" data-go="19" title="პრეზენტაციაში გახსნა">სლაიდი 19</a></div>
-<p>სერვერზე ჩვენ Termius-ით ვმუშაობთ. მაგრამ შემდეგ ლექციებზე <strong>შენი კომპიუტერიდან</strong> (WSL) გავუშვებთ ბრძანებებს, რომლებიც სერვერს თვითონ უკავშირდება: <code>rsync</code> (ფაილების ატვირთვა), <code>scp</code>, <code>ssh-copy-id</code>, <code>deploy.sh</code>. Termius-ის Host-ებს ისინი ვერ ხედავენ — მათ WSL-ის „მისამართების წიგნი“ სჭირდებათ, <code>~/.ssh/config</code>:</p>
-<div class="codebox"><div class="ch"><span>~/.ssh/config</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln">Host lms</span><span class="ln">    HostName 164.90.12.34</span><span class="ln">    User giorgi</span><span class="ln">    IdentityFile ~/.ssh/id_ed25519</span></code></pre></div>
-<p>შემოწმება — WSL-იდან:</p>
-<div class="codebox"><div class="ch"><span>WSL</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="gp">$ </span>ssh<span class="w"> </span>lms</span></code></pre></div>
-<p><code>lms</code> — შენ მიერ მოფიქრებული მოკლე სახელი. ის იმუშავებს ყველა SSH-ზე დაფუძნებულ ბრძანებაში — შემდეგ ლექციაზე ფაილებს ასე ავტვირთავთ: <code>rsync -avz ./ lms:/var/www/portfolio/</code>.</p></article>
-<h2 class="sec" id="sec-7">შეჯამება</h2>
-<article class="blk" data-slides="20"><span class="anchor" id="s-20"></span><div class="bh"><h3>შპარგალკა: ახალი სერვერის ჩეკლისტი</h3><a class="chip" href="index.html#/20" data-go="20" title="პრეზენტაციაში გახსნა">სლაიდი 20</a></div>
-<p><strong>💻 შენს კომპიუტერზე (ერთხელ):</strong></p>
+<div class="callout warn"><span class="ci">⚠️</span><div><p>root-ს ყველაფრის უფლება აქვს — მათ შორის სისტემის გაფუჭების, შეკითხვის გარეშე. არ გაუშვა ბრძანება, რომლის მნიშვნელობაც არ იცი. სწორად როგორ ვიმუშაოთ root-ის გარეშე — შემდეგ ლექციაზე.</p></div></div></article>
+<article class="blk" data-slides="20"><span class="anchor" id="s-20"></span><div class="bh"><h3>ვინ და სად ვარ: whoami · pwd · ls · cd</h3><a class="chip" href="index.html#/20" data-go="20" title="პრეზენტაციაში გახსნა">სლაიდი 20</a></div>
+<div class="codebox"><div class="ch"><span>Termius · root@lms-server</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="gp"># </span>whoami<span class="w">          </span><span class="c1"># ვინ ვარ</span></span><span class="ln"><span class="go">root</span></span><span class="ln"><span class="gp"># </span>hostname<span class="w">        </span><span class="c1"># რომელ კომპიუტერზე ვარ</span></span><span class="ln"><span class="go">lms-server</span></span><span class="ln"><span class="gp"># </span><span class="nb">pwd</span><span class="w">             </span><span class="c1"># რომელ საქაღალდეში ვარ (print working directory)</span></span><span class="ln"><span class="go">/root</span></span><span class="ln"><span class="gp"># </span>ls<span class="w"> </span>/<span class="w">            </span><span class="c1"># რა არის ფესვში</span></span><span class="ln"><span class="go">bin  boot  etc  home  root  tmp  usr  var ...</span></span><span class="ln"><span class="gp"># </span><span class="nb">cd</span><span class="w"> </span>/etc<span class="w">         </span><span class="c1"># გადასვლა</span></span><span class="ln"><span class="gp"># </span>ls<span class="w">              </span><span class="c1"># რა არის აქ</span></span><span class="ln"><span class="go">hostname  hosts  os-release  ssh  ...</span></span><span class="ln"><span class="gp"># </span><span class="nb">cd</span><span class="w"> </span>~<span class="w">            </span><span class="c1"># სახლში დაბრუნება</span></span></code></pre></div>
+<p>Windows-ში დისკები ასოებითაა (<code>C:\</code>). Linux-ში <strong>ერთი ხეა</strong>, რომელიც <code>/</code>-დან იწყება — ყველაფერი მის შიგნითაა. root-ის სახლი <code>/root</code>-ია, ამიტომ <code>pwd</code> სწორედ მას აჩვენებს. <code>/etc</code>-ში პროგრამების პარამეტრები ინახება — მაგალითად <code>ssh</code> საქაღალდე.</p>
+<p>ფაილური სისტემის დანარჩენ ნაწილს და ფაილებთან მუშაობას შემდეგ ლექციაზე დეტალურად გავივლით.</p></article>
+<article class="blk" data-slides="21"><span class="anchor" id="s-21"></span><div class="bh"><h3>რა ვიყიდეთ: ის მივიღეთ, რაც ავირჩიეთ?</h3><a class="chip" href="index.html#/21" data-go="21" title="პრეზენტაციაში გახსნა">სლაიდი 21</a></div>
+<p>ფორმაში ავირჩიეთ Ubuntu 24.04, 1 vCPU, 1 GB RAM და 25 GB დისკი. ვამოწმებთ ბრძანებებით:</p>
+<div class="codebox"><div class="ch"><span>Termius · root@lms-server</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="gp"># </span>cat<span class="w"> </span>/etc/os-release<span class="w">       </span><span class="c1"># cat — ფაილის შიგთავსის ჩვენება: რომელი Linux-ია</span></span><span class="ln"><span class="go">PRETTY_NAME="Ubuntu 24.04.3 LTS"</span></span><span class="ln"><span class="gp"># </span>nproc<span class="w">                     </span><span class="c1"># პროცესორის ბირთვები</span></span><span class="ln"><span class="go">1</span></span><span class="ln"><span class="gp"># </span>free<span class="w"> </span>-h<span class="w">                   </span><span class="c1"># RAM (-h — ადამიანისთვის გასაგები ერთეულებით)</span></span><span class="ln"><span class="go">       total   used   free</span></span><span class="ln"><span class="go">Mem:   961Mi  310Mi  420Mi</span></span><span class="ln"><span class="gp"># </span>df<span class="w"> </span>-h<span class="w"> </span>/<span class="w">                   </span><span class="c1"># დისკი: რამდენია და რამდენი დარჩა</span></span><span class="ln"><span class="go">/dev/vda1    24G  2.1G   22G   9% /</span></span><span class="ln"><span class="gp"># </span>uptime<span class="w">                    </span><span class="c1"># რამდენი ხანია ჩართულია</span></span></code></pre></div>
+<p><code>free -h</code>-ში ჩანს, რომ ~300 MB უკვე Ubuntu-ს უჭირავს — ზუსტად ისე, როგორც პირველ ნაწილში დავთვალეთ. დანარჩენი ჩვენი Nginx-ის, API-ს და ბაზისთვისაა.</p>
+<p><code>uptime</code> — ეს სერვერი ახლა 24/7 იმუშავებს, სანამ არ წაშლი (Destroy).</p></article>
+<h2 class="sec" id="sec-8">შეჯამება</h2>
+<article class="blk" data-slides="22"><span class="anchor" id="s-22"></span><div class="bh"><h3>შპარგალკა</h3><a class="chip" href="index.html#/22" data-go="22" title="პრეზენტაციაში გახსნა">სლაიდი 22</a></div>
+<p><strong>🛒 სერვერის არჩევა და ყიდვა</strong></p>
+<ol>
+<li>ჩამოწერე, რა იმუშავებს სერვერზე, და დაითვალე RAM — ჩვენთვის 1 GB.</li>
+<li>DigitalOcean → Create → Droplets: Frankfurt · Ubuntu 24.04 LTS · Basic 1 vCPU / 1 GB / 25 GB · Hostname.</li>
+<li>Authentication: <strong>SSH Key</strong> → New SSH Key → <code>.pub</code>-ის ხაზი.</li>
+<li>Create Droplet → IP მისამართი. Power Off-იც ფასიანია — მხოლოდ Destroy აჩერებს გადახდას.</li>
+</ol>
+<p><strong>🔑 კავშირი</strong></p>
 <table>
 <thead>
 <tr>
@@ -354,109 +438,103 @@ html[data-theme=dark] .codebox{background:#1a1d23}
 <tbody>
 <tr>
 <td><code>ssh-keygen -t ed25519 -C "email"</code></td>
-<td>გასაღებების წყვილი</td>
+<td>გასაღების ორივე ნაწილი შენს კომპიუტერზე</td>
 </tr>
 <tr>
 <td><code>cat ~/.ssh/id_ed25519.pub</code></td>
-<td>საჯარო ნაწილი — DigitalOcean-ში/GitHub-ზე</td>
+<td>საჯარო ნაწილი — DigitalOcean-ში</td>
+</tr>
+<tr>
+<td><code>ssh root@&lt;IP&gt;</code> / <code>exit</code></td>
+<td>შესვლა ტერმინალით / გასვლა</td>
 </tr>
 <tr>
 <td>Termius: Keychain → Import, Hosts → New Host</td>
-<td>სერვერთან კავშირი</td>
-</tr>
-<tr>
-<td><code>~/.ssh/config</code> → <code>Host lms</code></td>
-<td>მოკლე სახელი WSL-ისთვის: <code>rsync … lms:</code></td>
+<td>შენახული სერვერი, ერთი დაჭერით შესვლა</td>
 </tr>
 </tbody>
 </table>
-<p><strong>🖥️ ყოველ ახალ სერვერზე:</strong></p>
+<p><strong>🐧 სერვერზე</strong></p>
 <table>
 <thead>
 <tr>
-<th>ნაბიჯი</th>
 <th>ბრძანება</th>
+<th>რას აკეთებს</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>user</td>
-<td><code>adduser giorgi</code> · <code>usermod -aG sudo giorgi</code></td>
+<td><code>whoami</code> / <code>hostname</code></td>
+<td>ვინ ვარ / რომელ კომპიუტერზე</td>
 </tr>
 <tr>
-<td>გასაღები user-ს</td>
-<td><code>rsync --archive --chown=giorgi:giorgi ~/.ssh /home/giorgi</code></td>
+<td><code>pwd</code> / <code>ls</code> / <code>cd</code> / <code>clear</code></td>
+<td>სად ვარ / რა არის აქ / გადასვლა / გასუფთავება</td>
 </tr>
 <tr>
-<td>SSH-ის დაცვა</td>
-<td><code>00-hardening.conf</code> → <code>sshd -t</code> → <code>systemctl restart ssh</code> (ძველი ფანჯარა ღიაა!)</td>
+<td><code>cat &lt;ფაილი&gt;</code></td>
+<td>ფაილის შიგთავსი</td>
 </tr>
 <tr>
-<td>firewall</td>
-<td><code>ufw allow OpenSSH</code> → <code>ufw enable</code></td>
-</tr>
-<tr>
-<td>განახლება</td>
-<td><code>apt update &amp;&amp; apt upgrade -y</code></td>
-</tr>
-<tr>
-<td>swap</td>
-<td><code>fallocate</code> · <code>chmod 600</code> · <code>mkswap</code> · <code>swapon</code> · <code>/etc/fstab</code></td>
+<td><code>nproc</code> / <code>free -h</code> / <code>df -h /</code> / <code>uptime</code></td>
+<td>CPU / RAM / დისკი / რამდენი ხანია ჩართულია</td>
 </tr>
 </tbody>
 </table></article>
-<h2 class="sec" id="sec-8">პრაქტიკა</h2>
-<article class="blk" data-slides="21"><span class="anchor" id="s-21"></span><div class="bh"><h3>კლასში დავალება: ჩემი პირველი სერვერი</h3><a class="chip" href="index.html#/21" data-go="21" title="პრეზენტაციაში გახსნა">სლაიდი 21</a></div>
-<p>დავალება · Droplet + SSH</p>
+<h2 class="sec" id="sec-9">პრაქტიკა</h2>
+<article class="blk" data-slides="23"><span class="anchor" id="s-23"></span><div class="bh"><h3>კლასში დავალება: ჩემი პირველი სერვერი</h3><a class="chip" href="index.html#/23" data-go="23" title="პრეზენტაციაში გახსნა">სლაიდი 23</a></div>
+<p>დავალება · ყიდვა + დაკავშირება</p>
 <h3>ნაბიჯები</h3>
 <ul>
-<li>WSL-ში <code>ssh-keygen -t ed25519</code> → <code>.pub</code> → DigitalOcean: Frankfurt · Ubuntu 24.04 · Basic · <strong>SSH Key</strong> · <code>lms-server</code></li>
+<li>WSL-ში <code>ssh-keygen -t ed25519</code> → <code>cat ~/.ssh/id_ed25519.pub</code></li>
+<li>DigitalOcean: Frankfurt · Ubuntu 24.04 · Basic 1 GB · <strong>SSH Key</strong> (<code>.pub</code>) · <code>lms-server</code> → Create → დაიმახსოვრეთ IP</li>
+<li>WSL-ში <code>ssh root@&lt;IP&gt;</code> → <code>yes</code> → <code>hostname</code> → <code>exit</code></li>
 <li><strong>Termius</strong>: Keychain → Import (პირადი გასაღები) → New Host (IP, <code>root</code>) → Connect</li>
-<li><code>adduser &lt;სახელი&gt;</code> → <code>usermod -aG sudo &lt;სახელი&gt;</code> → <code>rsync</code> <code>~/.ssh</code> → <code>/home/&lt;სახელი&gt;</code></li>
-<li>Termius-ში მეორე Host — Username <code>&lt;სახელი&gt;</code> → Connect → <code>sudo whoami</code></li>
+<li>Termius-ში: <code>whoami</code>, <code>pwd</code>, <code>cat /etc/os-release</code>, <code>nproc</code>, <code>free -h</code>, <code>df -h /</code> — ემთხვევა იმას, რაც ფორმაში აირჩიეთ?</li>
 </ul>
 <h3>✓ მზადაა, როცა</h3>
-<p>Termius-ით ახალი user-ით შედიხართ სერვერზე პაროლის გარეშე, და <code>sudo whoami</code> აბრუნებს <code>root</code></p>
+<p>ტერმინალითაც და Termius-ითაც პაროლის გარეშე შედიხართ, ხოლო <code>free -h</code> და <code>df -h /</code> აჩვენებს ~1 GB RAM-ს და ~25 GB დისკს</p>
 <h3>⭐ ბონუსი</h3>
 <ul>
-<li><code>~/.ssh/config</code>-ში ჩაწერეთ <code>Host lms</code> → შედით უბრალოდ <code>ssh lms</code>-ით</li>
+<li>Termius-ში იმავე Host-ზე მეორე tab გახსენით → ორივეში <code>uptime</code> — ორივე ერთი და იგივე სერვერია</li>
 </ul>
 <h3>💡 მინიშნება</h3>
-<p><code>Permission denied (publickey)</code> — Termius-ში სხვა გასაღებია არჩეული, ან DigitalOcean-ში სხვა <code>.pub</code> ჩასვით. Termius-ში ჩასვით <strong>პირადი</strong> (<code>id_ed25519</code>), DigitalOcean-ში — <strong>საჯარო</strong> (<code>id_ed25519.pub</code>).</p></article>
-<h2 class="sec" id="sec-9">შეჯამება</h2>
-<article class="blk" data-slides="22"><span class="anchor" id="s-22"></span><div class="bh"><h3>შეამოწმე, რა დაგამახსოვრდა</h3><a class="chip" href="index.html#/22" data-go="22" title="პრეზენტაციაში გახსნა">სლაიდი 22</a></div>
+<p><code>Permission denied (publickey)</code> — DigitalOcean-ში სხვა <code>.pub</code> ჩასვით, ან Termius-ში სხვა გასაღებია არჩეული. DigitalOcean-ში — <strong>საჯარო</strong> (<code>id_ed25519.pub</code>), Termius-ში — <strong>პირადი</strong> (<code>id_ed25519</code>).</p></article>
+<h2 class="sec" id="sec-10">შეჯამება</h2>
+<article class="blk" data-slides="24"><span class="anchor" id="s-24"></span><div class="bh"><h3>შეამოწმე, რა დაგამახსოვრდა</h3><a class="chip" href="index.html#/24" data-go="24" title="პრეზენტაციაში გახსნა">სლაიდი 24</a></div>
 <p>ეს კითხვები შემდეგი ლექციის დასაწყისშიც დაისმება.</p>
-<div class="selfcheck"><div class="sh">✅ შეამოწმე თავი <small>დაფიქრდი, მერე გახსენი პასუხი</small></div><details><summary>SSH-ის რომელი გასაღები რჩება შენთან და რომელი მიდის სერვერზე?</summary><div class="ans">პირადი (<code>id_ed25519</code>) — მხოლოდ შენს კომპიუტერზე, არავის აჩვენო. საჯარო (<code>id_ed25519.pub</code>) — სერვერზე, <code>~/.ssh/authorized_keys</code>-ში</div></details><details><summary>რატომ ჯობია გასაღები პაროლს?</summary><div class="ans">პაროლს ბოტები უწყვეტად არჩევენ (brute force); გასაღების გამოცნობა პრაქტიკულად შეუძლებელია და მისი „მოპარვა“ სერვერიდან არ შეიძლება — იქ მხოლოდ საჯარო ნაწილია</div></details><details><summary>რატომ ვქმნით ცალკე user-ს და ვკრძალავთ root-ით შესვლას?</summary><div class="ans">root-ს ყველაფრის უფლება აქვს და მის სახელს ყველა ბოტი იცის. ცალკე user-ით ვმუშაობთ, საჭიროებისას <code>sudo</code>-თი — შეცდომაც და შეტევაც ნაკლებ ზიანს აყენებს</div></details><details><summary>რას აკეთებს <code>ufw</code> და რომელი port უნდა გავხსნათ ჩართვამდე?</summary><div class="ans"><code>ufw</code> — firewall: ყველა შემოსულ კავშირს ბლოკავს, გარდა ნებადართულისა. ჩართვამდე აუცილებლად <code>ufw allow OpenSSH</code> (port 22) — თორემ საკუთარ თავს ჩაკეტავ</div></details><details><summary>SSH-ის კონფიგი შეცვალე. რა გააკეთო, ძველ ფანჯარას რომ დახურავ?</summary><div class="ans">ჯერ Termius-ის ახალ tab-ში შეამოწმე, რომ ახალი user-ით შესვლა მუშაობს. ძველი სესია ღია დატოვე — თუ რამე გაფუჭდა, მისით გაასწორებ</div></details><details><summary>Droplet გამოვრთე (Power Off). ფული აღარ ჩამოგეჭრება?</summary><div class="ans">ჩამოგეჭრება — გამორთული Droplet-იც ფასიანია, რადგან რესურსი შენთვისაა დაჯავშნილი. გადახდა მხოლოდ <strong>Destroy</strong>-ის შემდეგ ჩერდება</div></details></div></article>
-<article class="blk" data-slides="23"><span class="anchor" id="s-23"></span><div class="bh"><h3>შეჯამება · დღეს ვისწავლეთ</h3><a class="chip" href="index.html#/23" data-go="23" title="პრეზენტაციაში გახსნა">სლაიდი 23</a></div>
+<div class="selfcheck"><div class="sh">✅ შეამოწმე თავი <small>დაფიქრდი, მერე გახსენი პასუხი</small></div><details><summary>რატომ არ გამოდგება ჩემი ლეპტოპი API-ს სერვერად?</summary><div class="ans">სერვერი 24/7 უნდა იყოს ჩართული და ჰქონდეს საჯარო, მუდმივი IP. ლეპტოპს ხურავ, სახლის IP იცვლება და გარედან მიუწვდომელია — ამიტომ ვქირაობთ VPS-ს</div></details><details><summary>როგორ მივხვდეთ, რა ზომის სერვერი გვჭირდება?</summary><div class="ans">ვწერთ, რა იმუშავებს მასზე (Ubuntu, Nginx, API, ბაზა) და ვთვლით მათ RAM-ს ერთად. ჩვენთვის ~0.7 GB → 1 GB RAM, 1 vCPU, 25 GB. ვიწყებთ პატარით — საჭიროებისას Resize</div></details><details><summary>SSH გასაღების რომელი ნაწილი სად ინახება?</summary><div class="ans">საჯარო (საკეტი, <code>.pub</code>) — სერვერზე; პირადი (გასაღები) — მხოლოდ შენს კომპიუტერზე. შესვლისას პირადი გასაღები ქსელში არ მიდის — მიდის მხოლოდ სერვერის ამოცანის ამოხსნა</div></details><details><summary>რატომ ვირჩევთ SSH Key-ს და არა Password-ს?</summary><div class="ans">ბოტები ინტერნეტის ყველა IP-ზე უწყვეტად არჩევენ პაროლებს. გასაღების გამოცნობა პრაქტიკულად შეუძლებელია, ხოლო SSH Key-ით შექმნილ Droplet-ზე პაროლით შესვლა საერთოდ გამორთულია</div></details><details><summary>თუ ტერმინალით <code>ssh root@IP</code> მუშაობს, რისთვის გვჭირდება Termius?</summary><div class="ans">Termius შიგნით იგივე SSH-ს აკეთებს, მაგრამ ინახავს სერვერების სიას, გასაღებებს, ხსნის რამდენიმე tab-ს და აქვს SFTP — IP-ს და პარამეტრებს ყოველ ჯერზე აღარ კრეფ</div></details><details><summary>Droplet გამოვრთე (Power Off). ფული აღარ ჩამოგეჭრება?</summary><div class="ans">ჩამოგეჭრება — გამორთული Droplet-იც ფასიანია, რადგან რესურსი შენთვისაა დაჯავშნილი. გადახდა მხოლოდ <strong>Destroy</strong>-ის შემდეგ ჩერდება</div></details></div></article>
+<article class="blk" data-slides="25"><span class="anchor" id="s-25"></span><div class="bh"><h3>შეჯამება · დღეს ვისწავლეთ</h3><a class="chip" href="index.html#/25" data-go="25" title="პრეზენტაციაში გახსნა">სლაიდი 25</a></div>
 <ul>
-<li>🔑 <strong>SSH გასაღები</strong> — წყვილი: საჯარო <code>.pub</code> (საკეტი) მიდის სერვერზე <code>authorized_keys</code>-ში; პირადი (გასაღები) მხოლოდ შენთანაა, უფლებით <code>600</code>.</li>
-<li>💧 <strong>Droplet</strong> — DigitalOcean-ის VPS: Frankfurt, Ubuntu 24.04, SSH Key. ფასი საათობრივია; Power Off გადახდას არ აჩერებს — მხოლოდ Destroy.</li>
-<li>🛡️ <strong>პირველი დღის დაცვა</strong> — ცალკე user <code>sudo</code>-თი; <code>PermitRootLogin no</code>, <code>PasswordAuthentication no</code>; <code>ufw</code> მხოლოდ SSH-ით; <code>apt upgrade</code>; swap.</li>
-<li>🖥️ <strong>Termius</strong> — სერვერზე ამიერიდან მასში ვმუშაობთ (იგივე გასაღებით, რაც WSL-შია). ⚡ <strong><code>~/.ssh/config</code></strong> — <code>lms</code> სახელი WSL-ის ბრძანებებისთვის (<code>rsync</code>, <code>scp</code>, სკრიპტები).</li>
+<li>🛒 <strong>სერვერის არჩევა</strong> — API-ს სჭირდება 24/7 ჩართული კომპიუტერი საჯარო IP-ით → ვქირაობთ VPS-ს. ზომას ვარჩევთ იმით, რაც იმუშავებს: Ubuntu + Nginx + API + PostgreSQL ≈ 1 GB RAM. ფასი საათობრივია; Power Off გადახდას არ აჩერებს — მხოლოდ Destroy.</li>
+<li>🔑 <strong>SSH</strong> — ორი ნაწილი: საჯარო (საკეტი) სერვერზეა, პირადი (გასაღები) მხოლოდ შენთან. შესვლისას სერვერი ამოცანას გიგზავნის, შენი გასაღები მას ხსნის — თავად გასაღები ქსელში არ მიდის. გასაღები <code>ssh-keygen</code>-ით იქმნება, <code>.pub</code> Droplet-ის შექმნისას ისმება.</li>
+<li>⚡ <strong>დაკავშირება</strong> — <code>ssh root@&lt;IP&gt;</code> ტერმინალში; Termius იგივეს აკეთებს, ოღონდ სერვერების სიით, შენახული გასაღებით და tab-ებით. სერვერზე ამიერიდან Termius-ში ვმუშაობთ.</li>
+<li>🐧 <strong>სერვერზე</strong> — <code>whoami</code>, <code>hostname</code>, <code>pwd</code>, <code>ls</code>, <code>cd</code>, <code>cat</code>, <code>nproc</code>, <code>free -h</code>, <code>df -h</code>, <code>uptime</code>.</li>
 </ul>
-<p><strong>შემდეგ ლექციაზე:</strong> Linux — სერვერის ენა. ყველაფერს ამ სერვერზე, Termius-ში ვაკეთებთ.</p>
-<div class="prompt"><div class="ph"><span>🤖 გამოცდა მესამე ლექციაზე</span><button class="copy" type="button">კოპირება</button></div><div class="pb">ვსწავლობ DevOps-ს. მესამე ლექციაზე გავიარეთ: SSH და გასაღებები (ssh-keygen ed25519, public vs private, authorized_keys, known_hosts), DigitalOcean Droplet-ის შექმნა, ცალკე sudo user, sshd-ის დაცვა (PermitRootLogin no, PasswordAuthentication no, sshd -T), ufw firewall, apt upgrade, swap, ~/.ssh/config.
-დამისვი 8 კითხვა სათითაოდ, მარტივიდან რთულისკენ — ნაწილი სიტუაციური იყოს („სერვერზე ვეღარ შევდივარ, რა მოხდა?“). ყოველ პასუხზე შემიფასე და ამიხსენი. ბოლოს მითხარი, რა გავიმეორო. ქართულად.</div></div>
-<div class="prompt"><div class="ph"><span>🤖 SSH-ით ვერ ვუკავშირდები</span><button class="copy" type="button">კოპირება</button></div><div class="pb">SSH-ით ჩემს Ubuntu სერვერს ვერ ვუკავშირდები. დამეხმარე პრობლემის პოვნაში ნაბიჯ-ნაბიჯ, მარტივად და ქართულად: ჯერ დამისვი კითხვები, მერე მირჩიე, რა შევამოწმო. ბრძანება, რომელსაც ვუშვებ: [აქ]. შეცდომის ტექსტი: [აქ]. რა შევცვალე ბოლოს სერვერზე: [აქ]</div></div></article>
-<h2 class="sec" id="sec-10">საშინაო</h2>
-<article class="blk" data-slides="24"><span class="anchor" id="s-24"></span><div class="bh"><h3>საშინაო დავალება: სერვერის დაცვა</h3><a class="chip" href="index.html#/24" data-go="24" title="პრეზენტაციაში გახსნა">სლაიდი 24</a></div>
-<p>lms-server — დაცულია და მზადაა შემდეგი ლექციისთვის</p>
+<p><strong>შემდეგ ლექციაზე:</strong> Linux სიღრმეში — ფაილები, user-ები და <code>sudo</code>, უფლებები, პროცესები, და სერვერის მომზადება სამუშაოდ.</p>
+<div class="prompt"><div class="ph"><span>🤖 გამოცდა მესამე ლექციაზე</span><button class="copy" type="button">კოპირება</button></div><div class="pb">ვსწავლობ DevOps-ს. მესამე ლექციაზე გავიარეთ: როგორ ავარჩიოთ VPS (რა იმუშავებს სერვერზე, RAM/CPU/დისკის გამოთვლა, region), DigitalOcean Droplet-ის შექმნა, SSH და გასაღებები (საჯარო ნაწილი სერვერზე, პირადი ჩემთან, როგორ ხდება შესვლა), ssh-keygen, ssh root@IP, Termius, და პირველი ბრძანებები სერვერზე (whoami, hostname, pwd, ls, cd, cat, nproc, free -h, df -h, uptime).
+დამისვი 8 კითხვა სათითაოდ, მარტივიდან რთულისკენ — ნაწილი სიტუაციური იყოს („შენი აპისთვის რა სერვერს აიღებდი?“). ყოველ პასუხზე შემიფასე და ამიხსენი. ბოლოს მითხარი, რა გავიმეორო. ქართულად.</div></div>
+<div class="prompt"><div class="ph"><span>🤖 SSH-ით ვერ ვუკავშირდები</span><button class="copy" type="button">კოპირება</button></div><div class="pb">SSH-ით ჩემს Ubuntu სერვერს ვერ ვუკავშირდები. დამეხმარე პრობლემის პოვნაში ნაბიჯ-ნაბიჯ, მარტივად და ქართულად: ჯერ დამისვი კითხვები, მერე მირჩიე, რა შევამოწმო. რას ვუშვებ (ტერმინალი ან Termius): [აქ]. შეცდომის ტექსტი: [აქ].</div></div></article>
+<h2 class="sec" id="sec-11">საშინაო</h2>
+<article class="blk" data-slides="26"><span class="anchor" id="s-26"></span><div class="bh"><h3>საშინაო დავალება: ჩემი სერვერის პასპორტი</h3><a class="chip" href="index.html#/26" data-go="26" title="პრეზენტაციაში გახსნა">სლაიდი 26</a></div>
+<p>შემდეგ ლექციაზე Linux-ს ამ სერვერზე სიღრმეში ვსწავლობთ</p>
 <h3>მოთხოვნები</h3>
 <ul>
-<li><code>apt upgrade</code> · <code>00-hardening.conf</code>: root და პაროლი აკრძალულია → <code>restart ssh</code> (ჯერ Termius-ის ახალ tab-ში შეამოწმეთ!)</li>
-<li><code>ufw</code>: მხოლოდ <code>OpenSSH</code> → <code>enable</code></li>
-<li>swap 2 GB (<code>/etc/fstab</code>-ითაც) · WSL-ში <code>~/.ssh/config</code> → <code>ssh lms</code></li>
+<li>ჩამოწერეთ თქვენი პროექტისთვის (LMS): რა იმუშავებს სერვერზე და რატომ არის 1 GB RAM საკმარისი</li>
+<li>Termius-ით სერვერზე: <code>whoami</code>, <code>hostname</code>, <code>cat /etc/os-release</code>, <code>nproc</code>, <code>free -h</code>, <code>df -h /</code>, <code>uptime</code> — ჩაიწერეთ შედეგები</li>
+<li><code>cd /</code> → <code>ls</code> → შედით სამ საქაღალდეში (<code>cd</code>) და ყოველში <code>pwd</code> + <code>ls</code></li>
+<li>საკუთარი სიტყვებით, 3-4 წინადადებით: როგორ შედიხართ სერვერზე პაროლის გარეშე — რომელი ნაწილი სად არის და რა ხდება შესვლისას</li>
 </ul>
 <h3>✓ მზადაა, როცა</h3>
-<p><code>sshd -T</code> — <code>no</code>/<code>no</code>, <code>ufw status</code> — active, <code>free -h</code> — Swap 2.0Gi, <code>ssh lms</code> შედის</p>
+<p>გაქვთ სერვერის მონაცემები (OS, CPU, RAM, დისკი), სამი საქაღალდის შიგთავსი და SSH-ის ახსნა საკუთარი სიტყვებით</p>
 <h3>⭐ ბონუსი</h3>
 <ul>
-<li><code>sudo journalctl -u ssh --since "1 hour ago" | grep -i invalid</code> — ნახეთ, რამდენმა ბოტმა სცადა შესვლა ამ ერთ საათში</li>
+<li><code>ls /etc/ssh</code> — რა ფაილებია? როგორ ფიქრობთ, რომელია SSH სერვერის პარამეტრები? (შემდეგ ლექციაზე მას შევცვლით)</li>
 </ul></article>
   </main>
 </div>
 <script>
-const DECK = "DevOps · 3 — SSH და Droplet — საკუთარი სერვერი";
+const DECK = "DevOps · 3 — საკუთარი სერვერი — არჩევა, ყიდვა და SSH";
 if (matchMedia('(min-width:981px)').matches) document.getElementById('tocd').open = true;
 const blocks = [...document.querySelectorAll('.blk')];
 const tocLinks = [...document.querySelectorAll('nav.toc a[href^="#sec-"]')];

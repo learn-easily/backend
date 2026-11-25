@@ -1,54 +1,43 @@
-# სერვერის დაცვა
+# ჩემი სერვერის პასპორტი
 
-lms-server — დაცულია და მზადაა შემდეგი ლექციისთვის
+შემდეგ ლექციაზე Linux-ს ამ სერვერზე სიღრმეში ვსწავლობთ
 
 ## მოთხოვნები
 
-- `apt upgrade` · `00-hardening.conf`: root და პაროლი აკრძალულია → `restart ssh` (ჯერ Termius-ის ახალ tab-ში შეამოწმეთ!)
-- `ufw`: მხოლოდ `OpenSSH` → `enable`
-- swap 2 GB (`/etc/fstab`-ითაც) · WSL-ში `~/.ssh/config` → `ssh lms`
+- ჩამოწერეთ თქვენი პროექტისთვის (LMS): რა იმუშავებს სერვერზე და რატომ არის 1 GB RAM საკმარისი
+- Termius-ით სერვერზე: `whoami`, `hostname`, `cat /etc/os-release`, `nproc`, `free -h`, `df -h /`, `uptime` — ჩაიწერეთ შედეგები
+- `cd /` → `ls` → შედით სამ საქაღალდეში (`cd`) და ყოველში `pwd` + `ls`
+- საკუთარი სიტყვებით, 3-4 წინადადებით: როგორ შედიხართ სერვერზე პაროლის გარეშე — რომელი ნაწილი სად არის და რა ხდება შესვლისას
 
 ## ✓ მზადაა, როცა
 
-`sshd -T` — `no`/`no`, `ufw status` — active, `free -h` — Swap 2.0Gi, `ssh lms` შედის
+გაქვთ სერვერის მონაცემები (OS, CPU, RAM, დისკი), სამი საქაღალდის შიგთავსი და SSH-ის ახსნა საკუთარი სიტყვებით
 
 ## ⭐ ბონუსი
 
-- `sudo journalctl -u ssh --since "1 hour ago" | grep -i invalid` — ნახეთ, რამდენმა ბოტმა სცადა შესვლა ამ ერთ საათში
+- `ls /etc/ssh` — რა ფაილებია? როგორ ფიქრობთ, რომელია SSH სერვერის პარამეტრები? (შემდეგ ლექციაზე მას შევცვლით)
 
 ## ამოხსნა
 
-```console Termius · lms-server !
-$ sudo nano /etc/ssh/sshd_config.d/00-hardening.conf
-PermitRootLogin no
-PasswordAuthentication no
-
-$ sudo sshd -t                     # ცარიელი პასუხი = OK
-$ sudo systemctl restart ssh
-
-$ sudo ufw allow OpenSSH
-$ sudo ufw enable
-$ sudo ufw status
-Status: active
-OpenSSH     ALLOW    Anywhere
+```console Termius · root@lms-server !
+# cat /etc/os-release
+PRETTY_NAME="Ubuntu 24.04.3 LTS"
+# nproc
+1
+# free -h
+Mem:   961Mi  310Mi  420Mi
+# df -h /
+/dev/vda1    24G  2.1G   22G   9% /
+# cd /
+# ls
+bin  boot  etc  home  root  tmp  usr  var ...
+# cd /var
+# pwd
+/var
+# ls
+backups  cache  lib  log  ...
 ```
 
-```console Termius · lms-server
-$ sudo apt update && sudo apt upgrade -y
+**SSH:** ჩემს კომპიუტერზე ორი ნაწილი შევქმენი `ssh-keygen`-ით. საჯარო ნაწილი (საკეტი) Droplet-ის შექმნისას სერვერზე დაიდო, პირადი (გასაღები) მხოლოდ ჩემთანაა. შესვლისას სერვერი მიგზავნის ამოცანას, რომელსაც მხოლოდ ჩემი პირადი გასაღები ხსნის — თავად გასაღები ქსელში არ მიდის.
 
-$ sudo fallocate -l 2G /swapfile
-$ sudo chmod 600 /swapfile
-$ sudo mkswap /swapfile
-$ sudo swapon /swapfile
-$ echo '/swapfile none swap sw 0 0' | sudo tee -a /etc/fstab
-$ free -h
-```
-
-```plain ~/.ssh/config (WSL-ში)
-Host lms
-    HostName 164.90.12.34
-    User giorgi
-    IdentityFile ~/.ssh/id_ed25519
-```
-
-ფაილის სახელი `00-` იწყება, რადგან SSH ერთ პარამეტრზე **პირველ** ნანახ მნიშვნელობას იღებს, ფაილებს კი ანბანით კითხულობს — `00` ყველაზე ადრე იკითხება.
+**ბონუსი:** `sshd_config` — SSH **სერვერის** პარამეტრები (`d` = daemon, ფონური პროგრამა); `ssh_config` — SSH **კლიენტის**.

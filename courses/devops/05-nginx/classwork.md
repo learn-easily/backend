@@ -4,7 +4,7 @@
 
 ## ნაბიჯები
 
-- სერვერზე: `apt install nginx` → `ufw allow 'Nginx HTTP'` → `http://<IP>` — „Welcome to nginx!“
+- სერვერზე: `apt install nginx` → `ufw allow OpenSSH` + `ufw allow 'Nginx HTTP'` → `ufw enable` → `http://<IP>` — „Welcome to nginx!“
 - `/var/www/portfolio` (თქვენი user-ის) ← WSL-იდან `rsync -avz --delete --exclude .git ./ lms:/var/www/portfolio/`
 - `sites-available/portfolio` — `listen 80`, `root`, `try_files` → `ln -s` → `default`-ის წაშლა
 - `nginx -t` → `reload` → `http://<IP>` — თქვენი portfolio

@@ -4,6 +4,7 @@
 
 ## ნაბიჯები
 
+- root-ით: `adduser <სახელი>` → `usermod -aG sudo <სახელი>` → `rsync --archive --chown=<სახელი>:<სახელი> ~/.ssh /home/<სახელი>` → Termius-ში ახალი Host ამ user-ით → `sudo whoami`
 - `cd ~` → `git clone https://github.com/<username>/my-portfolio.git` → `cd my-portfolio` → `ls -la`
 - `sudo mkdir -p /var/www/portfolio` → `sudo cp -r ~/my-portfolio/* /var/www/portfolio/`
 - `ls -l /var/www/portfolio` — ვისია ფაილები? → `sudo chown -R $USER:$USER /var/www/portfolio` → ისევ `ls -l`
@@ -12,7 +13,7 @@
 
 ## ✓ მზადაა, როცა
 
-`tree /var/www` აჩვენებს `portfolio`-ს ფაილებით, `ls -l`-ში მფლობელი თქვენი user-ია, `index.html`-ში ცვლილება ჩანს
+ახალი user-ით შედიხართ და `sudo whoami` აბრუნებს `root`, `tree /var/www` აჩვენებს `portfolio`-ს ფაილებით, `ls -l`-ში მფლობელი თქვენი user-ია, `index.html`-ში ცვლილება ჩანს
 
 ## ⭐ ბონუსი
 

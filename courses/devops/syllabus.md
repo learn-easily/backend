@@ -28,17 +28,17 @@ Git-ის მოკლე გამეორება DevOps-ის კუთ�
 
 ## საკუთარი სერვერი (4 ლექცია)
 
-### 03. SSH და Droplet — საკუთარი სერვერი
+### 03. საკუთარი სერვერი — არჩევა, ყიდვა და SSH
 
-SSH გასაღებები (public vs private); Droplet-ის შექმნა; ცალკე sudo user; სერვერის დაცვა: root-ით და პაროლით შესვლის აკრძალვა, `ufw` firewall, swap; Termius და `~/.ssh/config`.
+რატომ VPS; როგორ ავარჩიოთ სერვერი (რა იმუშავებს → RAM, CPU, დისკი, region); Droplet-ის შექმნა; SSH: საჯარო ნაწილი სერვერზე, პირადი შენთან, `ssh-keygen`; დაკავშირება ტერმინალით (`ssh root@IP`) და Termius-ით; პირველი ბრძანებები (`whoami`, `pwd`, `ls`, `cd`, `cat`, `free -h`, `df -h`).
 
 ### 04. Linux — სერვერის ენა
 
-ფაილური სისტემა (`/`, `~`, `/etc`, `/var/log`, `/var/www`); ფაილებთან მუშაობა ტერმინალში; `sudo` და `apt`; უფლებები (`chmod`, `chown`); პროცესები და port-ები (`ps`, `htop`, `kill`, `ss -tlnp`) — სერვერზე, Termius-ში.
+საკუთარი sudo user root-ის ნაცვლად; `apt`; ფაილური სისტემა (`/`, `~`, `/etc`, `/var/log`, `/var/www`); ფაილებთან მუშაობა; უფლებები (`chmod`, `chown`); პროცესები და port-ები (`ps`, `htop`, `kill`, `ss -tlnp`); სერვერის მომზადება: root-ით და პაროლით შესვლის აკრძალვა, swap, `~/.ssh/config` — ყველაფერი სერვერზე, Termius-ში.
 
 ### 05. Nginx — საიტი შენს სერვერზე
 
-Nginx-ის დაყენება და `systemctl`; ფაილების ატვირთვა `rsync`-ით; server block (`listen`, `root`, `index`, `try_files`); Angular SPA და „refresh → 404“; ლოგები და 403 / 404 / connection refused-ის მიზეზები.
+Nginx-ის დაყენება და `systemctl`; `ufw` firewall (22 და 80); ფაილების ატვირთვა `rsync`-ით; server block (`listen`, `root`, `index`, `try_files`); Angular SPA და „refresh → 404“; ლოგები და 403 / 404 / connection refused-ის მიზეზები.
 
 ### 06. LMS API სერვერზე — ხელით
 
