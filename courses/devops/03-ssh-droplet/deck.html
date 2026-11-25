@@ -288,8 +288,15 @@ Your identification has been saved in /home/giorgi/.ssh/id_ed25519
 Your public key has been saved in /home/giorgi/.ssh/id_ed25519.pub
 ```
 
-- `-t ed25519` — ალგორითმი: თანამედროვე, მოკლე და ძლიერი.
-- `-C` — კომენტარი, რომ იცოდე, ვისი გასაღებია.
+| ნაწილი | რა არის | რას ნიშნავს |
+|---|---|---|
+| `ssh-keygen` | ბრძანება — „SSH key generator“ | ქმნის გასაღების ორ ნაწილს |
+| `-t ed25519` | ოფცია `-t` („type“) + მისი მნიშვნელობა | გასაღების ტიპი (ალგორითმი): `ed25519` — თანამედროვე, მოკლე და ძლიერი. ძველი ალტერნატივაა `rsa` |
+| `-C "giorgi@mail.ge"` | ოფცია `-C` („comment“) + ტექსტი | კომენტარი გასაღების ბოლოს — რომ იცოდე, ვისია. ბრჭყალები საჭიროა, თუ ტექსტში სიცარიელეა |
+
+ბრძანება ორ კითხვას სვამს:
+
+- **Enter file in which to save the key** — სად შეინახოს. `Enter` = სტანდარტული ადგილი `~/.ssh/id_ed25519` (`~` — შენი სახლის საქაღალდე, `.ssh` — ფარული საქაღალდე გასაღებებისთვის).
 - **passphrase** — პირადი გასაღების პაროლი: თუ ლეპტოპი მოიპარეს, მის გარეშე გასაღები უსარგებლოა. სწავლისას შეგიძლია ცარიელი დატოვო.
 
 შეიქმნა ორი ნაწილი: `id_ed25519` — პირადი 🔑 (რჩება შენთან), `id_ed25519.pub` — საჯარო 🔒 (მიდის სერვერზე).
@@ -299,6 +306,15 @@ Your public key has been saved in /home/giorgi/.ssh/id_ed25519.pub
 ```console WSL
 $ cat ~/.ssh/id_ed25519.pub
 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAI...x9 giorgi@mail.ge
+```
+
+| ნაწილი | რა არის | რას ნიშნავს |
+|---|---|---|
+| `cat` | ბრძანება | ფაილის შიგთავსს ეკრანზე ბეჭდავს |
+| `~/.ssh/id_ed25519.pub` | არგუმენტი — ფაილის გზა | `~` (შენი სახლი) → `.ssh` საქაღალდე → `id_ed25519.pub` ფაილი — საჯარო ნაწილი |
+
+```warn
+ბოლოში **`.pub`** აუცილებელია! `cat ~/.ssh/id_ed25519` (`.pub`-ის გარეშე) **პირად** ნაწილს დაბეჭდავს — ის ფორმაში არ ისმება.
 ```
 
 Droplet-ის ფორმაში: **Authentication → SSH Key → New SSH Key** → ჩასვი ეს ერთი ხაზი, დაარქვი სახელი (მაგ. `laptop`).
@@ -372,7 +388,12 @@ Welcome to Ubuntu 24.04.3 LTS
 root@lms-server:~#
 ```
 
-- `ssh root@164.90.12.34` — **ვინ** შედის (`root`) **@** **სად** (IP). ახალ სერვერზე ერთადერთი user root-ია — ადმინისტრატორი.
+| ნაწილი | რა არის | რას ნიშნავს |
+|---|---|---|
+| `ssh` | ბრძანება — SSH კლიენტი | დაუკავშირდი სერვერს |
+| `root@164.90.12.34` | არგუმენტი: **user** `@` **მისამართი** | `root` — რომელი user-ით შევიდე (ახალ სერვერზე ერთადერთი, ადმინისტრატორი); `@` — „ზე“; `164.90.12.34` — სერვერის IP Droplet-ის გვერდიდან |
+
+- გასაღებს ცალკე არ ვუთითებთ: `ssh` სტანდარტულ ადგილს (`~/.ssh/id_ed25519`) თვითონ ამოწმებს.
 - **fingerprint** — სერვერის „თითის ანაბეჭდი“. ამ სერვერს პირველად ვხედავთ, ამიტომ ვეკითხებით — `yes`. კომპიუტერი მას იმახსოვრებს და თუ შემდეგში შეიცვლება, გაგაფრთხილებს (შეიძლება ვინმე შუაში ჩაჯდა).
 - პაროლი **არ** უკითხავს: `ssh`-მა შენი პირადი გასაღები თვითონ იპოვა (`~/.ssh/id_ed25519`) და ამოცანა ამოხსნა.
 
@@ -384,7 +405,7 @@ logout
 giorgi@laptop:~$
 ```
 
-`exit` — კავშირის დახურვა, ისევ შენს კომპიუტერზე ხარ.
+`exit` — ოფციების და არგუმენტების გარეშე: ხურავს კავშირს, და ისევ შენს კომპიუტერზე ხარ (prompt ისევ `giorgi@laptop`). იგივეს აკეთებს `Ctrl + D`.
   </aside>
 </section>
 
@@ -484,8 +505,10 @@ root@lms-server:~# ls -la /etc
 | `~` | სად ხარ ახლა (`~` = სახლის საქაღალდე) |
 | `#` | root — ადმინისტრატორი; ჩვეულებრივ user-ს `$` აქვს |
 | `ls` | ბრძანება — რა გააკეთოს |
-| `-la` | ოფციები — როგორ |
-| `/etc` | არგუმენტი — რაზე |
+| `-la` | **ოფციები** — `-`-ით იწყება, ცვლის **როგორ** იმუშაოს (`-l` — დეტალურად, `-a` — ფარული ფაილებიც; ერთად შეიძლება დაიწეროს `-la`) |
+| `/etc` | **არგუმენტი** — **რაზე** იმუშაოს (რომელი საქაღალდე) |
+
+ყველა ბრძანება ასე იკითხება: **ბრძანება → ოფციები → არგუმენტები**. ზოგს არცერთი არ სჭირდება (`whoami`), ზოგს მხოლოდ არგუმენტი (`cd /etc`), ზოგს ორივე (`df -h /`). ნებისმიერი ბრძანების ოფციების სია — `<ბრძანება> --help` (მაგ. `ls --help`).
 
 **სამი ღილაკი, რომელიც დროს დაგიზოგავს:**
 
@@ -500,16 +523,58 @@ root-ს ყველაფრის უფლება აქვს — მა�
 </section>
 
 <section class="slide" data-section="4 · სერვერზე">
-  <div class="kicker">ვინ და სად ვარ</div>
-  <h2><span class="c-api">whoami</span> · <span class="c-api">pwd</span> · <span class="c-api">ls</span> · <span class="c-api">cd</span></h2>
-  <div class="grid2" style="grid-template-columns:1.15fr 1fr">
-    <code-block lang="console" cls="in" title="Termius · root@lms-server" style="--d:0.20s">
+  <div class="kicker">ვინ ვარ და სად ვარ</div>
+  <h2><span class="c-api">whoami</span> · <span class="c-api">hostname</span> · <span class="c-api">pwd</span></h2>
+  <div class="grid2" style="grid-template-columns:1fr 1.25fr">
+    <code-block lang="console" cls="big in" title="Termius · root@lms-server" style="--d:0.20s">
 # whoami
 root
 # hostname
 lms-server
 # pwd
 /root
+    </code-block>
+    <table class="t in" style="--d:0.40s;font-size:19px">
+      <tr><th>ბრძანება</th><th>რას აკეთებს</th><th>პასუხი</th></tr>
+      <tr><td class="mono">whoami</td><td>„who am I“ — რომელი user-ით ვარ შესული</td><td><code class="i">root</code> — ადმინისტრატორი</td></tr>
+      <tr><td class="mono">hostname</td><td>კომპიუტერის სახელი</td><td>Droplet-ის ფორმაში ჩაწერილი სახელი</td></tr>
+      <tr><td class="mono">pwd</td><td>„print working directory“ — რომელ საქაღალდეში ვარ</td><td><code class="i">/root</code> — root-ის სახლი</td></tr>
+    </table>
+  </div>
+  <div class="callout step mt2" style="--a:var(--asp)">💡 სამივე ბრძანება <b>ოფციების და არგუმენტების გარეშე</b> მუშაობს — უბრალოდ კითხვაა, პასუხს ეკრანზე ბეჭდავს. ეს სამივე prompt-შიც ჩანს: <code class="i">root@lms-server:~#</code></div>
+  <aside class="study">
+### ვინ ვარ და სად ვარ: whoami · hostname · pwd
+
+ეს სამი ბრძანება სერვერზე შესვლისთანავე გეხმარება ორიენტირებაში. სამივე **ოფციების და არგუმენტების გარეშე** იწერება — უბრალოდ ბრძანების სახელი და Enter.
+
+```console Termius · root@lms-server
+# whoami
+root
+# hostname
+lms-server
+# pwd
+/root
+```
+
+| ბრძანება | სახელის წარმოშობა | რას აკეთებს | პასუხი ჩვენთან |
+|---|---|---|---|
+| `whoami` | „who am I“ — ვინ ვარ | ბეჭდავს user-ს, რომლითაც ხარ შესული | `root` — ადმინისტრატორი, ერთადერთი user ახალ სერვერზე |
+| `hostname` | host + name | ბეჭდავს კომპიუტერის სახელს | `lms-server` — რაც Droplet-ის ფორმაში Hostname-ად ჩავწერეთ |
+| `pwd` | „print working directory“ — დაბეჭდე მიმდინარე საქაღალდე | ბეჭდავს **სრულ გზას** იმ საქაღალდემდე, სადაც ახლა ხარ | `/root` — root user-ის სახლის საქაღალდე |
+
+**სად ჩანს იგივე prompt-ში:** `root@lms-server:~#` — `root` = `whoami`, `lms-server` = `hostname`, `~` = სახლის საქაღალდე (root-ისთვის `/root`). prompt-ში `~` მოკლე ჩანაწერია, `pwd` კი სრულ გზას გაჩვენებს.
+
+```tip
+როცა რამდენიმე სერვერზე და რამდენიმე Termius-ის tab-ში მუშაობ, ბრძანების გაშვებამდე შეამოწმე, **სად** ხარ — `hostname` და `whoami`. ერთი შეცდომით სხვა სერვერზე გაშვებული ბრძანება ნამდვილი პრობლემაა.
+```
+  </aside>
+</section>
+
+<section class="slide" data-section="4 · სერვერზე">
+  <div class="kicker">ნავიგაცია</div>
+  <h2><span class="c-api">ls</span> · <span class="c-api">cd</span> · <span class="c-api">clear</span> — ბრძანება + <span class="c-red">არგუმენტი</span></h2>
+  <div class="grid2" style="grid-template-columns:1fr 1.3fr">
+    <code-block lang="console" cls="in" title="Termius · root@lms-server" style="--d:0.20s">
 # ls /
 bin  boot  etc  home  root  tmp  usr  var ...
 # cd /etc
@@ -518,98 +583,206 @@ bin  boot  etc  home  root  tmp  usr  var ...
 # ls
 hostname  hosts  os-release  ssh  ...
 # cd ~
+# pwd
+/root
 # clear
     </code-block>
-    <div class="col">
-      <table class="t in" style="--d:0.40s;font-size:20px">
-        <tr><th>ბრძანება</th><th>კითხვა</th></tr>
-        <tr><td class="mono">whoami</td><td>ვინ ვარ?</td></tr>
-        <tr><td class="mono">hostname</td><td>რომელ კომპიუტერზე?</td></tr>
-        <tr><td class="mono">pwd</td><td>რომელ საქაღალდეში?</td></tr>
-        <tr><td class="mono">ls</td><td>რა არის აქ?</td></tr>
-        <tr><td class="mono">cd &lt;გზა&gt;</td><td>გადასვლა · <code class="i">cd ~</code> — სახლში</td></tr>
-        <tr><td class="mono">clear</td><td>ეკრანის გასუფთავება</td></tr>
-      </table>
-      <div class="callout step" style="--a:var(--asp)">🌳 Linux-ში დისკები ასოებით არ არის — <b>ერთი ხე</b> <code class="i">/</code>-დან</div>
-    </div>
+    <table class="t in" style="--d:0.40s;font-size:18px">
+      <tr><th>ჩანაწერი</th><th>ნაწილები</th><th>რას აკეთებს</th></tr>
+      <tr><td class="mono">ls</td><td>ბრძანება · არგუმენტის გარეშე</td><td>„list“ — <b>მიმდინარე</b> საქაღალდის შიგთავსი</td></tr>
+      <tr><td class="mono">ls /</td><td><code class="i">/</code> — არგუმენტი: <b>რომელი</b> საქაღალდე</td><td>ფესვის (<code class="i">/</code>) შიგთავსი — იქ გადასვლის გარეშე</td></tr>
+      <tr><td class="mono">cd /etc</td><td><code class="i">/etc</code> — არგუმენტი: <b>სად</b> გადავიდე</td><td>„change directory“ — გადასვლა <code class="i">/etc</code>-ში</td></tr>
+      <tr><td class="mono">cd ~</td><td><code class="i">~</code> — „ჩემი სახლი“</td><td>სახლში დაბრუნება (<code class="i">/root</code>)</td></tr>
+      <tr><td class="mono">clear</td><td>არგუმენტის გარეშე</td><td>ეკრანის გასუფთავება (ან <code class="i">Ctrl + L</code>)</td></tr>
+    </table>
   </div>
+  <div class="callout step mt2" style="--a:var(--asp)">🌳 Linux-ში დისკები ასოებით არ არის (<code class="i">C:\</code>) — <b>ერთი ხე</b> <code class="i">/</code>-დან. <code class="i">/</code>-ით დაწყებული გზა ყოველთვის ფესვიდან ითვლება</div>
   <aside class="study">
-### ვინ და სად ვარ: whoami · pwd · ls · cd
+### ნავიგაცია: ls · cd · clear
+
+აქ პირველად ვხედავთ **არგუმენტს** — სიტყვას ბრძანების შემდეგ, რომელიც ეუბნება, **რაზე** იმუშაოს. ერთი და იგივე ბრძანება არგუმენტით და მის გარეშე სხვადასხვანაირად იქცევა.
 
 ```console Termius · root@lms-server
-# whoami          # ვინ ვარ
-root
-# hostname        # რომელ კომპიუტერზე ვარ
-lms-server
-# pwd             # რომელ საქაღალდეში ვარ (print working directory)
-/root
-# ls /            # რა არის ფესვში
+# ls /
 bin  boot  etc  home  root  tmp  usr  var ...
-# cd /etc         # გადასვლა
-# ls              # რა არის აქ
+# cd /etc
+# pwd
+/etc
+# ls
 hostname  hosts  os-release  ssh  ...
-# cd ~            # სახლში დაბრუნება
-# clear           # ეკრანის გასუფთავება
+# cd ~
+# pwd
+/root
+# clear
 ```
 
-Windows-ში დისკები ასოებითაა (`C:\`). Linux-ში **ერთი ხეა**, რომელიც `/`-დან იწყება — ყველაფერი მის შიგნითაა. root-ის სახლი `/root`-ია, ამიტომ `pwd` სწორედ მას აჩვენებს. `/etc`-ში პროგრამების პარამეტრები ინახება — მაგალითად `ssh` საქაღალდე.
+**`ls`** — „list“, ჩამოთვალე.
 
-ფაილური სისტემის დანარჩენ ნაწილს და ფაილებთან მუშაობას შემდეგ ლექციაზე დეტალურად გავივლით.
+| ჩანაწერი | ნაწილები | შედეგი |
+|---|---|---|
+| `ls` | მხოლოდ ბრძანება | **მიმდინარე** საქაღალდის (სადაც `pwd` გაჩვენებს) შიგთავსი |
+| `ls /` | `/` — არგუმენტი: რომელი საქაღალდე ვნახო | ფესვის შიგთავსი — იქ გადასვლის **გარეშე** |
+| `ls /etc` | `/etc` — არგუმენტი | `/etc`-ის შიგთავსი, საიდანაც არ უნდა იყო |
+
+`ls`-ის პასუხში საქაღალდეები და ფაილები ერთად ჩანს (Termius-ში საქაღალდეები ჩვეულებრივ სხვა ფერისაა). ოფციებს (`-l`, `-a`) შემდეგ ლექციაზე ვნახავთ.
+
+**`cd`** — „change directory“, შეცვალე საქაღალდე. არგუმენტი — **სად** გადახვიდე:
+
+| ჩანაწერი | არგუმენტი | შედეგი |
+|---|---|---|
+| `cd /etc` | `/etc` — `/`-ით იწყება, ანუ ფესვიდან ითვლება (**აბსოლუტური გზა**) | გადასვლა `/etc`-ში, საიდანაც არ უნდა იყო |
+| `cd ~` | `~` — სპეციალური ნიშანი: „ჩემი სახლის საქაღალდე“ | root-ისთვის — `/root` |
+| `cd` | არგუმენტის გარეშე | იგივეა, რაც `cd ~` |
+
+`cd` თავისით არაფერს ბეჭდავს — წარმატების შემთხვევაში უბრალოდ prompt იცვლება (`root@lms-server:/etc#`). შესამოწმებლად — `pwd`. თუ საქაღალდე არ არსებობს: `No such file or directory`.
+
+**`clear`** — ეკრანს ასუფთავებს (ისტორია `↑`-ით მაინც რჩება). იგივე — `Ctrl + L`.
+
+**ფაილური სისტემა.** Windows-ში დისკები ასოებითაა (`C:\`). Linux-ში **ერთი ხეა**, რომელიც `/`-დან იწყება — ყველაფერი მის შიგნითაა: `/root` — root-ის სახლი, `/etc` — პროგრამების პარამეტრები (მაგ. `ssh`), `/home` — სხვა user-ების სახლები, `/var` — ლოგები და საიტები. დანარჩენს შემდეგ ლექციაზე დეტალურად გავივლით.
   </aside>
 </section>
 
 <section class="slide" data-section="4 · სერვერზე">
-  <div class="kicker">რა ვიყიდეთ</div>
-  <h2>შევამოწმოთ: <span class="c-mvc">ის მივიღეთ, რაც ავირჩიეთ?</span></h2>
-  <div class="grid2" style="grid-template-columns:1.15fr 1fr">
+  <div class="kicker">რა ვიყიდეთ · 1</div>
+  <h2><span class="c-api">cat</span> · <span class="c-api">nproc</span> · <span class="c-api">uptime</span> — სისტემა და პროცესორი</h2>
+  <div class="grid2" style="grid-template-columns:1fr 1.3fr">
     <code-block lang="console" cls="in" title="Termius · root@lms-server" style="--d:0.20s">
 # cat /etc/os-release
 PRETTY_NAME="Ubuntu 24.04.3 LTS"
+NAME="Ubuntu"
+VERSION_ID="24.04"
+...
 # nproc
 1
+# uptime
+ 12:04:11 up 6 min,  1 user,
+ load average: 0.02, 0.01, 0.00
+    </code-block>
+    <table class="t in" style="--d:0.40s;font-size:18px">
+      <tr><th>ჩანაწერი</th><th>ნაწილები</th><th>რას გვეუბნება</th></tr>
+      <tr><td class="mono">cat</td><td>„concatenate“ — ფაილის შიგთავსის <b>ბეჭდვა</b></td><td rowspan="2">ფაილში წერია OS-ის სახელი: <b>Ubuntu 24.04 LTS</b> ✓</td></tr>
+      <tr><td class="mono">/etc/os-release</td><td>არგუმენტი: <b>რომელი</b> ფაილი</td></tr>
+      <tr><td class="mono">nproc</td><td>„number of processors“</td><td><b>1</b> ბირთვი = 1 vCPU ✓</td></tr>
+      <tr><td class="mono">uptime</td><td>„up time“ — რამდენი ხანია ჩართულია</td><td><code class="i">up 6 min</code> · <code class="i">1 user</code> — ჩვენ · load — დატვირთვა</td></tr>
+    </table>
+  </div>
+  <aside class="study">
+### რა ვიყიდეთ · 1: cat · nproc · uptime
+
+ფორმაში ავირჩიეთ Ubuntu 24.04, 1 vCPU, 1 GB RAM და 25 GB დისკი. ვამოწმებთ, ეს მივიღეთ თუ არა.
+
+**`cat /etc/os-release`** — რომელი ოპერაციული სისტემაა.
+
+| ნაწილი | რა არის | რას ნიშნავს |
+|---|---|---|
+| `cat` | ბრძანება („concatenate“ — გადაბმა) | ფაილის შიგთავსს ეკრანზე ბეჭდავს. ერთი ფაილით — უბრალოდ აჩვენებს |
+| `/etc/os-release` | არგუმენტი — ფაილის გზა | `/etc` საქაღალდის ფაილი, სადაც სისტემის სახელი და ვერსიაა ჩაწერილი |
+
+```console Termius · root@lms-server
+# cat /etc/os-release
+PRETTY_NAME="Ubuntu 24.04.3 LTS"     ← ადამიანისთვის გასაგები სახელი
+NAME="Ubuntu"
+VERSION_ID="24.04"                   ← ვერსია
+...
+```
+
+`cat`-ს უკვე იცნობ: SSH გასაღების `.pub`-ის ტექსტიც მისით ვნახეთ (`cat ~/.ssh/id_ed25519.pub`). ის ფაილს არ ცვლის — მხოლოდ კითხულობს.
+
+**`nproc`** — „number of processing units“: რამდენი პროცესორის ბირთვია. პასუხი `1` = 1 vCPU, რაც ფორმაში ავირჩიეთ. არგუმენტი არ სჭირდება.
+
+**`uptime`** — რამდენი ხანია სერვერი ჩართულია:
+
+```console Termius · root@lms-server
+# uptime
+ 12:04:11 up 6 min,  1 user,  load average: 0.02, 0.01, 0.00
+```
+
+| ნაწილი | რას ნიშნავს |
+|---|---|
+| `12:04:11` | სერვერის მიმდინარე დრო (სერვერზე ჩვეულებრივ UTC-ია, ჩვენთან +4 სთ) |
+| `up 6 min` | 6 წუთია ჩართულია — ზუსტად მას შემდეგ, რაც Create Droplet დავაჭირეთ |
+| `1 user` | რამდენი კავშირია ახლა შესული — ეს ჩვენ ვართ Termius-იდან |
+| `load average: 0.02, 0.01, 0.00` | პროცესორის საშუალო დატვირთვა ბოლო **1, 5 და 15 წუთში**. 1 vCPU-ზე `1.00` = პროცესორი სრულად დაკავებულია; `0.02` — თითქმის თავისუფალია |
+  </aside>
+</section>
+
+<section class="slide" data-section="4 · სერვერზე">
+  <div class="kicker">რა ვიყიდეთ · 2</div>
+  <h2><span class="c-api">free</span> <span class="c-net">-h</span> · <span class="c-api">df</span> <span class="c-net">-h</span> <span class="c-red">/</span> — RAM და დისკი</h2>
+  <div class="grid2" style="grid-template-columns:1fr 1.25fr">
+    <div class="col">
+      <code-block lang="console" cls="in" title="Termius · root@lms-server" style="--d:0.20s">
 # free -h
-       total   used   free
-Mem:   961Mi  310Mi  420Mi
+       total   used   free  available
+Mem:   961Mi  310Mi  420Mi     650Mi
+      </code-block>
+      <code-block lang="console" cls="in" title="Termius · root@lms-server" style="--d:0.35s">
 # df -h /
 Filesystem  Size  Used Avail Use% Mounted on
 /dev/vda1    24G  2.1G   22G   9% /
-# uptime
- 12:04:11 up 6 min,  1 user,  load average: 0.02
-    </code-block>
-    <div class="col">
-      <table class="t in" style="--d:0.40s;font-size:20px">
-        <tr><th>ბრძანება</th><th>რა ავირჩიეთ</th></tr>
-        <tr><td class="mono">cat /etc/os-release</td><td>🐧 Ubuntu 24.04</td></tr>
-        <tr><td class="mono">nproc</td><td>⚡ 1 vCPU</td></tr>
-        <tr><td class="mono">free -h</td><td>🧠 1 GB RAM</td></tr>
-        <tr><td class="mono">df -h /</td><td>💾 25 GB დისკი</td></tr>
-        <tr><td class="mono">uptime</td><td>⏱️ რამდენი ხანია ჩართულია</td></tr>
-      </table>
-      <div class="callout step" style="--a:var(--net)">310 MB უკვე Ubuntu-ს უჭირავს — ზუსტად ისე, როგორც დავთვალეთ</div>
+      </code-block>
     </div>
+    <table class="t in" style="--d:0.50s;font-size:18px">
+      <tr><th>ნაწილი</th><th>რა არის</th><th>რას ნიშნავს</th></tr>
+      <tr><td class="mono">free</td><td>ბრძანება</td><td>RAM: სულ · დაკავებული · თავისუფალი</td></tr>
+      <tr><td class="mono">df</td><td>ბრძანება</td><td>„disk free“ — დისკის ადგილი</td></tr>
+      <tr><td class="mono">-h</td><td><b>ოფცია</b> — <code class="i">-</code>-ით იწყება</td><td>„human-readable“: <code class="i">961Mi</code>, <code class="i">24G</code> — ბაიტების გრძელი რიცხვის ნაცვლად</td></tr>
+      <tr><td class="mono">/</td><td><b>არგუმენტი</b></td><td>რომელი დისკი — ის, რაზეც ფესვი (<code class="i">/</code>) დგას</td></tr>
+    </table>
   </div>
+  <div class="callout step mt2" style="--a:var(--net)">🧠 <b>961Mi</b> ≈ 1 GB, <b>310Mi</b> უკვე Ubuntu-ს უჭირავს — ზუსტად ისე, როგორც დავთვალეთ · 💾 <b>24G</b> ≈ 25 GB ✓</div>
   <aside class="study">
-### რა ვიყიდეთ: ის მივიღეთ, რაც ავირჩიეთ?
+### რა ვიყიდეთ · 2: free -h · df -h /
 
-ფორმაში ავირჩიეთ Ubuntu 24.04, 1 vCPU, 1 GB RAM და 25 GB დისკი. ვამოწმებთ ბრძანებებით:
+აქ პირველად ვხედავთ **ოფციას** — ის `-`-ით იწყება და ეუბნება ბრძანებას, **როგორ** იმუშაოს. არგუმენტი კი ეუბნება, **რაზე**.
+
+**`free -h`** — RAM (ოპერატიული მეხსიერება).
+
+| ნაწილი | რა არის | რას ნიშნავს |
+|---|---|---|
+| `free` | ბრძანება | ბეჭდავს, რამდენი RAM-ია სულ, დაკავებული და თავისუფალი |
+| `-h` | ოფცია — „human-readable“ | რიცხვებს გასაგებ ერთეულებში აჩვენებს (`Mi` — მეგაბაიტი, `Gi` — გიგაბაიტი). `-h`-ის გარეშე `free` კილობაიტებში ბეჭდავს: `983552` — ძნელად წასაკითხი |
 
 ```console Termius · root@lms-server
-# cat /etc/os-release       # cat — ფაილის შიგთავსის ჩვენება: რომელი Linux-ია
-PRETTY_NAME="Ubuntu 24.04.3 LTS"
-# nproc                     # პროცესორის ბირთვები
-1
-# free -h                   # RAM (-h — ადამიანისთვის გასაგები ერთეულებით)
-       total   used   free
-Mem:   961Mi  310Mi  420Mi
-# df -h /                   # დისკი: რამდენია და რამდენი დარჩა
-/dev/vda1    24G  2.1G   22G   9% /
-# uptime                    # რამდენი ხანია ჩართულია
- 12:04:11 up 6 min,  1 user,  load average: 0.02
+# free -h
+       total   used   free  available
+Mem:   961Mi  310Mi  420Mi     650Mi
+Swap:     0B     0B     0B
 ```
 
-`free -h`-ში ჩანს, რომ ~300 MB უკვე Ubuntu-ს უჭირავს — ზუსტად ისე, როგორც პირველ ნაწილში დავთვალეთ. დანარჩენი ჩვენი Nginx-ის, API-ს და ბაზისთვისაა.
+| სვეტი | რას ნიშნავს |
+|---|---|
+| `total` | სულ RAM — `961Mi` ≈ 1 GB (ნაწილს სისტემა თავისთვის იტოვებს, ამიტომ არა ზუსტად 1024) |
+| `used` | დაკავებული — `310Mi`: ეს უკვე Ubuntu-ს უჭირავს, ზუსტად ისე, როგორც პირველ ნაწილში დავთვალეთ |
+| `free` | სრულიად თავისუფალი |
+| `available` | რამდენის გამოყენება შეუძლია ახალ პროგრამებს (მათ შორის cache-ის ხარჯზე) — **ეს სვეტია მთავარი** |
+| `Swap` | დისკზე „სათადარიგო RAM“ — ჯერ `0B`, შემდეგ ლექციაზე დავამატებთ |
 
-`uptime` — ეს სერვერი ახლა 24/7 იმუშავებს, სანამ არ წაშლი (Destroy).
+**`df -h /`** — დისკის ადგილი.
+
+| ნაწილი | რა არის | რას ნიშნავს |
+|---|---|---|
+| `df` | ბრძანება — „disk free“ | ბეჭდავს დისკის ზომას და თავისუფალ ადგილს |
+| `-h` | ოფცია — „human-readable“ | იგივე, რაც `free`-ში: `24G` ბაიტების ნაცვლად |
+| `/` | არგუმენტი | **რომელი** დისკი გვაინტერესებს — ის, რაზეც ფესვი (`/`) დგას. არგუმენტის გარეშე `df` ყველა დისკს და სისტემის დამხმარე „დისკებს“ ჩამოთვლის — გრძელი და დამაბნეველი სიაა |
+
+```console Termius · root@lms-server
+# df -h /
+Filesystem  Size  Used Avail Use% Mounted on
+/dev/vda1    24G  2.1G   22G   9% /
+```
+
+| სვეტი | რას ნიშნავს |
+|---|---|
+| `Filesystem` | დისკის სახელი სისტემაში (`/dev/vda1` — ვირტუალური დისკის პირველი ნაწილი) |
+| `Size` | სულ — `24G` ≈ 25 GB, რაც ფორმაში ავირჩიეთ |
+| `Used` / `Avail` | დაკავებული (სისტემა — `2.1G`) / თავისუფალი (`22G`) |
+| `Use%` | დაკავებული პროცენტებში. 90%-ზე მეტი — საგანგაშოა: სავსე დისკზე ბაზა და ლოგები ჩერდება |
+| `Mounted on` | სად არის „მიმაგრებული“ ხეში — `/`, ფესვზე |
+
+```tip
+**ოფცია vs არგუმენტი:** ოფცია `-`-ით იწყება და ცვლის, **როგორ** მუშაობს ბრძანება (`-h` — გასაგები ერთეულებით). არგუმენტი ეუბნება, **რაზე** იმუშაოს (`/` — ამ დისკზე, `/etc/os-release` — ამ ფაილზე). ბრძანებას შეიძლება ჰქონდეს ორივე, ერთ-ერთი ან არცერთი.
+```
   </aside>
 </section>
 

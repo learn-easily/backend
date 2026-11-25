@@ -318,14 +318,62 @@ html[data-theme=dark] .codebox{background:#1a1d23}
 <article class="blk" data-slides="13,14"><span class="anchor" id="s-13"></span><span class="anchor" id="s-14"></span><div class="bh"><h3>ნაბიჯი 2 · გასაღების გენერაცია, ჩასმა და ყიდვა</h3><a class="chip" href="index.html#/13" data-go="13" title="პრეზენტაციაში გახსნა">სლაიდი 13</a></div>
 <p><strong>1. გენერაცია — შენს კომპიუტერზე</strong> (Windows-ზე WSL-ში, macOS-ზე Terminal-ში). ერთხელ იქმნება — ყველა სერვერზე და GitHub-ზეც გამოგადგება:</p>
 <div class="codebox"><div class="ch"><span>WSL</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="gp">$ </span>ssh-keygen<span class="w"> </span>-t<span class="w"> </span>ed25519<span class="w"> </span>-C<span class="w"> </span><span class="s2">"giorgi@mail.ge"</span></span><span class="ln"><span class="go">Enter file in which to save the key (/home/giorgi/.ssh/id_ed25519):   ← Enter</span></span><span class="ln"><span class="go">Enter passphrase (empty for no passphrase):                           ← სურვილისამებრ</span></span><span class="ln"><span class="go">Your identification has been saved in /home/giorgi/.ssh/id_ed25519</span></span></code></pre></div>
+<table>
+<thead>
+<tr>
+<th>ნაწილი</th>
+<th>რა არის</th>
+<th>რას ნიშნავს</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ssh-keygen</code></td>
+<td>ბრძანება — „SSH key generator“</td>
+<td>ქმნის გასაღების ორ ნაწილს</td>
+</tr>
+<tr>
+<td><code>-t ed25519</code></td>
+<td>ოფცია <code>-t</code> („type“) + მისი მნიშვნელობა</td>
+<td>გასაღების ტიპი (ალგორითმი): <code>ed25519</code> — თანამედროვე, მოკლე და ძლიერი. ძველი ალტერნატივაა <code>rsa</code></td>
+</tr>
+<tr>
+<td><code>-C "giorgi@mail.ge"</code></td>
+<td>ოფცია <code>-C</code> („comment“) + ტექსტი</td>
+<td>კომენტარი გასაღების ბოლოს — რომ იცოდე, ვისია. ბრჭყალები საჭიროა, თუ ტექსტში სიცარიელეა</td>
+</tr>
+</tbody>
+</table>
+<p>ბრძანება ორ კითხვას სვამს:</p>
 <ul>
-<li><code>-t ed25519</code> — ალგორითმი: თანამედროვე, მოკლე და ძლიერი.</li>
-<li><code>-C</code> — კომენტარი, რომ იცოდე, ვისი გასაღებია.</li>
+<li><strong>Enter file in which to save the key</strong> — სად შეინახოს. <code>Enter</code> = სტანდარტული ადგილი <code>~/.ssh/id_ed25519</code> (<code>~</code> — შენი სახლის საქაღალდე, <code>.ssh</code> — ფარული საქაღალდე გასაღებებისთვის).</li>
 <li><strong>passphrase</strong> — პირადი გასაღების პაროლი: თუ ლეპტოპი მოიპარეს, მის გარეშე გასაღები უსარგებლოა. სწავლისას შეგიძლია ცარიელი დატოვო.</li>
 </ul>
 <p>შეიქმნა ორი ნაწილი: <code>id_ed25519</code> — პირადი 🔑 (რჩება შენთან), <code>id_ed25519.pub</code> — საჯარო 🔒 (მიდის სერვერზე).</p>
 <p><strong>2. ჩასმა.</strong> საჯარო ნაწილის ტექსტი:</p>
 <div class="codebox"><div class="ch"><span>WSL</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="gp">$ </span>cat<span class="w"> </span>~/.ssh/id_ed25519.pub</span></code></pre></div>
+<table>
+<thead>
+<tr>
+<th>ნაწილი</th>
+<th>რა არის</th>
+<th>რას ნიშნავს</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>cat</code></td>
+<td>ბრძანება</td>
+<td>ფაილის შიგთავსს ეკრანზე ბეჭდავს</td>
+</tr>
+<tr>
+<td><code>~/.ssh/id_ed25519.pub</code></td>
+<td>არგუმენტი — ფაილის გზა</td>
+<td><code>~</code> (შენი სახლი) → <code>.ssh</code> საქაღალდე → <code>id_ed25519.pub</code> ფაილი — საჯარო ნაწილი</td>
+</tr>
+</tbody>
+</table>
+<div class="callout warn"><span class="ci">⚠️</span><div><p>ბოლოში <strong><code>.pub</code></strong> აუცილებელია! <code>cat ~/.ssh/id_ed25519</code> (<code>.pub</code>-ის გარეშე) <strong>პირად</strong> ნაწილს დაბეჭდავს — ის ფორმაში არ ისმება.</p></div></div>
 <p>Droplet-ის ფორმაში: <strong>Authentication → SSH Key → New SSH Key</strong> → ჩასვი ეს ერთი ხაზი, დაარქვი სახელი (მაგ. <code>laptop</code>).</p>
 <p><strong>3. ყიდვა.</strong> <strong>Create Droplet</strong> → დაახლოებით ერთ წუთში Droplet-ის გვერდზე გამოჩნდება მისი <strong>IPv4 მისამართი</strong>, მაგ. <code>164.90.12.34</code>. DigitalOcean-მა საკეტი უკვე დადო სერვერზე — და რადგან Password არ ავირჩიეთ, პაროლით შესვლა იქ საერთოდ გამორთულია.</p>
 <div class="callout tip"><span class="ci">👉</span><div><p>თუ ოდესმე SSH-ით ვეღარ შედიხარ, Droplet-ის გვერდზე არის <strong>Console</strong> — ტერმინალი პირდაპირ ბრაუზერში. ეს სათადარიგო კარია.</p></div></div></article>
@@ -334,14 +382,35 @@ html[data-theme=dark] .codebox{background:#1a1d23}
 <p>ჯერ ჩვეულებრივი ტერმინალით — რომ დავინახოთ, რა ხდება სინამდვილეში. მერე Termius-ით — რომ გავიგოთ, რატომ გვჭირდება ცალკე აპლიკაცია.</p></article>
 <article class="blk" data-slides="16"><span class="anchor" id="s-16"></span><div class="bh"><h3>ნაბიჯი 3 · დაკავშირება ტერმინალით</h3><a class="chip" href="index.html#/16" data-go="16" title="პრეზენტაციაში გახსნა">სლაიდი 16</a></div>
 <div class="codebox"><div class="ch"><span>WSL</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="gp">giorgi@laptop:~$ </span>ssh<span class="w"> </span>root@164.90.12.34</span><span class="ln"><span class="go">The authenticity of host '164.90.12.34' can't be established.</span></span><span class="ln"><span class="go">ED25519 key fingerprint is SHA256:Xb9...</span></span><span class="ln"><span class="go">Are you sure you want to continue connecting (yes/no)? yes</span></span><span class="ln"> </span><span class="ln"><span class="go">Welcome to Ubuntu 24.04.3 LTS</span></span></code></pre></div>
+<table>
+<thead>
+<tr>
+<th>ნაწილი</th>
+<th>რა არის</th>
+<th>რას ნიშნავს</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ssh</code></td>
+<td>ბრძანება — SSH კლიენტი</td>
+<td>დაუკავშირდი სერვერს</td>
+</tr>
+<tr>
+<td><code>root@164.90.12.34</code></td>
+<td>არგუმენტი: <strong>user</strong> <code>@</code> <strong>მისამართი</strong></td>
+<td><code>root</code> — რომელი user-ით შევიდე (ახალ სერვერზე ერთადერთი, ადმინისტრატორი); <code>@</code> — „ზე“; <code>164.90.12.34</code> — სერვერის IP Droplet-ის გვერდიდან</td>
+</tr>
+</tbody>
+</table>
 <ul>
-<li><code>ssh root@164.90.12.34</code> — <strong>ვინ</strong> შედის (<code>root</code>) <strong>@</strong> <strong>სად</strong> (IP). ახალ სერვერზე ერთადერთი user root-ია — ადმინისტრატორი.</li>
+<li>გასაღებს ცალკე არ ვუთითებთ: <code>ssh</code> სტანდარტულ ადგილს (<code>~/.ssh/id_ed25519</code>) თვითონ ამოწმებს.</li>
 <li><strong>fingerprint</strong> — სერვერის „თითის ანაბეჭდი“. ამ სერვერს პირველად ვხედავთ, ამიტომ ვეკითხებით — <code>yes</code>. კომპიუტერი მას იმახსოვრებს და თუ შემდეგში შეიცვლება, გაგაფრთხილებს (შეიძლება ვინმე შუაში ჩაჯდა).</li>
 <li>პაროლი <strong>არ</strong> უკითხავს: <code>ssh</code>-მა შენი პირადი გასაღები თვითონ იპოვა (<code>~/.ssh/id_ed25519</code>) და ამოცანა ამოხსნა.</li>
 </ul>
 <p><strong>ყურადღება prompt-ს:</strong> იყო <code>giorgi@laptop</code>, გახდა <code>root@lms-server</code>. ერთ ფანჯარაში ხარ, მაგრამ ბრძანებები უკვე <strong>სერვერზე</strong> სრულდება.</p>
 <div class="codebox"><div class="ch"><span>Droplet</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="gp">root@lms-server:~# </span><span class="nb">exit</span></span><span class="ln"><span class="go">logout</span></span></code></pre></div>
-<p><code>exit</code> — კავშირის დახურვა, ისევ შენს კომპიუტერზე ხარ.</p></article>
+<p><code>exit</code> — ოფციების და არგუმენტების გარეშე: ხურავს კავშირს, და ისევ შენს კომპიუტერზე ხარ (prompt ისევ <code>giorgi@laptop</code>). იგივეს აკეთებს <code>Ctrl + D</code>.</p></article>
 <article class="blk" data-slides="17"><span class="anchor" id="s-17"></span><div class="bh"><h3>ნაბიჯი 4 · რატომ Termius</h3><a class="chip" href="index.html#/17" data-go="17" title="პრეზენტაციაში გახსნა">სლაიდი 17</a></div>
 <p>ტერმინალით შესვლა მუშაობს, მაგრამ ყოველ ჯერზე უნდა გახსოვდეს IP, user და რომელი გასაღები. როცა სერვერი ხუთია — ხუთი IP. და ერთ ფანჯარაში ერთი სერვერია.</p>
 <p><strong>Termius</strong> — SSH კლიენტი, რომელიც ამას ალაგებს:</p>
@@ -394,14 +463,15 @@ html[data-theme=dark] .codebox{background:#1a1d23}
 </tr>
 <tr>
 <td><code>-la</code></td>
-<td>ოფციები — როგორ</td>
+<td><strong>ოფციები</strong> — <code>-</code>-ით იწყება, ცვლის <strong>როგორ</strong> იმუშაოს (<code>-l</code> — დეტალურად, <code>-a</code> — ფარული ფაილებიც; ერთად შეიძლება დაიწეროს <code>-la</code>)</td>
 </tr>
 <tr>
 <td><code>/etc</code></td>
-<td>არგუმენტი — რაზე</td>
+<td><strong>არგუმენტი</strong> — <strong>რაზე</strong> იმუშაოს (რომელი საქაღალდე)</td>
 </tr>
 </tbody>
 </table>
+<p>ყველა ბრძანება ასე იკითხება: <strong>ბრძანება → ოფციები → არგუმენტები</strong>. ზოგს არცერთი არ სჭირდება (<code>whoami</code>), ზოგს მხოლოდ არგუმენტი (<code>cd /etc</code>), ზოგს ორივე (<code>df -h /</code>). ნებისმიერი ბრძანების ოფციების სია — <code>&lt;ბრძანება&gt; --help</code> (მაგ. <code>ls --help</code>).</p>
 <p><strong>სამი ღილაკი, რომელიც დროს დაგიზოგავს:</strong></p>
 <ul>
 <li><code>Tab</code> — ფაილის ან ბრძანების სახელის ავტოშევსება.</li>
@@ -409,17 +479,273 @@ html[data-theme=dark] .codebox{background:#1a1d23}
 <li><code>Ctrl + C</code> — გაშვებული ბრძანების <strong>გაჩერება</strong> (ტერმინალში ეს კოპირება არ არის!). Termius-ში კოპირება — მონიშვნა, ჩასმა — მარჯვენა ღილაკი.</li>
 </ul>
 <div class="callout warn"><span class="ci">⚠️</span><div><p>root-ს ყველაფრის უფლება აქვს — მათ შორის სისტემის გაფუჭების, შეკითხვის გარეშე. არ გაუშვა ბრძანება, რომლის მნიშვნელობაც არ იცი. სწორად როგორ ვიმუშაოთ root-ის გარეშე — შემდეგ ლექციაზე.</p></div></div></article>
-<article class="blk" data-slides="20"><span class="anchor" id="s-20"></span><div class="bh"><h3>ვინ და სად ვარ: whoami · pwd · ls · cd</h3><a class="chip" href="index.html#/20" data-go="20" title="პრეზენტაციაში გახსნა">სლაიდი 20</a></div>
-<div class="codebox"><div class="ch"><span>Termius · root@lms-server</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="gp"># </span>whoami<span class="w">          </span><span class="c1"># ვინ ვარ</span></span><span class="ln"><span class="go">root</span></span><span class="ln"><span class="gp"># </span>hostname<span class="w">        </span><span class="c1"># რომელ კომპიუტერზე ვარ</span></span><span class="ln"><span class="go">lms-server</span></span><span class="ln"><span class="gp"># </span><span class="nb">pwd</span><span class="w">             </span><span class="c1"># რომელ საქაღალდეში ვარ (print working directory)</span></span><span class="ln"><span class="go">/root</span></span><span class="ln"><span class="gp"># </span>ls<span class="w"> </span>/<span class="w">            </span><span class="c1"># რა არის ფესვში</span></span><span class="ln"><span class="go">bin  boot  etc  home  root  tmp  usr  var ...</span></span><span class="ln"><span class="gp"># </span><span class="nb">cd</span><span class="w"> </span>/etc<span class="w">         </span><span class="c1"># გადასვლა</span></span><span class="ln"><span class="gp"># </span>ls<span class="w">              </span><span class="c1"># რა არის აქ</span></span><span class="ln"><span class="go">hostname  hosts  os-release  ssh  ...</span></span><span class="ln"><span class="gp"># </span><span class="nb">cd</span><span class="w"> </span>~<span class="w">            </span><span class="c1"># სახლში დაბრუნება</span></span></code></pre></div>
-<p>Windows-ში დისკები ასოებითაა (<code>C:\</code>). Linux-ში <strong>ერთი ხეა</strong>, რომელიც <code>/</code>-დან იწყება — ყველაფერი მის შიგნითაა. root-ის სახლი <code>/root</code>-ია, ამიტომ <code>pwd</code> სწორედ მას აჩვენებს. <code>/etc</code>-ში პროგრამების პარამეტრები ინახება — მაგალითად <code>ssh</code> საქაღალდე.</p>
-<p>ფაილური სისტემის დანარჩენ ნაწილს და ფაილებთან მუშაობას შემდეგ ლექციაზე დეტალურად გავივლით.</p></article>
-<article class="blk" data-slides="21"><span class="anchor" id="s-21"></span><div class="bh"><h3>რა ვიყიდეთ: ის მივიღეთ, რაც ავირჩიეთ?</h3><a class="chip" href="index.html#/21" data-go="21" title="პრეზენტაციაში გახსნა">სლაიდი 21</a></div>
-<p>ფორმაში ავირჩიეთ Ubuntu 24.04, 1 vCPU, 1 GB RAM და 25 GB დისკი. ვამოწმებთ ბრძანებებით:</p>
-<div class="codebox"><div class="ch"><span>Termius · root@lms-server</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="gp"># </span>cat<span class="w"> </span>/etc/os-release<span class="w">       </span><span class="c1"># cat — ფაილის შიგთავსის ჩვენება: რომელი Linux-ია</span></span><span class="ln"><span class="go">PRETTY_NAME="Ubuntu 24.04.3 LTS"</span></span><span class="ln"><span class="gp"># </span>nproc<span class="w">                     </span><span class="c1"># პროცესორის ბირთვები</span></span><span class="ln"><span class="go">1</span></span><span class="ln"><span class="gp"># </span>free<span class="w"> </span>-h<span class="w">                   </span><span class="c1"># RAM (-h — ადამიანისთვის გასაგები ერთეულებით)</span></span><span class="ln"><span class="go">       total   used   free</span></span><span class="ln"><span class="go">Mem:   961Mi  310Mi  420Mi</span></span><span class="ln"><span class="gp"># </span>df<span class="w"> </span>-h<span class="w"> </span>/<span class="w">                   </span><span class="c1"># დისკი: რამდენია და რამდენი დარჩა</span></span><span class="ln"><span class="go">/dev/vda1    24G  2.1G   22G   9% /</span></span><span class="ln"><span class="gp"># </span>uptime<span class="w">                    </span><span class="c1"># რამდენი ხანია ჩართულია</span></span></code></pre></div>
-<p><code>free -h</code>-ში ჩანს, რომ ~300 MB უკვე Ubuntu-ს უჭირავს — ზუსტად ისე, როგორც პირველ ნაწილში დავთვალეთ. დანარჩენი ჩვენი Nginx-ის, API-ს და ბაზისთვისაა.</p>
-<p><code>uptime</code> — ეს სერვერი ახლა 24/7 იმუშავებს, სანამ არ წაშლი (Destroy).</p></article>
+<article class="blk" data-slides="20"><span class="anchor" id="s-20"></span><div class="bh"><h3>ვინ ვარ და სად ვარ: whoami · hostname · pwd</h3><a class="chip" href="index.html#/20" data-go="20" title="პრეზენტაციაში გახსნა">სლაიდი 20</a></div>
+<p>ეს სამი ბრძანება სერვერზე შესვლისთანავე გეხმარება ორიენტირებაში. სამივე <strong>ოფციების და არგუმენტების გარეშე</strong> იწერება — უბრალოდ ბრძანების სახელი და Enter.</p>
+<div class="codebox"><div class="ch"><span>Termius · root@lms-server</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="gp"># </span>whoami</span><span class="ln"><span class="go">root</span></span><span class="ln"><span class="gp"># </span>hostname</span><span class="ln"><span class="go">lms-server</span></span><span class="ln"><span class="gp"># </span><span class="nb">pwd</span></span></code></pre></div>
+<table>
+<thead>
+<tr>
+<th>ბრძანება</th>
+<th>სახელის წარმოშობა</th>
+<th>რას აკეთებს</th>
+<th>პასუხი ჩვენთან</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>whoami</code></td>
+<td>„who am I“ — ვინ ვარ</td>
+<td>ბეჭდავს user-ს, რომლითაც ხარ შესული</td>
+<td><code>root</code> — ადმინისტრატორი, ერთადერთი user ახალ სერვერზე</td>
+</tr>
+<tr>
+<td><code>hostname</code></td>
+<td>host + name</td>
+<td>ბეჭდავს კომპიუტერის სახელს</td>
+<td><code>lms-server</code> — რაც Droplet-ის ფორმაში Hostname-ად ჩავწერეთ</td>
+</tr>
+<tr>
+<td><code>pwd</code></td>
+<td>„print working directory“ — დაბეჭდე მიმდინარე საქაღალდე</td>
+<td>ბეჭდავს <strong>სრულ გზას</strong> იმ საქაღალდემდე, სადაც ახლა ხარ</td>
+<td><code>/root</code> — root user-ის სახლის საქაღალდე</td>
+</tr>
+</tbody>
+</table>
+<p><strong>სად ჩანს იგივე prompt-ში:</strong> <code>root@lms-server:~#</code> — <code>root</code> = <code>whoami</code>, <code>lms-server</code> = <code>hostname</code>, <code>~</code> = სახლის საქაღალდე (root-ისთვის <code>/root</code>). prompt-ში <code>~</code> მოკლე ჩანაწერია, <code>pwd</code> კი სრულ გზას გაჩვენებს.</p>
+<div class="callout tip"><span class="ci">👉</span><div><p>როცა რამდენიმე სერვერზე და რამდენიმე Termius-ის tab-ში მუშაობ, ბრძანების გაშვებამდე შეამოწმე, <strong>სად</strong> ხარ — <code>hostname</code> და <code>whoami</code>. ერთი შეცდომით სხვა სერვერზე გაშვებული ბრძანება ნამდვილი პრობლემაა.</p></div></div></article>
+<article class="blk" data-slides="21"><span class="anchor" id="s-21"></span><div class="bh"><h3>ნავიგაცია: ls · cd · clear</h3><a class="chip" href="index.html#/21" data-go="21" title="პრეზენტაციაში გახსნა">სლაიდი 21</a></div>
+<p>აქ პირველად ვხედავთ <strong>არგუმენტს</strong> — სიტყვას ბრძანების შემდეგ, რომელიც ეუბნება, <strong>რაზე</strong> იმუშაოს. ერთი და იგივე ბრძანება არგუმენტით და მის გარეშე სხვადასხვანაირად იქცევა.</p>
+<div class="codebox"><div class="ch"><span>Termius · root@lms-server</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="gp"># </span>ls<span class="w"> </span>/</span><span class="ln"><span class="go">bin  boot  etc  home  root  tmp  usr  var ...</span></span><span class="ln"><span class="gp"># </span><span class="nb">cd</span><span class="w"> </span>/etc</span><span class="ln"><span class="gp"># </span><span class="nb">pwd</span></span><span class="ln"><span class="go">/etc</span></span><span class="ln"><span class="gp"># </span>ls</span><span class="ln"><span class="go">hostname  hosts  os-release  ssh  ...</span></span><span class="ln"><span class="gp"># </span><span class="nb">cd</span><span class="w"> </span>~</span><span class="ln"><span class="gp"># </span><span class="nb">pwd</span></span><span class="ln"><span class="go">/root</span></span></code></pre></div>
+<p><strong><code>ls</code></strong> — „list“, ჩამოთვალე.</p>
+<table>
+<thead>
+<tr>
+<th>ჩანაწერი</th>
+<th>ნაწილები</th>
+<th>შედეგი</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ls</code></td>
+<td>მხოლოდ ბრძანება</td>
+<td><strong>მიმდინარე</strong> საქაღალდის (სადაც <code>pwd</code> გაჩვენებს) შიგთავსი</td>
+</tr>
+<tr>
+<td><code>ls /</code></td>
+<td><code>/</code> — არგუმენტი: რომელი საქაღალდე ვნახო</td>
+<td>ფესვის შიგთავსი — იქ გადასვლის <strong>გარეშე</strong></td>
+</tr>
+<tr>
+<td><code>ls /etc</code></td>
+<td><code>/etc</code> — არგუმენტი</td>
+<td><code>/etc</code>-ის შიგთავსი, საიდანაც არ უნდა იყო</td>
+</tr>
+</tbody>
+</table>
+<p><code>ls</code>-ის პასუხში საქაღალდეები და ფაილები ერთად ჩანს (Termius-ში საქაღალდეები ჩვეულებრივ სხვა ფერისაა). ოფციებს (<code>-l</code>, <code>-a</code>) შემდეგ ლექციაზე ვნახავთ.</p>
+<p><strong><code>cd</code></strong> — „change directory“, შეცვალე საქაღალდე. არგუმენტი — <strong>სად</strong> გადახვიდე:</p>
+<table>
+<thead>
+<tr>
+<th>ჩანაწერი</th>
+<th>არგუმენტი</th>
+<th>შედეგი</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>cd /etc</code></td>
+<td><code>/etc</code> — <code>/</code>-ით იწყება, ანუ ფესვიდან ითვლება (<strong>აბსოლუტური გზა</strong>)</td>
+<td>გადასვლა <code>/etc</code>-ში, საიდანაც არ უნდა იყო</td>
+</tr>
+<tr>
+<td><code>cd ~</code></td>
+<td><code>~</code> — სპეციალური ნიშანი: „ჩემი სახლის საქაღალდე“</td>
+<td>root-ისთვის — <code>/root</code></td>
+</tr>
+<tr>
+<td><code>cd</code></td>
+<td>არგუმენტის გარეშე</td>
+<td>იგივეა, რაც <code>cd ~</code></td>
+</tr>
+</tbody>
+</table>
+<p><code>cd</code> თავისით არაფერს ბეჭდავს — წარმატების შემთხვევაში უბრალოდ prompt იცვლება (<code>root@lms-server:/etc#</code>). შესამოწმებლად — <code>pwd</code>. თუ საქაღალდე არ არსებობს: <code>No such file or directory</code>.</p>
+<p><strong><code>clear</code></strong> — ეკრანს ასუფთავებს (ისტორია <code>↑</code>-ით მაინც რჩება). იგივე — <code>Ctrl + L</code>.</p>
+<p><strong>ფაილური სისტემა.</strong> Windows-ში დისკები ასოებითაა (<code>C:\</code>). Linux-ში <strong>ერთი ხეა</strong>, რომელიც <code>/</code>-დან იწყება — ყველაფერი მის შიგნითაა: <code>/root</code> — root-ის სახლი, <code>/etc</code> — პროგრამების პარამეტრები (მაგ. <code>ssh</code>), <code>/home</code> — სხვა user-ების სახლები, <code>/var</code> — ლოგები და საიტები. დანარჩენს შემდეგ ლექციაზე დეტალურად გავივლით.</p></article>
+<article class="blk" data-slides="22"><span class="anchor" id="s-22"></span><div class="bh"><h3>რა ვიყიდეთ · 1: cat · nproc · uptime</h3><a class="chip" href="index.html#/22" data-go="22" title="პრეზენტაციაში გახსნა">სლაიდი 22</a></div>
+<p>ფორმაში ავირჩიეთ Ubuntu 24.04, 1 vCPU, 1 GB RAM და 25 GB დისკი. ვამოწმებთ, ეს მივიღეთ თუ არა.</p>
+<p><strong><code>cat /etc/os-release</code></strong> — რომელი ოპერაციული სისტემაა.</p>
+<table>
+<thead>
+<tr>
+<th>ნაწილი</th>
+<th>რა არის</th>
+<th>რას ნიშნავს</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>cat</code></td>
+<td>ბრძანება („concatenate“ — გადაბმა)</td>
+<td>ფაილის შიგთავსს ეკრანზე ბეჭდავს. ერთი ფაილით — უბრალოდ აჩვენებს</td>
+</tr>
+<tr>
+<td><code>/etc/os-release</code></td>
+<td>არგუმენტი — ფაილის გზა</td>
+<td><code>/etc</code> საქაღალდის ფაილი, სადაც სისტემის სახელი და ვერსიაა ჩაწერილი</td>
+</tr>
+</tbody>
+</table>
+<div class="codebox"><div class="ch"><span>Termius · root@lms-server</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="gp"># </span>cat<span class="w"> </span>/etc/os-release</span><span class="ln"><span class="go">PRETTY_NAME="Ubuntu 24.04.3 LTS"     ← ადამიანისთვის გასაგები სახელი</span></span><span class="ln"><span class="go">NAME="Ubuntu"</span></span><span class="ln"><span class="go">VERSION_ID="24.04"                   ← ვერსია</span></span></code></pre></div>
+<p><code>cat</code>-ს უკვე იცნობ: SSH გასაღების <code>.pub</code>-ის ტექსტიც მისით ვნახეთ (<code>cat ~/.ssh/id_ed25519.pub</code>). ის ფაილს არ ცვლის — მხოლოდ კითხულობს.</p>
+<p><strong><code>nproc</code></strong> — „number of processing units“: რამდენი პროცესორის ბირთვია. პასუხი <code>1</code> = 1 vCPU, რაც ფორმაში ავირჩიეთ. არგუმენტი არ სჭირდება.</p>
+<p><strong><code>uptime</code></strong> — რამდენი ხანია სერვერი ჩართულია:</p>
+<div class="codebox"><div class="ch"><span>Termius · root@lms-server</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="gp"># </span>uptime</span></code></pre></div>
+<table>
+<thead>
+<tr>
+<th>ნაწილი</th>
+<th>რას ნიშნავს</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>12:04:11</code></td>
+<td>სერვერის მიმდინარე დრო (სერვერზე ჩვეულებრივ UTC-ია, ჩვენთან +4 სთ)</td>
+</tr>
+<tr>
+<td><code>up 6 min</code></td>
+<td>6 წუთია ჩართულია — ზუსტად მას შემდეგ, რაც Create Droplet დავაჭირეთ</td>
+</tr>
+<tr>
+<td><code>1 user</code></td>
+<td>რამდენი კავშირია ახლა შესული — ეს ჩვენ ვართ Termius-იდან</td>
+</tr>
+<tr>
+<td><code>load average: 0.02, 0.01, 0.00</code></td>
+<td>პროცესორის საშუალო დატვირთვა ბოლო <strong>1, 5 და 15 წუთში</strong>. 1 vCPU-ზე <code>1.00</code> = პროცესორი სრულად დაკავებულია; <code>0.02</code> — თითქმის თავისუფალია</td>
+</tr>
+</tbody>
+</table></article>
+<article class="blk" data-slides="23"><span class="anchor" id="s-23"></span><div class="bh"><h3>რა ვიყიდეთ · 2: free -h · df -h /</h3><a class="chip" href="index.html#/23" data-go="23" title="პრეზენტაციაში გახსნა">სლაიდი 23</a></div>
+<p>აქ პირველად ვხედავთ <strong>ოფციას</strong> — ის <code>-</code>-ით იწყება და ეუბნება ბრძანებას, <strong>როგორ</strong> იმუშაოს. არგუმენტი კი ეუბნება, <strong>რაზე</strong>.</p>
+<p><strong><code>free -h</code></strong> — RAM (ოპერატიული მეხსიერება).</p>
+<table>
+<thead>
+<tr>
+<th>ნაწილი</th>
+<th>რა არის</th>
+<th>რას ნიშნავს</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>free</code></td>
+<td>ბრძანება</td>
+<td>ბეჭდავს, რამდენი RAM-ია სულ, დაკავებული და თავისუფალი</td>
+</tr>
+<tr>
+<td><code>-h</code></td>
+<td>ოფცია — „human-readable“</td>
+<td>რიცხვებს გასაგებ ერთეულებში აჩვენებს (<code>Mi</code> — მეგაბაიტი, <code>Gi</code> — გიგაბაიტი). <code>-h</code>-ის გარეშე <code>free</code> კილობაიტებში ბეჭდავს: <code>983552</code> — ძნელად წასაკითხი</td>
+</tr>
+</tbody>
+</table>
+<div class="codebox"><div class="ch"><span>Termius · root@lms-server</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="gp"># </span>free<span class="w"> </span>-h</span><span class="ln"><span class="go">       total   used   free  available</span></span><span class="ln"><span class="go">Mem:   961Mi  310Mi  420Mi     650Mi</span></span></code></pre></div>
+<table>
+<thead>
+<tr>
+<th>სვეტი</th>
+<th>რას ნიშნავს</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>total</code></td>
+<td>სულ RAM — <code>961Mi</code> ≈ 1 GB (ნაწილს სისტემა თავისთვის იტოვებს, ამიტომ არა ზუსტად 1024)</td>
+</tr>
+<tr>
+<td><code>used</code></td>
+<td>დაკავებული — <code>310Mi</code>: ეს უკვე Ubuntu-ს უჭირავს, ზუსტად ისე, როგორც პირველ ნაწილში დავთვალეთ</td>
+</tr>
+<tr>
+<td><code>free</code></td>
+<td>სრულიად თავისუფალი</td>
+</tr>
+<tr>
+<td><code>available</code></td>
+<td>რამდენის გამოყენება შეუძლია ახალ პროგრამებს (მათ შორის cache-ის ხარჯზე) — <strong>ეს სვეტია მთავარი</strong></td>
+</tr>
+<tr>
+<td><code>Swap</code></td>
+<td>დისკზე „სათადარიგო RAM“ — ჯერ <code>0B</code>, შემდეგ ლექციაზე დავამატებთ</td>
+</tr>
+</tbody>
+</table>
+<p><strong><code>df -h /</code></strong> — დისკის ადგილი.</p>
+<table>
+<thead>
+<tr>
+<th>ნაწილი</th>
+<th>რა არის</th>
+<th>რას ნიშნავს</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>df</code></td>
+<td>ბრძანება — „disk free“</td>
+<td>ბეჭდავს დისკის ზომას და თავისუფალ ადგილს</td>
+</tr>
+<tr>
+<td><code>-h</code></td>
+<td>ოფცია — „human-readable“</td>
+<td>იგივე, რაც <code>free</code>-ში: <code>24G</code> ბაიტების ნაცვლად</td>
+</tr>
+<tr>
+<td><code>/</code></td>
+<td>არგუმენტი</td>
+<td><strong>რომელი</strong> დისკი გვაინტერესებს — ის, რაზეც ფესვი (<code>/</code>) დგას. არგუმენტის გარეშე <code>df</code> ყველა დისკს და სისტემის დამხმარე „დისკებს“ ჩამოთვლის — გრძელი და დამაბნეველი სიაა</td>
+</tr>
+</tbody>
+</table>
+<div class="codebox"><div class="ch"><span>Termius · root@lms-server</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="gp"># </span>df<span class="w"> </span>-h<span class="w"> </span>/</span><span class="ln"><span class="go">Filesystem  Size  Used Avail Use% Mounted on</span></span></code></pre></div>
+<table>
+<thead>
+<tr>
+<th>სვეტი</th>
+<th>რას ნიშნავს</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Filesystem</code></td>
+<td>დისკის სახელი სისტემაში (<code>/dev/vda1</code> — ვირტუალური დისკის პირველი ნაწილი)</td>
+</tr>
+<tr>
+<td><code>Size</code></td>
+<td>სულ — <code>24G</code> ≈ 25 GB, რაც ფორმაში ავირჩიეთ</td>
+</tr>
+<tr>
+<td><code>Used</code> / <code>Avail</code></td>
+<td>დაკავებული (სისტემა — <code>2.1G</code>) / თავისუფალი (<code>22G</code>)</td>
+</tr>
+<tr>
+<td><code>Use%</code></td>
+<td>დაკავებული პროცენტებში. 90%-ზე მეტი — საგანგაშოა: სავსე დისკზე ბაზა და ლოგები ჩერდება</td>
+</tr>
+<tr>
+<td><code>Mounted on</code></td>
+<td>სად არის „მიმაგრებული“ ხეში — <code>/</code>, ფესვზე</td>
+</tr>
+</tbody>
+</table>
+<div class="callout tip"><span class="ci">👉</span><div><p><strong>ოფცია vs არგუმენტი:</strong> ოფცია <code>-</code>-ით იწყება და ცვლის, <strong>როგორ</strong> მუშაობს ბრძანება (<code>-h</code> — გასაგები ერთეულებით). არგუმენტი ეუბნება, <strong>რაზე</strong> იმუშაოს (<code>/</code> — ამ დისკზე, <code>/etc/os-release</code> — ამ ფაილზე). ბრძანებას შეიძლება ჰქონდეს ორივე, ერთ-ერთი ან არცერთი.</p></div></div></article>
 <h2 class="sec" id="sec-8">შეჯამება</h2>
-<article class="blk" data-slides="22"><span class="anchor" id="s-22"></span><div class="bh"><h3>შპარგალკა</h3><a class="chip" href="index.html#/22" data-go="22" title="პრეზენტაციაში გახსნა">სლაიდი 22</a></div>
+<article class="blk" data-slides="24"><span class="anchor" id="s-24"></span><div class="bh"><h3>შპარგალკა</h3><a class="chip" href="index.html#/24" data-go="24" title="პრეზენტაციაში გახსნა">სლაიდი 24</a></div>
 <p><strong>🛒 სერვერის არჩევა და ყიდვა</strong></p>
 <ol>
 <li>ჩამოწერე, რა იმუშავებს სერვერზე, და დაითვალე RAM — ჩვენთვის 1 GB.</li>
@@ -482,7 +808,7 @@ html[data-theme=dark] .codebox{background:#1a1d23}
 </tbody>
 </table></article>
 <h2 class="sec" id="sec-9">პრაქტიკა</h2>
-<article class="blk" data-slides="23"><span class="anchor" id="s-23"></span><div class="bh"><h3>კლასში დავალება: ჩემი პირველი სერვერი</h3><a class="chip" href="index.html#/23" data-go="23" title="პრეზენტაციაში გახსნა">სლაიდი 23</a></div>
+<article class="blk" data-slides="25"><span class="anchor" id="s-25"></span><div class="bh"><h3>კლასში დავალება: ჩემი პირველი სერვერი</h3><a class="chip" href="index.html#/25" data-go="25" title="პრეზენტაციაში გახსნა">სლაიდი 25</a></div>
 <p>დავალება · ყიდვა + დაკავშირება</p>
 <h3>ნაბიჯები</h3>
 <ul>
@@ -501,10 +827,10 @@ html[data-theme=dark] .codebox{background:#1a1d23}
 <h3>💡 მინიშნება</h3>
 <p><code>Permission denied (publickey)</code> — DigitalOcean-ში სხვა <code>.pub</code> ჩასვით, ან Termius-ში სხვა გასაღებია არჩეული. DigitalOcean-ში — <strong>საჯარო</strong> (<code>id_ed25519.pub</code>), Termius-ში — <strong>პირადი</strong> (<code>id_ed25519</code>).</p></article>
 <h2 class="sec" id="sec-10">შეჯამება</h2>
-<article class="blk" data-slides="24"><span class="anchor" id="s-24"></span><div class="bh"><h3>შეამოწმე, რა დაგამახსოვრდა</h3><a class="chip" href="index.html#/24" data-go="24" title="პრეზენტაციაში გახსნა">სლაიდი 24</a></div>
+<article class="blk" data-slides="26"><span class="anchor" id="s-26"></span><div class="bh"><h3>შეამოწმე, რა დაგამახსოვრდა</h3><a class="chip" href="index.html#/26" data-go="26" title="პრეზენტაციაში გახსნა">სლაიდი 26</a></div>
 <p>ეს კითხვები შემდეგი ლექციის დასაწყისშიც დაისმება.</p>
 <div class="selfcheck"><div class="sh">✅ შეამოწმე თავი <small>დაფიქრდი, მერე გახსენი პასუხი</small></div><details><summary>რატომ არ გამოდგება ჩემი ლეპტოპი API-ს სერვერად?</summary><div class="ans">სერვერი 24/7 უნდა იყოს ჩართული და ჰქონდეს საჯარო, მუდმივი IP. ლეპტოპს ხურავ, სახლის IP იცვლება და გარედან მიუწვდომელია — ამიტომ ვქირაობთ VPS-ს</div></details><details><summary>როგორ მივხვდეთ, რა ზომის სერვერი გვჭირდება?</summary><div class="ans">ვწერთ, რა იმუშავებს მასზე (Ubuntu, Nginx, API, ბაზა) და ვთვლით მათ RAM-ს ერთად. ჩვენთვის ~0.7 GB → 1 GB RAM, 1 vCPU, 25 GB. ვიწყებთ პატარით — საჭიროებისას Resize</div></details><details><summary>SSH გასაღების რომელი ნაწილი სად ინახება?</summary><div class="ans">საჯარო (საკეტი, <code>.pub</code>) — სერვერზე; პირადი (გასაღები) — მხოლოდ შენს კომპიუტერზე. შესვლისას პირადი გასაღები ქსელში არ მიდის — მიდის მხოლოდ სერვერის ამოცანის ამოხსნა</div></details><details><summary>რატომ ვირჩევთ SSH Key-ს და არა Password-ს?</summary><div class="ans">ბოტები ინტერნეტის ყველა IP-ზე უწყვეტად არჩევენ პაროლებს. გასაღების გამოცნობა პრაქტიკულად შეუძლებელია, ხოლო SSH Key-ით შექმნილ Droplet-ზე პაროლით შესვლა საერთოდ გამორთულია</div></details><details><summary>თუ ტერმინალით <code>ssh root@IP</code> მუშაობს, რისთვის გვჭირდება Termius?</summary><div class="ans">Termius შიგნით იგივე SSH-ს აკეთებს, მაგრამ ინახავს სერვერების სიას, გასაღებებს, ხსნის რამდენიმე tab-ს და აქვს SFTP — IP-ს და პარამეტრებს ყოველ ჯერზე აღარ კრეფ</div></details><details><summary>Droplet გამოვრთე (Power Off). ფული აღარ ჩამოგეჭრება?</summary><div class="ans">ჩამოგეჭრება — გამორთული Droplet-იც ფასიანია, რადგან რესურსი შენთვისაა დაჯავშნილი. გადახდა მხოლოდ <strong>Destroy</strong>-ის შემდეგ ჩერდება</div></details></div></article>
-<article class="blk" data-slides="25"><span class="anchor" id="s-25"></span><div class="bh"><h3>შეჯამება · დღეს ვისწავლეთ</h3><a class="chip" href="index.html#/25" data-go="25" title="პრეზენტაციაში გახსნა">სლაიდი 25</a></div>
+<article class="blk" data-slides="27"><span class="anchor" id="s-27"></span><div class="bh"><h3>შეჯამება · დღეს ვისწავლეთ</h3><a class="chip" href="index.html#/27" data-go="27" title="პრეზენტაციაში გახსნა">სლაიდი 27</a></div>
 <ul>
 <li>🛒 <strong>სერვერის არჩევა</strong> — API-ს სჭირდება 24/7 ჩართული კომპიუტერი საჯარო IP-ით → ვქირაობთ VPS-ს. ზომას ვარჩევთ იმით, რაც იმუშავებს: Ubuntu + Nginx + API + PostgreSQL ≈ 1 GB RAM. ფასი საათობრივია; Power Off გადახდას არ აჩერებს — მხოლოდ Destroy.</li>
 <li>🔑 <strong>SSH</strong> — ორი ნაწილი: საჯარო (საკეტი) სერვერზეა, პირადი (გასაღები) მხოლოდ შენთან. შესვლისას სერვერი ამოცანას გიგზავნის, შენი გასაღები მას ხსნის — თავად გასაღები ქსელში არ მიდის. გასაღები <code>ssh-keygen</code>-ით იქმნება, <code>.pub</code> Droplet-ის შექმნისას ისმება.</li>
@@ -516,7 +842,7 @@ html[data-theme=dark] .codebox{background:#1a1d23}
 დამისვი 8 კითხვა სათითაოდ, მარტივიდან რთულისკენ — ნაწილი სიტუაციური იყოს („შენი აპისთვის რა სერვერს აიღებდი?“). ყოველ პასუხზე შემიფასე და ამიხსენი. ბოლოს მითხარი, რა გავიმეორო. ქართულად.</div></div>
 <div class="prompt"><div class="ph"><span>🤖 SSH-ით ვერ ვუკავშირდები</span><button class="copy" type="button">კოპირება</button></div><div class="pb">SSH-ით ჩემს Ubuntu სერვერს ვერ ვუკავშირდები. დამეხმარე პრობლემის პოვნაში ნაბიჯ-ნაბიჯ, მარტივად და ქართულად: ჯერ დამისვი კითხვები, მერე მირჩიე, რა შევამოწმო. რას ვუშვებ (ტერმინალი ან Termius): [აქ]. შეცდომის ტექსტი: [აქ].</div></div></article>
 <h2 class="sec" id="sec-11">საშინაო</h2>
-<article class="blk" data-slides="26"><span class="anchor" id="s-26"></span><div class="bh"><h3>საშინაო დავალება: ჩემი სერვერის პასპორტი</h3><a class="chip" href="index.html#/26" data-go="26" title="პრეზენტაციაში გახსნა">სლაიდი 26</a></div>
+<article class="blk" data-slides="28"><span class="anchor" id="s-28"></span><div class="bh"><h3>საშინაო დავალება: ჩემი სერვერის პასპორტი</h3><a class="chip" href="index.html#/28" data-go="28" title="პრეზენტაციაში გახსნა">სლაიდი 28</a></div>
 <p>შემდეგ ლექციაზე Linux-ს ამ სერვერზე სიღრმეში ვსწავლობთ</p>
 <h3>მოთხოვნები</h3>
 <ul>
