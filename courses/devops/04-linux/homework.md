@@ -1,60 +1,38 @@
-# სერვერის დაცვა
+# Linux-ის ქვესტი
 
-lms-server — მზადაა შემდეგი ლექციისთვის, Nginx-ისთვის
+შემდეგ ლექციაზე სერვერზე Nginx-ს ვაყენებთ
 
 ## მოთხოვნები
 
-- `00-hardening.conf`: root და პაროლი აკრძალულია → `restart ssh` (ჯერ Termius-ის ახალ tab-ში შეამოწმეთ!)
-- `ufw`: მხოლოდ `OpenSSH` → `enable`
-- swap 2 GB (`/etc/fstab`-ითაც)
-- WSL-ში `~/.ssh/config` → `ssh lms`
-- `~/scripts/hello.sh` (`echo "გამარჯობა, $USER"`) → გასაშვები (`chmod`) → `./scripts/hello.sh`
+- სერვერზე, `~/linux-quest`-ში: `logs/`, `scripts/`, `notes/`; `notes/commands.md` — 10 ბრძანება თქვენი ახსნით
+- `scripts/hello.sh` (`echo "გამარჯობა, $USER"`) → გასაშვები → `./scripts/hello.sh`
+- `logs/app.log` — 3 ხაზი, ერთში `ERROR` → `grep`-ით მხოლოდ ის
 
 ## ✓ მზადაა, როცა
 
-`sshd -T` — `no`/`no`, root-ის Host — `Permission denied`, `ufw status` — active, `free -h` — Swap 2.0Gi, `ssh lms` შედის, `hello.sh` ეშვება
+`hello.sh` ეშვება, `grep` ერთ ხაზს აბრუნებს
 
 ## ⭐ ბონუსი
 
-- `sudo grep Invalid /var/log/auth.log | wc -l` — რამდენჯერ სცადეს ბოტებმა შესვლა მას შემდეგ, რაც სერვერი შექმენით? (`wc -l` — ხაზების რაოდენობა)
+- `tail -f ~/linux-quest/logs/app.log` ერთ ტერმინალში, მეორედან `echo "new line" >> logs/app.log` — ნახეთ, როგორ ჩნდება ხაზი „ცოცხლად“
 
 ## ამოხსნა
 
 ```console Termius · giorgi@lms-server !
-$ sudo nano /etc/ssh/sshd_config.d/00-hardening.conf
-PermitRootLogin no
-PasswordAuthentication no
+$ mkdir -p ~/linux-quest/{logs,scripts,notes}
+$ cd ~/linux-quest
+$ nano notes/commands.md
 
-$ sudo sshd -t                     # ცარიელი პასუხი = OK
-$ sudo systemctl restart ssh
-
-$ sudo ufw allow OpenSSH
-$ sudo ufw enable
-$ sudo ufw status
-Status: active
-OpenSSH     ALLOW    Anywhere
-```
-
-```console Termius · giorgi@lms-server
-$ sudo fallocate -l 2G /swapfile
-$ sudo chmod 600 /swapfile
-$ sudo mkswap /swapfile
-$ sudo swapon /swapfile
-$ echo '/swapfile none swap sw 0 0' | sudo tee -a /etc/fstab
-$ free -h
-
-$ mkdir -p ~/scripts
-$ nano ~/scripts/hello.sh          # echo "გამარჯობა, $USER"
-$ chmod +x ~/scripts/hello.sh      # ან: chmod 755
-$ ~/scripts/hello.sh
+$ echo 'echo "გამარჯობა, $USER"' > scripts/hello.sh
+$ chmod +x scripts/hello.sh        # ან: chmod 755
+$ ./scripts/hello.sh
 გამარჯობა, giorgi
+
+$ echo "INFO app started"   >  logs/app.log
+$ echo "ERROR db not found" >> logs/app.log
+$ echo "INFO request done"  >> logs/app.log
+$ grep ERROR logs/app.log
+ERROR db not found
 ```
 
-```plain ~/.ssh/config (WSL-ში)
-Host lms
-    HostName 164.90.12.34
-    User giorgi
-    IdentityFile ~/.ssh/id_ed25519
-```
-
-ფაილის სახელი `00-` იწყება, რადგან SSH ერთ პარამეტრზე **პირველ** ნანახ მნიშვნელობას იღებს, ფაილებს კი ანბანით კითხულობს — `00` ყველაზე ადრე იკითხება. `hello.sh` `chmod +x`-ის გარეშე `Permission denied`-ით ჩავარდებოდა — ფაილს გაშვების (`x`) უფლება სჭირდება.
+`>` ფაილს თავიდან წერს, `>>` — ბოლოში ამატებს. `{logs,scripts,notes}` — სამი საქაღალდე ერთი ბრძანებით.

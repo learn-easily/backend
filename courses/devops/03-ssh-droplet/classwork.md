@@ -1,25 +1,22 @@
 # ჩემი პირველი სერვერი
 
-დავალება · Droplet + Termius + პირველი ბრძანებები
+დავალება · Droplet + SSH
 
 ## ნაბიჯები
 
 - WSL-ში `ssh-keygen -t ed25519` → `.pub` → DigitalOcean: Frankfurt · Ubuntu 24.04 · Basic · **SSH Key** · `lms-server`
 - **Termius**: Keychain → Import (პირადი გასაღები) → New Host (IP, `root`) → Connect
-- `hostname`, `df -h /`, `free -h`, `cat /etc/os-release` — ჩაიწერეთ, რამდენი დისკი და RAM გაქვთ
-- `mkdir -p ~/server-notes` → `nano ~/server-notes/server.md`: IP, region, დისკი, RAM → `Ctrl+O`, `Ctrl+X` → `cat`-ით შეამოწმეთ
-- `ls -la ~` → იპოვეთ ფარული `.ssh` → `cat ~/.ssh/authorized_keys` — ეს თქვენი `.pub`-ია?
+- `adduser <სახელი>` → `usermod -aG sudo <სახელი>` → `rsync` `~/.ssh` → `/home/<სახელი>`
+- Termius-ში მეორე Host — Username `<სახელი>` → Connect → `sudo whoami`
 
 ## ✓ მზადაა, როცა
 
-Termius-ით პაროლის გარეშე შედიხართ სერვერზე, `cat ~/server-notes/server.md` სერვერის მონაცემებს აჩვენებს, `authorized_keys`-ში თქვენი საჯარო გასაღებია
+Termius-ით ახალი user-ით შედიხართ სერვერზე პაროლის გარეშე, და `sudo whoami` აბრუნებს `root`
 
 ## ⭐ ბონუსი
 
-- `tail -f /var/log/auth.log` — დაელოდეთ ბოტების ცდებს (`Invalid user ...`); `Ctrl+C` → `grep Invalid /var/log/auth.log` — რამდენი სცადა უკვე?
+- `~/.ssh/config`-ში ჩაწერეთ `Host lms` → შედით უბრალოდ `ssh lms`-ით
 
 ## 💡 მინიშნება
 
 `Permission denied (publickey)` — Termius-ში სხვა გასაღებია არჩეული, ან DigitalOcean-ში სხვა `.pub` ჩასვით. Termius-ში ჩასვით **პირადი** (`id_ed25519`), DigitalOcean-ში — **საჯარო** (`id_ed25519.pub`).
-
-`Tab` — სახელის ავტოშევსება. `↑` — წინა ბრძანება. დაიკარგეთ? `pwd`.

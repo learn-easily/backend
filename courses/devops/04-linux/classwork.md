@@ -1,23 +1,29 @@
-# საკუთარი user და უფლებები
+# საიტის საქაღალდე სერვერზე
 
-დავალება · lms-server root-ის გარეშე
+დავალება · my-portfolio „სერვერის სტილში“
 
 ## ნაბიჯები
 
-- root-ით: `adduser <სახელი>` → `usermod -aG sudo <სახელი>` → `rsync --archive --chown=<სახელი>:<სახელი> ~/.ssh /home/<სახელი>`
-- Termius-ში მეორე Host — Username `<სახელი>` → Connect → `whoami`, `sudo whoami`
-- `sudo apt update && sudo apt upgrade -y` → `sudo apt install -y tree htop` → `tree ~ -a`
-- `ls -la ~/.ssh` — რა უფლებები აქვს `authorized_keys`-ს და რატომ? → `touch secret.txt` → `chmod 600 secret.txt` → `ls -l`
-- `sudo ss -tlnp` — რომელი port-ია ღია და ვინ უსმენს?
+- `cd ~` → `git clone https://github.com/<username>/my-portfolio.git` → `cd my-portfolio` → `ls -la`
+- `sudo mkdir -p /var/www/portfolio` → `sudo cp -r ~/my-portfolio/* /var/www/portfolio/`
+- `ls -l /var/www/portfolio` — ვისია ფაილები? → `sudo chown -R $USER:$USER /var/www/portfolio` → ისევ `ls -l`
+- `nano /var/www/portfolio/index.html` — სათაურში დაამატეთ „(Linux-იდან)“ → შენახვა `Ctrl+O`, გასვლა `Ctrl+X` → `cat`-ით შეამოწმეთ
+- `sudo apt update && sudo apt install -y tree htop` → `tree /var/www`
 
 ## ✓ მზადაა, როცა
 
-Termius-ით ახალი user-ით შედიხართ პაროლის გარეშე, `sudo whoami` აბრუნებს `root`, `secret.txt` — `-rw-------`, `ss -tlnp`-ში ჩანს `sshd` port 22-ზე
+`tree /var/www` აჩვენებს `portfolio`-ს ფაილებით, `ls -l`-ში მფლობელი თქვენი user-ია, `index.html`-ში ცვლილება ჩანს
 
 ## ⭐ ბონუსი
 
-- `sleep 1000 &` → `ps aux | grep sleep`-ით იპოვეთ PID → `kill`-ით გააჩერეთ → `htop`-ში შეამოწმეთ, რომ აღარ არის
+- `htop` გახსენით → იპოვეთ პროცესი `bash` → გამოდით `q`-თი. მეორე ტერმინალში `sleep 1000` → პირველიდან იპოვეთ მისი PID `ps aux | grep sleep`-ით და `kill`-ით გააჩერეთ
 
 ## 💡 მინიშნება
 
-`Permission denied (publickey)` ახალი user-ით — `rsync`-ის ბრძანებაში სახელი შეგეშალათ, ან `/home/<სახელი>/.ssh` სხვას ეკუთვნის: root-ით `ls -la /home/<სახელი>/.ssh`.
+```bash
+pwd                 # სად ვარ?
+ls -la              # რა არის აქ (ფარული ფაილებითაც)
+cd ~                # სახლში დაბრუნება
+```
+
+`Tab` — სახელის ავტოშევსება. `↑` — წინა ბრძანება. დაიკარგეთ? `pwd`.

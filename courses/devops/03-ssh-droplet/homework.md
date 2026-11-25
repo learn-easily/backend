@@ -1,42 +1,54 @@
-# Linux-ის ქვესტი სერვერზე
+# სერვერის დაცვა
 
-შემდეგ ლექციაზე სერვერს ვიცავთ — დღეს კი მასზე ბრძანებებს ვიწაფავთ
+lms-server — დაცულია და მზადაა შემდეგი ლექციისთვის
 
 ## მოთხოვნები
 
-- Termius-ით სერვერზე, `~/linux-quest`-ში: `logs/`, `notes/`, `backup/`; `notes/commands.md` — 10 ბრძანება თქვენი ახსნით (`nano`)
-- `logs/app.log` (`nano`) — 3 ხაზი, ერთში `ERROR` → `grep`-ით მხოლოდ ის
-- `notes/commands.md` დააკოპირეთ `backup/`-ში, მერე `notes/`-ში გადაარქვით `linux.md` → `ls -la`-ით შეამოწმეთ ორივე საქაღალდე
-- `/etc`-ში იპოვეთ SSH-ის საქაღალდე და ნახეთ, რა ფაილებია შიგნით; `/var/log`-ში — რომელი ლოგია ყველაზე დიდი (`ls -l`)
+- `apt upgrade` · `00-hardening.conf`: root და პაროლი აკრძალულია → `restart ssh` (ჯერ Termius-ის ახალ tab-ში შეამოწმეთ!)
+- `ufw`: მხოლოდ `OpenSSH` → `enable`
+- swap 2 GB (`/etc/fstab`-ითაც) · WSL-ში `~/.ssh/config` → `ssh lms`
 
 ## ✓ მზადაა, როცა
 
-`grep ERROR ~/linux-quest/logs/app.log` ერთ ხაზს აბრუნებს, `backup/commands.md` და `notes/linux.md` არსებობს, შეგიძლიათ თქვათ, რა ფაილებია `/etc/ssh`-ში
+`sshd -T` — `no`/`no`, `ufw status` — active, `free -h` — Swap 2.0Gi, `ssh lms` შედის
 
 ## ⭐ ბონუსი
 
-- Termius-ში ორი tab: პირველში `tail -f ~/linux-quest/logs/app.log`, მეორეში `echo "new line" >> ~/linux-quest/logs/app.log` — ნახეთ, როგორ ჩნდება ხაზი „ცოცხლად“
+- `sudo journalctl -u ssh --since "1 hour ago" | grep -i invalid` — ნახეთ, რამდენმა ბოტმა სცადა შესვლა ამ ერთ საათში
 
 ## ამოხსნა
 
-```console Termius · root@lms-server !
-# mkdir -p ~/linux-quest/logs ~/linux-quest/notes ~/linux-quest/backup
-# cd ~/linux-quest
-# nano notes/commands.md
-# nano logs/app.log
-INFO app started
-ERROR db not found
-INFO request done
-# grep ERROR logs/app.log
-ERROR db not found
+```console Termius · lms-server !
+$ sudo nano /etc/ssh/sshd_config.d/00-hardening.conf
+PermitRootLogin no
+PasswordAuthentication no
 
-# cp notes/commands.md backup/
-# mv notes/commands.md notes/linux.md
-# ls -la notes backup
+$ sudo sshd -t                     # ცარიელი პასუხი = OK
+$ sudo systemctl restart ssh
 
-# ls /etc/ssh
-ssh_config  ssh_config.d  sshd_config  sshd_config.d  ...
-# ls -l /var/log
+$ sudo ufw allow OpenSSH
+$ sudo ufw enable
+$ sudo ufw status
+Status: active
+OpenSSH     ALLOW    Anywhere
 ```
 
-`mkdir -p` რამდენიმე საქაღალდეს ერთად ქმნის. `/etc/ssh/sshd_config` — SSH სერვერის კონფიგურაცია: შემდეგ ლექციაზე სწორედ მის გვერდით შევქმნით საკუთარ ფაილს, რომ სერვერი დავიცვათ. ბონუსში `>>` ფაილის ბოლოს ამატებს ხაზს (`>` — თავიდან გადაწერდა).
+```console Termius · lms-server
+$ sudo apt update && sudo apt upgrade -y
+
+$ sudo fallocate -l 2G /swapfile
+$ sudo chmod 600 /swapfile
+$ sudo mkswap /swapfile
+$ sudo swapon /swapfile
+$ echo '/swapfile none swap sw 0 0' | sudo tee -a /etc/fstab
+$ free -h
+```
+
+```plain ~/.ssh/config (WSL-ში)
+Host lms
+    HostName 164.90.12.34
+    User giorgi
+    IdentityFile ~/.ssh/id_ed25519
+```
+
+ფაილის სახელი `00-` იწყება, რადგან SSH ერთ პარამეტრზე **პირველ** ნანახ მნიშვნელობას იღებს, ფაილებს კი ანბანით კითხულობს — `00` ყველაზე ადრე იკითხება.

@@ -1,6 +1,6 @@
 # DevOps Crash Course: GitHub to DigitalOcean
 
-**ტექნოლოგიები:** Git და GitHub, GitHub Pages, Linux (Ubuntu 24.04 სერვერზე, WSL შენს კომპიუტერზე), SSH და Termius, DigitalOcean Droplet, Nginx, .NET 10 runtime და systemd, PostgreSQL, Docker და Docker Compose, DNS და Let's Encrypt, GitHub Actions, GHCR, cloud-init
+**ტექნოლოგიები:** Git და GitHub, GitHub Pages, Linux (Ubuntu 24.04), SSH და Termius, DigitalOcean Droplet, Nginx, .NET 10 runtime და systemd, PostgreSQL, Docker და Docker Compose, DNS და Let's Encrypt, GitHub Actions, GHCR, cloud-init
 
 **პროექტი:** 02–05 — my-portfolio და Angular აპი (სტატიკური საიტები: ჯერ GitHub Pages, მერე საკუთარ სერვერზე). 06-დან — **LMS**, რომელიც ASP.NET-ის კურსზე იწერება: ჯერ API ხელით, მერე Docker-ით, დომენით და HTTPS-ით, CI/CD-ით; ბოლო ლექციაზე LMS-ს Angular-ის frontend ემატება და მთელი სისტემა ახალ სერვერზე გადადის. ლექტორი LMS-ს კლასში აჩვენებს; სტუდენტი იმავე ნაბიჯებს თავის პროექტზე იმეორებს.
 
@@ -28,13 +28,13 @@ Git-ის მოკლე გამეორება DevOps-ის კუთ�
 
 ## საკუთარი სერვერი (4 ლექცია)
 
-### 03. საკუთარი სერვერი — SSH, Droplet და Termius
+### 03. SSH და Droplet — საკუთარი სერვერი
 
-SSH გასაღებები (public vs private); Droplet-ის შექმნა DigitalOcean-ზე; Termius-ით დაკავშირება; რატომ Linux სერვერზე; Linux-ის პირველი ბრძანებები პირდაპირ სერვერზე: ფაილური სისტემა (`/`, `~`, `/etc`, `/var/log`), ნავიგაცია და ფაილები (`ls`, `cd`, `mkdir`, `cp`, `mv`, `rm`), `cat`, `tail -f`, `grep`, `nano`.
+SSH გასაღებები (public vs private); Droplet-ის შექმნა; ცალკე sudo user; სერვერის დაცვა: root-ით და პაროლით შესვლის აკრძალვა, `ufw` firewall, swap; Termius და `~/.ssh/config`.
 
-### 04. Linux — user-ები, უფლებები და სერვერის დაცვა
+### 04. Linux — სერვერის ენა
 
-ცალკე sudo user root-ის ნაცვლად; `apt` (`update`, `upgrade`, `install`); უფლებები (`chmod`, `chown`); პროცესები და port-ები (`ps`, `htop`, `kill`, `ss -tlnp`); სერვერის დაცვა: root-ით და პაროლით შესვლის აკრძალვა, `ufw` firewall, swap; `~/.ssh/config` WSL-ის ბრძანებებისთვის.
+ფაილური სისტემა (`/`, `~`, `/etc`, `/var/log`, `/var/www`); ფაილებთან მუშაობა ტერმინალში; `sudo` და `apt`; უფლებები (`chmod`, `chown`); პროცესები და port-ები (`ps`, `htop`, `kill`, `ss -tlnp`) — სერვერზე, Termius-ში.
 
 ### 05. Nginx — საიტი შენს სერვერზე
 
