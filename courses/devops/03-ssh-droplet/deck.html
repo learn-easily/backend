@@ -1,0 +1,731 @@
+<!-- =========================================================
+     ლექცია 3 — SSH გასაღები · Droplet · Termius · პირველი Linux ბრძანებები სერვერზე
+     ========================================================= -->
+
+<!-- 1. TITLE -->
+<section class="slide" data-section="შესავალი">
+  <div class="vcenter" style="max-width:860px">
+    <div class="kicker in">DevOps Crash Course · ლექცია 3</div>
+    <h1 class="in" style="--d:.15s">საკუთარი <span class="grad">სერვერი</span> 🖥️</h1>
+    <p class="lead in mt" style="--d:.35s">SSH გასაღები · DigitalOcean Droplet · Termius · პირველი ბრძანებები</p>
+  </div>
+  <div class="abs" style="right:90px;top:190px">
+    <svg viewBox="0 0 500 380" width="500" height="380">
+      <g class="in left" style="--d:.5s"><rect x="10" y="130" width="170" height="130" rx="18" fill="#123321" stroke="#22c55e" stroke-width="3"/><text x="95" y="190" text-anchor="middle" font-size="44">💻</text><text x="95" y="235" text-anchor="middle" class="tg b" font-size="18">შენ · 🔑</text></g>
+      <g class="in fade" style="--d:.8s"><path d="M180 195 H320" stroke="#8b6cff" stroke-width="4" class="flow"/><text x="250" y="175" text-anchor="middle" class="tn b mono" font-size="20">ssh</text><text x="250" y="230" text-anchor="middle" font-size="26">🔒</text></g>
+      <g class="in right" style="--d:1.1s"><rect x="320" y="110" width="170" height="170" rx="18" fill="#0e2a33" stroke="#22d3ee" stroke-width="3"/><text x="405" y="180" text-anchor="middle" font-size="44">🖥️</text><text x="405" y="225" text-anchor="middle" class="ta b" font-size="18">Droplet</text><text x="405" y="252" text-anchor="middle" class="tm" font-size="15">Frankfurt</text></g>
+    </svg>
+  </div>
+</section>
+
+<lecture-review/>
+<lecture-homework-review/>
+<lecture-intro/>
+
+<!-- ================= PART 1: SSH ================= -->
+<section class="slide divider" data-section="1 · SSH">
+  <div class="vcenter">
+    <div class="kicker in">ნაწილი 1</div>
+    <h1 class="in" style="--d:.1s"><span class="grad">SSH</span> 🔑</h1>
+    <p class="lead mt in" style="--d:.3s">ტერმინალი სხვა ქვეყანაში მდგარ კომპიუტერზე</p>
+  </div>
+  <div class="big-num">01</div>
+  <aside class="study">
+## ნაწილი 1 · SSH
+
+ტერმინალი სხვა ქვეყანაში მდგარ კომპიუტერზე — დაშიფრული და პაროლის გარეშე.
+  </aside>
+</section>
+
+<section class="slide" data-section="1 · SSH">
+  <div class="kicker">პრობლემა</div>
+  <h2>სერვერი ფრანკფურტშია — <span class="c-red">როგორ „დავჯდე“ მასთან?</span></h2>
+  <div class="grid2">
+    <div class="card accent in left" style="--d:0.20s;--a:var(--net)"><h3>🔐 SSH — Secure Shell</h3>
+      <p>შენი ტერმინალი, ოღონდ ბრძანებები <b>სერვერზე</b> სრულდება. ყველაფერი <b>დაშიფრულია</b>.</p>
+      <p class="mono mt" style="font-size:19px">$ ssh root@164.90.12.34<br>root@lms-server:~# ▊</p></div>
+    <div class="card accent in right" style="--d:0.40s;--a:var(--red)"><h3>🤖 პაროლით შესვლა?</h3>
+      <p class="mono" style="font-size:16px;line-height:1.7">Invalid user admin from 45.x.x.x<br>Invalid user test from 103.x.x.x<br>Failed password for root from 194.x.x.x<br>…ათასობით, ყოველდღე</p>
+      <p class="tiny mt">ბოტები ინტერნეტის ყველა IP-ს უწყვეტად ამოწმებენ და პაროლებს არჩევენ</p></div>
+  </div>
+  <div class="callout step mt2" style="--a:var(--mvc);font-size:24px">გამოსავალი: პაროლის ნაცვლად — <b>გასაღები</b>. მისი გამოცნობა პრაქტიკულად შეუძლებელია.</div>
+  <aside class="study">
+### პრობლემა: სერვერი ფრანკფურტშია — როგორ „დავჯდე“ მასთან?
+
+წინა ლექციაზე ვნახეთ, რომ API GitHub Pages-ზე ვერ გაეშვება — მას საკუთარი სერვერი სჭირდება. სერვერი მონაცემთა ცენტრშია, სხვა ქვეყანაში. ფიზიკურად მასთან ვერ მიხვალ — და არც გჭირდება. **SSH** (Secure Shell) შენს ტერმინალს სერვერს აკავშირებს: შენ კრეფ, ბრძანება **სერვერზე** სრულდება, შედეგი შენთან ჩანს. მთელი კავშირი **დაშიფრულია**.
+
+```console შენი კომპიუტერი
+$ ssh root@164.90.12.34
+root@lms-server:~#
+```
+
+**პაროლის პრობლემა.** ინტერნეტში ბოტები უწყვეტად ამოწმებენ ყველა IP მისამართს და SSH-ზე პაროლებს არჩევენ (`admin/admin`, `root/123456`...). ახალი სერვერის ლოგში ასეთი ხაზები **რამდენიმე წუთში** ჩნდება:
+
+```plain /var/log/auth.log
+Invalid user admin from 45.x.x.x
+Invalid user test from 103.x.x.x
+Failed password for root from 194.x.x.x
+```
+
+გამოსავალი — პაროლის ნაცვლად **SSH გასაღები**.
+  </aside>
+</section>
+
+<section class="slide" data-section="1 · SSH">
+  <div class="kicker">SSH გასაღები</div>
+  <h2>🔒 საკეტი და 🔑 <span class="c-asp">გასაღები</span></h2>
+  <svg viewBox="0 0 1420 260" width="1420" height="260">
+    <g class="in left" style="--d:.2s"><rect x="20" y="20" width="420" height="220" rx="20" fill="#123321" stroke="#22c55e" stroke-width="3"/><text x="230" y="90" text-anchor="middle" font-size="48">💻</text><text x="230" y="140" text-anchor="middle" class="tg b" font-size="22">შენი კომპიუტერი</text>
+      <text x="230" y="185" text-anchor="middle" class="tw mono" font-size="18">🔑 id_ed25519  · პირადი</text><text x="230" y="215" text-anchor="middle" class="tw mono" font-size="18">🔒 id_ed25519.pub · საჯარო</text></g>
+    <g class="in fade" style="--d:.6s"><path d="M440 130 H980" stroke="#8b6cff" stroke-width="3" class="flow"/><text x="710" y="110" text-anchor="middle" class="tn b" font-size="20">მხოლოდ 🔒 .pub მიდის სერვერზე</text><text x="710" y="165" text-anchor="middle" class="tm" font-size="17">🔑 პირადი — არასოდეს არსად</text></g>
+    <g class="in right" style="--d:.9s"><rect x="980" y="20" width="420" height="220" rx="20" fill="#0e2a33" stroke="#22d3ee" stroke-width="3"/><text x="1190" y="90" text-anchor="middle" font-size="48">🖥️</text><text x="1190" y="140" text-anchor="middle" class="ta b" font-size="22">სერვერი</text><text x="1190" y="190" text-anchor="middle" class="tw mono" font-size="17">~/.ssh/authorized_keys</text><text x="1190" y="218" text-anchor="middle" class="tm" font-size="16">ვის „საკეტს“ ვენდობი</text></g>
+  </svg>
+  <div class="grid2 mt">
+    <div class="card accent step" style="--a:var(--mvc)"><h3>🔒 საჯარო — .pub</h3><p>საკეტი: შეგიძლია <b>ბევრ კარზე</b> დაკიდო — სერვერზე, GitHub-ზე. მოპარვა საშიში არ არის</p></div>
+    <div class="card accent step" style="--a:var(--red)" data-with><h3>🔑 პირადი</h3><p>მხოლოდ შენს კომპიუტერზე. <b>არ</b> გააგზავნო, <b>არ</b> ატვირთო GitHub-ზე</p></div>
+  </div>
+  <aside class="study">
+### SSH გასაღები: საკეტი და გასაღები
+
+SSH გასაღები **წყვილია** — ორი ფაილი, რომლებიც მათემატიკურად ერთმანეთს ემთხვევა:
+
+| ფაილი | ანალოგია | სად ცხოვრობს |
+|---|---|---|
+| `~/.ssh/id_ed25519.pub` — **საჯარო** | 🔒 საკეტი | სერვერზე (`~/.ssh/authorized_keys`), GitHub-ზე — ნებისმიერ ადგილას, სადაც შესვლა გინდა |
+| `~/.ssh/id_ed25519` — **პირადი** | 🔑 გასაღები | **მხოლოდ** შენს კომპიუტერზე |
+
+შესვლისას სერვერი გამოწვევას აგზავნის, რომლის სწორად „გახსნაც“ მხოლოდ შესაბამის პირად გასაღებს შეუძლია. თავად პირადი გასაღები ქსელში **არასოდეს** მიდის.
+
+საჯარო ნაწილის მოპარვა საშიში არ არის — საკეტით კარს ვერ გააღებ. პირადი კი პაროლზე მნიშვნელოვანია: ვისაც ის აქვს, ის შედის შენს ყველა სერვერზე.
+
+```warn
+პირადი გასაღები **არ** გაუგზავნო არავის, **არ** ჩასვა ჩატში და **არ** ატვირთო GitHub-ზე.
+```
+  </aside>
+</section>
+
+<section class="slide" data-section="1 · SSH">
+  <div class="kicker">ვაკეთებთ ერთად · ნაბიჯი 1</div>
+  <h2>გასაღების <span class="c-api">შექმნა</span></h2>
+  <div class="grid2" style="grid-template-columns:1.2fr 1fr">
+    <code-block lang="console" cls="in" title="WSL" style="--d:0.20s">
+$ ssh-keygen -t ed25519 -C "giorgi@mail.ge"
+Generating public/private ed25519 key pair.
+Enter file in which to save the key
+  (/home/giorgi/.ssh/id_ed25519):        ← Enter
+Enter passphrase (empty for no passphrase): ← სურვილისამებრ
+Your identification has been saved in
+  /home/giorgi/.ssh/id_ed25519
+Your public key has been saved in
+  /home/giorgi/.ssh/id_ed25519.pub
+
+$ cat ~/.ssh/id_ed25519.pub
+ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAI...x9 giorgi@mail.ge
+    </code-block>
+    <div class="col">
+      <div class="card in right" style="--d:0.40s"><h3>⚙️ -t ed25519</h3><p>თანამედროვე, მოკლე და ძლიერი ალგორითმი</p></div>
+      <div class="card in right" style="--d:0.55s"><h3>🏷️ -C</h3><p>კომენტარი — რომ იცოდე, ვისი გასაღებია</p></div>
+      <div class="card in right" style="--d:0.70s"><h3>🔐 passphrase</h3><p>პირადი გასაღების პაროლი: თუ ლეპტოპი მოიპარეს, გასაღები მაინც დაცულია</p></div>
+      <div class="callout step" style="--a:var(--mvc)">📋 <code class="i">.pub</code>-ის ხაზს ახლავე დავაკოპირებთ DigitalOcean-ში</div>
+    </div>
+  </div>
+  <aside class="study">
+### ნაბიჯი 1 · გასაღების შექმნა
+
+გასაღებს **შენს კომპიუტერზე** ვქმნით — WSL-ში (macOS-ზე — Terminal-ში). ეს ორი ბრძანებაა; Linux-ს დღესვე ნამდვილ სერვერზე ვისწავლით. გასაღები ერთხელ იქმნება — ყველა სერვერზე და GitHub-ზეც გამოგადგება:
+
+```console WSL
+$ ssh-keygen -t ed25519 -C "giorgi@mail.ge"
+Generating public/private ed25519 key pair.
+Enter file in which to save the key (/home/giorgi/.ssh/id_ed25519):   ← Enter
+Enter passphrase (empty for no passphrase):                           ← სურვილისამებრ
+Your identification has been saved in /home/giorgi/.ssh/id_ed25519
+Your public key has been saved in /home/giorgi/.ssh/id_ed25519.pub
+```
+
+- `-t ed25519` — ალგორითმი: თანამედროვე, მოკლე და ძლიერი (ძველი ალტერნატივაა RSA).
+- `-C` — კომენტარი, რომ მოგვიანებით იცოდე, ვისი გასაღებია.
+- **passphrase** — პირადი გასაღების პაროლი. თუ ლეპტოპი მოიპარეს, მის გარეშე გასაღები უსარგებლოა. სწავლისას შეგიძლია ცარიელი დატოვო.
+
+```console WSL
+$ cat ~/.ssh/id_ed25519.pub        # cat — ფაილის შიგთავსის ჩვენება
+ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAI...x9 giorgi@mail.ge
+```
+
+`.pub`-ის ეს ერთი ხაზი არის ის, რასაც სერვერს მივცემთ.
+  </aside>
+</section>
+
+<!-- ================= PART 2: DROPLET ================= -->
+<section class="slide divider" data-section="2 · Droplet">
+  <div class="vcenter">
+    <div class="kicker in">ნაწილი 2</div>
+    <h1 class="in" style="--d:.1s"><span class="grad">Droplet</span> 💧</h1>
+    <p class="lead mt in" style="--d:.3s">სერვერი 1 წუთში — და პირველი შესვლა Termius-ით</p>
+  </div>
+  <div class="big-num">02</div>
+  <aside class="study">
+## ნაწილი 2 · Droplet
+
+**Droplet** — DigitalOcean-ის ვირტუალური სერვერი (VPS). პირველი ლექციის ანალოგიით — ნაქირავები ბინა.
+  </aside>
+</section>
+
+<section class="slide" data-section="2 · Droplet">
+  <div class="kicker">ვაკეთებთ ერთად · ნაბიჯი 2</div>
+  <h2>Create → <span class="c-net">Droplets</span></h2>
+  <div class="grid3" style="gap:20px">
+    <div class="card in" style="--d:0.20s"><h3>🌍 Region</h3><p><b>Frankfurt</b> — საქართველოსთან ახლოს, ნაკლები დაყოვნება</p></div>
+    <div class="card in" style="--d:0.30s"><h3>🐧 Image</h3><p><b>Ubuntu 24.04 (LTS) x64</b> — სერვერების ყველაზე პოპულარული Linux</p></div>
+    <div class="card in" style="--d:0.40s"><h3>📏 Size</h3><p><b>Basic · Regular</b> — უმცირესი (1 vCPU, 1 GB RAM)</p></div>
+    <div class="card accent in" style="--d:0.50s;--a:var(--mvc)"><h3>🔑 Authentication</h3><p><b>SSH Key</b> → New SSH Key → ჩასვი <code class="i">.pub</code>-ის ხაზი</p></div>
+    <div class="card in" style="--d:0.60s"><h3>🏷️ Hostname</h3><p><code class="i">lms-server</code> — prompt-ში ეს ეწერება</p></div>
+    <div class="card in" style="--d:0.70s"><h3>🚀 Create Droplet</h3><p>~1 წუთი → მიიღებ <b>IP მისამართს</b></p></div>
+  </div>
+  <div class="grid2 mt2">
+    <div class="callout step" style="--a:var(--asp)">💰 ფასი — საათობრივად, თვეში მაქსიმუმ რამდენიმე დოლარი. <b>Power Off-იც ფასიანია</b> — გადახდა მხოლოდ <b>Destroy</b>-ის შემდეგ ჩერდება</div>
+    <div class="callout step" style="--a:var(--red)" data-with>⚠ Password-ს <b>არ</b> ვირჩევთ — მხოლოდ SSH Key</div>
+  </div>
+  <aside class="study">
+### ნაბიჯი 2 · Droplet-ის შექმნა
+
+DigitalOcean-ის panel-ში: **Create → Droplets**.
+
+| პარამეტრი | რას ვირჩევთ | რატომ |
+|---|---|---|
+| **Region** | Frankfurt | საქართველოსთან ახლოს — სწრაფი პასუხი |
+| **Image** | Ubuntu 24.04 (LTS) x64 | სერვერების ყველაზე პოპულარული Linux; LTS — წლების განმავლობაში განახლებები |
+| **Size** | Basic → Regular → უმცირესი (1 vCPU, 1 GB RAM) | საკმარისია API-სთვის და ბაზისთვის |
+| **Authentication** | **SSH Key** → New SSH Key → ჩასვი `.pub`-ის ხაზი | პაროლი არ გვინდა |
+| **Hostname** | `lms-server` | სერვერის სახელი prompt-ში |
+
+**Create Droplet** → დაახლოებით ერთ წუთში Droplet-ის გვერდზე გამოჩნდება მისი **IPv4 მისამართი**, მაგ. `164.90.12.34`.
+
+SSH Key-ით შექმნილ Droplet-ზე პაროლით შესვლა საერთოდ გამორთულია — ბოტები პაროლს ვერ გამოიცნობენ, რადგან ის არ არსებობს.
+
+```warn
+**ფასი საათობრივად ითვლება**, თვეში რამდენიმე დოლარამდე. Droplet-ის გამორთვა (Power Off) გადახდას **არ** აჩერებს — რესურსი შენთვისაა დაჯავშნილი. გადახდა მხოლოდ **Destroy**-ის შემდეგ ჩერდება. ანგარიშზე დააყენე **Billing alert**.
+```
+
+```tip
+თუ ოდესმე SSH-ით ვეღარ შედიხარ, Droplet-ის გვერდზე არის **Console** — ტერმინალი პირდაპირ ბრაუზერში. ეს სათადარიგო კარია.
+```
+  </aside>
+</section>
+
+<section class="slide" data-section="2 · Droplet">
+  <div class="kicker">ვაკეთებთ ერთად · ნაბიჯი 3</div>
+  <h2><span class="c-net">Termius</span> — სერვერთან კავშირი</h2>
+  <div class="grid2" style="grid-template-columns:1fr 1fr">
+    <div class="col">
+      <div class="card in left" style="--d:0.20s"><h3>1️⃣ Keychain → Key → Import</h3><p>WSL-ში შექმნილი <b>პირადი</b> გასაღები: <code class="i">cat ~/.ssh/id_ed25519</code> → ჩასვი <b>Private key</b> ველში</p></div>
+      <div class="card in left" style="--d:0.35s"><h3>2️⃣ Hosts → New Host</h3><p>Label: <code class="i">lms-server</code> · Address: <code class="i">164.90.12.34</code> · Username: <code class="i">root</code> · Key: ეს გასაღები</p></div>
+      <div class="card in left" style="--d:0.50s"><h3>3️⃣ Connect</h3><p>„Unknown host fingerprint“ → <b>Continue</b>: სერვერს პირველად ვხედავთ</p></div>
+    </div>
+    <div class="col">
+      <div class="card accent in right" style="--d:0.65s;--a:var(--net)"><h3>🖥️ რა არის Termius</h3><p>SSH კლიენტი: სერვერების სია, გასაღებები, tab-ები, SFTP. შიგნით — ზუსტად იგივე <code class="i">ssh root@164.90.12.34</code></p></div>
+      <div class="callout step" style="--a:var(--mvc);font-size:22px">ამიერიდან <b>სერვერზე</b> ყველაფერს <b>Termius-ში</b> ვაკეთებთ. შენს კომპიუტერზე (git, docker, rsync) — <b>WSL</b>-ში</div>
+    </div>
+  </div>
+  <aside class="study">
+### ნაბიჯი 3 · Termius — სერვერთან კავშირი
+
+**Termius** — SSH კლიენტი: სერვერების სია, შენახული გასაღებები, რამდენიმე tab ერთად და ჩაშენებული SFTP (ფაილების დათვალიერება). შიგნით ის ზუსტად იმას აკეთებს, რასაც ტერმინალში `ssh root@164.90.12.34` — უბრალოდ IP-ს და პარამეტრებს ყოველ ჯერზე აღარ კრეფ.
+
+**1. გასაღების შემოტანა.** გასაღები უკვე შევქმენით WSL-ში (ნაბიჯი 1). Termius-ს იგივე გასაღებს ვაძლევთ — ახალს არ ვქმნით, რომ WSL-იდანაც და Termius-იდანაც ერთი გასაღებით შევიდეთ:
+
+```console WSL
+$ cat ~/.ssh/id_ed25519
+-----BEGIN OPENSSH PRIVATE KEY-----
+...
+-----END OPENSSH PRIVATE KEY-----
+```
+
+Termius → **Keychain** → **Key** → **Import** (ან New Key) → მთელი ტექსტი, `-----BEGIN`-იდან `-----END`-ის ჩათვლით, ჩასვი **Private key** ველში.
+
+**2. Host.** **Hosts → New Host**:
+
+| ველი | მნიშვნელობა |
+|---|---|
+| Label | `lms-server` |
+| Address | Droplet-ის IP |
+| Username | `root` (ცალკე user-ს შემდეგ ლექციაზე შევქმნით) |
+| Key | ის, რაც ახლა შემოვიტანეთ |
+
+**3. Connect.** პირველად Termius იტყვის, რომ სერვერის „თითის ანაბეჭდი“ (fingerprint) უცნობია: ამ სერვერს პირველად ვხედავთ — **Continue**. Termius მას იმახსოვრებს და თუ შემდეგში შეიცვლება, გაგაფრთხილებს (შეიძლება ვინმე შუაში ჩაჯდა).
+
+```warn
+გასაღების ტექსტი მხოლოდ Termius-ის ველში ჩასვი — **არა** ჩატში, არა სხვაგან. ის პაროლზე მნიშვნელოვანია.
+```
+
+```note
+გასაღებს Termius-ში **არ** ვქმნით: მაშინ ის მხოლოდ Termius-ში იცხოვრებდა, WSL-ის ბრძანებები კი (`rsync`, `scp`, `ssh-copy-id`, `deploy.sh`) — მომდევნო ლექციებზე — ვერ შევიდოდნენ.
+```
+  </aside>
+</section>
+
+<section class="slide" data-section="2 · Droplet">
+  <div class="kicker">ნაბიჯი 4</div>
+  <h2>პირველი <span class="c-mvc">შესვლა</span></h2>
+  <div class="grid2" style="grid-template-columns:1.2fr 1fr">
+    <code-block lang="console" cls="in" title="Termius · root@lms-server" style="--d:0.20s">
+Welcome to Ubuntu 24.04.3 LTS
+root@lms-server:~# hostname
+lms-server
+root@lms-server:~# df -h /
+Filesystem  Size  Used Avail Use% Mounted on
+/dev/vda1    24G  2.1G   22G   9% /
+root@lms-server:~# free -h
+       total   used   free
+Mem:   961Mi  310Mi  420Mi
+root@lms-server:~# uptime
+ 12:04:11 up 6 min,  1 user,  load average: 0.02
+    </code-block>
+    <div class="col">
+      <div class="card accent in right" style="--d:0.40s;--a:var(--asp)"><h3>👀 მიმოიხედე</h3><p><code class="i">hostname</code> სახელი · <code class="i">df -h</code> დისკი · <code class="i">free -h</code> RAM · <code class="i">uptime</code></p></div>
+      <div class="card accent in right" style="--d:0.55s;--a:var(--net)"><h3>🐧 ეს უკვე Linux-ია</h3><p>არც ფანჯრები, არც მაუსი — კომპიუტერი <b>ფრანკფურტშია</b>, შენ კი მას ბრძანებებით მართავ</p></div>
+      <div class="callout step" style="--a:var(--red)"><code class="i">#</code> = <b>root</b>. დღეს ასე ვსწავლობთ — შემდეგ ლექციაზე ცალკე user-ს ვქმნით</div>
+    </div>
+  </div>
+  <aside class="study">
+### ნაბიჯი 4 · პირველი შესვლა
+
+Termius-ში `lms-server` → Connect:
+
+```console Termius · root@lms-server
+Welcome to Ubuntu 24.04.3 LTS
+root@lms-server:~# hostname          # სერვერის სახელი
+lms-server
+root@lms-server:~# df -h /           # დისკი: რამდენია თავისუფალი
+/dev/vda1    24G  2.1G   22G   9% /
+root@lms-server:~# free -h           # RAM
+Mem:   961Mi  310Mi  420Mi
+root@lms-server:~# uptime            # რამდენი ხანია ჩართულია, დატვირთვა
+```
+
+ეს ნამდვილი Linux სერვერია ფრანკფურტში — და ყველაფერი, რასაც დღეს ვისწავლით, პირდაპირ მასზე, Termius-ში კეთდება.
+
+prompt-ში `#` ნიშნავს, რომ **root** ხარ — ადმინისტრატორი, რომელსაც ყველაფრის უფლება აქვს. დღეს root-ით ვსწავლობთ ბრძანებებს; შემდეგ ლექციაზე ვქმნით ცალკე user-ს და სერვერს ვიცავთ.
+
+```warn
+root-ით ნებისმიერი ბრძანება შეკითხვის გარეშე სრულდება — მათ შორის ის, რომელიც სისტემას გააფუჭებს. არ გაუშვა ბრძანება, რომლის მნიშვნელობაც არ იცი. თუ სერვერი გააფუჭე — ეს სასწავლო Droplet-ია: Destroy და ახალი.
+```
+  </aside>
+</section>
+
+<section class="slide" data-section="2 · Droplet">
+  <div class="kicker">რატომ Linux</div>
+  <h2>სერვერზე <span class="c-red">არ არის</span> ეკრანი და მაუსი</h2>
+  <div class="grid2">
+    <div class="card accent in left" style="--d:0.20s;--a:var(--red)"><h3>🪟 რასაც შეჩვეული ხარ</h3>
+      <p>ფანჯრები, ღილაკები, „File → Save“, ორჯერ დაჭერა, სანაგვე ყუთი</p>
+      <p class="tiny mt">სერვერზე ამის არცერთი არ არის — ეს ზედმეტი მეხსიერება და რისკია</p></div>
+    <div class="card accent in right" style="--d:0.40s;--a:var(--mvc)"><h3>🐧 რაც სერვერზე დაგხვდა</h3>
+      <p class="mono" style="font-size:20px">root@lms-server:~# ▊</p>
+      <p class="tiny mt">ერთი ციმციმა კურსორი. ყველაფერი — ბრძანებებით</p></div>
+  </div>
+  <div class="grid3 mt2">
+    <div class="card in" style="--d:0.60s"><h3>🆓 უფასო</h3><p class="tiny">ლიცენზია არ სჭირდება — 1000 სერვერზეც</p></div>
+    <div class="card in" style="--d:0.75s"><h3>🪶 მსუბუქი</h3><p class="tiny">1 GB RAM-იან სერვერზეც კომფორტულად მუშაობს</p></div>
+    <div class="card in" style="--d:0.90s"><h3>🏗️ სტანდარტი</h3><p class="tiny">ინტერნეტის სერვერების აბსოლუტური უმრავლესობა, Docker, Cloud</p></div>
+  </div>
+  <aside class="study">
+### რატომ Linux: სერვერზე არ არის ეკრანი და მაუსი
+
+Windows-ში ფანჯრებით, ღილაკებით და მაუსით მუშაობ. სერვერზე ამის **არცერთი არ არის**: გრაფიკული ინტერფეისი მეხსიერებას ჭამს და დამატებითი რისკია. დაგხვდა მხოლოდ ტერმინალი:
+
+```console Termius · root@lms-server
+root@lms-server:~#
+```
+
+**რატომ Linux და არა Windows სერვერებზე:**
+
+- 🆓 **უფასოა** — ლიცენზია არც ერთ სერვერზე არ სჭირდება;
+- 🪶 **მსუბუქია** — 1 GB RAM-იან ყველაზე იაფ სერვერზეც კომფორტულად მუშაობს;
+- 🏗️ **სტანდარტია** — ინტერნეტის სერვერების აბსოლუტური უმრავლესობა, Docker-ის კონტეინერები და Cloud-ები Linux-ზე დგას.
+
+**Linux** — ოპერაციული სისტემის ბირთვი. მის გარშემო აწყობილ სრულ სისტემას **დისტრიბუტივი** ჰქვია: Ubuntu, Debian, Fedora, Alpine... ჩვენს Droplet-ზე **Ubuntu 24.04 LTS**-ია — LTS ნიშნავს Long Term Support: განახლებები წლების განმავლობაში.
+
+```terms
+დისტრიბუტივი — Linux + პროგრამების ნაკრები (Ubuntu, Debian...)
+VPS — Virtual Private Server: ნაქირავები ვირტუალური სერვერი (DigitalOcean-ზე — Droplet)
+```
+  </aside>
+</section>
+
+<section class="slide" data-section="☕ შესვენება">
+  <div class="center">
+    <div class="big-emoji float" style="font-size:120px">☕</div>
+    <h1 class="mt">შესვენება</h1>
+    <p class="lead mt">10 წუთი · მერე — Linux-ის პირველი ბრძანებები სერვერზე</p>
+  </div>
+</section>
+
+<!-- ================= PART 3: LINUX ON THE SERVER ================= -->
+<section class="slide divider" data-section="3 · Linux">
+  <div class="vcenter">
+    <div class="kicker in">ნაწილი 3</div>
+    <h1 class="in" style="--d:.1s">ტერმინალი და <span class="grad">ფაილები</span> 📁</h1>
+    <p class="lead mt in" style="--d:.3s">სად ვარ, რა არის აქ, როგორ შევცვალო — Termius-ში, სერვერზე</p>
+  </div>
+  <div class="big-num">03</div>
+  <aside class="study">
+## ნაწილი 3 · ტერმინალი და ფაილები
+
+სად ვარ, რა არის აქ, როგორ შევცვალო. ყველაფერს ვაკეთებთ **სერვერზე**, Termius-ში.
+  </aside>
+</section>
+
+<section class="slide" data-section="3 · Linux">
+  <div class="kicker">ტერმინალის ანატომია</div>
+  <h2>prompt და <span class="c-api">ბრძანება</span></h2>
+  <svg viewBox="0 0 1420 200" width="1420" height="200">
+    <g class="in" style="--d:.2s"><text x="40" y="90" class="mono b" font-size="46"><tspan class="tg">root</tspan><tspan class="tm">@</tspan><tspan class="ta">lms-server</tspan><tspan class="tm">:</tspan><tspan class="to">~</tspan><tspan class="tm">#</tspan> <tspan class="tw">ls</tspan> <tspan class="tn">-la</tspan> <tspan class="tr">/var/log</tspan></text></g>
+    <g class="in fade" style="--d:.6s" font-size="19">
+      <text x="88" y="150" text-anchor="middle" class="tg">user</text><text x="300" y="150" text-anchor="middle" class="ta">კომპიუტერი</text><text x="468" y="150" text-anchor="middle" class="to">სად ვარ</text><text x="468" y="185" text-anchor="middle" class="tm"># = root · $ = ჩვეულებრივი</text>
+      <text x="580" y="150" text-anchor="middle" class="tw">ბრძანება</text><text x="690" y="150" text-anchor="middle" class="tn">ოფციები</text><text x="870" y="150" text-anchor="middle" class="tr">არგუმენტი — რაზე</text></g>
+  </svg>
+  <div class="grid3 mt">
+    <div class="card in" style="--d:.9s"><h3>⇥ Tab</h3><p>სახელის ავტოშევსება. ორჯერ Tab — ვარიანტების სია</p></div>
+    <div class="card in" style="--d:1.05s"><h3>↑ ↓</h3><p>წინა ბრძანებები. <code class="i">history</code> — მთელი ისტორია</p></div>
+    <div class="card in" style="--d:1.2s"><h3>Ctrl + C</h3><p>გაშვებული ბრძანების გაჩერება. <b>არა</b> კოპირება!</p></div>
+  </div>
+  <aside class="study">
+### ტერმინალის ანატომია
+
+```console Termius · root@lms-server
+root@lms-server:~# ls -la /var/log
+```
+
+| ნაწილი | რას ნიშნავს |
+|---|---|
+| `root` | ვინ ხარ — user |
+| `lms-server` | რომელ კომპიუტერზე ხარ (Droplet-ის Hostname) |
+| `~` | სად ხარ ახლა (`~` = სახლის საქაღალდე) |
+| `#` | root (ადმინისტრატორი); `$` — ჩვეულებრივი user |
+| `ls` | ბრძანება — რა გააკეთოს |
+| `-la` | ოფციები — როგორ (`-l` დეტალურად, `-a` ფარულებიც) |
+| `/var/log` | არგუმენტი — რაზე |
+
+**სამი ღილაკი, რომელიც დროს დაგიზოგავს:**
+
+- `Tab` — ფაილის ან ბრძანების სახელის ავტოშევსება; ორჯერ `Tab` — შესაძლო ვარიანტები.
+- `↑` / `↓` — წინა ბრძანებები; `history` — მთელი სია.
+- `Ctrl + C` — გაშვებული ბრძანების **გაჩერება** (ტერმინალში ეს კოპირება არ არის!). Termius-ში კოპირება — მონიშვნა, ჩასმა — მარჯვენა ღილაკი ან `Ctrl + Shift + V`.
+  </aside>
+</section>
+
+<section class="slide" data-section="3 · Linux">
+  <div class="kicker">ფაილური სისტემა</div>
+  <h2>ერთი ხე — <span class="c-asp">/</span>-დან</h2>
+  <div class="grid2" style="grid-template-columns:1.1fr 1fr">
+    <code-block lang="plain" cls="big in" title="tree" style="--d:0.20s">
+/                    ← root, ყველაფრის დასაწყისი
+├── root/            ← root user-ის სახლი (~)
+├── home/
+│   └── giorgi/      ← სხვა user-ების სახლი
+├── etc/             ← კონფიგურაცია
+│   └── ssh/
+├── var/
+│   ├── log/         ← ლოგები
+│   └── www/         ← საიტები (Nginx-ის შემდეგ)
+├── usr/bin/         ← პროგრამები
+└── tmp/             ← დროებითი
+    </code-block>
+    <div class="col">
+      <div class="card accent in right" style="--d:0.40s;--a:var(--asp)"><h3>🪟 Windows</h3><p class="mono" style="font-size:18px">C:\Users\Giorgi\Desktop</p><p class="tiny">დისკები ასოებით, <code class="i">\</code></p></div>
+      <div class="card accent in right" style="--d:0.55s;--a:var(--mvc)"><h3>🐧 Linux</h3><p class="mono" style="font-size:18px">/home/giorgi/Desktop</p><p class="tiny">ერთი ხე, <code class="i">/</code>, ასოები განსხვავდება: <code class="i">File</code> ≠ <code class="i">file</code></p></div>
+      <div class="callout step" style="--a:var(--net)">სერვერზე ყველაზე ხშირად: <b>/etc</b> (კონფიგი), <b>/var/log</b> (რა მოხდა), <b>/var/www</b> (საიტი)</div>
+    </div>
+  </div>
+  <aside class="study">
+### ფაილური სისტემა — ერთი ხე `/`-დან
+
+Windows-ში დისკები ასოებითაა (`C:\`, `D:\`). Linux-ში **ერთი ხეა**, რომელიც `/`-დან (root) იწყება — ყველაფერი, დისკებიც, მის შიგნითაა.
+
+```plain tree
+/                    ← root, ყველაფრის დასაწყისი
+├── root/            ← root user-ის სახლი (~)
+├── home/
+│   └── giorgi/      ← სხვა user-ების სახლი
+├── etc/             ← კონფიგურაცია
+│   └── ssh/
+├── var/
+│   ├── log/         ← ლოგები
+│   └── www/         ← საიტები (Nginx-ის შემდეგ)
+├── usr/bin/         ← პროგრამები
+└── tmp/             ← დროებითი
+```
+
+| საქაღალდე | რა არის | როდის დაგჭირდება |
+|---|---|---|
+| `/root` | root user-ის სახლი — დღეს ეს არის `~` | ახლა |
+| `/home/<user>` | ჩვეულებრივი user-ების სახლი | შემდეგი ლექციიდან |
+| `/etc` | პროგრამების კონფიგურაცია | SSH-ის, Nginx-ის პარამეტრები |
+| `/var/log` | ლოგები | „რა გაფუჭდა?“ |
+| `/var/www` | საიტების ფაილები | portfolio სერვერზე (Nginx-ის ლექცია) |
+| `/usr/bin` | დაყენებული პროგრამები | — |
+
+```warn
+Linux-ში **დიდი და პატარა ასოები განსხვავდება**: `Index.html` და `index.html` ორი სხვადასხვა ფაილია. წინა ლექციაზე GitHub Pages-ზე სწორედ ამის გამო „ქრებოდა“ CSS — GitHub Pages-იც Linux-ზე მუშაობს.
+```
+  </aside>
+</section>
+
+<section class="slide" data-section="3 · Linux">
+  <div class="kicker">ნავიგაცია</div>
+  <h2><span class="c-api">pwd</span> · <span class="c-api">ls</span> · <span class="c-api">cd</span></h2>
+  <div class="grid2" style="grid-template-columns:1.15fr 1fr">
+    <code-block lang="console" cls="in" title="Termius · root@lms-server" style="--d:0.20s">
+# pwd
+/root
+
+# ls
+                     ← ცარიელია?
+# ls -la
+drwx------ 4 root root 4096 .
+drwxr-xr-x 19 root root 4096 ..
+-rw-r--r-- 1 root root 3106 .bashrc
+drwx------ 2 root root 4096 .ssh
+
+# cd /etc          # აბსოლუტური გზა
+# cd ..            # ერთით ზემოთ → /
+# cd var/log       # ფარდობითი → /var/log
+# cd ~             # სახლში
+# cd -             # წინა საქაღალდეში
+    </code-block>
+    <div class="col">
+      <table class="t in" style="--d:0.40s;font-size:19px">
+        <tr><th>ბრძანება</th><th>კითხვა</th></tr>
+        <tr><td class="mono">pwd</td><td>სად ვარ?</td></tr>
+        <tr><td class="mono">ls</td><td>რა არის აქ?</td></tr>
+        <tr><td class="mono">ls -la</td><td>დეტალურად, ფარულებიც (<code class="i">.</code>-ით)</td></tr>
+        <tr><td class="mono">cd &lt;გზა&gt;</td><td>გადასვლა</td></tr>
+      </table>
+      <div class="callout step" style="--a:var(--asp)"><b>/</b>-ით იწყება → <b>აბსოლუტური</b> (ფესვიდან). სხვა → <b>ფარდობითი</b> (აქედან)</div>
+    </div>
+  </div>
+  <aside class="study">
+### ნავიგაცია: pwd · ls · cd
+
+```console Termius · root@lms-server
+# pwd
+/root
+
+# ls
+                          ← არაფერი ჩანს?
+# ls -la
+drwx------  4 root root 4096 .
+drwxr-xr-x 19 root root 4096 ..
+-rw-r--r--  1 root root 3106 .bashrc
+drwx------  2 root root 4096 .ssh
+```
+
+- `pwd` (print working directory) — სად ვარ. root-ის სახლი `/root`-ია.
+- `ls` — რა არის მიმდინარე საქაღალდეში. `-l` — დეტალურად (უფლებები, მფლობელი, ზომა), `-a` — **ფარული** ფაილებიც (რომელთა სახელი `.`-ით იწყება, მაგ. `.bashrc`, `.ssh`, `.git`, `.env`). `ls` ცარიელს აჩვენებს, `ls -la` კი — ფარულ `.ssh`-ს: სწორედ იქაა შენი საჯარო გასაღები (`authorized_keys`), რომელიც DigitalOcean-მა ჩადო.
+- `cd <გზა>` — გადასვლა.
+
+```console Termius · root@lms-server
+# cd /etc          # აბსოლუტური გზა — ფესვიდან
+# cd ..            # ერთით ზემოთ → /
+# cd var/log       # ფარდობითი — აქედან → /var/log
+# cd ~             # სახლში (ან უბრალოდ: cd)
+# cd -             # წინა საქაღალდეში
+```
+
+**გზის ორი სახე:** `/`-ით დაწყებული — **აბსოლუტური**, ფესვიდან ითვლება და ყველგან ერთნაირად მუშაობს. დანარჩენი — **ფარდობითი**, მიმდინარე საქაღალდიდან. `.` — მიმდინარე საქაღალდე, `..` — ერთით ზემოთ.
+  </aside>
+</section>
+
+<section class="slide" data-section="3 · Linux">
+  <div class="kicker">ფაილები და საქაღალდეები</div>
+  <h2>შექმნა · კოპირება · <span class="c-red">წაშლა</span></h2>
+  <div class="grid2" style="grid-template-columns:1.1fr 1fr">
+    <code-block lang="console" cls="in" title="Termius · root@lms-server" style="--d:0.20s">
+# mkdir backups
+# mkdir -p site/css/img       # მთელი გზა ერთად
+# touch notes.txt             # ცარიელი ფაილი
+
+# cp notes.txt backups/       # ფაილის კოპირება
+# cp -r site backups/         # საქაღალდე: -r
+# mv notes.txt todo.txt       # სახელის შეცვლა
+# mv todo.txt backups/        # გადატანა
+
+# rm backups/todo.txt         # ფაილის წაშლა
+# rm -r backups               # საქაღალდე — მთლიანად
+    </code-block>
+    <div class="col">
+      <div class="card accent in right" style="--d:0.40s;--a:var(--net)"><h3>🔁 -r = recursive</h3><p>საქაღალდე <b>შიგთავსით</b>: <code class="i">cp -r</code>, <code class="i">rm -r</code></p></div>
+      <div class="card accent in right" style="--d:0.55s;--a:var(--asp)"><h3>✂️ mv</h3><p>ერთი ბრძანება — <b>გადატანაც</b> და <b>სახელის შეცვლაც</b></p></div>
+      <div class="callout step" style="--a:var(--red);font-size:22px">⚠ <b>სანაგვე ყუთი არ არის.</b> <code class="i">rm</code> = სამუდამოდ. <code class="i">rm -rf /</code> — არასოდეს</div>
+    </div>
+  </div>
+  <aside class="study">
+### შექმნა · კოპირება · წაშლა
+
+```console Termius · root@lms-server
+# mkdir backups
+# mkdir -p site/css/img       # მთელი გზა ერთად (-p = parents)
+# touch notes.txt             # ცარიელი ფაილი
+
+# cp notes.txt backups/       # ფაილის კოპირება
+# cp -r site backups/         # საქაღალდის კოპირება: -r
+# mv notes.txt todo.txt       # სახელის შეცვლა
+# mv todo.txt backups/        # გადატანა
+
+# rm backups/todo.txt         # ფაილის წაშლა
+# rm -r backups               # საქაღალდე — მთელი შიგთავსით
+```
+
+| ბრძანება | რას აკეთებს |
+|---|---|
+| `mkdir <dir>` | საქაღალდე; `-p` — საჭირო შუალედურებიც |
+| `touch <file>` | ცარიელი ფაილი |
+| `cp <from> <to>` | კოპირება; `-r` — საქაღალდე |
+| `mv <from> <to>` | გადატანა **ან** სახელის შეცვლა |
+| `rm <file>` | წაშლა; `-r` — საქაღალდე |
+
+```warn
+Linux-ში **სანაგვე ყუთი არ არის**: `rm` ფაილს სამუდამოდ შლის, შეკითხვის გარეშე. `-f` (force) კიდევ უფრო „ჩუმად“ შლის. ინტერნეტში ნანახი `rm -rf /` მთელ სისტემას შლის — და root-ს ამის უფლება აქვს. არასოდეს გაუშვა ბრძანება, რომლის მნიშვნელობაც არ იცი.
+```
+  </aside>
+</section>
+
+<section class="slide" data-section="3 · Linux">
+  <div class="kicker">კითხვა და რედაქტირება</div>
+  <h2><span class="c-api">cat</span> · <span class="c-api">tail -f</span> · <span class="c-mvc">nano</span></h2>
+  <div class="grid2" style="grid-template-columns:1fr 1fr">
+    <div class="col">
+      <code-block lang="console" cls="in" title="Termius · root@lms-server" style="--d:0.20s">
+# cat /etc/os-release          # მთლიანად
+# less /var/log/syslog         # გვერდებად (q)
+# head -n 5 /var/log/auth.log  # პირველი 5
+# tail -n 20 /var/log/auth.log # ბოლო 20
+# tail -f /var/log/auth.log    # ცოცხლად! (Ctrl+C)
+# grep Invalid /var/log/auth.log  # ძებნა
+      </code-block>
+      <div class="callout step" style="--a:var(--mvc)">🤖 <code class="i">tail -f /var/log/auth.log</code> — ნახე, როგორ ცდილობენ ბოტები შენს სერვერზე შესვლას <b>ახლავე</b></div>
+    </div>
+    <div class="col">
+      <code-block lang="console" cls="in" title="Termius · root@lms-server" style="--d:0.40s">
+# nano notes.txt
+      </code-block>
+      <table class="t in" style="--d:0.60s;font-size:19px">
+        <tr><th>nano-ში</th><th>რას აკეთებს</th></tr>
+        <tr><td class="mono">Ctrl + O → Enter</td><td>შენახვა</td></tr>
+        <tr><td class="mono">Ctrl + X</td><td>გასვლა</td></tr>
+        <tr><td class="mono">Ctrl + W</td><td>ძებნა</td></tr>
+        <tr><td class="mono">Ctrl + K / U</td><td>ხაზის ამოჭრა / ჩასმა</td></tr>
+      </table>
+    </div>
+  </div>
+  <aside class="study">
+### კითხვა და რედაქტირება: cat · tail -f · nano
+
+**წაკითხვა:**
+
+```console Termius · root@lms-server
+# cat /etc/os-release            # მთლიანად ეკრანზე — რომელი Linux-ია
+# less /var/log/syslog           # გვერდებად: ↑↓, Space, / ძებნა, q — გასვლა
+# head -n 5 /var/log/auth.log    # პირველი 5 ხაზი
+# tail -n 20 /var/log/auth.log   # ბოლო 20 ხაზი
+# tail -f /var/log/auth.log      # „ცოცხლად“ — ახალი ხაზები ჩნდება; Ctrl+C — გაჩერება
+# grep Invalid /var/log/auth.log # მხოლოდ ის ხაზები, რომლებშიც Invalid წერია
+```
+
+`/var/log/auth.log` — შესვლის ლოგი: ვინ შევიდა და ვინ სცადა. ახალ სერვერზეც უკვე ჩანს ბოტების ცდები (`Invalid user admin...`) — ისინი ვერ შემოდიან, რადგან შესვლა მხოლოდ გასაღებითაა.
+
+`tail -f` სერვერზე ერთ-ერთი ყველაზე ხშირი ბრძანებაა: გახსნი ლოგს, ბრაუზერში საიტს განაახლებ — და ხედავ, რა მოხდა იმ წამს. ეს **მონიტორინგის** უმარტივესი ფორმაა. `grep <სიტყვა> <ფაილი>` — ფაილიდან მხოლოდ იმ ხაზებს აჩვენებს, რომლებშიც სიტყვა გვხვდება.
+
+**რედაქტირება — `nano`:** ტერმინალის მარტივი ტექსტური რედაქტორი. ქვედა ზოლში წერია მთავარი ღილაკები (`^` = Ctrl).
+
+| nano-ში | რას აკეთებს |
+|---|---|
+| `Ctrl + O` → `Enter` | შენახვა |
+| `Ctrl + X` | გასვლა (თუ არ შეინახე — გკითხავს) |
+| `Ctrl + W` | ძებნა |
+| `Ctrl + K` / `Ctrl + U` | ხაზის ამოჭრა / ჩასმა |
+
+```tip
+სერვერზე კონფიგურაციის ფაილებს (`/etc/ssh/...`, `/etc/nginx/...`) სწორედ `nano`-თი შეცვლი — შემდეგ ლექციაზე უკვე დაგჭირდება. სხვა პოპულარული რედაქტორია `vim` — ძლიერია, მაგრამ თავიდან რთული. თუ შემთხვევით გაიხსნა: `Esc`, მერე `:q!` და `Enter`.
+```
+  </aside>
+</section>
+
+<section class="slide" data-section="შეჯამება">
+  <div class="kicker">შპარგალკა</div>
+  <h2>დღევანდელი <span class="c-api">ბრძანებები</span></h2>
+  <div class="grid3" style="gap:24px">
+    <div class="card accent in" style="--d:0.20s;--a:var(--net)"><h3>💻 შენთან (ერთხელ)</h3><p class="mono" style="font-size:17px;line-height:1.85">ssh-keygen -t ed25519<br>cat ~/.ssh/id_ed25519.pub<br>Termius: Import key<br>Termius: New Host</p></div>
+    <div class="card accent in" style="--d:0.35s;--a:var(--mvc)"><h3>📁 ნავიგაცია და ფაილები</h3><p class="mono" style="font-size:17px;line-height:1.85">pwd · ls -la · cd<br>mkdir -p · touch<br>cp -r · mv · rm -r</p></div>
+    <div class="card accent in" style="--d:0.50s;--a:var(--asp)"><h3>📖 კითხვა და რედაქტირება</h3><p class="mono" style="font-size:17px;line-height:1.85">cat · less · head · tail<br>tail -f · grep<br>nano<br>df -h · free -h</p></div>
+  </div>
+  <aside class="study">
+### შპარგალკა: დღევანდელი ბრძანებები
+
+**💻 შენს კომპიუტერზე (ერთხელ):**
+
+| ბრძანება | რას აკეთებს |
+|---|---|
+| `ssh-keygen -t ed25519 -C "email"` | გასაღებების წყვილი |
+| `cat ~/.ssh/id_ed25519.pub` | საჯარო ნაწილი — DigitalOcean-ში/GitHub-ზე |
+| Termius: Keychain → Import, Hosts → New Host | სერვერთან კავშირი |
+
+**📁 სერვერზე — ნავიგაცია და ფაილები:**
+
+| ბრძანება | რას აკეთებს |
+|---|---|
+| `pwd` / `ls -la` / `cd` | სად ვარ / რა არის აქ / გადასვლა |
+| `mkdir -p` / `touch` | საქაღალდე / ცარიელი ფაილი |
+| `cp -r` / `mv` / `rm -r` | კოპირება / გადატანა-სახელი / წაშლა |
+
+**📖 სერვერზე — კითხვა და რედაქტირება:**
+
+| ბრძანება | რას აკეთებს |
+|---|---|
+| `cat` / `less` / `head` / `tail` | წაკითხვა / გვერდებად / დასაწყისი / ბოლო |
+| `tail -f` | ლოგი ცოცხლად |
+| `grep <სიტყვა> <ფაილი>` | ხაზების ძებნა |
+| `nano` | რედაქტირება (`Ctrl+O` შენახვა, `Ctrl+X` გასვლა) |
+| `df -h` / `free -h` / `uptime` | დისკი / RAM / რამდენი ხანია ჩართულია |
+  </aside>
+</section>
+
+<lecture-classwork/>
+<lecture-check/>
+
+<section class="slide" data-section="შეჯამება">
+  <div class="kicker">შეჯამება</div>
+  <h2>დღეს ვისწავლეთ</h2>
+  <div class="col" style="gap:30px;margin-top:30px">
+    <div class="row in left" style="--d:0.20s;gap:20px;align-items:center"><span class="big-emoji" style="font-size:44px">🔑</span><span style="font-size:29px"><b>SSH გასაღები</b> — 🔒 .pub სერვერზე, 🔑 პირადი მხოლოდ შენთან</span></div>
+    <div class="row in left" style="--d:0.35s;gap:20px;align-items:center"><span class="big-emoji" style="font-size:44px">💧</span><span style="font-size:29px"><b>Droplet</b> — Ubuntu 24.04 ფრანკფურტში; Power Off-იც ფასიანია</span></div>
+    <div class="row in left" style="--d:0.50s;gap:20px;align-items:center"><span class="big-emoji" style="font-size:44px">⚡</span><span style="font-size:29px"><b>Termius</b> — სერვერზე ამიერიდან მასში ვმუშაობთ</span></div>
+    <div class="row in left" style="--d:0.65s;gap:20px;align-items:center"><span class="big-emoji" style="font-size:44px">🌳</span><span style="font-size:29px"><b>Linux</b> — ერთი ხე <code class="i">/</code>-დან; <code class="i">ls cd cp mv rm cat tail -f nano</code></span></div>
+  </div>
+  <p class="lead in mt" style="--d:0.85s;text-align:center">შემდეგ ლექციაზე: <b>Linux</b> — user-ები, უფლებები და სერვერის დაცვა 🛡️</p>
+  <aside class="study">
+## შეჯამება · დღეს ვისწავლეთ
+
+- 🔑 **SSH გასაღები** — წყვილი: საჯარო `.pub` (საკეტი) მიდის სერვერზე `authorized_keys`-ში; პირადი (გასაღები) მხოლოდ შენთანაა.
+- 💧 **Droplet** — DigitalOcean-ის VPS: Frankfurt, Ubuntu 24.04, SSH Key. ფასი საათობრივია; Power Off გადახდას არ აჩერებს — მხოლოდ Destroy.
+- ⚡ **Termius** — SSH კლიენტი; სერვერზე ამიერიდან ყველაფერს მასში ვაკეთებთ (იგივე გასაღებით, რაც WSL-შია).
+- 🌳 **Linux სერვერზე** — ერთი ხე `/`-დან: `/root` (დღეს `~`), `/etc` კონფიგი, `/var/log` ლოგები. `pwd`, `ls -la`, `cd`, `mkdir -p`, `cp -r`, `mv`, `rm -r`, `cat`, `tail -f`, `grep`, `nano`. სანაგვე ყუთი არ არის.
+
+**შემდეგ ლექციაზე:** root-ის ნაცვლად ცალკე user, `sudo` და `apt`, უფლებები, პროცესები და port-ები — და სერვერის დაცვა: SSH-ის კონფიგი, firewall, swap.
+
+```prompt გამოცდა მესამე ლექციაზე
+ვსწავლობ DevOps-ს. მესამე ლექციაზე გავიარეთ: SSH და გასაღებები (ssh-keygen ed25519, public vs private, authorized_keys), DigitalOcean Droplet-ის შექმნა, Termius-ით დაკავშირება, და Linux-ის საფუძვლები სერვერზე: ფაილური სისტემა (/, ~, /root, /etc, /var/log), ნავიგაცია (pwd, ls -la, cd), ფაილები (mkdir -p, cp -r, mv, rm -r, cat, tail -f, grep, nano).
+დამისვი 8 კითხვა სათითაოდ, მარტივიდან რთულისკენ — ნაწილი პრაქტიკული იყოს („რა ბრძანებას გაუშვებ, როცა…“). ყოველ პასუხზე შემიფასე და ამიხსენი. ბოლოს მითხარი, რა გავიმეორო. ქართულად.
+```
+
+```prompt SSH-ით ვერ ვუკავშირდები
+SSH-ით ჩემს Ubuntu სერვერს ვერ ვუკავშირდები (Termius). დამეხმარე პრობლემის პოვნაში ნაბიჯ-ნაბიჯ, მარტივად და ქართულად: ჯერ დამისვი კითხვები, მერე მირჩიე, რა შევამოწმო. რას ვაკეთებ: [აქ]. შეცდომის ტექსტი: [აქ].
+```
+
+```prompt Linux-ის ბრძანება არ მესმის
+ვსწავლობ Linux-ს (Ubuntu). ამიხსენი ეს ბრძანება მარტივად, ქართულად: რას აკეთებს თითოეული ნაწილი, როდის ვიყენებ, რა შეიძლება გაფუჭდეს, და ერთი მაგალითი ტერმინალის გამოსავლით. ბრძანება: [აქ ჩასვი ბრძანება]
+```
+  </aside>
+</section>
+<lecture-homework/>

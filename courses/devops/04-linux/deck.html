@@ -1,0 +1,609 @@
+<!-- =========================================================
+     ლექცია 4 — Linux სერვერზე: user · sudo/apt · უფლებები · პროცესები · sshd · ufw · swap · ssh config
+     ========================================================= -->
+
+<!-- 1. TITLE -->
+<section class="slide" data-section="შესავალი">
+  <div class="vcenter" style="max-width:860px">
+    <div class="kicker in">DevOps Crash Course · ლექცია 4</div>
+    <h1 class="in" style="--d:.15s"><span class="grad">Linux</span> 🐧<br>და სერვერის დაცვა</h1>
+    <p class="lead in mt" style="--d:.35s">user-ები · sudo და apt · უფლებები · პროცესები · firewall</p>
+  </div>
+  <div class="abs" style="right:100px;top:200px">
+    <svg viewBox="0 0 480 360" width="480" height="360">
+      <g class="in" style="--d:.5s"><rect x="10" y="10" width="460" height="330" rx="18" fill="#0a0c16" stroke="#353b6b" stroke-width="3"/>
+        <circle cx="40" cy="38" r="8" fill="#f43f5e"/><circle cx="64" cy="38" r="8" fill="#f5a524"/><circle cx="88" cy="38" r="8" fill="#22c55e"/>
+        <text x="36" y="100" class="tg mono b" font-size="20">giorgi@lms-server:~$</text><text x="36" y="132" class="tw mono" font-size="20">sudo ufw status</text>
+        <text x="36" y="164" class="ta mono" font-size="20">Status: active</text>
+        <text x="36" y="210" class="tg mono b" font-size="20">giorgi@lms-server:~$</text><text x="36" y="242" class="tw mono" font-size="20">sudo ss -tlnp</text>
+        <text x="36" y="290" class="tg mono b" font-size="20">giorgi@lms-server:~$ <tspan class="tw">▊</tspan></text></g>
+    </svg>
+  </div>
+</section>
+
+<lecture-review/>
+<lecture-homework-review/>
+<lecture-intro/>
+
+<!-- ================= PART 1: USERS / SUDO / PERMISSIONS ================= -->
+<section class="slide divider" data-section="1 · user-ები">
+  <div class="vcenter">
+    <div class="kicker in">ნაწილი 1</div>
+    <h1 class="in" style="--d:.1s">ვინ და <span class="grad">რისი უფლებით</span> 🔐</h1>
+    <p class="lead mt in" style="--d:.3s">root · user · sudo · apt · chmod</p>
+  </div>
+  <div class="big-num">01</div>
+  <aside class="study">
+## ნაწილი 1 · ვინ და რისი უფლებით
+
+წინა ლექციაზე ყველაფერს root-ით ვაკეთებდით. დღეს ვქმნით საკუთარ user-ს, ვსწავლობთ `sudo`-ს, `apt`-ს და ფაილების უფლებებს.
+  </aside>
+</section>
+
+<section class="slide" data-section="1 · user-ები">
+  <div class="kicker">პრობლემა → ვაკეთებთ ერთად</div>
+  <h2><span class="c-red">root</span>-ის ნაცვლად — <span class="c-mvc">giorgi + sudo</span></h2>
+  <div class="grid2" style="grid-template-columns:1.25fr 1fr">
+    <code-block lang="console" cls="in" title="Termius · root@lms-server" style="--d:0.20s">
+# adduser giorgi
+New password: ********
+Full Name []:                    ← Enter-ებით
+Is the information correct? [Y/n] y
+
+# usermod -aG sudo giorgi        ← sudo ჯგუფში
+
+# rsync --archive --chown=giorgi:giorgi \
+        ~/.ssh /home/giorgi        ← გასაღები მასაც
+    </code-block>
+    <div class="col">
+      <div class="card accent in right" style="--d:0.40s;--a:var(--red)"><h3>👑 root</h3><p>ყველაფრის უფლება — მათ შორის <b>ყველაფრის გაფუჭების</b>. მის სახელს ყველა ბოტი იცის</p></div>
+      <code-block lang="console" cls="in" title="Termius · New Host: Username giorgi" style="--d:0.55s">
+giorgi@lms-server:~$ sudo whoami
+[sudo] password for giorgi:
+root
+      </code-block>
+      <div class="callout step" style="--a:var(--net)">🎫 <b>sudo</b> — „ეს <b>ერთი</b> ბრძანება root-ის უფლებით“. პაროლი მხოლოდ sudo-სთვისაა, შესვლა — ისევ <b>გასაღებით</b></div>
+    </div>
+  </div>
+  <aside class="study">
+### root-ის ნაცვლად — ცალკე user და sudo
+
+Linux-ში ყველა მოქმედებას რომელიმე **user** აკეთებს (`whoami` — ვინ ვარ). წინა ლექციაზე ვიყავით **root** — ადმინისტრატორი, რომელსაც ყველაფრის უფლება აქვს, მათ შორის სისტემის გაფუჭების. root-ის სახელს ყველა ბოტიც იცის.
+
+ამიტომ ვქმნით ჩვეულებრივ user-ს და მხოლოდ საჭირო ბრძანებას ვუშვებთ root-ის უფლებით — **`sudo`**-თი (super user do):
+
+```console Termius · root@lms-server
+# adduser giorgi                   # ახალი user — ითხოვს პაროლს, დანარჩენზე Enter
+# usermod -aG sudo giorgi          # -aG: დაამატე ჯგუფში sudo
+# rsync --archive --chown=giorgi:giorgi ~/.ssh /home/giorgi
+```
+
+ბოლო ბრძანება root-ის `~/.ssh` საქაღალდეს (შენი საჯარო გასაღებით) ახალი user-ის სახლში — `/home/giorgi`-ში — აკოპირებს და მფლობელად მას ნიშნავს. ასე `giorgi`-თიც გასაღებით შეხვალ.
+
+Termius-ში შექმენი **მეორე Host** — იგივე IP და გასაღები, ოღონდ Username: `giorgi`. ახალი Host → Connect:
+
+```console Termius · giorgi@lms-server
+giorgi@lms-server:~$ whoami
+giorgi
+giorgi@lms-server:~$ sudo whoami
+[sudo] password for giorgi:
+root
+```
+
+prompt-ში ახლა `$` წერია — ჩვეულებრივი user. `sudo` პირველად **შენს** პაროლს ითხოვს (რამდენიმე წუთი იმახსოვრებს). პაროლის აკრეფისას ეკრანზე არაფერი ჩანს — ეს ნორმალურია. `adduser`-ში მითითებული პაროლი **შესვლისთვის არ გამოიყენება** — ის მხოლოდ `sudo`-სთვისაა.
+
+```note
+ამიერიდან სერვერზე `giorgi`-ს Host-ით ვმუშაობთ. root-ის Host-ს ნაწილ 3-ში ვამოწმებთ — როცა root-ით შესვლას საერთოდ ავკრძალავთ.
+```
+  </aside>
+</section>
+
+<section class="slide" data-section="1 · user-ები">
+  <div class="kicker">პროგრამების დაყენება</div>
+  <h2><span class="c-net">apt</span> — და რატომ სჭირდება <span class="c-mvc">sudo</span></h2>
+  <div class="grid2" style="grid-template-columns:1.1fr 1fr">
+    <code-block lang="console" cls="in" title="Termius · giorgi@lms-server" style="--d:0.20s">
+$ apt install tree
+E: Could not open lock file ... Permission denied
+E: Unable to acquire the dpkg frontend lock,
+   are you root?
+
+$ sudo apt update            # პაკეტების სია
+$ sudo apt upgrade -y        # განახლებები
+$ sudo apt install -y tree htop
+$ tree --version
+tree v2.1.1
+    </code-block>
+    <div class="col">
+      <div class="card accent in right" style="--d:0.40s;--a:var(--net)"><h3>📦 apt</h3><p>პროგრამების „მაღაზია“: <code class="i">update</code> → <code class="i">install</code> · <code class="i">upgrade</code> · <code class="i">remove</code></p></div>
+      <div class="card accent in right" style="--d:0.55s;--a:var(--mvc)"><h3>🔄 apt upgrade</h3><p>უსაფრთხოების განახლებები — ახალ სერვერზე <b>პირველივე დღეს</b></p></div>
+      <div class="callout step" style="--a:var(--asp)">Nginx-ს, .NET-ს და Docker-ს სწორედ <code class="i">apt</code>-ით დავაყენებთ</div>
+    </div>
+  </div>
+  <aside class="study">
+### apt — და რატომ სჭირდება sudo
+
+**apt** — Ubuntu-ს პროგრამების „მაღაზია“. პროგრამის დაყენება სისტემას ცვლის, ამიტომ ჩვეულებრივ user-ს ამის უფლება არ აქვს:
+
+```console Termius · giorgi@lms-server
+$ apt install tree
+E: Could not open lock file ... Permission denied
+E: Unable to acquire the dpkg frontend lock, are you root?
+
+$ sudo apt update                # პაკეტების სიის განახლება
+$ sudo apt upgrade -y            # დაყენებული პროგრამების განახლება
+$ sudo apt install -y tree htop  # დაყენება (-y = ყველა კითხვაზე „კი“)
+```
+
+| ბრძანება | რას აკეთებს |
+|---|---|
+| `apt update` | პაკეტების **სიას** აახლებს (რა ვერსიები არსებობს) |
+| `apt upgrade` | დაყენებულ პროგრამებს აახლებს — ახალ სერვერზე პირველივე დღეს (უსაფრთხოების პატჩები) |
+| `apt install` | აყენებს |
+| `apt remove` | შლის |
+
+სერვერზე Nginx-ს, .NET-ს და Docker-ს სწორედ ასე დავაყენებთ. `&&`-ით ორი ბრძანება ერთად: `sudo apt update && sudo apt upgrade -y` — მეორე მხოლოდ მაშინ სრულდება, თუ პირველი წარმატებით დასრულდა.
+
+```warn
+ბრძანება „Permission denied“-ით ჩავარდა? ჯერ იფიქრე, **რატომ** სჭირდება root — და მხოლოდ მერე დაუმატე `sudo`. ყველაფრის sudo-თი გაშვება ცუდი ჩვევაა.
+```
+  </aside>
+</section>
+
+<section class="slide" data-section="1 · user-ები">
+  <div class="kicker">უფლებები</div>
+  <h2><span class="mono c-api">-rw-r--r--</span> — ვის რისი უფლება აქვს</h2>
+  <svg viewBox="0 0 1420 180" width="1420" height="180">
+    <g class="in mono b" style="--d:.2s" font-size="48"><text x="40" y="70" class="tm">-</text><text x="140" y="70" class="tg">rw-</text><text x="300" y="70" class="ta">r--</text><text x="460" y="70" class="to">r--</text><text x="640" y="70" class="tw" font-size="30">1  giorgi giorgi  1520  index.html</text></g>
+    <g class="in fade" style="--d:.5s" font-size="20"><text x="54" y="125" text-anchor="middle" class="tm">ტიპი</text><text x="183" y="125" text-anchor="middle" class="tg b">მფლობელი</text><text x="343" y="125" text-anchor="middle" class="ta b">ჯგუფი</text><text x="503" y="125" text-anchor="middle" class="to b">სხვები</text><text x="840" y="125" text-anchor="middle" class="tw">მფლობელი · ჯგუფი</text>
+      <text x="54" y="158" text-anchor="middle" class="tm" font-size="15">- ფაილი · d საქაღ.</text></g>
+  </svg>
+  <div class="grid2" style="grid-template-columns:1fr 1.1fr">
+    <table class="t in" style="--d:0.70s;font-size:20px">
+      <tr><th>ასო</th><th>რიცხვი</th><th>ფაილზე</th><th>საქაღალდეზე</th></tr>
+      <tr><td class="mono">r</td><td>4</td><td>წაკითხვა</td><td>სიის ნახვა</td></tr>
+      <tr><td class="mono">w</td><td>2</td><td>ჩაწერა</td><td>შექმნა/წაშლა შიგნით</td></tr>
+      <tr><td class="mono">x</td><td>1</td><td>გაშვება</td><td>შესვლა (<code class="i">cd</code>)</td></tr>
+    </table>
+    <div class="col">
+      <div class="method-card step" style="--a:var(--mvc)"><span class="m mono" style="min-width:70px">644</span><span class="t">ფაილი: მე ვწერ, ყველა კითხულობს — <b>HTML, CSS</b></span></div>
+      <div class="method-card step" style="--a:var(--net)"><span class="m mono" style="min-width:70px">755</span><span class="t">საქაღალდე / სკრიპტი: ყველა შედის / უშვებს</span></div>
+      <div class="method-card step" style="--a:var(--red)"><span class="m mono" style="min-width:70px">600</span><span class="t">მხოლოდ მე — <b>SSH გასაღები</b>, <b>.env</b></span></div>
+    </div>
+  </div>
+  <aside class="study">
+### უფლებები: ვის რისი უფლება აქვს
+
+`ls -l` ყოველ ფაილზე აჩვენებს 10 სიმბოლოს:
+
+```console Termius · giorgi@lms-server
+$ ls -l index.html
+-rw-r--r-- 1 giorgi giorgi 1520 Nov 28 10:15 index.html
+```
+
+- პირველი სიმბოლო — ტიპი: `-` ფაილი, `d` საქაღალდე.
+- შემდეგ სამ-სამად: **მფლობელი** (`rw-`), **ჯგუფი** (`r--`), **სხვები** (`r--`).
+- მერე — მფლობელი user და ჯგუფი (`giorgi giorgi`).
+
+| ასო | რიცხვი | ფაილზე | საქაღალდეზე |
+|---|---|---|---|
+| `r` | 4 | წაკითხვა | შიგთავსის სიის ნახვა |
+| `w` | 2 | ჩაწერა | შიგნით შექმნა/წაშლა |
+| `x` | 1 | გაშვება | შესვლა (`cd`) |
+
+რიცხვი = ჯამი: `rw-` = 4+2 = **6**, `r--` = **4**, `rwx` = **7**. ასე `-rw-r--r--` = **644**.
+
+| რიცხვი | ვისთვის | მაგალითი |
+|---|---|---|
+| `644` | მე ვწერ, ყველა კითხულობს | HTML, CSS, კონფიგი |
+| `755` | მე ვწერ, ყველა შედის/უშვებს | საქაღალდე, სკრიპტი |
+| `600` | მხოლოდ მე | **SSH-ის პირადი გასაღები**, `.env` |
+
+ნამდვილი მაგალითი სერვერზე — შენი გასაღებების საქაღალდე:
+
+```console Termius · giorgi@lms-server
+$ ls -la ~/.ssh
+drwx------ 2 giorgi giorgi 4096 .                  ← 700: მხოლოდ giorgi
+-rw------- 1 giorgi giorgi   98 authorized_keys    ← 600: მხოლოდ giorgi
+```
+
+SSH ამას ამოწმებს: თუ `authorized_keys` ან პირადი გასაღები სხვებისთვისაც ღიაა, ის მის გამოყენებაზე **უარს** იტყვის.
+
+```console Termius · giorgi@lms-server
+$ chmod 600 secret.txt           # უფლებები რიცხვით
+$ chmod +x deploy.sh             # გაშვების უფლება დაამატე
+$ sudo chown -R giorgi:giorgi /var/www/portfolio   # მფლობელის შეცვლა
+```
+
+```tip
+როცა Nginx საიტს ვერ აჩვენებს (403 Forbidden), ხშირად მიზეზი სწორედ უფლებებია — ამას შემდეგ ლექციაზე ვნახავთ.
+```
+  </aside>
+</section>
+
+<section class="slide" data-section="☕ შესვენება">
+  <div class="center">
+    <div class="big-emoji float" style="font-size:120px">☕</div>
+    <h1 class="mt">შესვენება</h1>
+    <p class="lead mt">10 წუთი · მერე — პროცესები და სერვერის დაცვა</p>
+  </div>
+</section>
+
+<!-- ================= PART 2: PROCESSES ================= -->
+<section class="slide divider" data-section="2 · პროცესები">
+  <div class="vcenter">
+    <div class="kicker in">ნაწილი 2</div>
+    <h1 class="in" style="--d:.1s">რა <span class="grad">მუშაობს</span> სერვერზე ⚙️</h1>
+    <p class="lead mt in" style="--d:.3s">ps · htop · kill · ss</p>
+  </div>
+  <div class="big-num">02</div>
+  <aside class="study">
+## ნაწილი 2 · რა მუშაობს სერვერზე
+
+გაშვებული პროგრამები (პროცესები) და port-ები, რომლებსაც ისინი უსმენენ.
+  </aside>
+</section>
+
+<section class="slide" data-section="2 · პროცესები">
+  <div class="kicker">პროცესები და port-ები</div>
+  <h2>რა <span class="c-asp">მუშაობს</span> ახლა?</h2>
+  <div class="grid2" style="grid-template-columns:1.15fr 1fr">
+    <code-block lang="console" cls="in" title="Termius · giorgi@lms-server" style="--d:0.20s">
+$ ps aux | grep sshd
+root   812  0.0  0.9 ... sshd: /usr/sbin/sshd
+
+$ htop                 # ცოცხლად: CPU, RAM (q)
+
+$ sleep 1000 &         # სატესტო პროცესი
+[1] 2481
+$ kill 2481            # გაჩერება PID-ით
+$ kill -9 2481         # თუ არ ჩერდება — ძალით
+
+$ sudo ss -tlnp
+State   Local Address:Port   Process
+LISTEN  0.0.0.0:22           sshd
+    </code-block>
+    <div class="col">
+      <div class="card accent in right" style="--d:0.40s;--a:var(--asp)"><h3>⚙️ პროცესი</h3><p>გაშვებული პროგრამა. ყველას აქვს ნომერი — <b>PID</b></p></div>
+      <div class="card accent in right" style="--d:0.55s;--a:var(--net)"><h3>🚪 port</h3><p>„კარი“, რომელსაც პროგრამა უსმენს: 22 — SSH, 80 — HTTP, 443 — HTTPS</p></div>
+      <div class="callout step" style="--a:var(--mvc)">„საიტი არ იხსნება“ → <code class="i">ss -tlnp</code>: <b>უსმენს</b> კი ვინმე port-ს?</div>
+    </div>
+  </div>
+  <aside class="study">
+### პროცესები და port-ები: რა მუშაობს ახლა?
+
+**პროცესი** — გაშვებული პროგრამა. ყველას აქვს უნიკალური ნომერი — **PID**.
+
+```console Termius · giorgi@lms-server
+$ ps aux | grep sshd       # ყველა პროცესიდან — მხოლოდ sshd
+root   812  0.0  0.9 ... sshd: /usr/sbin/sshd
+
+$ htop                     # „Task Manager“ ტერმინალში: CPU, RAM; q — გასვლა
+
+$ sleep 1000 &             # სატესტო პროცესი ფონზე (& — ტერმინალი თავისუფალი რჩება)
+[1] 2481
+$ kill 2481                # PID 2481-ის გაჩერება
+$ kill -9 2481             # თუ არ ჩერდება — ძალით
+```
+
+**`|` (pipe)** — ერთი ბრძანების შედეგი მეორეს გადაეცემა: `ps aux | grep sshd` — ყველა პროცესიდან `grep` მხოლოდ `sshd`-იან ხაზებს ტოვებს.
+
+**port** — „კარი“, რომელსაც პროგრამა ქსელიდან მოთხოვნებისთვის უსმენს. API-ს `dotnet run` რომ გაუშვი, ის port `5080`-ს უსმენდა. სტანდარტული port-ები: **22** — SSH, **80** — HTTP, **443** — HTTPS, **5432** — PostgreSQL.
+
+```console Termius · giorgi@lms-server
+$ sudo ss -tlnp
+State   Local Address:Port   Process
+LISTEN  0.0.0.0:22           sshd
+```
+
+`ss -tlnp` — ვინ რომელ port-ს უსმენს (`t` TCP, `l` listening, `n` რიცხვებით, `p` პროცესი). `0.0.0.0` — ყველასთვის ღიაა; `127.0.0.1` — მხოლოდ ამავე კომპიუტერიდან. ახლა სერვერზე მხოლოდ SSH-ია; მომდევნო ლექციებზე აქ გამოჩნდება `nginx` (80) და `dotnet` (5080).
+
+```tip
+„საიტი არ იხსნება“ — DevOps-ის პირველი კითხვა: პროცესი **გაშვებულია**? (`ps`) და port-ს **უსმენს**? (`ss -tlnp`). ეს ორი ბრძანება პრობლემების ნახევარს პოულობს.
+```
+  </aside>
+</section>
+
+<!-- ================= PART 3: HARDENING ================= -->
+<section class="slide divider" data-section="3 · დაცვა">
+  <div class="vcenter">
+    <div class="kicker in">ნაწილი 3</div>
+    <h1 class="in" style="--d:.1s">სერვერის <span class="grad">დაცვა</span> 🛡️</h1>
+    <p class="lead mt in" style="--d:.3s">SSH-ის კონფიგი · firewall · swap</p>
+  </div>
+  <div class="big-num">03</div>
+  <aside class="study">
+## ნაწილი 3 · სერვერის დაცვა
+
+ბოტები ახალ სერვერს წუთებში პოულობენ (`/var/log/auth.log` წინა ლექციიდან). ნაბიჯები, რომლებსაც ყოველ ახალ სერვერზე ვაკეთებთ — უკვე ნასწავლი `nano`-თი, `sudo`-თი და `chmod`-ით.
+  </aside>
+</section>
+
+<section class="slide" data-section="3 · დაცვა">
+  <div class="kicker">ნაბიჯი 1 · SSH-ის კონფიგი</div>
+  <h2>root-ით და პაროლით — <span class="c-red">აკრძალულია</span></h2>
+  <div class="grid2" style="grid-template-columns:1.2fr 1fr">
+    <div class="col">
+      <code-block lang="console" cls="in" title="Termius · giorgi@lms-server" style="--d:0.20s">
+$ sudo nano /etc/ssh/sshd_config.d/00-hardening.conf
+      </code-block>
+      <code-block lang="ini" cls="big in" title="00-hardening.conf" style="--d:0.35s">
+PermitRootLogin no
+PasswordAuthentication no
+      </code-block>
+      <code-block lang="console" cls="in" title="Termius · giorgi@lms-server" style="--d:0.50s">
+$ sudo sshd -t                    # სინტაქსი OK?
+$ sudo systemctl restart ssh
+$ sudo sshd -T | grep -E "permitroot|passwordauth"
+permitrootlogin no
+passwordauthentication no
+      </code-block>
+    </div>
+    <div class="col">
+      <div class="callout step" style="--a:var(--red);font-size:22px">⚠ <b>ეს tab არ დახურო!</b> ჯერ Termius-ის <b>ახალ</b> tab-ში შეამოწმე, რომ <code class="i">giorgi</code>-ით შესვლა მუშაობს</div>
+      <div class="card accent step" style="--a:var(--net)"><h3>🧪 შემოწმება</h3><p class="mono" style="font-size:17px">Termius → root-ის Host → Connect<br>Permission denied (publickey).</p><p class="tiny mt">ასეც უნდა იყოს ✓</p></div>
+      <div class="card step" style="padding:16px 22px"><p class="tiny"><b>რატომ 00-?</b> SSH ერთ პარამეტრზე <b>პირველ</b> მნიშვნელობას იღებს, ფაილებს კი ანბანით კითხულობს</p></div>
+    </div>
+  </div>
+  <aside class="study">
+### ნაბიჯი 1 · SSH-ის კონფიგი: root-ით და პაროლით — აკრძალულია
+
+SSH სერვერის (`sshd`) პარამეტრები `/etc/ssh/`-შია (წინა ლექციის საშინაოში ეს საქაღალდე ნახეთ). მთავარ ფაილს არ ვეხებით — ვქმნით საკუთარს `sshd_config.d` საქაღალდეში. `/etc` root-ისაა, ამიტომ — `sudo`:
+
+```console Termius · giorgi@lms-server
+$ sudo nano /etc/ssh/sshd_config.d/00-hardening.conf
+```
+
+```ini 00-hardening.conf
+PermitRootLogin no
+PasswordAuthentication no
+```
+
+- `PermitRootLogin no` — root-ით შესვლა აკრძალულია (მის სახელს ყველა ბოტი იცის).
+- `PasswordAuthentication no` — პაროლით შესვლა აკრძალულია, მხოლოდ გასაღებით (DigitalOcean-მა ეს უკვე გააკეთა, მაგრამ ჩვენ ამას ცხადად ვწერთ — ყველა სერვერზე იგივე წესი იქნება).
+
+```console Termius · giorgi@lms-server
+$ sudo sshd -t                  # სინტაქსის შემოწმება: ცარიელი პასუხი = OK
+$ sudo systemctl restart ssh    # ცვლილების ამოქმედება
+$ sudo sshd -T | grep -E "permitrootlogin|passwordauthentication"
+permitrootlogin no
+passwordauthentication no
+```
+
+`sshd -T` აჩვენებს **საბოლოო** პარამეტრებს, რომლითაც SSH რეალურად მუშაობს. `systemctl restart` — სერვისის გადატვირთვა; `systemctl`-ს Nginx-ის ლექციაზე დეტალურად ვნახავთ.
+
+**რატომ `00-`?** SSH ერთ პარამეტრზე **პირველ** ნანახ მნიშვნელობას იღებს, `sshd_config.d`-ის ფაილებს კი ანბანის მიხედვით კითხულობს. DigitalOcean-ს იქ შეიძლება უკვე ედოს `50-cloud-init.conf` — `00` მასზე ადრე იკითხება.
+
+```warn
+**მიმდინარე Termius-ის tab არ დახურო**, სანამ **ახალ** tab-ში არ შეამოწმებ, რომ `giorgi`-ს Host-ით შესვლა მუშაობს. თუ რამე შეგეშალა, ძველი სესიით გაასწორებ. თუ მაინც ჩაიკეტე — Droplet-ის **Console** ბრაუზერში.
+```
+
+root-ის Host-ით Connect ახლა უნდა დასრულდეს `Permission denied (publickey)`-ით — ასეც უნდა იყოს. ეს Host Termius-იდან შეგიძლია წაშალო.
+  </aside>
+</section>
+
+<section class="slide" data-section="3 · დაცვა">
+  <div class="kicker">ნაბიჯი 2 · firewall</div>
+  <h2><span class="c-api">ufw</span> — ყველა კარი დახურულია, გარდა…</h2>
+  <div class="grid2" style="grid-template-columns:1.1fr 1fr">
+    <code-block lang="console" cls="in" title="Termius · giorgi@lms-server" style="--d:0.20s">
+$ sudo ufw allow OpenSSH        # ჯერ ეს!
+Rules updated
+
+$ sudo ufw enable
+Command may disrupt existing ssh connections.
+Proceed with operation (y|n)? y
+Firewall is active and enabled on system startup
+
+$ sudo ufw status
+Status: active
+To          Action   From
+OpenSSH     ALLOW    Anywhere
+    </code-block>
+    <div class="col">
+      <svg viewBox="0 0 560 250" width="560" height="250" class="in" style="--d:.4s">
+        <rect x="200" y="20" width="160" height="210" rx="16" fill="#0e2a33" stroke="#22d3ee" stroke-width="3"/><text x="280" y="120" text-anchor="middle" font-size="40">🖥️</text><text x="280" y="165" text-anchor="middle" class="ta b" font-size="18">სერვერი</text>
+        <path d="M30 60 H200" stroke="#22c55e" stroke-width="3" class="flow"/><text x="110" y="48" text-anchor="middle" class="tg mono b" font-size="17">:22 SSH ✓</text>
+        <path d="M30 125 H185" stroke="#f43f5e" stroke-width="3"/><text x="110" y="113" text-anchor="middle" class="tr mono" font-size="17">:5432 ✗</text>
+        <path d="M30 190 H185" stroke="#f43f5e" stroke-width="3"/><text x="110" y="178" text-anchor="middle" class="tr mono" font-size="17">:3306 ✗</text>
+        <rect x="183" y="100" width="10" height="110" fill="#f43f5e"/>
+      </svg>
+      <div class="callout step" style="--a:var(--red)">⚠ <code class="i">enable</code>-მდე <b>აუცილებლად</b> <code class="i">allow OpenSSH</code> — თორემ საკუთარ თავს ჩაკეტავ</div>
+    </div>
+  </div>
+  <aside class="study">
+### ნაბიჯი 2 · firewall: ufw
+
+**firewall** — „დაცვა კარებთან“: წყვეტს, რომელ port-ზე შეიძლება ინტერნეტიდან შემოსვლა. Ubuntu-ში მისი მარტივი ინტერფეისია **ufw** (uncomplicated firewall). ჩართვის შემდეგ **ყველა** შემოსული კავშირი იბლოკება, გარდა იმისა, რაც ცალკე დაუშვი.
+
+```console Termius · giorgi@lms-server
+$ sudo ufw allow OpenSSH        # port 22 — ჯერ ეს!
+$ sudo ufw enable
+Command may disrupt existing ssh connections. Proceed with operation (y|n)? y
+Firewall is active and enabled on system startup
+
+$ sudo ufw status
+Status: active
+To          Action   From
+OpenSSH     ALLOW    Anywhere
+```
+
+შემდეგ ლექციაზე, Nginx-ის დაყენებისას, დავამატებთ port 80-ს (HTTP), მოგვიანებით — 443-ს (HTTPS). ბაზის port (5432) კი **არასოდეს** გაიხსნება ინტერნეტისთვის.
+
+```warn
+`ufw enable`-მდე **აუცილებლად** `ufw allow OpenSSH` — სხვა შემთხვევაში firewall შენს SSH კავშირსაც დაბლოკავს და სერვერზე ვეღარ შეხვალ (დაგრჩება მხოლოდ Droplet Console).
+```
+  </aside>
+</section>
+
+<section class="slide" data-section="3 · დაცვა">
+  <div class="kicker">ნაბიჯი 3 · swap</div>
+  <h2>1 GB RAM — <span class="c-asp">და სათადარიგო 2 GB</span></h2>
+  <div class="grid2" style="grid-template-columns:1.15fr 1fr">
+    <code-block lang="console" cls="in" title="Termius · giorgi@lms-server" style="--d:0.20s">
+$ sudo fallocate -l 2G /swapfile
+$ sudo chmod 600 /swapfile
+$ sudo mkswap /swapfile
+$ sudo swapon /swapfile
+$ echo '/swapfile none swap sw 0 0' \
+    | sudo tee -a /etc/fstab      ← reboot-ის შემდეგაც
+
+$ free -h
+       total   used   free
+Mem:   961Mi  320Mi  410Mi
+Swap:  2.0Gi     0B  2.0Gi
+    </code-block>
+    <div class="col">
+      <div class="card accent in right" style="--d:0.40s;--a:var(--asp)"><h3>💾 swap</h3><p>როცა RAM ივსება, დისკის ნაწილი RAM-ად გამოიყენება. ნელია — მაგრამ პროგრამა <b>არ კვდება</b></p></div>
+      <div class="card accent in right" style="--d:0.55s;--a:var(--red)"><h3>🔐 chmod 600</h3><p>swap-ში RAM-ის შიგთავსი ხვდება — მხოლოდ root-მა უნდა წაიკითხოს</p></div>
+      <div class="callout step" style="--a:var(--net)">რატომ ახლა: .NET-ის build და ბაზა 1 GB-ში ვიწროდ ეტევა</div>
+    </div>
+  </div>
+  <aside class="study">
+### ნაბიჯი 3 · swap
+
+**swap** — დისკზე გამოყოფილი ადგილი, რომელსაც სისტემა RAM-ად იყენებს, როცა ნამდვილი RAM ივსება. დისკი RAM-ზე ბევრად ნელია, მაგრამ swap-ის გარეშე მეხსიერების ამოწურვისას Linux პროცესებს **კლავს** (OOM killer). ჩვენს 1 GB-იან სერვერზე მოგვიანებით .NET-ის build-იც მოგვიწევს და ბაზაც — swap დაგვაზღვევს.
+
+```console Termius · giorgi@lms-server
+$ sudo fallocate -l 2G /swapfile                          # 2 GB ფაილი
+$ sudo chmod 600 /swapfile                                # მხოლოდ root
+$ sudo mkswap /swapfile                                   # swap-ად მომზადება
+$ sudo swapon /swapfile                                   # ჩართვა
+$ echo '/swapfile none swap sw 0 0' | sudo tee -a /etc/fstab   # reboot-ის შემდეგაც
+
+$ free -h
+       total   used   free
+Mem:   961Mi  320Mi  410Mi
+Swap:  2.0Gi     0B  2.0Gi
+```
+
+`chmod 600` — ის, რაც პირველ ნაწილში ვისწავლეთ: swap-ში RAM-ის შიგთავსი (შეიძლება პაროლებიც) ხვდება, ამიტომ მხოლოდ root-მა უნდა წაიკითხოს.
+
+`/etc/fstab` — ფაილი, რომელსაც სისტემა ჩართვისას კითხულობს. `echo` ტექსტს ბეჭდავს, `|` მას `tee`-ს გადასცემს, `tee -a` კი ფაილის ბოლოს ამატებს root-ის უფლებით (`sudo echo ... >> file` არ იმუშავებს — გადამისამართებას შენი user აკეთებს და არა sudo).
+  </aside>
+</section>
+
+<section class="slide" data-section="3 · დაცვა">
+  <div class="kicker">ნაბიჯი 4 · WSL-ისთვის</div>
+  <h2><span class="mono c-mvc">~/.ssh/config</span> — WSL-ის ბრძანებებისთვის</h2>
+  <div class="grid2" style="grid-template-columns:1fr 1fr">
+    <div class="col">
+      <code-block lang="console" cls="in" title="WSL" style="--d:0.20s">
+$ nano ~/.ssh/config
+      </code-block>
+      <code-block lang="plain" cls="big in" title="~/.ssh/config" style="--d:0.35s">
+Host lms
+    HostName 164.90.12.34
+    User giorgi
+    IdentityFile ~/.ssh/id_ed25519
+      </code-block>
+    </div>
+    <div class="col">
+      <code-block lang="console" cls="big in" title="WSL" style="--d:0.50s">
+$ ssh lms
+giorgi@lms-server:~$ ▊
+      </code-block>
+      <div class="callout step" style="--a:var(--net)">🖥️ <b>Termius</b> — შენთვის, სერვერზე მუშაობისას. 🐧 <b>config</b> — WSL-ის ბრძანებებისთვის: <code class="i">rsync … lms:/var/www/</code>, სკრიპტები</div>
+    </div>
+  </div>
+  <aside class="study">
+### ნაბიჯი 4 · `~/.ssh/config` — WSL-ის ბრძანებებისთვის
+
+სერვერზე ჩვენ Termius-ით ვმუშაობთ. მაგრამ შემდეგ ლექციებზე **შენი კომპიუტერიდან** (WSL) გავუშვებთ ბრძანებებს, რომლებიც სერვერს თვითონ უკავშირდება: `rsync` (ფაილების ატვირთვა), `scp`, `ssh-copy-id`, `deploy.sh`. Termius-ის Host-ებს ისინი ვერ ხედავენ — მათ WSL-ის „მისამართების წიგნი“ სჭირდებათ, `~/.ssh/config`. WSL-იც Ubuntu-ა — იგივე `nano`, რაც სერვერზე:
+
+```plain ~/.ssh/config
+Host lms
+    HostName 164.90.12.34
+    User giorgi
+    IdentityFile ~/.ssh/id_ed25519
+```
+
+შემოწმება — WSL-იდან:
+
+```console WSL
+$ ssh lms
+giorgi@lms-server:~$
+```
+
+`lms` — შენ მიერ მოფიქრებული მოკლე სახელი. ის იმუშავებს ყველა SSH-ზე დაფუძნებულ ბრძანებაში — შემდეგ ლექციაზე ფაილებს ასე ავტვირთავთ: `rsync -avz ./ lms:/var/www/portfolio/`.
+  </aside>
+</section>
+
+<section class="slide" data-section="შეჯამება">
+  <div class="kicker">შპარგალკა</div>
+  <h2>დღევანდელი <span class="c-api">ბრძანებები</span></h2>
+  <div class="grid3" style="gap:24px">
+    <div class="card accent in" style="--d:0.20s;--a:var(--red)"><h3>🔐 user / უფლებები</h3><p class="mono" style="font-size:17px;line-height:1.85">adduser · usermod -aG sudo<br>whoami · sudo<br>apt update · upgrade<br>apt install -y<br>chmod 644/755/600 · chown</p></div>
+    <div class="card accent in" style="--d:0.35s;--a:var(--asp)"><h3>⚙️ პროცესები</h3><p class="mono" style="font-size:17px;line-height:1.85">ps aux | grep<br>htop<br>kill · kill -9<br>ss -tlnp</p></div>
+    <div class="card accent in" style="--d:0.50s;--a:var(--mvc)"><h3>🛡️ ყოველ ახალ სერვერზე</h3><p class="mono" style="font-size:17px;line-height:1.85">user + sudo + გასაღები<br>00-hardening.conf<br>ufw allow OpenSSH · enable<br>apt upgrade · swap<br>~/.ssh/config → Host lms</p></div>
+  </div>
+  <aside class="study">
+### შპარგალკა: დღევანდელი ბრძანებები
+
+**🔐 user-ები და უფლებები**
+
+| ბრძანება | რას აკეთებს |
+|---|---|
+| `adduser giorgi` · `usermod -aG sudo giorgi` | ახალი user, sudo ჯგუფში |
+| `rsync --archive --chown=giorgi:giorgi ~/.ssh /home/giorgi` | გასაღები ახალ user-ს |
+| `whoami` / `sudo <ბრძანება>` | ვინ ვარ / root-ის უფლებით |
+| `sudo apt update` / `upgrade -y` / `install -y` | სია / განახლება / დაყენება |
+| `chmod 644 / 755 / 600`, `chmod +x` | უფლებები |
+| `chown -R user:group` | მფლობელის შეცვლა |
+
+**⚙️ პროცესები და port-ები**
+
+| ბრძანება | რას აკეთებს |
+|---|---|
+| `ps aux`, `grep <სახელი>` | პროცესის პოვნა (pipe-ით: ps aux, მერე grep) |
+| `htop` | CPU/RAM ცოცხლად |
+| `kill <PID>` | პროცესის გაჩერება |
+| `sudo ss -tlnp` | ვინ რომელ port-ს უსმენს |
+
+**🛡️ ყოველ ახალ სერვერზე**
+
+| ნაბიჯი | ბრძანება |
+|---|---|
+| user | `adduser` · `usermod -aG sudo` · `rsync ~/.ssh` |
+| SSH-ის დაცვა | `00-hardening.conf` → `sshd -t` → `systemctl restart ssh` (ძველი ფანჯარა ღიაა!) |
+| firewall | `ufw allow OpenSSH` → `ufw enable` |
+| განახლება | `apt update && apt upgrade -y` |
+| swap | `fallocate` · `chmod 600` · `mkswap` · `swapon` · `/etc/fstab` |
+| WSL | `~/.ssh/config` → `Host lms` |
+  </aside>
+</section>
+
+<lecture-classwork/>
+<lecture-check/>
+
+<section class="slide" data-section="შეჯამება">
+  <div class="kicker">შეჯამება</div>
+  <h2>დღეს ვისწავლეთ</h2>
+  <div class="col" style="gap:30px;margin-top:30px">
+    <div class="row in left" style="--d:0.20s;gap:20px;align-items:center"><span class="big-emoji" style="font-size:44px">👤</span><span style="font-size:29px"><b>user + sudo</b> — root-ით აღარ ვმუშაობთ; <code class="i">apt</code>-ით ვაყენებთ</span></div>
+    <div class="row in left" style="--d:0.35s;gap:20px;align-items:center"><span class="big-emoji" style="font-size:44px">🔐</span><span style="font-size:29px"><b>chmod, chown</b> — ვის რისი უფლება აქვს: 644 · 755 · 600</span></div>
+    <div class="row in left" style="--d:0.50s;gap:20px;align-items:center"><span class="big-emoji" style="font-size:44px">⚙️</span><span style="font-size:29px"><b>ps, ss -tlnp</b> — რა მუშაობს და რომელ port-ს უსმენს</span></div>
+    <div class="row in left" style="--d:0.65s;gap:20px;align-items:center"><span class="big-emoji" style="font-size:44px">🛡️</span><span style="font-size:29px"><b>დაცვა</b> — root/პაროლი აკრძალულია, ufw, swap; <code class="i">ssh lms</code> WSL-იდან</span></div>
+  </div>
+  <p class="lead in mt" style="--d:0.85s;text-align:center">შემდეგ ლექციაზე: <b>Nginx</b> — portfolio და Angular შენს სერვერზე 🌐</p>
+  <aside class="study">
+## შეჯამება · დღეს ვისწავლეთ
+
+- 👤 **user-ები** — root-ის ნაცვლად `giorgi`, რომელიც საჭირო ბრძანებას `sudo`-თი უშვებს; პაროლი მხოლოდ sudo-სთვისაა, შესვლა — გასაღებით. `apt` პროგრამებს აყენებს და აახლებს.
+- 🔐 **უფლებები** — `chmod 644/755/600`, `chown`; SSH გასაღებები მხოლოდ მფლობელისთვისაა (`600`).
+- ⚙️ **პროცესები** — `ps aux | grep`, `htop`, `kill`; `ss -tlnp` — ვინ რომელ port-ს უსმენს.
+- 🛡️ **სერვერის დაცვა** — `PermitRootLogin no`, `PasswordAuthentication no`; `ufw` მხოლოდ SSH-ით; `apt upgrade`; swap. ⚡ **`~/.ssh/config`** — `lms` სახელი WSL-ის ბრძანებებისთვის (`rsync`, `scp`, სკრიპტები).
+
+**შემდეგ ლექციაზე:** სერვერზე ვაყენებთ Nginx-ს და ვაქვეყნებთ my-portfolio-ს და შენს Angular აპს — ამჯერად საკუთარ სერვერზე.
+
+```prompt გამოცდა მეოთხე ლექციაზე
+ვსწავლობ DevOps-ს. მეოთხე ლექციაზე Ubuntu სერვერზე გავიარეთ: ცალკე user და sudo (adduser, usermod -aG sudo), apt (update, upgrade, install), უფლებები (ls -l, chmod 644/755/600, chown), პროცესები და port-ები (ps aux, grep, htop, kill, ss -tlnp), sshd-ის დაცვა (PermitRootLogin no, PasswordAuthentication no, sshd -T), ufw firewall, swap, ~/.ssh/config.
+დამისვი 10 კითხვა სათითაოდ, მარტივიდან რთულისკენ — ნაწილი სიტუაციური იყოს („სერვერზე ვეღარ შევდივარ, რა მოხდა?“). ყოველ პასუხზე შემიფასე და ამიხსენი. ბოლოს მითხარი, რა გავიმეორო. ქართულად.
+```
+
+```prompt SSH-ით ვერ ვუკავშირდები
+SSH-ით ჩემს Ubuntu სერვერს ვერ ვუკავშირდები. დამეხმარე პრობლემის პოვნაში ნაბიჯ-ნაბიჯ, მარტივად და ქართულად: ჯერ დამისვი კითხვები, მერე მირჩიე, რა შევამოწმო. ბრძანება, რომელსაც ვუშვებ: [აქ]. შეცდომის ტექსტი: [აქ]. რა შევცვალე ბოლოს სერვერზე: [აქ]
+```
+  </aside>
+</section>
+<lecture-homework/>

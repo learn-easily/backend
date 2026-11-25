@@ -1,0 +1,528 @@
+<!doctype html>
+<html lang="ka"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>📖 Linux — user-ები, უფლებები და სერვერის დაცვა — კონსპექტი</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Georgian:wght@400;600;700;800&family=JetBrains+Mono:wght@400;600;700;800&display=swap" rel="stylesheet"><script>(()=>{const d=document.documentElement,K="lectures:theme";try{d.dataset.theme=localStorage.getItem(K)||"light"}catch(e){d.dataset.theme="light"}window.toggleTheme=()=>{const t=d.dataset.theme==="dark"?"light":"dark";d.dataset.theme=t;try{localStorage.setItem(K,t)}catch(e){}};document.addEventListener("click",e=>{const b=e.target.closest(".themebtn");if(b){b.blur();toggleTheme()}});addEventListener("storage",e=>{if(e.key===K)d.dataset.theme=e.newValue||"light"})})()</script>
+<style>
+:root{--bg:#fbf8f3;--card:#fff;--ink:#1e2132;--ink2:#3b3f54;--muted:#7b8096;--line:#e6dfd2;--accent:#6d28d9;--accent-soft:#f3effe;--teal:#0d9488;
+  --green:#15803d;--amber:#b45309;--mono:"JetBrains Mono",ui-monospace,monospace;--sans:"Noto Sans Georgian",system-ui,sans-serif}
+*{box-sizing:border-box}
+html{scroll-padding-top:76px}
+body{margin:0;background:var(--bg);color:var(--ink);font:17.5px/1.75 var(--sans);-webkit-font-smoothing:antialiased}
+a{color:var(--accent)}
+/* top bar */
+.top{position:sticky;top:0;z-index:10;display:flex;align-items:center;gap:14px;padding:10px 20px;background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.top .back{font:600 14px var(--mono);color:var(--muted);text-decoration:none;white-space:nowrap}
+.top .back:hover{color:var(--ink)}
+.top .ttl{flex:1;min-width:0;font-weight:700;font-size:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.top .ttl small{font:500 13px var(--mono);color:var(--muted);margin-right:8px}
+.btn{font:700 14px var(--sans);text-decoration:none;border-radius:10px;padding:7px 14px;white-space:nowrap;border:1px solid var(--line);color:var(--ink);background:var(--card);cursor:pointer}
+.btn.play{background:var(--accent);border-color:var(--accent);color:var(--xc-fff,#fff)}
+.live{display:none;align-items:center;gap:8px;font:600 13px var(--mono);color:var(--teal);background:var(--xb-e6f6f4,#e6f6f4);border:1px solid var(--xb-bfe7e2,#bfe7e2);border-radius:999px;padding:5px 12px;cursor:pointer}
+.live.on{display:flex}
+.live .dot{width:8px;height:8px;border-radius:50%;background:var(--teal);animation:pulse 1.6s infinite}
+.live.off{color:var(--muted);background:var(--card);border-color:var(--line)}.live.off .dot{background:var(--muted);animation:none}
+@keyframes pulse{50%{opacity:.3}}
+/* layout */
+.wrap{display:grid;grid-template-columns:230px minmax(0,1000px);gap:44px;justify-content:center;padding:32px 28px 120px}
+nav.toc{position:sticky;top:84px;align-self:start;font-size:14px;line-height:1.45}
+nav.toc .h{font:700 12px var(--mono);color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px}
+nav.toc a{display:block;color:var(--ink2);text-decoration:none;padding:6px 10px;border-left:2px solid var(--line)}
+nav.toc a:hover{color:var(--accent)}
+nav.toc a.cur{color:var(--accent);border-left-color:var(--accent);font-weight:700}
+nav.toc .mats{margin-top:22px;display:flex;flex-direction:column;gap:6px}
+nav.toc .mats a{border:0;padding:2px 0;font:500 13px var(--mono);color:var(--teal);word-break:break-all}
+header.hero{margin-bottom:8px}
+header.hero .k{font:600 14px var(--mono);color:var(--accent)}
+header.hero h1{font-size:38px;line-height:1.2;margin:6px 0 10px;letter-spacing:-.01em}
+header.hero p{color:var(--muted);margin:0;font-size:15.5px}
+header.hero kbd{font:500 12px var(--mono);border:1px solid var(--line);border-radius:5px;padding:0 5px;background:var(--card)}
+h2.sec{font-size:15px;font:700 13px var(--mono);color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin:48px 0 6px;padding-top:18px;border-top:1px solid var(--line)}
+/* blocks */
+.blk{position:relative;padding:14px 0 6px 22px;margin-left:-22px;border-left:3px solid transparent;transition:border-color .3s,background .3s;border-radius:0 12px 12px 0}
+.blk.cur{border-left-color:var(--accent);background:linear-gradient(90deg,var(--accent-soft),transparent 70%)}
+.anchor{position:absolute;top:0}
+.bh{display:flex;align-items:baseline;justify-content:space-between;gap:12px}
+.bh h3{font-size:22px;line-height:1.35;margin:4px 0 6px}
+.chip{flex:none;font:600 12px var(--mono);color:var(--muted);text-decoration:none;border:1px solid var(--line);border-radius:999px;padding:2px 10px;background:var(--card)}
+.chip:hover{color:var(--accent);border-color:var(--accent)}
+.blk h2{font-size:26px;line-height:1.3;margin:6px 0 10px}
+.blk h3:not(.bh h3){font-size:19px;margin:22px 0 6px}
+.blk h4{font-size:17px;margin:18px 0 4px}
+.blk p{margin:10px 0}
+.blk ul,.blk ol{padding-left:24px;margin:8px 0}
+.blk li{margin:4px 0}
+.blk strong{color:var(--ink)}
+.blk :not(pre)>code{font:600 .86em var(--mono);background:var(--xb-f1ece3,#f1ece3);border-radius:6px;padding:1px 6px;color:var(--xc-5b21b6,#5b21b6)}
+.blk table{border-collapse:collapse;margin:14px 0;font-size:15.5px;width:100%;display:block;overflow-x:auto}
+.blk th,.blk td{border:1px solid var(--line);padding:8px 12px;text-align:left;vertical-align:top}
+.blk th{background:var(--xb-f6f1e8,#f6f1e8)}
+/* code */
+.codebox{margin:14px 0;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:var(--xb-fffdf9,#fffdf9)}
+.codebox .ch,.prompt .ph{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:6px 8px 6px 14px;font:600 12.5px var(--mono);color:var(--muted);background:var(--xb-f6f1e8,#f6f1e8);border-bottom:1px solid var(--line)}
+.copy{font:600 12px var(--mono);border:1px solid var(--line);background:var(--card);color:var(--ink2);border-radius:7px;padding:3px 10px;cursor:pointer}
+.copy:hover{border-color:var(--ink)}
+.copy.ok{color:var(--green);border-color:var(--green)}
+pre.code{margin:0;padding:12px 0;overflow-x:auto;font:14px/1.65 var(--mono)}
+pre.code .ln{display:block;padding:0 16px;white-space:pre}
+.code .ttl{background:var(--bg2);color:var(--muted)}
+.code .ln.hl{background:rgba(109,40,217,.07);box-shadow:inset 3px 0 0 var(--net)}
+.code .ln.dim{opacity:.42}
+.code .k,.code .kd,.code .kn,.code .kr,.code .kc{color:#7c3aed}
+.code .kt{color:#2563eb}
+.code .s,.code .s1,.code .s2,.code .sa,.code .se,.code .si,.code .sd{color:var(--xc-15803d,#15803d)}
+.code .c,.code .c1,.code .cm,.code .cp,.code .ch{color:#8b8fa3}
+.code .m,.code .mi,.code .mf,.code .mh{color:var(--xc-c2410c,#c2410c)}
+.code .nf,.code .fm{color:#1d4ed8}
+.code .nc,.code .nn,.code .nt,.code .nd{color:var(--xc-b45309,#b45309)}
+.code .na{color:#7c3aed} .code .nb{color:var(--xc-0e7490,#0e7490)}
+.code .o,.code .p{color:var(--xc-64748b,#64748b)}
+.code .nv,.code .nx{color:var(--ink)}
+.code .go{color:var(--xc-64748b,#64748b)}
+/* prompt */
+.prompt{margin:16px 0;border:1px solid var(--xb-ddd2fb,#ddd2fb);border-radius:12px;overflow:hidden;background:var(--accent-soft)}
+.prompt .ph{background:var(--xb-ebe3fd,#ebe3fd);border-color:var(--xb-ddd2fb,#ddd2fb);color:var(--accent)}
+.prompt .pb{padding:12px 16px;white-space:pre-wrap;font-size:15.5px;line-height:1.6;color:var(--ink2)}
+/* self check */
+.selfcheck{margin:16px 0;border:1px solid var(--xb-cfe9d6,#cfe9d6);border-radius:12px;background:var(--xb-f3fbf5,#f3fbf5);padding:12px 16px}
+.selfcheck .sh{font-weight:700;color:var(--green);margin-bottom:6px}
+.selfcheck .sh small{font-weight:400;color:var(--muted);font-size:13.5px;margin-left:6px}
+.selfcheck details{border-top:1px solid var(--xb-dcefe1,#dcefe1);padding:8px 0}
+.selfcheck summary{cursor:pointer;font-weight:600;list-style:none;padding-left:26px;position:relative}
+.selfcheck summary::-webkit-details-marker{display:none}
+.selfcheck summary::before{content:"?";position:absolute;left:0;top:2px;width:18px;height:18px;border-radius:50%;background:var(--green);color:var(--xc-fff,#fff);font:700 12px/18px var(--mono);text-align:center}
+.selfcheck details[open] summary::before{content:"✓"}
+.selfcheck .ans{padding:6px 0 2px 26px;color:var(--ink2)}
+/* terms */
+.terms{margin:16px 0;border:1px solid var(--line);border-radius:12px;background:var(--card);padding:12px 16px}
+.terms .th{font-weight:700;margin-bottom:6px}
+.terms dl{display:grid;grid-template-columns:max-content 1fr;gap:6px 18px;margin:0}
+.terms dt{font:600 14.5px var(--mono);color:var(--accent)}
+.terms dd{margin:0;color:var(--ink2)}
+/* callouts */
+.callout{display:flex;gap:12px;margin:14px 0;padding:12px 16px;border-radius:12px;border:1px solid var(--line);background:var(--card)}
+.callout .ci{font-size:20px;line-height:1.6}
+.callout>div>p:first-child{margin-top:0}.callout>div>p:last-child{margin-bottom:0}
+.callout.warn{background:var(--xb-fff8eb,#fff8eb);border-color:var(--xb-f6dfb5,#f6dfb5)}
+.callout.note{background:var(--xb-eef5ff,#eef5ff);border-color:var(--xb-cfe0fb,#cfe0fb)}
+@media (max-width:980px){
+  .wrap{grid-template-columns:minmax(0,1fr);gap:0;padding:20px 16px 100px}
+  nav.toc{position:static;margin-bottom:12px}
+  nav.toc details{border:1px solid var(--line);border-radius:12px;background:var(--card);padding:8px 12px}
+  nav.toc details>summary{cursor:pointer;font-weight:700}
+  nav.toc .h{display:none}
+  header.hero h1{font-size:30px}
+  .blk{padding-left:14px;margin-left:-14px}
+  .top .ttl small{display:none}
+  .terms dl{grid-template-columns:1fr}.terms dd{margin-bottom:8px}
+}
+@media (min-width:981px){nav.toc details>summary{display:none}}
+@media print{.top,nav.toc,.copy,.chip,.live{display:none}.wrap{display:block;padding:0}.selfcheck details{display:block}.blk.cur{background:none}}
+/* მუქი თემა — დანარჩენ ფერებს build.py-ის themeify() ცვლის */
+html[data-theme=dark]{color-scheme:dark;--bg:#16181d;--card:#1e2128;--ink:#e6e2da;--ink2:#bebab1;--muted:#8a8e98;--line:#2d313b;
+  --accent:#ab9ff2;--accent-soft:#272439;--teal:#72bfb3;--green:#8fc8a1;--amber:#dfa96e}
+html[data-theme=dark] .codebox{background:#1a1d23}
+.themebtn .d{display:none}html[data-theme=dark] .themebtn .l{display:none}html[data-theme=dark] .themebtn .d{display:inline}
+</style><style>html[data-theme=dark]{--xb-bfe7e2:#2d5d57;--xb-cfe0fb:#2d3f5d;--xb-cfe9d6:#2d5d3a;--xb-dcefe1:#2d5d39;--xb-ddd2fb:#3a2d5d;--xb-e6f6f4:#1d3532;--xb-ebe3fd:#241d35;--xb-eef5ff:#1d2735;--xb-f1ece3:#3c414d;--xb-f3fbf5:#1d3523;--xb-f6dfb5:#5d4c2d;--xb-f6f1e8:#1d2027;--xb-fff8eb:#352c1d;--xb-fffdf9:#1e2128;--xc-0e7490:#adddeb;--xc-15803d:#adebc4;--xc-5b21b6:#c5adeb;--xc-64748b:#c4cbd4;--xc-b45309:#ebc8ad;--xc-c2410c:#ebbfad;--xc-fff:#16181d}
+</style>
+</head>
+<body>
+<div class="top">
+  <a class="back" href="../../">← ლექციები</a>
+  <div class="ttl"><small>DevOps · 4</small>Linux — user-ები, უფლებები და სერვერის დაცვა</div>
+  <button class="live" id="live" type="button" title="ჩართული: ტექსტი პრეზენტაციას მიჰყვება"><span class="dot"></span><span class="lt">მიჰყვება სლაიდებს</span></button>
+  <button class="themebtn btn" type="button" title="ღია / მუქი თემა (T)"><span class="l">🌙</span><span class="d">☀️</span></button>
+  <a class="btn play" href="index.html">▶ პრეზენტაცია</a>
+</div>
+<div class="wrap">
+  <nav class="toc"><details id="tocd"><summary>სარჩევი</summary><div class="h">სარჩევი</div><a href="#sec-1">გამეორება</a><a href="#sec-2">საშინაოს განხილვა</a><a href="#sec-3">დღის თემა</a><a href="#sec-4">1 · user-ები</a><a href="#sec-5">2 · პროცესები</a><a href="#sec-6">3 · დაცვა</a><a href="#sec-7">შეჯამება</a><a href="#sec-8">პრაქტიკა</a><a href="#sec-9">შეჯამება</a><a href="#sec-10">საშინაო</a><div class="mats"></div></details></nav>
+  <main>
+    <header class="hero">
+      <div class="k">📖 კონსპექტი · DevOps · ლექცია 4</div>
+      <h1>Linux — user-ები, უფლებები და სერვერის დაცვა</h1>
+      <p>წაიკითხე ლექციის შემდეგ, ან პრეზენტაციასთან ერთად: პრეზენტაციაში დააჭირე <kbd>P</kbd> და ეს გვერდი სლაიდებს გაჰყვება. კოდი და AI-ს პრომპტები კოპირდება ერთი დაჭერით.</p>
+    </header>
+    <h2 class="sec" id="sec-1">გამეორება</h2>
+<article class="blk" data-slides="1,2"><span class="anchor" id="s-1"></span><span class="anchor" id="s-2"></span><div class="bh"><h3>გავიხსენოთ წინა ლექცია</h3><a class="chip" href="index.html#/1" data-go="1" title="პრეზენტაციაში გახსნა">სლაიდი 1</a></div>
+<p>ლექცია 3 — <strong>საკუთარი სერვერი — SSH, Droplet და Termius</strong>. ახალ თემამდე ვამოწმებთ, რა დაგვამახსოვრდა. ჯერ თვითონ უპასუხე, მერე გახსენი პასუხი. თუ რომელიმე გაგიჭირდა, <a href="../03-ssh-droplet/study.html">წინა ლექციის კონსპექტს</a> გადახედე.</p>
+<div class="selfcheck"><div class="sh">✅ შეამოწმე თავი <small>დაფიქრდი, მერე გახსენი პასუხი</small></div><details><summary>SSH-ის რომელი გასაღები რჩება შენთან და რომელი მიდის სერვერზე?</summary><div class="ans">პირადი (<code>id_ed25519</code>) — მხოლოდ შენს კომპიუტერზე, არავის აჩვენო. საჯარო (<code>id_ed25519.pub</code>) — სერვერზე, <code>~/.ssh/authorized_keys</code>-ში</div></details><details><summary>რატომ ჯობია გასაღები პაროლს?</summary><div class="ans">პაროლს ბოტები უწყვეტად არჩევენ (brute force); გასაღების გამოცნობა პრაქტიკულად შეუძლებელია და მისი „მოპარვა“ სერვერიდან არ შეიძლება — იქ მხოლოდ საჯარო ნაწილია</div></details><details><summary>Droplet გამოვრთე (Power Off). ფული აღარ ჩამოგეჭრება?</summary><div class="ans">ჩამოგეჭრება — გამორთული Droplet-იც ფასიანია, რადგან რესურსი შენთვისაა დაჯავშნილი. გადახდა მხოლოდ <strong>Destroy</strong>-ის შემდეგ ჩერდება</div></details><details><summary>რას ნიშნავს <code>/</code>, <code>~</code> და <code>..</code>? სად არის root-ის <code>~</code>?</summary><div class="ans"><code>/</code> — ფაილური სისტემის ფესვი, ყველაფერი აქედან იწყება; <code>~</code> — შენი სახლის საქაღალდე (root-ისთვის <code>/root</code>, სხვებისთვის <code>/home/&lt;user&gt;</code>); <code>..</code> — ერთი საქაღალდით ზემოთ</div></details><details><summary>სად ინახება Linux-ზე პროგრამების კონფიგურაცია და ლოგები?</summary><div class="ans">კონფიგურაცია — <code>/etc</code> (მაგ. <code>/etc/ssh</code>), ლოგები — <code>/var/log</code> (მაგ. <code>/var/log/auth.log</code> — შესვლის ცდები)</div></details><details><summary>რატომ არის <code>rm -r</code> სახიფათო, განსაკუთრებით root-ით?</summary><div class="ans">Linux-ში სანაგვე ყუთი არ არის: წაშლილი ფაილი სამუდამოდ ქრება, <code>rm -r</code> კი საქაღალდეს მთელი შიგთავსით შლის. root-ს ყველაფრის წაშლის უფლება აქვს — შეკითხვის გარეშე</div></details></div></article>
+<h2 class="sec" id="sec-2">საშინაოს განხილვა</h2>
+<article class="blk" data-slides="3"><span class="anchor" id="s-3"></span><div class="bh"><h3>საშინაოს განხილვა</h3><a class="chip" href="index.html#/3" data-go="3" title="პრეზენტაციაში გახსნა">სლაიდი 3</a></div>
+<p>წინა ლექციის საშინაო: <strong>Linux-ის ქვესტი სერვერზე</strong>. ქვემოთ არის ერთ-ერთი სწორი ამოხსნა. შენი კოდი შეიძლება სხვანაირად იყოს დაწერილი — მთავარია, მოთხოვნები სრულდებოდეს.</p>
+<h3>მოთხოვნები</h3>
+<ul>
+<li>Termius-ით სერვერზე, <code>~/linux-quest</code>-ში: <code>logs/</code>, <code>notes/</code>, <code>backup/</code>; <code>notes/commands.md</code> — 10 ბრძანება თქვენი ახსნით (<code>nano</code>)</li>
+<li><code>logs/app.log</code> (<code>nano</code>) — 3 ხაზი, ერთში <code>ERROR</code> → <code>grep</code>-ით მხოლოდ ის</li>
+<li><code>notes/commands.md</code> დააკოპირეთ <code>backup/</code>-ში, მერე <code>notes/</code>-ში გადაარქვით <code>linux.md</code> → <code>ls -la</code>-ით შეამოწმეთ ორივე საქაღალდე</li>
+<li><code>/etc</code>-ში იპოვეთ SSH-ის საქაღალდე და ნახეთ, რა ფაილებია შიგნით; <code>/var/log</code>-ში — რომელი ლოგია ყველაზე დიდი (<code>ls -l</code>)</li>
+</ul>
+<h3>ამოხსნა</h3>
+<div class="codebox"><div class="ch"><span>Termius · root@lms-server</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="gp"># </span>mkdir<span class="w"> </span>-p<span class="w"> </span>~/linux-quest/logs<span class="w"> </span>~/linux-quest/notes<span class="w"> </span>~/linux-quest/backup</span><span class="ln"><span class="gp"># </span><span class="nb">cd</span><span class="w"> </span>~/linux-quest</span><span class="ln"><span class="gp"># </span>nano<span class="w"> </span>notes/commands.md</span><span class="ln"><span class="gp"># </span>nano<span class="w"> </span>logs/app.log</span><span class="ln"><span class="go">INFO app started</span></span><span class="ln"><span class="go">ERROR db not found</span></span><span class="ln"><span class="go">INFO request done</span></span><span class="ln"><span class="gp"># </span>grep<span class="w"> </span>ERROR<span class="w"> </span>logs/app.log</span><span class="ln"><span class="go">ERROR db not found</span></span><span class="ln"> </span><span class="ln"><span class="gp"># </span>cp<span class="w"> </span>notes/commands.md<span class="w"> </span>backup/</span><span class="ln"><span class="gp"># </span>mv<span class="w"> </span>notes/commands.md<span class="w"> </span>notes/linux.md</span><span class="ln"><span class="gp"># </span>ls<span class="w"> </span>-la<span class="w"> </span>notes<span class="w"> </span>backup</span><span class="ln"> </span><span class="ln"><span class="gp"># </span>ls<span class="w"> </span>/etc/ssh</span><span class="ln"><span class="go">ssh_config  ssh_config.d  sshd_config  sshd_config.d  ...</span></span></code></pre></div>
+<p><code>mkdir -p</code> რამდენიმე საქაღალდეს ერთად ქმნის. <code>/etc/ssh/sshd_config</code> — SSH სერვერის კონფიგურაცია: შემდეგ ლექციაზე სწორედ მის გვერდით შევქმნით საკუთარ ფაილს, რომ სერვერი დავიცვათ. ბონუსში <code>&gt;&gt;</code> ფაილის ბოლოს ამატებს ხაზს (<code>&gt;</code> — თავიდან გადაწერდა).</p></article>
+<h2 class="sec" id="sec-3">დღის თემა</h2>
+<article class="blk" data-slides="4"><span class="anchor" id="s-4"></span><div class="bh"><h3>დღის თემა: Linux — user-ები, უფლებები და სერვერის დაცვა</h3><a class="chip" href="index.html#/4" data-go="4" title="პრეზენტაციაში გახსნა">სლაიდი 4</a></div>
+<p>სერვერი გვაქვს და ბრძანებებით ვმართავთ — მაგრამ root-ით, რომელსაც ყველაფრის გაფუჭება შეუძლია და რომლის სახელსაც ყველა ბოტი იცის. დღეს ვქმნით საკუთარ user-ს, ვსწავლობთ <code>sudo</code>-ს და <code>apt</code>-ს, ფაილების უფლებებს და პროცესებს — და ამ ცოდნით სერვერს ვიცავთ: root-ით შესვლა აკრძალულია, firewall ჩართულია. ასეთ სერვერზე შეიძლება საიტის და API-ს გაშვება.</p>
+<p><strong>ლექციის ბოლოს შეძლებ:</strong></p>
+<ul>
+<li>ცალკე user-ის შექმნა <code>sudo</code>-ს უფლებით და მისით შესვლა Termius-ში</li>
+<li><code>apt</code>-ით პროგრამების დაყენება და სისტემის განახლება</li>
+<li>უფლებების წაკითხვა და შეცვლა: <code>ls -l</code>, <code>chmod 644/755/600</code>, <code>chown</code></li>
+<li>პროცესების და port-ების ნახვა: <code>ps</code>, <code>htop</code>, <code>kill</code>, <code>ss -tlnp</code></li>
+<li>სერვერის დაცვა: root-ით და პაროლით შესვლის აკრძალვა, <code>ufw</code> firewall, swap; <code>~/.ssh/config</code> WSL-ის ბრძანებებისთვის</li>
+</ul></article>
+<h2 class="sec" id="sec-4">1 · user-ები</h2>
+<article class="blk" data-slides="5"><span class="anchor" id="s-5"></span><div class="bh"><h3>ნაწილი 1 · ვინ და რისი უფლებით</h3><a class="chip" href="index.html#/5" data-go="5" title="პრეზენტაციაში გახსნა">სლაიდი 5</a></div>
+<p>წინა ლექციაზე ყველაფერს root-ით ვაკეთებდით. დღეს ვქმნით საკუთარ user-ს, ვსწავლობთ <code>sudo</code>-ს, <code>apt</code>-ს და ფაილების უფლებებს.</p></article>
+<article class="blk" data-slides="6"><span class="anchor" id="s-6"></span><div class="bh"><h3>root-ის ნაცვლად — ცალკე user და sudo</h3><a class="chip" href="index.html#/6" data-go="6" title="პრეზენტაციაში გახსნა">სლაიდი 6</a></div>
+<p>Linux-ში ყველა მოქმედებას რომელიმე <strong>user</strong> აკეთებს (<code>whoami</code> — ვინ ვარ). წინა ლექციაზე ვიყავით <strong>root</strong> — ადმინისტრატორი, რომელსაც ყველაფრის უფლება აქვს, მათ შორის სისტემის გაფუჭების. root-ის სახელს ყველა ბოტიც იცის.</p>
+<p>ამიტომ ვქმნით ჩვეულებრივ user-ს და მხოლოდ საჭირო ბრძანებას ვუშვებთ root-ის უფლებით — <strong><code>sudo</code></strong>-თი (super user do):</p>
+<div class="codebox"><div class="ch"><span>Termius · root@lms-server</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="gp"># </span>adduser<span class="w"> </span>giorgi<span class="w">                   </span><span class="c1"># ახალი user — ითხოვს პაროლს, დანარჩენზე Enter</span></span><span class="ln"><span class="gp"># </span>usermod<span class="w"> </span>-aG<span class="w"> </span>sudo<span class="w"> </span>giorgi<span class="w">          </span><span class="c1"># -aG: დაამატე ჯგუფში sudo</span></span></code></pre></div>
+<p>ბოლო ბრძანება root-ის <code>~/.ssh</code> საქაღალდეს (შენი საჯარო გასაღებით) ახალი user-ის სახლში — <code>/home/giorgi</code>-ში — აკოპირებს და მფლობელად მას ნიშნავს. ასე <code>giorgi</code>-თიც გასაღებით შეხვალ.</p>
+<p>Termius-ში შექმენი <strong>მეორე Host</strong> — იგივე IP და გასაღები, ოღონდ Username: <code>giorgi</code>. ახალი Host → Connect:</p>
+<div class="codebox"><div class="ch"><span>Termius · giorgi@lms-server</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="gp">giorgi@lms-server:~$ </span>whoami</span><span class="ln"><span class="go">giorgi</span></span><span class="ln"><span class="gp">giorgi@lms-server:~$ </span>sudo<span class="w"> </span>whoami</span><span class="ln"><span class="go">[sudo] password for giorgi:</span></span></code></pre></div>
+<p>prompt-ში ახლა <code>$</code> წერია — ჩვეულებრივი user. <code>sudo</code> პირველად <strong>შენს</strong> პაროლს ითხოვს (რამდენიმე წუთი იმახსოვრებს). პაროლის აკრეფისას ეკრანზე არაფერი ჩანს — ეს ნორმალურია. <code>adduser</code>-ში მითითებული პაროლი <strong>შესვლისთვის არ გამოიყენება</strong> — ის მხოლოდ <code>sudo</code>-სთვისაა.</p>
+<div class="callout note"><span class="ci">💡</span><div><p>ამიერიდან სერვერზე <code>giorgi</code>-ს Host-ით ვმუშაობთ. root-ის Host-ს ნაწილ 3-ში ვამოწმებთ — როცა root-ით შესვლას საერთოდ ავკრძალავთ.</p></div></div></article>
+<article class="blk" data-slides="7"><span class="anchor" id="s-7"></span><div class="bh"><h3>apt — და რატომ სჭირდება sudo</h3><a class="chip" href="index.html#/7" data-go="7" title="პრეზენტაციაში გახსნა">სლაიდი 7</a></div>
+<p><strong>apt</strong> — Ubuntu-ს პროგრამების „მაღაზია“. პროგრამის დაყენება სისტემას ცვლის, ამიტომ ჩვეულებრივ user-ს ამის უფლება არ აქვს:</p>
+<div class="codebox"><div class="ch"><span>Termius · giorgi@lms-server</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="gp">$ </span>apt<span class="w"> </span>install<span class="w"> </span>tree</span><span class="ln"><span class="go">E: Could not open lock file ... Permission denied</span></span><span class="ln"><span class="go">E: Unable to acquire the dpkg frontend lock, are you root?</span></span><span class="ln"> </span><span class="ln"><span class="gp">$ </span>sudo<span class="w"> </span>apt<span class="w"> </span>update<span class="w">                </span><span class="c1"># პაკეტების სიის განახლება</span></span><span class="ln"><span class="gp">$ </span>sudo<span class="w"> </span>apt<span class="w"> </span>upgrade<span class="w"> </span>-y<span class="w">            </span><span class="c1"># დაყენებული პროგრამების განახლება</span></span></code></pre></div>
+<table>
+<thead>
+<tr>
+<th>ბრძანება</th>
+<th>რას აკეთებს</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>apt update</code></td>
+<td>პაკეტების <strong>სიას</strong> აახლებს (რა ვერსიები არსებობს)</td>
+</tr>
+<tr>
+<td><code>apt upgrade</code></td>
+<td>დაყენებულ პროგრამებს აახლებს — ახალ სერვერზე პირველივე დღეს (უსაფრთხოების პატჩები)</td>
+</tr>
+<tr>
+<td><code>apt install</code></td>
+<td>აყენებს</td>
+</tr>
+<tr>
+<td><code>apt remove</code></td>
+<td>შლის</td>
+</tr>
+</tbody>
+</table>
+<p>სერვერზე Nginx-ს, .NET-ს და Docker-ს სწორედ ასე დავაყენებთ. <code>&amp;&amp;</code>-ით ორი ბრძანება ერთად: <code>sudo apt update &amp;&amp; sudo apt upgrade -y</code> — მეორე მხოლოდ მაშინ სრულდება, თუ პირველი წარმატებით დასრულდა.</p>
+<div class="callout warn"><span class="ci">⚠️</span><div><p>ბრძანება „Permission denied“-ით ჩავარდა? ჯერ იფიქრე, <strong>რატომ</strong> სჭირდება root — და მხოლოდ მერე დაუმატე <code>sudo</code>. ყველაფრის sudo-თი გაშვება ცუდი ჩვევაა.</p></div></div></article>
+<article class="blk" data-slides="8,9"><span class="anchor" id="s-8"></span><span class="anchor" id="s-9"></span><div class="bh"><h3>უფლებები: ვის რისი უფლება აქვს</h3><a class="chip" href="index.html#/8" data-go="8" title="პრეზენტაციაში გახსნა">სლაიდი 8</a></div>
+<p><code>ls -l</code> ყოველ ფაილზე აჩვენებს 10 სიმბოლოს:</p>
+<div class="codebox"><div class="ch"><span>Termius · giorgi@lms-server</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="gp">$ </span>ls<span class="w"> </span>-l<span class="w"> </span>index.html</span></code></pre></div>
+<ul>
+<li>პირველი სიმბოლო — ტიპი: <code>-</code> ფაილი, <code>d</code> საქაღალდე.</li>
+<li>შემდეგ სამ-სამად: <strong>მფლობელი</strong> (<code>rw-</code>), <strong>ჯგუფი</strong> (<code>r--</code>), <strong>სხვები</strong> (<code>r--</code>).</li>
+<li>მერე — მფლობელი user და ჯგუფი (<code>giorgi giorgi</code>).</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>ასო</th>
+<th>რიცხვი</th>
+<th>ფაილზე</th>
+<th>საქაღალდეზე</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>r</code></td>
+<td>4</td>
+<td>წაკითხვა</td>
+<td>შიგთავსის სიის ნახვა</td>
+</tr>
+<tr>
+<td><code>w</code></td>
+<td>2</td>
+<td>ჩაწერა</td>
+<td>შიგნით შექმნა/წაშლა</td>
+</tr>
+<tr>
+<td><code>x</code></td>
+<td>1</td>
+<td>გაშვება</td>
+<td>შესვლა (<code>cd</code>)</td>
+</tr>
+</tbody>
+</table>
+<p>რიცხვი = ჯამი: <code>rw-</code> = 4+2 = <strong>6</strong>, <code>r--</code> = <strong>4</strong>, <code>rwx</code> = <strong>7</strong>. ასე <code>-rw-r--r--</code> = <strong>644</strong>.</p>
+<table>
+<thead>
+<tr>
+<th>რიცხვი</th>
+<th>ვისთვის</th>
+<th>მაგალითი</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>644</code></td>
+<td>მე ვწერ, ყველა კითხულობს</td>
+<td>HTML, CSS, კონფიგი</td>
+</tr>
+<tr>
+<td><code>755</code></td>
+<td>მე ვწერ, ყველა შედის/უშვებს</td>
+<td>საქაღალდე, სკრიპტი</td>
+</tr>
+<tr>
+<td><code>600</code></td>
+<td>მხოლოდ მე</td>
+<td><strong>SSH-ის პირადი გასაღები</strong>, <code>.env</code></td>
+</tr>
+</tbody>
+</table>
+<p>ნამდვილი მაგალითი სერვერზე — შენი გასაღებების საქაღალდე:</p>
+<div class="codebox"><div class="ch"><span>Termius · giorgi@lms-server</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="gp">$ </span>ls<span class="w"> </span>-la<span class="w"> </span>~/.ssh</span><span class="ln"><span class="go">drwx------ 2 giorgi giorgi 4096 .                  ← 700: მხოლოდ giorgi</span></span></code></pre></div>
+<p>SSH ამას ამოწმებს: თუ <code>authorized_keys</code> ან პირადი გასაღები სხვებისთვისაც ღიაა, ის მის გამოყენებაზე <strong>უარს</strong> იტყვის.</p>
+<div class="codebox"><div class="ch"><span>Termius · giorgi@lms-server</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="gp">$ </span>chmod<span class="w"> </span><span class="m">600</span><span class="w"> </span>secret.txt<span class="w">           </span><span class="c1"># უფლებები რიცხვით</span></span><span class="ln"><span class="gp">$ </span>chmod<span class="w"> </span>+x<span class="w"> </span>deploy.sh<span class="w">             </span><span class="c1"># გაშვების უფლება დაამატე</span></span></code></pre></div>
+<div class="callout tip"><span class="ci">👉</span><div><p>როცა Nginx საიტს ვერ აჩვენებს (403 Forbidden), ხშირად მიზეზი სწორედ უფლებებია — ამას შემდეგ ლექციაზე ვნახავთ.</p></div></div></article>
+<h2 class="sec" id="sec-5">2 · პროცესები</h2>
+<article class="blk" data-slides="10"><span class="anchor" id="s-10"></span><div class="bh"><h3>ნაწილი 2 · რა მუშაობს სერვერზე</h3><a class="chip" href="index.html#/10" data-go="10" title="პრეზენტაციაში გახსნა">სლაიდი 10</a></div>
+<p>გაშვებული პროგრამები (პროცესები) და port-ები, რომლებსაც ისინი უსმენენ.</p></article>
+<article class="blk" data-slides="11"><span class="anchor" id="s-11"></span><div class="bh"><h3>პროცესები და port-ები: რა მუშაობს ახლა?</h3><a class="chip" href="index.html#/11" data-go="11" title="პრეზენტაციაში გახსნა">სლაიდი 11</a></div>
+<p><strong>პროცესი</strong> — გაშვებული პროგრამა. ყველას აქვს უნიკალური ნომერი — <strong>PID</strong>.</p>
+<div class="codebox"><div class="ch"><span>Termius · giorgi@lms-server</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="gp">$ </span>ps<span class="w"> </span>aux<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>sshd<span class="w">       </span><span class="c1"># ყველა პროცესიდან — მხოლოდ sshd</span></span><span class="ln"><span class="go">root   812  0.0  0.9 ... sshd: /usr/sbin/sshd</span></span><span class="ln"> </span><span class="ln"><span class="gp">$ </span>htop<span class="w">                     </span><span class="c1"># „Task Manager“ ტერმინალში: CPU, RAM; q — გასვლა</span></span><span class="ln"> </span><span class="ln"><span class="gp">$ </span>sleep<span class="w"> </span><span class="m">1000</span><span class="w"> </span><span class="p">&amp;</span><span class="w">             </span><span class="c1"># სატესტო პროცესი ფონზე (&amp; — ტერმინალი თავისუფალი რჩება)</span></span><span class="ln"><span class="go">[1] 2481</span></span><span class="ln"><span class="gp">$ </span><span class="nb">kill</span><span class="w"> </span><span class="m">2481</span><span class="w">                </span><span class="c1"># PID 2481-ის გაჩერება</span></span></code></pre></div>
+<p><strong><code>|</code> (pipe)</strong> — ერთი ბრძანების შედეგი მეორეს გადაეცემა: <code>ps aux | grep sshd</code> — ყველა პროცესიდან <code>grep</code> მხოლოდ <code>sshd</code>-იან ხაზებს ტოვებს.</p>
+<p><strong>port</strong> — „კარი“, რომელსაც პროგრამა ქსელიდან მოთხოვნებისთვის უსმენს. API-ს <code>dotnet run</code> რომ გაუშვი, ის port <code>5080</code>-ს უსმენდა. სტანდარტული port-ები: <strong>22</strong> — SSH, <strong>80</strong> — HTTP, <strong>443</strong> — HTTPS, <strong>5432</strong> — PostgreSQL.</p>
+<div class="codebox"><div class="ch"><span>Termius · giorgi@lms-server</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="gp">$ </span>sudo<span class="w"> </span>ss<span class="w"> </span>-tlnp</span><span class="ln"><span class="go">State   Local Address:Port   Process</span></span></code></pre></div>
+<p><code>ss -tlnp</code> — ვინ რომელ port-ს უსმენს (<code>t</code> TCP, <code>l</code> listening, <code>n</code> რიცხვებით, <code>p</code> პროცესი). <code>0.0.0.0</code> — ყველასთვის ღიაა; <code>127.0.0.1</code> — მხოლოდ ამავე კომპიუტერიდან. ახლა სერვერზე მხოლოდ SSH-ია; მომდევნო ლექციებზე აქ გამოჩნდება <code>nginx</code> (80) და <code>dotnet</code> (5080).</p>
+<div class="callout tip"><span class="ci">👉</span><div><p>„საიტი არ იხსნება“ — DevOps-ის პირველი კითხვა: პროცესი <strong>გაშვებულია</strong>? (<code>ps</code>) და port-ს <strong>უსმენს</strong>? (<code>ss -tlnp</code>). ეს ორი ბრძანება პრობლემების ნახევარს პოულობს.</p></div></div></article>
+<h2 class="sec" id="sec-6">3 · დაცვა</h2>
+<article class="blk" data-slides="12"><span class="anchor" id="s-12"></span><div class="bh"><h3>ნაწილი 3 · სერვერის დაცვა</h3><a class="chip" href="index.html#/12" data-go="12" title="პრეზენტაციაში გახსნა">სლაიდი 12</a></div>
+<p>ბოტები ახალ სერვერს წუთებში პოულობენ (<code>/var/log/auth.log</code> წინა ლექციიდან). ნაბიჯები, რომლებსაც ყოველ ახალ სერვერზე ვაკეთებთ — უკვე ნასწავლი <code>nano</code>-თი, <code>sudo</code>-თი და <code>chmod</code>-ით.</p></article>
+<article class="blk" data-slides="13"><span class="anchor" id="s-13"></span><div class="bh"><h3>ნაბიჯი 1 · SSH-ის კონფიგი: root-ით და პაროლით — აკრძალულია</h3><a class="chip" href="index.html#/13" data-go="13" title="პრეზენტაციაში გახსნა">სლაიდი 13</a></div>
+<p>SSH სერვერის (<code>sshd</code>) პარამეტრები <code>/etc/ssh/</code>-შია (წინა ლექციის საშინაოში ეს საქაღალდე ნახეთ). მთავარ ფაილს არ ვეხებით — ვქმნით საკუთარს <code>sshd_config.d</code> საქაღალდეში. <code>/etc</code> root-ისაა, ამიტომ — <code>sudo</code>:</p>
+<div class="codebox"><div class="ch"><span>Termius · giorgi@lms-server</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code></code></pre></div>
+<div class="codebox"><div class="ch"><span>00-hardening.conf</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="na">PermitRootLogin no</span></span><span class="ln"><span class="na">PasswordAuthentication no</span></span></code></pre></div>
+<ul>
+<li><code>PermitRootLogin no</code> — root-ით შესვლა აკრძალულია (მის სახელს ყველა ბოტი იცის).</li>
+<li><code>PasswordAuthentication no</code> — პაროლით შესვლა აკრძალულია, მხოლოდ გასაღებით (DigitalOcean-მა ეს უკვე გააკეთა, მაგრამ ჩვენ ამას ცხადად ვწერთ — ყველა სერვერზე იგივე წესი იქნება).</li>
+</ul>
+<div class="codebox"><div class="ch"><span>Termius · giorgi@lms-server</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="gp">$ </span>sudo<span class="w"> </span>sshd<span class="w"> </span>-t<span class="w">                  </span><span class="c1"># სინტაქსის შემოწმება: ცარიელი პასუხი = OK</span></span><span class="ln"><span class="gp">$ </span>sudo<span class="w"> </span>systemctl<span class="w"> </span>restart<span class="w"> </span>ssh<span class="w">    </span><span class="c1"># ცვლილების ამოქმედება</span></span><span class="ln"><span class="gp">$ </span>sudo<span class="w"> </span>sshd<span class="w"> </span>-T<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>-E<span class="w"> </span><span class="s2">"permitrootlogin|passwordauthentication"</span></span><span class="ln"><span class="go">permitrootlogin no</span></span></code></pre></div>
+<p><code>sshd -T</code> აჩვენებს <strong>საბოლოო</strong> პარამეტრებს, რომლითაც SSH რეალურად მუშაობს. <code>systemctl restart</code> — სერვისის გადატვირთვა; <code>systemctl</code>-ს Nginx-ის ლექციაზე დეტალურად ვნახავთ.</p>
+<p><strong>რატომ <code>00-</code>?</strong> SSH ერთ პარამეტრზე <strong>პირველ</strong> ნანახ მნიშვნელობას იღებს, <code>sshd_config.d</code>-ის ფაილებს კი ანბანის მიხედვით კითხულობს. DigitalOcean-ს იქ შეიძლება უკვე ედოს <code>50-cloud-init.conf</code> — <code>00</code> მასზე ადრე იკითხება.</p>
+<div class="callout warn"><span class="ci">⚠️</span><div><p><strong>მიმდინარე Termius-ის tab არ დახურო</strong>, სანამ <strong>ახალ</strong> tab-ში არ შეამოწმებ, რომ <code>giorgi</code>-ს Host-ით შესვლა მუშაობს. თუ რამე შეგეშალა, ძველი სესიით გაასწორებ. თუ მაინც ჩაიკეტე — Droplet-ის <strong>Console</strong> ბრაუზერში.</p></div></div>
+<p>root-ის Host-ით Connect ახლა უნდა დასრულდეს <code>Permission denied (publickey)</code>-ით — ასეც უნდა იყოს. ეს Host Termius-იდან შეგიძლია წაშალო.</p></article>
+<article class="blk" data-slides="14"><span class="anchor" id="s-14"></span><div class="bh"><h3>ნაბიჯი 2 · firewall: ufw</h3><a class="chip" href="index.html#/14" data-go="14" title="პრეზენტაციაში გახსნა">სლაიდი 14</a></div>
+<p><strong>firewall</strong> — „დაცვა კარებთან“: წყვეტს, რომელ port-ზე შეიძლება ინტერნეტიდან შემოსვლა. Ubuntu-ში მისი მარტივი ინტერფეისია <strong>ufw</strong> (uncomplicated firewall). ჩართვის შემდეგ <strong>ყველა</strong> შემოსული კავშირი იბლოკება, გარდა იმისა, რაც ცალკე დაუშვი.</p>
+<div class="codebox"><div class="ch"><span>Termius · giorgi@lms-server</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="gp">$ </span>sudo<span class="w"> </span>ufw<span class="w"> </span>allow<span class="w"> </span>OpenSSH<span class="w">        </span><span class="c1"># port 22 — ჯერ ეს!</span></span><span class="ln"><span class="gp">$ </span>sudo<span class="w"> </span>ufw<span class="w"> </span><span class="nb">enable</span></span><span class="ln"><span class="go">Command may disrupt existing ssh connections. Proceed with operation (y|n)? y</span></span><span class="ln"><span class="go">Firewall is active and enabled on system startup</span></span><span class="ln"> </span><span class="ln"><span class="gp">$ </span>sudo<span class="w"> </span>ufw<span class="w"> </span>status</span><span class="ln"><span class="go">Status: active</span></span><span class="ln"><span class="go">To          Action   From</span></span></code></pre></div>
+<p>შემდეგ ლექციაზე, Nginx-ის დაყენებისას, დავამატებთ port 80-ს (HTTP), მოგვიანებით — 443-ს (HTTPS). ბაზის port (5432) კი <strong>არასოდეს</strong> გაიხსნება ინტერნეტისთვის.</p>
+<div class="callout warn"><span class="ci">⚠️</span><div><p><code>ufw enable</code>-მდე <strong>აუცილებლად</strong> <code>ufw allow OpenSSH</code> — სხვა შემთხვევაში firewall შენს SSH კავშირსაც დაბლოკავს და სერვერზე ვეღარ შეხვალ (დაგრჩება მხოლოდ Droplet Console).</p></div></div></article>
+<article class="blk" data-slides="15"><span class="anchor" id="s-15"></span><div class="bh"><h3>ნაბიჯი 3 · swap</h3><a class="chip" href="index.html#/15" data-go="15" title="პრეზენტაციაში გახსნა">სლაიდი 15</a></div>
+<p><strong>swap</strong> — დისკზე გამოყოფილი ადგილი, რომელსაც სისტემა RAM-ად იყენებს, როცა ნამდვილი RAM ივსება. დისკი RAM-ზე ბევრად ნელია, მაგრამ swap-ის გარეშე მეხსიერების ამოწურვისას Linux პროცესებს <strong>კლავს</strong> (OOM killer). ჩვენს 1 GB-იან სერვერზე მოგვიანებით .NET-ის build-იც მოგვიწევს და ბაზაც — swap დაგვაზღვევს.</p>
+<div class="codebox"><div class="ch"><span>Termius · giorgi@lms-server</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="gp">$ </span>sudo<span class="w"> </span>fallocate<span class="w"> </span>-l<span class="w"> </span>2G<span class="w"> </span>/swapfile<span class="w">                          </span><span class="c1"># 2 GB ფაილი</span></span><span class="ln"><span class="gp">$ </span>sudo<span class="w"> </span>chmod<span class="w"> </span><span class="m">600</span><span class="w"> </span>/swapfile<span class="w">                                </span><span class="c1"># მხოლოდ root</span></span><span class="ln"><span class="gp">$ </span>sudo<span class="w"> </span>mkswap<span class="w"> </span>/swapfile<span class="w">                                   </span><span class="c1"># swap-ად მომზადება</span></span><span class="ln"><span class="gp">$ </span>sudo<span class="w"> </span>swapon<span class="w"> </span>/swapfile<span class="w">                                   </span><span class="c1"># ჩართვა</span></span><span class="ln"><span class="gp">$ </span><span class="nb">echo</span><span class="w"> </span><span class="s1">'/swapfile none swap sw 0 0'</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>sudo<span class="w"> </span>tee<span class="w"> </span>-a<span class="w"> </span>/etc/fstab<span class="w">   </span><span class="c1"># reboot-ის შემდეგაც</span></span><span class="ln"> </span><span class="ln"><span class="gp">$ </span>free<span class="w"> </span>-h</span><span class="ln"><span class="go">       total   used   free</span></span><span class="ln"><span class="go">Mem:   961Mi  320Mi  410Mi</span></span></code></pre></div>
+<p><code>chmod 600</code> — ის, რაც პირველ ნაწილში ვისწავლეთ: swap-ში RAM-ის შიგთავსი (შეიძლება პაროლებიც) ხვდება, ამიტომ მხოლოდ root-მა უნდა წაიკითხოს.</p>
+<p><code>/etc/fstab</code> — ფაილი, რომელსაც სისტემა ჩართვისას კითხულობს. <code>echo</code> ტექსტს ბეჭდავს, <code>|</code> მას <code>tee</code>-ს გადასცემს, <code>tee -a</code> კი ფაილის ბოლოს ამატებს root-ის უფლებით (<code>sudo echo ... &gt;&gt; file</code> არ იმუშავებს — გადამისამართებას შენი user აკეთებს და არა sudo).</p></article>
+<article class="blk" data-slides="16"><span class="anchor" id="s-16"></span><div class="bh"><h3>ნაბიჯი 4 · ~/.ssh/config — WSL-ის ბრძანებებისთვის</h3><a class="chip" href="index.html#/16" data-go="16" title="პრეზენტაციაში გახსნა">სლაიდი 16</a></div>
+<p>სერვერზე ჩვენ Termius-ით ვმუშაობთ. მაგრამ შემდეგ ლექციებზე <strong>შენი კომპიუტერიდან</strong> (WSL) გავუშვებთ ბრძანებებს, რომლებიც სერვერს თვითონ უკავშირდება: <code>rsync</code> (ფაილების ატვირთვა), <code>scp</code>, <code>ssh-copy-id</code>, <code>deploy.sh</code>. Termius-ის Host-ებს ისინი ვერ ხედავენ — მათ WSL-ის „მისამართების წიგნი“ სჭირდებათ, <code>~/.ssh/config</code>. WSL-იც Ubuntu-ა — იგივე <code>nano</code>, რაც სერვერზე:</p>
+<div class="codebox"><div class="ch"><span>~/.ssh/config</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln">Host lms</span><span class="ln">    HostName 164.90.12.34</span><span class="ln">    User giorgi</span><span class="ln">    IdentityFile ~/.ssh/id_ed25519</span></code></pre></div>
+<p>შემოწმება — WSL-იდან:</p>
+<div class="codebox"><div class="ch"><span>WSL</span><button class="copy" type="button">კოპირება</button></div><pre class="code"><code><span class="ln"><span class="gp">$ </span>ssh<span class="w"> </span>lms</span></code></pre></div>
+<p><code>lms</code> — შენ მიერ მოფიქრებული მოკლე სახელი. ის იმუშავებს ყველა SSH-ზე დაფუძნებულ ბრძანებაში — შემდეგ ლექციაზე ფაილებს ასე ავტვირთავთ: <code>rsync -avz ./ lms:/var/www/portfolio/</code>.</p></article>
+<h2 class="sec" id="sec-7">შეჯამება</h2>
+<article class="blk" data-slides="17"><span class="anchor" id="s-17"></span><div class="bh"><h3>შპარგალკა: დღევანდელი ბრძანებები</h3><a class="chip" href="index.html#/17" data-go="17" title="პრეზენტაციაში გახსნა">სლაიდი 17</a></div>
+<p><strong>🔐 user-ები და უფლებები</strong></p>
+<table>
+<thead>
+<tr>
+<th>ბრძანება</th>
+<th>რას აკეთებს</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>adduser giorgi</code> · <code>usermod -aG sudo giorgi</code></td>
+<td>ახალი user, sudo ჯგუფში</td>
+</tr>
+<tr>
+<td><code>rsync --archive --chown=giorgi:giorgi ~/.ssh /home/giorgi</code></td>
+<td>გასაღები ახალ user-ს</td>
+</tr>
+<tr>
+<td><code>whoami</code> / <code>sudo &lt;ბრძანება&gt;</code></td>
+<td>ვინ ვარ / root-ის უფლებით</td>
+</tr>
+<tr>
+<td><code>sudo apt update</code> / <code>upgrade -y</code> / <code>install -y</code></td>
+<td>სია / განახლება / დაყენება</td>
+</tr>
+<tr>
+<td><code>chmod 644 / 755 / 600</code>, <code>chmod +x</code></td>
+<td>უფლებები</td>
+</tr>
+<tr>
+<td><code>chown -R user:group</code></td>
+<td>მფლობელის შეცვლა</td>
+</tr>
+</tbody>
+</table>
+<p><strong>⚙️ პროცესები და port-ები</strong></p>
+<table>
+<thead>
+<tr>
+<th>ბრძანება</th>
+<th>რას აკეთებს</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ps aux</code>, <code>grep &lt;სახელი&gt;</code></td>
+<td>პროცესის პოვნა (pipe-ით: ps aux, მერე grep)</td>
+</tr>
+<tr>
+<td><code>htop</code></td>
+<td>CPU/RAM ცოცხლად</td>
+</tr>
+<tr>
+<td><code>kill &lt;PID&gt;</code></td>
+<td>პროცესის გაჩერება</td>
+</tr>
+<tr>
+<td><code>sudo ss -tlnp</code></td>
+<td>ვინ რომელ port-ს უსმენს</td>
+</tr>
+</tbody>
+</table>
+<p><strong>🛡️ ყოველ ახალ სერვერზე</strong></p>
+<table>
+<thead>
+<tr>
+<th>ნაბიჯი</th>
+<th>ბრძანება</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>user</td>
+<td><code>adduser</code> · <code>usermod -aG sudo</code> · <code>rsync ~/.ssh</code></td>
+</tr>
+<tr>
+<td>SSH-ის დაცვა</td>
+<td><code>00-hardening.conf</code> → <code>sshd -t</code> → <code>systemctl restart ssh</code> (ძველი ფანჯარა ღიაა!)</td>
+</tr>
+<tr>
+<td>firewall</td>
+<td><code>ufw allow OpenSSH</code> → <code>ufw enable</code></td>
+</tr>
+<tr>
+<td>განახლება</td>
+<td><code>apt update &amp;&amp; apt upgrade -y</code></td>
+</tr>
+<tr>
+<td>swap</td>
+<td><code>fallocate</code> · <code>chmod 600</code> · <code>mkswap</code> · <code>swapon</code> · <code>/etc/fstab</code></td>
+</tr>
+<tr>
+<td>WSL</td>
+<td><code>~/.ssh/config</code> → <code>Host lms</code></td>
+</tr>
+</tbody>
+</table></article>
+<h2 class="sec" id="sec-8">პრაქტიკა</h2>
+<article class="blk" data-slides="18"><span class="anchor" id="s-18"></span><div class="bh"><h3>კლასში დავალება: საკუთარი user და უფლებები</h3><a class="chip" href="index.html#/18" data-go="18" title="პრეზენტაციაში გახსნა">სლაიდი 18</a></div>
+<p>დავალება · lms-server root-ის გარეშე</p>
+<h3>ნაბიჯები</h3>
+<ul>
+<li>root-ით: <code>adduser &lt;სახელი&gt;</code> → <code>usermod -aG sudo &lt;სახელი&gt;</code> → <code>rsync --archive --chown=&lt;სახელი&gt;:&lt;სახელი&gt; ~/.ssh /home/&lt;სახელი&gt;</code></li>
+<li>Termius-ში მეორე Host — Username <code>&lt;სახელი&gt;</code> → Connect → <code>whoami</code>, <code>sudo whoami</code></li>
+<li><code>sudo apt update &amp;&amp; sudo apt upgrade -y</code> → <code>sudo apt install -y tree htop</code> → <code>tree ~ -a</code></li>
+<li><code>ls -la ~/.ssh</code> — რა უფლებები აქვს <code>authorized_keys</code>-ს და რატომ? → <code>touch secret.txt</code> → <code>chmod 600 secret.txt</code> → <code>ls -l</code></li>
+<li><code>sudo ss -tlnp</code> — რომელი port-ია ღია და ვინ უსმენს?</li>
+</ul>
+<h3>✓ მზადაა, როცა</h3>
+<p>Termius-ით ახალი user-ით შედიხართ პაროლის გარეშე, <code>sudo whoami</code> აბრუნებს <code>root</code>, <code>secret.txt</code> — <code>-rw-------</code>, <code>ss -tlnp</code>-ში ჩანს <code>sshd</code> port 22-ზე</p>
+<h3>⭐ ბონუსი</h3>
+<ul>
+<li><code>sleep 1000 &amp;</code> → <code>ps aux | grep sleep</code>-ით იპოვეთ PID → <code>kill</code>-ით გააჩერეთ → <code>htop</code>-ში შეამოწმეთ, რომ აღარ არის</li>
+</ul>
+<h3>💡 მინიშნება</h3>
+<p><code>Permission denied (publickey)</code> ახალი user-ით — <code>rsync</code>-ის ბრძანებაში სახელი შეგეშალათ, ან <code>/home/&lt;სახელი&gt;/.ssh</code> სხვას ეკუთვნის: root-ით <code>ls -la /home/&lt;სახელი&gt;/.ssh</code>.</p></article>
+<h2 class="sec" id="sec-9">შეჯამება</h2>
+<article class="blk" data-slides="19"><span class="anchor" id="s-19"></span><div class="bh"><h3>შეამოწმე, რა დაგამახსოვრდა</h3><a class="chip" href="index.html#/19" data-go="19" title="პრეზენტაციაში გახსნა">სლაიდი 19</a></div>
+<p>ეს კითხვები შემდეგი ლექციის დასაწყისშიც დაისმება.</p>
+<div class="selfcheck"><div class="sh">✅ შეამოწმე თავი <small>დაფიქრდი, მერე გახსენი პასუხი</small></div><details><summary>რატომ ვქმნით ცალკე user-ს და ვკრძალავთ root-ით შესვლას?</summary><div class="ans">root-ს ყველაფრის უფლება აქვს და მის სახელს ყველა ბოტი იცის. ცალკე user-ით ვმუშაობთ, საჭიროებისას <code>sudo</code>-თი — შეცდომაც და შეტევაც ნაკლებ ზიანს აყენებს</div></details><details><summary>რისთვის ვიყენებთ <code>sudo</code>-ს და რომელ პაროლს ითხოვს?</summary><div class="ans">ერთი ბრძანების ადმინისტრატორის (root) უფლებით გასაშვებად — მაგ. <code>sudo apt install</code>, ან ფაილის შეცვლა <code>/etc</code>-ში. ითხოვს <strong>შენი</strong> user-ის პაროლს</div></details><details><summary>რას ნიშნავს <code>-rw-r--r--</code> და რომელი რიცხვია?</summary><div class="ans">მფლობელი: წაკითხვა+ჩაწერა (6), ჯგუფი: წაკითხვა (4), დანარჩენები: წაკითხვა (4) → <code>644</code></div></details><details><summary>როგორ ნახავ, რომელი პროგრამა უსმენს port 5080-ს?</summary><div class="ans"><code>sudo ss -tlnp</code> — ჩამოთვლის port-ებს და პროცესებს, რომლებიც მათ უსმენენ (<code>| grep 5080</code> — გასაფილტრად)</div></details><details><summary>რას აკეთებს <code>ufw</code> და რომელი port უნდა გავხსნათ ჩართვამდე?</summary><div class="ans"><code>ufw</code> — firewall: ყველა შემოსულ კავშირს ბლოკავს, გარდა ნებადართულისა. ჩართვამდე აუცილებლად <code>ufw allow OpenSSH</code> (port 22) — თორემ საკუთარ თავს ჩაკეტავ</div></details><details><summary>SSH-ის კონფიგი შეცვალე. რა გააკეთო, ძველ ფანჯარას რომ დახურავ?</summary><div class="ans">ჯერ Termius-ის ახალ tab-ში შეამოწმე, რომ ახალი user-ით შესვლა მუშაობს. ძველი სესია ღია დატოვე — თუ რამე გაფუჭდა, მისით გაასწორებ</div></details></div></article>
+<article class="blk" data-slides="20"><span class="anchor" id="s-20"></span><div class="bh"><h3>შეჯამება · დღეს ვისწავლეთ</h3><a class="chip" href="index.html#/20" data-go="20" title="პრეზენტაციაში გახსნა">სლაიდი 20</a></div>
+<ul>
+<li>👤 <strong>user-ები</strong> — root-ის ნაცვლად <code>giorgi</code>, რომელიც საჭირო ბრძანებას <code>sudo</code>-თი უშვებს; პაროლი მხოლოდ sudo-სთვისაა, შესვლა — გასაღებით. <code>apt</code> პროგრამებს აყენებს და აახლებს.</li>
+<li>🔐 <strong>უფლებები</strong> — <code>chmod 644/755/600</code>, <code>chown</code>; SSH გასაღებები მხოლოდ მფლობელისთვისაა (<code>600</code>).</li>
+<li>⚙️ <strong>პროცესები</strong> — <code>ps aux | grep</code>, <code>htop</code>, <code>kill</code>; <code>ss -tlnp</code> — ვინ რომელ port-ს უსმენს.</li>
+<li>🛡️ <strong>სერვერის დაცვა</strong> — <code>PermitRootLogin no</code>, <code>PasswordAuthentication no</code>; <code>ufw</code> მხოლოდ SSH-ით; <code>apt upgrade</code>; swap. ⚡ <strong><code>~/.ssh/config</code></strong> — <code>lms</code> სახელი WSL-ის ბრძანებებისთვის (<code>rsync</code>, <code>scp</code>, სკრიპტები).</li>
+</ul>
+<p><strong>შემდეგ ლექციაზე:</strong> სერვერზე ვაყენებთ Nginx-ს და ვაქვეყნებთ my-portfolio-ს და შენს Angular აპს — ამჯერად საკუთარ სერვერზე.</p>
+<div class="prompt"><div class="ph"><span>🤖 გამოცდა მეოთხე ლექციაზე</span><button class="copy" type="button">კოპირება</button></div><div class="pb">ვსწავლობ DevOps-ს. მეოთხე ლექციაზე Ubuntu სერვერზე გავიარეთ: ცალკე user და sudo (adduser, usermod -aG sudo), apt (update, upgrade, install), უფლებები (ls -l, chmod 644/755/600, chown), პროცესები და port-ები (ps aux, grep, htop, kill, ss -tlnp), sshd-ის დაცვა (PermitRootLogin no, PasswordAuthentication no, sshd -T), ufw firewall, swap, ~/.ssh/config.
+დამისვი 10 კითხვა სათითაოდ, მარტივიდან რთულისკენ — ნაწილი სიტუაციური იყოს („სერვერზე ვეღარ შევდივარ, რა მოხდა?“). ყოველ პასუხზე შემიფასე და ამიხსენი. ბოლოს მითხარი, რა გავიმეორო. ქართულად.</div></div>
+<div class="prompt"><div class="ph"><span>🤖 SSH-ით ვერ ვუკავშირდები</span><button class="copy" type="button">კოპირება</button></div><div class="pb">SSH-ით ჩემს Ubuntu სერვერს ვერ ვუკავშირდები. დამეხმარე პრობლემის პოვნაში ნაბიჯ-ნაბიჯ, მარტივად და ქართულად: ჯერ დამისვი კითხვები, მერე მირჩიე, რა შევამოწმო. ბრძანება, რომელსაც ვუშვებ: [აქ]. შეცდომის ტექსტი: [აქ]. რა შევცვალე ბოლოს სერვერზე: [აქ]</div></div></article>
+<h2 class="sec" id="sec-10">საშინაო</h2>
+<article class="blk" data-slides="21"><span class="anchor" id="s-21"></span><div class="bh"><h3>საშინაო დავალება: სერვერის დაცვა</h3><a class="chip" href="index.html#/21" data-go="21" title="პრეზენტაციაში გახსნა">სლაიდი 21</a></div>
+<p>lms-server — მზადაა შემდეგი ლექციისთვის, Nginx-ისთვის</p>
+<h3>მოთხოვნები</h3>
+<ul>
+<li><code>00-hardening.conf</code>: root და პაროლი აკრძალულია → <code>restart ssh</code> (ჯერ Termius-ის ახალ tab-ში შეამოწმეთ!)</li>
+<li><code>ufw</code>: მხოლოდ <code>OpenSSH</code> → <code>enable</code></li>
+<li>swap 2 GB (<code>/etc/fstab</code>-ითაც)</li>
+<li>WSL-ში <code>~/.ssh/config</code> → <code>ssh lms</code></li>
+<li><code>~/scripts/hello.sh</code> (<code>echo "გამარჯობა, $USER"</code>) → გასაშვები (<code>chmod</code>) → <code>./scripts/hello.sh</code></li>
+</ul>
+<h3>✓ მზადაა, როცა</h3>
+<p><code>sshd -T</code> — <code>no</code>/<code>no</code>, root-ის Host — <code>Permission denied</code>, <code>ufw status</code> — active, <code>free -h</code> — Swap 2.0Gi, <code>ssh lms</code> შედის, <code>hello.sh</code> ეშვება</p>
+<h3>⭐ ბონუსი</h3>
+<ul>
+<li><code>sudo grep Invalid /var/log/auth.log | wc -l</code> — რამდენჯერ სცადეს ბოტებმა შესვლა მას შემდეგ, რაც სერვერი შექმენით? (<code>wc -l</code> — ხაზების რაოდენობა)</li>
+</ul></article>
+  </main>
+</div>
+<script>
+const DECK = "DevOps · 4 — Linux — user-ები, უფლებები და სერვერის დაცვა";
+if (matchMedia('(min-width:981px)').matches) document.getElementById('tocd').open = true;
+const blocks = [...document.querySelectorAll('.blk')];
+const tocLinks = [...document.querySelectorAll('nav.toc a[href^="#sec-"]')];
+const secOf = b => { let e = b; while (e && !(e.matches && e.matches('h2.sec'))) e = e.previousElementSibling; return e; };
+function mark(b, toc_only) {
+  if (!toc_only) blocks.forEach(x => x.classList.toggle('cur', x === b));
+  const s = b && secOf(b); tocLinks.forEach(a => a.classList.toggle('cur', s && a.getAttribute('href') === '#' + s.id));
+}
+const blockFor = n => blocks.find(b => b.dataset.slides.split(',').includes(String(n)));
+
+// copy buttons (code: one line per .ln)
+document.addEventListener('click', e => {
+  const btn = e.target.closest('.copy'); if (!btn) return;
+  const box = btn.closest('.codebox, .prompt');
+  const text = box.matches('.prompt') ? box.querySelector('.pb').textContent : [...box.querySelectorAll('.ln')].map(l => l.textContent).join('\n');
+  navigator.clipboard.writeText(text).then(() => { btn.textContent = '✓ დაკოპირდა'; btn.classList.add('ok'); setTimeout(() => { btn.textContent = 'კოპირება'; btn.classList.remove('ok'); }, 1600); });
+});
+
+// live mode: opened from the deck with P — follow the projector
+const live = new URLSearchParams(location.search).has('live');
+let follow = true, bc = null;
+const liveBtn = document.getElementById('live');
+if (live) {
+  try { bc = new BroadcastChannel('deck-' + DECK); } catch (e) {}
+  liveBtn.classList.add('on');
+  liveBtn.onclick = () => { follow = !follow; liveBtn.classList.toggle('off', !follow); liveBtn.querySelector('.lt').textContent = follow ? 'მიჰყვება სლაიდებს' : 'თავისუფლად ვკითხულობ'; };
+  if (bc) {
+    bc.onmessage = ({ data }) => {
+      if (data.t !== 'state' || !follow) return;
+      const b = blockFor(data.i + 1); if (!b || b.classList.contains('cur')) return;
+      mark(b); b.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    };
+    bc.postMessage({ t: 'hello' });
+  }
+  document.addEventListener('click', e => {   // slide chip → move the projector deck
+    const c = e.target.closest('.chip[data-go]'); if (!c || !bc) return;
+    e.preventDefault(); bc.postMessage({ t: 'go', n: +c.dataset.go - 1 });
+  });
+}
+// deep link #s-12
+const h = location.hash.match(/^#s-(\d+)$/);
+if (h) { const b = blockFor(+h[1]); if (b) { mark(b); setTimeout(() => b.scrollIntoView({ block: 'start' }), 50); } }
+// highlight section in the TOC while reading
+const io = new IntersectionObserver(es => es.forEach(x => { if (x.isIntersecting && !(live && follow)) mark(x.target, true); }), { rootMargin: '-30% 0px -60% 0px' });
+blocks.forEach(b => io.observe(b));
+</script>
+</body></html>

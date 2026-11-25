@@ -1,17 +1,18 @@
-# პროექტების გვერდი, ლინკი README-ში და Linux შენს კომპიუტერზე
+# პროექტების გვერდი, ლინკი README-ში და მზადება სერვერისთვის
 
-my-portfolio ცოცხალია — შემდეგ ლექციაზე სერვერის ენას, Linux-ს ვსწავლობთ
+my-portfolio ცოცხალია — შემდეგ ლექციაზე საკუთარ სერვერს ვქმნით
 
 ## მოთხოვნები
 
 - branch `feature/projects`: `projects.html` — 2-3 პროექტი (სახელი + მოკლე აღწერა) და ბმული მასზე `index.html`-დან → merge `main`-ში → `git push` → ცოცხალ საიტზე იხსნება
 - `README.md`-ში და რეპოს **About → Website**-ში — ცოცხალი საიტის ლინკი
-- **Windows:** `wsl --install -d Ubuntu-24.04` (PowerShell, Administrator) → გადატვირთვა → user და პაროლი
+- დარეგისტრირდით **DigitalOcean**-ზე (ბარათი/PayPal; შეამოწმეთ GitHub Student Pack) და დააყენეთ **Termius**
+- **Windows:** `wsl --install -d Ubuntu-24.04` (PowerShell, Administrator) → გადატვირთვა → user და პაროლი — შენს კომპიუტერზე SSH გასაღებისთვის, `git`-ისთვის და `rsync`-ისთვის
 - **macOS:** საკმარისია ჩაშენებული Terminal
 
 ## ✓ მზადაა, როცა
 
-რეპოს გვერდზე ჩანს საიტის ლინკი, `projects.html` ცოცხალ საიტზე იხსნება, Ubuntu-ში `lsb_release -a` აჩვენებს `24.04`
+რეპოს გვერდზე ჩანს საიტის ლინკი, `projects.html` ცოცხალ საიტზე იხსნება, DigitalOcean-ში და Termius-ში შედიხართ, Ubuntu-ში `lsb_release -a` აჩვენებს `24.04`
 
 ## ⭐ ბონუსი
 
