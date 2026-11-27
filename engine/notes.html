@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="ka"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>📖 კონსპექტები — Backend</title>
+{{FONTS}}{{THEME_HEAD}}
+<style>
+:root{--bg:#fbf8f3;--card:#fff;--ink:#1e2132;--muted:#7b8096;--line:#e6dfd2;--accent:#6d28d9;--accent-soft:#f3effe;--on:#fff;
+  --k1:#6d28d9;--k2:#0d9488;--k3:#2563eb;--k4:#d97706;--k5:#db2777;
+  --mono:"JetBrains Mono",ui-monospace,monospace;--sans:"Noto Sans Georgian",system-ui,sans-serif}
+html[data-theme=dark]{color-scheme:dark;--bg:#16181d;--card:#1e2128;--ink:#e6e2da;--muted:#8a8e98;--line:#2d313b;
+  --accent:#ab9ff2;--accent-soft:#272439;--on:#16181d;--k1:#ab9ff2;--k2:#72bfb3;--k3:#8aa9e6;--k4:#dfa96e;--k5:#e29bba}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 var(--sans)}
+main{max-width:960px;margin:0 auto;padding:40px 16px 80px}
+header{display:flex;align-items:end;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:28px}
+h1{font-size:34px;line-height:1.1;margin:0;font-weight:800;letter-spacing:-.01em}
+.sub{color:var(--muted);margin-top:6px;font-size:15px}
+.tools{display:flex;gap:10px;align-items:center;flex:0 1 380px;min-width:220px}
+.search{position:relative;flex:1}
+.search input{width:100%;font:16px var(--sans);padding:11px 14px 11px 40px;border:1px solid var(--line);border-radius:12px;background:var(--card);color:var(--ink);outline:none}
+.search input:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+.search svg{position:absolute;left:13px;top:50%;transform:translateY(-50%);color:var(--muted)}
+.themebtn{font-size:18px;line-height:1;border:1px solid var(--line);background:var(--card);border-radius:12px;padding:10px 12px;cursor:pointer}
+.tabs{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 28px;padding:6px;background:var(--card);border:1px solid var(--line);border-radius:14px}
+.tab{all:unset;cursor:pointer;display:flex;align-items:center;gap:8px;font:700 15px var(--sans);padding:9px 16px;border-radius:10px;color:var(--muted)}
+.tab:hover{color:var(--ink);background:var(--bg)}
+.tab.on{background:var(--c,var(--accent));color:var(--on)}
+.tab .n{font:600 12px var(--mono);padding:1px 7px;border-radius:999px;background:color-mix(in srgb,currentColor 14%,transparent)}
+.course{margin:0 0 40px}
+.course>h2{display:flex;align-items:center;gap:12px;font-size:26px;margin:0 0 16px;font-weight:800}
+.course>h2::before{content:"";width:6px;height:26px;border-radius:3px;background:var(--c)}
+.course>h2 small{font:500 13px var(--mono);color:var(--muted)}
+.tbl{background:var(--card);border:1px solid var(--line);border-radius:16px;overflow:hidden}
+.row{display:grid;grid-template-columns:52px minmax(0,1fr) auto;align-items:center;gap:12px;padding:12px 16px 12px 18px;border-bottom:1px solid var(--line);color:var(--ink);text-decoration:none;transition:background .12s}
+.row:last-child{border-bottom:0}
+.row:hover{background:color-mix(in srgb,var(--c) 6%,var(--card))}
+.row .no{font:700 15px var(--mono);color:var(--c)}
+.row .t{min-width:0;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.row .go{font:700 13px var(--sans);color:var(--c);border:1.5px solid var(--c);border-radius:10px;padding:5px 12px;white-space:nowrap}
+.row:hover .go{background:var(--c);color:var(--on)}
+.empty{color:var(--muted);text-align:center;padding:40px 0;display:none}
+@media (max-width:600px){h1{font-size:28px}.row{grid-template-columns:40px minmax(0,1fr)}.row .go{display:none}.row .t{white-space:normal}}
+{{THEME_BTN_CSS}}
+</style></head>
+<body>
+<main>
+  <header>
+    <div><h1>📖 კონსპექტები</h1><div class="sub">ყველა ლექციის კონსპექტი ერთ ადგილას — წაიკითხე ლექციის შემდეგ ან სახლში.</div></div>
+    <div class="tools">
+      <label class="search"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+        <input id="q" type="search" placeholder="ძებნა…" autocomplete="off"></label>
+      {{THEME_BTN}}
+    </div>
+  </header>
+  <nav class="tabs" id="tabs"></nav>
+  <div id="list"></div>
+  <div class="empty" id="empty">ვერაფერი მოიძებნა</div>
+</main>
+<script>
+const CATALOG = /*NOTES*/[];
+const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const color = (c, i) => c.color || `var(--k${i % 5 + 1})`;
+const tabs = document.getElementById('tabs'), list = document.getElementById('list'), q = document.getElementById('q');
+let cur = null;
+try { cur = new URLSearchParams(location.search).get('c') || localStorage.getItem('notes:tab'); } catch (e) {}
+if (!CATALOG.some(c => c.slug === cur)) cur = 'all';
+function render() {
+  const term = q.value.trim().toLowerCase();
+  tabs.innerHTML = [{slug: 'all', title: 'ყველა', n: CATALOG.reduce((a, c) => a + c.lectures.length, 0)}, ...CATALOG.map((c, i) => ({...c, n: c.lectures.length, i}))]
+    .map(c => `<button class="tab${c.slug === cur ? ' on' : ''}" data-c="${c.slug}" style="--c:${c.slug === 'all' ? 'var(--accent)' : color(c, c.i)}">${esc(c.title)}<span class="n">${c.n}</span></button>`).join('');
+  let shown = 0;
+  list.innerHTML = CATALOG.map((c, i) => {
+    if (cur !== 'all' && c.slug !== cur) return '';
+    const ls = c.lectures.filter(l => !term || l.title.toLowerCase().includes(term) || String(l.num).includes(term));
+    if (!ls.length) return '';
+    shown += ls.length;
+    return `<section class="course" style="--c:${color(c, i)}"><h2>${esc(c.title)}<small>${ls.length} კონსპექტი</small></h2><div class="tbl">` +
+      ls.map(l => `<a class="row" href="../${c.slug}/${l.slug}/study.html"><span class="no">${String(l.num).padStart(2, '0')}</span><span class="t">${esc(l.title)}</span><span class="go">📖 წაკითხვა</span></a>`).join('') +
+      '</div></section>';
+  }).join('');
+  document.getElementById('empty').style.display = shown ? 'none' : 'block';
+}
+tabs.onclick = e => { const b = e.target.closest('.tab'); if (!b) return; cur = b.dataset.c; try { localStorage.setItem('notes:tab', cur); } catch (e) {} render(); };
+q.oninput = render;
+render();
+</script>
+</body></html>

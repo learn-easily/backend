@@ -654,6 +654,20 @@ def write_syllabus(cdir, course):
     write_page(out, themeify(page))
     return True
 
+# სტუდენტების გვერდი: /notes/ — მხოლოდ კონსპექტები (ღია, კოდის გარეშე). პრეზენტაციის ბმულები აქ არ არის.
+def write_notes(catalog):
+    notes = [{'slug': c['slug'], 'title': c['title'], 'color': c['color'],
+              'lectures': [{'num': l['num'], 'slug': l['slug'], 'title': l['title']} for l in c['lectures'] if l['study']]}
+             for c in catalog]
+    notes = [c for c in notes if c['lectures']]
+    page = (ENGINE / 'notes.html').read_text()
+    for k, v in {'/*NOTES*/[]': json.dumps(notes, ensure_ascii=False), '{{FONTS}}': FONTS, '{{THEME_HEAD}}': THEME_HEAD,
+                 '{{THEME_BTN}}': THEME_BTN, '{{THEME_BTN_CSS}}': THEME_BTN_CSS}.items():
+        page = page.replace(k, v)
+    (OUT / 'notes').mkdir(parents=True, exist_ok=True)
+    write_page(OUT / 'notes' / 'index.html', page, encrypt=False)
+    print(f'notes: {sum(len(c["lectures"]) for c in notes)} კონსპექტი')
+
 def main(filters):
     OUT.mkdir(parents=True, exist_ok=True)
     marker = OUT / GENERATED
@@ -687,8 +701,9 @@ def main(filters):
     if not filters:
         page = (ENGINE / 'index.html').read_text().replace('/*CATALOG*/[]', json.dumps(catalog, ensure_ascii=False))
         write_page(OUT / 'index.html', page)
+        write_notes(catalog)
         (OUT / '.nojekyll').write_text('')
-        marker.write_text('\n'.join(c['slug'] for c in catalog) + '\n')
+        marker.write_text('\n'.join([c['slug'] for c in catalog] + ['notes']) + '\n')
         print(f'index: {sum(len(c["lectures"]) for c in catalog)} lectures in {len(catalog)} courses')
     if problems:
         sys.exit('⚠ ლექციის სტრუქტურა არასრულია — იხ. ზემოთ')

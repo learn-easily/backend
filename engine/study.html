@@ -2,6 +2,7 @@
 <html lang="ka"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>📖 {{TITLE}} — კონსპექტი</title>
 {{FONTS}}{{THEME_HEAD}}
+<script>/* სტუდენტი (კოდი არ აქვს) → მხოლოდ კონსპექტი: პრეზენტაციის ბმულები იმალება, „უკან“ → /notes/ */try{if(!localStorage.getItem('lectures:code'))document.documentElement.classList.add('student')}catch(e){document.documentElement.classList.add('student')}</script>
 <style>
 :root{--bg:#fbf8f3;--card:#fff;--ink:#1e2132;--ink2:#3b3f54;--muted:#7b8096;--line:#e6dfd2;--accent:#6d28d9;--accent-soft:#f3effe;--teal:#0d9488;
   --green:#15803d;--amber:#b45309;--mono:"JetBrains Mono",ui-monospace,monospace;--sans:"Noto Sans Georgian",system-ui,sans-serif}
@@ -109,10 +110,12 @@ html[data-theme=dark]{color-scheme:dark;--bg:#16181d;--card:#1e2128;--ink:#e6e2d
   --accent:#ab9ff2;--accent-soft:#272439;--teal:#72bfb3;--green:#8fc8a1;--amber:#dfa96e}
 html[data-theme=dark] .codebox{background:#1a1d23}
 {{THEME_BTN_CSS}}
+html.student .for-lecturer,html:not(.student) .for-student,html.student .btn.play,html.student .chip,html.student .live{display:none!important}
 </style></head>
 <body>
 <div class="top">
-  <a class="back" href="../../">← ლექციები</a>
+  <a class="back" id="back" href="../../">← ლექციები</a>
+  <script>if(document.documentElement.classList.contains('student')){const b=document.getElementById('back');b.href='../../notes/';b.textContent='← კონსპექტები'}</script>
   <div class="ttl"><small>{{COURSE}} · {{NUM}}</small>{{TITLE}}</div>
   <button class="live" id="live" type="button" title="ჩართული: ტექსტი პრეზენტაციას მიჰყვება"><span class="dot"></span><span class="lt">მიჰყვება სლაიდებს</span></button>
   {{THEME_BTN_STUDY}}
@@ -124,7 +127,8 @@ html[data-theme=dark] .codebox{background:#1a1d23}
     <header class="hero">
       <div class="k">📖 კონსპექტი · {{COURSE}} · ლექცია {{NUM}}</div>
       <h1>{{TITLE}}</h1>
-      <p>წაიკითხე ლექციის შემდეგ, ან პრეზენტაციასთან ერთად: პრეზენტაციაში დააჭირე <kbd>P</kbd> და ეს გვერდი სლაიდებს გაჰყვება. კოდი და AI-ს პრომპტები კოპირდება ერთი დაჭერით.</p>
+      <p class="for-student">წაიკითხე ლექციის შემდეგ ან სახლში. კოდი და AI-ს პრომპტები კოპირდება ერთი დაჭერით.</p>
+      <p class="for-lecturer">წაიკითხე ლექციის შემდეგ, ან პრეზენტაციასთან ერთად: პრეზენტაციაში დააჭირე <kbd>P</kbd> და ეს გვერდი სლაიდებს გაჰყვება. კოდი და AI-ს პრომპტები კოპირდება ერთი დაჭერით.</p>
     </header>
     {{BODY}}
   </main>
