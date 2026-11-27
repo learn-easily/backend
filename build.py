@@ -343,17 +343,21 @@ def gen_task(doc, section, kicker, ico, color, footer, study_head):
     bonus = part(doc, 'ბონუს')
     done = part(doc, 'მზადაა')
     steps = part(doc, 'ნაბიჯ') or part(doc, 'მოთხოვნ')
-    right = f'<div class="card accent step" style="--a:var(--asp)"><h3><span class="ico">⭐</span>ბონუსი</h3>{slide_md(bonus)}</div>' if bonus else ''
+    done_html = f'<p class="tiny">✓ მზადაა, როცა: {md_inline(done)}</p>' if done else ''
+    # with a bonus the "done when" note goes to the right column — the two columns stay balanced and the slide fits
+    done_card = f'<div class="card done">{done_html}</div>' if done else ''
+    right = (f'<div class="col"><div class="card accent step" style="--a:var(--asp)"><h3><span class="ico">⭐</span>ბონუსი</h3>{slide_md(bonus)}</div>'
+             f'{done_card}</div>') if bonus else ''
     cols = '1.5fr 1fr' if bonus else '1fr'
     study_parts = '\n\n'.join(f'### {h}\n\n{b}' for h, b in doc['parts'] if 'ამოხსნ' not in h)
-    return f'''<section class="slide" data-section="{section}">
+    return f'''<section class="slide task" data-section="{section}">
   <div class="kicker">{kicker}</div>
   <h2>{esc(doc["title"])}</h2>
   <div class="grid2" style="grid-template-columns:{cols};align-items:start">
     <div class="card accent step" style="--a:{color}">
-      <h3><span class="ico">{ico}</span>{md_inline(doc["intro"]).replace("<code>", "<code class=\"i\">") if doc["intro"] else "დავალება"}</h3>
+      <h3><span class="ico">{ico}</span><span>{md_inline(doc["intro"]).replace("<code>", "<code class=\"i\">") if doc["intro"] else "დავალება"}</span></h3>
       {slide_md(steps)}
-      {f'<p class="tiny" style="margin-top:14px">✓ მზადაა, როცა: {md_inline(done)}</p>' if done else ''}
+      {f'<div style="margin-top:14px">{done_html}</div>' if done and not bonus else ''}
     </div>
     {right}
   </div>
